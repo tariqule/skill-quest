@@ -290,6 +290,7 @@ function Cartridge({ course, hint }: { course: Course; hint: string | null }) {
         {hint && <p className="mt-2 truncate rounded bg-emerald-400/10 px-2 py-1 font-mono text-[11px] text-emerald-200">{hint}</p>}
         <div className="mt-4 flex flex-wrap gap-3 font-mono text-[11px] text-slate-400">
           <span>{course.domains.length} stages</span>
+          {course.coding?.length ? <span className="text-emerald-300">💻 {course.coding.length} coding</span> : null}
           <span>{lessons} levels</span>
           <span>{p.level === "all" ? `${course.questions.length} questions` : `${atLevel} ${skill.name.toLowerCase()} questions`}</span>
         </div>

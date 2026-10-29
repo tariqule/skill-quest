@@ -81,6 +81,7 @@ src/
     path.ts               mission map unlock rules
     game.ts               shuffling, weighted exam decks, scoring, mastery
     course-context.tsx    <CourseProvider>, useCourse(), useLevelPool()
+    coding.ts             live coding runner (sandboxed worker) and test helpers
     levels.ts             skill levels for interview tracks (junior … staff, all)
     copy.ts               certification, interview, and learning wording ("exam" / "mock interview" / "skill check")
     tracks.ts             Code Quest kinds, hub categories, and search
@@ -132,6 +133,17 @@ List every question format the course uses in `exam.questionTypes`. Mark a forma
 Set `kind: "interview"` (interview prep) or `kind: "learning"` (learn the skill from scratch) in the course's `index.ts`, plus a hub `category` (`"languages" | "frontend" | "backend" | "cs" | "data" | "tools"`) and a few search `tags`. The track then appears in the Code Quests hub instead of the certification catalog, uses the terminal skin and the matching wording, and shows the difficulty picker. Every question and lesson needs a `level` (`"junior" | "intermediate" | "senior" | "staff"`), and `npm test` requires at least 12 questions per level.
 
 Questions can carry a snippet: `code` plus `codeLang` shows it under the prompt. A `type: "lines"` question is a bug hunt: the player taps the broken line(s) in `code`, and `answer` lists the 1-based line numbers. The validator rejects answers that point at a blank line or a lone brace, and a prompt with more than one answer line must say how many to pick.
+
+### Question types and live coding on Code Quest tracks
+
+Besides multiple choice, multiple response, ordering, matching and bug hunts, Code Quest tracks can use two code-first formats (they are always allowed in the mock interview, no `questionTypes` entry needed):
+
+- **`type: "fill"`**: a snippet with `{{1}}`, `{{2}}`… markers; each blank has 3 to 5 options and an `answer` index.
+- **`type: "output"`**: the player types what the code prints or returns; `answers` lists every accepted spelling (multi-line output joins lines with a newline; spacing noise is ignored). Typed text travels through the same `number[]` as every other answer (`encodeText` / `decodeText` in `engine/game.ts`).
+
+Put extra questions in the track's `more.ts` and add them with `withQuestions(domains, moreQuestions)` from `engine/define.ts`.
+
+**Live coding** (`coding: [...]` on `defineCourse`) adds a "Live coding" card to the track map and a `/coding` page. Each `CodingChallenge` has a prompt, a starter, a function name `fn`, tests (JSON `args` / `expected`, some `hidden`), progressive hints, a reference solution and an explanation. Player code is plain JavaScript run in a sandboxed Web Worker with a 3-second limit (`engine/coding.ts`); the runner is one plain-JS string so `npm test` runs every reference solution against its tests in Node and checks that the starter fails. Use `T.set`, `T.map`, `T.nan`, `T.undefined` from `engine/coding.ts` for values JSON can't hold. XP per first solve is `config.xp.codingSolved` minus a penalty per hint.
 
 ## Adding content to a course
 

@@ -1,8 +1,9 @@
-import { defineCourse } from "@/engine/define";
+import { defineCourse, withQuestions } from "@/engine/define";
 import d1 from "./domains/d1-objects";
 import d2 from "./domains/d2-collections";
 import d3 from "./domains/d3-modern-java";
 import d4 from "./domains/d4-jvm-concurrency";
+import { moreQuestions } from "./more";
 
 /**
  * Java Interview Quest. Original questions written against the official
@@ -21,7 +22,7 @@ export default defineCourse({
   level: "Intermediate",
   storageKey: "course:code-java:v1",
 
-  domains: [d1, d2, d3, d4],
+  domains: withQuestions([d1, d2, d3, d4], moreQuestions),
 
   exam: {
     questions: 30,

@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useCourse } from "@/engine/course-context";
-import type { PreparedQuestion } from "@/engine/game";
+import { decodeText, encodeText, normalizeOutput, type PreparedQuestion } from "@/engine/game";
 import { setGuideOpen } from "@/engine/ui-state";
-import { CodeBlock, RichText } from "./learn/code";
+import { CodeBlock, RichText, Tokens } from "./learn/code";
 
 const LETTERS = ["A", "B", "C", "D", "E", "F", "G"];
 
@@ -14,6 +14,8 @@ const KIND_LABEL = {
   order: "🔢 Ordering",
   match: "🔗 Matching",
   lines: "🐞 Bug hunt",
+  fill: "🧩 Fill in the blanks",
+  output: "⌨️ Type the output",
 };
 
 interface Props {
@@ -48,7 +50,8 @@ export function QuestionCard({ q, submitted, onSubmit, reveal = true, showDomain
       <h2 className="text-lg sm:text-xl font-semibold leading-snug text-white">
         <RichText text={q.prompt} />
       </h2>
-      {q.code && q.kind !== "lines" && (
+      {q.code && q.kind !== "lines" && q.kind !== "fill" && (
+
         <div className="mt-4">
           <CodeBlock code={q.code} lang={q.codeLang} />
         </div>
@@ -58,6 +61,8 @@ export function QuestionCard({ q, submitted, onSubmit, reveal = true, showDomain
       {q.kind === "order" && <OrderBody q={q} submitted={submitted} onSubmit={onSubmit} reveal={reveal} />}
       {q.kind === "match" && <MatchBody q={q} submitted={submitted} onSubmit={onSubmit} reveal={reveal} />}
       {q.kind === "lines" && <LinesBody q={q} submitted={submitted} onSubmit={onSubmit} reveal={reveal} />}
+      {q.kind === "fill" && <FillBody q={q} submitted={submitted} onSubmit={onSubmit} reveal={reveal} />}
+      {q.kind === "output" && <OutputBody q={q} submitted={submitted} onSubmit={onSubmit} reveal={reveal} />}
 
       {locked && reveal && explain && (
         <div className="mt-5 rounded-xl border border-white/10 bg-slate-950/60 p-4 text-sm leading-relaxed text-slate-300">
@@ -317,6 +322,122 @@ function LinesBody({ q, submitted, onSubmit, reveal }: BodyProps) {
         </div>
       </div>
       {!locked && <SubmitButton disabled={picked.length !== need} onClick={() => onSubmit([...picked].sort((a, b) => a - b))} />}
+    </>
+  );
+}
+
+function FillBody({ q, submitted, onSubmit, reveal }: BodyProps) {
+  const groups = q.groups ?? [];
+  const [choice, setChoice] = useState<(number | null)[]>(() => groups.map(() => null));
+  const locked = submitted !== null;
+  const chosen: (number | null)[] = submitted ?? choice;
+  const complete = choice.every((c) => c !== null);
+  // Split "a {{1}} b {{2}} c" into text, blank index, text, blank index, text.
+  const parts = (q.code ?? "").replace(/^\n+|\s+$/g, "").split(/\{\{(\d+)\}\}/);
+
+  return (
+    <>
+      {!locked && <p className="mt-2 text-sm text-amber-300">Pick the right piece for each blank, then Submit.</p>}
+      <div className="mt-4 overflow-hidden rounded-xl border border-white/10 bg-slate-950">
+        {q.codeLang && <div className="border-b border-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">{q.codeLang}</div>}
+        <pre className="overflow-x-auto p-3 font-mono text-[13px] leading-8 text-slate-100">
+          {parts.map((part, i) => {
+            if (i % 2 === 0) return <Tokens key={i} code={part} lang={q.codeLang} />;
+            const k = Number(part) - 1;
+            const value = chosen[k];
+            const right = value === q.correct[k];
+            let tone = "border-sky-400/60 bg-sky-400/10 text-sky-100";
+            if (locked && reveal) tone = right ? "border-emerald-400 bg-emerald-400/20 text-emerald-100" : "border-rose-400 bg-rose-400/20 text-rose-100";
+            return (
+              <select
+                key={i}
+                aria-label={`Blank ${part}`}
+                disabled={locked}
+                value={value ?? ""}
+                onChange={(e) => setChoice((c) => c.map((x, j) => (j === k ? Number(e.target.value) : x)))}
+                className={`mx-0.5 inline-block max-w-[16rem] rounded-md border px-1.5 py-0.5 font-mono text-[13px] ${tone}`}
+              >
+                <option value="" disabled>
+                  {`  ${part}  `}
+                </option>
+                {(groups[k] ?? []).map((flat) => (
+                  <option key={flat} value={flat}>
+                    {q.shuffled[flat]}
+                  </option>
+                ))}
+              </select>
+            );
+          })}
+        </pre>
+      </div>
+      {locked && reveal && (
+        <ul className="mt-3 grid gap-1 text-sm">
+          {q.correct.map((flat, k) =>
+            chosen[k] === flat ? null : (
+              <li key={k} className="text-emerald-300">
+                Blank {k + 1}: <code className="rounded bg-white/10 px-1 font-mono">{q.shuffled[flat]}</code>
+              </li>
+            ),
+          )}
+        </ul>
+      )}
+      {!locked && <SubmitButton disabled={!complete} onClick={() => onSubmit(choice as number[])} />}
+    </>
+  );
+}
+
+function OutputBody({ q, submitted, onSubmit, reveal }: BodyProps) {
+  const [text, setText] = useState("");
+  const locked = submitted !== null;
+  const typed = locked ? decodeText(submitted) : text;
+  const multiline = q.shuffled.some((a) => a.includes("\n"));
+  const right = locked && q.shuffled.some((a) => normalizeOutput(a) === normalizeOutput(typed));
+  const ready = text.trim() !== "";
+  const tone = locked && reveal ? (right ? "border-emerald-400 bg-emerald-400/10" : "border-rose-400 bg-rose-400/10") : "border-white/15 bg-slate-950 focus:border-sky-400";
+
+  return (
+    <>
+      {!locked && (
+        <p className="mt-2 text-sm text-amber-300">
+          {multiline ? "Type the output, one line per line. Press Submit when you're done." : "Type exactly what it prints or returns, then press Enter."}
+        </p>
+      )}
+      {multiline ? (
+        <textarea
+          autoFocus
+          disabled={locked}
+          value={typed}
+          onChange={(e) => setText(e.target.value)}
+          rows={Math.max(3, Math.min(8, Math.max(...q.shuffled.map((a) => a.split("\n").length)) + 1))}
+          spellCheck={false}
+          autoCapitalize="off"
+          autoCorrect="off"
+          aria-label="Your output"
+          className={`mt-3 w-full rounded-xl border p-3 font-mono text-sm text-white outline-none transition ${tone}`}
+        />
+      ) : (
+        <input
+          autoFocus
+          disabled={locked}
+          value={typed}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && ready) onSubmit(encodeText(text));
+          }}
+          spellCheck={false}
+          autoCapitalize="off"
+          autoCorrect="off"
+          aria-label="Your output"
+          placeholder="Type the output…"
+          className={`mt-3 w-full rounded-xl border px-3 py-2.5 font-mono text-sm text-white outline-none transition ${tone}`}
+        />
+      )}
+      {locked && reveal && !right && (
+        <p className="mt-2 text-sm text-emerald-300">
+          Expected: <code className="whitespace-pre-wrap rounded bg-white/10 px-1.5 py-0.5 font-mono">{q.shuffled[0]}</code>
+        </p>
+      )}
+      {!locked && <SubmitButton disabled={!ready} onClick={() => onSubmit(encodeText(text))} />}
     </>
   );
 }

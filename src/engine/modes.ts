@@ -18,6 +18,13 @@ export interface ModeInfo {
 
 export const ALL_MODES: ModeInfo[] = [
   {
+    id: "coding",
+    name: "Live coding",
+    icon: "💻",
+    to: "/coding",
+    status: (p, c) => `${(c.coding ?? []).filter((x) => p.coding[x.id]?.solved).length}/${(c.coding ?? []).length} solved`,
+  },
+  {
     id: "review",
     name: "Fix mistakes",
     icon: "🔁",

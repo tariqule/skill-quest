@@ -75,7 +75,27 @@ export interface LinesQuestion extends BaseQuestion {
   answer: number[];
 }
 
-export type Question = ChoiceQuestion | OrderQuestion | MatchQuestion | LinesQuestion;
+/**
+ * "Fill the blanks": `code` holds `{{1}}`, `{{2}}`… markers and each blank offers a few options.
+ * Blank `n` is `blanks[n - 1]`; `answer` is the index of its correct option.
+ */
+export interface FillQuestion extends BaseQuestion {
+  type: "fill";
+  code: string;
+  blanks: { options: string[]; answer: number }[];
+}
+
+/**
+ * "Type the output": the player types what `code` prints or returns. `answers` lists every accepted
+ * spelling; multi-line output joins lines with a newline. Spaces at line ends and repeated spaces are ignored.
+ */
+export interface OutputQuestion extends BaseQuestion {
+  type: "output";
+  code: string;
+  answers: string[];
+}
+
+export type Question = ChoiceQuestion | OrderQuestion | MatchQuestion | LinesQuestion | FillQuestion | OutputQuestion;
 
 export function isChoice(q: Question): q is ChoiceQuestion {
   return q.type === undefined || q.type === "choice";
@@ -125,9 +145,46 @@ export interface Challenge {
   render: (onSolved: () => void) => ReactNode;
 }
 
+// ───────────── Live coding ─────────────
+
+/** One test case: call the function with `args` and compare the result with `expected` (deep equality). */
+export interface CodingTest {
+  /** Shown in the results, e.g. "empty input". */
+  name?: string;
+  args: unknown[];
+  expected: unknown;
+  /** Hidden tests show only as "hidden test" until the player runs the full suite. */
+  hidden?: boolean;
+}
+
+/**
+ * A live coding challenge: the player edits `starter` in the browser editor and runs it against
+ * the tests. `fn` is the function name the tests call. Plain JavaScript, no imports.
+ */
+export interface CodingChallenge {
+  id: string;
+  domain: string;
+  lesson?: string;
+  level: SkillLevel;
+  title: string;
+  /** What to build. Inline `backticks` render as code. */
+  prompt: string;
+  fn: string;
+  starter: string;
+  tests: CodingTest[];
+  /** Progressive hints; each one costs a little XP. */
+  hints: string[];
+  /** A reference solution (also run by `npm test` against the tests). */
+  solution: string;
+  /** Why the solution works, shown after solving or giving up. */
+  explanation: string;
+  /** Target complexity or key idea, shown as a chip. */
+  idea?: string;
+}
+
 // ───────────── Exam and guide ─────────────
 
-export type QuestionKind = "choice" | "multi" | "order" | "match" | "lines";
+export type QuestionKind = "choice" | "multi" | "order" | "match" | "lines" | "fill" | "output";
 
 export interface ExamFormat {
   /** Questions on the real exam, including unscored ones. */
@@ -205,6 +262,8 @@ export interface Course {
   cards: Card[];
   lessons: Record<string, Lesson[]>;
   challenges: Challenge[];
+  /** Live coding challenges (JavaScript), shown in the "Live coding" mode. */
+  coding?: CodingChallenge[];
   guide: GuideInfo;
   cheatsheet: CheatSheetSection[];
   /** Fully resolved game settings (defaults merged with the course's overrides). */
@@ -251,7 +310,7 @@ export interface CourseDefinition
 
 // ───────────── Game settings ─────────────
 
-export type ModeId = "review" | "timed" | "flashcards" | "match" | "lightning" | "boss" | "cheatsheet";
+export type ModeId = "coding" | "review" | "timed" | "flashcards" | "match" | "lightning" | "boss" | "cheatsheet";
 
 export interface ExamMode {
   id: string;
@@ -283,6 +342,8 @@ export interface GameConfig {
     timedCorrect: number;
     studyCorrect: number;
     challengeSolved: number;
+    /** Live coding: XP for a first solve, before hint penalties. */
+    codingSolved: number;
     /** Awarded per full minute of study time. */
     studyMinute: number;
     flashcardKnown: number;

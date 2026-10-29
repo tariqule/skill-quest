@@ -74,6 +74,11 @@ function highlight(source: string, keyBase = 0, lang = ""): ReactNode[] {
   return out;
 }
 
+/** Syntax-coloured spans for a piece of code (no wrapper), for editors and inline blanks. */
+export function Tokens({ code, lang }: { code: string; lang?: string }) {
+  return <>{lang === "yaml" || lang === "yml" ? highlightYaml(code) : highlight(code, 0, lang?.toLowerCase())}</>;
+}
+
 /** A code snippet for lessons and questions. */
 export function CodeBlock({ code, lang, caption }: { code: string; lang?: string; caption?: string }) {
   return (

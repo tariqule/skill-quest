@@ -1,4 +1,5 @@
-import { defineCourse } from "@/engine/define";
+import { defineCourse, withQuestions } from "@/engine/define";
+import { moreQuestions } from "./more";
 import d1 from "./domains/d1-types-data";
 import d2 from "./domains/d2-methods-errors";
 import d3 from "./domains/d3-concurrency";
@@ -23,7 +24,7 @@ export default defineCourse({
   level: "Intermediate",
   storageKey: "course:code-go:v1",
 
-  domains: [d1, d2, d3, d4],
+  domains: withQuestions([d1, d2, d3, d4], moreQuestions),
 
   exam: {
     questions: 30,

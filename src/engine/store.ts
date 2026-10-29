@@ -38,6 +38,8 @@ export interface Progress {
   /** Lessons opened in a study session. */
   studied: string[];
   challengesSolved: string[];
+  /** Live coding: progress per challenge id. */
+  coding: Record<string, { solved: boolean; attempts: number; hints: number }>;
   /** Interview tracks: which seniority to practise ("all" mixes them). */
   level: LevelChoice;
 }
@@ -62,6 +64,7 @@ export const INITIAL_PROGRESS: Progress = {
   studyMinutes: {},
   studied: [],
   challengesSolved: [],
+  coding: {},
   level: "all",
 };
 
@@ -301,6 +304,19 @@ function buildStore(course: Course) {
       addXp(course.config.xp.challengeSolved);
       if (challengesSolved.length >= Math.min(5, course.challenges.length)) unlockBadge("tinkerer");
       return true;
+    },
+
+    /** Live coding: count a run. Returns the XP earned the first time the challenge is solved (0 otherwise). */
+    recordCoding(id: string, solved: boolean, hints: number) {
+      const s = get();
+      const prev = s.coding[id] ?? { solved: false, attempts: 0, hints: 0 };
+      const entry = { solved: prev.solved || solved, attempts: prev.attempts + 1, hints: Math.max(prev.hints, hints) };
+      commit({ ...s, coding: { ...s.coding, [id]: entry } });
+      if (!solved || prev.solved) return 0;
+      const base = course.config.xp.codingSolved;
+      const xp = Math.max(Math.round(base / 4), base - hints * Math.round(base / 5));
+      addXp(xp);
+      return xp;
     },
 
     setLevel(level: LevelChoice) {

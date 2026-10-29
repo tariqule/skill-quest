@@ -1,5 +1,6 @@
 import { examQuestions, questionKind } from "./game";
 import { hasLevels, LEVELS, MIN_PER_LEVEL } from "./levels";
+import { EXTRA_KINDS, isCodeTrack } from "./tracks";
 import type { Course } from "./types";
 
 /**
@@ -37,7 +38,7 @@ export function validateCourse(course: Course): string[] {
   const declared = new Set(course.exam.questionTypes.map((t) => t.id));
   for (const q of course.questions) {
     const where = `question "${q.id}"`;
-    if (!declared.has(questionKind(q))) err(`${where} uses the "${questionKind(q)}" format, which exam.questionTypes doesn't list`);
+    if (!declared.has(questionKind(q)) && !(isCodeTrack(course) && EXTRA_KINDS.some((k) => k.id === questionKind(q)))) err(`${where} uses the "${questionKind(q)}" format, which exam.questionTypes doesn't list`);
     if (!domainIds.has(q.domain)) err(`${where} has unknown domain "${q.domain}"`);
     if (!q.prompt.trim()) err(`${where} has an empty prompt`);
     if (!q.explanation.trim()) err(`${where} has no explanation`);
@@ -51,6 +52,18 @@ export function validateCourse(course: Course): string[] {
       const src = q.code.replace(/^\n+|\s+$/g, "").split("\n");
       if (q.answer.some((l) => /^[\s{}()[\];]*$/.test(src[l - 1] ?? ""))) err(`${where} points at a blank line or a lone brace`);
       if (q.answer.length > 1 && !/choose|tap|select/i.test(q.prompt)) err(`${where} has ${q.answer.length} answer lines but the prompt doesn't say how many to pick`);
+    } else if (q.type === "fill") {
+      const markers = [...q.code.matchAll(/\{\{(\d+)\}\}/g)].map((m) => Number(m[1]));
+      if (q.blanks.length < 1 || q.blanks.length > 4) err(`${where} needs 1 to 4 blanks`);
+      if (markers.length !== q.blanks.length || markers.some((n, i) => n !== i + 1)) err(`${where} must mark its blanks {{1}}…{{${q.blanks.length}}} once each, in order`);
+      q.blanks.forEach((b, i) => {
+        if (b.options.length < 3 || b.options.length > 5) err(`${where} blank ${i + 1} needs 3 to 5 options`);
+        if (new Set(b.options).size !== b.options.length) err(`${where} blank ${i + 1} has duplicate options`);
+        if (b.answer < 0 || b.answer >= b.options.length) err(`${where} blank ${i + 1} has an answer index outside its options`);
+      });
+    } else if (q.type === "output") {
+      if (q.answers.length === 0 || q.answers.some((a) => !a.trim())) err(`${where} needs at least one non-empty accepted answer`);
+      if (!q.code.trim()) err(`${where} needs code to read`);
     } else if (q.type === "order") {
       if (q.items.length < 3) err(`${where} needs at least 3 items to order`);
       if (new Set(q.items).size !== q.items.length) err(`${where} has duplicate items`);
@@ -75,6 +88,19 @@ export function validateCourse(course: Course): string[] {
     if (!domainIds.has(c.domain)) err(`challenge "${c.id}" has unknown domain "${c.domain}"`);
     if (c.lesson && !lessonIds.has(c.lesson)) err(`challenge "${c.id}" links unknown lesson "${c.lesson}"`);
     if (c.lesson && !(course.lessons[c.domain] ?? []).some((l) => l.id === c.lesson)) err(`challenge "${c.id}" links a lesson from another domain`);
+  }
+  dupes("coding challenge", (course.coding ?? []).map((c) => c.id));
+  for (const c of course.coding ?? []) {
+    const where = `coding challenge "${c.id}"`;
+    if (!domainIds.has(c.domain)) err(`${where} has unknown domain "${c.domain}"`);
+    if (c.lesson && !lessonIds.has(c.lesson)) err(`${where} links unknown lesson "${c.lesson}"`);
+    if (!LEVELS.some((l) => l.id === c.level)) err(`${where} needs a level`);
+    if (!c.prompt.trim() || !c.explanation.trim() || !c.title.trim()) err(`${where} needs a title, prompt, and explanation`);
+    if (!new RegExp(`function\\s+${c.fn}\\b|(?:const|let|var)\\s+${c.fn}\\s*=`).test(c.starter)) err(`${where} starter must define \`${c.fn}\``);
+    if (c.tests.length < 3) err(`${where} needs at least 3 tests`);
+    if (c.tests.every((t) => t.hidden)) err(`${where} needs at least one visible test`);
+    if (c.hints.length < 2) err(`${where} needs at least 2 hints`);
+    if (!c.solution.trim() || c.solution.trim() === c.starter.trim()) err(`${where} needs a reference solution that differs from the starter`);
   }
   const st = course.config.study;
   if (!st.minuteOptions.includes(st.defaultMinutes)) err("study.defaultMinutes must be one of study.minuteOptions");

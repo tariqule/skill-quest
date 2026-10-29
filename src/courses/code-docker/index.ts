@@ -1,4 +1,5 @@
-import { defineCourse } from "@/engine/define";
+import { defineCourse, withQuestions } from "@/engine/define";
+import { moreQuestions } from "./more";
 import d1 from "./domains/d1-containers";
 import d2 from "./domains/d2-images";
 import d3 from "./domains/d3-data-networks";
@@ -22,7 +23,7 @@ export default defineCourse({
   level: "Beginner",
   storageKey: "course:code-docker:v1",
 
-  domains: [d1, d2, d3, d4],
+  domains: withQuestions([d1, d2, d3, d4], moreQuestions),
 
   exam: {
     questions: 30,

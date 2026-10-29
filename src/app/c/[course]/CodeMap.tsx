@@ -24,6 +24,8 @@ export function CodeMap() {
   const { worlds, current } = buildPath(course, p);
   const readiness = Math.round(overallReadiness(course, p));
   const skill = LEVEL_BY_ID[p.level];
+  const codingAtLevel = (course.coding ?? []).filter((c) => p.level === "all" || c.level === p.level);
+  const codingSolved = codingAtLevel.filter((c) => p.coding[c.id]?.solved).length;
   const copy = courseCopy(course);
   const learning = course.kind === "learning";
 
@@ -110,6 +112,27 @@ export function CodeMap() {
           <LevelPicker value={p.level} onChange={(l) => store.setLevel(l)} counts={counts} />
         </div>
       </section>
+
+      {codingAtLevel.length > 0 && (
+        <section className="mt-8">
+          <Link
+            href={href("/coding")}
+            className="group grid gap-4 rounded-2xl border-2 border-emerald-400/40 bg-gradient-to-br from-emerald-400/10 via-[#07111c] to-sky-400/10 p-5 transition hover:-translate-y-0.5 hover:border-emerald-300 sm:grid-cols-[auto_1fr_auto] sm:items-center"
+          >
+            <div className="text-4xl transition group-hover:scale-110">💻</div>
+            <div>
+              <div className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-emerald-300">New · live coding</div>
+              <div className="font-mono text-xl font-black text-white">Write real code, run real tests</div>
+              <p className="mt-1 text-sm text-slate-400">
+                {codingAtLevel.length} challenges at {skill.name.toLowerCase()} level: an editor, hidden tests, hints, and a reference solution. {codingSolved}/{codingAtLevel.length} solved.
+              </p>
+            </div>
+            <span className="btn-3d rounded-xl bg-emerald-400 px-5 py-2.5 text-center font-mono text-sm font-black uppercase tracking-wider text-slate-950" style={{ "--edge": "#065f46" } as CSSProperties}>
+              ▶ Code
+            </span>
+          </Link>
+        </section>
+      )}
 
       <section className="mt-10 grid gap-6">
         <h2 className="font-mono text-lg font-black uppercase tracking-wider text-white">

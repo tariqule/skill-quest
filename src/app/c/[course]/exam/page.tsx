@@ -9,7 +9,7 @@ import { courseCopy } from "@/engine/copy";
 import { useCourse, useLevelPool, useProgress } from "@/engine/course-context";
 import { LEVEL_BY_ID } from "@/engine/levels";
 import { examQuestions, isCorrect, pct, scaledScore, shuffle, versionLabel, weightedExamDeck, type PreparedQuestion } from "@/engine/game";
-import { isCodeTrack } from "@/engine/tracks";
+import { EXTRA_KINDS, isCodeTrack } from "@/engine/tracks";
 
 type Phase = "intro" | "exam" | "review" | "results";
 
@@ -28,7 +28,8 @@ export default function ExamPage() {
   // The headline format follows the full mode, which shrinks with a small level pool.
   const full = MODES.find((m) => m.full) ?? MODES[0];
   const headline = isCodeTrack(course) && full ? full : course.exam;
-  const officialTypes = course.exam.questionTypes.filter((t) => !t.practiceOnly);
+  const declared = course.exam.questionTypes.filter((t) => !t.practiceOnly);
+  const officialTypes = isCodeTrack(course) ? [...declared, ...EXTRA_KINDS.filter((k) => !declared.some((d) => d.id === k.id))] : declared;
   const practiceTypes = course.exam.questionTypes.filter((t) => t.practiceOnly);
   const { min, max, pass } = course.exam.scale;
   const { xp } = course.config;

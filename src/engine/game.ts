@@ -1,8 +1,9 @@
 import { hasLevels, nearbyLevels, type LevelChoice } from "./levels";
+import { EXTRA_KINDS, isCodeTrack } from "./tracks";
 import type { Progress } from "./store";
 import type { Course, Question, QuestionKind } from "./types";
 
-export type PreparedKind = "choice" | "order" | "match" | "lines";
+export type PreparedKind = "choice" | "order" | "match" | "lines" | "fill" | "output";
 
 export type PreparedQuestion = Question & {
   kind: PreparedKind;
@@ -19,7 +20,31 @@ export type PreparedQuestion = Question & {
    * match: for each prompt, the index into `shuffled` of its response.
    */
   correct: number[];
+  /** fill only: for each blank, the indexes into `shuffled` of its options. */
+  groups?: number[][];
 };
+
+/**
+ * Typed answers travel through the same `number[]` as every other answer: each number is one
+ * character code. These two helpers are the only place that knows about the encoding.
+ */
+export function encodeText(text: string): number[] {
+  return Array.from(text, (c) => c.codePointAt(0) ?? 0);
+}
+
+export function decodeText(picked: number[] | null | undefined): string {
+  return (picked ?? []).map((n) => String.fromCodePoint(n)).join("");
+}
+
+/** Compare typed output ignoring trailing spaces, blank edge lines, and runs of spaces. */
+export function normalizeOutput(text: string) {
+  return text
+    .replace(/\r/g, "")
+    .split("\n")
+    .map((l) => l.trim().replace(/[ \t]+/g, " "))
+    .join("\n")
+    .replace(/^\n+|\n+$/g, "");
+}
 
 export function shuffle<T>(items: T[]): T[] {
   const a = [...items];
@@ -39,6 +64,21 @@ export function prepare(q: Question): PreparedQuestion {
     // Lines keep their order; `correct` holds 0-based line indexes.
     return { ...q, kind: "lines", shuffled: codeLines(q.code), prompts: [], correct: [...q.answer].sort((a, b) => a - b).map((n) => n - 1) };
   }
+  if (q.type === "fill") {
+    // Each blank keeps its own shuffled options; they are stored flat, with `groups` marking the ranges.
+    const shuffled: string[] = [];
+    const groups: number[][] = [];
+    const correct: number[] = [];
+    for (const b of q.blanks) {
+      const order = shuffle(b.options.map((_, i) => i));
+      const start = shuffled.length;
+      groups.push(order.map((_, k) => start + k));
+      shuffled.push(...order.map((i) => b.options[i]));
+      correct.push(start + order.indexOf(b.answer));
+    }
+    return { ...q, kind: "fill", shuffled, prompts: [], correct, groups };
+  }
+  if (q.type === "output") return { ...q, kind: "output", shuffled: [...q.answers], prompts: [], correct: [] };
   if (q.type === "order") {
     const shuffled = scramble(q.items);
     return { ...q, kind: "order", shuffled, prompts: [], correct: q.items.map((it) => shuffled.indexOf(it)) };
@@ -106,13 +146,16 @@ export function allocateByWeight(course: Course, total: number): Record<string, 
 
 /** The exam format a question uses: single-answer choice counts as "choice", several answers as "multi". */
 export function questionKind(q: Question): QuestionKind {
-  if (q.type === "order" || q.type === "match" || q.type === "lines") return q.type;
+  if (q.type === "order" || q.type === "match" || q.type === "lines" || q.type === "fill" || q.type === "output") return q.type;
   return q.answer.length > 1 ? "multi" : "choice";
 }
 
 /** Formats the real exam uses (everything not marked practice-only). */
 export function officialKinds(course: Course): Set<QuestionKind> {
-  return new Set(course.exam.questionTypes.filter((t) => !t.practiceOnly).map((t) => t.id));
+  const kinds = new Set(course.exam.questionTypes.filter((t) => !t.practiceOnly).map((t) => t.id));
+  // Code Quest mock interviews always include the code-first formats.
+  if (isCodeTrack(course)) for (const k of EXTRA_KINDS) kinds.add(k.id);
+  return kinds;
 }
 
 /** Questions in formats the real exam uses. */
@@ -140,6 +183,10 @@ export function weightedExamDeck(course: Course, total: number, pool: Question[]
 }
 
 export function isCorrect(q: PreparedQuestion, picked: number[]) {
+  if (q.kind === "output") {
+    const typed = normalizeOutput(decodeText(picked));
+    return typed !== "" && q.shuffled.some((a) => normalizeOutput(a) === typed);
+  }
   if (picked.length !== q.correct.length) return false;
   if (q.kind === "choice" || q.kind === "lines") return picked.every((p) => q.correct.includes(p));
   return picked.every((p, i) => p === q.correct[i]);
@@ -192,6 +239,8 @@ export function starsFor(course: Course, correct: number, total: number) {
 
 /** The correct answer written out in words, for recaps and reviews. */
 export function answerText(q: Question): string {
+  if (q.type === "output") return q.answers[0];
+  if (q.type === "fill") return q.blanks.map((b) => b.options[b.answer]).join(" · ");
   if (q.type === "order") return q.items.join(" → ");
   if (q.type === "match") return q.pairs.map(([a, b]) => `${a} → ${b}`).join(" · ");
   if (q.type === "lines") return q.answer.map((n) => `line ${n}: ${codeLines(q.code)[n - 1]?.trim() ?? "?"}`).join(" + ");
@@ -212,6 +261,8 @@ export function challengeDeck(must: Question[], pool: Question[], count: number)
 /** What the player actually answered, written out in words. */
 export function pickedText(q: PreparedQuestion, picked: number[] | undefined): string {
   if (!picked || picked.length === 0) return "No answer";
+  if (q.kind === "output") return decodeText(picked);
+  if (q.kind === "fill") return picked.map((i) => q.shuffled[i] ?? "?").join(" · ");
   if (q.kind === "order") return picked.map((i) => q.shuffled[i]).join(" → ");
   if (q.kind === "match") return q.prompts.map((p, k) => `${p} → ${q.shuffled[picked[k]] ?? "?"}`).join(" · ");
   if (q.kind === "lines") return picked.map((i) => `line ${i + 1}: ${q.shuffled[i]?.trim() ?? "?"}`).join(" + ");

@@ -1,8 +1,10 @@
-import { defineCourse } from "@/engine/define";
+import { defineCourse, withQuestions } from "@/engine/define";
 import d1 from "./domains/d1-linear";
 import d2 from "./domains/d2-stacks-hashing";
 import d3 from "./domains/d3-trees-heaps";
 import d4 from "./domains/d4-graphs-tries";
+import { codingChallenges } from "./coding";
+import { moreQuestions } from "./more";
 
 /**
  * Data Structures Interview Quest.
@@ -21,7 +23,8 @@ export default defineCourse({
   level: "Intermediate",
   storageKey: "course:code-data-structures:v1",
 
-  domains: [d1, d2, d3, d4],
+  domains: withQuestions([d1, d2, d3, d4], moreQuestions),
+  coding: codingChallenges,
 
   exam: {
     questions: 30,

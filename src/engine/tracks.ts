@@ -1,9 +1,15 @@
-import type { Course, TrackCategory } from "./types";
+import type { Course, QuestionKind, TrackCategory } from "./types";
 
 /** Code Quest tracks: interview prep and learn-from-scratch tracks share the terminal skin and skill levels. */
 export function isCodeTrack(course: Pick<Course, "kind">) {
   return course.kind === "interview" || course.kind === "learning";
 }
+
+/** Code Quest tracks always allow these formats in addition to what `exam.questionTypes` declares. */
+export const EXTRA_KINDS: { id: QuestionKind; icon: string; name: string; rule: string }[] = [
+  { id: "fill", icon: "🧩", name: "Fill in the blanks", rule: "Pick the right piece for each gap in the code." },
+  { id: "output", icon: "⌨️", name: "Type the output", rule: "Type exactly what the code prints or returns." },
+];
 
 export type TrackFocus = "all" | "interview" | "learning";
 

@@ -1,4 +1,6 @@
-import { defineCourse } from "@/engine/define";
+import { defineCourse, withQuestions } from "@/engine/define";
+import { codingChallenges } from "./coding";
+import { moreQuestions } from "./more";
 import d1 from "./domains/d1-types-scope";
 import d2 from "./domains/d2-objects-this";
 import d3 from "./domains/d3-async";
@@ -22,7 +24,8 @@ export default defineCourse({
   level: "Intermediate",
   storageKey: "course:code-javascript:v1",
 
-  domains: [d1, d2, d3, d4],
+  domains: withQuestions([d1, d2, d3, d4], moreQuestions),
+  coding: codingChallenges,
 
   exam: {
     questions: 30,

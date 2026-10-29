@@ -1,8 +1,9 @@
-import { defineCourse } from "@/engine/define";
+import { defineCourse, withQuestions } from "@/engine/define";
 import d1 from "./domains/d1-components";
 import d2 from "./domains/d2-hooks";
 import d3 from "./domains/d3-data-flow";
 import d4 from "./domains/d4-modern-react";
+import { moreQuestions } from "./more";
 
 /**
  * React Interview Quest. Targets React 19 (including 19.2's useEffectEvent) and
@@ -21,7 +22,7 @@ export default defineCourse({
   level: "Intermediate",
   storageKey: "course:code-react:v1",
 
-  domains: [d1, d2, d3, d4],
+  domains: withQuestions([d1, d2, d3, d4], moreQuestions),
 
   exam: {
     questions: 30,

@@ -1,8 +1,10 @@
-import { defineCourse } from "@/engine/define";
+import { defineCourse, withQuestions } from "@/engine/define";
 import d1 from "./domains/d1-complexity-sorting";
 import d2 from "./domains/d2-search-pointers";
 import d3 from "./domains/d3-recursion-graphs";
 import d4 from "./domains/d4-dp-greedy-patterns";
+import { codingChallenges } from "./coding";
+import { moreQuestions } from "./more";
 
 /**
  * Algorithms Interview Quest.
@@ -21,7 +23,8 @@ export default defineCourse({
   level: "Intermediate",
   storageKey: "course:code-algorithms:v1",
 
-  domains: [d1, d2, d3, d4],
+  domains: withQuestions([d1, d2, d3, d4], moreQuestions),
+  coding: codingChallenges,
 
   exam: {
     questions: 30,

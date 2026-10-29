@@ -1,4 +1,5 @@
-import { defineCourse } from "@/engine/define";
+import { defineCourse, withQuestions } from "@/engine/define";
+import { moreQuestions } from "./more";
 import d1 from "./domains/d1-scale";
 import d2 from "./domains/d2-data";
 import d3 from "./domains/d3-distributed";
@@ -21,7 +22,7 @@ export default defineCourse({
   level: "Advanced",
   storageKey: "course:code-system-design:v1",
 
-  domains: [d1, d2, d3, d4],
+  domains: withQuestions([d1, d2, d3, d4], moreQuestions),
 
   exam: {
     questions: 30,
