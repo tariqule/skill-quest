@@ -49,7 +49,7 @@ export default function Galaxy({
           {label.icon} {label.label} <span className="text-xs font-normal text-slate-400">· {touch ? "tap again to open" : "click to open"}</span>
         </div>
       )}
-    <Stage className="h-full w-full" camera={{ position: [0, 2.4, 9.5], fov: 45 }} fit={5}>
+    <Stage className="h-full w-full" camera={{ position: [0, 2.4, 9.5], fov: 45 }} fit={5.8}>
       <ambientLight intensity={0.35} />
       <pointLight position={[0, 0, 0]} intensity={30} color={coreColor} distance={14} />
       <directionalLight position={[5, 6, 4]} intensity={1.1} />

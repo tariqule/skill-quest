@@ -49,7 +49,7 @@ export function TerminalWindow({ title, children, className = "", glow = "#34d39
         <span className="h-3 w-3 rounded-full bg-emerald-400/80" />
         <span className="ml-2 truncate font-mono text-xs text-slate-400">{title}</span>
       </div>
-      <div className="p-4 sm:p-6">{children}</div>
+      <div className="min-w-0 p-4 sm:p-6">{children}</div>
     </div>
   );
 }

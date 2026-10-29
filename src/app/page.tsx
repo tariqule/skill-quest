@@ -38,13 +38,13 @@ export default function Catalog() {
               exam simulator.
             </p>
           </div>
-          <div>
+          <div className="min-w-0">
             <Galaxy3D
               items={show(CERTS).map((c) => ({ id: c.id, label: c.code, icon: c.provider.icon, color: c.provider.color }))}
               onSelect={(id) => router.push(`/c/${id}`)}
               coreColor="#38bdf8"
               shape="gem"
-              className="h-72 w-full sm:h-80"
+              className="h-56 w-full sm:h-80"
               fallback={
                 <div className="hidden justify-center md:flex">
                   <Core3D size={100} domains={COURSES[0]?.domains} icon="🎓" />

@@ -69,10 +69,10 @@ export default function CodeHub() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:py-10">
+      <main className="mx-auto w-full min-w-0 max-w-6xl px-4 py-8 sm:py-10">
         <TerminalWindow title="~/code-quest — zsh">
           <div className="grid items-center gap-4 lg:grid-cols-[1fr_1.1fr]">
-            <div>
+            <div className="min-w-0">
               <h1 className="glitch text-4xl font-black text-white sm:text-5xl">Code Quests</h1>
               <p className="mt-2 max-w-xl text-slate-300">
                 Learn a skill from scratch or prep for the interview. Every concept comes with code you can poke at, labs that react as you play, bug hunts,
@@ -96,7 +96,7 @@ export default function CodeHub() {
             <Galaxy3D
               items={galaxy}
               onSelect={(id) => router.push(`/c/${id}`)}
-              className="h-72 w-full sm:h-80 lg:h-96"
+              className="h-56 w-full sm:h-80 lg:h-96"
               fallback={<div className="hidden h-72 lg:block" />}
             />
           </div>
