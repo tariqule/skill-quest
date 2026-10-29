@@ -1,6 +1,9 @@
 "use client";
 
+import { RichText } from "./code";
 import { useState } from "react";
+
+export { CodeBlock, CodeCompare, dedent, RichText } from "./code";
 
 /**
  * Course-agnostic building blocks for lesson visuals. Courses compose these
@@ -67,7 +70,7 @@ export function Tiles({ tiles, cols = 2 }: { tiles: Tile[]; cols?: 2 | 3 | 4 }) 
             <span className="text-2xl">{t.icon}</span>
             <span className="font-semibold text-white">{t.title}</span>
           </div>
-          <p className="mt-1.5 text-sm leading-snug text-slate-300">{t.text}</p>
+          <p className="mt-1.5 text-sm leading-snug text-slate-300"><RichText text={t.text} /></p>
         </div>
       ))}
     </div>

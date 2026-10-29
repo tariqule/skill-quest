@@ -1,7 +1,7 @@
 import type { Progress } from "./store";
 import type { Course, Question, QuestionKind } from "./types";
 
-export type PreparedKind = "choice" | "order" | "match";
+export type PreparedKind = "choice" | "order" | "match" | "lines";
 
 export type PreparedQuestion = Question & {
   kind: PreparedKind;
@@ -34,6 +34,10 @@ export function kindOf(q: Question): PreparedKind {
 }
 
 export function prepare(q: Question): PreparedQuestion {
+  if (q.type === "lines") {
+    // Lines keep their order; `correct` holds 0-based line indexes.
+    return { ...q, kind: "lines", shuffled: codeLines(q.code), prompts: [], correct: [...q.answer].sort((a, b) => a - b).map((n) => n - 1) };
+  }
   if (q.type === "order") {
     const shuffled = scramble(q.items);
     return { ...q, kind: "order", shuffled, prompts: [], correct: q.items.map((it) => shuffled.indexOf(it)) };
@@ -51,6 +55,11 @@ export function prepare(q: Question): PreparedQuestion {
     prompts: [],
     correct: order.flatMap((orig, display) => (q.answer.includes(orig) ? [display] : [])),
   };
+}
+
+/** Split a snippet into lines, dropping leading and trailing blank lines. */
+export function codeLines(code: string) {
+  return code.replace(/^\n+|\s+$/g, "").split("\n");
 }
 
 /** Shuffle, but never hand back the answer already in order. */
@@ -81,7 +90,7 @@ export function allocateByWeight(course: Course, total: number): Record<string, 
 
 /** The exam format a question uses: single-answer choice counts as "choice", several answers as "multi". */
 export function questionKind(q: Question): QuestionKind {
-  if (q.type === "order" || q.type === "match") return q.type;
+  if (q.type === "order" || q.type === "match" || q.type === "lines") return q.type;
   return q.answer.length > 1 ? "multi" : "choice";
 }
 
@@ -116,7 +125,7 @@ export function weightedExamDeck(course: Course, total: number, pool: Question[]
 
 export function isCorrect(q: PreparedQuestion, picked: number[]) {
   if (picked.length !== q.correct.length) return false;
-  if (q.kind === "choice") return picked.every((p) => q.correct.includes(p));
+  if (q.kind === "choice" || q.kind === "lines") return picked.every((p) => q.correct.includes(p));
   return picked.every((p, i) => p === q.correct[i]);
 }
 
@@ -169,6 +178,7 @@ export function starsFor(course: Course, correct: number, total: number) {
 export function answerText(q: Question): string {
   if (q.type === "order") return q.items.join(" → ");
   if (q.type === "match") return q.pairs.map(([a, b]) => `${a} → ${b}`).join(" · ");
+  if (q.type === "lines") return q.answer.map((n) => `line ${n}: ${codeLines(q.code)[n - 1]?.trim() ?? "?"}`).join(" + ");
   return q.answer.map((i) => q.options[i]).join(" + ");
 }
 
@@ -188,6 +198,7 @@ export function pickedText(q: PreparedQuestion, picked: number[] | undefined): s
   if (!picked || picked.length === 0) return "No answer";
   if (q.kind === "order") return picked.map((i) => q.shuffled[i]).join(" → ");
   if (q.kind === "match") return q.prompts.map((p, k) => `${p} → ${q.shuffled[picked[k]] ?? "?"}`).join(" · ");
+  if (q.kind === "lines") return picked.map((i) => `line ${i + 1}: ${q.shuffled[i]?.trim() ?? "?"}`).join(" + ");
   return picked.map((i) => q.shuffled[i]).join(" + ");
 }
 

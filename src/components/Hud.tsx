@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCourse, useProgress } from "@/engine/course-context";
+import { LEVEL_BY_ID } from "@/engine/levels";
 import { levelInfo } from "@/engine/store";
 import { setGuideOpen, useToasts } from "@/engine/ui-state";
 import { Bar } from "./ui";
@@ -25,6 +26,42 @@ export function Hud() {
   const { course, href } = useCourse();
   const p = useProgress();
   const lvl = levelInfo(p.xp, course.levelTitles);
+
+  if (course.kind === "interview") {
+    const skill = LEVEL_BY_ID[p.level];
+    return (
+      <header className="sticky top-0 z-20 border-b border-emerald-400/20 bg-[#03070d]/90 font-mono backdrop-blur">
+        <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-2.5 text-sm">
+          <Link href="/code" title="All code quests" className="font-black text-emerald-300">
+            &lt;/&gt;
+          </Link>
+          <Link href={href()} className="flex min-w-0 items-center gap-2 font-bold text-white">
+            <span>{course.provider.icon}</span>
+            <span className="truncate">~/{course.shortTitle.toLowerCase()}</span>
+          </Link>
+          <span className="hidden rounded px-1.5 py-0.5 text-[11px] font-bold sm:inline" style={{ background: `${skill.color}22`, color: skill.color }}>
+            {skill.icon} {skill.name}
+          </span>
+          <div className="ml-auto flex items-center gap-3 sm:gap-5">
+            <button type="button" onClick={() => setGuideOpen(true)} className="rounded border border-white/15 px-2 py-0.5 text-slate-200 hover:bg-white/10" title="Open the guide (?)">
+              ? guide
+            </button>
+            <span className="text-orange-300">🔥{p.streak.count}</span>
+            <span className="hidden text-slate-400 sm:inline">
+              {p.today.xp}/{p.dailyGoal}xp
+            </span>
+            <div className="w-24 sm:w-36">
+              <div className="flex justify-between text-[10px] text-slate-500">
+                <span className="text-emerald-300">lv{lvl.level}</span>
+                <span>{p.xp}xp</span>
+              </div>
+              <Bar value={lvl.into / lvl.needed} color="#34d399" className="h-1.5" />
+            </div>
+          </div>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/85 backdrop-blur">

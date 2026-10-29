@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
 import { QuizSession } from "@/components/QuizSession";
 import { PageShell } from "@/components/ui";
-import { useCourse } from "@/engine/course-context";
+import { useCourse, useLevelPool } from "@/engine/course-context";
 import { deck, starsFor } from "@/engine/game";
 
 export function QuestPlay() {
@@ -13,7 +13,8 @@ export function QuestPlay() {
   const domain = domainById[domainId];
   if (!domain) notFound();
   const { length, hearts, starThresholds } = course.config.quest;
-  const pool = course.questions.filter((q) => q.domain === domain.id);
+  const { pool: levelPool } = useLevelPool();
+  const pool = levelPool.filter((q) => q.domain === domain.id);
   const percent = (n: number) => `${Math.round(n * 100)}%`;
 
   return (

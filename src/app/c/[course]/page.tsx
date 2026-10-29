@@ -5,8 +5,10 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type CSSProperties } from "react";
 import { Core3D, MascotSays, Tilt } from "@/components/fx";
 import { LifecycleBanner } from "@/components/Lifecycle";
+import { CodeMap } from "./CodeMap";
 import { Bar, Stars } from "@/components/ui";
 import { BADGES } from "@/engine/badges";
+import { courseCopy } from "@/engine/copy";
 import { useCourse, useProgress } from "@/engine/course-context";
 import { domainMastery, overallReadiness } from "@/engine/game";
 import { MODE_BY_ID } from "@/engine/modes";
@@ -17,9 +19,16 @@ import { setGuideOpen } from "@/engine/ui-state";
 
 const ZIGZAG = [0, 56, 84, 56, 0, -56, -84, -56];
 
-export default function MissionMap() {
+/** Certification courses get the planet map; interview tracks get the Code Quest arcade. */
+export default function CoursePage() {
+  const { course } = useCourse();
+  return course.kind === "interview" ? <CodeMap /> : <MissionMap />;
+}
+
+function MissionMap() {
   const router = useRouter();
   const { course, store, href, domain: domainById, lesson: lessonById } = useCourse();
+  const copy = courseCopy(course);
   const p = useProgress();
   const lvl = levelInfo(p.xp, course.levelTitles);
   const { worlds, current, examUnlocked } = buildPath(course, p);
@@ -60,7 +69,7 @@ export default function MissionMap() {
               </MascotSays>
             ) : (
               <MascotSays mood="wow">
-                <div className="font-bold text-white">Every world cleared! The Certification Gate is open.</div>
+                <div className="font-bold text-white">Every world cleared! {copy.gate} is open.</div>
               </MascotSays>
             )}
           </div>
@@ -102,7 +111,7 @@ export default function MissionMap() {
           { icon: "📖", t: "1. Learn", d: "Each mission teaches one concept with a visual." },
           { icon: "✅", t: "2. Check", d: "Two quick questions. Misses come back until they stick." },
           { icon: "⚔️", t: "3. Trial", d: `Prove the world: ${course.config.quest.length} questions, ${course.config.quest.hearts} hearts.` },
-          { icon: "🏛️", t: "4. Certify", d: `Full exam simulator. ${course.exam.scale.pass}+ means you're ready.` },
+          { icon: copy.gateIcon, t: `4. ${copy.gateStep}`, d: `Full ${copy.simulator}. ${course.exam.scale.pass}+ means you're ready.` },
         ].map((s) => (
           <div key={s.t} className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
             <div className="text-2xl">{s.icon}</div>
@@ -117,7 +126,7 @@ export default function MissionMap() {
         <div className="flex items-end justify-between gap-3">
           <h2 className="text-2xl font-black text-white">🗺️ Mission map</h2>
           <div className="text-sm text-slate-400">
-            Exam readiness <span className="font-bold text-white">{readiness}%</span>
+            {copy.readiness} <span className="font-bold text-white">{readiness}%</span>
           </div>
         </div>
         <div className="mt-6 grid gap-10">
@@ -130,10 +139,10 @@ export default function MissionMap() {
               href={href("/exam")}
               className={`block rounded-3xl border-2 p-6 text-center transition ${examUnlocked ? "border-amber-300/60 bg-gradient-to-b from-amber-400/20 to-slate-900/60" : "border-white/10 bg-slate-900/50"}`}
             >
-              <div className="text-5xl">🏛️</div>
-              <div className="mt-2 text-xl font-black text-white">The Certification Gate</div>
+              <div className="text-5xl">{copy.gateIcon}</div>
+              <div className="mt-2 text-xl font-black text-white">{copy.gate}</div>
               <div className="mt-1 text-sm text-slate-300">
-                Full exam simulator: {course.exam.questions} questions, {course.exam.minutes} minutes, scored {course.exam.scale.min}–{course.exam.scale.max}.
+                Full {copy.simulator}: {course.exam.questions} questions, {course.exam.minutes} minutes, scored {course.exam.scale.min}–{course.exam.scale.max}.
               </div>
               <div className="mt-3 text-xs font-semibold text-amber-300">
                 {examUnlocked ? "Open. You're ready to attempt it." : "Recommended after all five trials, but you can enter anytime."}

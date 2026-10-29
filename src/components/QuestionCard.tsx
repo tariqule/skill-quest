@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useCourse } from "@/engine/course-context";
 import type { PreparedQuestion } from "@/engine/game";
 import { setGuideOpen } from "@/engine/ui-state";
+import { CodeBlock, RichText } from "./learn/code";
 
 const LETTERS = ["A", "B", "C", "D", "E", "F", "G"];
 
@@ -12,6 +13,7 @@ const KIND_LABEL = {
   multi: "☑️ Multiple response",
   order: "🔢 Ordering",
   match: "🔗 Matching",
+  lines: "🐞 Bug hunt",
 };
 
 interface Props {
@@ -43,16 +45,24 @@ export function QuestionCard({ q, submitted, onSubmit, reveal = true, showDomain
           </span>
         )}
       </div>
-      <h2 className="text-lg sm:text-xl font-semibold leading-snug text-white">{q.prompt}</h2>
+      <h2 className="text-lg sm:text-xl font-semibold leading-snug text-white">
+        <RichText text={q.prompt} />
+      </h2>
+      {q.code && q.kind !== "lines" && (
+        <div className="mt-4">
+          <CodeBlock code={q.code} lang={q.codeLang} />
+        </div>
+      )}
 
       {q.kind === "choice" && <ChoiceBody q={q} submitted={submitted} onSubmit={onSubmit} reveal={reveal} />}
       {q.kind === "order" && <OrderBody q={q} submitted={submitted} onSubmit={onSubmit} reveal={reveal} />}
       {q.kind === "match" && <MatchBody q={q} submitted={submitted} onSubmit={onSubmit} reveal={reveal} />}
+      {q.kind === "lines" && <LinesBody q={q} submitted={submitted} onSubmit={onSubmit} reveal={reveal} />}
 
       {locked && reveal && explain && (
         <div className="mt-5 rounded-xl border border-white/10 bg-slate-950/60 p-4 text-sm leading-relaxed text-slate-300">
           <span className="font-semibold text-white">Why: </span>
-          {q.explanation}
+          <RichText text={q.explanation} />
           <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
             {concept && (
               <button type="button" onClick={() => setShowConcept(!showConcept)} className="text-xs font-semibold text-sky-300 hover:underline">
@@ -68,7 +78,7 @@ export function QuestionCard({ q, submitted, onSubmit, reveal = true, showDomain
               {concept.visual}
               <ul className="mt-3 grid gap-1 text-sm text-slate-300">
                 {concept.points.map((p) => (
-                  <li key={p}>• {p}</li>
+                  <li key={p}>• <RichText text={p} /></li>
                 ))}
               </ul>
             </div>
@@ -140,7 +150,9 @@ function ChoiceBody({ q, submitted, onSubmit, reveal }: BodyProps) {
                 <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-white/10 text-xs font-bold text-slate-200">
                   {LETTERS[i]}
                 </span>
-                <span className="text-slate-100">{opt}</span>
+                <span className="text-slate-100">
+                  <RichText text={opt} />
+                </span>
                 {locked && reveal && isRight && <span className="ml-auto text-emerald-300">✓</span>}
                 {locked && reveal && isPicked && !isRight && <span className="ml-auto text-rose-300">✗</span>}
               </button>
@@ -181,7 +193,9 @@ function OrderBody({ q, submitted, onSubmit, reveal }: BodyProps) {
                 className={`flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left transition ${tone}`}
               >
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/10 text-sm font-bold text-white">{slot + 1}</span>
-                <span>{filled ? q.shuffled[item] : "Empty step"}</span>
+                <span className={q.code !== undefined || /[;{}()=]/.test(q.shuffled[0] ?? "") ? "font-mono text-sm" : ""}>
+                  {filled ? <RichText text={q.shuffled[item]} /> : "Empty step"}
+                </span>
                 {locked && reveal && <span className="ml-auto">{right ? "✓" : "✗"}</span>}
               </button>
               {locked && reveal && !right && (
@@ -226,7 +240,9 @@ function MatchBody({ q, submitted, onSubmit, reveal }: BodyProps) {
           const tone = locked && reveal ? (right ? "border-emerald-400 bg-emerald-400/10" : "border-rose-400 bg-rose-400/10") : "border-white/10 bg-white/5";
           return (
             <div key={i} className={`grid gap-2 rounded-xl border p-3 sm:grid-cols-[1fr_1.3fr] sm:items-center ${tone}`}>
-              <div className="font-semibold text-white">{prompt}</div>
+              <div className="font-semibold text-white">
+                <RichText text={prompt} />
+              </div>
               <select
                 aria-label={`Match for ${prompt}`}
                 disabled={locked}
@@ -251,6 +267,56 @@ function MatchBody({ q, submitted, onSubmit, reveal }: BodyProps) {
         })}
       </div>
       {!locked && <SubmitButton disabled={!complete} onClick={() => onSubmit(choice as number[])} />}
+    </>
+  );
+}
+
+function LinesBody({ q, submitted, onSubmit, reveal }: BodyProps) {
+  const need = q.correct.length;
+  const [picked, setPicked] = useState<number[]>([]);
+  const locked = submitted !== null;
+  const chosen = submitted ?? picked;
+
+  function toggle(i: number) {
+    if (locked) return;
+    if (need === 1) return setPicked([i]);
+    setPicked((p) => (p.includes(i) ? p.filter((x) => x !== i) : p.length < need ? [...p, i] : p));
+  }
+
+  return (
+    <>
+      {!locked && (
+        <p className="mt-2 text-sm text-amber-300">
+          Tap {need === 1 ? "the line" : `${need} lines`}, then Submit.
+        </p>
+      )}
+      <div className="mt-4 overflow-hidden rounded-xl border border-white/10 bg-slate-950">
+        {q.codeLang && <div className="border-b border-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">{q.codeLang}</div>}
+        <div className="overflow-x-auto py-1">
+          {q.shuffled.map((line, i) => {
+            const isPicked = chosen.includes(i);
+            const isRight = q.correct.includes(i);
+            let tone = "hover:bg-sky-400/10";
+            if (locked && reveal) tone = isRight ? "bg-emerald-400/20" : isPicked ? "bg-rose-400/20" : "opacity-60";
+            else if (isPicked) tone = "bg-sky-400/20";
+            return (
+              <button
+                key={i}
+                type="button"
+                disabled={locked}
+                onClick={() => toggle(i)}
+                className={`flex w-full min-w-max items-start gap-3 px-3 py-0.5 text-left font-mono text-[13px] leading-relaxed transition ${tone}`}
+              >
+                <span className="w-6 shrink-0 select-none text-right text-slate-500">{i + 1}</span>
+                <span className="whitespace-pre text-slate-100">{line || " "}</span>
+                {locked && reveal && isRight && <span className="ml-auto pl-3 text-emerald-300">✓</span>}
+                {locked && reveal && isPicked && !isRight && <span className="ml-auto pl-3 text-rose-300">✗</span>}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      {!locked && <SubmitButton disabled={picked.length !== need} onClick={() => onSubmit([...picked].sort((a, b) => a - b))} />}
     </>
   );
 }

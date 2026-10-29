@@ -1,33 +1,30 @@
 import type { Course, PlannedCourse } from "@/engine/types";
 import awsAifC01 from "./aws-aif-c01";
+import awsClfC02 from "./aws-clf-c02";
+import codeAlgorithms from "./code-algorithms";
+import codeDataStructures from "./code-data-structures";
+import codeJava from "./code-java";
+import codeJavascript from "./code-javascript";
+import codeNextjs from "./code-nextjs";
+import codeNodejs from "./code-nodejs";
+import codePython from "./code-python";
+import codeReact from "./code-react";
+import codeTypescript from "./code-typescript";
 import awsDvaC02 from "./aws-dva-c02";
 import awsDvaC03 from "./aws-dva-c03";
+import awsSaaC03 from "./aws-saa-c03";
+import azureAi901 from "./azure-ai-901";
+import cncfKcna from "./cncf-kcna";
 import gcpGenaiLeader from "./gcp-genai-leader";
 
 /**
  * The course registry. To add a course: copy src/courses/_template to a new
  * folder, fill in its domains, and add it to COURSES. Nothing else changes.
  */
-export const COURSES: Course[] = [awsAifC01, awsDvaC03, awsDvaC02, gcpGenaiLeader];
+export const COURSES: Course[] = [awsClfC02, awsAifC01, awsSaaC03, awsDvaC03, awsDvaC02, gcpGenaiLeader, azureAi901, cncfKcna, codeJavascript, codeTypescript, codeDataStructures, codeAlgorithms, codeReact, codeNextjs, codeNodejs, codePython, codeJava];
 
 /** Shown in the catalog as "coming soon" until a course folder exists. */
 export const PLANNED: PlannedCourse[] = [
-  {
-    id: "azure-ai-900",
-    provider: { id: "azure", name: "Microsoft Azure", color: "#0ea5e9", icon: "🟦" },
-    code: "AI-900",
-    title: "Azure AI Fundamentals",
-    tagline: "Core AI and machine learning concepts and the Azure AI services that deliver them.",
-    level: "Foundational",
-  },
-  {
-    id: "cncf-kcna",
-    provider: { id: "cncf", name: "Kubernetes", color: "#326ce5", icon: "☸️" },
-    code: "KCNA",
-    title: "Kubernetes and Cloud Native Associate",
-    tagline: "Kubernetes fundamentals, container orchestration, and the cloud native ecosystem.",
-    level: "Associate",
-  },
 ];
 
 const BY_ID = new Map(COURSES.map((c) => [c.id, c]));

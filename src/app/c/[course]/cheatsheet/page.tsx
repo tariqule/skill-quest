@@ -1,5 +1,6 @@
 "use client";
 
+import { RichText } from "@/components/learn/code";
 import { PageShell } from "@/components/ui";
 import { useCourse } from "@/engine/course-context";
 
@@ -51,8 +52,8 @@ function TermList({ items }: { items: [string, string][] }) {
     <dl className="mt-3 grid gap-2 text-sm">
       {items.map(([k, v]) => (
         <div key={k} className="grid gap-1 sm:grid-cols-[12rem_1fr]">
-          <dt className="font-semibold text-sky-300">{k}</dt>
-          <dd className="text-slate-300">{v}</dd>
+          <dt className="font-semibold text-sky-300"><RichText text={k} /></dt>
+          <dd className="text-slate-300"><RichText text={v} /></dd>
         </div>
       ))}
     </dl>

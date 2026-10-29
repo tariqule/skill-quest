@@ -3,6 +3,7 @@
 import { createContext, useContext, type ReactNode } from "react";
 import { getCourse } from "@/courses";
 import { indexCourse, type CourseIndex } from "./indexes";
+import { hasLevels, questionsForLevel } from "./levels";
 import { getCourseStore, type CourseStore } from "./store";
 import type { Course } from "./types";
 
@@ -38,6 +39,17 @@ export function useCourse(): CourseContextValue {
   const v = useContext(Ctx);
   if (!v) throw new Error("useCourse() must be used inside <CourseProvider>");
   return v;
+}
+
+/**
+ * Questions for the player's chosen skill level (interview tracks), or the
+ * whole bank for courses without levels. Game modes draw from this.
+ */
+export function useLevelPool() {
+  const { course } = useCourse();
+  const p = useProgress();
+  const level = hasLevels(course) ? p.level : "all";
+  return { level, pool: questionsForLevel(course, level) };
 }
 
 /** The current course's saved progress, re-rendering on change. */

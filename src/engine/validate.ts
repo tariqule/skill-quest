@@ -1,4 +1,5 @@
 import { examQuestions, questionKind } from "./game";
+import { hasLevels, LEVELS, MIN_PER_LEVEL } from "./levels";
 import type { Course } from "./types";
 
 /**
@@ -42,7 +43,15 @@ export function validateCourse(course: Course): string[] {
     if (!q.explanation.trim()) err(`${where} has no explanation`);
     if (!q.lesson) err(`${where} isn't linked to a lesson (add \`lesson: "<lesson id>"\`)`);
     else if (!lessons.some((l) => l.id === q.lesson)) err(`${where} links unknown lesson "${q.lesson}"`);
-    if (q.type === "order") {
+    if (q.type === "lines") {
+      const n = q.code.trim() ? q.code.replace(/^\n+|\s+$/g, "").split("\n").length : 0;
+      if (n < 3) err(`${where} needs a code snippet of at least 3 lines`);
+      if (q.answer.length === 0) err(`${where} has no correct line`);
+      if (q.answer.some((l) => l < 1 || l > n)) err(`${where} has an answer line outside its ${n}-line snippet`);
+      const src = q.code.replace(/^\n+|\s+$/g, "").split("\n");
+      if (q.answer.some((l) => /^[\s{}()[\];]*$/.test(src[l - 1] ?? ""))) err(`${where} points at a blank line or a lone brace`);
+      if (q.answer.length > 1 && !/choose|tap|select/i.test(q.prompt)) err(`${where} has ${q.answer.length} answer lines but the prompt doesn't say how many to pick`);
+    } else if (q.type === "order") {
       if (q.items.length < 3) err(`${where} needs at least 3 items to order`);
       if (new Set(q.items).size !== q.items.length) err(`${where} has duplicate items`);
     } else if (q.type === "match") {
@@ -83,9 +92,23 @@ export function validateCourse(course: Course): string[] {
 
   for (const l of lessons) {
     if (l.check.length === 0) err(`lesson "${l.id}" has no check questions`);
-    for (const id of l.check) if (!questionIds.has(id)) err(`lesson "${l.id}" checks unknown question "${id}"`);
+    for (const id of l.check) {
+      if (!questionIds.has(id)) err(`lesson "${l.id}" checks unknown question "${id}"`);
+      else {
+        const q = course.questions.find((x) => x.id === id)!;
+        if (q.lesson !== l.id) err(`lesson "${l.id}" checks "${id}", which tests lesson "${q.lesson}"; check questions should test their own lesson`);
+      }
+    }
   }
 
+  if (hasLevels(course)) {
+    for (const q of course.questions) if (!q.level) err(`question "${q.id}" needs a level (junior, intermediate, senior, or staff)`);
+    for (const l of lessons) if (!l.level) err(`lesson "${l.id}" needs a level`);
+    for (const lv of LEVELS.filter((x) => x.id !== "all")) {
+      const n = course.questions.filter((q) => q.level === lv.id).length;
+      if (n < MIN_PER_LEVEL) err(`level "${lv.id}" has ${n} questions; each level needs at least ${MIN_PER_LEVEL}`);
+    }
+  }
   if (course.exam.questionTypes.every((t) => t.practiceOnly)) err("at least one question type must be an official (not practiceOnly) format");
   const official = examQuestions(course).length;
   for (const m of course.config.examModes) {

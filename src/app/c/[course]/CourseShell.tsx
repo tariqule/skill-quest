@@ -2,6 +2,7 @@
 
 import { notFound, useParams } from "next/navigation";
 import type { ReactNode } from "react";
+import { CodeRain } from "@/components/code/ui";
 import { GuideDrawer } from "@/components/Guide";
 import { Hud } from "@/components/Hud";
 import { getCourse } from "@/courses";
@@ -10,12 +11,17 @@ import { CourseProvider } from "@/engine/course-context";
 /** Everything inside /c/<course> gets the course context, the HUD, and the guide drawer. */
 export function CourseShell({ children }: { children: ReactNode }) {
   const { course } = useParams<{ course: string }>();
-  if (!getCourse(course)) notFound();
+  const c = getCourse(course);
+  if (!c) notFound();
+  const code = c.kind === "interview";
   return (
     <CourseProvider courseId={course}>
-      <Hud />
-      {children}
-      <GuideDrawer />
+      <div className={`flex min-h-full flex-1 flex-col ${code ? "code-theme" : ""}`}>
+        {code && <CodeRain />}
+        <Hud />
+        {children}
+        <GuideDrawer />
+      </div>
     </CourseProvider>
   );
 }

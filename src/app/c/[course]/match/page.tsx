@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { RichText } from "@/components/learn/code";
 import { Button, PageShell } from "@/components/ui";
 import { useCourse, useProgress } from "@/engine/course-context";
 import { shuffle } from "@/engine/game";
@@ -106,8 +107,8 @@ export default function MatchPage() {
           <div className="mt-6 grid gap-2 text-left text-sm">
             {terms.map((t) => (
               <div key={t.id} className="rounded-lg bg-white/5 px-3 py-2">
-                <span className="font-semibold text-white">{t.term}</span>
-                <span className="text-slate-400"> · {t.definition}</span>
+                <span className="font-semibold text-white"><RichText text={t.term} /></span>
+                <span className="text-slate-400"> · <RichText text={t.definition} /></span>
               </div>
             ))}
           </div>
@@ -150,7 +151,7 @@ export default function MatchPage() {
                         : "border-white/10 bg-white/5 text-slate-100 hover:border-sky-400/50"
                 }`}
               >
-                {t.term}
+                <RichText text={t.term} />
               </button>
             );
           })}
@@ -175,7 +176,7 @@ export default function MatchPage() {
                         : "border-white/10 bg-white/[0.03] text-slate-300"
                 }`}
               >
-                {d.definition}
+                <RichText text={d.definition} />
               </button>
             );
           })}

@@ -1,6 +1,6 @@
 # Cert Quest
 
-Learn by playing: gamified, visual prep for cloud and AI certification exams, built with Next.js 16, React 19, and Tailwind CSS 4.
+Learn by playing: gamified, visual prep for cloud and AI certification exams and for coding interviews, built with Next.js 16, React 19, and Tailwind CSS 4.
 
 The app is a **course engine**. Each certification is a self-contained content package under `src/courses/`, and the engine (mission map, lessons, trials, exam simulator, training games, study guide, progress) works for any of them. It ships with:
 
@@ -10,8 +10,26 @@ The app is a **course engine**. Each certification is a self-contained content p
 | ☁️ AWS Certified Developer – Associate (DVA-C03) | ✅ Full course: 4 worlds, 29 missions, 4 labs, 7 hands-on challenges, 192 questions, 97 flashcards, including AI-assisted development and calling Amazon Bedrock from code. Follows the [DVA-C03 exam guide](https://docs.aws.amazon.com/aws-certification/latest/developer-associate-03/developer-associate-03.html). Registration opens December 1, 2026. |
 | ☁️ AWS Certified Developer – Associate (DVA-C02) | ✅ Full course: 4 worlds, 24 missions, 3 labs, 5 hands-on challenges, 160 questions, 82 flashcards. Follows the [exam guide v2.1](https://docs.aws.amazon.com/aws-certification/latest/developer-associate-02/developer-associate-02.html). DVA-C02 can be taken until November 30, 2026; DVA-C03 opens December 1, 2026. |
 | 🔷 Google Cloud Generative AI Leader | ✅ Full course: 4 worlds, 22 missions, 2 labs, 2 hands-on challenges, 137 questions, 54 flashcards. Follows the [official exam guide](https://services.google.com/fh/files/misc/generative_ai_leader_exam_guide_english.pdf) (current product names). |
-| 🟦 Azure AI Fundamentals (AI-900) | Planned |
-| ☸️ Kubernetes and Cloud Native Associate (KCNA) | Planned |
+| ☁️ AWS Certified Cloud Practitioner (CLF-C02) | ✅ Full course: 4 worlds, 24 missions, 6 hands-on challenges, 167 questions, 148 flashcards. |
+| ☁️ AWS Certified Solutions Architect – Associate (SAA-C03) | ✅ Full course: 4 worlds, 26 missions, 4 hands-on challenges, 190 questions, 137 flashcards. |
+| 🟦 Microsoft Azure AI Fundamentals (AI-901) | ✅ Full course: 2 worlds, 14 missions, 4 hands-on challenges, 140 questions, 57 flashcards. AI-901 replaced AI-900, which retired June 30, 2026. |
+| ☸️ Kubernetes and Cloud Native Associate (KCNA) | ✅ Full course: 4 worlds, 23 missions, 4 hands-on challenges, 150 questions, 83 flashcards. Percentage scored, pass at 75%. |
+
+### Code Quests (interview prep)
+
+A separate section at `/code` with its own terminal and arcade look. Each track has 4 stages, 16 levels, labs and challenges, and questions tagged junior, intermediate, senior, or staff. Players pick a difficulty (or all levels) on the track map, and every game, from trials to the mock interview, then draws only questions at that level.
+
+| Track | Questions | Flashcards | Challenges |
+| --- | --- | --- | --- |
+| 🟨 JavaScript | 110 | 54 | 4 |
+| 🔷 TypeScript | 94 | 52 | 4 |
+| 🧱 Data Structures | 94 | 52 | 4 |
+| 🧮 Algorithms | 94 | 54 | 2 |
+| ⚛️ React | 105 | 55 | 4 |
+| ▲ Next.js (16) | 95 | 51 | 3 |
+| 🟢 Node.js | 101 | 60 | 4 |
+| 🐍 Python | 103 | 54 | 4 |
+| ☕ Java | 101 | 59 | 7 |
 
 ## How it plays: teach first, then test
 
@@ -56,14 +74,18 @@ src/
     store.ts              per-course progress store (localStorage)
     path.ts               mission map unlock rules
     game.ts               shuffling, weighted exam decks, scoring, mastery
-    course-context.tsx    <CourseProvider> and useCourse()
+    course-context.tsx    <CourseProvider>, useCourse(), useLevelPool()
+    levels.ts             skill levels for interview tracks (junior … staff, all)
+    copy.ts               certification vs interview wording ("exam" vs "mock interview")
   components/             course-agnostic UI
-    QuestionCard.tsx      choice, multiple-response, ordering, matching
+    QuestionCard.tsx      choice, multiple-response, ordering, matching, bug hunt (tap the line)
     QuizSession.tsx       trial / review engine
     TimedQuiz.tsx         per-question countdown quiz (lesson challenges, Timed drill)
     ChallengeCard.tsx     wraps any lab with a goal, hint, and takeaway
     Guide.tsx             study guide drawer and page
     learn/blocks.tsx      reusable lesson blocks: Flow, Tiles, Layers, Ladder, ServiceRows, LabHeader
+    learn/code.tsx        CodeBlock, CodeCompare, dedent, RichText (`inline code` in any text)
+    code/ui.tsx           Code Quest skin: CodeRain, TerminalWindow, Typewriter, LevelPicker
     fx.tsx                3D core, tilt cards, confetti, starfield, Nimbus the mascot
   courses/
     index.ts              course registry and "coming soon" catalog
@@ -75,6 +97,7 @@ src/
       labs.tsx            course-specific hands-on labs
   app/
     page.tsx              course catalog
+    code/page.tsx         Code Quests hub
     c/[course]/           every course page: map, start, lesson, quest, exam, guide, games
 ```
 
@@ -93,6 +116,12 @@ Percentage-scored exams (for example Kubernetes) just use a different scale: `sc
 When an exam version is replaced, set `lifecycle` on both courses, for example `lifecycle: { retires: "2026-11-30", successor: "aws-dva-c03" }` on the old one and `lifecycle: { opens: "2026-12-01", predecessor: "aws-dva-c02" }` on the new one. The catalog shows badges and each mission map shows a banner linking the two versions; `npm test` checks that the ids exist.
 
 List every question format the course uses in `exam.questionTypes`. Mark a format `practiceOnly: true` when the real exam doesn't use it (for example ordering and matching on DVA-C02): the exam simulator then leaves those questions out, while missions, trials, and drills still use them. `npm test` checks that every question's format is listed and that each exam mode has enough official-format questions.
+
+### Adding an interview track
+
+Set `kind: "interview"` in the course's `index.ts`. The track then appears in the Code Quests hub instead of the certification catalog, uses the terminal skin and interview wording, and shows the difficulty picker. Every question and lesson needs a `level` (`"junior" | "intermediate" | "senior" | "staff"`), and `npm test` requires at least 12 questions per level.
+
+Questions can carry a snippet: `code` plus `codeLang` shows it under the prompt. A `type: "lines"` question is a bug hunt: the player taps the broken line(s) in `code`, and `answer` lists the 1-based line numbers. The validator rejects answers that point at a blank line or a lone brace, and a prompt with more than one answer line must say how many to pick.
 
 ## Adding content to a course
 

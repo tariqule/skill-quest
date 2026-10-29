@@ -12,8 +12,12 @@ import { indexCourse } from "@/engine/indexes";
 import { getCourseStore } from "@/engine/store";
 import type { Course, PlannedCourse, Provider } from "@/engine/types";
 
+const CERTS = COURSES.filter((c) => c.kind !== "interview");
+const TRACKS = COURSES.filter((c) => c.kind === "interview");
+const PLANNED_CERTS = PLANNED.filter((c) => c.kind !== "interview");
+
 export default function Catalog() {
-  const providers = uniqueProviders([...COURSES, ...PLANNED]);
+  const providers = uniqueProviders([...CERTS, ...PLANNED_CERTS]);
   const [filter, setFilter] = useState<string>("all");
   const show = <T extends { provider: Provider }>(list: T[]) => list.filter((c) => filter === "all" || c.provider.id === filter);
 
@@ -35,7 +39,11 @@ export default function Catalog() {
           </div>
         </section>
 
-        <div className="mt-8 flex flex-wrap gap-2">
+        <CodeQuestBanner />
+
+        <h2 className="mt-12 text-2xl font-black text-white">🎓 Certification quests</h2>
+        <p className="mt-1 text-sm text-slate-400">Built from each vendor&apos;s official exam guide, with a real-format exam simulator.</p>
+        <div className="mt-4 flex flex-wrap gap-2">
           <Chip active={filter === "all"} onClick={() => setFilter("all")}>
             All
           </Chip>
@@ -47,10 +55,10 @@ export default function Catalog() {
         </div>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
-          {show(COURSES).map((c) => (
+          {show(CERTS).map((c) => (
             <CourseCard key={c.id} course={c} />
           ))}
-          {show(PLANNED).map((c) => (
+          {show(PLANNED_CERTS).map((c) => (
             <PlannedCard key={c.id} course={c} />
           ))}
         </div>
@@ -103,6 +111,40 @@ function CourseCard({ course }: { course: Course }) {
         </span>
       </Link>
     </Tilt>
+  );
+}
+
+/** Neon entry point to the Code Quests hub. */
+function CodeQuestBanner() {
+  return (
+    <Link
+      href="/code"
+      className="group relative mt-10 block overflow-hidden rounded-3xl border-2 border-emerald-400/40 bg-[#03070d] p-6 transition hover:-translate-y-0.5 sm:p-8"
+      style={{ boxShadow: "0 0 0 1px #34d39922, 0 24px 60px -30px #34d399" }}
+    >
+      <div className="code-grid absolute inset-0 opacity-60" />
+      <pre className="pointer-events-none absolute -right-4 top-2 hidden font-mono text-xs leading-5 text-emerald-300/20 sm:block">
+        {"const quest = await interview();\nif (quest.passed) hire(you);\n// bug hunt · predict · build\nfor (const level of levels) {\n  level.up();\n}"}
+      </pre>
+      <div className="relative">
+        <div className="font-mono text-xs font-black uppercase tracking-[0.25em] text-emerald-300">&lt;/&gt; New · interview prep</div>
+        <div className="glitch mt-2 font-mono text-3xl font-black text-white sm:text-4xl">Code Quests</div>
+        <p className="mt-2 max-w-xl text-slate-300">
+          Data structures, algorithms, JavaScript, TypeScript, React, Next.js, Node.js, Python, and Java. Junior to staff level, with bug hunts,
+          predict-the-output puzzles, and timed mock interviews.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {(TRACKS.length ? TRACKS : []).map((t) => (
+            <span key={t.id} className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-xs text-slate-200">
+              {t.provider.icon} {t.shortTitle}
+            </span>
+          ))}
+        </div>
+        <span className="mt-5 inline-block rounded-xl bg-emerald-400 px-5 py-2.5 font-mono text-sm font-black uppercase tracking-wider text-slate-950 transition group-hover:brightness-110">
+          ▶ Enter Code Quests
+        </span>
+      </div>
+    </Link>
   );
 }
 

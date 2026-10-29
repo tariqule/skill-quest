@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import { BADGES, type BadgeId } from "./badges";
+import type { LevelChoice } from "./levels";
 import type { Course } from "./types";
 import { pushToast } from "./ui-state";
 
@@ -37,6 +38,8 @@ export interface Progress {
   /** Lessons opened in a study session. */
   studied: string[];
   challengesSolved: string[];
+  /** Interview tracks: which seniority to practise ("all" mixes them). */
+  level: LevelChoice;
 }
 
 export const INITIAL_PROGRESS: Progress = {
@@ -59,6 +62,7 @@ export const INITIAL_PROGRESS: Progress = {
   studyMinutes: {},
   studied: [],
   challengesSolved: [],
+  level: "all",
 };
 
 // ───────────── Levels ─────────────
@@ -296,6 +300,10 @@ function buildStore(course: Course) {
       addXp(course.config.xp.challengeSolved);
       if (challengesSolved.length >= Math.min(5, course.challenges.length)) unlockBadge("tinkerer");
       return true;
+    },
+
+    setLevel(level: LevelChoice) {
+      commit({ ...get(), level });
     },
 
     setDailyGoal(goal: number) {

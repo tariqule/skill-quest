@@ -1,5 +1,6 @@
 "use client";
 
+import { RichText } from "@/components/learn/code";
 import { useEffect, useState } from "react";
 import { Bar, Button, PageShell } from "@/components/ui";
 import { useCourse, useProgress } from "@/engine/course-context";
@@ -123,11 +124,11 @@ export default function FlashcardsPage() {
             <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: domain.color }}>
               {card.kind === "service" ? "Service" : "Concept"} · {domain.emoji} D{domain.number}
             </div>
-            <div className="mt-4 text-center text-2xl sm:text-3xl font-bold text-white">{card.term}</div>
+            <div className="mt-4 text-center text-2xl sm:text-3xl font-bold text-white"><RichText text={card.term} /></div>
             <div className="mt-6 text-xs text-slate-500">Tap or press Space to flip</div>
           </div>
           <div className="flip-face flip-back absolute inset-0 flex items-center justify-center rounded-2xl border border-sky-400/30 bg-slate-800 p-6">
-            <div className="text-center text-xl sm:text-2xl text-slate-100">{card.definition}</div>
+            <div className="text-center text-xl sm:text-2xl text-slate-100"><RichText text={card.definition} /></div>
           </div>
         </div>
       </button>

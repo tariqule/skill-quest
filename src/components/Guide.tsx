@@ -1,17 +1,19 @@
 "use client";
 
+import { RichText } from "@/components/learn/code";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { courseCopy } from "@/engine/copy";
 import { useCourse, useProgress } from "@/engine/course-context";
 import { versionLabel } from "@/engine/game";
 import { setGuideOpen, useGuideOpen } from "@/engine/ui-state";
 import { Mascot } from "./fx";
 
 const TABS = [
-  { id: "exam", label: "🎯 Exam" },
+  { id: "exam", label: "🎯 Format" },
   { id: "topics", label: "🗺️ Topics" },
   { id: "glossary", label: "🔎 Glossary" },
-  { id: "services", label: "🧰 Services" },
+  { id: "services", label: "🧰 Scope" },
   { id: "tips", label: "💡 Tips" },
   { id: "play", label: "🎮 How to play" },
 ] as const;
@@ -105,7 +107,7 @@ function TopicsTab() {
   return (
     <div className="grid gap-4">
       <div className="rounded-xl border border-white/10 bg-slate-950/60 p-3 text-sm text-slate-300">
-        Every task statement in the official exam guide, and the missions that teach it.{" "}
+        Every topic in the {courseCopy(course).syllabus}, and the missions that teach it.{" "}
         <b className="text-white">
           {done}/{allLessons.length}
         </b>{" "}
@@ -180,7 +182,7 @@ function GlossaryTab() {
           const d = course.domains.find((x) => x.id === c.domain)!;
           return (
             <div key={c.id} className="rounded-lg bg-white/5 px-3 py-2 text-sm" style={{ boxShadow: `inset 3px 0 0 0 ${d.color}` }}>
-              <b className="text-white">{c.term}</b> <span className="text-slate-300">· {c.definition}</span>
+              <b className="text-white"><RichText text={c.term} /></b> <span className="text-slate-300">· <RichText text={c.definition} /></span>
             </div>
           );
         })}
@@ -194,7 +196,7 @@ function ServicesTab() {
   const { course } = useCourse();
   return (
     <div className="grid gap-3">
-      <p className="text-sm text-slate-400">{course.guide.scope.label} from the official exam guide.</p>
+      <p className="text-sm text-slate-400">{course.guide.scope.label} from the {courseCopy(course).syllabus}.</p>
       {course.guide.scope.groups.map((c) => (
         <div key={c.category} className="rounded-xl border border-white/10 bg-slate-950/50 p-3">
           <div className="text-sm font-bold text-white">
@@ -221,7 +223,7 @@ function TipsTab() {
       {course.guide.tips.map((t) => (
         <div key={t.tip} className="flex gap-3 rounded-xl bg-white/5 p-3 text-sm text-slate-200">
           <span className="text-xl">{t.icon}</span>
-          <span>{t.tip}</span>
+          <span><RichText text={t.tip} /></span>
         </div>
       ))}
     </div>
@@ -239,7 +241,7 @@ function PlayTab() {
       {[
         ["📖 Mission", `One concept, explained with a visual or a hands-on lab, then quick check questions. +${course.config.xp.lessonComplete} XP.`],
         ["⚔️ Trial", `${course.config.quest.length} questions from the world, ${course.config.quest.hearts} hearts. 1+ star unlocks the next world.`],
-        ["🏛️ Certification Gate", `Full ${course.exam.questions}-question, ${course.exam.minutes}-minute simulator scored like the real exam.`],
+        [`${courseCopy(course).gateIcon} ${courseCopy(course).gate.replace(/^The /, "")}`, `Full ${course.exam.questions}-question, ${course.exam.minutes}-minute ${courseCopy(course).simulator}.`],
         ["🎮 Training deck", "Replay challenges anytime to sharpen what you learned."],
         ["⌨️ Keys", "1–4 or A–D to answer · Enter to continue · Space flips flashcards."],
       ].map(([t, d]) => (

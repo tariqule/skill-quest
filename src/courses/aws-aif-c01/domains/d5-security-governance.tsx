@@ -123,7 +123,7 @@ export default defineDomain({
     },
     {
       id: "d5-scoping",
-      check: ["d5-17", "d5-21"],
+      check: ["d5-17", "d5-29"],
       task: "5.2",
       title: "Generative AI Security Scoping Matrix",
       visual: <ScopingMatrix />,

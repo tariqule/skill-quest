@@ -70,7 +70,7 @@ export default defineDomain({
     },
     {
       id: "d2-embeddings",
-      check: ["d2-02", "d3-17"],
+      check: ["d2-02", "d2-32"],
       task: "2.1",
       title: "Embeddings: meaning as coordinates",
       visual: (

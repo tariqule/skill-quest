@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { QuestionCard } from "@/components/QuestionCard";
 import { Bar, Button, PageShell } from "@/components/ui";
-import { useCourse, useProgress } from "@/engine/course-context";
+import { useCourse, useLevelPool, useProgress } from "@/engine/course-context";
 import { deck, isCorrect, type PreparedQuestion } from "@/engine/game";
 import { isChoice } from "@/engine/types";
 
@@ -12,6 +12,7 @@ type Phase = "intro" | "play" | "done";
 export default function LightningPage() {
   const { course, store } = useCourse();
   const progress = useProgress();
+  const { pool: levelPool } = useLevelPool();
   const { seconds: SECONDS, penaltySeconds: PENALTY } = course.config.lightning;
   const XP_EACH = course.config.xp.lightningCorrect;
   const [phase, setPhase] = useState<Phase>("intro");
@@ -25,7 +26,7 @@ export default function LightningPage() {
   const finished = useRef(false);
 
   function start() {
-    setPool(deck(course.questions.filter((q) => isChoice(q) && q.answer.length === 1)));
+    setPool(deck(levelPool.filter((q) => isChoice(q) && q.answer.length === 1)));
     setIdx(0);
     setSubmitted(null);
     setTimeLeft(SECONDS);

@@ -30,12 +30,21 @@ export interface Domain {
 
 // ───────────── Questions ─────────────
 
+/** Interview seniority a question or lesson targets. */
+export type SkillLevel = "junior" | "intermediate" | "senior" | "staff";
+
 interface BaseQuestion {
   id: string;
   domain: string;
+  /** Interview tracks: the seniority this question targets. Required when the course kind is "interview". */
+  level?: SkillLevel;
   /** Lesson id of the concept this question tests. Powers "Revisit the concept" and per-concept results. */
   lesson: string;
   prompt: string;
+  /** Optional code snippet shown under the prompt (e.g. "What does this print?"). */
+  code?: string;
+  /** Language label for `code`, e.g. "js", "ts", "python", "java". */
+  codeLang?: string;
   explanation: string;
 }
 
@@ -58,7 +67,15 @@ export interface MatchQuestion extends BaseQuestion {
   pairs: [string, string][];
 }
 
-export type Question = ChoiceQuestion | OrderQuestion | MatchQuestion;
+/** "Bug hunt": tap the line(s) in `code` that answer the prompt (the bug, the line that throws, …). */
+export interface LinesQuestion extends BaseQuestion {
+  type: "lines";
+  code: string;
+  /** 1-based line numbers of the correct line(s). */
+  answer: number[];
+}
+
+export type Question = ChoiceQuestion | OrderQuestion | MatchQuestion | LinesQuestion;
 
 export function isChoice(q: Question): q is ChoiceQuestion {
   return q.type === undefined || q.type === "choice";
@@ -77,6 +94,8 @@ export interface Card {
 
 export interface Lesson {
   id: string;
+  /** Interview tracks: the seniority this concept is usually asked at. */
+  level?: SkillLevel;
   /** Exam guide task statement(s) this lesson covers, e.g. "3.1" or "3.1 · 3.3". */
   task: string;
   title: string;
@@ -108,7 +127,7 @@ export interface Challenge {
 
 // ───────────── Exam and guide ─────────────
 
-export type QuestionKind = "choice" | "multi" | "order" | "match";
+export type QuestionKind = "choice" | "multi" | "order" | "match" | "lines";
 
 export interface ExamFormat {
   /** Questions on the real exam, including unscored ones. */
@@ -166,7 +185,9 @@ export interface Course {
   title: string;
   shortTitle: string;
   tagline: string;
-  level: "Foundational" | "Associate" | "Professional" | "Specialty";
+  level: "Foundational" | "Associate" | "Professional" | "Specialty" | "Beginner" | "Intermediate" | "Advanced";
+  /** "certification" (default) or "interview" prep. Changes catalog section and wording. */
+  kind?: "certification" | "interview";
   /** Exam version dates, shown in the catalog and on the mission map. */
   lifecycle?: CourseLifecycle;
   /** localStorage key for this course's progress. Change it only with a migration. */
@@ -313,6 +334,7 @@ export interface CourseLifecycle {
 /** A catalog entry for a course that isn't built yet. */
 export interface PlannedCourse {
   id: string;
+  kind?: Course["kind"];
   provider: Provider;
   code: string;
   title: string;

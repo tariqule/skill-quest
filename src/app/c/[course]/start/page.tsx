@@ -4,12 +4,20 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { Core3D, Mascot, MascotSays, Tilt } from "@/components/fx";
-import { useCourse } from "@/engine/course-context";
+import { LevelPicker } from "@/components/code/ui";
+import { courseCopy } from "@/engine/copy";
+import { useCourse, useProgress } from "@/engine/course-context";
+import { LEVEL_BY_ID, LEVELS, type LevelChoice } from "@/engine/levels";
 import type { QuestionKind } from "@/engine/types";
 
 export default function StartPage() {
   const router = useRouter();
   const { course, store, href, allLessons } = useCourse();
+  const copy = courseCopy(course);
+  const progress = useProgress();
+  const levelCounts = Object.fromEntries(
+    LEVELS.map((l) => [l.id, l.id === "all" ? course.questions.length : course.questions.filter((q) => q.level === l.id).length]),
+  ) as Record<LevelChoice, number>;
   const GOALS = course.config.dailyGoals;
   const firstLesson = allLessons[0];
   const biggest = course.domains.reduce((a, b) => (b.weight > a.weight ? b : a));
@@ -34,7 +42,15 @@ export default function StartPage() {
           <Core3D size={100} domains={course.domains} icon={course.provider.icon} />
           <div className="mt-2 max-w-lg">
             <MascotSays mood="wow">
-              <b>Hi, I&apos;m Nimbus!</b> I&apos;ll guide you from zero to passing the <b>{course.title}</b> exam. We learn each idea with pictures and
+              <b>Hi, I&apos;m Nimbus!</b> {course.kind === "interview" ? (
+                <>
+                  I&apos;ll take you from zero to acing <b>{course.shortTitle}</b> interview questions. We
+                </>
+              ) : (
+                <>
+                  I&apos;ll guide you from zero to passing the <b>{course.title}</b> exam. We
+                </>
+              )}{" "} learn each idea with pictures and
               hands-on labs, then you prove it in games.
             </MascotSays>
           </div>
@@ -42,7 +58,7 @@ export default function StartPage() {
       ),
     },
     {
-      title: "The exam at a glance",
+      title: copy.glanceTitle,
       body: (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {course.guide.facts.map((f, i) => (
@@ -59,11 +75,11 @@ export default function StartPage() {
       ),
     },
     {
-      title: "Is this exam for me?",
+      title: copy.forMeTitle,
       body: (
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="rounded-2xl border border-emerald-400/30 bg-emerald-400/5 p-4">
-            <div className="font-bold text-emerald-300">✅ This exam is for…</div>
+            <div className="font-bold text-emerald-300">{copy.forMeYes}</div>
             <ul className="mt-3 grid gap-2 text-sm text-slate-200">
               {course.guide.candidate.is.map((x) => (
                 <li key={x}>👤 {x}</li>
@@ -71,7 +87,7 @@ export default function StartPage() {
             </ul>
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-            <div className="font-bold text-slate-300">🙅 You will NOT need to…</div>
+            <div className="font-bold text-slate-300">{copy.forMeNo}</div>
             <ul className="mt-3 grid gap-2 text-sm text-slate-400">
               {course.guide.candidate.isNot.map((x) => (
                 <li key={x}>✕ {x}</li>
@@ -82,7 +98,7 @@ export default function StartPage() {
       ),
     },
     {
-      title: "Four kinds of questions",
+      title: `${numberWord(course.exam.questionTypes.length)} kinds of questions`,
       body: (
         <div className="grid gap-3 sm:grid-cols-2">
           {course.exam.questionTypes.map((t) => (
@@ -97,13 +113,13 @@ export default function StartPage() {
             </div>
           ))}
           <p className="text-sm text-slate-400 sm:col-span-2">
-            You&apos;ll practise every type in this game. Practice-only formats help you learn but never appear in the exam simulator.
+            You&apos;ll practise every type in this game. Practice-only formats help you learn but never appear in the {copy.simulator}.
           </p>
         </div>
       ),
     },
     {
-      title: "Five worlds to explore",
+      title: `${numberWord(course.domains.length)} worlds to explore`,
       body: (
         <div>
           <div className="flex h-12 overflow-hidden rounded-2xl border border-white/10">
@@ -144,7 +160,7 @@ export default function StartPage() {
               { icon: "📖", t: "Learn", d: "A mission teaches one concept with a picture or a lab you can play with." },
               { icon: "✅", t: "Check", d: "Quick questions. Missed ones come back until they stick." },
               { icon: "⚔️", t: "Trial", d: `${course.config.quest.length} questions, ${course.config.quest.hearts} hearts. Pass to unlock the next world.` },
-              { icon: "🏛️", t: "Certify", d: `A full exam simulator. Score ${course.exam.scale.pass}+ and you're ready.` },
+              { icon: copy.gateIcon, t: copy.gateStep, d: `A full ${copy.simulator}. Score ${course.exam.scale.pass}+ and you're ready.` },
             ].map((s, i) => (
               <div key={s.t} className="relative rounded-2xl border border-white/10 bg-slate-900/70 p-4">
                 <div className="text-3xl">{s.icon}</div>
@@ -171,6 +187,25 @@ export default function StartPage() {
         </div>
       ),
     },
+    ...(course.kind === "interview"
+      ? [
+          {
+            title: "Choose your level",
+            body: (
+              <div>
+                <p className="mb-4 text-slate-300">
+                  Pick the seniority you&apos;re interviewing for. Every game, trial, and mock interview will draw from that level. You can switch anytime
+                  from the track&apos;s home screen.
+                </p>
+                <LevelPicker value={progress.level} onChange={(l) => store.setLevel(l)} counts={levelCounts} />
+                <p className="mt-3 font-mono text-sm" style={{ color: LEVEL_BY_ID[progress.level].color }}>
+                  {LEVEL_BY_ID[progress.level].icon} {LEVEL_BY_ID[progress.level].name}: {LEVEL_BY_ID[progress.level].blurb}
+                </p>
+              </div>
+            ),
+          },
+        ]
+      : []),
     {
       title: "Pick your pace",
       body: (
@@ -185,7 +220,7 @@ export default function StartPage() {
                 style={{ "--edge": goal === g.xp ? "#0369a1" : "#020617" } as CSSProperties}
               >
                 <div className="text-3xl">{g.icon}</div>
-                <div className="mt-1 font-black text-white">{g.name}</div>
+                <div className="mt-1 font-black text-white">{g.name.replace(/\bExam\b/, copy.noun[0].toUpperCase() + copy.noun.slice(1))}</div>
                 <div className="text-xs text-slate-400">
                   {g.xp} XP · {g.note}
                 </div>
@@ -306,6 +341,17 @@ function MiniDemo({ kind }: { kind: QuestionKind }) {
         ))}
       </div>
     );
+  if (kind === "lines")
+    return (
+      <div className={`${box} font-mono`}>
+        {["for (let i = 0; i <= n; i++) {", "  total += arr[i];", "}"].map((l, i) => (
+          <span key={i} className={`block rounded px-2 py-0.5 ${i === 0 ? "bg-rose-400/25 text-rose-100" : "text-slate-300"}`}>
+            <span className="mr-2 text-slate-500">{i + 1}</span>
+            {l}
+          </span>
+        ))}
+      </div>
+    );
   if (kind === "order")
     return (
       <div className={`${box} flex flex-wrap gap-1`}>
@@ -328,4 +374,10 @@ function MiniDemo({ kind }: { kind: QuestionKind }) {
       ))}
     </div>
   );
+}
+
+const NUMBER_WORDS = ["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"];
+
+function numberWord(n: number) {
+  return NUMBER_WORDS[n] ?? String(n);
 }

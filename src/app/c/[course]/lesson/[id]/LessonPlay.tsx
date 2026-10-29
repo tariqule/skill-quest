@@ -1,12 +1,14 @@
 "use client";
 
+import { RichText } from "@/components/learn/code";
 import Link from "next/link";
 import { notFound, useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Confetti, MascotSays } from "@/components/fx";
 import { QuestionCard } from "@/components/QuestionCard";
 import { TimedQuiz, type TimedResult } from "@/components/TimedQuiz";
-import { useCourse } from "@/engine/course-context";
+import { courseCopy } from "@/engine/copy";
+import { useCourse, useLevelPool } from "@/engine/course-context";
 import { answerText, challengeDeck, isCorrect, pct, prepare, type PreparedQuestion } from "@/engine/game";
 import { buildPath } from "@/engine/path";
 
@@ -22,6 +24,8 @@ export function LessonPlay() {
   const { id } = useParams<{ id: string }>();
   const { course, store, href, lesson: lessonById, domain: domainById, question: QUESTION_BY_ID } = useCourse();
   const { xp } = course.config;
+  const copy = courseCopy(course);
+  const { pool: levelPool } = useLevelPool();
   const lesson = lessonById[id];
   if (!lesson) notFound();
   const domain = domainById[lesson.domain];
@@ -83,7 +87,7 @@ export function LessonPlay() {
 
   function startTimed() {
     const must = missed.map((qid) => QUESTION_BY_ID[qid]);
-    const pool = [...lesson.check.map((qid) => QUESTION_BY_ID[qid]), ...course.questions.filter((q) => q.domain === lesson.domain)];
+    const pool = [...lesson.check.map((qid) => QUESTION_BY_ID[qid]), ...levelPool.filter((q) => q.domain === lesson.domain)];
     setTimedDeck(challengeDeck(must, pool, Math.max(challenge.questions, must.length)));
     goTo("timed");
   }
@@ -129,7 +133,7 @@ export function LessonPlay() {
         <span style={{ color: domain.color }}>
           {domain.emoji} World {domain.number} · Lesson {lesson.index + 1} of {worldLessons.length}
         </span>
-        <span className="rounded-full bg-white/10 px-2 py-0.5 text-slate-300">Exam task {lesson.task}</span>
+        <span className="rounded-full bg-white/10 px-2 py-0.5 text-slate-300">{copy.task} {lesson.task}</span>
       </div>
 
       {phase === "teach" && (
@@ -144,15 +148,15 @@ export function LessonPlay() {
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold text-slate-950" style={{ background: domain.color }}>
                   {i + 1}
                 </span>
-                <span>{pt}</span>
+                <span><RichText text={pt} /></span>
               </li>
             ))}
           </ul>
           {lesson.tip && (
             <div className="mt-4">
               <MascotSays mood="think">
-                <span className="font-semibold text-amber-300">Exam tip: </span>
-                {lesson.tip}
+                <span className="font-semibold text-amber-300">{copy.tip}: </span>
+                <RichText text={lesson.tip} />
               </MascotSays>
             </div>
           )}
@@ -218,12 +222,12 @@ export function LessonPlay() {
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold text-slate-950" style={{ background: domain.color }}>
                   {i + 1}
                 </span>
-                <span>{pt}</span>
+                <span><RichText text={pt} /></span>
               </li>
             ))}
             {lesson.tip && (
               <li className="rounded-xl border border-amber-400/30 bg-amber-400/10 p-3 text-sm text-amber-100">
-                <b>Exam tip:</b> {lesson.tip}
+                <b>{copy.tip}:</b> <RichText text={lesson.tip} />
               </li>
             )}
           </ul>

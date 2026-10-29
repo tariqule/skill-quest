@@ -1,5 +1,6 @@
 "use client";
 
+import { RichText } from "@/components/learn/code";
 import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
 import { useEffect, useState, type CSSProperties } from "react";
@@ -7,7 +8,8 @@ import { ChallengeCard } from "@/components/ChallengeCard";
 import { MascotSays } from "@/components/fx";
 import { QuestionCard } from "@/components/QuestionCard";
 import { Bar } from "@/components/ui";
-import { useCourse, useProgress } from "@/engine/course-context";
+import { courseCopy } from "@/engine/copy";
+import { useCourse, useLevelPool, useProgress } from "@/engine/course-context";
 import { answerText, deck, isCorrect, pct, pickedText, shuffle, type PreparedQuestion } from "@/engine/game";
 import type { Challenge, Lesson } from "@/engine/types";
 
@@ -31,6 +33,7 @@ export function StudySession() {
   const lessons = course.lessons[domain.id] ?? [];
   const challenges = course.challenges.filter((c) => c.domain === domain.id);
   const cfg = course.config.study;
+  const copy = courseCopy(course);
 
   const [phase, setPhase] = useState<Phase>("setup");
   const [minutes, setMinutes] = useState(cfg.defaultMinutes);
@@ -47,7 +50,8 @@ export function StudySession() {
 
   const target = minutes * 60;
   const timeUp = minutes > 0 && elapsed >= target;
-  const questionCount = Math.min(cfg.playQuestions, course.questions.filter((q) => q.domain === domain.id).length);
+  const { pool: levelPool } = useLevelPool();
+  const questionCount = Math.min(cfg.playQuestions, levelPool.filter((q) => q.domain === domain.id).length);
 
   // Study clock: counts up while studying and not paused.
   useEffect(() => {
@@ -78,7 +82,7 @@ export function StudySession() {
   function startPlay() {
     store.recordStudy(domain.id, Math.floor(elapsed / 60));
     const qs = deck(
-      course.questions.filter((q) => q.domain === domain.id),
+      levelPool.filter((q) => q.domain === domain.id),
       questionCount,
     );
     const cs = shuffle(challenges);
@@ -277,6 +281,8 @@ export function StudySession() {
               onPrev={current > 0 ? () => view(current - 1) : undefined}
               onNext={current + 1 < lessons.length ? () => view(current + 1) : undefined}
               onDone={startPlay}
+              taskLabel={copy.task}
+              tipLabel={copy.tip}
             />
           ) : (
             <div className="grid gap-2 sm:grid-cols-2">
@@ -468,7 +474,11 @@ function ConceptView({
   onPrev,
   onNext,
   onDone,
+  taskLabel,
+  tipLabel,
 }: {
+  taskLabel: string;
+  tipLabel: string;
   lesson: Lesson;
   index: number;
   total: number;
@@ -483,7 +493,7 @@ function ConceptView({
         <span style={{ color }}>
           Concept {index + 1} of {total}
         </span>
-        <span className="rounded-full bg-white/10 px-2 py-0.5 text-slate-300">Exam task {lesson.task}</span>
+        <span className="rounded-full bg-white/10 px-2 py-0.5 text-slate-300">{taskLabel} {lesson.task}</span>
       </div>
       <h2 className="mt-1 text-2xl font-black text-white">{lesson.title}</h2>
       <div className="mt-4 rounded-2xl border border-white/10 bg-slate-900/70 p-4 sm:p-6" style={{ boxShadow: `0 20px 60px -30px ${color}` }}>
@@ -495,13 +505,13 @@ function ConceptView({
             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold text-slate-950" style={{ background: color }}>
               {i + 1}
             </span>
-            {p}
+            <RichText text={p} />
           </li>
         ))}
       </ul>
       {lesson.tip && (
         <div className="mt-3 rounded-xl border border-amber-400/30 bg-amber-400/10 p-3 text-sm text-amber-100">
-          <b>Exam tip:</b> {lesson.tip}
+          <b>{tipLabel}:</b> <RichText text={lesson.tip} />
         </div>
       )}
       <div className="mt-5 flex gap-3">
@@ -530,8 +540,8 @@ function TermCard({ term, definition }: { term: string; definition: string }) {
       onClick={() => setOpen(!open)}
       className={`rounded-xl border p-3 text-left transition ${open ? "border-sky-400/50 bg-sky-400/10" : "border-white/10 bg-white/5 hover:bg-white/10"}`}
     >
-      <div className="font-bold text-white">{term}</div>
-      <div className={`mt-1 text-sm ${open ? "text-slate-200" : "text-slate-500"}`}>{open ? definition : "Tap to reveal"}</div>
+      <div className="font-bold text-white"><RichText text={term} /></div>
+      <div className={`mt-1 text-sm ${open ? "text-slate-200" : "text-slate-500"}`}>{open ? <RichText text={definition} /> : "Tap to reveal"}</div>
     </button>
   );
 }

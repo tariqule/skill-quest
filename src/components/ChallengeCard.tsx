@@ -1,5 +1,6 @@
 "use client";
 
+import { RichText } from "./learn/code";
 import { useState, type CSSProperties } from "react";
 import { useCourse } from "@/engine/course-context";
 import type { Challenge } from "@/engine/types";
@@ -32,13 +33,13 @@ export function ChallengeCard({ challenge, onDone }: Props) {
           <span className="font-black text-white">{challenge.title}</span>
           {solved && <span className="ml-auto font-black text-emerald-300">✓ Solved · +{course.config.xp.challengeSolved} XP</span>}
         </div>
-        <p className="mt-2 text-slate-100">{challenge.goal}</p>
+        <p className="mt-2 text-slate-100"><RichText text={challenge.goal} /></p>
         {challenge.hint && !solved && (
           <button type="button" onClick={() => setShowHint(!showHint)} className="mt-2 text-sm text-fuchsia-200 underline">
-            {showHint ? challenge.hint : "💡 Need a hint?"}
+            {showHint ? <RichText text={challenge.hint} /> : "💡 Need a hint?"}
           </button>
         )}
-        {solved && <p className="pop-in mt-2 rounded-xl bg-slate-950/50 p-3 text-sm text-emerald-100">🧠 {challenge.takeaway}</p>}
+        {solved && <p className="pop-in mt-2 rounded-xl bg-slate-950/50 p-3 text-sm text-emerald-100">🧠 <RichText text={challenge.takeaway} /></p>}
       </div>
 
       <div className="mt-4 rounded-2xl border border-white/10 bg-slate-900/70 p-4 sm:p-6">{challenge.render(handleSolved)}</div>

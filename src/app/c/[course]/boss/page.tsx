@@ -4,15 +4,19 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { QuestionCard } from "@/components/QuestionCard";
 import { Bar, Button, PageShell } from "@/components/ui";
-import { useCourse, useProgress } from "@/engine/course-context";
+import { courseCopy } from "@/engine/copy";
+import { useCourse, useLevelPool, useProgress } from "@/engine/course-context";
 import { isCorrect, scaledScore, weightedExamDeck, type PreparedQuestion } from "@/engine/game";
 
 type Phase = "intro" | "play" | "done";
 
 export default function BossPage() {
   const { course, store, href } = useCourse();
+  const copy = courseCopy(course);
   const progress = useProgress();
-  const { questions: TOTAL, minutes: MINUTES } = course.config.boss;
+  const { pool: levelPool } = useLevelPool();
+  const TOTAL = Math.min(course.config.boss.questions, levelPool.length);
+  const MINUTES = course.config.boss.minutes;
   const { xp } = course.config;
   const { pass } = course.exam.scale;
   const boss = course.boss ?? { name: "The Exam Hydra", emoji: "🐉" };
@@ -33,7 +37,7 @@ export default function BossPage() {
   const playerHp = 1 - results.filter((r, i) => answers[i] && !r).length / Math.max(deck.length * 0.35, 1);
 
   function start() {
-    setDeck(weightedExamDeck(course, TOTAL));
+    setDeck(weightedExamDeck(course, TOTAL, levelPool));
     setAnswers([]);
     setIdx(0);
     setSecondsLeft(MINUTES * 60);
@@ -103,12 +107,12 @@ export default function BossPage() {
         <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-6 sm:p-8">
           <p className="text-slate-300">
             Face the <span className="font-semibold text-rose-300">{boss.name}</span>. Every correct answer is a hit. Explanations
-            stay hidden until the end, just like the real exam.
+            stay hidden until the end, just like {copy.real}.
           </p>
           <ul className="mt-5 grid gap-2 text-sm text-slate-400">
             <li>📝 {TOTAL} questions drawn by domain weight</li>
             <li>
-              ⏱️ {MINUTES} minutes (the real exam gives {course.exam.minutes} minutes for {course.exam.questions} questions)
+              ⏱️ {MINUTES} minutes (the full {copy.simulator} is {course.exam.minutes} minutes for {course.exam.questions} questions)
             </li>
             <li>
               🎯 Scaled score {course.exam.scale.min} to {course.exam.scale.max}. You need {pass} to pass.

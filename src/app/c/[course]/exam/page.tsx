@@ -5,15 +5,25 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Confetti, Core3D, MascotSays } from "@/components/fx";
 import { QuestionCard } from "@/components/QuestionCard";
 import { Bar, PageShell } from "@/components/ui";
-import { useCourse, useProgress } from "@/engine/course-context";
+import { courseCopy } from "@/engine/copy";
+import { useCourse, useLevelPool, useProgress } from "@/engine/course-context";
+import { LEVEL_BY_ID } from "@/engine/levels";
 import { examQuestions, isCorrect, pct, scaledScore, shuffle, versionLabel, weightedExamDeck, type PreparedQuestion } from "@/engine/game";
 
 type Phase = "intro" | "exam" | "review" | "results";
 
 export default function ExamPage() {
   const { course, store, href } = useCourse();
+  const copy = courseCopy(course);
   const progress = useProgress();
-  const MODES = course.config.examModes;
+  const { pool: levelPool, level } = useLevelPool();
+  const examPool = examQuestions(course).filter((q) => levelPool.includes(q));
+  // A level with fewer questions than a mode asks for gets a shorter, proportionally scaled run.
+  const MODES = course.config.examModes.map((m) => {
+    const questions = Math.min(m.questions, examPool.length);
+    const scale = questions / m.questions;
+    return { ...m, questions, unscored: Math.floor(m.unscored * scale), minutes: Math.max(5, Math.round(m.minutes * scale)) };
+  });
   const officialTypes = course.exam.questionTypes.filter((t) => !t.practiceOnly);
   const practiceTypes = course.exam.questionTypes.filter((t) => t.practiceOnly);
   const { min, max, pass } = course.exam.scale;
@@ -36,7 +46,7 @@ export default function ExamPage() {
 
   function start(id: string) {
     const c = MODES.find((m) => m.id === id)!;
-    const d = weightedExamDeck(course, c.questions, examQuestions(course));
+    const d = weightedExamDeck(course, c.questions, examPool);
     setModeId(id);
     setDeck(d);
     setUnscored(new Set(shuffle(d.map((_, i) => i)).slice(0, c.unscored)));
@@ -117,7 +127,7 @@ export default function ExamPage() {
 
   if (phase === "intro") {
     return (
-      <PageShell title="🏛️ The Certification Gate" subtitle={`A full exam simulator built to the official ${course.code} format.`}>
+      <PageShell title={`${copy.gateIcon} ${copy.gate}`} subtitle={course.kind === "interview" ? `A timed ${course.shortTitle} mock interview. No feedback until you finish, just like the real thing.` : `A full exam simulator built to the official ${course.code} format.`}>
         <div className="grid items-center gap-6 rounded-3xl border border-amber-300/30 bg-gradient-to-b from-amber-400/10 to-slate-900/60 p-6 md:grid-cols-[1fr_auto]">
           <div>
             <ul className="grid gap-2 text-slate-200">
@@ -138,6 +148,12 @@ export default function ExamPage() {
               </li>
               <li>🙈 No feedback until you submit, just like test day</li>
             </ul>
+            {course.kind === "interview" && (
+              <p className="mt-4 font-mono text-sm" style={{ color: LEVEL_BY_ID[level].color }}>
+                {LEVEL_BY_ID[level].icon} Level: {LEVEL_BY_ID[level].name} · {examPool.length} questions in the pool. Change the level on the
+                track&apos;s home screen.
+              </p>
+            )}
             <p className="mt-4 text-sm text-violet-100">
               Want to review first?{" "}
               <Link href={href("/study")} className="font-bold underline">
@@ -209,7 +225,7 @@ export default function ExamPage() {
           <div className="mx-auto mt-4 max-w-md">
             <MascotSays mood={passed ? "wow" : "think"}>
               {passed
-                ? "You'd pass the real exam with this score. Try another simulation to make sure it's consistent."
+                ? `You'd pass ${copy.real} at this level. Try another round to make sure it's consistent.`
                 : "Check the domains marked Needs improvement, replay those missions, then try again."}
             </MascotSays>
           </div>
