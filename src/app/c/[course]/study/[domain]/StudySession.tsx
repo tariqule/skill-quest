@@ -11,10 +11,10 @@ import { Bar } from "@/components/ui";
 import { courseCopy } from "@/engine/copy";
 import { useCourse, useLevelPool, useProgress } from "@/engine/course-context";
 import { answerText, isCorrect, levelDeck, pct, pickedText, shuffle, type PreparedQuestion } from "@/engine/game";
-import type { Challenge, Lesson } from "@/engine/types";
+import type { Card, Challenge, Lesson } from "@/engine/types";
 
-/** setup → study (timed, no questions) → play (questions + hands-on challenges) → report */
-type Phase = "setup" | "study" | "play" | "report";
+/** setup → study (one concept at a time, then key terms; no questions) → ready → play (questions + challenges) → report */
+type Phase = "setup" | "study" | "ready" | "play" | "report";
 
 type PlayItem = { kind: "question"; q: PreparedQuestion } | { kind: "challenge"; c: Challenge };
 
@@ -41,7 +41,7 @@ export function StudySession() {
   const [paused, setPaused] = useState(false);
   const [current, setCurrent] = useState(0);
   const [viewed, setViewed] = useState<string[]>([]);
-  const [tab, setTab] = useState<"concepts" | "terms">("concepts");
+  const [drawer, setDrawer] = useState(false);
   const [items, setItems] = useState<PlayItem[]>([]);
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState<number[] | null>(null);
@@ -78,6 +78,13 @@ export function StudySession() {
     setPaused(false);
     setPhase("study");
     view(0);
+  }
+
+  /** Leave the concepts for the "you're ready" screen, where the play button lives. */
+  function finish() {
+    setDrawer(false);
+    setPhase("ready");
+    scrollTop();
   }
 
   function startPlay() {
@@ -130,7 +137,7 @@ export function StudySession() {
           ← Back to map
         </Link>
         <div className="mt-3 text-xs font-bold uppercase tracking-[0.2em]" style={{ color: domain.color }}>
-          {domain.emoji} World {domain.number} · {domain.weight}% of the exam
+          {domain.emoji} {copy.noun === "exam" ? "World" : "Stage"} {domain.number} · {domain.weight}% of the {copy.noun}
         </div>
         <h1 className="mt-1 text-3xl font-black text-white">📚 Study: {domain.world}</h1>
         <p className="mt-1 text-slate-400">{domain.name}</p>
@@ -186,110 +193,166 @@ export function StudySession() {
   }
 
   // ───────────── Study ─────────────
-  if (phase === "study") {
-    const lesson = lessons[current];
+  if (phase === "study" || phase === "ready") {
     const cards = course.cards.filter((c) => c.domain === domain.id);
+    // Steps: every concept, then a key-terms recap (if the world has any), then the "ready" screen.
+    const termsStep = cards.length ? lessons.length : -1;
+    const lastStep = cards.length ? lessons.length : lessons.length - 1;
+    const onTerms = phase === "study" && current === termsStep;
+    const lesson = phase === "study" && !onTerms ? lessons[current] : null;
+    const stepCount = lessons.length + (cards.length ? 1 : 0);
+    const goTo = (i: number) => {
+      setDrawer(false);
+      setPhase("study");
+      if (i < lessons.length) view(i);
+      else {
+        setCurrent(i);
+        scrollTop();
+      }
+    };
+    const forward = () => (current >= lastStep ? finish() : goTo(current + 1));
+    const back = current > 0 ? () => goTo(current - 1) : undefined;
+    const list = (
+      <ConceptList
+        lessons={lessons}
+        current={phase === "ready" ? -1 : current}
+        viewed={viewed}
+        color={domain.color}
+        hasTerms={cards.length > 0}
+        termsActive={onTerms}
+        onPick={goTo}
+        onFinish={finish}
+      />
+    );
+
     return (
-      <main className="mx-auto w-full max-w-5xl px-4 py-4">
-        <div className="sticky z-10 -mx-4 border-b border-white/10 bg-slate-950/90 px-4 py-2 backdrop-blur" style={{ top: "calc(env(safe-area-inset-top, 0px) + 3.2rem)" }}>
-          <div className="flex flex-wrap items-center gap-3 text-sm">
-            <span className="font-black text-white">📚 {domain.world}</span>
-            <span className={`font-mono text-lg ${timeUp ? "text-amber-300" : "text-slate-100"}`}>
-              {minutes > 0 ? `⏱️ ${mm(Math.max(0, target - elapsed))}` : `⏱️ ${mm(elapsed)}`}
-            </span>
-            <button type="button" onClick={() => setPaused(!paused)} className="rounded-lg border border-white/15 px-2.5 py-1 text-slate-200">
-              {paused ? "▶ Resume" : "⏸ Pause"}
-            </button>
-            <span className="text-slate-400">
-              {viewed.length}/{lessons.length} concepts
+      <main className="mx-auto w-full max-w-5xl px-4 pb-28 pt-3 lg:pb-12">
+        <StudyKeys enabled={phase === "study" && !drawer} onPrev={back} onNext={forward} />
+        <div className="sticky z-10 -mx-4 border-b border-white/10 bg-slate-950/90 px-4 pb-2 pt-2 backdrop-blur" style={{ top: "calc(env(safe-area-inset-top, 0px) + 3.2rem)" }}>
+          <div className="flex items-center gap-2 text-sm">
+            <span className="min-w-0 truncate font-black text-white">📚 {domain.world}</span>
+            <span className={`ml-auto shrink-0 font-mono ${timeUp ? "text-amber-300" : "text-slate-200"}`} aria-label="Study timer">
+              ⏱️ {minutes > 0 ? mm(Math.max(0, target - elapsed)) : mm(elapsed)}
             </span>
             <button
               type="button"
-              onClick={startPlay}
-              className="btn-3d ml-auto rounded-xl bg-emerald-400 px-4 py-2 font-black text-slate-950"
-              style={{ "--edge": "#047857" } as CSSProperties}
+              onClick={() => setPaused(!paused)}
+              className="shrink-0 rounded-lg border border-white/15 px-2 py-1 text-xs text-slate-200"
+              aria-label={paused ? "Resume timer" : "Pause timer"}
             >
-              I&apos;m ready to play →
+              {paused ? "▶" : "⏸"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setDrawer(true)}
+              className="shrink-0 rounded-lg border border-white/15 px-2.5 py-1 text-xs font-bold text-slate-100 lg:hidden"
+              aria-haspopup="dialog"
+            >
+              ☰ Concepts
             </button>
           </div>
-          {minutes > 0 && <Bar value={Math.min(1, elapsed / target)} color={timeUp ? "#f59e0b" : domain.color} className="mt-2 h-1" />}
+          {/* One segment per step; filled when seen, outlined for the current one. */}
+          <div className="mt-2 flex gap-1" aria-hidden>
+            {Array.from({ length: stepCount }, (_, i) => {
+              const seen = i < lessons.length ? viewed.includes(lessons[i].id) : phase === "ready" || onTerms;
+              const here = phase === "study" && i === current;
+              return (
+                <span
+                  key={i}
+                  className="h-1.5 flex-1 rounded-full transition"
+                  style={{ background: seen ? domain.color : "rgb(255 255 255 / 0.1)", boxShadow: here ? `0 0 0 1.5px white` : undefined, opacity: here || seen ? 1 : 0.7 }}
+                />
+              );
+            })}
+          </div>
+          {minutes > 0 && <Bar value={Math.min(1, elapsed / target)} color={timeUp ? "#f59e0b" : "#64748b"} className="mt-1 h-0.5" />}
         </div>
 
-        {timeUp && (
+        {timeUp && phase === "study" && (
           <div className="pop-in mt-4 flex flex-wrap items-center gap-3 rounded-2xl border-2 border-amber-400/60 bg-amber-400/10 p-4">
             <span className="text-3xl">⏰</span>
             <div className="min-w-0 flex-1">
-              <div className="font-black text-white">Study time&apos;s up!</div>
+              <div className="font-black text-white">Study time&apos;s up</div>
               <div className="text-sm text-slate-300">
-                You covered {viewed.length} of {lessons.length} concepts. Ready to play with what you learned?
+                You covered {viewed.length} of {lessons.length} concepts. Keep going, or wrap up.
               </div>
             </div>
             <button type="button" onClick={() => setMinutes(minutes + 5)} className="rounded-xl border border-white/20 px-4 py-2 font-semibold text-slate-100">
               +5 min
             </button>
-            <button
-              type="button"
-              onClick={startPlay}
-              className="btn-3d rounded-xl bg-amber-400 px-5 py-2 font-black text-slate-950"
-              style={{ "--edge": "#b45309" } as CSSProperties}
-            >
-              Start playing →
+            <button type="button" onClick={finish} className="btn-3d rounded-xl bg-amber-400 px-5 py-2 font-black text-slate-950" style={{ "--edge": "#b45309" } as CSSProperties}>
+              Wrap up →
             </button>
           </div>
         )}
 
-        <div className="mt-4 grid gap-5 lg:grid-cols-[15rem_1fr]">
-          <aside className="lg:sticky lg:top-32 lg:self-start">
-            <div className="mb-2 flex gap-1.5">
-              {(["concepts", "terms"] as const).map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => setTab(t)}
-                  className={`rounded-full border px-3 py-1 text-xs font-bold ${tab === t ? "border-sky-400 bg-sky-400/20 text-white" : "border-white/10 text-slate-400"}`}
-                >
-                  {t === "concepts" ? "📖 Concepts" : "🃏 Key terms"}
-                </button>
-              ))}
-            </div>
-            <div className="flex gap-1.5 overflow-x-auto pb-1 lg:grid lg:overflow-visible">
-              {lessons.map((l, i) => (
-                <button
-                  key={l.id}
-                  type="button"
-                  onClick={() => {
-                    setTab("concepts");
-                    view(i);
-                  }}
-                  className={`shrink-0 rounded-xl border px-3 py-2 text-left text-xs transition lg:text-sm ${i === current && tab === "concepts" ? "border-sky-400 bg-sky-400/15 text-white" : "border-white/10 bg-white/[0.03] text-slate-300 hover:bg-white/10"}`}
-                >
-                  <span className={viewed.includes(l.id) ? "text-emerald-300" : "text-slate-500"}>{viewed.includes(l.id) ? "✓" : "○"}</span> {l.title}
-                </button>
-              ))}
-            </div>
-          </aside>
+        <div className="mt-4 grid gap-6 lg:grid-cols-[15rem_minmax(0,1fr)]">
+          <aside className="hidden lg:sticky lg:top-36 lg:block lg:self-start">{list}</aside>
 
-          {tab === "concepts" ? (
-            <ConceptView
-              key={lesson.id}
-              lesson={lesson}
-              index={current}
-              total={lessons.length}
-              color={domain.color}
-              onPrev={current > 0 ? () => view(current - 1) : undefined}
-              onNext={current + 1 < lessons.length ? () => view(current + 1) : undefined}
-              onDone={startPlay}
-              taskLabel={copy.task}
-              tipLabel={copy.tip}
-            />
-          ) : (
-            <div className="grid gap-2 sm:grid-cols-2">
-              {cards.map((c) => (
-                <TermCard key={c.id} term={c.term} definition={c.definition} />
-              ))}
-            </div>
-          )}
+          <div className="min-w-0">
+            {phase === "ready" ? (
+              <ReadyScreen
+                lessons={lessons}
+                viewed={viewed}
+                seconds={elapsed}
+                color={domain.color}
+                questionCount={questionCount}
+                challengeCount={challenges.length}
+                onPlay={startPlay}
+                onReview={(i) => goTo(i)}
+              />
+            ) : onTerms ? (
+              <TermsRecap cards={cards} color={domain.color} />
+            ) : lesson ? (
+              <ConceptView
+                key={lesson.id}
+                lesson={lesson}
+                index={current}
+                total={lessons.length}
+                color={domain.color}
+                taskLabel={copy.task}
+                tipLabel={copy.tip}
+                terms={termsFor(lesson, cards)}
+              />
+            ) : null}
+
+            {phase === "study" && (
+              <div className="mt-6 hidden gap-3 lg:flex">
+                <button type="button" disabled={!back} onClick={back} className="rounded-xl border border-white/15 px-4 py-2.5 font-semibold text-slate-200 disabled:opacity-30">
+                  ← Previous
+                </button>
+                <button type="button" onClick={forward} className="btn-3d ml-auto rounded-xl bg-sky-400 px-5 py-2.5 font-black text-slate-950" style={{ "--edge": "#0369a1" } as CSSProperties}>
+                  {nextLabel(current, lastStep, termsStep)}
+                </button>
+              </div>
+            )}
+            {phase === "study" && <p className="mt-3 hidden text-center text-xs text-slate-500 lg:block">Tip: use the ← and → keys to move between concepts.</p>}
+          </div>
         </div>
+
+        {/* Phone: thumb-reach navigation pinned to the bottom of the screen. */}
+        {phase === "study" && (
+          <div className="fixed inset-x-0 bottom-0 z-20 border-t border-white/10 bg-slate-950/95 px-4 pt-3 backdrop-blur lg:hidden" style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 0.75rem)" }}>
+            <div className="mx-auto flex max-w-5xl gap-3">
+              <button type="button" disabled={!back} onClick={back} aria-label="Previous" className="rounded-xl border border-white/15 px-4 py-3 font-semibold text-slate-200 disabled:opacity-30">
+                ←
+              </button>
+              <button type="button" onClick={forward} className="btn-3d flex-1 rounded-xl bg-sky-400 px-4 py-3 font-black text-slate-950" style={{ "--edge": "#0369a1" } as CSSProperties}>
+                {nextLabel(current, lastStep, termsStep)}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {drawer && (
+          <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true" aria-label="Concepts">
+            <button type="button" aria-label="Close" className="absolute inset-0 bg-black/60" onClick={() => setDrawer(false)} />
+            <div className="pop-in absolute inset-x-0 bottom-0 max-h-[80vh] overflow-y-auto rounded-t-3xl border-t border-white/10 bg-slate-900 p-4" style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 1rem)" }}>
+              <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-white/20" />
+              {list}
+            </div>
+          </div>
+        )}
       </main>
     );
   }
@@ -464,16 +527,112 @@ export function StudySession() {
   );
 }
 
+function nextLabel(current: number, lastStep: number, termsStep: number) {
+  if (current >= lastStep) return "Finish studying ✓";
+  if (current + 1 === termsStep) return "Key terms recap →";
+  return "Next concept →";
+}
+
+/** ← / → move between study steps (ignored while typing in a lab). */
+function StudyKeys({ enabled, onPrev, onNext }: { enabled: boolean; onPrev?: () => void; onNext: () => void }) {
+  useEffect(() => {
+    if (!enabled) return;
+    function onKey(e: KeyboardEvent) {
+      const t = e.target as HTMLElement | null;
+      if (e.metaKey || e.ctrlKey || e.altKey || (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) || t?.isContentEditable) return;
+      if (e.key === "ArrowRight") onNext();
+      else if (e.key === "ArrowLeft") onPrev?.();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [enabled, onPrev, onNext]);
+  return null;
+}
+
+/** Flashcards whose term shows up in this concept's text, for the "terms in this concept" strip. */
+function termsFor(lesson: Lesson, cards: Card[]) {
+  const text = `${lesson.title} ${lesson.points.join(" ")} ${lesson.tip ?? ""}`.toLowerCase().replace(/`/g, "");
+  return cards.filter((c) => {
+    const term = c.term.toLowerCase().replace(/`/g, "").trim();
+    return term.length >= 3 && text.includes(term);
+  }).slice(0, 6);
+}
+
+function ConceptList({
+  lessons,
+  current,
+  viewed,
+  color,
+  hasTerms,
+  termsActive,
+  onPick,
+  onFinish,
+}: {
+  lessons: Lesson[];
+  current: number;
+  viewed: string[];
+  color: string;
+  hasTerms: boolean;
+  termsActive: boolean;
+  onPick: (i: number) => void;
+  onFinish: () => void;
+}) {
+  return (
+    <nav aria-label="Concepts in this world">
+      <div className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">
+        Concepts · {viewed.length}/{lessons.length} seen
+      </div>
+      <ol className="grid gap-1.5">
+        {lessons.map((l, i) => {
+          const on = i === current;
+          const seen = viewed.includes(l.id);
+          return (
+            <li key={l.id}>
+              <button
+                type="button"
+                onClick={() => onPick(i)}
+                aria-current={on ? "step" : undefined}
+                className={`flex w-full items-start gap-2.5 rounded-xl border px-3 py-2 text-left text-sm transition ${on ? "border-sky-400 bg-sky-400/15 text-white" : "border-white/10 bg-white/[0.03] text-slate-300 hover:bg-white/10"}`}
+              >
+                <span
+                  className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-black"
+                  style={{ background: seen ? color : "rgb(255 255 255 / 0.08)", color: seen ? "#020617" : "#94a3b8" }}
+                >
+                  {seen ? "✓" : i + 1}
+                </span>
+                <span className="leading-snug">{l.title}</span>
+              </button>
+            </li>
+          );
+        })}
+        {hasTerms && (
+          <li>
+            <button
+              type="button"
+              onClick={() => onPick(lessons.length)}
+              className={`flex w-full items-center gap-2.5 rounded-xl border px-3 py-2 text-left text-sm transition ${termsActive ? "border-sky-400 bg-sky-400/15 text-white" : "border-white/10 bg-white/[0.03] text-slate-300 hover:bg-white/10"}`}
+            >
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center text-sm">🃏</span>
+              Key terms recap
+            </button>
+          </li>
+        )}
+      </ol>
+      <button type="button" onClick={onFinish} className="mt-3 w-full rounded-xl border border-emerald-400/40 px-3 py-2 text-sm font-bold text-emerald-200 hover:bg-emerald-400/10">
+        ✓ Finish studying
+      </button>
+    </nav>
+  );
+}
+
 function ConceptView({
   lesson,
   index,
   total,
   color,
-  onPrev,
-  onNext,
-  onDone,
   taskLabel,
   tipLabel,
+  terms,
 }: {
   taskLabel: string;
   tipLabel: string;
@@ -481,9 +640,7 @@ function ConceptView({
   index: number;
   total: number;
   color: string;
-  onPrev?: () => void;
-  onNext?: () => void;
-  onDone: () => void;
+  terms: Card[];
 }) {
   return (
     <article className="card-in min-w-0">
@@ -491,42 +648,132 @@ function ConceptView({
         <span style={{ color }}>
           Concept {index + 1} of {total}
         </span>
-        <span className="rounded-full bg-white/10 px-2 py-0.5 text-slate-300">{taskLabel} {lesson.task}</span>
+        <span className="rounded-full bg-white/10 px-2 py-0.5 text-slate-300">
+          {taskLabel} {lesson.task}
+        </span>
       </div>
-      <h2 className="mt-1 text-2xl font-black text-white">{lesson.title}</h2>
-      <div className="mt-4 rounded-2xl border border-white/10 bg-slate-900/70 p-4 sm:p-6" style={{ boxShadow: `0 20px 60px -30px ${color}` }}>
+      <h2 className="mt-1 text-2xl font-black leading-tight text-white sm:text-3xl">{lesson.title}</h2>
+
+      <section className="mt-4 overflow-x-auto rounded-2xl border border-white/10 bg-slate-900/70 p-3 sm:p-6" style={{ boxShadow: `0 20px 60px -30px ${color}` }}>
         {lesson.visual}
-      </div>
-      <ul className="mt-4 grid gap-2">
-        {lesson.points.map((p, i) => (
-          <li key={i} className="flex gap-3 rounded-xl border border-white/5 bg-white/[0.03] p-3 text-slate-200">
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold text-slate-950" style={{ background: color }}>
-              {i + 1}
-            </span>
-            <RichText text={p} />
-          </li>
-        ))}
-      </ul>
+      </section>
+
+      <section className="mt-5">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">What to remember</h3>
+        <ul className="mt-2 grid gap-2">
+          {lesson.points.map((p, i) => (
+            <li key={i} className="flex gap-3 rounded-xl border border-white/5 bg-white/[0.03] p-3 leading-relaxed text-slate-200">
+              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold text-slate-950" style={{ background: color }}>
+                {i + 1}
+              </span>
+              <span className="min-w-0">
+                <RichText text={p} />
+              </span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       {lesson.tip && (
-        <div className="mt-3 rounded-xl border border-amber-400/30 bg-amber-400/10 p-3 text-sm text-amber-100">
-          <b>{tipLabel}:</b> <RichText text={lesson.tip} />
+        <div className="mt-3 flex gap-3 rounded-xl border border-amber-400/30 bg-amber-400/10 p-3 text-sm leading-relaxed text-amber-100">
+          <span className="text-lg">💡</span>
+          <span className="min-w-0">
+            <b>{tipLabel}:</b> <RichText text={lesson.tip} />
+          </span>
         </div>
       )}
-      <div className="mt-5 flex gap-3">
-        <button type="button" disabled={!onPrev} onClick={onPrev} className="rounded-xl border border-white/15 px-4 py-2.5 font-semibold text-slate-200 disabled:opacity-30">
-          ← Previous
-        </button>
-        {onNext ? (
-          <button type="button" onClick={onNext} className="btn-3d ml-auto rounded-xl bg-sky-400 px-5 py-2.5 font-black text-slate-950" style={{ "--edge": "#0369a1" } as CSSProperties}>
-            Next concept →
-          </button>
-        ) : (
-          <button type="button" onClick={onDone} className="btn-3d ml-auto rounded-xl bg-emerald-400 px-5 py-2.5 font-black text-slate-950" style={{ "--edge": "#047857" } as CSSProperties}>
-            Done studying: let&apos;s play →
-          </button>
-        )}
+
+      {terms.length > 0 && (
+        <section className="mt-5">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">Terms in this concept · tap to reveal</h3>
+          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            {terms.map((c) => (
+              <TermCard key={c.id} term={c.term} definition={c.definition} />
+            ))}
+          </div>
+        </section>
+      )}
+    </article>
+  );
+}
+
+function TermsRecap({ cards, color }: { cards: Card[]; color: string }) {
+  return (
+    <article className="card-in min-w-0">
+      <div className="text-xs font-semibold uppercase tracking-wider" style={{ color }}>
+        Recap
+      </div>
+      <h2 className="mt-1 text-2xl font-black text-white sm:text-3xl">🃏 Key terms</h2>
+      <p className="mt-1 text-slate-400">Say each definition in your head, then tap to check. These all come up when you play.</p>
+      <div className="mt-4 grid gap-2 sm:grid-cols-2">
+        {cards.map((c) => (
+          <TermCard key={c.id} term={c.term} definition={c.definition} />
+        ))}
       </div>
     </article>
+  );
+}
+
+function ReadyScreen({
+  lessons,
+  viewed,
+  seconds,
+  color,
+  questionCount,
+  challengeCount,
+  onPlay,
+  onReview,
+}: {
+  lessons: Lesson[];
+  viewed: string[];
+  seconds: number;
+  color: string;
+  questionCount: number;
+  challengeCount: number;
+  onPlay: () => void;
+  onReview: (i: number) => void;
+}) {
+  const missed = lessons.map((l, i) => ({ l, i })).filter(({ l }) => !viewed.includes(l.id));
+  const mins = Math.max(1, Math.round(seconds / 60));
+  return (
+    <section className="pop-in min-w-0 rounded-3xl border-2 p-5 text-center sm:p-8" style={{ borderColor: `${color}66`, background: `linear-gradient(180deg, ${color}1a, transparent)` }}>
+      <div className="text-5xl">🎉</div>
+      <h2 className="mt-2 text-2xl font-black text-white sm:text-3xl">Study session complete</h2>
+      <p className="mt-1 text-slate-300">
+        You studied {viewed.length} of {lessons.length} concepts in about {mins} {mins === 1 ? "minute" : "minutes"}.
+      </p>
+
+      <div className="mx-auto mt-5 grid max-w-md gap-2 text-left text-sm text-slate-300">
+        <div className="rounded-xl bg-white/5 px-3 py-2">🎮 Next: {questionCount} questions and {challengeCount} hands-on challenge{challengeCount === 1 ? "" : "s"}, with feedback on every answer.</div>
+        {missed.length > 0 && (
+          <div className="rounded-xl border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-amber-100">
+            You skipped {missed.length}:{" "}
+            {missed.map(({ l, i }, k) => (
+              <span key={l.id}>
+                <button type="button" onClick={() => onReview(i)} className="font-bold underline underline-offset-2">
+                  {l.title}
+                </button>
+                {k < missed.length - 1 ? ", " : ""}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <button
+        type="button"
+        onClick={onPlay}
+        className="btn-3d mt-6 w-full max-w-md rounded-2xl bg-emerald-400 py-4 text-lg font-black uppercase tracking-wide text-slate-950"
+        style={{ "--edge": "#047857" } as CSSProperties}
+      >
+        🎮 I&apos;m ready to play
+      </button>
+      <div>
+        <button type="button" onClick={() => onReview(0)} className="mt-3 text-sm text-slate-400 underline-offset-2 hover:text-white hover:underline">
+          Review the concepts again
+        </button>
+      </div>
+    </section>
   );
 }
 
