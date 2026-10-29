@@ -1,0 +1,172 @@
+import type { Progress } from "./store";
+import type { Course, Question } from "./types";
+
+export type PreparedKind = "choice" | "order" | "match";
+
+export type PreparedQuestion = Question & {
+  kind: PreparedKind;
+  /**
+   * choice: options in display order. order: steps in scrambled order.
+   * match: responses in scrambled order.
+   */
+  shuffled: string[];
+  /** match only: the prompts, in their original order. */
+  prompts: string[];
+  /**
+   * choice: indexes into `shuffled` that are correct (any order).
+   * order: indexes into `shuffled` in the correct sequence.
+   * match: for each prompt, the index into `shuffled` of its response.
+   */
+  correct: number[];
+};
+
+export function shuffle<T>(items: T[]): T[] {
+  const a = [...items];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+export function kindOf(q: Question): PreparedKind {
+  return q.type ?? "choice";
+}
+
+export function prepare(q: Question): PreparedQuestion {
+  if (q.type === "order") {
+    const shuffled = scramble(q.items);
+    return { ...q, kind: "order", shuffled, prompts: [], correct: q.items.map((it) => shuffled.indexOf(it)) };
+  }
+  if (q.type === "match") {
+    const responses = q.pairs.map(([, r]) => r);
+    const shuffled = scramble(responses);
+    return { ...q, kind: "match", shuffled, prompts: q.pairs.map(([p]) => p), correct: responses.map((r) => shuffled.indexOf(r)) };
+  }
+  const order = shuffle(q.options.map((_, i) => i));
+  return {
+    ...q,
+    kind: "choice",
+    shuffled: order.map((i) => q.options[i]),
+    prompts: [],
+    correct: order.flatMap((orig, display) => (q.answer.includes(orig) ? [display] : [])),
+  };
+}
+
+/** Shuffle, but never hand back the answer already in order. */
+function scramble(items: string[]) {
+  let out = shuffle(items);
+  for (let i = 0; i < 5 && out.every((x, j) => x === items[j]); i++) out = shuffle(items);
+  return out;
+}
+
+export function deck(questions: Question[], count = questions.length) {
+  return shuffle(questions).slice(0, count).map(prepare);
+}
+
+/**
+ * Split `total` across domains by exam weight using largest remainders,
+ * so the counts always add up to exactly `total`.
+ */
+export function allocateByWeight(course: Course, total: number): Record<string, number> {
+  const raw = course.domains.map((d) => ({ id: d.id, exact: (d.weight / 100) * total }));
+  const counts = Object.fromEntries(raw.map((r) => [r.id, Math.floor(r.exact)]));
+  let left = total - Object.values(counts).reduce((a, b) => a + b, 0);
+  for (const r of [...raw].sort((a, b) => (b.exact % 1) - (a.exact % 1))) {
+    if (left-- <= 0) break;
+    counts[r.id]++;
+  }
+  return counts;
+}
+
+/** Pick questions so each domain appears in proportion to its exam weight. */
+export function weightedExamDeck(course: Course, total: number) {
+  const counts = allocateByWeight(course, total);
+  const picks: Question[] = [];
+  for (const d of course.domains) {
+    picks.push(...shuffle(course.questions.filter((q) => q.domain === d.id)).slice(0, counts[d.id]));
+  }
+  // A small domain can run short; top up from whatever is left.
+  if (picks.length < total) {
+    const used = new Set(picks.map((q) => q.id));
+    picks.push(...shuffle(course.questions.filter((q) => !used.has(q.id))).slice(0, total - picks.length));
+  }
+  return shuffle(picks).map(prepare);
+}
+
+export function isCorrect(q: PreparedQuestion, picked: number[]) {
+  if (picked.length !== q.correct.length) return false;
+  if (q.kind === "choice") return picked.every((p) => q.correct.includes(p));
+  return picked.every((p, i) => p === q.correct[i]);
+}
+
+/** Share of a domain's questions whose most recent attempt was correct. */
+export function domainMastery(course: Course, progress: Progress, domain: string) {
+  const pool = course.questions.filter((q) => q.domain === domain);
+  const mastered = pool.filter((q) => progress.questions[q.id]?.lastCorrect).length;
+  return pool.length ? mastered / pool.length : 0;
+}
+
+/** Mastery weighted by each domain's share of the exam, 0-100. */
+export function overallReadiness(course: Course, progress: Progress) {
+  return course.domains.reduce((sum, d) => sum + domainMastery(course, progress, d.id) * d.weight, 0);
+}
+
+export function missedQuestions(course: Course, progress: Progress) {
+  return course.questions.filter((q) => {
+    const s = progress.questions[q.id];
+    return s !== undefined && !s.lastCorrect;
+  });
+}
+
+/** XP multiplier grows with combo: x1, x1.5 at 3, x2 at 5, x3 at 10. */
+export function comboMultiplier(combo: number) {
+  if (combo >= 10) return 3;
+  if (combo >= 5) return 2;
+  if (combo >= 3) return 1.5;
+  return 1;
+}
+
+/** Map a raw score onto the course's reported scale (e.g. 100-1000 for AWS, 0-100 for percentage exams). */
+export function scaledScore(course: Course, correct: number, total: number) {
+  const { min, max } = course.exam.scale;
+  return Math.round(min + ((max - min) * correct) / Math.max(total, 1));
+}
+
+/** A 0-1 fraction as a CSS percentage with fixed precision, so SSR and hydration match. */
+export function pct(fraction: number) {
+  return `${(fraction * 100).toFixed(2)}%`;
+}
+
+/** Trial stars (0-3) from the share correct, using the course's thresholds. */
+export function starsFor(course: Course, correct: number, total: number) {
+  const share = correct / Math.max(total, 1);
+  const [three, two, one] = course.config.quest.starThresholds;
+  return share >= three ? 3 : share >= two ? 2 : share >= one ? 1 : 0;
+}
+
+/** The correct answer written out in words, for recaps and reviews. */
+export function answerText(q: Question): string {
+  if (q.type === "order") return q.items.join(" → ");
+  if (q.type === "match") return q.pairs.map(([a, b]) => `${a} → ${b}`).join(" · ");
+  return q.answer.map((i) => q.options[i]).join(" + ");
+}
+
+/**
+ * Questions for a timed challenge: the ones the player must master first,
+ * topped up with others from the same pool, never repeating.
+ */
+export function challengeDeck(must: Question[], pool: Question[], count: number) {
+  const ids = new Set(must.map((q) => q.id));
+  const unique = [...new Map(pool.filter((q) => !ids.has(q.id)).map((q) => [q.id, q])).values()];
+  const extra = shuffle(unique).slice(0, Math.max(0, count - must.length));
+  return shuffle([...must, ...extra]).map(prepare);
+}
+
+/** What the player actually answered, written out in words. */
+export function pickedText(q: PreparedQuestion, picked: number[] | undefined): string {
+  if (!picked || picked.length === 0) return "No answer";
+  if (q.kind === "order") return picked.map((i) => q.shuffled[i]).join(" → ");
+  if (q.kind === "match") return q.prompts.map((p, k) => `${p} → ${q.shuffled[picked[k]] ?? "?"}`).join(" · ");
+  return picked.map((i) => q.shuffled[i]).join(" + ");
+}

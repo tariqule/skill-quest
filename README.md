@@ -1,22 +1,28 @@
-# AI Practitioner Quest
+# Cert Quest
 
-A gamified study app for the **AWS Certified AI Practitioner (AIF-C01)** exam, built with Next.js 16, React 19, and Tailwind CSS 4.
+Learn by playing: gamified, visual prep for cloud and AI certification exams, built with Next.js 16, React 19, and Tailwind CSS 4.
 
-## Game modes
+The app is a **course engine**. Each certification is a self-contained content package under `src/courses/`, and the engine (mission map, lessons, trials, exam simulator, training games, study guide, progress) works for any of them. It ships with:
 
-| Mode | What it does |
+| Course | Status |
 | --- | --- |
-| 🗺️ **Five worlds** | One quest per exam domain. 10 questions, 3 hearts, combo multipliers, and up to 3 stars. |
-| 🐉 **Boss Battle** | 40-question mock exam weighted by domain, 60-minute timer, scaled score 100–1000 (700 passes), per-domain breakdown and full answer review. |
-| ⚡ **Lightning Round** | 60 seconds, as many as you can. Wrong answers cost 3 seconds. |
-| 🧩 **Service Match** | Pair 8 AWS services with their use cases against the clock. |
-| 🃏 **Flashcards** | Leitner-box spaced repetition over ~60 services and concepts, filterable by domain. |
-| 🔁 **Review Mistakes** | Re-attempt every question whose last answer was wrong. |
-| 📜 **Cheat Sheet** | Domains, customization ladder, inference parameters, metrics, responsible AI, and security on one page. |
+| ☁️ AWS Certified AI Practitioner (AIF-C01) | ✅ Full course: 5 worlds, 31 missions, 7 labs, 200 questions. Follows the [exam guide v1.2](https://docs.aws.amazon.com/aws-certification/latest/ai-practitioner-01/ai-practitioner-01.html) (October 2026). |
+| 🔷 Google Cloud Generative AI Leader | Planned |
+| 🟦 Azure AI Fundamentals (AI-900) | Planned |
+| ☸️ Kubernetes and Cloud Native Associate (KCNA) | Planned |
 
-Progression: XP, levels with titles, a daily XP goal, a day streak, 13 badges, and an exam-readiness score (mastery weighted by domain). All progress is saved in your browser's `localStorage`. There is no backend and no account.
+## How it plays: teach first, then test
 
-Keyboard: `1`–`4` or `A`–`D` to answer, `Enter` for next, `Space` to flip flashcards, `←` / `→` to grade them.
+1. **Catalog** (`/`): pick a course. Each course keeps its own progress.
+2. **Intro briefing** (`/c/<course>/start`): what the exam is, who it's for, the question types, the domains, and a daily goal. Shown on first visit.
+3. **Mission map** (`/c/<course>`): one world per exam domain. Each **mission** teaches one concept with a visual or a hands-on lab, then checks it. Miss a check and you get a quick recap of every key point (plus the answers you missed), then a **timed challenge** you must pass to finish the mission; failing it loops back through the recap.
+4. **World trial**: a short quiz with hearts. A star unlocks the next world. Already know a world? Skip to its trial.
+5. **Study mode** (`/c/<course>/study`): for learners who want to read before any questions. Pick a world and a study time (5–20 minutes, or no timer), and browse every concept with its visuals, labs, key points, and key terms. When the time is up, or whenever you're ready, an **interactive play session** follows: questions with full feedback ("your answer" vs the correct one, plus a "revisit the concept" panel that re-opens the lesson's visual or lab, available on every question across the app), mixed with **hands-on challenges** where you reach a goal inside a lab ("make 5 generations identical", "catch every fraud", "lock down the assistant with Guardrails"). It ends with a results report covering every concept, question, and challenge.
+6. **Certification Gate** (`/c/<course>/exam`): a simulator in the real exam format: question count, unscored questions, timer, flag and navigate, every question type, the official score scale, and a per-domain report.
+
+Also in every course: a **study guide** drawer (📖 button or `?` key) with exam facts, every task statement and the missions that teach it, a searchable glossary, in-scope services, and tips; plus a **training deck** of replayable challenges (fix mistakes, timed drill, flashcards, service match, lightning round, boss battle, cheat sheet).
+
+Progress is saved in the browser's `localStorage`. There is no backend and no account.
 
 ## Run locally
 
@@ -29,42 +35,129 @@ npm run dev
 
 Open http://localhost:3000.
 
-Production build:
-
 ```bash
+npm test        # validate every course's content
+npm run lint
 npm run build
-npm start
 ```
 
-## Project layout
+## Architecture
 
 ```
 src/
-  app/                 routes: /, /quest/[domain], /boss, /lightning, /match, /flashcards, /review, /cheatsheet
-  components/          QuestionCard, QuizSession (quest/review engine), Hud + toasts, UI primitives
-  data/
-    domains.ts         the 5 exam domains and their weights
-    questions.ts       question bank (single and multiple response)
-    cards.ts           flashcards and Service Match pairs
-  lib/
-    store.ts           progress store (localStorage + useSyncExternalStore), XP, levels, badges
-    game.ts            shuffling, weighted exam deck, scoring, mastery
-    badges.ts          badge definitions
+  engine/                 course-agnostic logic; never imports a specific course
+    types.ts              the Course contract and every content type
+    config.ts             default game settings (XP, hearts, timers, exam modes, …)
+    define.ts             defineCourse() / defineDomain() helpers for authors
+    modes.ts              training-deck challenge registry
+    validate.ts           content checks run by `npm test`
+    store.ts              per-course progress store (localStorage)
+    path.ts               mission map unlock rules
+    game.ts               shuffling, weighted exam decks, scoring, mastery
+    course-context.tsx    <CourseProvider> and useCourse()
+  components/             course-agnostic UI
+    QuestionCard.tsx      choice, multiple-response, ordering, matching
+    QuizSession.tsx       trial / review engine
+    TimedQuiz.tsx         per-question countdown quiz (lesson challenges, Timed drill)
+    ChallengeCard.tsx     wraps any lab with a goal, hint, and takeaway
+    Guide.tsx             study guide drawer and page
+    learn/blocks.tsx      reusable lesson blocks: Flow, Tiles, Layers, Ladder, ServiceRows, LabHeader
+    fx.tsx                3D core, tilt cards, confetti, starfield, Nimbus the mascot
+  courses/
+    index.ts              course registry and "coming soon" catalog
+    _template/            copy this to start a new course
+    aws-aif-c01/
+      index.ts            course metadata: exam format, guide, cheat sheet, theme
+      domains/            one file per exam domain: tasks, lessons, questions, flashcards
+      visuals.tsx         course-specific diagrams
+      labs.tsx            course-specific hands-on labs
+  app/
+    page.tsx              course catalog
+    c/[course]/           every course page: map, start, lesson, quest, exam, guide, games
 ```
 
-## Adding questions
+The rule: `engine/` and `components/` know nothing about AWS, GCP, Azure, or Kubernetes. Everything specific to a certification lives in its course folder.
 
-Append to `QUESTIONS` in `src/data/questions.ts`. `answer` holds the indexes of the correct options; give two indexes for a "choose two" question. Options are shuffled at display time, so write them in any order.
+## Adding a course
+
+1. Copy `src/courses/_template` to `src/courses/<course-id>/`.
+2. Fill in `index.ts` from the official exam guide: provider, code, exam format (question count, unscored, minutes, score scale, question types), facts, candidate, in-scope services, tips, cheat sheet.
+3. Create one file per exam domain in `domains/` (copy `d1-example.tsx`). Domain weights must total 100.
+4. Register it in `src/courses/index.ts` (and remove its "planned" entry if there was one).
+5. Run `npm test`. The validator reports anything wrong, by id.
+
+Percentage-scored exams (for example Kubernetes) just use a different scale: `scale: { min: 0, max: 100, pass: 66 }`.
+
+## Adding content to a course
+
+Everything for a domain is in one file, e.g. `src/courses/aws-aif-c01/domains/d3-foundation-model-apps.tsx`.
+
+**Questions** (options, steps, and responses are shuffled at display time):
 
 ```ts
+// Multiple choice / multiple response: `answer` holds the correct option indexes.
+{ id: "d3-30", domain: "d3", lesson: "d3-params", prompt: "…", options: ["…", "…", "…", "…"], answer: [1], explanation: "…" }
+
+// Ordering: `items` in the correct order.
+{ id: "d3-31", domain: "d3", lesson: "d3-prompts", type: "order", prompt: "…", items: ["first", "second", "third"], explanation: "…" }
+
+// Matching: [prompt, correct response] pairs.
+{ id: "d3-32", domain: "d3", lesson: "d3-eval", type: "match", prompt: "…", pairs: [["ROUGE", "Summaries"], ["BLEU", "Translation"]], explanation: "…" }
+```
+
+Every question has a `lesson` field naming the concept it tests (any lesson id in the course). It powers the **Revisit the concept** panel shown after each answer and the per-concept results in Study mode, and `npm test` fails if a question is missing it.
+
+**Missions**: add to `lessons` with a title, the exam `task` it covers, a `visual` (compose blocks from `components/learn/blocks.tsx`, or a custom diagram or lab from the course folder), key `points`, an optional `tip`, and the ids of the `check` questions.
+
+**Flashcards**: add to `cards`. Cards with `kind: "service"` also appear in Service Match.
+
+**Labs and diagrams**: write a component in the course's `labs.tsx` or `visuals.tsx` (use `LabHeader` for a consistent header) and drop it into a lesson's `visual`.
+
+**Hands-on challenges**: give a lab a `goal` prop (type it with `GoalProps<"myGoal">` from `components/learn/blocks.tsx`) and call `onSolved()` from an event handler when the player achieves it. Then add an entry to the domain's `challenges`:
+
+```tsx
 {
-  id: "d3-23",
+  id: "ch-deterministic",
   domain: "d3",
-  prompt: "…",
-  options: ["…", "…", "…", "…"],
-  answer: [1],
-  explanation: "…",
+  lesson: "d3-params",                 // concept it practises
+  title: "Make it deterministic",
+  goal: "Set the dials so Generate 5× gives 5 identical answers.",
+  hint: "Temperature or Top K can remove all randomness.",
+  takeaway: "Temperature 0 always picks the most likely token.",
+  render: (onSolved) => <TemperatureLab goal="identical" onSolved={onSolved} />,
 }
 ```
 
-Not affiliated with or endorsed by Amazon Web Services. Check the official AWS exam guide for the current blueprint.
+When the exam guide changes, update the domain files and the `guide.source` version in `index.ts`, then run `npm test`.
+
+## Configuring the games
+
+Every tunable number has a default in `src/engine/config.ts`. A course overrides any subset in its definition:
+
+```ts
+config: {
+  quest: { length: 12, hearts: 5, starThresholds: [0.9, 0.75, 0.6] },
+  lightning: { seconds: 90 },
+  lesson: { timedChallenge: { questions: 5, secondsPerQuestion: 20, passShare: 0.8 } },
+  timed: { questions: 15, secondsPerQuestion: 15 },
+  study: { minuteOptions: [10, 25, 45, 0], defaultMinutes: 25, playQuestions: 10, challengeEvery: 3 },
+  xp: { lessonComplete: 30 },
+  examModes: [{ id: "full", name: "Full simulation", icon: "🏛️", questions: 60, unscored: 0, minutes: 120, full: true }],
+},
+modes: ["review", "flashcards", "lightning", "boss", "cheatsheet"], // which training-deck challenges to show
+boss: { name: "The Pod Eviction", emoji: "🐙" },
+levelTitles: ["Pod Novice", "Container Crafter", "…"],
+```
+
+## Adding a training-deck challenge
+
+1. Add its id to `ModeId` in `src/engine/types.ts`.
+2. Register it in `ALL_MODES` in `src/engine/modes.ts` (name, icon, route, status line).
+3. Build the page at `src/app/c/[course]/<route>/page.tsx` using `useCourse()` for content, settings, and the store.
+4. Add any settings it needs to `GameConfig` and `DEFAULT_CONFIG`.
+
+Courses show every registered mode unless they list `modes` explicitly.
+
+---
+
+Practice questions are original and written against each official exam guide; they are not the providers' own exam questions. Not affiliated with or endorsed by AWS, Google, Microsoft, or the CNCF.

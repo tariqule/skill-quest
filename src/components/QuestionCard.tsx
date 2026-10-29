@@ -1,10 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { DOMAIN_BY_ID } from "@/data/domains";
-import type { PreparedQuestion } from "@/lib/game";
+import { useCourse } from "@/engine/course-context";
+import type { PreparedQuestion } from "@/engine/game";
+import { setGuideOpen } from "@/engine/ui-state";
 
-const LETTERS = ["A", "B", "C", "D", "E", "F"];
+const LETTERS = ["A", "B", "C", "D", "E", "F", "G"];
+
+const KIND_LABEL = {
+  choice: "🔘 Multiple choice",
+  multi: "☑️ Multiple response",
+  order: "🔢 Ordering",
+  match: "🔗 Matching",
+};
 
 interface Props {
   q: PreparedQuestion;
@@ -18,10 +26,65 @@ interface Props {
 }
 
 export function QuestionCard({ q, submitted, onSubmit, reveal = true, showDomain = false, explain = true }: Props) {
+  const { domain: domainById, lessonForQuestion } = useCourse();
+  const domain = domainById[q.domain];
+  const concept = lessonForQuestion[q.id];
+  const [showConcept, setShowConcept] = useState(false);
+  const locked = submitted !== null;
+  const label = q.kind === "choice" ? (q.correct.length > 1 ? KIND_LABEL.multi : KIND_LABEL.choice) : KIND_LABEL[q.kind];
+
+  return (
+    <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-5 sm:p-7 shadow-xl">
+      <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold uppercase tracking-wider">
+        <span className="text-slate-400">{label}</span>
+        {showDomain && (
+          <span style={{ color: domain.color }}>
+            {domain.emoji} Domain {domain.number}: {domain.name}
+          </span>
+        )}
+      </div>
+      <h2 className="text-lg sm:text-xl font-semibold leading-snug text-white">{q.prompt}</h2>
+
+      {q.kind === "choice" && <ChoiceBody q={q} submitted={submitted} onSubmit={onSubmit} reveal={reveal} />}
+      {q.kind === "order" && <OrderBody q={q} submitted={submitted} onSubmit={onSubmit} reveal={reveal} />}
+      {q.kind === "match" && <MatchBody q={q} submitted={submitted} onSubmit={onSubmit} reveal={reveal} />}
+
+      {locked && reveal && explain && (
+        <div className="mt-5 rounded-xl border border-white/10 bg-slate-950/60 p-4 text-sm leading-relaxed text-slate-300">
+          <span className="font-semibold text-white">Why: </span>
+          {q.explanation}
+          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
+            {concept && (
+              <button type="button" onClick={() => setShowConcept(!showConcept)} className="text-xs font-semibold text-sky-300 hover:underline">
+                📖 {showConcept ? "Hide" : "Revisit"} the concept: {concept.title}
+              </button>
+            )}
+            <button type="button" onClick={() => setGuideOpen(true)} className="text-xs font-semibold text-slate-400 hover:underline">
+              🔎 Open the guide
+            </button>
+          </div>
+          {concept && showConcept && (
+            <div className="pop-in mt-3 rounded-xl border border-white/10 bg-slate-900/80 p-3 sm:p-4">
+              {concept.visual}
+              <ul className="mt-3 grid gap-1 text-sm text-slate-300">
+                {concept.points.map((p) => (
+                  <li key={p}>• {p}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+type BodyProps = Required<Pick<Props, "q" | "submitted" | "onSubmit" | "reveal">>;
+
+function ChoiceBody({ q, submitted, onSubmit, reveal }: BodyProps) {
   const multi = q.correct.length > 1;
   const [pending, setPending] = useState<number[]>([]);
   const locked = submitted !== null;
-  const domain = DOMAIN_BY_ID[q.domain];
 
   function choose(i: number) {
     if (locked) return;
@@ -34,9 +97,9 @@ export function QuestionCard({ q, submitted, onSubmit, reveal = true, showDomain
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (locked || e.metaKey || e.ctrlKey) return;
+      if (locked || e.metaKey || e.ctrlKey || isTyping(e)) return;
       const k = e.key.toUpperCase();
-      const idx = /^[1-6]$/.test(k) ? Number(k) - 1 : LETTERS.indexOf(k);
+      const idx = /^[1-7]$/.test(k) ? Number(k) - 1 : LETTERS.indexOf(k);
       if (idx >= 0 && idx < q.shuffled.length) {
         e.preventDefault();
         choose(idx);
@@ -50,17 +113,8 @@ export function QuestionCard({ q, submitted, onSubmit, reveal = true, showDomain
   });
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-5 sm:p-7 shadow-xl">
-      {showDomain && (
-        <div className="mb-3 text-xs font-semibold uppercase tracking-wider" style={{ color: domain.color }}>
-          {domain.emoji} Domain {domain.number}: {domain.name}
-        </div>
-      )}
-      <h2 className="text-lg sm:text-xl font-semibold leading-snug text-white">{q.prompt}</h2>
-      {multi && !locked && (
-        <p className="mt-2 text-sm text-amber-300">Choose {q.correct.length}. Then press Submit (or Enter).</p>
-      )}
-
+    <>
+      {multi && !locked && <p className="mt-2 text-sm text-amber-300">Choose {q.correct.length}. Then press Submit (or Enter).</p>}
       <ul className="mt-5 grid gap-3">
         {q.shuffled.map((opt, i) => {
           const isPicked = (submitted ?? pending).includes(i);
@@ -94,24 +148,127 @@ export function QuestionCard({ q, submitted, onSubmit, reveal = true, showDomain
           );
         })}
       </ul>
-
       {multi && !locked && (
-        <button
-          type="button"
-          disabled={pending.length !== q.correct.length}
-          onClick={() => onSubmit(pending)}
-          className="mt-5 rounded-xl bg-sky-500 px-5 py-2.5 font-semibold text-slate-950 transition hover:bg-sky-400 disabled:opacity-40"
-        >
-          Submit
-        </button>
+        <SubmitButton disabled={pending.length !== q.correct.length} onClick={() => onSubmit(pending)} />
       )}
+    </>
+  );
+}
 
-      {locked && reveal && explain && (
-        <div className="mt-5 rounded-xl border border-white/10 bg-slate-950/60 p-4 text-sm leading-relaxed text-slate-300">
-          <span className="font-semibold text-white">Why: </span>
-          {q.explanation}
+function OrderBody({ q, submitted, onSubmit, reveal }: BodyProps) {
+  const [placed, setPlaced] = useState<number[]>([]);
+  const locked = submitted !== null;
+  const sequence = submitted ?? placed;
+  const remaining = q.shuffled.map((_, i) => i).filter((i) => !sequence.includes(i));
+
+  return (
+    <>
+      {!locked && <p className="mt-2 text-sm text-amber-300">Tap the steps in order, first to last. Tap a placed step to undo it.</p>}
+      <ol className="mt-5 grid gap-2">
+        {q.shuffled.map((_, slot) => {
+          const item = sequence[slot];
+          const filled = item !== undefined;
+          const right = filled && item === q.correct[slot];
+          let tone = "border-dashed border-white/15 bg-white/[0.02] text-slate-500";
+          if (filled) tone = "border-sky-400/60 bg-sky-400/10 text-slate-100";
+          if (locked && reveal) tone = right ? "border-emerald-400 bg-emerald-400/15 text-slate-100" : "border-rose-400 bg-rose-400/15 text-slate-100";
+          return (
+            <li key={slot}>
+              <button
+                type="button"
+                disabled={locked || !filled}
+                onClick={() => setPlaced((p) => p.filter((x) => x !== item))}
+                className={`flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left transition ${tone}`}
+              >
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/10 text-sm font-bold text-white">{slot + 1}</span>
+                <span>{filled ? q.shuffled[item] : "Empty step"}</span>
+                {locked && reveal && <span className="ml-auto">{right ? "✓" : "✗"}</span>}
+              </button>
+              {locked && reveal && !right && (
+                <div className="mt-1 pl-14 text-xs text-emerald-300">Correct: {q.shuffled[q.correct[slot]]}</div>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+      {!locked && remaining.length > 0 && (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {remaining.map((i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setPlaced((p) => [...p, i])}
+              className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-slate-100 transition hover:border-sky-400/60 hover:bg-sky-400/10"
+            >
+              ＋ {q.shuffled[i]}
+            </button>
+          ))}
         </div>
       )}
-    </div>
+      {!locked && <SubmitButton disabled={remaining.length > 0} onClick={() => onSubmit(placed)} />}
+    </>
   );
+}
+
+function MatchBody({ q, submitted, onSubmit, reveal }: BodyProps) {
+  const [choice, setChoice] = useState<(number | null)[]>(() => q.prompts.map(() => null));
+  const locked = submitted !== null;
+  const values = submitted ?? choice;
+  const complete = choice.every((c) => c !== null);
+
+  return (
+    <>
+      {!locked && <p className="mt-2 text-sm text-amber-300">Pick the matching answer for every row.</p>}
+      <div className="mt-5 grid gap-3">
+        {q.prompts.map((prompt, i) => {
+          const v = values[i];
+          const right = v === q.correct[i];
+          const tone = locked && reveal ? (right ? "border-emerald-400 bg-emerald-400/10" : "border-rose-400 bg-rose-400/10") : "border-white/10 bg-white/5";
+          return (
+            <div key={i} className={`grid gap-2 rounded-xl border p-3 sm:grid-cols-[1fr_1.3fr] sm:items-center ${tone}`}>
+              <div className="font-semibold text-white">{prompt}</div>
+              <select
+                aria-label={`Match for ${prompt}`}
+                disabled={locked}
+                value={v ?? ""}
+                onChange={(e) => {
+                  const n = [...choice];
+                  n[i] = e.target.value === "" ? null : Number(e.target.value);
+                  setChoice(n);
+                }}
+                className="w-full rounded-lg border border-white/15 bg-slate-950 px-3 py-2 text-sm text-slate-100 disabled:opacity-90"
+              >
+                <option value="">Choose…</option>
+                {q.shuffled.map((r, j) => (
+                  <option key={j} value={j}>
+                    {r}
+                  </option>
+                ))}
+              </select>
+              {locked && reveal && !right && <div className="text-xs text-emerald-300 sm:col-span-2">Correct: {q.shuffled[q.correct[i]]}</div>}
+            </div>
+          );
+        })}
+      </div>
+      {!locked && <SubmitButton disabled={!complete} onClick={() => onSubmit(choice as number[])} />}
+    </>
+  );
+}
+
+function SubmitButton({ disabled, onClick }: { disabled: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={onClick}
+      className="mt-5 rounded-xl bg-sky-500 px-5 py-2.5 font-semibold text-slate-950 transition hover:bg-sky-400 disabled:opacity-40"
+    >
+      Submit
+    </button>
+  );
+}
+
+function isTyping(e: KeyboardEvent) {
+  const t = e.target as HTMLElement | null;
+  return !!t && (t.tagName === "INPUT" || t.tagName === "SELECT" || t.tagName === "TEXTAREA");
 }

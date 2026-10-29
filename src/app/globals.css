@@ -14,10 +14,7 @@
 }
 
 body {
-  background:
-    radial-gradient(60rem 30rem at 10% -10%, rgb(56 189 248 / 0.12), transparent),
-    radial-gradient(50rem 30rem at 100% 0%, rgb(167 139 250 / 0.1), transparent),
-    var(--background);
+  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
 }
@@ -81,6 +78,235 @@ body {
 }
 .boss-hit {
   animation: boss-hit 0.35s ease;
+}
+
+/* ───────── 3D buttons (Duolingo-style press) ───────── */
+.btn-3d {
+  --edge: #0369a1;
+  box-shadow: 0 5px 0 0 var(--edge);
+  transform: translateY(0);
+  transition: transform 0.08s, box-shadow 0.08s, filter 0.15s;
+}
+.btn-3d:hover {
+  filter: brightness(1.08);
+}
+.btn-3d:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 0 var(--edge);
+}
+
+/* Path nodes */
+.node-3d {
+  --c: #38bdf8;
+  --edge: #0c4a6e;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--c) 70%, white), var(--c) 60%);
+  box-shadow: 0 7px 0 0 var(--edge), 0 12px 24px -6px rgb(0 0 0 / 0.6);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.node-3d:active {
+  transform: translateY(5px);
+  box-shadow: 0 2px 0 0 var(--edge);
+}
+.node-locked {
+  background: radial-gradient(circle at 35% 30%, #475569, #334155 60%);
+  box-shadow: 0 7px 0 0 #1e293b;
+}
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+.node-current {
+  animation: bob 1.8s ease-in-out infinite;
+}
+.node-current:active {
+  animation: none;
+}
+@keyframes ring-pulse {
+  0% { transform: scale(1); opacity: 0.7; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+.ring-pulse {
+  animation: ring-pulse 1.8s ease-out infinite;
+}
+
+/* ───────── Tilt cards ───────── */
+.tilt {
+  --rx: 0deg;
+  --ry: 0deg;
+  --gx: 50%;
+  --gy: 50%;
+  transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));
+  transform-style: preserve-3d;
+  transition: transform 0.15s ease-out;
+  position: relative;
+}
+.tilt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(circle at var(--gx) var(--gy), rgb(255 255 255 / 0.1), transparent 55%);
+}
+
+/* ───────── 3D core ───────── */
+.core-scene {
+  perspective: 800px;
+}
+.cube {
+  position: relative;
+  transform-style: preserve-3d;
+  animation: cube-spin 14s linear infinite;
+}
+@keyframes cube-spin {
+  from { transform: rotateX(-18deg) rotateY(0deg); }
+  to { transform: rotateX(-18deg) rotateY(360deg); }
+}
+.cube-face {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid;
+  border-radius: 18px;
+  backdrop-filter: blur(4px);
+  box-shadow: inset 0 0 30px rgb(255 255 255 / 0.08);
+}
+.orbit {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 1.5px solid rgb(56 189 248 / 0.35);
+  transform-style: preserve-3d;
+}
+.orbit::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  background: #38bdf8;
+  box-shadow: 0 0 12px #38bdf8;
+}
+.orbit-a { animation: orbit-a 9s linear infinite; }
+.orbit-b { inset: 8%; border-color: rgb(167 139 250 / 0.35); animation: orbit-b 12s linear infinite; }
+.orbit-b::before { background: #a78bfa; box-shadow: 0 0 12px #a78bfa; }
+.orbit-c { inset: 16%; border-color: rgb(245 158 11 / 0.35); animation: orbit-c 7s linear infinite; }
+.orbit-c::before { background: #f59e0b; box-shadow: 0 0 12px #f59e0b; }
+@keyframes orbit-a { from { transform: rotateX(70deg) rotateZ(0); } to { transform: rotateX(70deg) rotateZ(360deg); } }
+@keyframes orbit-b { from { transform: rotateY(65deg) rotateZ(0); } to { transform: rotateY(65deg) rotateZ(-360deg); } }
+@keyframes orbit-c { from { transform: rotateX(-60deg) rotateY(30deg) rotateZ(0); } to { transform: rotateX(-60deg) rotateY(30deg) rotateZ(360deg); } }
+.spark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  background: white;
+  box-shadow: 0 0 8px white;
+  animation: spark 3s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.5s);
+}
+@keyframes spark {
+  0% { transform: rotate(calc(var(--i) * 60deg)) translateX(20px); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: rotate(calc(var(--i) * 60deg + 40deg)) translateX(120px); opacity: 0; }
+}
+
+/* ───────── Confetti ───────── */
+.confetti-piece {
+  position: absolute;
+  top: -20px;
+  border-radius: 2px;
+  animation-name: confetti-fall;
+  animation-timing-function: cubic-bezier(0.25, 0.6, 0.4, 1);
+  animation-fill-mode: forwards;
+}
+@keyframes confetti-fall {
+  0% { transform: translate3d(0, 0, 0) rotateX(0) rotateZ(0); opacity: 1; }
+  100% { transform: translate3d(var(--drift), 105vh, 0) rotateX(var(--spin)) rotateZ(var(--spin)); opacity: 0.8; }
+}
+
+/* ───────── Background ───────── */
+.blob {
+  position: absolute;
+  width: 40rem;
+  height: 40rem;
+  border-radius: 9999px;
+  filter: blur(90px);
+  opacity: 0.16;
+  animation: blob 22s ease-in-out infinite alternate;
+}
+.blob-a { background: #38bdf8; left: -12rem; top: -14rem; }
+.blob-b { background: #a78bfa; right: -14rem; top: 10rem; animation-delay: -7s; }
+.blob-c { background: #f59e0b; left: 30%; bottom: -22rem; opacity: 0.08; animation-delay: -14s; }
+@keyframes blob {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(6rem, 4rem) scale(1.15); }
+}
+.star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 9999px;
+  background: white;
+  animation: twinkle 6s ease-in-out infinite;
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.1; }
+  50% { opacity: 0.8; }
+}
+
+/* Planets */
+.planet-body {
+  box-shadow: inset -10px -12px 24px rgb(2 6 23 / 0.7), 0 0 30px -4px var(--c);
+  animation: planet-glow 4s ease-in-out infinite alternate;
+}
+@keyframes planet-glow {
+  from { filter: brightness(0.95); }
+  to { filter: brightness(1.15); }
+}
+.planet-ring {
+  left: -22%;
+  right: -22%;
+  top: 38%;
+  height: 24%;
+  border: 2px solid;
+  border-radius: 9999px;
+  transform: rotate(-18deg);
+  animation: ring-tilt 6s ease-in-out infinite alternate;
+}
+@keyframes ring-tilt {
+  from { transform: rotate(-18deg) scaleY(1); }
+  to { transform: rotate(-10deg) scaleY(0.8); }
+}
+.planet {
+  animation: bob 5s ease-in-out infinite;
+}
+
+/* Mascot */
+.mascot {
+  animation: bob 2.6s ease-in-out infinite;
+  filter: drop-shadow(0 8px 10px rgb(56 189 248 / 0.25));
+}
+@keyframes antenna {
+  0%, 100% { fill: #f59e0b; }
+  50% { fill: #fde68a; }
+}
+.mascot-antenna {
+  animation: antenna 1.2s ease-in-out infinite;
+}
+
+/* Lesson card entrance */
+@keyframes card-in {
+  from { opacity: 0; transform: perspective(900px) rotateY(-12deg) translateX(30px); }
+  to { opacity: 1; transform: perspective(900px) rotateY(0) translateX(0); }
+}
+.card-in {
+  animation: card-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {

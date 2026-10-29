@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { useOptionalCourse } from "@/engine/course-context";
+import { pct } from "@/engine/game";
 
 export function Bar({ value, color = "#38bdf8", className = "h-2" }: { value: number; color?: string; className?: string }) {
   return (
     <div className={`w-full overflow-hidden rounded-full bg-white/10 ${className}`}>
       <div
         className="h-full rounded-full transition-[width] duration-500"
-        style={{ width: `${Math.max(0, Math.min(1, value)) * 100}%`, background: color }}
+        style={{ width: pct(Math.max(0, Math.min(1, value))), background: color }}
       />
     </div>
   );
@@ -27,9 +29,10 @@ export function Stars({ count, size = "text-xl" }: { count: number; size?: strin
 }
 
 export function PageShell({ title, subtitle, children }: { title: string; subtitle?: string; children: ReactNode }) {
+  const course = useOptionalCourse();
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-6 sm:py-10">
-      <Link href="/" className="text-sm text-slate-400 hover:text-white">
+      <Link href={course ? course.href() : "/"} className="text-sm text-slate-400 hover:text-white">
         ← Back to map
       </Link>
       <h1 className="mt-3 text-2xl sm:text-3xl font-bold text-white">{title}</h1>

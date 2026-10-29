@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
-import { comboMultiplier, isCorrect, type PreparedQuestion } from "@/lib/game";
-import { addXp, recordAnswer, unlockBadge } from "@/lib/store";
+import { useCourse } from "@/engine/course-context";
+import { comboMultiplier, isCorrect, type PreparedQuestion } from "@/engine/game";
 import { QuestionCard } from "./QuestionCard";
 import { Bar, Button, Stars } from "./ui";
 
@@ -40,6 +40,7 @@ export function QuizSession({
   onComplete,
   emptyMessage,
 }: Props) {
+  const { store, course, href } = useCourse();
   const [phase, setPhase] = useState<Phase>("intro");
   const [deck, setDeck] = useState<PreparedQuestion[]>([]);
   const [idx, setIdx] = useState(0);
@@ -74,7 +75,7 @@ export function QuizSession({
   function submit(picked: number[]) {
     const ok = isCorrect(q, picked);
     setSubmitted(picked);
-    recordAnswer(q.id, ok);
+    store.recordAnswer(q.id, ok);
     if (ok) {
       const nextCombo = combo + 1;
       const gain = Math.round(baseXp * comboMultiplier(nextCombo));
@@ -83,9 +84,9 @@ export function QuizSession({
       setCorrect((c) => c + 1);
       setEarned((e) => e + gain);
       setLastGain(gain);
-      addXp(gain);
-      if (nextCombo >= 5) unlockBadge("combo-5");
-      if (nextCombo >= 10) unlockBadge("combo-10");
+      store.addXp(gain);
+      if (nextCombo >= 5) store.unlockBadge("combo-5");
+      if (nextCombo >= 10) store.unlockBadge("combo-10");
     } else {
       setCombo(0);
       setLastGain(null);
@@ -100,9 +101,9 @@ export function QuizSession({
     if (typeof s === "number") {
       setStars(s);
       if (s > 0) {
-        const bonus = s * 20;
+        const bonus = s * course.config.xp.starBonus;
         setEarned((e) => e + bonus);
-        addXp(bonus);
+        store.addXp(bonus);
       }
     }
     setFailed(outOfLives);
@@ -146,7 +147,7 @@ export function QuizSession({
         <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-8 text-center text-slate-300">
           {emptyMessage}
           <div className="mt-6">
-            <Link href="/" className="text-sky-300 hover:underline">
+            <Link href={href()} className="text-sky-300 hover:underline">
               Back to map
             </Link>
           </div>
@@ -179,7 +180,7 @@ export function QuizSession({
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Button onClick={start}>Play again</Button>
-          <Link href="/" className="rounded-xl border border-white/15 px-5 py-2.5 font-semibold text-slate-200 hover:bg-white/10">
+          <Link href={href()} className="rounded-xl border border-white/15 px-5 py-2.5 font-semibold text-slate-200 hover:bg-white/10">
             Back to map
           </Link>
         </div>

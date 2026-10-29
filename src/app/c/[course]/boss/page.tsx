@@ -1,0 +1,233 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+import { QuestionCard } from "@/components/QuestionCard";
+import { Bar, Button, PageShell } from "@/components/ui";
+import { useCourse, useProgress } from "@/engine/course-context";
+import { isCorrect, scaledScore, weightedExamDeck, type PreparedQuestion } from "@/engine/game";
+
+type Phase = "intro" | "play" | "done";
+
+export default function BossPage() {
+  const { course, store, href } = useCourse();
+  const progress = useProgress();
+  const { questions: TOTAL, minutes: MINUTES } = course.config.boss;
+  const { xp } = course.config;
+  const { pass } = course.exam.scale;
+  const boss = course.boss ?? { name: "The Exam Hydra", emoji: "🐉" };
+  const [phase, setPhase] = useState<Phase>("intro");
+  const [deck, setDeck] = useState<PreparedQuestion[]>([]);
+  const [answers, setAnswers] = useState<number[][]>([]);
+  const [idx, setIdx] = useState(0);
+  const [secondsLeft, setSecondsLeft] = useState(MINUTES * 60);
+  const [hit, setHit] = useState(false);
+  const deadline = useRef(0);
+  const finishRef = useRef<() => void>(() => {});
+
+  const q = deck[idx];
+  const submitted = answers[idx] ?? null;
+  const results = deck.map((d, i) => (answers[i] ? isCorrect(d, answers[i]) : false));
+  const correct = results.filter(Boolean).length;
+  const bossHp = 1 - correct / Math.max(deck.length, 1);
+  const playerHp = 1 - results.filter((r, i) => answers[i] && !r).length / Math.max(deck.length * 0.35, 1);
+
+  function start() {
+    setDeck(weightedExamDeck(course, TOTAL));
+    setAnswers([]);
+    setIdx(0);
+    setSecondsLeft(MINUTES * 60);
+    deadline.current = Date.now() + MINUTES * 60_000;
+    setPhase("play");
+  }
+
+  function submit(picked: number[]) {
+    const ok = isCorrect(q, picked);
+    store.recordAnswer(q.id, ok);
+    setAnswers((a) => {
+      const n = [...a];
+      n[idx] = picked;
+      return n;
+    });
+    if (ok) {
+      setHit(true);
+      setTimeout(() => setHit(false), 350);
+    }
+  }
+
+  function finish() {
+    const score = scaledScore(course, correct, deck.length);
+    store.recordBoss(score);
+    store.addXp(correct * xp.bossCorrect + (score >= pass ? xp.bossPassBonus : 0));
+    setPhase("done");
+    window.scrollTo({ top: 0 });
+  }
+
+  function next() {
+    if (idx + 1 >= deck.length) finish();
+    else setIdx(idx + 1);
+  }
+
+  useEffect(() => {
+    finishRef.current = finish;
+  });
+
+  useEffect(() => {
+    if (phase !== "play") return;
+    const t = setInterval(() => {
+      const left = Math.round((deadline.current - Date.now()) / 1000);
+      setSecondsLeft(left);
+      if (left <= 0) {
+        clearInterval(t);
+        finishRef.current();
+      }
+    }, 1000);
+    return () => clearInterval(t);
+  }, [phase]);
+
+  useEffect(() => {
+    if (phase !== "play" || submitted === null) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        next();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
+
+  if (phase === "intro") {
+    return (
+      <PageShell title={`${boss.emoji} Boss Battle`} subtitle={`A quick mock exam, weighted like the real ${course.code}.`}>
+        <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-6 sm:p-8">
+          <p className="text-slate-300">
+            Face the <span className="font-semibold text-rose-300">{boss.name}</span>. Every correct answer is a hit. Explanations
+            stay hidden until the end, just like the real exam.
+          </p>
+          <ul className="mt-5 grid gap-2 text-sm text-slate-400">
+            <li>📝 {TOTAL} questions drawn by domain weight</li>
+            <li>
+              ⏱️ {MINUTES} minutes (the real exam gives {course.exam.minutes} minutes for {course.exam.questions} questions)
+            </li>
+            <li>
+              🎯 Scaled score {course.exam.scale.min} to {course.exam.scale.max}. You need {pass} to pass.
+            </li>
+            <li>🏅 Pass for +{xp.bossPassBonus} bonus XP and the Boss Slayer badge</li>
+          </ul>
+          {progress.bossBest !== null && (
+            <p className="mt-4 text-sm text-slate-300">
+              Your best: <span className="font-bold text-white">{progress.bossBest}</span>
+            </p>
+          )}
+          <Button onClick={start} className="mt-6 bg-rose-500 hover:bg-rose-400">
+            ⚔️ Start battle
+          </Button>
+        </div>
+      </PageShell>
+    );
+  }
+
+  if (phase === "done") {
+    const score = scaledScore(course, correct, deck.length);
+    const passed = score >= pass;
+    return (
+      <PageShell title={`${boss.emoji} Boss Battle results`}>
+        <div className="pop-in rounded-2xl border border-white/10 bg-slate-900/70 p-6 sm:p-8 text-center">
+          <div className="text-6xl">{passed ? "🏆" : "🐉"}</div>
+          <h2 className="mt-3 text-3xl font-bold text-white">{score}</h2>
+          <p className={`mt-1 font-semibold ${passed ? "text-emerald-300" : "text-rose-300"}`}>
+            {passed ? `PASS. ${boss.name} is defeated!` : `Not yet. ${pass} is the passing score.`}
+          </p>
+          <p className="mt-1 text-slate-400">
+            {correct} of {deck.length} correct
+          </p>
+        </div>
+
+        <h3 className="mt-8 text-lg font-semibold text-white">By domain</h3>
+        <div className="mt-3 grid gap-3">
+          {course.domains.map((d) => {
+            const idxs = deck.flatMap((x, i) => (x.domain === d.id ? [i] : []));
+            const right = idxs.filter((i) => results[i]).length;
+            const pct = idxs.length ? right / idxs.length : 0;
+            return (
+              <div key={d.id} className="rounded-xl border border-white/10 bg-white/5 p-3">
+                <div className="mb-1.5 flex justify-between text-sm">
+                  <span className="text-slate-200">
+                    {d.emoji} {d.name}
+                  </span>
+                  <span className={pct >= 0.7 ? "text-emerald-300" : "text-amber-300"}>
+                    {right}/{idxs.length}
+                  </span>
+                </div>
+                <Bar value={pct} color={d.color} />
+              </div>
+            );
+          })}
+        </div>
+
+        <h3 className="mt-8 text-lg font-semibold text-white">Review your answers</h3>
+        <div className="mt-3 grid gap-4">
+          {deck.map((d, i) => (
+            <details key={d.id} className="rounded-xl border border-white/10 bg-white/5 open:bg-transparent" open={!results[i]}>
+              <summary className="cursor-pointer px-4 py-3 text-sm text-slate-200">
+                <span className={results[i] ? "text-emerald-300" : "text-rose-300"}>{results[i] ? "✓" : "✗"}</span> {i + 1}. {d.prompt}
+              </summary>
+              <div className="p-2">
+                <QuestionCard q={d} submitted={answers[i] ?? []} onSubmit={() => {}} />
+              </div>
+            </details>
+          ))}
+        </div>
+
+        <div className="mt-8 flex flex-wrap gap-3">
+          <Button onClick={start}>Rematch</Button>
+          <Link href={href("/review")} className="rounded-xl border border-white/15 px-5 py-2.5 font-semibold text-slate-200 hover:bg-white/10">
+            Review mistakes
+          </Link>
+        </div>
+      </PageShell>
+    );
+  }
+
+  const mm = Math.floor(Math.max(secondsLeft, 0) / 60);
+  const ss = String(Math.max(secondsLeft, 0) % 60).padStart(2, "0");
+
+  return (
+    <main className="mx-auto w-full max-w-3xl px-4 py-6">
+      <div className="mb-5 rounded-2xl border border-rose-400/20 bg-gradient-to-b from-rose-950/50 to-slate-900/60 p-4">
+        <div className="flex items-center gap-4">
+          <div className={`text-5xl transition ${hit ? "boss-hit" : ""}`}>{boss.emoji}</div>
+          <div className="flex-1">
+            <div className="mb-1 flex justify-between text-xs">
+              <span className="font-semibold text-rose-300">{boss.name}</span>
+              <span className="text-slate-400">
+                {deck.length - correct}/{deck.length} HP
+              </span>
+            </div>
+            <Bar value={bossHp} color="#f43f5e" className="h-3" />
+            <div className="mt-2 mb-1 flex justify-between text-xs">
+              <span className="font-semibold text-sky-300">You</span>
+              <span className="text-slate-400">survive below 35% misses</span>
+            </div>
+            <Bar value={playerHp} color="#38bdf8" className="h-2" />
+          </div>
+          <div className={`font-mono text-lg ${secondsLeft < 300 ? "text-rose-300" : "text-slate-200"}`}>
+            {mm}:{ss}
+          </div>
+        </div>
+        <div className="mt-3 text-xs text-slate-400">
+          Question {idx + 1} of {deck.length}
+        </div>
+      </div>
+
+      <QuestionCard key={q.id} q={q} submitted={submitted} onSubmit={submit} reveal={false} />
+
+      {submitted && (
+        <div className="mt-4 flex justify-end">
+          <Button onClick={next}>{idx + 1 >= deck.length ? "Finish battle" : "Next →"}</Button>
+        </div>
+      )}
+    </main>
+  );
+}
