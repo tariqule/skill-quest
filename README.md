@@ -6,7 +6,7 @@ The app is a **course engine**. Each certification is a self-contained content p
 
 | Course | Status |
 | --- | --- |
-| ☁️ AWS Certified AI Practitioner (AIF-C01) | ✅ Full course: 5 worlds, 31 missions, 7 labs, 200 questions. Follows the [exam guide v1.2](https://docs.aws.amazon.com/aws-certification/latest/ai-practitioner-01/ai-practitioner-01.html) (October 2026). |
+| ☁️ AWS Certified AI Practitioner (AIF-C01) | ✅ Full course: 5 worlds, 40 missions, 7 labs, 10 hands-on challenges, 267 questions, 111 flashcards. Follows the [exam guide v1.2](https://docs.aws.amazon.com/aws-certification/latest/ai-practitioner-01/ai-practitioner-01.html) (October 2026). |
 | 🔷 Google Cloud Generative AI Leader | Planned |
 | 🟦 Azure AI Fundamentals (AI-900) | Planned |
 | ☸️ Kubernetes and Cloud Native Associate (KCNA) | Planned |

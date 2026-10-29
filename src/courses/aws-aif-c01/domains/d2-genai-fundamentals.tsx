@@ -189,6 +189,67 @@ export default defineDomain({
         "Cost levers: on-demand tokens vs Provisioned Throughput (needed for custom models), Region choice, redundancy.",
       ],
     },
+    {
+      id: "d2-cloud-basics",
+      check: ["d2-47", "d2-49"],
+      task: "2.3",
+      title: "Cloud and AWS basics for AI",
+      visual: (
+        <div className="grid gap-4">
+          <Layers
+            layers={[
+              { name: "SaaS: you just use it", color: "#34d399", items: ["A finished app the provider runs for you", "e.g. a web email service"] },
+              { name: "PaaS: you bring the code", color: "#a78bfa", items: ["Provider runs servers and runtime", "You deploy and manage the app"] },
+              { name: "IaaS: you get building blocks", color: "#38bdf8", items: ["Virtual servers, storage, networking", "Most flexible, e.g. Amazon EC2"] },
+            ]}
+          />
+          <Tiles
+            cols={3}
+            tiles={[
+              { icon: "🌍", title: "Region", text: "A geographic area with several data-center clusters. Your data stays in it unless you move it." },
+              { icon: "🏢", title: "Availability Zone", text: "One or more isolated data centers inside a Region, with separate power and networking." },
+              { icon: "📍", title: "Edge location", text: "Points of presence close to users, used by Amazon CloudFront for low-latency delivery." },
+            ]}
+          />
+        </div>
+      ),
+      points: [
+        "Choose a Region by compliance (data residency), proximity to users (latency), which services are available there, and price.",
+        "Cloud benefits: pay as you go instead of buying hardware (CapEx → OpEx), economies of scale, no capacity guessing, speed, and going global in minutes.",
+        "Core services AI apps lean on: S3 for data (storage classes from Standard to Glacier Deep Archive), EC2 for compute, Lambda for serverless code, IAM for access.",
+      ],
+      tip: "\"Data must stay in the EU\" → pick an EU Region. That's data residency, a Region decision.",
+    },
+    {
+      id: "d2-bedrock-costs",
+      check: ["d2-53", "d2-56"],
+      task: "2.3",
+      title: "Bedrock pricing, latency, and monitoring",
+      visual: (
+        <div className="grid gap-4">
+          <Tiles
+            cols={3}
+            tiles={[
+              { icon: "⚡", title: "On-demand", text: "Pay per token (text), per input token (embeddings), or per image. No commitment; best for unpredictable traffic.", color: "#38bdf8" },
+              { icon: "📦", title: "Batch", text: "Many requests at once, results written to S3. Up to about 50% cheaper.", color: "#34d399" },
+              { icon: "🔒", title: "Provisioned Throughput", text: "Reserve model units for a term. Guarantees capacity; usually not a cost saver.", color: "#a78bfa" },
+            ]}
+          />
+          <Tiles
+            tiles={[
+              { icon: "💰", title: "What changes cost", text: "Number of input and output tokens (the main driver), model size and provider, and the pricing mode.", color: "#f59e0b" },
+              { icon: "⏱️", title: "What changes latency", text: "Model size and type, and input and output length. Temperature, Top P, and Top K change neither cost nor latency.", color: "#f87171" },
+            ]}
+          />
+        </div>
+      ),
+      points: [
+        "Model invocation logging sends prompts and responses to CloudWatch Logs and/or S3 for auditing and analysis.",
+        "Bedrock publishes CloudWatch metrics, including how often guardrails filtered content, so you can alarm on them.",
+        "Running a fine-tuned model also costs more than the base model.",
+      ],
+      tip: "\"Lower the temperature to save money\" is a classic wrong answer. Fewer tokens or a smaller model saves money.",
+    },
   ],
 
   questions: [
@@ -725,6 +786,156 @@ export default defineDomain({
       answer: [0, 1],
       explanation: "Adaptability and conversational ability are strengths. Accuracy is not guaranteed, outputs vary, and evaluation is always needed.",
     },
+    // ── Practice set 3 ──
+    {
+      id: "d2-46",
+      domain: "d2",
+      lesson: "d2-cloud-basics",
+      prompt: "A company keeps sensitive systems in its own data center but runs new AI workloads on AWS. Which cloud deployment model is this?",
+      options: ["Hybrid cloud", "Public cloud only", "Private cloud only", "Software as a Service"],
+      answer: [0],
+      explanation: "Hybrid cloud combines on-premises (private) infrastructure with public cloud services.",
+    },
+    {
+      id: "d2-47",
+      domain: "d2",
+      lesson: "d2-cloud-basics",
+      prompt: "Which factors should drive the choice of AWS Region for a new AI application? (Choose two.)",
+      options: ["Data residency and compliance requirements", "Proximity to users for lower latency", "The color of the AWS console", "The number of IAM users in the account", "Whether the team prefers Python"],
+      answer: [0, 1],
+      explanation: "Choose a Region by compliance, latency to users, which services are available there, and pricing.",
+    },
+    {
+      id: "d2-48",
+      domain: "d2",
+      lesson: "d2-cloud-basics",
+      prompt: "Renting virtual servers, storage, and networking that you configure yourself, such as Amazon EC2, is an example of which cloud type?",
+      options: ["Infrastructure as a Service (IaaS)", "Software as a Service (SaaS)", "Platform as a Service (PaaS)", "On-premises hosting"],
+      answer: [0],
+      explanation: "IaaS gives the most flexibility: you manage the OS and apps on provider-run hardware.",
+    },
+    {
+      id: "d2-49",
+      domain: "d2",
+      lesson: "d2-cloud-basics",
+      prompt: "A new GenAI feature isn't available in the AWS Region a company uses. What is the most likely explanation?",
+      options: ["New services and features roll out to Regions at different times", "Regions share every service at the same moment", "Availability Zones control service availability", "Edge locations host the service instead"],
+      answer: [0],
+      explanation: "Service availability varies by Region. Check the Region table before choosing where to deploy.",
+    },
+    {
+      id: "d2-50",
+      domain: "d2",
+      lesson: "d2-cloud-basics",
+      prompt: "Which is one of the advantages of cloud computing?",
+      options: ["Trade up-front capital expense for pay-as-you-go operating expense", "You must buy hardware for peak demand", "Capacity has to be planned years ahead", "Every Region has identical prices"],
+      answer: [0],
+      explanation: "Other advantages include economies of scale, no capacity guessing, speed and agility, and going global in minutes.",
+    },
+    {
+      id: "d2-51",
+      domain: "d2",
+      lesson: "d2-cloud-basics",
+      prompt: "Training archives must be kept for 7 years and are almost never read. Which Amazon S3 storage class is the most cost-effective?",
+      options: ["S3 Glacier Deep Archive", "S3 Standard", "S3 Standard-Infrequent Access", "S3 Intelligent-Tiering"],
+      answer: [0],
+      explanation: "Deep Archive is the cheapest class for rarely accessed long-term data, with retrieval in hours. Intelligent-Tiering suits unknown access patterns.",
+    },
+    {
+      id: "d2-52",
+      domain: "d2",
+      lesson: "d2-cloud-basics",
+      prompt: "Which AWS service runs code without managing servers, billing only for requests and run time, and is often used behind Bedrock Agents action groups?",
+      options: ["AWS Lambda", "Amazon EC2", "Amazon S3 Glacier", "AWS Artifact"],
+      answer: [0],
+      explanation: "Lambda is serverless and event-driven. Agents can call Lambda functions to perform actions.",
+    },
+    {
+      id: "d2-53",
+      domain: "d2",
+      lesson: "d2-bedrock-costs",
+      prompt: "A team wants to cut the cost of a Bedrock workload that runs overnight and doesn't need instant answers. What helps most?",
+      options: ["Use Bedrock batch inference", "Lower the temperature", "Raise Top K", "Buy Provisioned Throughput for six months"],
+      answer: [0],
+      explanation: "Batch inference can be up to about 50% cheaper. Sampling settings don't affect price, and Provisioned Throughput reserves capacity rather than saving money.",
+    },
+    {
+      id: "d2-54",
+      domain: "d2",
+      lesson: "d2-bedrock-costs",
+      prompt: "How are embedding models billed in Amazon Bedrock on demand?",
+      options: ["Per input token processed", "Per image generated", "Per hour of GPU time", "A flat monthly fee"],
+      answer: [0],
+      explanation: "Text models bill input and output tokens, embedding models bill input tokens, and image models bill per image.",
+    },
+    {
+      id: "d2-55",
+      domain: "d2",
+      lesson: "d2-bedrock-costs",
+      prompt: "Which change does NOT reduce the cost of a Bedrock text application?",
+      options: ["Lowering the temperature", "Sending shorter prompts", "Capping the response length", "Switching to a smaller model that meets quality needs"],
+      answer: [0],
+      explanation: "Temperature, Top P, and Top K change the style of output, not the price. Tokens and model size drive cost.",
+    },
+    {
+      id: "d2-56",
+      domain: "d2",
+      lesson: "d2-bedrock-costs",
+      prompt: "Which factors affect how quickly a model responds? (Choose two.)",
+      options: ["The size of the model", "The number of input and output tokens", "The temperature setting", "The Top P setting", "The name of the S3 bucket"],
+      answer: [0, 1],
+      explanation: "Latency depends on model size and type and on input and output length. Temperature, Top P, and Top K don't change it.",
+    },
+    {
+      id: "d2-57",
+      domain: "d2",
+      lesson: "d2-bedrock-costs",
+      prompt: "An operations team wants an alarm when Bedrock Guardrails start filtering many responses. What should they use?",
+      options: ["Amazon CloudWatch metrics published by Bedrock, with a CloudWatch alarm", "AWS Artifact", "Amazon Polly", "S3 Lifecycle rules"],
+      answer: [0],
+      explanation: "Bedrock publishes CloudWatch metrics, including a count of filtered content, and you can alarm on them. Invocation logging adds the full request and response detail.",
+    },
+    {
+      id: "d2-58",
+      domain: "d2",
+      lesson: "d2-stack",
+      prompt: "Employees want Amazon Quick to answer only from documents they're allowed to see. What makes this work?",
+      options: ["Users sign in through IAM Identity Center, and answers respect each user's document access", "Every user shares one admin login", "Answers are always generated from public internet data", "Temperature is set to 0"],
+      answer: [0],
+      explanation: "Quick authenticates users (often via IAM Identity Center with an external identity provider) and generates responses only from content each user can access.",
+    },
+    {
+      id: "d2-59",
+      domain: "d2",
+      lesson: "d2-stack",
+      type: "match",
+      prompt: "Match each Amazon Quick capability to what it does.",
+      pairs: [
+        ["Quick Index", "A managed, searchable knowledge base of company data"],
+        ["Quick Research", "A deep-research agent that writes cited reports"],
+        ["Quick Flows", "Simple automations described in plain language"],
+        ["Quick Sight", "AI-powered BI dashboards you can ask questions about"],
+      ],
+      explanation: "Quick also has Quick Automate for multi-step agentic workflows with approvals, and Spaces for shared team workspaces.",
+    },
+    {
+      id: "d2-60",
+      domain: "d2",
+      lesson: "d2-models",
+      prompt: "A company wants natural, real-time spoken conversations with customers using an Amazon model. Which Nova 2 model fits?",
+      options: ["Nova 2 Sonic (speech-to-speech)", "Nova 2 Multimodal Embeddings", "Amazon Neptune", "Amazon Textract"],
+      answer: [0],
+      explanation: "Nova 2 Sonic handles real-time voice. Nova 2 Lite is a fast, cost-effective reasoning model, Multimodal Embeddings powers semantic search, and Omni combines multimodal reasoning with image generation.",
+    },
+    {
+      id: "d2-61",
+      domain: "d2",
+      lesson: "d2-agents",
+      prompt: "How does a Bedrock agent know which company APIs it can call to look up orders?",
+      options: ["You define action groups, described with an OpenAPI schema and often backed by Lambda functions", "The agent searches the internet for APIs", "The temperature setting lists them", "AWS Artifact registers them"],
+      answer: [0],
+      explanation: "Action groups tell the agent which operations exist and how to call them. Knowledge bases supply documents for RAG.",
+    },
   ],
 
   cards: [
@@ -744,6 +955,15 @@ export default defineDomain({
     { id: "c-diffusion", domain: "d2", kind: "concept", term: "Diffusion model", definition: "Generates images by iteratively removing noise" },
     { id: "c-mcp", domain: "d2", kind: "concept", term: "MCP", definition: "Open standard that plugs agents into tools and data" },
     { id: "c-context", domain: "d2", kind: "concept", term: "Context engineering", definition: "Curating everything the model sees: instructions, data, memory, tools" },
+    { id: "c-region", domain: "d2", kind: "concept", term: "AWS Region", definition: "Geographic area; choose by compliance, latency, services, price" },
+    { id: "c-az", domain: "d2", kind: "concept", term: "Availability Zone", definition: "Isolated data center(s) within a Region" },
+    { id: "c-iaas", domain: "d2", kind: "concept", term: "IaaS / PaaS / SaaS", definition: "Building blocks / platform for your code / finished app" },
+    { id: "c-hybrid", domain: "d2", kind: "concept", term: "Hybrid cloud", definition: "On-premises systems plus public cloud" },
+    { id: "s-lambda", domain: "d2", kind: "service", term: "AWS Lambda", definition: "Serverless functions billed per request and run time" },
+    { id: "c-batchbedrock", domain: "d2", kind: "concept", term: "Bedrock batch inference", definition: "Bulk requests, results in S3, up to ~50% cheaper" },
+    { id: "c-latency", domain: "d2", kind: "concept", term: "Model latency drivers", definition: "Model size/type and token counts, not temperature" },
+    { id: "c-nova2", domain: "d2", kind: "concept", term: "Amazon Nova 2", definition: "Lite (reasoning), Sonic (voice), Multimodal Embeddings, Omni" },
+    { id: "c-quickindex", domain: "d2", kind: "concept", term: "Quick Index", definition: "Amazon Quick's managed knowledge base of company data" },
   ],
 
   challenges: [

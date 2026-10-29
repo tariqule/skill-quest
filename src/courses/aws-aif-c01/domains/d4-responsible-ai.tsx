@@ -139,6 +139,39 @@ export default defineDomain({
         "Human-centred design: show users why, let them give feedback. Amazon A2I adds human review.",
       ],
     },
+    {
+      id: "d4-compliance",
+      check: ["d4-27", "d4-31"],
+      task: "4.1 · 4.2",
+      title: "Bias types, explainability, and compliance",
+      visual: (
+        <div className="grid gap-4">
+          <Tiles
+            cols={4}
+            tiles={[
+              { icon: "🎯", title: "Sampling bias", text: "Training data doesn't represent the real population.", color: "#f87171" },
+              { icon: "📏", title: "Measurement bias", text: "The tools or methods used to collect data are skewed.", color: "#f87171" },
+              { icon: "👀", title: "Observer bias", text: "The person collecting or labeling data lets their views shape it.", color: "#f87171" },
+              { icon: "🪞", title: "Confirmation bias", text: "Favouring information that confirms what you already believe.", color: "#f87171" },
+            ]}
+          />
+          <Tiles
+            cols={3}
+            tiles={[
+              { icon: "📈", title: "Partial dependence plot", text: "Shows how one feature moves the prediction while others stay fixed. Useful for black-box models.", color: "#34d399" },
+              { icon: "🏦", title: "Regulated workloads", text: "Finance, healthcare, aerospace: extra audit, archival, and reporting rules.", color: "#38bdf8" },
+              { icon: "🧩", title: "Why AI compliance is hard", text: "Opaque decisions, models that change over time, emergent capabilities, and new risks like bias and misinformation.", color: "#a78bfa" },
+            ]}
+          />
+        </div>
+      ),
+      points: [
+        "GenAI-specific challenges: toxicity, hallucinations, plagiarism and cheating, and prompt misuse.",
+        "Fight toxicity by curating training data and filtering output with guardrails.",
+        "Governance starts with people: an AI governance board (legal, compliance, privacy, AI experts) with clear roles, policies, and review processes.",
+        "Regulations such as the EU AI Act push for transparent, explainable, accountable algorithms.",
+      ],
+    },
   ],
 
   questions: [
@@ -452,6 +485,93 @@ export default defineDomain({
       answer: [0, 1],
       explanation: "Right-sizing models and using efficient hardware cut energy use, part of responsible model selection.",
     },
+    // ── Practice set 3 ──
+    {
+      id: "d4-27",
+      domain: "d4",
+      lesson: "d4-compliance",
+      prompt: "A hiring model was trained only on résumés from one city, so it treats applicants from elsewhere unfairly. Which bias is this?",
+      options: ["Sampling bias", "Measurement bias", "Observer bias", "Confirmation bias"],
+      answer: [0],
+      explanation: "Sampling bias means the training data doesn't represent the population the model will serve.",
+    },
+    {
+      id: "d4-28",
+      domain: "d4",
+      lesson: "d4-compliance",
+      prompt: "A miscalibrated sensor records temperatures 3 degrees too high for every training example. Which bias does this introduce?",
+      options: ["Measurement bias", "Sampling bias", "Confirmation bias", "Observer bias"],
+      answer: [0],
+      explanation: "Measurement bias comes from flawed tools or methods of collecting data.",
+    },
+    {
+      id: "d4-29",
+      domain: "d4",
+      lesson: "d4-compliance",
+      type: "match",
+      prompt: "Match each type of bias to its example.",
+      pairs: [
+        ["Sampling bias", "Survey sent only to existing premium customers"],
+        ["Measurement bias", "A scale that always reads 2 kg heavy"],
+        ["Observer bias", "A labeler marks ambiguous photos to match their own expectation"],
+        ["Confirmation bias", "An analyst keeps only results that support their hypothesis"],
+      ],
+      explanation: "Knowing where bias enters (sampling, measuring, labeling, interpreting) tells you where to fix it.",
+    },
+    {
+      id: "d4-30",
+      domain: "d4",
+      lesson: "d4-compliance",
+      prompt: "A team needs to show how changing one feature, such as income, shifts a black-box model's predictions while other features stay fixed. Which technique fits?",
+      options: ["Partial dependence plots (PDP)", "ROUGE score", "Prompt caching", "Batch transform"],
+      answer: [0],
+      explanation: "PDPs improve interpretability for complex models such as neural networks.",
+    },
+    {
+      id: "d4-31",
+      domain: "d4",
+      lesson: "d4-compliance",
+      prompt: "Which describes a regulated workload?",
+      options: ["A mortgage-approval model that must meet audit, archival, and reporting rules", "A personal photo filter app", "An internal brainstorming chatbot", "A game that suggests team names"],
+      answer: [0],
+      explanation: "Financial services, healthcare, and aerospace often carry extra compliance requirements.",
+    },
+    {
+      id: "d4-32",
+      domain: "d4",
+      lesson: "d4-compliance",
+      prompt: "Why is auditing AI systems for compliance harder than auditing traditional software? (Choose two.)",
+      options: ["Their decisions can be complex and opaque", "They can change over time and show unexpected capabilities", "They never use data", "They always run on-premises", "They can't be logged"],
+      answer: [0, 1],
+      explanation: "Complexity and opacity, dynamism, emergent capabilities, and unique risks such as algorithmic bias make AI compliance challenging.",
+    },
+    {
+      id: "d4-33",
+      domain: "d4",
+      lesson: "d4-compliance",
+      prompt: "Which actions reduce toxic output from a generative model? (Choose two.)",
+      options: ["Curate the training data to remove offensive content", "Filter outputs with guardrails", "Raise the temperature", "Use a larger context window", "Disable logging"],
+      answer: [0, 1],
+      explanation: "Clean training data plus output filtering (for example Bedrock Guardrails) are the main defences.",
+    },
+    {
+      id: "d4-34",
+      domain: "d4",
+      lesson: "d4-compliance",
+      prompt: "A school worries students will submit AI-written essays. Which GenAI challenge is this?",
+      options: ["Plagiarism and cheating", "Model drift", "Data residency", "Underfitting"],
+      answer: [0],
+      explanation: "It's hard to trace the source of generated content, which has driven tools that detect AI-generated text and images.",
+    },
+    {
+      id: "d4-35",
+      domain: "d4",
+      lesson: "d4-compliance",
+      prompt: "Who should sit on an AI governance board?",
+      options: ["Representatives from legal, compliance, data privacy, and AI subject-matter experts", "Only the data science team", "Only external vendors", "Only the CEO"],
+      answer: [0],
+      explanation: "A cross-functional board defines roles, policies, and review processes across the AI lifecycle.",
+    },
   ],
 
   cards: [
@@ -460,6 +580,10 @@ export default defineDomain({
     { id: "s-a2i", domain: "d4", kind: "service", term: "Amazon Augmented AI (A2I)", definition: "Human review of low-confidence ML predictions" },
     { id: "c-guardrails", domain: "d4", kind: "concept", term: "Bedrock Guardrails", definition: "Filter harmful content, denied topics, PII, and ungrounded answers" },
     { id: "c-rlhf", domain: "d4", kind: "concept", term: "RLHF", definition: "Align a model to human preferences using human rankings" },
+    { id: "c-sampling", domain: "d4", kind: "concept", term: "Sampling bias", definition: "Training data doesn't represent the real population" },
+    { id: "c-measurement", domain: "d4", kind: "concept", term: "Measurement bias", definition: "Flawed tools or methods skew the data" },
+    { id: "c-pdp", domain: "d4", kind: "concept", term: "Partial dependence plot", definition: "One feature's effect on predictions, others held fixed" },
+    { id: "c-regulated", domain: "d4", kind: "concept", term: "Regulated workload", definition: "Extra audit, archival, and reporting rules (finance, health)" },
   ],
 
   challenges: [
