@@ -90,12 +90,15 @@ export default function StartPage() {
               <div className="flex items-center gap-2">
                 <span className="text-2xl">{t.icon}</span>
                 <span className="font-bold text-white">{t.name}</span>
+                {t.practiceOnly && <span className="ml-1.5 rounded bg-white/10 px-1.5 py-0.5 text-[10px] font-bold uppercase text-slate-300">practice only</span>}
               </div>
               <div className="mt-1 text-sm text-slate-400">{t.rule}</div>
               <MiniDemo kind={t.id} />
             </div>
           ))}
-          <p className="text-sm text-slate-400 sm:col-span-2">You&apos;ll practise every type in this game, so nothing on exam day is a surprise.</p>
+          <p className="text-sm text-slate-400 sm:col-span-2">
+            You&apos;ll practise every type in this game. Practice-only formats help you learn but never appear in the exam simulator.
+          </p>
         </div>
       ),
     },

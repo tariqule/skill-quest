@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useCourse, useProgress } from "@/engine/course-context";
+import { versionLabel } from "@/engine/game";
 import { setGuideOpen, useGuideOpen } from "@/engine/ui-state";
 import { Mascot } from "./fx";
 
@@ -85,6 +86,7 @@ function ExamTab() {
             <div key={t.id} className="rounded-xl bg-white/5 p-2 text-sm">
               <b className="text-white">
                 {t.icon} {t.name}
+                {t.practiceOnly && <span className="ml-1.5 rounded bg-white/10 px-1.5 py-0.5 text-[10px] font-bold uppercase text-slate-300">practice only</span>}
               </b>
               <div className="text-xs text-slate-400">{t.rule}</div>
             </div>
@@ -257,7 +259,7 @@ function SourceNote() {
   const { source } = useCourse().course.guide;
   return (
     <p className="text-xs text-slate-500">
-      Based on the {source.label} v{source.version} ({source.date}).{" "}
+      Based on the {source.label} {versionLabel(source.version)} ({source.date}).{" "}
       <a href={source.url} target="_blank" rel="noreferrer" className="underline">
         Read the official guide
       </a>

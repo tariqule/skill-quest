@@ -33,6 +33,9 @@ export default defineCourse({
     questionTypes: [
       { id: "choice", icon: "🔘", name: "Multiple choice", rule: "1 correct answer." },
       { id: "multi", icon: "☑️", name: "Multiple response", rule: "Choose all that apply." },
+      // Mark formats the real exam doesn't use as practiceOnly; the simulator skips them.
+      { id: "order", icon: "🔢", name: "Ordering", rule: "Put the steps in order.", practiceOnly: true },
+      { id: "match", icon: "🔗", name: "Matching", rule: "Pair each item with its answer.", practiceOnly: true },
     ],
   },
 
@@ -51,7 +54,7 @@ export default defineCourse({
   config: {
     quest: { length: 3 },
     boss: { questions: 3, minutes: 5 },
-    examModes: [{ id: "full", name: "Full simulation", icon: "🏛️", questions: 3, unscored: 0, minutes: 5, full: true }],
+    examModes: [{ id: "full", name: "Full simulation", icon: "🏛️", questions: 1, unscored: 0, minutes: 5, full: true }],
   },
   // Pick which training-deck modes to offer (default: all of them).
   modes: ["review", "flashcards", "lightning", "boss", "cheatsheet"],

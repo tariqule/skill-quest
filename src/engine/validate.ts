@@ -1,3 +1,4 @@
+import { examQuestions, questionKind } from "./game";
 import type { Course } from "./types";
 
 /**
@@ -32,8 +33,10 @@ export function validateCourse(course: Course): string[] {
   if (!(min < pass && pass <= max)) err(`exam scale must satisfy min < pass <= max (got ${min}/${pass}/${max})`);
   if (course.exam.unscored >= course.exam.questions) err("exam.unscored must be less than exam.questions");
 
+  const declared = new Set(course.exam.questionTypes.map((t) => t.id));
   for (const q of course.questions) {
     const where = `question "${q.id}"`;
+    if (!declared.has(questionKind(q))) err(`${where} uses the "${questionKind(q)}" format, which exam.questionTypes doesn't list`);
     if (!domainIds.has(q.domain)) err(`${where} has unknown domain "${q.domain}"`);
     if (!q.prompt.trim()) err(`${where} has an empty prompt`);
     if (!q.explanation.trim()) err(`${where} has no explanation`);
@@ -83,9 +86,11 @@ export function validateCourse(course: Course): string[] {
     for (const id of l.check) if (!questionIds.has(id)) err(`lesson "${l.id}" checks unknown question "${id}"`);
   }
 
+  if (course.exam.questionTypes.every((t) => t.practiceOnly)) err("at least one question type must be an official (not practiceOnly) format");
+  const official = examQuestions(course).length;
   for (const m of course.config.examModes) {
     if (m.unscored >= m.questions) err(`exam mode "${m.id}" has more unscored than total questions`);
-    if (m.questions > course.questions.length) err(`exam mode "${m.id}" needs ${m.questions} questions; the course has ${course.questions.length}`);
+    if (m.questions > official) err(`exam mode "${m.id}" needs ${m.questions} questions in official formats; the course has ${official}`);
   }
   if (course.config.boss.questions > course.questions.length) err("boss.questions is larger than the question bank");
   for (const [name, t] of [["lesson.timedChallenge", course.config.lesson.timedChallenge], ["timed", course.config.timed]] as const) {

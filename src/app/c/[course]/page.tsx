@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type CSSProperties } from "react";
 import { Core3D, MascotSays, Tilt } from "@/components/fx";
+import { LifecycleBanner } from "@/components/Lifecycle";
 import { Bar, Stars } from "@/components/ui";
 import { BADGES } from "@/engine/badges";
 import { useCourse, useProgress } from "@/engine/course-context";
@@ -93,6 +94,7 @@ export default function MissionMap() {
           <Core3D size={110} domains={course.domains} icon={course.provider.icon} />
         </div>
       </section>
+      <LifecycleBanner course={course} />
 
       {/* How the expedition works */}
       <section className="mt-6 grid gap-3 sm:grid-cols-4">

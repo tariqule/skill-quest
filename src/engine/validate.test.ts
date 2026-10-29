@@ -19,3 +19,13 @@ describe("course template", () => {
     expect(validateCourse(template)).toEqual([]);
   });
 });
+
+describe("course lifecycles", () => {
+  it("successor and predecessor ids point at registered courses", () => {
+    const ids = new Set(COURSES.map((c) => c.id));
+    for (const c of COURSES) {
+      if (c.lifecycle?.successor) expect(ids.has(c.lifecycle.successor), `${c.id} successor`).toBe(true);
+      if (c.lifecycle?.predecessor) expect(ids.has(c.lifecycle.predecessor), `${c.id} predecessor`).toBe(true);
+    }
+  });
+});

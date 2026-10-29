@@ -6,7 +6,7 @@ import { Confetti, Core3D, MascotSays } from "@/components/fx";
 import { QuestionCard } from "@/components/QuestionCard";
 import { Bar, PageShell } from "@/components/ui";
 import { useCourse, useProgress } from "@/engine/course-context";
-import { isCorrect, pct, scaledScore, shuffle, weightedExamDeck, type PreparedQuestion } from "@/engine/game";
+import { examQuestions, isCorrect, pct, scaledScore, shuffle, versionLabel, weightedExamDeck, type PreparedQuestion } from "@/engine/game";
 
 type Phase = "intro" | "exam" | "review" | "results";
 
@@ -14,6 +14,8 @@ export default function ExamPage() {
   const { course, store, href } = useCourse();
   const progress = useProgress();
   const MODES = course.config.examModes;
+  const officialTypes = course.exam.questionTypes.filter((t) => !t.practiceOnly);
+  const practiceTypes = course.exam.questionTypes.filter((t) => t.practiceOnly);
   const { min, max, pass } = course.exam.scale;
   const { xp } = course.config;
   const [phase, setPhase] = useState<Phase>("intro");
@@ -34,7 +36,7 @@ export default function ExamPage() {
 
   function start(id: string) {
     const c = MODES.find((m) => m.id === id)!;
-    const d = weightedExamDeck(course, c.questions);
+    const d = weightedExamDeck(course, c.questions, examQuestions(course));
     setModeId(id);
     setDeck(d);
     setUnscored(new Set(shuffle(d.map((_, i) => i)).slice(0, c.unscored)));
@@ -126,7 +128,8 @@ export default function ExamPage() {
                 .
               </li>
               <li>
-                {course.exam.questionTypes.map((t) => t.icon).join("")} {course.exam.questionTypes.map((t) => t.name.toLowerCase()).join(", ")}
+                {officialTypes.map((t) => t.icon).join("")} {officialTypes.map((t) => t.name.toLowerCase()).join(", ")}: the formats the real exam uses
+                {practiceTypes.length > 0 && ` (${practiceTypes.map((t) => t.name.toLowerCase()).join(" and ")} stay in missions and drills)`}
               </li>
               <li>⏱️ {course.exam.minutes} minutes. The timer auto-submits at zero.</li>
               <li>🚩 Flag questions, jump around, and change answers before you submit</li>
@@ -169,8 +172,7 @@ export default function ExamPage() {
           ))}
         </div>
         <div className="mt-6 rounded-2xl border border-white/10 bg-slate-900/60 p-4 text-sm text-slate-300">
-          <b className="text-white">About the questions.</b> These are original practice questions written to the {course.guide.source.label} (v
-          {course.guide.source.version}). They are not {course.provider.name}&apos;s own exam questions.
+          <b className="text-white">About the questions.</b> These are original practice questions written to the {course.guide.source.label} ({versionLabel(course.guide.source.version)}). They are not {course.provider.name}&apos;s own exam questions.
           {course.guide.officialPractice && (
             <>
               {" "}

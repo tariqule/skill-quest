@@ -1,5 +1,5 @@
 import type { Progress } from "./store";
-import type { Course, Question } from "./types";
+import type { Course, Question, QuestionKind } from "./types";
 
 export type PreparedKind = "choice" | "order" | "match";
 
@@ -79,17 +79,37 @@ export function allocateByWeight(course: Course, total: number): Record<string, 
   return counts;
 }
 
-/** Pick questions so each domain appears in proportion to its exam weight. */
-export function weightedExamDeck(course: Course, total: number) {
+/** The exam format a question uses: single-answer choice counts as "choice", several answers as "multi". */
+export function questionKind(q: Question): QuestionKind {
+  if (q.type === "order" || q.type === "match") return q.type;
+  return q.answer.length > 1 ? "multi" : "choice";
+}
+
+/** Formats the real exam uses (everything not marked practice-only). */
+export function officialKinds(course: Course): Set<QuestionKind> {
+  return new Set(course.exam.questionTypes.filter((t) => !t.practiceOnly).map((t) => t.id));
+}
+
+/** Questions in formats the real exam uses. */
+export function examQuestions(course: Course): Question[] {
+  const kinds = officialKinds(course);
+  return course.questions.filter((q) => kinds.has(questionKind(q)));
+}
+
+/**
+ * Pick questions so each domain appears in proportion to its exam weight.
+ * Pass a `pool` to draw from a subset, such as only official exam formats.
+ */
+export function weightedExamDeck(course: Course, total: number, pool: Question[] = course.questions) {
   const counts = allocateByWeight(course, total);
   const picks: Question[] = [];
   for (const d of course.domains) {
-    picks.push(...shuffle(course.questions.filter((q) => q.domain === d.id)).slice(0, counts[d.id]));
+    picks.push(...shuffle(pool.filter((q) => q.domain === d.id)).slice(0, counts[d.id]));
   }
   // A small domain can run short; top up from whatever is left.
   if (picks.length < total) {
     const used = new Set(picks.map((q) => q.id));
-    picks.push(...shuffle(course.questions.filter((q) => !used.has(q.id))).slice(0, total - picks.length));
+    picks.push(...shuffle(pool.filter((q) => !used.has(q.id))).slice(0, total - picks.length));
   }
   return shuffle(picks).map(prepare);
 }
@@ -169,4 +189,17 @@ export function pickedText(q: PreparedQuestion, picked: number[] | undefined): s
   if (q.kind === "order") return picked.map((i) => q.shuffled[i]).join(" → ");
   if (q.kind === "match") return q.prompts.map((p, k) => `${p} → ${q.shuffled[picked[k]] ?? "?"}`).join(" · ");
   return picked.map((i) => q.shuffled[i]).join(" + ");
+}
+
+/** "1.2" → "v1.2"; non-numeric labels such as "2026 refresh" are shown as-is. */
+export function versionLabel(version: string) {
+  return /^\d+(\.\d+)*$/.test(version) ? `v${version}` : version;
+}
+
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+/** "2026-11-30" → "November 30, 2026". Plain string formatting, so server and client always agree. */
+export function formatDate(iso: string) {
+  const [y, m, d] = iso.split("-").map(Number);
+  return `${MONTHS[m - 1]} ${d}, ${y}`;
 }

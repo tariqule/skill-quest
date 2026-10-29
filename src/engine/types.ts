@@ -118,7 +118,12 @@ export interface ExamFormat {
   minutes: number;
   /** Reported score range and pass mark, e.g. 100-1000 with 700 to pass. */
   scale: { min: number; max: number; pass: number };
-  questionTypes: { id: QuestionKind; icon: string; name: string; rule: string }[];
+  /**
+   * Formats used in this course. Mark a format `practiceOnly` when the real
+   * exam doesn't use it: the exam simulator then leaves it out, while
+   * missions, trials, and drills still use it.
+   */
+  questionTypes: { id: QuestionKind; icon: string; name: string; rule: string; practiceOnly?: boolean }[];
 }
 
 export interface Fact {
@@ -162,6 +167,8 @@ export interface Course {
   shortTitle: string;
   tagline: string;
   level: "Foundational" | "Associate" | "Professional" | "Specialty";
+  /** Exam version dates, shown in the catalog and on the mission map. */
+  lifecycle?: CourseLifecycle;
   /** localStorage key for this course's progress. Change it only with a migration. */
   storageKey: string;
   exam: ExamFormat;
@@ -290,6 +297,17 @@ export interface GameConfig {
   /** Exam simulator variants. Empty means "derive full and half from `exam`". */
   examModes: ExamMode[];
   dailyGoals: { xp: number; name: string; icon: string; note: string }[];
+}
+
+export interface CourseLifecycle {
+  /** Last day this exam version can be taken (ISO date, e.g. "2026-11-30"). */
+  retires?: string;
+  /** First day the exam opens for registration (ISO date). */
+  opens?: string;
+  /** Course id of the newer version. */
+  successor?: string;
+  /** Course id of the version this one replaces. */
+  predecessor?: string;
 }
 
 /** A catalog entry for a course that isn't built yet. */

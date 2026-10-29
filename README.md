@@ -7,7 +7,9 @@ The app is a **course engine**. Each certification is a self-contained content p
 | Course | Status |
 | --- | --- |
 | ☁️ AWS Certified AI Practitioner (AIF-C01) | ✅ Full course: 5 worlds, 40 missions, 7 labs, 10 hands-on challenges, 267 questions, 111 flashcards. Follows the [exam guide v1.2](https://docs.aws.amazon.com/aws-certification/latest/ai-practitioner-01/ai-practitioner-01.html) (October 2026). |
-| 🔷 Google Cloud Generative AI Leader | Planned |
+| ☁️ AWS Certified Developer – Associate (DVA-C03) | ✅ Full course: 4 worlds, 29 missions, 4 labs, 7 hands-on challenges, 192 questions, 97 flashcards, including AI-assisted development and calling Amazon Bedrock from code. Follows the [DVA-C03 exam guide](https://docs.aws.amazon.com/aws-certification/latest/developer-associate-03/developer-associate-03.html). Registration opens December 1, 2026. |
+| ☁️ AWS Certified Developer – Associate (DVA-C02) | ✅ Full course: 4 worlds, 24 missions, 3 labs, 5 hands-on challenges, 160 questions, 82 flashcards. Follows the [exam guide v2.1](https://docs.aws.amazon.com/aws-certification/latest/developer-associate-02/developer-associate-02.html). DVA-C02 can be taken until November 30, 2026; DVA-C03 opens December 1, 2026. |
+| 🔷 Google Cloud Generative AI Leader | ✅ Full course: 4 worlds, 22 missions, 2 labs, 2 hands-on challenges, 137 questions, 54 flashcards. Follows the [official exam guide](https://services.google.com/fh/files/misc/generative_ai_leader_exam_guide_english.pdf) (current product names). |
 | 🟦 Azure AI Fundamentals (AI-900) | Planned |
 | ☸️ Kubernetes and Cloud Native Associate (KCNA) | Planned |
 
@@ -87,6 +89,10 @@ The rule: `engine/` and `components/` know nothing about AWS, GCP, Azure, or Kub
 5. Run `npm test`. The validator reports anything wrong, by id.
 
 Percentage-scored exams (for example Kubernetes) just use a different scale: `scale: { min: 0, max: 100, pass: 66 }`.
+
+When an exam version is replaced, set `lifecycle` on both courses, for example `lifecycle: { retires: "2026-11-30", successor: "aws-dva-c03" }` on the old one and `lifecycle: { opens: "2026-12-01", predecessor: "aws-dva-c02" }` on the new one. The catalog shows badges and each mission map shows a banner linking the two versions; `npm test` checks that the ids exist.
+
+List every question format the course uses in `exam.questionTypes`. Mark a format `practiceOnly: true` when the real exam doesn't use it (for example ordering and matching on DVA-C02): the exam simulator then leaves those questions out, while missions, trials, and drills still use them. `npm test` checks that every question's format is listed and that each exam mode has enough official-format questions.
 
 ## Adding content to a course
 

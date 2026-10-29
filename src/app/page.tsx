@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, type CSSProperties } from "react";
 import { Core3D, Tilt } from "@/components/fx";
 import { AppBar, APP_NAME } from "@/components/Hud";
+import { LifecycleBadges } from "@/components/Lifecycle";
 import { Bar } from "@/components/ui";
 import { COURSES, PLANNED } from "@/courses";
 import { overallReadiness } from "@/engine/game";
@@ -78,6 +79,7 @@ function CourseCard({ course }: { course: Course }) {
         </div>
         <div className="mt-3 text-xl font-black text-white">{course.title}</div>
         <p className="mt-1 flex-1 text-sm text-slate-300">{course.tagline}</p>
+        <LifecycleBadges course={course} />
         <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-400">
           <span>🗺️ {course.domains.length} worlds</span>
           <span>📖 {lessons} missions</span>

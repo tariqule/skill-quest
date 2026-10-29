@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { COURSES } from "@/courses";
-import { allocateByWeight, challengeDeck, weightedExamDeck } from "./game";
+import { allocateByWeight, challengeDeck, examQuestions, officialKinds, questionKind, weightedExamDeck } from "./game";
 
 describe.each(COURSES.map((c) => [c.id, c] as const))("decks for %s", (_id, course) => {
   it.each([9, 10, 40, course.exam.questions])("weighted deck of %i has exactly that many unique questions", (n) => {
@@ -27,5 +27,15 @@ describe.each(COURSES.map((c) => [c.id, c] as const))("decks for %s", (_id, cour
     const d = challengeDeck(must, course.questions, 4);
     expect(d).toHaveLength(4);
     for (const q of must) expect(d.map((x) => x.id)).toContain(q.id);
+  });
+});
+
+describe.each(COURSES.map((c) => [c.id, c] as const))("exam formats for %s", (_id, course) => {
+  it("full simulations use only official question formats", () => {
+    const kinds = officialKinds(course);
+    const full = course.config.examModes[0];
+    const d = weightedExamDeck(course, full.questions, examQuestions(course));
+    expect(d).toHaveLength(full.questions);
+    for (const q of d) expect(kinds.has(questionKind(q))).toBe(true);
   });
 });
