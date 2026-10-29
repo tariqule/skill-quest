@@ -1,6 +1,6 @@
 import type { Course } from "./types";
 
-/** Words that differ between certification courses and interview-prep tracks. */
+/** Words that differ between certification courses, interview-prep tracks, and learning tracks. */
 export interface CourseCopy {
   /** Name of the final simulation, e.g. "The Certification Gate". */
   gate: string;
@@ -64,6 +64,24 @@ const INTERVIEW: CourseCopy = {
   forMeNo: "🙅 Not covered here…",
 };
 
+const LEARNING: CourseCopy = {
+  gate: "The Final Skill Check",
+  gateIcon: "🏁",
+  gateStep: "Prove it",
+  noun: "skill check",
+  real: "real projects",
+  simulator: "skill check",
+  day: "project day",
+  task: "Topic",
+  tip: "Pro tip",
+  readiness: "Skill readiness",
+  syllabus: "learning path",
+  glanceTitle: "The track at a glance",
+  forMeTitle: "Who is this for?",
+  forMeYes: "✅ Great for…",
+  forMeNo: "🙅 Not covered here…",
+};
+
 export function courseCopy(course: Pick<Course, "kind">): CourseCopy {
-  return course.kind === "interview" ? INTERVIEW : CERTIFICATION;
+  return course.kind === "interview" ? INTERVIEW : course.kind === "learning" ? LEARNING : CERTIFICATION;
 }

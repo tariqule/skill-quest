@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, type CSSProperties } from "react";
 import { Core3D, Tilt } from "@/components/fx";
+import { Galaxy3D } from "@/components/three";
 import { AppBar, APP_NAME } from "@/components/Hud";
 import { LifecycleBadges } from "@/components/Lifecycle";
 import { Bar } from "@/components/ui";
@@ -11,12 +13,14 @@ import { overallReadiness } from "@/engine/game";
 import { indexCourse } from "@/engine/indexes";
 import { getCourseStore } from "@/engine/store";
 import type { Course, PlannedCourse, Provider } from "@/engine/types";
+import { isCodeTrack } from "@/engine/tracks";
 
-const CERTS = COURSES.filter((c) => c.kind !== "interview");
-const TRACKS = COURSES.filter((c) => c.kind === "interview");
-const PLANNED_CERTS = PLANNED.filter((c) => c.kind !== "interview");
+const CERTS = COURSES.filter((c) => !isCodeTrack(c));
+const TRACKS = COURSES.filter(isCodeTrack);
+const PLANNED_CERTS = PLANNED.filter((c) => !isCodeTrack(c));
 
 export default function Catalog() {
+  const router = useRouter();
   const providers = uniqueProviders([...CERTS, ...PLANNED_CERTS]);
   const [filter, setFilter] = useState<string>("all");
   const show = <T extends { provider: Provider }>(list: T[]) => list.filter((c) => filter === "all" || c.provider.id === filter);
@@ -25,7 +29,7 @@ export default function Catalog() {
     <>
       <AppBar />
       <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:py-12">
-        <section className="grid items-center gap-6 md:grid-cols-[1fr_auto]">
+        <section className="grid items-center gap-6 md:grid-cols-[1fr_1fr]">
           <div>
             <div className="text-xs font-bold uppercase tracking-[0.2em] text-sky-300">Learn by playing</div>
             <h1 className="mt-2 text-4xl sm:text-5xl font-black text-white">{APP_NAME}</h1>
@@ -34,8 +38,20 @@ export default function Catalog() {
               exam simulator.
             </p>
           </div>
-          <div className="hidden md:block">
-            <Core3D size={100} domains={COURSES[0]?.domains} icon="🎓" />
+          <div>
+            <Galaxy3D
+              items={show(CERTS).map((c) => ({ id: c.id, label: c.code, icon: c.provider.icon, color: c.provider.color }))}
+              onSelect={(id) => router.push(`/c/${id}`)}
+              coreColor="#38bdf8"
+              shape="gem"
+              className="h-72 w-full sm:h-80"
+              fallback={
+                <div className="hidden justify-center md:flex">
+                  <Core3D size={100} domains={COURSES[0]?.domains} icon="🎓" />
+                </div>
+              }
+            />
+            <p className="text-center text-xs text-slate-500">Each gem is a certification. <span className="hidden pointer-fine:inline">Hover to name it, click to start.</span><span className="pointer-fine:hidden">Tap to name it, tap again to start.</span></p>
           </div>
         </section>
 
@@ -127,11 +143,11 @@ function CodeQuestBanner() {
         {"const quest = await interview();\nif (quest.passed) hire(you);\n// bug hunt · predict · build\nfor (const level of levels) {\n  level.up();\n}"}
       </pre>
       <div className="relative">
-        <div className="font-mono text-xs font-black uppercase tracking-[0.25em] text-emerald-300">&lt;/&gt; New · interview prep</div>
+        <div className="font-mono text-xs font-black uppercase tracking-[0.25em] text-emerald-300">&lt;/&gt; New · learn to code &amp; interview prep</div>
         <div className="glitch mt-2 font-mono text-3xl font-black text-white sm:text-4xl">Code Quests</div>
         <p className="mt-2 max-w-xl text-slate-300">
-          Data structures, algorithms, JavaScript, TypeScript, React, Next.js, Node.js, Python, and Java. Junior to staff level, with bug hunts,
-          predict-the-output puzzles, and timed mock interviews.
+          Learn a skill from scratch or prep for the interview: {TRACKS.length} tracks from {TRACKS.slice(0, 4).map((t) => t.shortTitle).join(", ")} and more.
+          Junior to staff level, with hands-on labs, bug hunts, predict-the-output puzzles, and timed challenges.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           {(TRACKS.length ? TRACKS : []).map((t) => (

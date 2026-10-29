@@ -12,6 +12,8 @@ import d4 from "./domains/d4-modern-syntax";
 export default defineCourse({
   id: "code-javascript",
   kind: "interview",
+  category: "languages",
+  tags: ["js", "closures", "event loop", "promises", "async", "prototype", "es2025"],
   provider: { id: "javascript", name: "JavaScript", color: "#f7df1e", icon: "🟨" },
   code: "JS",
   title: "JavaScript Interview Quest",

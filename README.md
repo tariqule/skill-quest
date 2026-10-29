@@ -17,7 +17,7 @@ The app is a **course engine**. Each certification is a self-contained content p
 
 ### Code Quests (interview prep)
 
-A separate section at `/code` with its own terminal and arcade look. Each track has 4 stages, 16 levels, labs and challenges, and questions tagged junior, intermediate, senior, or staff. Players pick a difficulty (or all levels) on the track map, and every game, from trials to the mock interview, then draws only questions at that level.
+A separate section at `/code` with its own terminal and arcade look, a 3D galaxy of tracks (click a planet to open one), filters for **Interview**, **Learning**, or **All** tracks plus topic categories, and a search box (press `/`) that looks through track names, tags, stages, lesson titles, and flashcard terms. Each track has 4 stages, 16 levels, labs and challenges (learning tracks teach a skill from zero; interview tracks prep for the questions), and questions tagged junior, intermediate, senior, or staff. Players pick a difficulty (or all levels) once on the Code Quests page for every track, or per track on its map, and every game, from trials to the mock interview, then draws only questions at that level.
 
 | Track | Questions | Flashcards | Challenges |
 | --- | --- | --- | --- |
@@ -30,6 +30,12 @@ A separate section at `/code` with its own terminal and arcade look. Each track 
 | 🟢 Node.js | 101 | 60 | 4 |
 | 🐍 Python | 103 | 54 | 4 |
 | ☕ Java | 101 | 59 | 7 |
+| 🎨 HTML & CSS (learning) | 103 | 57 | 9 |
+| 🗄️ SQL (learning) | 111 | 62 | 8 |
+| 🌿 Git & GitHub (learning) | 98 | 48 | 6 |
+| 🐳 Docker (learning) | 99 | 50 | 7 |
+| 🐹 Go | 102 | 52 | 7 |
+| 🏗️ System Design | 92 | 50 | 5 |
 
 ## How it plays: teach first, then test
 
@@ -76,7 +82,8 @@ src/
     game.ts               shuffling, weighted exam decks, scoring, mastery
     course-context.tsx    <CourseProvider>, useCourse(), useLevelPool()
     levels.ts             skill levels for interview tracks (junior … staff, all)
-    copy.ts               certification vs interview wording ("exam" vs "mock interview")
+    copy.ts               certification, interview, and learning wording ("exam" / "mock interview" / "skill check")
+    tracks.ts             Code Quest kinds, hub categories, and search
   components/             course-agnostic UI
     QuestionCard.tsx      choice, multiple-response, ordering, matching, bug hunt (tap the line)
     QuizSession.tsx       trial / review engine
@@ -86,6 +93,9 @@ src/
     learn/blocks.tsx      reusable lesson blocks: Flow, Tiles, Layers, Ladder, ServiceRows, LabHeader
     learn/code.tsx        CodeBlock, CodeCompare, dedent, RichText (`inline code` in any text)
     code/ui.tsx           Code Quest skin: CodeRain, TerminalWindow, Typewriter, LevelPicker
+    three/                WebGL scenes (three.js + React Three Fiber), loaded client-side only:
+                          Galaxy3D (catalog and hub), Orb3D (course core), TrackCore3D (track map), Burst3D (celebrations).
+                          Each falls back to the CSS version without WebGL and holds still for reduced motion.
     fx.tsx                3D core, tilt cards, confetti, starfield, Nimbus the mascot
   courses/
     index.ts              course registry and "coming soon" catalog
@@ -117,9 +127,9 @@ When an exam version is replaced, set `lifecycle` on both courses, for example `
 
 List every question format the course uses in `exam.questionTypes`. Mark a format `practiceOnly: true` when the real exam doesn't use it (for example ordering and matching on DVA-C02): the exam simulator then leaves those questions out, while missions, trials, and drills still use them. `npm test` checks that every question's format is listed and that each exam mode has enough official-format questions.
 
-### Adding an interview track
+### Adding a Code Quest track
 
-Set `kind: "interview"` in the course's `index.ts`. The track then appears in the Code Quests hub instead of the certification catalog, uses the terminal skin and interview wording, and shows the difficulty picker. Every question and lesson needs a `level` (`"junior" | "intermediate" | "senior" | "staff"`), and `npm test` requires at least 12 questions per level.
+Set `kind: "interview"` (interview prep) or `kind: "learning"` (learn the skill from scratch) in the course's `index.ts`, plus a hub `category` (`"languages" | "frontend" | "backend" | "cs" | "data" | "tools"`) and a few search `tags`. The track then appears in the Code Quests hub instead of the certification catalog, uses the terminal skin and the matching wording, and shows the difficulty picker. Every question and lesson needs a `level` (`"junior" | "intermediate" | "senior" | "staff"`), and `npm test` requires at least 12 questions per level.
 
 Questions can carry a snippet: `code` plus `codeLang` shows it under the prompt. A `type: "lines"` question is a bug hunt: the player taps the broken line(s) in `code`, and `answer` lists the 1-based line numbers. The validator rejects answers that point at a blank line or a lone brace, and a prompt with more than one answer line must say how many to pick.
 

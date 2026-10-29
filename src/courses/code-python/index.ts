@@ -12,6 +12,8 @@ import d4 from "./domains/d4-objects-errors-concurrency";
 export default defineCourse({
   id: "code-python",
   kind: "interview",
+  category: "languages",
+  tags: ["py", "generators", "decorators", "gil", "asyncio"],
   provider: { id: "python", name: "Python", color: "#3776ab", icon: "🐍" },
   code: "PY",
   title: "Python Interview Quest",

@@ -11,6 +11,8 @@ import d4 from "./domains/d4-jvm-concurrency";
 export default defineCourse({
   id: "code-java",
   kind: "interview",
+  category: "languages",
+  tags: ["jvm", "oop", "collections", "streams", "concurrency", "spring"],
   provider: { id: "java", name: "Java", color: "#f89820", icon: "☕" },
   code: "JAVA",
   title: "Java Interview Quest",

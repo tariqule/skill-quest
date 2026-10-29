@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, type CSSProperties } from "react";
 import { LevelPicker, TerminalWindow, Typewriter } from "@/components/code/ui";
+import { TrackCore3D } from "@/components/three";
 import { Bar } from "@/components/ui";
 import { BADGES } from "@/engine/badges";
+import { courseCopy } from "@/engine/copy";
 import { useCourse, useProgress } from "@/engine/course-context";
 import { domainMastery, overallReadiness, pct } from "@/engine/game";
 import { LEVEL_BY_ID, LEVELS, type LevelChoice } from "@/engine/levels";
@@ -22,6 +24,8 @@ export function CodeMap() {
   const { worlds, current } = buildPath(course, p);
   const readiness = Math.round(overallReadiness(course, p));
   const skill = LEVEL_BY_ID[p.level];
+  const copy = courseCopy(course);
+  const learning = course.kind === "learning";
 
   useEffect(() => {
     const s = store.get();
@@ -39,7 +43,7 @@ export function CodeMap() {
         <div className="grid gap-6 md:grid-cols-[1fr_auto] md:items-center">
           <div>
             <div className="font-mono text-xs font-bold uppercase tracking-[0.25em]" style={{ color: course.provider.color }}>
-              {course.provider.icon} {course.code} · interview quest
+              {course.provider.icon} {course.code} · {learning ? "learning quest" : "interview quest"}
             </div>
             <h1 className="glitch mt-2 text-3xl font-black text-white sm:text-4xl">{course.title}</h1>
             <div className="mt-4">
@@ -48,7 +52,7 @@ export function CodeMap() {
                 lines={[
                   `$ whoami → ${lvl.title} (lv ${lvl.level}, ${p.xp} xp)`,
                   `$ difficulty → ${skill.icon} ${skill.name}`,
-                  current ? `$ next → ${current.type === "lesson" ? lessonById[current.key]?.title : "stage boss"}` : "$ next → mock interview unlocked",
+                  current ? `$ next → ${current.type === "lesson" ? lessonById[current.key]?.title : "stage boss"}` : `$ next → ${copy.simulator} unlocked`,
                 ]}
               />
             </div>
@@ -72,14 +76,21 @@ export function CodeMap() {
                 className="btn-3d rounded-xl bg-fuchsia-400 px-5 py-3 font-mono text-sm font-black uppercase tracking-wider text-slate-950"
                 style={{ "--edge": "#86198f" } as CSSProperties}
               >
-                🎤 Mock interview
+                {copy.gateIcon} {learning ? "Skill check" : "Mock interview"}
               </Link>
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-2 font-mono text-center md:w-56 md:grid-cols-1">
-            <Stat label="XP" value={p.xp} color="#34d399" />
-            <Stat label="Streak" value={`🔥 ${p.streak.count}`} color="#fb923c" />
-            <Stat label="Ready" value={`${readiness}%`} color="#38bdf8" />
+          <div className="md:w-64">
+            <TrackCore3D
+              color={course.provider.color}
+              stages={course.domains.map((d) => ({ color: d.color, mastery: domainMastery(course, p, d.id) }))}
+              className="-mt-2 h-52 w-full cursor-grab active:cursor-grabbing"
+            />
+            <div className="grid grid-cols-3 gap-2 font-mono text-center">
+              <Stat label="XP" value={p.xp} color="#34d399" />
+              <Stat label="Streak" value={`🔥 ${p.streak.count}`} color="#fb923c" />
+              <Stat label="Ready" value={`${readiness}%`} color="#38bdf8" />
+            </div>
           </div>
         </div>
         <div className="mt-5">
@@ -94,7 +105,7 @@ export function CodeMap() {
         <h2 className="font-mono text-lg font-black uppercase tracking-wider text-white">
           <span className="text-emerald-300">&gt;</span> Select difficulty
         </h2>
-        <p className="mt-1 text-sm text-slate-400">Trials, drills, boss battles, study play, and the mock interview only use questions at this level.</p>
+        <p className="mt-1 text-sm text-slate-400">Trials, drills, boss battles, study play, and the {copy.simulator} only use questions at this level.</p>
         <div className="mt-4">
           <LevelPicker value={p.level} onChange={(l) => store.setLevel(l)} counts={counts} />
         </div>
@@ -113,7 +124,7 @@ export function CodeMap() {
                 <span className="text-3xl">{d.emoji}</span>
                 <div className="min-w-0 flex-1">
                   <div className="font-mono text-xs font-bold uppercase tracking-wider" style={{ color: d.color }}>
-                    Stage {d.number} · {d.weight}% of the interview
+                    Stage {d.number} · {d.weight}% of the {copy.noun}
                   </div>
                   <div className="font-mono text-xl font-black text-white">{d.world}</div>
                   <div className="text-sm text-slate-400">{d.name}</div>

@@ -11,6 +11,8 @@ import d4 from "./domains/d4-dp-greedy-patterns";
 export default defineCourse({
   id: "code-algorithms",
   kind: "interview",
+  category: "cs",
+  tags: ["sorting", "binary search", "dynamic programming", "dp", "greedy", "bfs", "dfs", "two pointers", "leetcode"],
   provider: { id: "algorithms", name: "Algorithms", color: "#f472b6", icon: "🧮" },
   code: "ALGO",
   title: "Algorithms Interview Quest",

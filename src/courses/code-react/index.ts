@@ -11,6 +11,8 @@ import d4 from "./domains/d4-modern-react";
 export default defineCourse({
   id: "code-react",
   kind: "interview",
+  category: "frontend",
+  tags: ["hooks", "jsx", "state", "useEffect", "react 19", "components"],
   provider: { id: "react", name: "React", color: "#61dafb", icon: "⚛️" },
   code: "REACT",
   title: "React Interview Quest",

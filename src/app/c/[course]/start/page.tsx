@@ -9,6 +9,7 @@ import { courseCopy } from "@/engine/copy";
 import { useCourse, useProgress } from "@/engine/course-context";
 import { LEVEL_BY_ID, LEVELS, type LevelChoice } from "@/engine/levels";
 import type { QuestionKind } from "@/engine/types";
+import { isCodeTrack } from "@/engine/tracks";
 
 export default function StartPage() {
   const router = useRouter();
@@ -45,6 +46,10 @@ export default function StartPage() {
               <b>Hi, I&apos;m Nimbus!</b> {course.kind === "interview" ? (
                 <>
                   I&apos;ll take you from zero to acing <b>{course.shortTitle}</b> interview questions. We
+                </>
+              ) : course.kind === "learning" ? (
+                <>
+                  I&apos;ll take you from zero to confidently using <b>{course.shortTitle}</b>. We
                 </>
               ) : (
                 <>
@@ -187,14 +192,14 @@ export default function StartPage() {
         </div>
       ),
     },
-    ...(course.kind === "interview"
+    ...(isCodeTrack(course)
       ? [
           {
             title: "Choose your level",
             body: (
               <div>
                 <p className="mb-4 text-slate-300">
-                  Pick the seniority you&apos;re interviewing for. Every game, trial, and mock interview will draw from that level. You can switch anytime
+                  {course.kind === "learning" ? "Pick how far you want to go." : "Pick the seniority you’re interviewing for."} Every game, trial, and {copy.simulator} will draw from that level. You can switch anytime
                   from the track&apos;s home screen.
                 </p>
                 <LevelPicker value={progress.level} onChange={(l) => store.setLevel(l)} counts={levelCounts} />

@@ -16,13 +16,14 @@ import { buildPath, type PathNode, type PathWorld } from "@/engine/path";
 import { levelInfo } from "@/engine/store";
 import type { Domain } from "@/engine/types";
 import { setGuideOpen } from "@/engine/ui-state";
+import { isCodeTrack } from "@/engine/tracks";
 
 const ZIGZAG = [0, 56, 84, 56, 0, -56, -84, -56];
 
 /** Certification courses get the planet map; interview tracks get the Code Quest arcade. */
 export default function CoursePage() {
   const { course } = useCourse();
-  return course.kind === "interview" ? <CodeMap /> : <MissionMap />;
+  return isCodeTrack(course) ? <CodeMap /> : <MissionMap />;
 }
 
 function MissionMap() {
@@ -277,7 +278,7 @@ function PathNodeButton({ node, color, offset }: { node: PathNode; color: string
   );
 
   return (
-    <div className="relative flex flex-col items-center" style={{ transform: `translateX(${offset}px)` }} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+    <div className="relative flex flex-col items-center" style={{ transform: `translateX(calc(${offset}px * var(--zig, 1)))` }} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
       {node.state === "current" && (
         <span className="mb-2 rounded-xl border border-white/15 bg-slate-900 px-3 py-1 text-xs font-black uppercase tracking-wider text-white shadow-lg">Start</span>
       )}
@@ -290,7 +291,7 @@ function PathNodeButton({ node, color, offset }: { node: PathNode; color: string
           {inner}
         </Link>
       )}
-      <span className={`mt-2 max-w-[11rem] text-center text-xs leading-tight transition ${hover || node.state === "current" ? "text-white" : "text-slate-500"}`}>{label}</span>
+      <span className={`mt-2 max-w-[8.5rem] text-center sm:max-w-[11rem] text-xs leading-tight transition ${hover || node.state === "current" ? "text-white" : "text-slate-500"}`}>{label}</span>
     </div>
   );
 }

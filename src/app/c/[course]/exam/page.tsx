@@ -9,6 +9,7 @@ import { courseCopy } from "@/engine/copy";
 import { useCourse, useLevelPool, useProgress } from "@/engine/course-context";
 import { LEVEL_BY_ID } from "@/engine/levels";
 import { examQuestions, isCorrect, pct, scaledScore, shuffle, versionLabel, weightedExamDeck, type PreparedQuestion } from "@/engine/game";
+import { isCodeTrack } from "@/engine/tracks";
 
 type Phase = "intro" | "exam" | "review" | "results";
 
@@ -24,6 +25,9 @@ export default function ExamPage() {
     const scale = questions / m.questions;
     return { ...m, questions, unscored: Math.floor(m.unscored * scale), minutes: Math.max(5, Math.round(m.minutes * scale)) };
   });
+  // The headline format follows the full mode, which shrinks with a small level pool.
+  const full = MODES.find((m) => m.full) ?? MODES[0];
+  const headline = isCodeTrack(course) && full ? full : course.exam;
   const officialTypes = course.exam.questionTypes.filter((t) => !t.practiceOnly);
   const practiceTypes = course.exam.questionTypes.filter((t) => t.practiceOnly);
   const { min, max, pass } = course.exam.scale;
@@ -127,28 +131,28 @@ export default function ExamPage() {
 
   if (phase === "intro") {
     return (
-      <PageShell title={`${copy.gateIcon} ${copy.gate}`} subtitle={course.kind === "interview" ? `A timed ${course.shortTitle} mock interview. No feedback until you finish, just like the real thing.` : `A full exam simulator built to the official ${course.code} format.`}>
+      <PageShell title={`${copy.gateIcon} ${copy.gate}`} subtitle={isCodeTrack(course) ? `A timed ${course.shortTitle} ${copy.simulator}. No feedback until you finish, just like the real thing.` : `A full exam simulator built to the official ${course.code} format.`}>
         <div className="grid items-center gap-6 rounded-3xl border border-amber-300/30 bg-gradient-to-b from-amber-400/10 to-slate-900/60 p-6 md:grid-cols-[1fr_auto]">
           <div>
             <ul className="grid gap-2 text-slate-200">
               <li>
-                📝 {course.exam.questions} questions
-                {course.exam.unscored > 0 &&
-                  `: ${course.exam.questions - course.exam.unscored} scored + ${course.exam.unscored} unscored. Like the real exam, you won't know which are unscored`}
+                📝 {headline.questions} questions
+                {headline.unscored > 0 &&
+                  `: ${headline.questions - headline.unscored} scored + ${headline.unscored} unscored. Like the real exam, you won't know which are unscored`}
                 .
               </li>
               <li>
-                {officialTypes.map((t) => t.icon).join("")} {officialTypes.map((t) => t.name.toLowerCase()).join(", ")}: the formats the real exam uses
+                {officialTypes.map((t) => t.icon).join("")} {officialTypes.map((t) => t.name.toLowerCase()).join(", ")}: the formats {copy.real} uses
                 {practiceTypes.length > 0 && ` (${practiceTypes.map((t) => t.name.toLowerCase()).join(" and ")} stay in missions and drills)`}
               </li>
-              <li>⏱️ {course.exam.minutes} minutes. The timer auto-submits at zero.</li>
+              <li>⏱️ {headline.minutes} minutes. The timer auto-submits at zero.</li>
               <li>🚩 Flag questions, jump around, and change answers before you submit</li>
               <li>
                 🎯 Scored {min}–{max}. {pass} passes.
               </li>
               <li>🙈 No feedback until you submit, just like test day</li>
             </ul>
-            {course.kind === "interview" && (
+            {isCodeTrack(course) && (
               <p className="mt-4 font-mono text-sm" style={{ color: LEVEL_BY_ID[level].color }}>
                 {LEVEL_BY_ID[level].icon} Level: {LEVEL_BY_ID[level].name} · {examPool.length} questions in the pool. Change the level on the
                 track&apos;s home screen.

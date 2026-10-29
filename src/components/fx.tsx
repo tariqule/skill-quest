@@ -2,6 +2,7 @@
 
 import { useRef, type CSSProperties, type ReactNode } from "react";
 import type { Domain } from "@/engine/types";
+import { Burst3D, Orb3D } from "./three";
 
 /** Cheap deterministic pseudo-random so renders stay pure. */
 function rand(seed: number) {
@@ -11,7 +12,12 @@ function rand(seed: number) {
 
 const CONFETTI_COLORS = ["#38bdf8", "#a78bfa", "#f59e0b", "#34d399", "#f87171", "#facc15"];
 
+/** Celebration: 3D shards when WebGL is available, CSS confetti otherwise. */
 export function Confetti({ count = 60 }: { count?: number }) {
+  return <Burst3D count={Math.round(count * 2.2)} fallback={<CssConfetti count={count} />} />;
+}
+
+function CssConfetti({ count }: { count: number }) {
   return (
     <div className="pointer-events-none fixed inset-0 z-40 overflow-hidden" aria-hidden>
       {Array.from({ length: count }, (_, i) => {
@@ -63,7 +69,18 @@ export function Tilt({ children, className = "", max = 10 }: { children: ReactNo
 /** Faces of the cube, in order. Domains fill the first faces; the rest show `icon`. */
 const FACE_TRANSFORMS = ["", "rotateY(90deg) ", "rotateY(180deg) ", "rotateY(-90deg) ", "rotateX(90deg) ", "rotateX(-90deg) "];
 
+/** The course core: a WebGL orb with a moon per domain, or the CSS cube without WebGL. */
 export function Core3D({ size = 120, domains = [], icon = "☁️" }: { size?: number; domains?: Domain[]; icon?: string }) {
+  const fallback = <CssCore size={size} domains={domains} icon={icon} />;
+  const colors = domains.length ? domains.map((d) => d.color) : ["#38bdf8", "#a78bfa", "#f59e0b"];
+  return (
+    <div style={{ width: size * 2.2, height: size * 2.2 }}>
+      <Orb3D colors={colors} icon={icon} className="h-full w-full" fallback={fallback} />
+    </div>
+  );
+}
+
+function CssCore({ size, domains, icon }: { size: number; domains: Domain[]; icon: string }) {
   const faces = FACE_TRANSFORMS.map((t, i) => ({ t: `${t}translateZ(${size / 2}px)`, d: (domains[i] as Domain | undefined) ?? null }));
   return (
     <div className="core-scene relative" style={{ width: size * 2.2, height: size * 2.2 }} aria-hidden>

@@ -11,6 +11,8 @@ import d4 from "./domains/d4-graphs-tries";
 export default defineCourse({
   id: "code-data-structures",
   kind: "interview",
+  category: "cs",
+  tags: ["arrays", "linked list", "hash map", "tree", "heap", "graph", "trie", "big-o"],
   provider: { id: "data-structures", name: "Data Structures", color: "#22d3ee", icon: "🧱" },
   code: "DS",
   title: "Data Structures Interview Quest",

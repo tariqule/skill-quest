@@ -6,14 +6,14 @@ import { TimedQuiz, type TimedResult } from "@/components/TimedQuiz";
 import { PageShell } from "@/components/ui";
 import { courseCopy } from "@/engine/copy";
 import { useCourse, useLevelPool } from "@/engine/course-context";
-import { answerText, deck, weightedExamDeck, type PreparedQuestion } from "@/engine/game";
+import { answerText, levelDeck, weightedExamDeck, type PreparedQuestion } from "@/engine/game";
 
 type Phase = "pick" | "play" | "done";
 
 export default function TimedDrillPage() {
   const { course, question } = useCourse();
   const cfg = course.config.timed;
-  const { pool: levelPool } = useLevelPool();
+  const { pool: levelPool, level } = useLevelPool();
   const [phase, setPhase] = useState<Phase>("pick");
   const [world, setWorld] = useState<string>("all");
   const [questions, setQuestions] = useState<PreparedQuestion[]>([]);
@@ -23,8 +23,8 @@ export default function TimedDrillPage() {
   const domain = course.domains.find((d) => d.id === world);
 
   function start() {
-    const pool = levelPool.filter((q) => q.domain === world);
-    setQuestions(world === "all" ? weightedExamDeck(course, Math.min(cfg.questions, levelPool.length), levelPool) : deck(pool, cfg.questions));
+    const pool = course.questions.filter((q) => q.domain === world);
+    setQuestions(world === "all" ? weightedExamDeck(course, Math.min(cfg.questions, levelPool.length), levelPool) : levelDeck(course, level, pool, cfg.questions));
     setResult(null);
     setRun((r) => r + 1);
     setPhase("play");

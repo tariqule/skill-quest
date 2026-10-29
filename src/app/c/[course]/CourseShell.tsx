@@ -7,13 +7,14 @@ import { GuideDrawer } from "@/components/Guide";
 import { Hud } from "@/components/Hud";
 import { getCourse } from "@/courses";
 import { CourseProvider } from "@/engine/course-context";
+import { isCodeTrack } from "@/engine/tracks";
 
 /** Everything inside /c/<course> gets the course context, the HUD, and the guide drawer. */
 export function CourseShell({ children }: { children: ReactNode }) {
   const { course } = useParams<{ course: string }>();
   const c = getCourse(course);
   if (!c) notFound();
-  const code = c.kind === "interview";
+  const code = isCodeTrack(c);
   return (
     <CourseProvider courseId={course}>
       <div className={`flex min-h-full flex-1 flex-col ${code ? "code-theme" : ""}`}>

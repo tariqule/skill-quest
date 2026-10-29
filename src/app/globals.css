@@ -13,6 +13,11 @@
   --font-mono: var(--font-geist-mono);
 }
 
+html,
+body {
+  overflow-x: clip;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -352,6 +357,16 @@ body {
 }
 .card-in {
   animation: card-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Mission map: pull the zig-zag in on narrow phones so node labels stay on screen. */
+:root {
+  --zig: 1;
+}
+@media (max-width: 420px) {
+  :root {
+    --zig: 0.45;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

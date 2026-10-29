@@ -1,3 +1,4 @@
+import { hasLevels, nearbyLevels, type LevelChoice } from "./levels";
 import type { Progress } from "./store";
 import type { Course, Question, QuestionKind } from "./types";
 
@@ -71,6 +72,21 @@ function scramble(items: string[]) {
 
 export function deck(questions: Question[], count = questions.length) {
   return shuffle(questions).slice(0, count).map(prepare);
+}
+
+/**
+ * A deck of up to `count` questions from `pool` at the player's level. When the level runs short
+ * (a small stage at "staff", say), the rest come from the nearest levels, so a game never runs
+ * short or empty. Courses without levels, or "all", just shuffle the pool.
+ */
+export function levelDeck(course: Course, level: LevelChoice, pool: Question[], count: number) {
+  if (!hasLevels(course) || level === "all") return deck(pool, count);
+  const picks = shuffle(pool.filter((q) => q.level === level)).slice(0, count);
+  for (const near of nearbyLevels(level)) {
+    if (picks.length >= count) break;
+    picks.push(...shuffle(pool.filter((q) => q.level === near)).slice(0, count - picks.length));
+  }
+  return shuffle(picks).map(prepare);
 }
 
 /**

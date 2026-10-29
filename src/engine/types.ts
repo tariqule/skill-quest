@@ -36,7 +36,7 @@ export type SkillLevel = "junior" | "intermediate" | "senior" | "staff";
 interface BaseQuestion {
   id: string;
   domain: string;
-  /** Interview tracks: the seniority this question targets. Required when the course kind is "interview". */
+  /** Interview tracks: the seniority this question targets. Required on Code Quest tracks (kind "interview" or "learning"). */
   level?: SkillLevel;
   /** Lesson id of the concept this question tests. Powers "Revisit the concept" and per-concept results. */
   lesson: string;
@@ -186,8 +186,15 @@ export interface Course {
   shortTitle: string;
   tagline: string;
   level: "Foundational" | "Associate" | "Professional" | "Specialty" | "Beginner" | "Intermediate" | "Advanced";
-  /** "certification" (default) or "interview" prep. Changes catalog section and wording. */
-  kind?: "certification" | "interview";
+  /**
+   * "certification" (default), "interview" prep, or "learning" (learn a skill from scratch).
+   * Interview and learning tracks live in Code Quests and use skill levels.
+   */
+  kind?: "certification" | "interview" | "learning";
+  /** Code Quest hub filter group. */
+  category?: TrackCategory;
+  /** Extra search words for the catalog, e.g. ["hooks", "jsx"]. */
+  tags?: string[];
   /** Exam version dates, shown in the catalog and on the mission map. */
   lifecycle?: CourseLifecycle;
   /** localStorage key for this course's progress. Change it only with a migration. */
@@ -330,6 +337,9 @@ export interface CourseLifecycle {
   /** Course id of the version this one replaces. */
   predecessor?: string;
 }
+
+/** Code Quest hub categories. */
+export type TrackCategory = "languages" | "frontend" | "backend" | "cs" | "data" | "tools";
 
 /** A catalog entry for a course that isn't built yet. */
 export interface PlannedCourse {

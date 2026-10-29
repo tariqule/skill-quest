@@ -6,6 +6,7 @@ import { LEVEL_BY_ID } from "@/engine/levels";
 import { levelInfo } from "@/engine/store";
 import { setGuideOpen, useToasts } from "@/engine/ui-state";
 import { Bar } from "./ui";
+import { isCodeTrack } from "@/engine/tracks";
 
 export const APP_NAME = "Cert Quest";
 
@@ -27,7 +28,7 @@ export function Hud() {
   const p = useProgress();
   const lvl = levelInfo(p.xp, course.levelTitles);
 
-  if (course.kind === "interview") {
+  if (isCodeTrack(course)) {
     const skill = LEVEL_BY_ID[p.level];
     return (
       <header className="sticky top-0 z-20 border-b border-emerald-400/20 bg-[#03070d]/90 font-mono backdrop-blur">
@@ -39,18 +40,28 @@ export function Hud() {
             <span>{course.provider.icon}</span>
             <span className="truncate">~/{course.shortTitle.toLowerCase()}</span>
           </Link>
-          <span className="hidden rounded px-1.5 py-0.5 text-[11px] font-bold sm:inline" style={{ background: `${skill.color}22`, color: skill.color }}>
-            {skill.icon} {skill.name}
+          <span
+            className="shrink-0 whitespace-nowrap rounded px-1.5 py-0.5 text-[11px] font-bold"
+            style={{ background: `${skill.color}22`, color: skill.color }}
+            title={`Level: ${skill.name}`}
+          >
+            {skill.icon} <span className="hidden sm:inline">{skill.name}</span>
           </span>
-          <div className="ml-auto flex items-center gap-3 sm:gap-5">
-            <button type="button" onClick={() => setGuideOpen(true)} className="rounded border border-white/15 px-2 py-0.5 text-slate-200 hover:bg-white/10" title="Open the guide (?)">
-              ? guide
+          <div className="ml-auto flex shrink-0 items-center gap-3 sm:gap-5">
+            <button
+              type="button"
+              onClick={() => setGuideOpen(true)}
+              className="whitespace-nowrap rounded border border-white/15 px-2 py-0.5 text-slate-200 hover:bg-white/10"
+              title="Open the guide (?)"
+              aria-label="Open the guide"
+            >
+              ?<span className="hidden sm:inline"> guide</span>
             </button>
             <span className="text-orange-300">🔥{p.streak.count}</span>
             <span className="hidden text-slate-400 sm:inline">
               {p.today.xp}/{p.dailyGoal}xp
             </span>
-            <div className="w-24 sm:w-36">
+            <div className="w-16 sm:w-36">
               <div className="flex justify-between text-[10px] text-slate-500">
                 <span className="text-emerald-300">lv{lvl.level}</span>
                 <span>{p.xp}xp</span>

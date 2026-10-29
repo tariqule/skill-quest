@@ -10,7 +10,7 @@ import { QuestionCard } from "@/components/QuestionCard";
 import { Bar } from "@/components/ui";
 import { courseCopy } from "@/engine/copy";
 import { useCourse, useLevelPool, useProgress } from "@/engine/course-context";
-import { answerText, deck, isCorrect, pct, pickedText, shuffle, type PreparedQuestion } from "@/engine/game";
+import { answerText, isCorrect, levelDeck, pct, pickedText, shuffle, type PreparedQuestion } from "@/engine/game";
 import type { Challenge, Lesson } from "@/engine/types";
 
 /** setup → study (timed, no questions) → play (questions + hands-on challenges) → report */
@@ -50,8 +50,9 @@ export function StudySession() {
 
   const target = minutes * 60;
   const timeUp = minutes > 0 && elapsed >= target;
-  const { pool: levelPool } = useLevelPool();
-  const questionCount = Math.min(cfg.playQuestions, levelPool.filter((q) => q.domain === domain.id).length);
+  const { level } = useLevelPool();
+  const domainPool = course.questions.filter((q) => q.domain === domain.id);
+  const questionCount = Math.min(cfg.playQuestions, domainPool.length);
 
   // Study clock: counts up while studying and not paused.
   useEffect(() => {
@@ -81,10 +82,7 @@ export function StudySession() {
 
   function startPlay() {
     store.recordStudy(domain.id, Math.floor(elapsed / 60));
-    const qs = deck(
-      levelPool.filter((q) => q.domain === domain.id),
-      questionCount,
-    );
+    const qs = levelDeck(course, level, domainPool, questionCount);
     const cs = shuffle(challenges);
     const built: PlayItem[] = [];
     qs.forEach((q, i) => {

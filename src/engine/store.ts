@@ -200,6 +200,7 @@ function buildStore(course: Course) {
   return {
     useProgress,
     get,
+    subscribe,
     unlockBadge,
     addXp,
 

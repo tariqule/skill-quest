@@ -12,6 +12,8 @@ import d4 from "./domains/d4-servers-security-performance";
 export default defineCourse({
   id: "code-nodejs",
   kind: "interview",
+  category: "backend",
+  tags: ["node", "express", "streams", "event loop", "npm", "backend"],
   provider: { id: "nodejs", name: "Node.js", color: "#5fa04e", icon: "🟢" },
   code: "NODE",
   title: "Node.js Interview Quest",

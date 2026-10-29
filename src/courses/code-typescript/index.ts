@@ -12,6 +12,8 @@ import d4 from "./domains/d4-type-level";
 export default defineCourse({
   id: "code-typescript",
   kind: "interview",
+  category: "languages",
+  tags: ["ts", "types", "generics", "narrowing", "utility types"],
   provider: { id: "typescript", name: "TypeScript", color: "#3178c6", icon: "🔷" },
   code: "TS",
   title: "TypeScript Interview Quest",

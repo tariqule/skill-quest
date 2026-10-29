@@ -11,6 +11,8 @@ import d4 from "./domains/d4-actions-handlers";
 export default defineCourse({
   id: "code-nextjs",
   kind: "interview",
+  category: "frontend",
+  tags: ["app router", "server components", "rsc", "caching", "server actions", "next 16"],
   provider: { id: "nextjs", name: "Next.js", color: "#e2e8f0", icon: "▲" },
   code: "NEXT",
   title: "Next.js Interview Quest",

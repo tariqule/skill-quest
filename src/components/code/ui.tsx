@@ -70,8 +70,8 @@ export function Typewriter({ lines, speed = 22 }: { lines: string[]; speed?: num
   );
 }
 
-/** Arcade-style difficulty select. `counts` shows how many questions each level has. */
-export function LevelPicker({ value, onChange, counts }: { value: LevelChoice; onChange: (l: LevelChoice) => void; counts: Record<LevelChoice, number> }) {
+/** Arcade-style difficulty select. `counts` shows how many questions each level has; "mixed" highlights none. */
+export function LevelPicker({ value, onChange, counts }: { value: LevelChoice | "mixed"; onChange: (l: LevelChoice) => void; counts: Record<LevelChoice, number> }) {
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
       {LEVELS.map((l) => {
@@ -81,6 +81,7 @@ export function LevelPicker({ value, onChange, counts }: { value: LevelChoice; o
             key={l.id}
             type="button"
             onClick={() => onChange(l.id)}
+            aria-pressed={on}
             className={`group relative rounded-xl border-2 p-3 text-left transition ${on ? "scale-[1.03]" : "opacity-80 hover:opacity-100"}`}
             style={{
               borderColor: on ? l.color : "rgb(255 255 255 / 0.1)",
