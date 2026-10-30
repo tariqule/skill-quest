@@ -268,6 +268,12 @@ function buildStore(course: Course) {
       if (seconds <= course.config.match.badgeSeconds) unlockBadge("speed-matcher");
     },
 
+    /** Dismiss the intro offer without taking it (no badge). */
+    skipOnboarding() {
+      const s = get();
+      if (!s.onboarded) commit({ ...s, onboarded: true });
+    },
+
     completeOnboarding(dailyGoal?: number) {
       const s = get();
       commit({ ...s, onboarded: true, dailyGoal: dailyGoal ?? s.dailyGoal });

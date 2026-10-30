@@ -32,6 +32,7 @@ export function LessonPlay() {
   const domain = domainById[lesson.domain];
   const worldLessons = course.lessons[lesson.domain];
 
+
   const [phase, setPhase] = useState<Phase>("teach");
   const [queue, setQueue] = useState<PreparedQuestion[]>([]);
   const [retried, setRetried] = useState<string[]>([]);
@@ -265,7 +266,7 @@ export function LessonPlay() {
               className="btn-3d w-full rounded-2xl bg-amber-400 py-3.5 text-lg font-black uppercase tracking-wide text-slate-950"
               style={{ "--edge": "#b45309" } as React.CSSProperties}
             >
-              ⏱️ Start timed challenge · {Math.max(challenge.questions, missed.length)} questions · {challenge.secondsPerQuestion}s each
+              ⏱️ Start timed challenge · {Math.max(challenge.questions, missed.length)} questions · {challenge.secondsPerQuestion}s+ each
             </button>
           </div>
         </div>

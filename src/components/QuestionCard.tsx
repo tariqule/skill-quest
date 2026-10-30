@@ -358,7 +358,7 @@ function FillBody({ q, submitted, onSubmit, reveal }: BodyProps) {
                 className={`mx-0.5 inline-block max-w-[16rem] rounded-md border px-1.5 py-0.5 font-mono text-[13px] ${tone}`}
               >
                 <option value="" disabled>
-                  {`  ${part}  `}
+                  {blankPlaceholder(Number(part), groups.length)}
                 </option>
                 {(groups[k] ?? []).map((flat) => (
                   <option key={flat} value={flat}>
@@ -458,4 +458,9 @@ function SubmitButton({ disabled, onClick }: { disabled: boolean; onClick: () =>
 function isTyping(e: KeyboardEvent) {
   const t = e.target as HTMLElement | null;
   return !!t && (t.tagName === "INPUT" || t.tagName === "SELECT" || t.tagName === "TEXTAREA");
+}
+
+/** Placeholder for a fill-in-the-blank dropdown: "Choose…", or "Blank 2: choose…" when there are several. */
+export function blankPlaceholder(n: number, count: number) {
+  return count > 1 ? `Blank ${n}: choose…` : "Choose…";
 }

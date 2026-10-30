@@ -53,11 +53,11 @@ export interface QualityRow {
 }
 
 /** One row per course for the non-blocking quality report. */
-export function qualityReport(courses: Course[], conceptLists: Record<string, ConceptList> = {}): QualityRow[] {
+export function qualityReport(courses: Course[], conceptLists: Record<string, ConceptList> = {}, lessonText?: (l: Lesson) => string): QualityRow[] {
   return courses.map((c) => ({
     course: c.id,
     longestOption: longestOptionWarnings(c).length,
-    teachBeforeTest: teachBeforeTestWarnings(c, conceptLists[c.id] ?? []).length,
+    teachBeforeTest: teachBeforeTestWarnings(c, conceptLists[c.id] ?? [], lessonText).length,
     conceptsChecked: (conceptLists[c.id] ?? []).length,
   }));
 }

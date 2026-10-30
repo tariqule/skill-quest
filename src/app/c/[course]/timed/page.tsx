@@ -98,7 +98,7 @@ export default function TimedDrillPage() {
       <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-6">
         <ul className="grid gap-2 text-slate-300">
           <li>
-            📝 {cfg.questions} questions, {cfg.secondsPerQuestion} seconds each
+            📝 {cfg.questions} questions, at least {cfg.secondsPerQuestion} seconds each (more for longer questions, ordering, matching and bug hunts)
           </li>
           <li>⏰ Running out of time counts as wrong</li>
           <li>

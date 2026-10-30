@@ -193,6 +193,7 @@ export default defineDomain({
       level: "senior",
       task: "4.2",
       title: "The scheduler: G, M, and P",
+      sources: [{ title: "Go 1.14 Release Notes", url: "https://go.dev/doc/go1.14", license: "CC BY 4.0" }],
       check: ["d4-07", "d4-11"],
       visual: <SchedulerBoard />,
       points: [
@@ -201,6 +202,7 @@ export default defineDomain({
         "A P with nothing to do steals goroutines from other Ps' queues, and checks the global queue too.",
         "When a goroutine makes a blocking system call, it keeps its M and the P moves to another M. Network I/O is different: the goroutine is parked on the netpoller and frees its thread.",
         "Since Go 1.14, the runtime can interrupt a goroutine at almost any point, so a tight loop can't hog a P and starve the others.",
+        "Since Go 1.14 the runtime can preempt goroutines asynchronously, so a tight loop with no function calls can't starve other goroutines or stall the garbage collector.",
       ],
       tip: "Explain Go's scheduling in one breath: \"many goroutines share a few threads, each P has its own queue, and idle Ps steal work to balance the load\".",
     },
@@ -314,7 +316,7 @@ export default defineDomain({
         "Creates a `go.mod` file that names your module and tracks its dependencies",
         "Downloads and installs Go",
         "Runs your program",
-        "Deletes the files in the current folder",
+        "Deletes the files in the current folder and starts a brand new empty project there",
       ],
       answer: [0],
       explanation:
@@ -328,7 +330,7 @@ export default defineDomain({
       prompt: "What's the difference between `go run` and `go build`?",
       options: [
         "`go run` compiles and runs right away; `go build` makes a program file you can run later or ship",
-        "`go run` only checks for errors; `go build` runs the program",
+        "`go run` only checks your code for errors; `go build` is the one that runs the program",
         "They do exactly the same thing",
         "`go build` runs the tests; `go run` doesn't",
       ],
@@ -363,7 +365,7 @@ export default defineDomain({
       prompt: "In `func First[T any](xs []T) T`, what does `[T any]` mean?",
       options: [
         "T is a placeholder for a type, and any type is allowed",
-        "The function takes a slice called `any`",
+        "The function takes a slice that is called `any`",
         "T can only be a string",
         "The function returns nothing",
       ],
@@ -379,7 +381,7 @@ export default defineDomain({
       prompt: "What does `http.HandleFunc(\"/hello\", hello)` do?",
       options: [
         "Tells the server to run the `hello` function when someone visits the /hello path",
-        "Visits the /hello page and prints what it finds",
+        "Visits the /hello page itself and prints what it finds there to the terminal window",
         "Starts the server on port 8080",
         "Creates a new file called hello",
       ],
@@ -494,7 +496,7 @@ export default defineDomain({
         "When the function only calls methods on the value and doesn't need to return or store the concrete type",
         "Never; generics are always faster",
         "When the function needs `+` or `<` on its arguments",
-        "When the function returns a slice of the same element type it received",
+        "When the function returns a slice of the same element type that it received as its argument",
       ],
       answer: [0],
       explanation:
@@ -510,7 +512,7 @@ export default defineDomain({
         "How many OS threads can execute Go code at the same time (the number of Ps); it defaults to the CPUs available",
         "The maximum number of goroutines",
         "The maximum heap size",
-        "Only the number of garbage-collector threads",
+        "Only the number of garbage-collector threads; the scheduler always runs one OS thread per goroutine regardless of it",
       ],
       answer: [0],
       explanation: "There's no limit on goroutines; GOMAXPROCS caps how much Go code runs truly in parallel. Threads stuck in system calls don't count. From Go 1.25, the default on Linux also respects a container's CPU limit.",
@@ -523,7 +525,7 @@ export default defineDomain({
       prompt: "Why can a Go program run hundreds of thousands of goroutines when it couldn't run that many OS threads?",
       options: [
         "Goroutines start with a small stack (a few KB) that grows on demand, and the runtime multiplexes them onto a few threads",
-        "Each goroutine shares the main goroutine's stack",
+        "Each goroutine shares the main goroutine's stack, so starting one costs nothing extra until it calls a function of its own",
         "Goroutines only run one at a time",
         "The OS gives Go special lightweight threads",
       ],
@@ -554,7 +556,7 @@ export default defineDomain({
       prompt: "A goroutine makes a blocking system call, such as a file read. What does the scheduler do?",
       options: [
         "The thread (M) blocks in the syscall, and its P is handed to another M so the P's other goroutines keep running",
-        "Every goroutine on that P waits until the syscall returns",
+        "Every goroutine on that P waits until the syscall returns, since a P can only ever run on the one thread it started with",
         "The whole program pauses",
         "The goroutine is permanently converted into an OS thread",
       ],
@@ -569,7 +571,7 @@ export default defineDomain({
       prompt: "Since Go 1.14, what happens to a goroutine running a tight loop with no function calls, like `for { i++ }`?",
       options: [
         "The runtime can preempt it asynchronously (using signals), so it can't starve other goroutines or stall the GC indefinitely",
-        "It runs until it finishes, starving the other goroutines on its P",
+        "It runs until it finishes, starving the other goroutines on its P, because Go only switches goroutines at function calls or channel operations",
         "The compiler rejects loops without function calls",
         "It's moved to a dedicated OS thread",
       ],
@@ -584,7 +586,7 @@ export default defineDomain({
       prompt: "What kind of garbage collector does Go use?",
       options: [
         "A concurrent, non-moving, tri-color mark-and-sweep collector",
-        "Reference counting with cycle detection",
+        "Reference counting, with a periodic cycle detector",
         "A stop-the-world copying collector",
         "None; you free memory manually",
       ],
@@ -606,7 +608,7 @@ export default defineDomain({
       codeLang: "go",
       options: [
         "Safe: escape analysis sees that `&n` outlives the call and allocates `n` on the heap",
-        "Unsafe: it returns a dangling pointer to the stack, like in C",
+        "Unsafe: it returns a dangling pointer into the stack frame, just like in C",
         "Compile error: cannot return the address of a local variable",
         "Safe, because `n` is copied when the function returns",
       ],
@@ -622,7 +624,7 @@ export default defineDomain({
       options: [
         "Set `GOMEMLIMIT` (for example to about 1.8GiB) so the GC collects more aggressively as total memory nears the limit",
         "Set `GOGC=off`",
-        "Call `runtime.GC()` every second from a goroutine",
+        "Call `runtime.GC()` every second from a background goroutine, so the heap never gets anywhere near the container's memory limit",
         "Raise `GOMAXPROCS`",
       ],
       answer: [0],
@@ -675,7 +677,7 @@ export default defineDomain({
         "Reusing temporary objects (like buffers) to cut allocations and GC pressure; pooled items may be dropped at any GC",
         "A pool of goroutines that runs tasks",
         "A database connection pool",
-        "A long-lived cache whose entries must never be lost",
+        "A long-lived cache whose entries must never be lost, such as parsed config or user sessions shared between requests",
       ],
       answer: [0],
       explanation: "A Pool is a stash of interchangeable spare objects. Reset each object before putting it back, and never store anything you need to keep, because the GC may empty the pool at any time.",
@@ -745,7 +747,7 @@ export default defineDomain({
       options: [
         "Release a new major version whose module path ends in `/v2` (`example.com/billing/v2`), so v1 and v2 can coexist in one build",
         "Tag it v1.9.0; `go get` will warn consumers",
-        "Delete the v1 tags and re-tag the new code as v1.0.0",
+        "Delete the v1 tags from the repository and re-tag the new code as v1.0.0, so every importer picks up the new API on their next `go get`",
         "Ask every consumer to add a `replace` directive",
       ],
       answer: [0],
@@ -762,7 +764,7 @@ export default defineDomain({
         "The mutex and block profiles (enable with `runtime.SetMutexProfileFraction` and `runtime.SetBlockProfileRate`)",
         "The heap profile",
         "`go vet`",
-        "Only the CPU profile",
+        "Only the CPU profile from `/debug/pprof/profile`, since time spent waiting on a lock always shows up there as CPU usage in the goroutine that holds it",
       ],
       answer: [0],
       explanation: "A CPU profile shows where time is spent running, not waiting. Mutex and block profiles, plus a goroutine dump, show where goroutines are stuck waiting. They're off by default, and those calls switch them on.",
@@ -777,7 +779,7 @@ export default defineDomain({
         "On a separate internal-only listener or admin port, never on the public router, so on-call can pull profiles on demand",
         "On the public API port, so anyone debugging can reach it",
         "Not at all; profile only in staging",
-        "Build production binaries with `-race` and read its output instead",
+        "Build the production binaries with `-race` and read its output instead, since the race detector also reports where CPU time and memory are going",
       ],
       answer: [0],
       explanation:

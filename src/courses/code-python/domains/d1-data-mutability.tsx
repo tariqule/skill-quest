@@ -151,6 +151,7 @@ export default defineDomain({
       level: "intermediate",
       task: "1.2",
       title: "Shallow and deep copies",
+      sources: [{ title: "Python docs: copy", url: "https://docs.python.org/3/library/copy.html", license: "PSF License" }],
       check: ["d1-08", "d1-10"],
       visual: (
         <div className="grid gap-4">
@@ -196,6 +197,7 @@ export default defineDomain({
         "So if the items are lists, changing one of those inner lists shows up in both the copy and the original.",
         "`copy.deepcopy` copies everything, all the way down through nested containers. It even copes with objects that refer back to themselves.",
         "`[x] * n` repeats a reference to the same `x`, n times. That's fine when `x` is a number, but a trap when `x` is a list.",
+        "Three ways to make a shallow copy of a list: slicing with `a[:]`, `list(a)`, and `a.copy()`. Each gives a new outer list that still shares the same inner objects.",
       ],
       tip: "Interviewers love the grid trap. Explain that `*` repeats references, so every row is really the same list, then offer the list comprehension fix.",
     },
@@ -204,6 +206,7 @@ export default defineDomain({
       level: "intermediate",
       task: "1.3",
       title: "Pick the right collection",
+      sources: [{ title: "Python docs: collections", url: "https://docs.python.org/3/library/collections.html", license: "PSF License" }],
       check: ["d1-12", "d1-15"],
       visual: <ComplexityExplorer />,
       points: [
@@ -211,6 +214,8 @@ export default defineDomain({
         "Lists are fast at the end and slow at the front, because adding at the front shifts everything along. For a queue, use `collections.deque`.",
         "Dict keys and set items must be **hashable**. Immutable built-ins like ints, strings and tuples of them work. Lists and dicts don't.",
         "Dicts remember the order you inserted keys. Updating a key that's already there keeps it in its original position.",
+        "Looking up a missing key with `d[key]` raises a `KeyError` exception. Use `d.get(key)` or `key in d` when the key might be absent.",
+        "For many small records, a class with `__slots__` (or `@dataclass(slots=True)`, Python 3.10+) uses much less memory than a dict per record, because instances drop their per-object `__dict__`.",
       ],
       tip: "Before you optimise, name the operation that happens most (a lookup, adding at the front, finding the smallest). Then choose the structure that makes that operation O(1) or O(log n).",
     },
@@ -272,7 +277,7 @@ export default defineDomain({
       prompt: "In what order does Python run the lines in a simple script?",
       options: [
         "From the top line to the bottom line, one at a time",
-        "From the bottom line to the top line",
+        "From the bottom line up to the very top line",
         "All lines at the same moment",
         "In alphabetical order",
       ],
@@ -423,7 +428,7 @@ export default defineDomain({
       prompt: "Which statement about `is` and `==` is correct?",
       options: [
         "`==` compares values (using `__eq__`), while `is` checks whether both sides are the very same object",
-        "`is` is a faster `==` and gives the same answer for every type",
+        "`is` is a faster version of `==` and it gives the same answer for every type of value",
         "`==` compares memory addresses, while `is` compares values",
         "`is` is the right way to compare strings and numbers",
       ],
@@ -552,7 +557,7 @@ export default defineDomain({
       codeLang: "python",
       options: [
         "O(n) per check; build `set(names)` once for O(1) average lookups",
-        "O(1) per check; it's already as fast as it can be",
+        "O(1) per check; it's already about as fast as it can be",
         "O(log n) per check; sort the list first",
         "O(n) per check; convert it to a tuple",
       ],
@@ -717,7 +722,7 @@ export default defineDomain({
       prompt: "A service keeps 50 million user records in memory as a dict of small dicts (`{user_id: {\"name\": ..., \"plan\": ...}}`). Memory is now the bottleneck. Which change usually saves the most memory while keeping fast lookup by ID?",
       options: [
         "Store each record as an instance of a class with `__slots__` (or `@dataclass(slots=True)`) instead of a small dict per record",
-        "Replace the outer dict with a list and scan it for each lookup",
+        "Replace the outer dict with a list and scan it for each lookup, since lists use far less memory than dicts",
         "Call `copy.deepcopy` on each record when it's read",
         "Convert every user ID key to a string",
       ],
@@ -734,7 +739,7 @@ export default defineDomain({
       options: [
         "Return a fresh copy (or a read-only `types.MappingProxyType` view with immutable values) so callers can't change the shared object",
         "Document that callers must not change the returned dict",
-        "Add `global DEFAULT_CONFIG` to every function that reads it",
+        "Add `global DEFAULT_CONFIG` to every function that reads it, so each function gets its own private copy of the dict and changes can't leak out",
         "Compare configs with `is` instead of `==`",
       ],
       answer: [0],

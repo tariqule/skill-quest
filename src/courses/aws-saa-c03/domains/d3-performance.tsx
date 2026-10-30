@@ -239,6 +239,7 @@ export default defineDomain({
       task: "3.3",
       title: "Choosing high-performing databases",
       check: ["d3-18", "d3-19"],
+      sources: [{ title: "Amazon Aurora: Aurora Serverless v2", url: "https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless-v2.html", license: "AWS docs, facts only" }],
       visual: (
         <div className="grid gap-4">
           <Tiles
@@ -261,6 +262,7 @@ export default defineDomain({
         "For lots of reads, add read replicas and caching. For lots of relational writes, scale up, use Provisioned IOPS or move to Aurora. For lots of key-value writes, use DynamoDB with a well-spread partition key.",
         "In DynamoDB, one **RCU** (read capacity unit) covers one strongly consistent 4 KB read per second, or two eventually consistent ones. One **WCU** covers one 1 KB write per second.",
         "Moving to the same engine, such as MySQL to Aurora MySQL, is easy with DMS or native tools. Moving to a different engine, such as Oracle to PostgreSQL, means converting the schema first, then moving the data with DMS.",
+        "**Aurora Serverless v2** scales database capacity up and down automatically, which suits spiky or unpredictable traffic. Add Aurora Replicas in other AZs for high availability.",
       ],
       tip: "Match the data model to the database. Graphs go to Neptune, MongoDB to DocumentDB, Cassandra to Keyspaces and warehouses to Redshift.",
     },
@@ -332,6 +334,10 @@ export default defineDomain({
       task: "3.5",
       title: "Data ingestion, streaming, transfer, and data lakes",
       check: ["d3-40", "d3-41"],
+      sources: [
+        { title: "AWS Glue: Using crawlers to populate the Data Catalog", url: "https://docs.aws.amazon.com/glue/latest/dg/add-crawler.html", license: "AWS docs, facts only" },
+        { title: "What is Amazon Quick?", url: "https://docs.aws.amazon.com/quick/latest/userguide/what-is.html", license: "AWS docs, facts only" },
+      ],
       visual: (
         <div className="grid gap-4">
           <Flow
@@ -361,6 +367,8 @@ export default defineDomain({
         "**Lake Formation** manages detailed permissions on data lake data in S3, right down to the database, table, column and row.",
         "**AppFlow** moves data from SaaS apps such as Salesforce into AWS on a schedule or when an event happens, with no code.",
         "Keep ingestion secure with VPC endpoints, encryption in transit, and least-privilege roles for whatever sends the data.",
+        "**AWS Glue** crawlers discover data in S3 and fill the Glue Data Catalog. Glue ETL jobs transform it, for example into partitioned Apache Parquet, which cuts Athena scan time and cost.",
+        "A typical S3 data lake: ingest raw data (Data Firehose or DataSync), crawl it with Glue, transform it with Glue ETL, grant access with Lake Formation, then query with Athena and build dashboards in Amazon Quick (formerly QuickSight).",
       ],
       tip: "Near real-time delivery to S3 with no servers or code means Data Firehose. Ad hoc SQL on S3 means Athena. A Spark cluster means EMR.",
     },
@@ -374,7 +382,7 @@ export default defineDomain({
       lesson: "d3-start-latency-throughput",
       level: "beginner",
       prompt: "What does latency measure?",
-      options: ["How long one request takes to get an answer", "How much a server costs per month", "How many users have accounts", "How much storage is left"],
+      options: ["How long one request takes to get an answer", "How much one server costs every month", "How many users have accounts", "How much storage is left"],
       answer: [0],
       explanation: "Latency is the waiting time for a single request, like how long one car takes to reach the city. Lower latency feels snappier to users.",
     },
@@ -394,7 +402,7 @@ export default defineDomain({
       lesson: "d3-start-caching",
       level: "beginner",
       prompt: "What is a cache?",
-      options: ["A quick store that keeps copies of data people ask for often", "A backup kept for seven years", "A firewall rule", "A bill for unused servers"],
+      options: ["A quick store that keeps copies of data people ask for often", "A backup copy of everything, kept for seven years in case it's ever needed", "A firewall rule", "A bill for unused servers"],
       answer: [0],
       explanation: "A cache keeps popular data close at hand, like salt and pepper on the counter. Requests are answered faster, and the main database does less work.",
     },
@@ -404,7 +412,7 @@ export default defineDomain({
       lesson: "d3-start-caching",
       level: "beginner",
       prompt: "Which AWS service keeps copies of web content in locations close to users around the world?",
-      options: ["Amazon CloudFront", "AWS IAM", "Amazon SQS", "AWS Budgets"],
+      options: ["Amazon CloudFront", "AWS IAM", "Amazon SQS", "AWS Budgets and Cost Explorer"],
       answer: [0],
       explanation: "CloudFront is a content delivery network. It stores copies of your images, videos and pages in edge locations near users, so they load faster.",
     },
@@ -424,7 +432,7 @@ export default defineDomain({
       lesson: "d3-start-storage-kinds",
       level: "beginner",
       prompt: "Several servers need to open the same folders of files at the same time. Which kind of storage fits?",
-      options: ["File storage, such as Amazon EFS", "A single EBS volume", "An encryption key", "A load balancer"],
+      options: ["File storage, such as Amazon EFS", "A single EBS volume shared by all servers", "An encryption key", "A load balancer"],
       answer: [0],
       explanation: "File storage is like a shared office drive that many computers can open at once. Amazon EFS gives Linux servers exactly that.",
     },
@@ -471,7 +479,7 @@ export default defineDomain({
       lesson: "d3-storage",
       prompt:
         "A machine learning team needs a high-performance file system with sub-millisecond latency for training jobs, loading its data set from an S3 bucket and writing results back. What should the architect recommend?",
-      options: ["Amazon FSx for Lustre linked to the S3 bucket", "Amazon EFS One Zone", "Amazon FSx for Windows File Server", "AWS Storage Gateway Volume Gateway"],
+      options: ["Amazon FSx for Lustre linked to the S3 bucket", "Amazon EFS One Zone", "Amazon FSx for Windows File Server", "AWS Storage Gateway Volume Gateway on-prem"],
       answer: [0],
       explanation: "FSx for Lustre is designed for HPC and ML and can link to an S3 bucket, presenting objects as files and exporting results.",
     },
@@ -481,7 +489,7 @@ export default defineDomain({
       lesson: "d3-storage",
       prompt:
         "A Windows-based application needs shared file storage over SMB with Microsoft Active Directory permissions and DFS namespaces. Which service meets this requirement?",
-      options: ["Amazon FSx for Windows File Server", "Amazon EFS", "Amazon S3", "Amazon FSx for Lustre"],
+      options: ["Amazon FSx for Windows File Server", "Amazon EFS", "Amazon S3", "Amazon FSx for Lustre with SMB enabled"],
       answer: [0],
       explanation: "FSx for Windows File Server provides native SMB shares integrated with Active Directory. EFS is NFS for Linux.",
     },
@@ -550,7 +558,7 @@ export default defineDomain({
       lesson: "d3-compute",
       prompt:
         "An HPC application runs tightly coupled simulations on many EC2 instances that exchange data constantly. It needs the lowest possible network latency between nodes. What should the architect use?",
-      options: ["A cluster placement group in one Availability Zone", "A spread placement group across three AZs", "Instances in three different Regions", "A partition placement group across AZs"],
+      options: ["A cluster placement group in one Availability Zone", "A spread placement group across all three AZs", "Instances in three different Regions", "A partition placement group across AZs"],
       answer: [0],
       explanation: "Cluster placement groups pack instances close together in one AZ for low latency and high throughput between them. Adding EFA helps MPI workloads further.",
     },
@@ -617,7 +625,7 @@ export default defineDomain({
         "A web tier and an image-processing tier run on the same EC2 instances. Image processing spikes make the website slow. What should the architect do so each part scales on its own?",
       options: [
         "Move image processing to separate workers that consume jobs from an SQS queue, each tier in its own Auto Scaling group",
-        "Use a larger instance type for the combined tier",
+        "Use a larger instance type for the combined web and image tier, and raise the Auto Scaling group's maximum size to handle the spikes",
         "Add a cluster placement group",
         "Turn off image processing during peaks",
       ],
@@ -658,7 +666,7 @@ export default defineDomain({
         "A company migrating from an on-premises Oracle database to Amazon Aurora PostgreSQL must convert the schema and migrate the data with minimal downtime. What should the architect use?",
       options: [
         "DMS Schema Conversion (or AWS SCT) for the schema, then AWS DMS with ongoing replication for the data",
-        "A native PostgreSQL dump of the Oracle database",
+        "A native PostgreSQL dump of the Oracle database, restored into Amazon RDS for PostgreSQL during a weekend outage",
         "AWS DataSync",
         "AWS Snowball Edge for the schema",
       ],
@@ -697,7 +705,7 @@ export default defineDomain({
       lesson: "d3-databases",
       prompt:
         "An RDS for MySQL database is I/O-bound: storage latency rises under heavy write load. The workload needs consistent, high IOPS. What should the architect change?",
-      options: ["Use Provisioned IOPS SSD storage (io1/io2) for the DB instance", "Add a read replica", "Enable Multi-AZ", "Move to a burstable T instance"],
+      options: ["Use Provisioned IOPS SSD storage (io1/io2) for the DB instance", "Add a read replica", "Enable Multi-AZ", "Move to a burstable T instance class with unlimited mode turned on"],
       answer: [0],
       explanation: "Provisioned IOPS storage delivers consistent I/O for I/O-intensive databases. Read replicas don't help write I/O, and Multi-AZ is for availability.",
     },
@@ -754,7 +762,7 @@ export default defineDomain({
       lesson: "d3-caching",
       prompt:
         "A game needs a real-time leaderboard ranking millions of players by score, with high availability and automatic failover. Which solution fits best?",
-      options: ["Amazon ElastiCache (Redis OSS or Valkey) sorted sets with Multi-AZ", "ElastiCache for Memcached", "Amazon S3 with S3 Select", "Amazon RDS with an ORDER BY query on every request"],
+      options: ["Amazon ElastiCache (Redis OSS or Valkey) sorted sets with Multi-AZ", "ElastiCache for Memcached", "Amazon S3 with S3 Select", "Amazon RDS with an ORDER BY score query on each request"],
       answer: [0],
       explanation: "Sorted sets keep members ordered by score, in memory. Redis OSS and Valkey clusters support replicas and Multi-AZ failover. Memcached has no rich data structures or replication.",
     },
@@ -784,7 +792,7 @@ export default defineDomain({
         "Cache query results in Amazon ElastiCache with a TTL",
         "Add Provisioned IOPS",
         "Enable Multi-AZ",
-        "Increase the DB backup retention",
+        "Increase the DB instance's backup retention to 35 days",
       ],
       answer: [0],
       explanation: "Data that's read again and again but rarely changes is perfect for a cache. The database only sees the cache misses.",
@@ -805,7 +813,7 @@ export default defineDomain({
       lesson: "d3-caching",
       prompt:
         "A REST API built with Amazon API Gateway and Lambda returns the same weather forecast for a city for 10 minutes at a time. How can the architect cut Lambda invocations and latency with the least effort?",
-      options: ["Enable API Gateway stage caching with a TTL", "Add provisioned concurrency", "Increase Lambda memory", "Put an SQS queue in front of Lambda"],
+      options: ["Enable API Gateway stage caching with a TTL", "Add provisioned concurrency", "Increase Lambda memory", "Put an SQS queue in front of the Lambda"],
       answer: [0],
       explanation: "API Gateway REST API caching returns cached responses for the TTL without invoking the back end.",
     },
@@ -864,7 +872,7 @@ export default defineDomain({
         "A static website is hosted in an S3 bucket and served through CloudFront. The bucket must not be accessible directly, only through CloudFront. What should the architect configure?",
       options: [
         "CloudFront origin access control (OAC) with a bucket policy that allows only the distribution",
-        "Make the bucket public and rely on CloudFront caching",
+        "Make the bucket public and rely on CloudFront caching, so most requests are served by the edge instead of S3",
         "A security group on the bucket",
         "S3 Transfer Acceleration",
       ],
@@ -879,7 +887,7 @@ export default defineDomain({
         "An architect is creating subnets for an Auto Scaling group that may grow to 300 instances in each AZ. A colleague suggests /24 subnets. What is the issue?",
       options: [
         "A /24 has 256 addresses, of which 5 are reserved by AWS, so it can't hold 300 instances",
-        "There is no issue; /24 subnets have unlimited addresses",
+        "There is no issue, because a /24 subnet can grow on its own to hold as many addresses as needed",
         "Subnets must be /16",
         "AWS reserves 50 addresses in every subnet",
       ],

@@ -1,0 +1,46 @@
+/**
+ * Key Python concepts, used by the "teach before test" check.
+ * If a question's prompt or correct answer mentions a concept, some lesson at or
+ * before the question's lesson must mention it too. Add an entry when you add a
+ * question about something new, then teach it in a lesson.
+ */
+export const CONCEPTS: [string, RegExp][] = [
+  ["mutable / immutable", /mutab/i],
+  ["list", /\blist/i],
+  ["tuple", /tuple/i],
+  ["dict", /dict/i],
+  ["set", /\bset\b/i],
+  ["identity is vs ==", /\bis\b|==|\bid\(/],
+  ["shallow vs deep copy", /shallow|deep ?copy|copy\./i],
+  ["slicing", /slic|\[\w*:\w*\]/i],
+  ["string", /\bstr\b|string/i],
+  ["comprehension", /comprehension/i],
+  ["enumerate", /enumerate/],
+  ["zip", /zip\(/],
+  ["iterator", /iterat/i],
+  ["generator", /generat|yield/i],
+  ["lazy", /lazy|lazily/i],
+  ["default argument", /default (argument|value|parameter)|def \w+\([^)]*=/i],
+  ["mutable default", /=\[\]|= ?\[\]|mutable default/i],
+  ["\\*args / \\*\\*kwargs", /\*args|\*\*kwargs/],
+  ["keyword-only", /keyword/i],
+  ["scope / LEGB", /scope|LEGB/i],
+  ["global / nonlocal", /global|nonlocal/],
+  ["late binding", /late binding|lambda/i],
+  ["decorator", /decorator|@\w+/i],
+  ["functools.wraps", /wraps/],
+  ["class", /\bclass\b/],
+  ["__init__", /__init__/],
+  ["self", /\bself\b/],
+  ["dunder method", /__\w+__/],
+  ["inheritance", /inherit|super\(/i],
+  ["MRO", /\bMRO\b|method resolution/i],
+  ["dataclass", /dataclass/],
+  ["exception", /exception|raise|except/i],
+  ["finally", /finally/],
+  ["with / context manager", /\bwith\b|context manager/i],
+  ["GIL", /\bGIL\b/],
+  ["threading", /thread/i],
+  ["multiprocessing", /multiprocess|process pool/i],
+  ["asyncio", /async|await/i],
+];

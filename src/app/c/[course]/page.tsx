@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { IntroOffer } from "@/components/learn/IntroOffer";
 import { useEffect, useState, type CSSProperties } from "react";
 import { Core3D, MascotSays, Tilt } from "@/components/fx";
 import { LifecycleBanner } from "@/components/Lifecycle";
@@ -29,7 +29,6 @@ export default function CoursePage() {
 }
 
 function MissionMap() {
-  const router = useRouter();
   const { course, store, href, domain: domainById, lesson: lessonById } = useCourse();
   const copy = courseCopy(course);
   const p = useProgress();
@@ -38,17 +37,13 @@ function MissionMap() {
   const readiness = Math.round(overallReadiness(course, p));
   const level = effectiveLevel(course, p.level);
 
-  // First visit: start with the intro briefing.
-  useEffect(() => {
-    const s = store.get();
-    if (!s.onboarded && s.xp === 0) router.replace(href("/start"));
-  }, [router, store, href]);
 
   const currentDomain = current ? domainById[current.domain] : null;
   const currentLesson = current?.type === "lesson" ? lessonById[current.key] : null;
 
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-6 sm:py-10">
+      <IntroOffer show={!p.onboarded && p.xp === 0} href={href("/start")} onSkip={() => store.skipOnboarding()} />
       {/* Hero: where you are and what's next */}
       <section className="grid items-center gap-6 rounded-3xl border border-white/10 bg-slate-900/50 p-5 sm:p-8 md:grid-cols-[1fr_auto]">
         <div>

@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, type CSSProperties } from "react";
+import { IntroOffer } from "@/components/learn/IntroOffer";
+import { type CSSProperties } from "react";
 import { TerminalWindow, Typewriter } from "@/components/code/ui";
 import { TrackCore3D } from "@/components/three";
 import { Bar } from "@/components/ui";
@@ -18,7 +18,6 @@ import { levelInfo } from "@/engine/store";
 
 /** The mission map for interview tracks: a terminal hub plus an arcade level-select. */
 export function CodeMap() {
-  const router = useRouter();
   const { course, store, href, lesson: lessonById } = useCourse();
   const p = useProgress();
   const lvl = levelInfo(p.xp, course.levelTitles);
@@ -30,15 +29,12 @@ export function CodeMap() {
   const copy = courseCopy(course);
   const learning = course.kind === "learning";
 
-  useEffect(() => {
-    const s = store.get();
-    if (!s.onboarded && s.xp === 0) router.replace(href("/start"));
-  }, [router, store, href]);
 
   const slug = course.shortTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-6 sm:py-10">
+      <IntroOffer show={!p.onboarded && p.xp === 0} href={href("/start")} onSkip={() => store.skipOnboarding()} />
       <TerminalWindow title={`~/code-quest/${slug} — zsh`}>
         <div className="grid gap-6 md:grid-cols-[1fr_auto] md:items-center">
           <div>

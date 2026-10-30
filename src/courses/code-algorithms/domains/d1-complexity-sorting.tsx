@@ -98,6 +98,7 @@ export default defineDomain({
       check: ["algo1-05", "algo1-06"],
       task: "1.1",
       title: "Counting the work",
+      sources: [{ title: "Python wiki: Time complexity of built-in operations", url: "https://wiki.python.org/moin/TimeComplexity", license: "CC BY-SA 2.5" }],
       visual: (
         <div className="grid gap-4">
           <CodeCompare
@@ -120,6 +121,7 @@ export default defineDomain({
         "Steps nested inside each other multiply: O(n) outside and O(log n) inside gives O(n log n).",
         "A loop that doubles or halves its counter runs about log n times.",
         "Two different inputs get two variables. Looping over a and then b is O(a + b). Nesting one inside the other is O(a · b).",
+        "A **dynamic array** that doubles when full has **amortized** O(1) appends: most appends are cheap, but the rare resize copies everything in O(n). Averages hide those spikes, so they show up in **tail latency** (p99) rather than the mean.",
       ],
       tip: "Work out the complexity line by line, out loud. It's more convincing than announcing an answer.",
     },
@@ -129,6 +131,7 @@ export default defineDomain({
       check: ["algo1-09", "algo1-10"],
       task: "1.2",
       title: "Merge sort and quicksort",
+      sources: [{ title: "Python docs: Sorting Techniques", url: "https://docs.python.org/3/howto/sorting.html", license: "PSF License" }],
       visual: (
         <div className="grid gap-4 md:grid-cols-2">
           <div>
@@ -158,6 +161,10 @@ export default defineDomain({
         "Both use **divide and conquer**: split the problem, solve the parts, combine. Merge sort does its real work while merging. Quicksort does it while partitioning.",
         "Quicksort averages O(n log n) and sorts in place, using only O(log n) stack. If the pivot is always the smallest or largest item, it slows to O(n²). Random pivots make that very unlikely.",
         "Merge sort is always O(n log n) and stable, but needs O(n) extra memory. It's a great fit for linked lists and for data on disk.",
+        "Merge sort is **recursive**: it calls itself on each half until it reaches arrays of 0 or 1 elements, the base case.",
+        "Other sorts you'll meet: **heap sort** is O(n log n) always, in place, but not stable. **Insertion sort** is O(n²) worst case but very fast on tiny or nearly sorted input.",
+        "**Counting sort** is O(n + k) for integers in a small range k, because it counts each value instead of comparing items.",
+        "Library sorts are **hybrids**. **Introsort** runs quicksort but switches to heap sort past a depth limit and insertion sort for small ranges; **Timsort** merges natural runs and is stable.",
       ],
       tip: "If asked which is faster, say quicksort usually wins in memory because it uses the cache well. Merge sort gives you the guarantee and stability.",
     },
@@ -167,6 +174,7 @@ export default defineDomain({
       check: ["algo1-13", "algo1-14"],
       task: "1.2",
       title: "Heap sort, stability, and picking a sort",
+      sources: [{ title: "MDN: Array.prototype.sort", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort", license: "CC BY-SA 2.5" }],
       visual: (
         <Tiles
           cols={3}
@@ -184,6 +192,7 @@ export default defineDomain({
         "Always pass a comparator when sorting numbers: `nums.sort((a, b) => a - b)`.",
         "Library sorts are hybrids. V8, Python and Java's object sort use Timsort, a mix of merge and insertion sort. Many C++ libraries use introsort, which mixes quicksort, heap sort and insertion sort.",
         "If the data is bigger than memory, use an external merge sort: sort chunks that fit, write them to disk, then merge them k at a time.",
+        "When data doesn't fit in memory, use an **external merge sort**: sort memory-sized chunks, write each to disk, then k-way merge the chunks with a **min-heap** that always yields the smallest next item.",
       ],
       tip: "In interviews you can usually call the built-in sort and say it's O(n log n). Just know the default comparator trap.",
     },
@@ -198,7 +207,7 @@ export default defineDomain({
       prompt: "Which of these is the best everyday example of an algorithm?",
       options: [
         "A recipe that lists the steps to bake a cake",
-        "A photo of a cake",
+        "A photo of a cake that shows what it looks like at the end",
         "The oven itself",
         "The word \"cake\"",
       ],
@@ -214,7 +223,7 @@ export default defineDomain({
       options: [
         "One might need far fewer steps, so it finishes much faster on big inputs",
         "Only one of them can really be correct",
-        "The one with the longer name is more accurate",
+        "The one with the longer name is more accurate and so it's faster",
         "There's never a reason to prefer one",
       ],
       answer: [0],
@@ -226,7 +235,7 @@ export default defineDomain({
       level: "beginner",
       lesson: "algo-b-steps",
       prompt: "You check an unsorted list of 1,000 names one by one, looking for \"Zoe\". In the worst case, how many names do you check?",
-      options: ["1,000", "1", "10", "500"],
+      options: ["1,000", "1", "10", "About 500"],
       answer: [0],
       explanation: "If Zoe is last, or not there at all, you have to look at every name. That's called linear work: twice as many names means twice as many checks.",
     },
@@ -268,7 +277,7 @@ export default defineDomain({
       level: "intermediate",
       lesson: "algo-growth",
       prompt: "The input has up to 10⁵ items and the time limit is about a second. Which complexity should you aim for?",
-      options: ["O(n log n) or better", "O(n²)", "O(2ⁿ)", "O(n³)"],
+      options: ["O(n log n) or better", "O(n²)", "O(2ⁿ)", "O(n³), since 10⁵ cubed still fits in a second"],
       answer: [0],
       explanation: "A computer does roughly 10⁸ simple operations per second. n log n here is about 1.7 million operations, which is fine. n² is 10¹⁰, which is far too slow.",
     },
@@ -314,7 +323,7 @@ export default defineDomain({
       prompt: "What is the time complexity?",
       code: js("for (let i = 0; i < n; i++) {", "  for (let j = 1; j < n; j *= 2) {", "    count++;", "  }", "}"),
       codeLang: "js",
-      options: ["O(n log n)", "O(n²)", "O(log n)", "O(n)"],
+      options: ["O(n log n)", "O(n²)", "O(log² n)", "O(n)"],
       answer: [0],
       explanation: "The outer loop runs n times. Each time, the doubling inner loop runs about log₂ n times. Nested loops multiply, so the total is O(n log n).",
     },
@@ -339,7 +348,7 @@ export default defineDomain({
       options: [
         "When the pivot is always the smallest or largest element, for example a last-element pivot on already-sorted input",
         "When the array has an even length",
-        "When you sort numbers instead of strings",
+        "When you sort numbers instead of strings, because numeric comparisons are slower and the partition step has to do more work for each element",
         "When the array fits in the CPU cache",
       ],
       answer: [0],
@@ -420,7 +429,7 @@ export default defineDomain({
         "Items that compare as equal keep their original relative order",
         "It always runs in O(n log n)",
         "It never uses extra memory",
-        "It gives the same output on every run",
+        "It gives exactly the same output on every run of the program",
       ],
       answer: [0],
       explanation: "Stability matters when you sort records by one key and then another. For example, sort by name, then by department, and each department stays in name order.",
@@ -515,7 +524,7 @@ export default defineDomain({
         "It depends on the constraints: if memory is plentiful and n is large, O(n) time wins; if memory is tight, the in-place version may be better. Ask which matters.",
         "O(n) time always wins",
         "O(1) space always wins",
-        "They're the same complexity",
+        "They're the same complexity in practice, because O(n) extra memory is always free on modern machines, so you should pick whichever version is shorter to write and move on.",
       ],
       answer: [0],
       explanation: "The interviewer wants to see that you spot the trade-off between time and memory, and that you tie your choice to the requirements instead of reciting a rule.",
@@ -529,7 +538,7 @@ export default defineDomain({
       options: [
         "External merge sort: sort memory-sized chunks, write them out, then k-way merge them with a min-heap",
         "Load the file and call `Array.prototype.sort`",
-        "Quicksort in place, reading and writing the disk randomly",
+        "Quicksort in place on the file, reading and writing the disk at random spots as it goes",
         "Bubble sort, because it uses the least memory",
       ],
       answer: [0],
@@ -553,7 +562,7 @@ export default defineDomain({
       codeLang: "js",
       options: [
         "About 10,000× more work (100× the items, squared): rewrite it with a Map keyed by email (O(n)) before onboarding them",
-        "About 100× more work: add a few more servers",
+        "About 100× more work, which grows in a straight line with the amount of data: add a few more servers to cover the extra load",
         "No change, because Big-O ignores constants",
         "About 2× more work",
       ],
@@ -569,7 +578,7 @@ export default defineDomain({
       options: [
         "Amortized O(1) appends still have rare O(n) resize spikes; pre-size the buffer or use chunked storage to bound the worst case",
         "Averages are always misleading, so silence the p99 alert",
-        "Doubling makes every append O(log n); switch to tripling",
+        "Doubling makes every append O(log n) instead of O(1); switch to tripling so the array grows faster and has to resize less often",
         "Use a hash map for appends instead",
       ],
       answer: [0],
@@ -583,7 +592,7 @@ export default defineDomain({
       prompt: "A standard library sort must be fast on typical data and never go quadratic on adversarial input. What do mainstream libraries do?",
       options: [
         "Use a hybrid: introsort (quicksort that switches to heap sort past a depth limit, insertion sort for small ranges) or Timsort (merge sort over natural runs)",
-        "Plain quicksort with a first-element pivot",
+        "Plain quicksort with a first-element pivot everywhere, since its average case is O(n log n) and real-world inputs are random enough that the worst case never shows up in practice",
         "Bubble sort with an early exit",
         "Counting sort for every input type",
       ],

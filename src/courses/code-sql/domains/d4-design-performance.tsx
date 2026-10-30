@@ -112,6 +112,7 @@ export default defineDomain({
       level: "intermediate",
       task: "4.1",
       title: "Designing tables that stay correct",
+      sources: [{ title: "PostgreSQL docs: CREATE TABLE", url: "https://www.postgresql.org/docs/current/sql-createtable.html", license: "PostgreSQL License" }],
       check: ["d4-01", "d4-02"],
       visual: (
         <div className="grid gap-4">
@@ -153,6 +154,7 @@ export default defineDomain({
         "Constraints are rules the database enforces for every client: NOT NULL, UNIQUE, CHECK, foreign keys. A CHECK passes when its result is TRUE or NULL.",
         "Use numeric (or integer cents) for money, never real or double precision, which can't represent 0.1 exactly.",
         "Denormalizing means copying data on purpose to make reads faster. Do it deliberately, and only with a plan to keep the copies in sync.",
+        "A **composite key** is a primary key made of several columns, such as (order_id, line_no). 2NF says no other column may depend on only part of it.",
       ],
       tip: "Put rules in constraints, not just in app code. Constraints protect you from every other script, job and teammate that touches the table.",
     },
@@ -265,7 +267,7 @@ export default defineDomain({
         "Describes a new, empty table: its name, its columns and their types",
         "Adds one row to an existing table",
         "Shows every row in a table",
-        "Makes a copy of a table from another database",
+        "Makes an exact copy of a table from another database server",
       ],
       answer: [0],
       explanation:
@@ -320,7 +322,7 @@ export default defineDomain({
         "So both changes happen together, or neither does if something fails halfway",
         "Because UPDATE only works inside a transaction",
         "To make the UPDATE statements run faster",
-        "So other people can see the change before it's finished",
+        "So other people can see the change before it has finished saving",
       ],
       answer: [0],
       explanation:
@@ -351,7 +353,7 @@ export default defineDomain({
       options: [
         "Changing a customer's details means updating many rows, and copies can end up disagreeing",
         "Text columns can't be used in WHERE",
-        "Tables are limited to three columns",
+        "Tables are limited to three columns, so the customer details have to be split out into another table",
         "Orders can no longer be sorted",
       ],
       answer: [0],
@@ -420,7 +422,7 @@ export default defineDomain({
       level: "senior",
       lesson: "d4-schema",
       prompt: "`products.price` has `CHECK (price > 0)` but no NOT NULL. What happens with `INSERT INTO products (name, price) VALUES ('pen', NULL)`?",
-      options: ["It succeeds: a CHECK only fails when its condition is FALSE, and NULL > 0 is UNKNOWN", "It fails the CHECK", "It stores 0", "It fails because NULL isn't a number"],
+      options: ["It succeeds: a CHECK only fails when its condition is FALSE, and NULL > 0 is UNKNOWN", "It fails the CHECK", "It stores 0", "It fails, because NULL isn't a number and so it can't be compared with 0 by the CHECK constraint"],
       answer: [0],
       explanation: "Unlike WHERE, a CHECK constraint passes on UNKNOWN. If the value is required, add NOT NULL as well.",
     },
@@ -434,7 +436,7 @@ export default defineDomain({
         "Finding rows by a column's value without reading the whole table, at the cost of extra storage and slower writes",
         "Making rows come back in insertion order",
         "Guaranteeing that a column is never NULL",
-        "Compressing the table to save disk space",
+        "Compressing the table to save disk space, so that each sequential scan reads fewer pages and finishes much faster",
       ],
       answer: [0],
       explanation: "Like the index at the back of a book, it trades space and upkeep (every write must update it) for much faster lookups.",
@@ -484,7 +486,7 @@ export default defineDomain({
         "Actually runs the query and reports real row counts and timings next to the estimates",
         "Suggests which indexes to create",
         "Rewrites the query into a faster form",
-        "Shows the plan without running anything",
+        "Shows the plan the optimizer would choose, with its cost estimates, without running the query at all",
       ],
       answer: [0],
       explanation:
@@ -500,7 +502,7 @@ export default defineDomain({
         "Fetching almost every row through the index costs more than one sequential pass over the table",
         "Indexes can't be used on text columns",
         "The index is corrupt and needs REINDEX",
-        "The planner never uses an index with an equality condition",
+        "The planner never uses an index when the query has an equality condition on its column",
       ],
       answer: [0],
       explanation:
@@ -521,7 +523,7 @@ export default defineDomain({
       options: [
         "Keyset pagination: `WHERE (created_at, id) < ($1, $2)` using the last row of the previous page, with an index on `(created_at, id)`",
         "Raise the LIMIT so users need fewer pages",
-        "Drop the `id DESC` tiebreaker to simplify the sort",
+        "Drop the `id DESC` tiebreaker to simplify the sort, and raise `work_mem` so the larger OFFSET values are sorted in memory instead of on disk",
         "Run `VACUUM` before each page",
       ],
       answer: [0],
@@ -537,7 +539,7 @@ export default defineDomain({
       options: [
         "It builds the index without blocking inserts, updates and deletes (it's slower, can't run inside a transaction block, and can leave an INVALID index if it fails)",
         "It builds the index using several CPU cores, which is faster",
-        "It lets two indexes on the same column be built at the same time",
+        "It lets two indexes on the same column be built at the same time in parallel, which halves the total build time, and it can run safely inside a transaction block",
         "It's required for every index on tables over a million rows",
       ],
       answer: [0],
@@ -585,7 +587,7 @@ export default defineDomain({
       prompt: "At PostgreSQL's default isolation level, a transaction runs the same SELECT twice, and another transaction commits a change to those rows in between. What does the second SELECT see?",
       options: [
         "The committed change: READ COMMITTED takes a fresh snapshot for each statement",
-        "The original data: a transaction always sees one snapshot",
+        "The original data, since a transaction always sees just one snapshot",
         "An error: the rows changed during the transaction",
         "The change, even if it had not been committed yet",
       ],
@@ -670,7 +672,7 @@ export default defineDomain({
       prompt: "You need `orders.region` to be NOT NULL on a 500-million-row PostgreSQL table without blocking writes for the length of a full scan. What's the best approach?",
       options: [
         "Add `CHECK (region IS NOT NULL) NOT VALID`, run `VALIDATE CONSTRAINT` (which doesn't block writes), then `SET NOT NULL`, which uses the validated check to skip its own scan",
-        "Run `ALTER TABLE orders ALTER COLUMN region SET NOT NULL` at peak hours so it finishes quickly",
+        "Run `ALTER TABLE orders ALTER COLUMN region SET NOT NULL` at peak hours so it finishes quickly, since PostgreSQL skips the full table scan whenever the table has an index on that column",
         "Add a trigger that converts NULLs to empty strings",
         "Dump the table, edit the file, and reload it",
       ],
@@ -703,7 +705,7 @@ export default defineDomain({
       options: [
         "The app connects as the table's owner, and owners bypass RLS unless the table uses `FORCE ROW LEVEL SECURITY`",
         "Policies only apply to INSERT, not SELECT",
-        "RLS requires the SERIALIZABLE isolation level",
+        "RLS requires the SERIALIZABLE isolation level, and the app's connections use the default READ COMMITTED level",
         "current_setting can't be used in a policy",
       ],
       answer: [0],
@@ -718,7 +720,7 @@ export default defineDomain({
       prompt: "Analysts' heavy queries over two years of orders slow down the production PostgreSQL that also serves checkout. What's the best long-term fix?",
       options: [
         "Move analytics off the primary: a read replica in the short term, and a columnar warehouse fed by CDC or ETL as reporting grows",
-        "Give analysts their own indexes on the production tables",
+        "Give analysts their own indexes on the production tables, and run their reports at night so the extra index writes don't slow daytime traffic",
         "Run checkout at SERIALIZABLE so it gets priority",
         "Limit analysts to queries without joins",
       ],
@@ -753,7 +755,7 @@ export default defineDomain({
         "Renaming a column that the old version still queries",
         "Adding a new nullable column",
         "Adding a new table",
-        "Creating an index concurrently",
+        "Creating a brand new index on it concurrently",
       ],
       answer: [0],
       explanation:
@@ -768,7 +770,7 @@ export default defineDomain({
       options: [
         "It's a quick metadata change: existing rows report 'web' without the table being rewritten",
         "It rewrites all 200 million rows while blocking reads and writes",
-        "It fails: you can't add a column with a default to a non-empty table",
+        "It fails: you can't add a column with a default value to a table that has rows",
         "Existing rows get NULL; only new rows get 'web'",
       ],
       answer: [0],

@@ -103,6 +103,7 @@ export default defineDomain({
       level: "junior",
       task: "2.1",
       title: "Four kinds of stream",
+      sources: [{ title: "Node.js docs: Stream", url: "https://nodejs.org/api/stream.html", license: "Official docs (link only)" }],
       check: ["d2-02", "d2-01"],
       visual: (
         <div className="grid gap-4">
@@ -145,6 +146,7 @@ export default defineDomain({
         "Readable streams start out paused. Adding a `'data'` listener or calling `pipe()` switches them to flowing mode.",
         "`pipeline()` connects streams and handles backpressure for you. It also passes on the first error and destroys every stream if something fails.",
         "Readable streams work with `for await (const chunk of stream)`. That reads chunks only as fast as your loop body finishes.",
+        "A stream that fails emits an `'error'` event. If no listener handles it, the process crashes. `.pipe()` doesn't forward errors; `stream.pipeline()` does and cleans up all streams.",
       ],
       tip: "If you're asked how you'd process a 10 GB file, say streams with `pipeline()`. Then mention that memory stays constant and backpressure is handled.",
     },
@@ -244,7 +246,7 @@ export default defineDomain({
       options: [
         "A stream hands you the file in small chunks, so memory use stays low and you can start work right away",
         "A stream makes the file smaller on disk",
-        "A stream is the only way to open a file in Node",
+        "A stream is the only way to open a file in Node, since `readFile` was removed from the `fs` module years ago",
         "A stream reads the file twice to check it",
       ],
       answer: [0],
@@ -293,7 +295,7 @@ export default defineDomain({
         "It runs every function that was registered with `emitter.on('done', ...)`",
         "It deletes the emitter",
         "It prints the word done to the terminal",
-        "It waits until something called done happens",
+        "It waits until something called done happens, and then it returns",
       ],
       answer: [0],
       explanation:
@@ -336,7 +338,7 @@ export default defineDomain({
       prompt: "Why stream a 5 GB log file instead of using `fs.readFile`?",
       options: [
         "Streaming handles it chunk by chunk with roughly constant memory, while readFile tries to load all 5 GB at once",
-        "readFile is synchronous and streams are asynchronous",
+        "readFile is synchronous and blocks the event loop, while streams are asynchronous and run on a background thread",
         "Streams compress the file automatically",
         "readFile can't read text files",
       ],
@@ -372,7 +374,7 @@ export default defineDomain({
       prompt: "What does it mean when `writable.write(chunk)` returns `false`?",
       options: [
         "The internal buffer has reached highWaterMark, so stop writing until the `'drain'` event",
-        "The chunk was dropped and must be written again",
+        "The chunk was dropped and must be written again later, once the stream has finished flushing to disk",
         "The stream has closed",
         "The chunk was written to disk synchronously",
       ],
@@ -405,7 +407,7 @@ export default defineDomain({
       codeLang: "js",
       options: [
         "The read stream emits an `'error'` that nobody listens to, so the process crashes, and `.pipe()` neither passes it on nor cleans up the other streams",
-        "`.pipe()` catches the error and closes all three streams",
+        "`.pipe()` catches the read stream's error and closes all three streams for you, then emits `'error'` on the last stream so one listener at the end is enough to handle it",
         "An empty `out.gz` is written and the error is ignored",
         "The error goes to the gzip stream's `'error'` handler",
       ],
@@ -466,7 +468,7 @@ export default defineDomain({
         "Its memory isn't zeroed, so until you overwrite every byte it may hold old data, such as secrets from earlier requests",
         "It allocates outside the process, where other programs can read it",
         "It can't be garbage collected",
-        "It turns off bounds checking, so writes past the end corrupt memory",
+        "It turns off bounds checking for speed, so any writes past the end of the buffer corrupt other memory in the whole process",
       ],
       answer: [0],
       explanation:
@@ -595,7 +597,7 @@ export default defineDomain({
       codeLang: "js",
       options: [
         "Register the `'tick'` listener once at startup instead of on every request",
-        "Call `priceFeed.setMaxListeners(0)` to silence the warning",
+        "Call `priceFeed.setMaxListeners(0)` to silence the leak warning",
         "Change `on` to `prependListener`",
         "Wrap the handler in `try/catch`",
       ],
@@ -619,7 +621,7 @@ export default defineDomain({
       codeLang: "js",
       options: [
         "Reading pauses while each insert runs, so memory stays bounded, because async iteration applies backpressure",
-        "The whole file is read into memory first, then inserted chunk by chunk",
+        "The whole file is read into memory first, and then inserted into the table chunk by chunk.",
         "Inserts run in parallel, one per chunk, as fast as the disk can read",
         "It throws, because streams can't be used with for await",
       ],
@@ -647,7 +649,7 @@ export default defineDomain({
       options: [
         "Pipe the request into the upload with `pipeline()`, so a slow destination pauses reading from the client",
         "Raise the heap limit and add more pods",
-        "Hold each upload fully in memory, then send it in one request",
+        "Hold each upload fully in memory, then send it to storage in one request, so a slow destination can't affect the client",
         "Add retries with exponential backoff to the upload call",
       ],
       answer: [0],
@@ -670,7 +672,7 @@ export default defineDomain({
       options: [
         "Stream it: a read stream, then a CSV-parsing Transform, then batches of rows, then a Writable that inserts each batch, all inside `pipeline()`",
         "Keep it, but start Node with a 16 GB heap",
-        "Read it with `readFileSync` instead, because it's faster",
+        "Read it with `readFileSync` instead, because it's faster than streaming, then split the text on newlines and insert every row in one large transaction at the end",
         "Insert every row in parallel with `Promise.all`",
       ],
       answer: [0],
@@ -687,7 +689,7 @@ export default defineDomain({
       options: [
         "EventEmitter events live in one process's memory with no durability or retries, so use a durable queue or broker (for example with an outbox table)",
         "EventEmitter has a 10-listener limit, so raise it with setMaxListeners",
-        "Events are asynchronous and arrive out of order, so add sequence numbers",
+        "Events are asynchronous and arrive out of order across listeners, so add sequence numbers and have each listener sort the events it receives before handling them",
         "The replicas share one EventEmitter, so each event is handled 6 times",
       ],
       answer: [0],
@@ -703,7 +705,7 @@ export default defineDomain({
       options: [
         "A fixed-length sequence of raw bytes, and a subclass of `Uint8Array`",
         "A growable array of strings",
-        "A queue that streams use to store events",
+        "A queue that streams use to store events until a listener is attached",
         "A cache for HTTP responses",
       ],
       answer: [0],
@@ -733,7 +735,7 @@ export default defineDomain({
       prompt: "A WebSocket service sends every price update to 50,000 clients. A few slow mobile clients make memory balloon. What policy fixes it?",
       options: [
         "Limit each client's send buffer: when it's over the limit, drop or merge updates for that client, or disconnect it",
-        "Wait for every client to confirm before sending the next update to anyone",
+        "Wait for every client to confirm the last update before sending the next one out to anyone at all",
         "Raise the heap limit so slow clients can catch up",
         "Send updates to slow clients from a worker thread",
       ],

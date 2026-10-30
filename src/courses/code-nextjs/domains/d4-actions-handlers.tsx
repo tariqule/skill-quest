@@ -380,7 +380,7 @@ export function Form() {
       options: [
         "Return it as a value, e.g. `{ message }`, and render it from `useActionState`'s state",
         "Throw an `Error` so `error.tsx` shows it",
-        "Log it with `console.error` on the server",
+        "Log it with `console.error` on the server and let the form show the default error page",
         "Call `redirect(\"/error\")`",
       ],
       answer: [0],
@@ -524,7 +524,7 @@ export async function GET() {
       prompt: "In Next.js 16, what replaced `middleware.ts`?",
       options: [
         "`proxy.ts`, exporting a `proxy` function; the functionality is the same",
-        "`edge.ts`, running only on the Edge runtime",
+        "`edge.ts`, exporting an `edge` function that runs only on the Edge runtime",
         "`app/middleware/route.ts`",
         "Nothing: request interception was removed",
       ],
@@ -559,7 +559,7 @@ export const config = { matcher: "/dashboard/:path*" }`,
       prompt: "Which use of `proxy.ts` goes against the Next.js guidance?",
       options: [
         "Querying the database for the user's full profile and permissions on every request",
-        "Redirecting to `/login` when no session cookie is present",
+        "Redirecting to `/login` whenever no session cookie is present at all.",
         "Rewriting to a variant page for an A/B test",
         "Adding a security header to responses",
       ],
@@ -593,7 +593,7 @@ export function Avatar() {
       codeLang: "tsx",
       options: [
         "`width` and `height` (or `fill`): Next.js can't read a remote image's size at build time",
-        "A `\"use client\"` directive",
+        "A `\"use client\"` directive at the top of the file, because `next/image` only works in the browser",
         "The `preload` prop",
         "A `loader` function",
       ],
@@ -606,7 +606,7 @@ export function Avatar() {
       domain: "d4",
       lesson: "d4-polish",
       prompt: "Which `<Image>` prop is deprecated starting with Next.js 16?",
-      options: ["`priority` (replaced by `preload`)", "`fill`", "`sizes`", "`placeholder`"],
+      options: ["`priority` (replaced by `preload`)", "`fill`", "`sizes`", "`placeholder` (replaced by `loading`)"],
       answer: [0],
       explanation: "`priority` was deprecated in favour of `preload` to make the behaviour clearer. The docs suggest `loading=\"eager\"` or `fetchPriority=\"high\"` in most cases, keeping `preload` for a single known LCP image.",
     },
@@ -651,7 +651,7 @@ export default function Page() {
       prompt: "What does `next/font/google` do?",
       options: [
         "Downloads the font at build time and self-hosts it, so browsers make no requests to Google",
-        "Adds a `<link>` to Google Fonts in the document head",
+        "Adds a `<link>` tag for Google Fonts in the document head of every page that uses the font",
         "Loads the font lazily after hydration",
         "Converts the font into an SVG sprite",
       ],
@@ -686,7 +686,7 @@ export default async function Page() {
       options: [
         "Server Actions for the web UI, Route Handlers for the public API, both calling one shared server-only data layer",
         "Only Server Actions, and give partners the action IDs",
-        "Only Route Handlers, and have the web forms `fetch` them from Client Components",
+        "Only Route Handlers, and have all of the web forms `fetch` them from Client Components as well",
         "Put the business logic in `proxy.ts` so every client hits it",
       ],
       answer: [0],
@@ -700,7 +700,7 @@ export default async function Page() {
       prompt: "You self-host on several instances behind a load balancer. What must be identical on every instance so Server Actions work no matter which instance handles the request?",
       options: [
         "`NEXT_SERVER_ACTIONS_ENCRYPTION_KEY`, a stable key used to encrypt action references and closure variables",
-        "`NEXT_PUBLIC_ACTIONS_KEY`, exposed to the browser",
+        "`NEXT_PUBLIC_ACTIONS_KEY`, exposed to the browser so that each client can sign its own Server Action calls",
         "The `runtime` export in `proxy.ts`",
         "A `cacheLife` profile named `actions`",
       ],

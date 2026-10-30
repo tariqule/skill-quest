@@ -1,5 +1,6 @@
 "use client";
 
+import { secondsFor } from "@/engine/timing";
 import { useEffect, useRef, useState } from "react";
 import { useCourse } from "@/engine/course-context";
 import { isCorrect, pct, type PreparedQuestion } from "@/engine/game";
@@ -34,13 +35,15 @@ export function TimedQuiz({ questions, secondsPerQuestion, passShare, xpPerCorre
   const [idx, setIdx] = useState(0);
   const [submitted, setSubmitted] = useState<number[] | null>(null);
   const [verdict, setVerdict] = useState<"correct" | "wrong" | "timeout" | null>(null);
-  const [left, setLeft] = useState(secondsPerQuestion);
+  const limitOf = (i: number) => (questions[i] ? secondsFor(questions[i], secondsPerQuestion) : secondsPerQuestion);
+  const [left, setLeft] = useState(() => limitOf(0));
   const [correctSoFar, setCorrectSoFar] = useState(0);
   // Read in timers and handlers only; `correctSoFar` mirrors it for rendering.
   const results = useRef<boolean[]>([]);
   const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const q = questions[idx];
+  const limit = limitOf(idx);
 
   function advance() {
     if (idx + 1 >= questions.length) {
@@ -56,7 +59,7 @@ export function TimedQuiz({ questions, secondsPerQuestion, passShare, xpPerCorre
     setIdx(idx + 1);
     setSubmitted(null);
     setVerdict(null);
-    setLeft(secondsPerQuestion);
+    setLeft(limitOf(idx + 1));
   }
 
   function settle(ok: boolean, kind: "correct" | "wrong" | "timeout") {
@@ -82,7 +85,7 @@ export function TimedQuiz({ questions, secondsPerQuestion, passShare, xpPerCorre
   });
   useEffect(() => {
     if (verdict) return;
-    const deadline = Date.now() + secondsPerQuestion * 1000;
+    const deadline = Date.now() + limit * 1000;
     const t = setInterval(() => {
       const remaining = Math.max(0, (deadline - Date.now()) / 1000);
       setLeft(remaining);
@@ -92,7 +95,7 @@ export function TimedQuiz({ questions, secondsPerQuestion, passShare, xpPerCorre
       }
     }, 100);
     return () => clearInterval(t);
-  }, [idx, verdict, secondsPerQuestion]);
+  }, [idx, verdict, limit]);
 
   useEffect(() => () => {
     if (advanceTimer.current) clearTimeout(advanceTimer.current);
@@ -114,7 +117,7 @@ export function TimedQuiz({ questions, secondsPerQuestion, passShare, xpPerCorre
               strokeWidth="3"
               strokeLinecap="round"
               strokeDasharray="97.4"
-              strokeDashoffset={(97.4 * (1 - left / secondsPerQuestion)).toFixed(2)}
+              strokeDashoffset={(97.4 * (1 - left / limit)).toFixed(2)}
             />
           </svg>
           <span className={`font-mono text-lg font-black ${urgent ? "text-rose-300" : "text-white"}`}>{Math.ceil(left)}</span>

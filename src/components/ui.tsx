@@ -20,8 +20,8 @@ export function Stars({ count, size = "text-xl" }: { count: number; size?: strin
   return (
     <span className={size} aria-label={`${count} of 3 stars`}>
       {[0, 1, 2].map((i) => (
-        <span key={i} className={i < count ? "" : "opacity-20 grayscale"}>
-          ⭐
+        <span key={i} aria-hidden className={i < count ? "" : "text-slate-600"}>
+          {i < count ? "⭐" : "☆"}
         </span>
       ))}
     </span>

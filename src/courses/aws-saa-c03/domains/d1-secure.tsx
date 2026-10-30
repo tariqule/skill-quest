@@ -138,6 +138,7 @@ export default defineDomain({
       task: "1.1",
       title: "IAM, least privilege, and the shared responsibility model",
       check: ["d1-01", "d1-04"],
+      sources: [{ title: "IAM: Security best practices (least privilege)", url: "https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html", license: "AWS docs, facts only" }],
       visual: (
         <div className="grid gap-4">
           <Tiles
@@ -171,6 +172,7 @@ export default defineDomain({
         "Give workloads roles, never access keys. An EC2 instance profile or a Lambda execution role hands out short-lived credentials automatically.",
         "A **permissions boundary** caps what an identity-based policy can grant. That lets developers create roles without giving themselves more power than you intended.",
         "The more managed the service, the more AWS handles. You patch the operating system on EC2, but not on Lambda or RDS.",
+        "Least privilege in practice: a Lambda function that only writes to one DynamoDB table gets an execution role allowing just dynamodb:PutItem on that table's ARN.",
       ],
       tip: "If an app on EC2 needs to read S3, the answer is an IAM role attached through an instance profile. Any answer that stores access keys on the instance is wrong.",
     },
@@ -179,6 +181,7 @@ export default defineDomain({
       task: "1.1",
       title: "Multi-account strategy, federation, and cross-account roles",
       check: ["d1-10", "d1-13"],
+      sources: [{ title: "AWS Organizations: Service control policies", url: "https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html", license: "AWS docs, facts only" }],
       visual: (
         <div className="grid gap-4">
           <Layers
@@ -205,6 +208,7 @@ export default defineDomain({
         "Sign staff in through **IAM Identity Center**, or SAML 2.0 into IAM roles, instead of creating IAM users in every account. This is called **federation**.",
         "A resource-based policy on an S3 bucket, KMS key, SQS queue or Lambda function can give another account access directly, with no role to assume.",
         "**AWS RAM** (Resource Access Manager) shares resources such as subnets and Transit Gateways with other accounts in the organization.",
+        "An SCP can also protect logging: deny cloudtrail:StopLogging and cloudtrail:DeleteTrail at the organization root, and no one in a member account, not even its root user, can switch AWS CloudTrail off.",
       ],
       tip: "If the question says no account in the organization may do something, not even its administrators, use an SCP. An SCP on its own never answers a question about granting access.",
     },
@@ -213,6 +217,7 @@ export default defineDomain({
       task: "1.2",
       title: "VPC design: subnets, routes, security groups, and NACLs",
       check: ["d1-19", "d1-22"],
+      sources: [{ title: "Amazon VPC: Infrastructure security (security groups and network ACLs)", url: "https://docs.aws.amazon.com/vpc/latest/userguide/infrastructure-security.html", license: "AWS docs, facts only" }],
       visual: (
         <div className="grid gap-6">
           <VpcBuilderLab />
@@ -225,6 +230,7 @@ export default defineDomain({
         "A **security group** is a stateful allow-list on each network interface. You can chain them: the database group allows port 3306 only from the app tier's group.",
         "A **network ACL** is a stateless filter on a subnet, with numbered allow and deny rules. Use it to block specific IP ranges, and remember to allow the ephemeral ports that replies come back on.",
         "Use at least two AZs, with a public and a private subnet in each. Pick IP ranges (CIDR blocks) that won't clash with networks you'll connect later.",
+        "For shell access without open SSH ports or bastion hosts, use **AWS Systems Manager Session Manager**. The instance needs the SSM Agent and an instance role that allows Systems Manager.",
       ],
       tip: "To block one malicious IP address, use a network ACL deny rule, because security groups can't deny. To let only the web tier reach the database, have one security group reference the other.",
     },
@@ -306,6 +312,7 @@ export default defineDomain({
       task: "1.3",
       title: "Encryption and key management: KMS, CloudHSM, and ACM",
       check: ["d1-44", "d1-47"],
+      sources: [{ title: "AWS Certificate Manager: Supported Regions", url: "https://docs.aws.amazon.com/acm/latest/userguide/acm-regions.html", license: "AWS docs, facts only" }],
       visual: (
         <div className="grid gap-4">
           <Flow
@@ -334,6 +341,8 @@ export default defineDomain({
         "Turn on automatic rotation for customer managed keys. It's yearly by default, and the old key material is kept, so existing data still decrypts.",
         "Encrypt data in transit with TLS. Put ACM certificates on the load balancer or CloudFront, and add a bucket policy that denies requests where aws:SecureTransport is false.",
         "For CloudFront, request the ACM certificate in us-east-1 (N. Virginia). Certificates you import yourself don't renew automatically.",
+        "Certificates for CloudFront must come from AWS Certificate Manager in the US East (N. Virginia) Region (us-east-1). Public ACM certificates are free and renew automatically when you use DNS validation.",
+        "You can't switch on encryption at rest for an existing unencrypted RDS instance. Take a snapshot, copy it with encryption enabled, and restore a new instance from the encrypted copy.",
       ],
       tip: "If the customer needs sole control of the HSM, or strict single-tenant key storage, choose CloudHSM. If they need to audit every key use and write detailed key policies, choose SSE-KMS with a customer managed key.",
     },
@@ -342,6 +351,7 @@ export default defineDomain({
       task: "1.3",
       title: "Data protection: backups, replication, retention, and compliance",
       check: ["d1-52", "d1-55"],
+      sources: [{ title: "Amazon RDS: Encrypting Amazon RDS resources", url: "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.Encryption.html", license: "AWS docs, facts only" }],
       visual: (
         <div className="grid gap-4">
           <Tiles
@@ -362,6 +372,7 @@ export default defineDomain({
         "Turning on **S3 Block Public Access** for the whole account stops buckets from being made public by accident. Bucket policies and access points control everything else.",
         "**MFA Delete** asks for MFA before anyone can permanently delete an object version or change the versioning setting.",
         "CloudTrail records API calls. Sending an organization trail to a locked-down log-archive account keeps the audit record safe from tampering.",
+        "To prove resources stayed compliant over time and flag drift, use **AWS Config** with managed rules (for example, encrypted EBS volumes or S3 bucket encryption). It keeps a history of each resource's configuration.",
       ],
       tip: "If records must not be changed or deleted for 7 years, by anyone, use S3 Object Lock in compliance mode. For backups, the matching tool is Backup Vault Lock.",
     },
@@ -388,7 +399,7 @@ export default defineDomain({
       options: [
         "A role's permissions are borrowed for a short time, using temporary credentials",
         "A role has a permanent password",
-        "A role can only be used by the root user",
+        "A role can only be used by the root user, who signs in with the role's own password",
         "A role has no permissions at all",
       ],
       answer: [0],
@@ -400,7 +411,7 @@ export default defineDomain({
       lesson: "d1-start-private-network",
       level: "beginner",
       prompt: "What is an Amazon VPC?",
-      options: ["Your own private network inside AWS", "A type of database", "A video streaming service", "A billing report"],
+      options: ["Your own private network inside AWS", "A type of database", "A video streaming service on AWS", "A billing report"],
       answer: [0],
       explanation: "A VPC (virtual private cloud) is a private network that belongs to you. You decide which parts face the internet and which stay hidden.",
     },
@@ -410,7 +421,7 @@ export default defineDomain({
       lesson: "d1-start-private-network",
       level: "beginner",
       prompt: "Where should a company's customer database usually go?",
-      options: ["In a private subnet, out of direct reach of the internet", "In a public subnet, so anyone can reach it", "On a laptop", "In an email attachment"],
+      options: ["In a private subnet, out of direct reach of the internet", "In a public subnet, so anyone online can reach it", "On a laptop", "In an email attachment"],
       answer: [0],
       explanation: "A database holds valuable data, so keep it in a private subnet, like a back office that visitors can't walk into. Only the parts that must face the internet belong in public subnets.",
     },
@@ -503,7 +514,7 @@ export default defineDomain({
       lesson: "d1-iam",
       prompt:
         "A company runs a self-managed database on Amazon EC2 and another workload on Amazon RDS. Under the shared responsibility model, which task is the company's responsibility for the EC2-hosted database but AWS's responsibility for the RDS database?",
-      options: ["Patching the database engine and operating system", "Configuring security groups", "Encrypting the data", "Managing database user accounts"],
+      options: ["Patching the database engine and operating system", "Configuring security groups", "Encrypting the data", "Managing the database user accounts and their passwords"],
       answer: [0],
       explanation:
         "On EC2 you manage the guest OS and software. On RDS, AWS patches the OS and engine during maintenance windows. Security groups, encryption choices, and database users remain your job in both cases.",
@@ -518,7 +529,7 @@ export default defineDomain({
         "Add a condition on aws:MultiFactorAuthPresent to the policy statement that allows ec2:TerminateInstances",
         "Enable MFA on the root user",
         "Use an SCP that allows ec2:TerminateInstances",
-        "Enable termination protection on every instance",
+        "Enable termination protection on every instance, and remove it by hand whenever an administrator needs to terminate one",
       ],
       answer: [0],
       explanation: "IAM condition keys such as aws:MultiFactorAuthPresent let you require MFA for specific sensitive actions.",
@@ -531,7 +542,7 @@ export default defineDomain({
         "A company has 40 developers who need identical permissions. New developers join every month. Which approach is easiest to manage while still following least privilege?",
       options: [
         "Create an IAM group with a policy scoped to the developers' tasks and add each developer to the group",
-        "Attach the same inline policy to each user individually",
+        "Attach the same inline policy to each developer individually, and copy it to every new developer's user when they join the team",
         "Give every developer the PowerUserAccess policy",
         "Create one IAM user that all developers share",
       ],
@@ -577,7 +588,7 @@ export default defineDomain({
         "A company uses AWS Organizations. The security team must ensure that no one in any member account, including account administrators and root users, can disable AWS CloudTrail. What should a solutions architect use?",
       options: [
         "A service control policy that denies cloudtrail:StopLogging and cloudtrail:DeleteTrail, attached to the root of the organization",
-        "An IAM policy in each account that denies the CloudTrail actions",
+        "An IAM policy in each member account that denies the CloudTrail actions, attached to every user and role by the account administrators",
         "A CloudTrail trail with log file validation enabled",
         "AWS Config rules that detect disabled trails",
       ],
@@ -620,7 +631,7 @@ export default defineDomain({
         "A company with 30 AWS accounts wants employees to sign in once with their existing corporate identity provider and reach the accounts they need with role-based permissions. Which solution meets this requirement with the LEAST operational overhead?",
       options: [
         "AWS IAM Identity Center connected to the corporate identity provider, with permission sets assigned to groups",
-        "IAM users with identical passwords in every account",
+        "IAM users with identical passwords in every account, with each user's access managed by hand by the security team",
         "Amazon Cognito user pools in each account",
         "A shared IAM user per department",
       ],
@@ -635,7 +646,7 @@ export default defineDomain({
         "An SCP attached to an OU allows only Amazon EC2 and Amazon S3 actions. A user in an account in that OU has an IAM policy that allows dynamodb:*. What can the user do with DynamoDB?",
       options: [
         "Nothing: the SCP sets the maximum permissions, and DynamoDB isn't inside it",
-        "Everything, because the IAM policy explicitly allows it",
+        "Everything, because the IAM policy explicitly allows all actions",
         "Only read operations",
         "Everything, because SCPs apply only to the root user",
       ],
@@ -679,7 +690,7 @@ export default defineDomain({
         "Add a bucket policy in account A that allows s3:GetObject to the application's role in account B, and allow the same in that role's identity policy",
         "Make the bucket public",
         "Copy the objects to account B every hour with a script",
-        "Create an IAM user in account A and give its keys to account B",
+        "Create an IAM user in account A and give its long-term access keys to account B, then store them in the application's configuration file in that account",
       ],
       answer: [0],
       explanation: "A resource-based bucket policy can grant another account's principal access directly. For cross-account access, the principal's own account must also allow the action.",
@@ -710,7 +721,7 @@ export default defineDomain({
       options: [
         "Place a NAT gateway in a public subnet and add a 0.0.0.0/0 route to it in the private subnet's route table",
         "Attach an internet gateway and assign public IP addresses to the servers",
-        "Add a 0.0.0.0/0 route to the internet gateway in the private subnet's route table",
+        "Add a 0.0.0.0/0 route to the internet gateway directly in the private subnet's own route table",
         "Create an S3 gateway endpoint",
       ],
       answer: [0],
@@ -754,7 +765,7 @@ export default defineDomain({
         "A web application behind an Application Load Balancer is receiving malicious traffic from a small set of IP addresses. The security team wants to block those addresses at the subnet level immediately. What should the architect do?",
       options: [
         "Add inbound deny rules for the addresses to the network ACL of the load balancer's subnets",
-        "Add deny rules to the load balancer's security group",
+        "Add deny rules for the addresses to the load balancer's security group, then reload the listener",
         "Remove the internet gateway",
         "Move the load balancer to a private subnet",
       ],
@@ -770,7 +781,7 @@ export default defineDomain({
       options: [
         "Public and private subnets in at least two Availability Zones, with the load balancer in the public subnets and instances in the private subnets",
         "One public subnet in one Availability Zone for all resources",
-        "Private subnets only, with instances that have public IP addresses",
+        "Private subnets only, all in a single Availability Zone, with instances that have public IP addresses and the load balancer placed in those same subnets",
         "One subnet that spans all Availability Zones",
       ],
       answer: [0],
@@ -786,7 +797,7 @@ export default defineDomain({
         "The network ACL doesn't allow outbound traffic to the clients' ephemeral ports (1024–65535)",
         "Security groups block return traffic",
         "The internet gateway only supports HTTP",
-        "Network ACLs must allow port 22 for HTTPS to work",
+        "Network ACLs must allow inbound port 22 for HTTPS responses to work, even though the security group allows 443",
       ],
       answer: [0],
       explanation: "NACLs are stateless. The server's responses go to the client's ephemeral port, so the outbound rules must allow that range.",
@@ -839,7 +850,7 @@ export default defineDomain({
       lesson: "d1-edge-protection",
       prompt:
         "A public web application behind Amazon CloudFront and an Application Load Balancer is being targeted by SQL injection and cross-site scripting attempts. Which service should the architect use to block these requests?",
-      options: ["AWS WAF with managed rule groups", "AWS Shield Standard", "Amazon GuardDuty", "Network ACLs"],
+      options: ["AWS WAF with managed rule groups", "AWS Shield Standard on the distribution", "Amazon GuardDuty", "Network ACLs"],
       answer: [0],
       explanation: "SQL injection and XSS are layer 7 attacks. AWS WAF inspects HTTP requests and blocks them with managed or custom rules.",
     },
@@ -871,7 +882,7 @@ export default defineDomain({
         "An application stores its Amazon RDS database password in a configuration file. The company wants the password stored securely and rotated automatically every 30 days without application downtime. What should the architect use?",
       options: [
         "AWS Secrets Manager with automatic rotation, and have the application retrieve the secret at runtime",
-        "An encrypted environment variable on the EC2 instances",
+        "An encrypted environment variable on the EC2 instances, updated by hand on each instance when the password changes",
         "AWS Systems Manager Parameter Store String parameter",
         "An S3 object encrypted with SSE-S3",
       ],
@@ -888,7 +899,7 @@ export default defineDomain({
         "An Amazon Cognito user pool for sign-in, plus a Cognito identity pool that exchanges tokens for temporary AWS credentials",
         "One IAM user per customer",
         "AWS IAM Identity Center",
-        "An API key embedded in the app",
+        "An API key embedded in the app, plus an IAM user whose long-term access keys are shipped inside the mobile app bundle for uploads",
       ],
       answer: [0],
       explanation: "Cognito user pools handle customer sign-in, including social logins. Identity pools hand out limited, temporary AWS credentials. IAM Identity Center is for the workforce.",
@@ -944,7 +955,7 @@ export default defineDomain({
       lesson: "d1-connectivity",
       prompt:
         "EC2 instances in a private subnet with no NAT gateway must read and write objects in Amazon S3. Traffic must not traverse the internet, and the company wants the lowest cost. What should the architect configure?",
-      options: ["An S3 gateway VPC endpoint added to the private subnet's route table", "An interface VPC endpoint for S3 in every subnet", "A NAT gateway", "An internet gateway and public IPs"],
+      options: ["An S3 gateway VPC endpoint added to the private subnet's route table", "An interface VPC endpoint for S3 created in each of the subnets", "A NAT gateway", "An internet gateway and public IPs"],
       answer: [0],
       explanation: "Gateway endpoints for S3 and DynamoDB are route-table targets with no additional charge. Interface endpoints also work but cost hourly and per GB.",
     },
@@ -956,7 +967,7 @@ export default defineDomain({
         "An S3 bucket must be accessible only from a specific VPC endpoint, even for principals whose IAM policies would otherwise allow access. How can this be enforced?",
       options: [
         "A bucket policy that denies access unless aws:SourceVpce equals the endpoint ID",
-        "A security group on the bucket",
+        "A security group on the bucket that only allows traffic from the VPC endpoint's ID",
         "A network ACL on the bucket",
         "S3 Block Public Access",
       ],
@@ -1079,7 +1090,7 @@ export default defineDomain({
       options: [
         "Enable automatic key rotation on the customer managed keys",
         "Delete and recreate the keys every year",
-        "Export the key material and rotate it manually",
+        "Export the key material and rotate it by hand yearly",
         "Switch to SSE-C",
       ],
       answer: [0],
@@ -1093,7 +1104,7 @@ export default defineDomain({
         "A team uses a custom domain on Amazon CloudFront. It wants a free public TLS certificate that renews automatically. Which approach is correct?",
       options: [
         "Request a public certificate in AWS Certificate Manager in the US East (N. Virginia) Region with DNS validation",
-        "Request the certificate in ACM in the same Region as the S3 origin",
+        "Request the certificate in ACM in the same Region as the S3 origin bucket, then attach it to the distribution with email validation",
         "Import a self-signed certificate into IAM",
         "Store the certificate in Secrets Manager",
       ],
@@ -1108,7 +1119,7 @@ export default defineDomain({
         "An existing unencrypted Amazon RDS DB instance must be encrypted at rest. What is the correct approach?",
       options: [
         "Take a snapshot, copy it with encryption enabled, and restore a new DB instance from the encrypted copy",
-        "Enable encryption on the running instance from the console",
+        "Enable encryption on the running DB instance from the console, which encrypts the existing storage in place",
         "Enable encryption on the read replica and promote it",
         "Turn on SSE-S3 for the RDS storage",
       ],
@@ -1142,7 +1153,7 @@ export default defineDomain({
         "Enable S3 Object Lock in compliance mode with a 7-year retention period",
         "Enable S3 Object Lock in governance mode",
         "Enable versioning and MFA Delete only",
-        "Use a bucket policy that denies s3:DeleteObject",
+        "Use a bucket policy that denies s3:DeleteObject to every principal in the account",
       ],
       answer: [0],
       explanation: "In compliance mode no user, including root, can delete a locked version or shorten its retention. Governance mode can be bypassed with special permission, and bucket policies can be edited.",
@@ -1156,7 +1167,7 @@ export default defineDomain({
       options: [
         "S3 Cross-Region Replication with S3 Replication Time Control, with versioning enabled on both buckets",
         "S3 Transfer Acceleration",
-        "A nightly AWS DataSync task",
+        "A nightly AWS DataSync task that copies every new and changed object from the source bucket to the bucket in the second Region",
         "An S3 Lifecycle rule",
       ],
       answer: [0],
@@ -1180,7 +1191,7 @@ export default defineDomain({
         "A security team discovered that a developer accidentally made an S3 bucket public. The company wants to make sure no bucket in the account can ever be made public. What should the architect do?",
       options: [
         "Turn on S3 Block Public Access at the account level",
-        "Enable default encryption on every bucket",
+        "Enable default encryption on all S3 buckets",
         "Enable versioning on every bucket",
         "Enable S3 Transfer Acceleration",
       ],
@@ -1193,7 +1204,7 @@ export default defineDomain({
       lesson: "d1-data-protection",
       prompt:
         "An auditor asks the company to prove that every S3 bucket and EBS volume has stayed encrypted over the last year and to flag any resource that becomes non-compliant. Which service should the architect use?",
-      options: ["AWS Config with managed rules", "AWS Artifact", "Amazon Macie", "AWS Trusted Advisor"],
+      options: ["AWS Config with managed rules", "AWS Artifact", "Amazon Macie", "AWS Trusted Advisor checks only"],
       answer: [0],
       explanation: "AWS Config records configuration history and evaluates resources against rules continuously. Artifact provides AWS's own compliance reports, not your resource state.",
     },

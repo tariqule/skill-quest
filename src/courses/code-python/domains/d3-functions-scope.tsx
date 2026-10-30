@@ -212,6 +212,7 @@ export default defineDomain({
       level: "senior",
       task: "3.3",
       title: "LEGB, closures, and late binding",
+      sources: [{ title: "Python docs: Scopes and Namespaces", url: "https://docs.python.org/3/tutorial/classes.html#python-scopes-and-namespaces", license: "PSF License" }],
       check: ["d3-12", "d3-14"],
       visual: (
         <div className="grid gap-6">
@@ -240,6 +241,7 @@ export default defineDomain({
         "If a function assigns to a name anywhere in its body, that name is local for the whole function. Reading it before the assignment raises `UnboundLocalError`.",
         "`global` lets a function reassign a name at module level. `nonlocal` lets it reassign a name in the nearest enclosing function.",
         "A **closure** is an inner function that remembers variables from the function around it. It remembers the variable itself, not its value, so it reads the value at the moment it runs.",
+        "A module-level global is shared by every thread or async task on the server. Per-request data belongs in function arguments or a `contextvars.ContextVar`, which keeps a separate value per thread and per asyncio task.",
       ],
       tip: "Changing a global list, as in `items.append(x)`, needs no `global` statement. You only need `global` to point the name at something new, as in `items = []`.",
     },
@@ -336,7 +338,7 @@ export default defineDomain({
       options: [
         "A parameter: a placeholder for the value passed in when the function is called",
         "The value the function returns",
-        "The name of the file the function lives in",
+        "The name of the file that the function lives in, saved on the disk",
         "A built-in Python keyword",
       ],
       answer: [0],
@@ -391,7 +393,7 @@ export default defineDomain({
         "`NameError`, because `secret` only existed inside the function",
         "It prints `42`",
         "It prints `None`",
-        "It prints nothing at all",
+        "It prints nothing at all, since `secret` was deleted when the function ended",
       ],
       answer: [0],
       explanation:
@@ -450,7 +452,7 @@ export default defineDomain({
         print(area(2, 3, "m"))
       `,
       codeLang: "python",
-      options: ["`TypeError`: too many positional arguments", "`6m`", "`6cm`", "`23m`"],
+      options: ["`TypeError`: too many positional arguments", "`6m`", "`6cm`", "`23m`, since Python joins the extra arguments"],
       answer: [0],
       explanation:
         "The bare `*` means `unit` must be passed by name. A third positional argument raises `TypeError: area() takes 2 positional arguments but 3 were given`. The working call is `area(2, 3, unit=\"m\")`.",
@@ -690,7 +692,7 @@ export default defineDomain({
         "Write `lambda i=i: i` so each lambda stores the current value as a default",
         "Write `lambda: (i)` with brackets",
         "Add `global i` before the comprehension",
-        "Use `list(range(3))` instead of `range(3)`",
+        "Use `list(range(3))` instead of `range(3)` in the `for` loop header",
       ],
       answer: [0],
       explanation:
@@ -800,7 +802,7 @@ export default defineDomain({
       options: [
         "It copies `fn`'s `__name__`, `__doc__`, and other details onto the wrapper",
         "It makes the wrapper run faster by caching results",
-        "It's required, or the decorator raises `TypeError`",
+        "It's required, or else the decorator raises a `TypeError` on use",
         "It makes the wrapper thread-safe",
       ],
       answer: [0],
@@ -815,7 +817,7 @@ export default defineDomain({
       prompt: "Dozens of network calls across several services need retries with exponential backoff. What's the easiest approach to maintain?",
       options: [
         "One shared, tested decorator such as `@retry(attempts=3, backoff=2.0, on=(TimeoutError,))` applied to idempotent calls",
-        "Copy a retry loop into each function so every team can tune it",
+        "Copy a retry loop into each function so that every team can tune the attempts and delays for its own calls",
         "Wrap the whole program in `while True: try: main()`",
         "Retry forever on any exception with a bare `except:`",
       ],
@@ -832,7 +834,7 @@ export default defineDomain({
       options: [
         "`def connect(host, port, *, timeout=10, retries=3, ssl=True)`",
         "`def connect(host, port, timeout, retries, ssl)`",
-        "`def connect(*args)` and read options by position",
+        "`def connect(*args)` and read the options by position",
         "`def connect(**kwargs)` with no named parameters",
       ],
       answer: [0],
@@ -849,7 +851,7 @@ export default defineDomain({
         "Pass the user explicitly, or keep it in request-scoped context such as a `contextvars.ContextVar` or the framework's request object",
         "Declare `global current_user` in more functions",
         "Switch `global` to `nonlocal`",
-        "Make `current_user` a list and append each request's user",
+        "Make `current_user` a list and append each request's user to it, then read the last item in each handler so every request sees its own user",
       ],
       answer: [0],
       explanation:
@@ -865,7 +867,7 @@ export default defineDomain({
         "The cache has no size limit, so memory grows with every new argument pair (and results never expire); use `lru_cache(maxsize=...)` or an external cache with a TTL",
         "`functools.cache` only works on functions that take no arguments",
         "Cached results are automatically discarded after 60 seconds",
-        "It makes the function impossible to call from more than one thread",
+        "It makes the function impossible to call from more than one thread at a time, because the cache takes a global lock that's held for the whole call, so other threads block until it returns",
       ],
       answer: [0],
       explanation:

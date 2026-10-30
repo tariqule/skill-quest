@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { AppBar } from "@/components/Hud";
 import { Catalog } from "@/components/home/Catalog";
 import { Today } from "@/components/home/Today";
@@ -30,6 +30,7 @@ export default function Home() {
   const plan = usePlan();
   const mounted = useSyncExternalStore(noop, () => true, () => false);
   const wide = useWide();
+  const [filtering, setFiltering] = useState(false);
 
   return (
     <>
@@ -55,9 +56,9 @@ export default function Home() {
           )}
         </section>
 
-        {mounted ? <Today plan={plan} /> : <div className="mt-6 h-64 rounded-3xl bg-slate-900/40" aria-hidden />}
+        {filtering ? null : mounted ? <Today plan={plan} /> : <div className="mt-6 h-64 rounded-3xl bg-slate-900/40" aria-hidden />}
 
-        <Catalog />
+        <Catalog onFilteringChange={setFiltering} />
 
         <footer className="mt-12 border-t border-white/10 pt-4 text-sm text-slate-400">
           <Link href="/credits" className="underline hover:text-slate-200">
