@@ -381,7 +381,7 @@ export default defineDomain({
         "Your app runs on computers in a provider's data centers, which you rent and reach over the internet",
         "Your app runs only on your own laptop",
         "Your app works without any computers at all",
-        "Your app can only be used when you're offline",
+        "Your app can only be used when you're offline, from files copied onto each person's own computer",
       ],
       answer: [0],
       explanation:
@@ -396,7 +396,7 @@ export default defineDomain({
       options: [
         "The part that takes orders can keep going even when the part that does the work is busy",
         "It cooks the food faster",
-        "It makes sure only one order is ever placed",
+        "It makes sure only one order is ever placed at a time, so the kitchen never gets two at once",
         "It removes the need for any kitchen at all",
       ],
       answer: [0],
@@ -413,7 +413,7 @@ export default defineDomain({
         "A service that runs your code when an event happens, without you managing any servers",
         "A database for storing customer records",
         "A tool for drawing architecture diagrams",
-        "A physical server you buy from AWS and keep in your office",
+        "A physical server you buy from AWS, ship to your own office, and keep running and patched yourself",
       ],
       answer: [0],
       explanation:
@@ -445,7 +445,7 @@ export default defineDomain({
         "Finding the item quickly, like the label on a folder in a filing cabinet",
         "Encrypting the item so nobody can read it",
         "Setting the price of the item",
-        "Choosing which programming language can read the item",
+        "Choosing which programming language is allowed to read the item",
       ],
       answer: [0],
       explanation:
@@ -459,7 +459,7 @@ export default defineDomain({
       prompt: "Why would an app keep a copy of popular data in a cache?",
       options: [
         "Reading from fast memory is much quicker than asking the database every time",
-        "A cache can never lose data, so it's safer than a database",
+        "A cache can never lose data, so it's a safer place than a database",
         "Databases can't store data that's popular",
         "A cache makes the data permanent",
       ],
@@ -478,7 +478,7 @@ export default defineDomain({
       options: [
         "Publish an event to an Amazon SNS topic and give each downstream service its own Amazon SQS queue subscribed to the topic",
         "Increase the timeout of the order service to 15 minutes",
-        "Merge all four services into a single application on one Amazon EC2 instance",
+        "Merge all four services into a single application on one larger Amazon EC2 instance so calls stay local",
         "Add more synchronous retries to every downstream call",
       ],
       answer: [0],
@@ -493,7 +493,7 @@ export default defineDomain({
         "A web application on Amazon EC2 instances behind an Application Load Balancer stores user sessions in instance memory. Users are logged out whenever Auto Scaling terminates an instance. What should the developer do?",
       options: [
         "Store session data in Amazon ElastiCache or Amazon DynamoDB so the instances become stateless",
-        "Enable sticky sessions on the load balancer",
+        "Enable sticky sessions on the load balancer, so each user keeps going back to the same instance",
         "Move to larger instance types",
         "Store sessions on each instance's Amazon EBS volume",
       ],
@@ -526,7 +526,7 @@ export default defineDomain({
       options: [
         "Send the S3 event notification to an Amazon SNS topic that fans out to three Amazon SQS queues, one per service",
         "Send the S3 event notification to one SQS queue that all three services poll",
-        "Invoke one Lambda function that calls the three services in sequence",
+        "Invoke one Lambda function from the S3 event that calls the thumbnail, metadata and virus scanning services one after another",
         "Stream the uploads through Amazon Data Firehose to the three services",
       ],
       answer: [0],
@@ -582,7 +582,7 @@ export default defineDomain({
         "A consumer takes about 60 seconds to process each message from an Amazon SQS standard queue that uses the default settings. The team sees many messages processed twice. What is the MOST likely fix?",
       options: [
         "Increase the queue's visibility timeout to longer than the processing time",
-        "Enable long polling on the queue",
+        "Enable long polling on the queue so consumers wait up to 20 seconds for messages",
         "Reduce the message retention period",
         "Add a delivery delay to the queue",
       ],
@@ -595,7 +595,7 @@ export default defineDomain({
       domain: "d1",
       lesson: "d1-messaging",
       prompt: "An application polls an Amazon SQS queue in a tight loop and receives many empty responses, which raises costs. Which change reduces empty responses?",
-      options: ["Set ReceiveMessage WaitTimeSeconds to 20 (long polling)", "Poll more frequently with short polling", "Convert the queue to a delay queue", "Convert the queue to a FIFO queue"],
+      options: ["Set ReceiveMessage WaitTimeSeconds to 20 (long polling)", "Poll more frequently with short polling, every few milliseconds", "Convert the queue to a delay queue", "Convert the queue to a FIFO queue"],
       answer: [0],
       explanation: "With long polling, the receive call waits up to 20 seconds for a message before it returns. That removes most empty replies, so you make fewer requests and pay less.",
     },
@@ -626,7 +626,7 @@ export default defineDomain({
         "An Amazon SQS FIFO queue with the account ID as the message group ID",
         "An Amazon SQS standard queue with a sequence number in each message",
         "An Amazon SNS standard topic with one subscriber",
-        "An Amazon SQS FIFO queue with one message group ID for all messages",
+        "An Amazon SQS FIFO queue with one message group ID shared by all messages",
       ],
       answer: [0],
       explanation:
@@ -667,7 +667,7 @@ export default defineDomain({
         "An application emits order events in JSON. Events whose detail.status is \"FAILED\" must go to a Lambda function, and all events from the \"payments\" source must go to an SQS queue. Which solution requires the LEAST custom code?",
       options: [
         "Amazon EventBridge rules with event patterns that match each condition and target the function or queue",
-        "A Lambda function that inspects every event and routes it",
+        "A single Lambda function that inspects every event's fields and forwards it to the right target",
         "An Amazon SQS queue with a consumer that forwards messages",
         "AWS CloudTrail trails with event selectors",
       ],
@@ -680,7 +680,7 @@ export default defineDomain({
       lesson: "d1-messaging",
       prompt:
         "A bug caused a consumer to mishandle events delivered through an Amazon EventBridge event bus during the past two days. After the fix, the team wants to reprocess those events. What should the team have configured?",
-      options: ["An EventBridge archive, then start a replay for the affected time window", "An SQS delay queue", "A longer Lambda timeout", "An Amazon SNS FIFO topic"],
+      options: ["An EventBridge archive, then start a replay for the affected time window", "An SQS delay queue", "A longer Lambda timeout", "An Amazon SNS FIFO topic that redelivers the last two days of messages in order"],
       answer: [0],
       explanation: "An EventBridge archive stores the events that match a pattern. A replay sends archived events from a time range you choose back onto the bus, so the fixed consumer can process them again.",
     },
@@ -690,7 +690,7 @@ export default defineDomain({
       lesson: "d1-messaging",
       prompt:
         "A company ingests clickstream data in real time. Three applications must each read the same records in order, and an analytics job must be able to re-read the last 24 hours of records. Which service fits?",
-      options: ["Amazon Kinesis Data Streams", "Amazon SQS standard queue", "Amazon SNS standard topic", "Amazon SES"],
+      options: ["Amazon Kinesis Data Streams", "Amazon SQS standard queue", "Amazon SNS standard topic with fan-out", "Amazon SES"],
       answer: [0],
       explanation: "Kinesis Data Streams keeps records for the retention period, in order within each shard. Several apps can read the same records, each at its own pace. An SQS message is gone once a consumer deletes it.",
     },
@@ -705,7 +705,7 @@ export default defineDomain({
         "Retry with exponential backoff and jitter, up to a maximum number of attempts",
         "Retry immediately in a tight loop until the call succeeds",
         "Treat every 503 as permanent and return an error to the user",
-        "Raise the Lambda timeout to 15 minutes and retry every second",
+        "Raise the Lambda timeout to 15 minutes and retry the call every second until it works",
       ],
       answer: [0],
       explanation: "A 503 that clears after a few seconds is a temporary error. Retry a limited number of times, wait longer each time, and add a random extra wait so many clients don't retry at the same moment.",
@@ -718,7 +718,7 @@ export default defineDomain({
         "When a payment provider has an outage, every Lambda invocation waits for the full HTTP timeout. Concurrency climbs until other functions in the account are throttled. Which pattern should the developer implement?",
       options: [
         "A circuit breaker that fails fast after repeated errors and periodically lets a test call through",
-        "Longer HTTP timeouts so calls eventually succeed",
+        "Longer HTTP timeouts on every call, so that requests eventually get a response from the slow provider",
         "Unlimited retries inside each invocation",
         "Remove error handling so the function fails sooner",
       ],
@@ -735,7 +735,7 @@ export default defineDomain({
         "Store each order ID in DynamoDB with a conditional write (attribute_not_exists) and skip orders already recorded",
         "Switch to short polling",
         "Lower the function's memory setting",
-        "Increase the queue's message retention period",
+        "Increase the queue's visibility timeout so a message can't be received again while it's being processed",
       ],
       answer: [0],
       explanation: "Standard queues deliver each message at least once, so your consumer has to be idempotent: safe to run twice. A conditional put on the order ID succeeds only the first time, so the second delivery is skipped.",
@@ -748,7 +748,7 @@ export default defineDomain({
         "A legacy backend expects requests in a different JSON shape than mobile clients send, and the backend can't be changed. The API runs on Amazon API Gateway (REST API). How should the developer adapt the requests?",
       options: [
         "Use a non-proxy integration with a mapping template that transforms the request body",
-        "Use a Lambda proxy integration and change the mobile app",
+        "Use a Lambda proxy integration and update the mobile app to send the backend's shape",
         "Enable API caching",
         "Create a usage plan with API keys",
       ],
@@ -761,7 +761,7 @@ export default defineDomain({
       lesson: "d1-apis",
       prompt:
         "A REST API in Amazon API Gateway should reject POST requests that are missing required fields before they reach the backend Lambda function. Which feature should the developer use?",
-      options: ["A request validator with a JSON Schema model for the method", "A Lambda authorizer", "Stage variables", "API Gateway caching"],
+      options: ["A request validator with a JSON Schema model for the method", "A Lambda authorizer that checks the request before the call", "Stage variables", "API Gateway caching"],
       answer: [0],
       explanation: "A request validator checks required parameters and checks the body against a model. Bad requests get a 400 straight away, and your Lambda function is never called.",
     },
@@ -800,7 +800,7 @@ export default defineDomain({
       options: [
         "Run it as an Amazon ECS task on AWS Fargate, or split it into smaller steps coordinated by AWS Step Functions",
         "Set the Lambda function timeout to 30 minutes",
-        "Give the Lambda function 10 GB of memory so it never times out",
+        "Give the Lambda function the full 10 GB of memory, which raises its maximum timeout from 15 minutes to 30 minutes for longer jobs",
         "Use provisioned concurrency to extend the timeout",
       ],
       answer: [0],
@@ -836,7 +836,7 @@ export default defineDomain({
       domain: "d1",
       lesson: "d1-lambda-config",
       prompt: "A CPU-intensive Lambda function that resizes images runs slowly at 512 MB of memory. Which change most directly improves its performance?",
-      options: ["Increase the memory setting, which also increases the CPU allocated", "Increase the timeout", "Add more environment variables", "Move the function to a VPC"],
+      options: ["Increase the memory setting, which also increases the CPU allocated", "Increase the timeout", "Add more environment variables to tune the function's runtime settings", "Move the function to a VPC"],
       answer: [0],
       explanation: "Lambda gives a function CPU power in proportion to its memory. More memory often makes the function finish so much faster that the cost stays about the same, or even drops.",
     },
@@ -846,7 +846,7 @@ export default defineDomain({
       lesson: "d1-lambda-config",
       prompt:
         "The same Lambda code is deployed to dev, test, and prod, but each environment writes to a different DynamoDB table. How should the developer provide the table name without changing code between environments?",
-      options: ["Set the table name in an environment variable for each function", "Hard-code all three names and pick one at random", "Store the name in /tmp", "Create a separate code branch per environment"],
+      options: ["Set the table name in an environment variable for each function", "Hard-code all three names and pick one at random", "Store the name in /tmp", "Create a separate code branch per environment with the table name written into each one"],
       answer: [0],
       explanation: "Environment variables hold settings that change between environments, like a table name. Sensitive values, like passwords, belong in Secrets Manager or Parameter Store instead.",
     },
@@ -871,7 +871,7 @@ export default defineDomain({
       lesson: "d1-lambda-config",
       prompt:
         "A team wants every Lambda function to send telemetry to a third-party monitoring tool and to cache secrets locally, without changing each function's handler code. What should they add?",
-      options: ["Lambda extensions, packaged as layers", "More reserved concurrency", "A function URL", "An Amazon SQS dead-letter queue"],
+      options: ["Lambda extensions, packaged as layers", "More reserved concurrency", "A function URL", "An Amazon SQS dead-letter queue per function"],
       answer: [0],
       explanation: "Extensions run alongside your function in the same execution environment. They plug in monitoring, security, and secrets tools without touching your handler, and they're usually shipped as layers.",
     },
@@ -884,7 +884,7 @@ export default defineDomain({
         "Amazon S3 invokes a Lambda function for each upload. When processing fails after all retries, the team wants a record of the event together with the error message and stack trace, sent to an SQS queue. What should the developer configure?",
       options: [
         "An on-failure destination on the function that points to the SQS queue",
-        "A dead-letter queue on the S3 bucket",
+        "A dead-letter queue configured on the S3 bucket's event notification settings",
         "An SQS queue as the function's event source mapping",
         "A longer function timeout",
       ],
@@ -900,7 +900,7 @@ export default defineDomain({
         "It retries the invocation two more times, with delays between attempts",
         "It never retries",
         "It retries every minute for 24 hours",
-        "It returns the error to the event source, which must retry",
+        "It returns the error to the event source, which must retry the call on its own",
       ],
       answer: [0],
       explanation: "For asynchronous invocations, Lambda retries a function error twice by default. You can lower the retry count and the maximum event age, and send failures to a destination or a DLQ.",
@@ -914,7 +914,7 @@ export default defineDomain({
       options: [
         "Enable ReportBatchItemFailures and return the IDs of only the failed messages",
         "Set the batch size to 10,000",
-        "Delete the queue's dead-letter queue",
+        "Set a dead-letter queue with maxReceiveCount of 1 so failures move out",
         "Switch the queue to short polling",
       ],
       answer: [0],
@@ -928,7 +928,7 @@ export default defineDomain({
         "A malformed record in an Amazon Kinesis data stream makes the Lambda consumer fail repeatedly, and processing for that shard has stopped. Which configuration keeps the shard moving while keeping the bad record for analysis?",
       options: [
         "On the event source mapping, enable bisect batch on function error, limit maximum retry attempts, and add an on-failure destination",
-        "Add a dead-letter queue to the function's asynchronous invocation settings",
+        "Add a dead-letter queue to the function's asynchronous invocation settings, raise the function's timeout, and give it more memory",
         "Increase the stream's retention period",
         "Increase the number of shards",
       ],
@@ -988,7 +988,7 @@ export default defineDomain({
       options: [
         "Use a high-cardinality partition key such as order ID or customer ID",
         "Use a scan instead of a query",
-        "Switch every read to strongly consistent",
+        "Switch every read to strongly consistent so the partitions stay balanced",
         "Add a local secondary index on status",
       ],
       answer: [0],
@@ -1042,7 +1042,7 @@ export default defineDomain({
       lesson: "d1-dynamodb",
       prompt:
         "An existing Users table has partition key userId. A new feature must look up users by email address with low latency. What should the developer do?",
-      options: ["Add a global secondary index with email as its partition key", "Add a local secondary index on email", "Scan the table and filter by email", "Create a second table and copy data manually"],
+      options: ["Add a global secondary index with email as its partition key", "Add a local secondary index on email to the existing Users table", "Scan the table and filter by email", "Create a second table and copy data manually"],
       answer: [0],
       explanation: "A global secondary index (GSI) can use a different partition key, like email, and you can add it to an existing table. A local secondary index (LSI) must share the table's partition key and can only be created with the table.",
     },
@@ -1052,7 +1052,7 @@ export default defineDomain({
       lesson: "d1-dynamodb",
       prompt:
         "Before creating a table, a developer knows the application must query each customer's items sorted by a second attribute, and those queries need strongly consistent reads. Which index type fits?",
-      options: ["A local secondary index defined when the table is created", "A global secondary index added later", "A DynamoDB Accelerator (DAX) cluster", "A sparse global secondary index"],
+      options: ["A local secondary index defined when the table is created", "A global secondary index added later with the same sort key", "A DynamoDB Accelerator (DAX) cluster", "A sparse global secondary index"],
       answer: [0],
       explanation: "An LSI keeps the table's partition key and adds a different sort key, and it supports strongly consistent reads. A GSI only supports eventually consistent reads.",
     },
@@ -1107,7 +1107,7 @@ export default defineDomain({
       lesson: "d1-caching",
       prompt:
         "A product price shown from an Amazon ElastiCache cluster must never be stale after the price is updated in the database. Which caching strategy should the developer use?",
-      options: ["Write-through: update the cache whenever the database is written", "Lazy loading with a 24-hour TTL", "No TTL and no cache updates", "Cache only on application start-up"],
+      options: ["Write-through: update the cache whenever the database is written", "Lazy loading with a 24-hour TTL set on every cached price entry", "No TTL and no cache updates", "Cache only on application start-up"],
       answer: [0],
       explanation: "Write-through updates the cache on every database write, so readers never see an old price. The cost is extra work on each write, and caching some data nobody reads.",
     },
@@ -1135,7 +1135,7 @@ export default defineDomain({
       domain: "d1",
       lesson: "d1-caching",
       prompt: "Application log files in Amazon S3 must move to a cheaper storage class after 30 days and be deleted after 1 year. What is the simplest solution?",
-      options: ["An S3 Lifecycle configuration with a transition rule and an expiration rule", "A Lambda function that copies and deletes objects nightly", "S3 Versioning", "S3 Cross-Region Replication"],
+      options: ["An S3 Lifecycle configuration with a transition rule and an expiration rule", "A Lambda function on a schedule that copies, moves and deletes objects nightly", "S3 Versioning", "S3 Cross-Region Replication"],
       answer: [0],
       explanation: "S3 Lifecycle rules move objects to cheaper storage and delete them on a schedule. You don't write or run any code.",
     },
