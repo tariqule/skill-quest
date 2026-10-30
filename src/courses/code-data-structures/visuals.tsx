@@ -92,7 +92,7 @@ export function ArrayShift() {
                 type="button"
                 key={i}
                 disabled={!has}
-                onClick={() => setLast({ label: `arr[${i}]`, cost: "O(1)", note: `Read arr[${i}] = ${arr[i]}: address = start + ${i} × size. One step, no matter how long the array is.`, fresh: i, moved: [] })}
+                onClick={() => setLast({ label: `arr[${i}]`, cost: "O(1)", note: `arr[${i}] holds ${arr[i]}. Its address is the start plus ${i} times the item size, so it takes one step however long the array is.`, fresh: i, moved: [] })}
                 className={`flex h-14 w-11 shrink-0 flex-col items-center justify-center rounded-lg border text-sm transition ${
                   !has ? "border-dashed border-white/15 text-slate-600" : fresh ? "border-emerald-400 bg-emerald-400/20 text-white" : moved ? "border-amber-400 bg-amber-400/20 text-white" : "border-white/15 bg-slate-950/70 text-white"
                 }`}
@@ -179,7 +179,7 @@ export function LinkedListReverse() {
         </div>
         <p className="text-sm text-slate-300">
           {step === 0
-            ? "Start: prev = null, curr = head. Each step flips one arrow."
+            ? "Start with prev set to null and curr at the head. Each step flips one arrow."
             : done
               ? "curr is null, so the loop ends. prev points at the new head (4). Return prev."
               : `Flipped node ${LL_VALUES[step - 1]}'s arrow to point back. ✂ marks a link the saved \`next\` variable keeps us from losing.`}
@@ -265,7 +265,7 @@ export function HashBuckets() {
       </div>
       <p className="mt-2 text-sm text-slate-300">
         {last
-          ? `hash("${last}") = sum of char codes = ${charSum(last)} → ${charSum(last)} % ${buckets} = bucket ${charSum(last) % buckets}.`
+          ? `The character codes in "${last}" add up to ${charSum(last)}. ${charSum(last)} % ${buckets} is ${charSum(last) % buckets}, so it goes in bucket ${charSum(last) % buckets}.`
           : "Tap words to insert or remove them. The toy hash adds character codes, then takes the remainder."}{" "}
         Chained entries (amber) make that bucket slower to search.
       </p>
@@ -285,9 +285,9 @@ const T_NODES: Record<number, { x: number; y: number; kids: number[] }> = {
 };
 
 const ORDERS = {
-  pre: { name: "Preorder", rule: "root → left → right", seq: [4, 2, 1, 3, 6, 7] },
-  in: { name: "Inorder", rule: "left → root → right", seq: [1, 2, 3, 4, 6, 7] },
-  post: { name: "Postorder", rule: "left → right → root", seq: [1, 3, 2, 7, 6, 4] },
+  pre: { name: "Preorder", rule: "root, then left, then right", seq: [4, 2, 1, 3, 6, 7] },
+  in: { name: "Inorder", rule: "left, then root, then right", seq: [1, 2, 3, 4, 6, 7] },
+  post: { name: "Postorder", rule: "left, then right, then root", seq: [1, 3, 2, 7, 6, 4] },
   level: { name: "Level order", rule: "row by row, using a queue", seq: [4, 2, 6, 1, 3, 7] },
 };
 
@@ -679,10 +679,10 @@ const BIGO_ROWS: { name: string; access: string; search: string; insert: string;
   { name: "Array (dynamic)", access: "O(1)", search: "O(n)", insert: "O(n) · end O(1)*", remove: "O(n) · end O(1)", note: "Cache-friendly, index math" },
   { name: "Linked list", access: "O(n)", search: "O(n)", insert: "O(1) at a known node", remove: "O(1) at a known node†", note: "†doubly linked" },
   { name: "Stack / queue", access: "top/front only", search: "O(n)", insert: "O(1)", remove: "O(1)", note: "LIFO / FIFO" },
-  { name: "Hash map / set", access: "—", search: "O(1) avg", insert: "O(1) avg", remove: "O(1) avg", note: "O(n) worst, no order" },
-  { name: "Balanced BST", access: "—", search: "O(log n)", insert: "O(log n)", remove: "O(log n)", note: "Sorted, range queries" },
+  { name: "Hash map / set", access: "No index", search: "O(1) avg", insert: "O(1) avg", remove: "O(1) avg", note: "O(n) worst, no order" },
+  { name: "Balanced BST", access: "No index", search: "O(log n)", insert: "O(log n)", remove: "O(log n)", note: "Sorted, range queries" },
   { name: "Binary heap", access: "min O(1)", search: "O(n)", insert: "O(log n)", remove: "min O(log n)", note: "Priority queue" },
-  { name: "Trie", access: "—", search: "O(L)", insert: "O(L)", remove: "O(L)", note: "L = word length; prefixes" },
+  { name: "Trie", access: "No index", search: "O(L)", insert: "O(L)", remove: "O(L)", note: "L is the word length. Good for prefixes" },
 ];
 
 export function BigOTable() {

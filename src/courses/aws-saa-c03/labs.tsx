@@ -33,7 +33,7 @@ export function probeVpc(v: VpcState) {
         : !v.igw
           ? "No internet gateway is attached to the VPC, so the NAT gateway has nowhere to send traffic."
           : !v.pubRoute
-            ? "The public subnet's route table has no 0.0.0.0/0 → IGW route, so the NAT gateway can't reach the internet."
+            ? "The public subnet's route table has no route sending 0.0.0.0/0 to the IGW, so the NAT gateway can't reach the internet."
             : null;
 
   let egress: Probe;

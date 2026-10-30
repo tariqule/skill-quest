@@ -29,9 +29,9 @@ export interface CourseCopy {
 }
 
 const CERTIFICATION: CourseCopy = {
-  gate: "The Certification Gate",
+  gate: "The Practice Exam",
   gateIcon: "🏛️",
-  gateStep: "Certify",
+  gateStep: "Practice exam",
   noun: "exam",
   real: "the real exam",
   simulator: "exam simulator",

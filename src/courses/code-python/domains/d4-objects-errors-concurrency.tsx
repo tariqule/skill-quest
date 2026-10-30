@@ -1,4 +1,4 @@
-import { CodeBlock, CodeCompare, Tiles } from "@/components/learn/blocks";
+import { CodeBlock, CodeCompare, Flow, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { py } from "../py";
 import { ExceptionPaths, MroDiamond } from "../visuals";
@@ -13,17 +13,121 @@ export default defineDomain({
     weight: 30,
     emoji: "🏰",
     color: "#a78bfa",
-    summary: "Classes and dunder methods, inheritance and the MRO, dataclasses, exceptions and context managers, and the GIL with threading, multiprocessing, and asyncio.",
+    summary:
+      "Classes and their special double-underscore methods, inheritance and the MRO, dataclasses, exceptions and with blocks, and how the GIL shapes threads, processes and asyncio.",
   },
 
   tasks: [
-    { id: "4.1", title: "Classes and the data model", covers: ["Class vs instance attributes", "self, @classmethod, @staticmethod, @property", "Dunder methods: __repr__, __str__, __eq__, __hash__, __len__…"] },
-    { id: "4.2", title: "Inheritance, MRO, and dataclasses", covers: ["super() and cooperative inheritance", "C3 linearization / __mro__", "@dataclass and field(default_factory=…)"] },
-    { id: "4.3", title: "Exceptions and context managers", covers: ["try / except / else / finally order", "Handler ordering and specific exceptions", "raise … from", "with, __enter__ / __exit__, contextlib"] },
-    { id: "4.4", title: "The GIL and concurrency", covers: ["What the GIL does and doesn't protect", "threading vs multiprocessing vs asyncio", "Blocking calls inside async code"] },
+    { id: "4.1", title: "Classes and the data model", covers: ["Class attributes and instance attributes", "self, @classmethod, @staticmethod, @property", "Dunder methods: __repr__, __str__, __eq__, __hash__, __len__ and friends"] },
+    { id: "4.2", title: "Inheritance, MRO, and dataclasses", covers: ["super() and cooperative inheritance", "C3 linearization and __mro__", "@dataclass and field(default_factory=…)"] },
+    { id: "4.3", title: "Exceptions and context managers", covers: ["The order of try, except, else and finally", "Handler order and catching specific exceptions", "raise … from", "with, __enter__ and __exit__, contextlib"] },
+    { id: "4.4", title: "The GIL and concurrency", covers: ["What the GIL does and doesn't protect", "Choosing between threading, multiprocessing and asyncio", "Blocking calls inside async code"] },
   ],
 
   lessons: [
+    {
+      id: "d4-start-classes",
+      level: "beginner",
+      task: "4.1",
+      title: "Classes are blueprints",
+      check: ["py-b4-01", "py-b4-02"],
+      visual: (
+        <div className="grid gap-4">
+          <CodeBlock
+            lang="python"
+            code={py`
+              class Dog:                         # the blueprint
+                  def __init__(self, name):      # runs when you make a dog
+                      self.name = name           # each dog keeps its own name
+
+              rex = Dog("Rex")                   # one object
+              fido = Dog("Fido")                 # another object
+              print(rex.name, fido.name)         # Rex Fido
+            `}
+          />
+          <Tiles
+            tiles={[
+              { icon: "📐", title: "Class", text: "The blueprint. It says what every dog has and can do.", color: "#a78bfa" },
+              { icon: "🐕", title: "Object", text: "One real dog built from the blueprint, with its own name.", color: "#38bdf8" },
+            ]}
+          />
+        </div>
+      ),
+      points: [
+        "A **class** is a blueprint for making things. An **object** (also called an instance) is one thing built from that blueprint.",
+        "Think of a cookie cutter and cookies. The cutter is the class. Each cookie is an object, and you can make as many as you like.",
+        "`__init__` is a special method that runs every time you create an object. You use it to give the new object its starting values.",
+        "`self` means \"this particular object\". Writing `self.name = name` stores the name on the object being built.",
+      ],
+      tip: "You make an object by calling the class like a function: `Dog(\"Rex\")`. Python creates the object, runs `__init__` on it, and hands it back.",
+    },
+    {
+      id: "d4-start-methods",
+      level: "beginner",
+      task: "4.1",
+      title: "Methods give objects behaviour",
+      check: ["py-b4-03", "py-b4-04"],
+      visual: (
+        <CodeBlock
+          lang="python"
+          code={py`
+            class Counter:
+                def __init__(self):
+                    self.count = 0      # data the object keeps
+
+                def add(self):          # something the object can do
+                    self.count += 1
+
+            c = Counter()
+            c.add()
+            c.add()
+            print(c.count)              # 2
+          `}
+        />
+      ),
+      points: [
+        "A **method** is a function that lives inside a class. It describes something every object of that class can do.",
+        "Every method's first parameter is `self`, so the method can read and change that object's own data.",
+        "You call a method with a dot: `c.add()`. Python passes `c` in as `self` for you, so you don't write it in the brackets.",
+        "Each object keeps its own values. Two `Counter` objects count separately, like two people each holding a tally clicker.",
+      ],
+      tip: "The values an object stores, like `self.count`, are called **attributes**. You read them with a dot too, as in `c.count`.",
+    },
+    {
+      id: "d4-start-errors",
+      level: "beginner",
+      task: "4.3",
+      title: "When things go wrong: exceptions",
+      check: ["py-b4-05", "py-b4-06"],
+      visual: (
+        <div className="grid gap-4">
+          <Flow
+            color="#a78bfa"
+            steps={[
+              { icon: "▶️", label: "try", sub: "Python runs the risky line" },
+              { icon: "💥", label: "Something fails", sub: "For example, int(\"abc\")" },
+              { icon: "🛟", label: "except", sub: "Your backup plan runs instead of a crash" },
+            ]}
+          />
+          <CodeBlock
+            lang="python"
+            code={py`
+              try:
+                  n = int("abc")
+              except ValueError:
+                  print("Not a number")   # this runs instead of crashing
+            `}
+          />
+        </div>
+      ),
+      points: [
+        "When Python hits a problem it can't handle, it raises an **exception**, a signal that something went wrong. If nothing deals with it, the program stops.",
+        "The message it prints is called a **traceback**. Read it from the bottom: the last line names the error, like `ValueError`, and says what happened.",
+        "`try:` lets you run code that might fail. If it does, Python jumps to the matching `except` block instead of crashing.",
+        "Name the error you expect, as in `except ValueError:`, so other surprises still show up and get fixed.",
+      ],
+      tip: "Common ones you'll meet early: `NameError` (a name that doesn't exist), `TypeError` (the wrong kind of value), `ValueError` (the right kind, but a bad value) and `IndexError` (a position past the end of a list).",
+    },
     {
       id: "d4-classes",
       level: "intermediate",
@@ -51,21 +155,22 @@ export default defineDomain({
           <Tiles
             cols={4}
             tiles={[
-              { icon: "📏", title: "__len__", text: "len(obj)", color: "#a78bfa" },
-              { icon: "🔎", title: "__getitem__", text: "obj[key]", color: "#a78bfa" },
-              { icon: "📞", title: "__call__", text: "obj()", color: "#a78bfa" },
-              { icon: "🧺", title: "__contains__", text: "x in obj", color: "#a78bfa" },
+              { icon: "📏", title: "__len__", text: "Called by len(obj)", color: "#a78bfa" },
+              { icon: "🔎", title: "__getitem__", text: "Called by obj[key]", color: "#a78bfa" },
+              { icon: "📞", title: "__call__", text: "Called by obj()", color: "#a78bfa" },
+              { icon: "🧺", title: "__contains__", text: "Called by x in obj", color: "#a78bfa" },
             ]}
           />
         </div>
       ),
       points: [
-        "Attributes defined in the class body are shared by every instance. Put per-instance state in __init__ on self.",
-        "__str__ is for users (print), __repr__ for developers; containers show their items' __repr__.",
-        "Defining __eq__ without __hash__ makes instances unhashable (Python sets __hash__ to None).",
-        "@classmethod receives the class (cls), @staticmethod receives nothing implicit, @property makes a method read like an attribute.",
+        "Attributes written in the class body are shared by every instance. Anything each object should keep for itself belongs on `self` inside `__init__`.",
+        "**Dunder methods** (short for double underscore) are hooks that let your class work with built-in syntax like `len()`, `+` and `in`.",
+        "`__str__` is the friendly version shown by `print`. `__repr__` is the developer version, and lists show their items using `__repr__`.",
+        "If you define `__eq__` but not `__hash__`, Python sets `__hash__` to `None`, so your objects can't go in a set or be dict keys.",
+        "`@classmethod` gets the class as `cls`. `@staticmethod` gets nothing extra. `@property` lets a method be read like a plain attribute.",
       ],
-      tip: "If asked to make a class work with len, in, for, or +, name the dunder method each one calls.",
+      tip: "If you're asked to make a class work with `len`, `in`, `for` or `+`, name the dunder method each one calls.",
     },
     {
       id: "d4-inheritance",
@@ -94,12 +199,12 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "super() calls the next class in the instance's MRO, not necessarily the parent you see in the class statement.",
-        "The MRO lists children before parents and keeps the left-to-right order of bases; inspect it with Cls.__mro__.",
-        "@dataclass writes __init__, __repr__, and __eq__ from annotated fields. order=True adds comparisons, frozen=True makes it immutable.",
-        "Mutable defaults in a dataclass raise ValueError; use field(default_factory=list).",
+        "`super()` calls the next class in the object's **MRO** (method resolution order). That isn't always the parent you see in the class line.",
+        "The MRO lists child classes before their parents and keeps bases in left-to-right order. You can see it with `Cls.__mro__`.",
+        "`@dataclass` writes `__init__`, `__repr__` and `__eq__` for you from the fields you annotate. `order=True` adds comparisons and `frozen=True` makes instances unchangeable.",
+        "A mutable default like `[]` in a dataclass raises `ValueError`. Use `field(default_factory=list)` so each instance gets its own list.",
       ],
-      tip: "Prefer composition over deep inheritance, and say so. Dataclasses are the idiomatic answer for \"a class that just holds data\".",
+      tip: "Say that you prefer composition over deep inheritance. For \"a class that just holds data\", a dataclass is the expected Python answer.",
     },
     {
       id: "d4-errors",
@@ -113,7 +218,7 @@ export default defineDomain({
           <CodeCompare
             lang="python"
             left={{
-              title: "Class-based",
+              title: "Written as a class",
               code: py`
                 class Timer:
                     def __enter__(self):
@@ -125,7 +230,7 @@ export default defineDomain({
               `,
             }}
             right={{
-              title: "Generator-based",
+              title: "Written as a generator",
               code: py`
                 from contextlib import contextmanager
 
@@ -142,12 +247,13 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "else runs only if the try block finished without raising (and without return or break). finally always runs.",
-        "Except clauses are checked top to bottom; put specific exceptions before general ones.",
-        "raise NewError(...) from err keeps the original cause in the traceback.",
-        "with calls __enter__ (its return value binds to as) and always calls __exit__; returning True from __exit__ suppresses the exception.",
+        "`else` runs only if the `try` block finished without raising, returning or breaking. `finally` always runs.",
+        "`except` clauses are checked from top to bottom, so put specific exceptions before general ones.",
+        "`raise NewError(...) from err` keeps the original error attached, so the traceback shows both.",
+        "A **context manager** is what `with` uses. `with` calls `__enter__` (its return value goes to the name after `as`) and always calls `__exit__` at the end.",
+        "If `__exit__` returns `True`, the exception is swallowed. Returning `False` lets it carry on.",
       ],
-      tip: "Python favours EAFP (try it and catch the error) over LBYL (check first). Mention it when you write a try/except around a dict lookup.",
+      tip: "Python prefers EAFP, \"easier to ask forgiveness than permission\": try the thing and catch the error, rather than checking first. Mention it when you wrap a dict lookup in try/except.",
     },
     {
       id: "d4-concurrency",
@@ -160,15 +266,15 @@ export default defineDomain({
           <Tiles
             cols={3}
             tiles={[
-              { icon: "🧵", title: "threading", text: "Shared memory, OS threads. Good for blocking I/O. With the GIL, only one thread runs Python bytecode at a time.", color: "#38bdf8" },
-              { icon: "🏭", title: "multiprocessing", text: "Separate processes, each with its own interpreter and GIL. Real parallelism for CPU-bound work; data must be pickled.", color: "#f59e0b" },
-              { icon: "⚡", title: "asyncio", text: "One thread, one event loop, cooperative tasks. Great for thousands of concurrent network calls. Never block the loop.", color: "#34d399" },
+              { icon: "🧵", title: "threading", text: "Operating system threads that share memory. Good for blocking I/O. With the GIL, only one thread runs Python bytecode at a time.", color: "#38bdf8" },
+              { icon: "🏭", title: "multiprocessing", text: "Separate processes, each with its own interpreter and GIL. Real parallel work for CPU-heavy jobs, but data has to be pickled to move between them.", color: "#f59e0b" },
+              { icon: "⚡", title: "asyncio", text: "One thread running an event loop that switches between tasks while they wait. Great for thousands of network calls at once. Never block the loop.", color: "#34d399" },
             ]}
           />
           <CodeCompare
             lang="python"
             left={{
-              title: "Blocks the loop: ~3 s",
+              title: "Blocks the loop: about 3 s",
               code: py`
                 async def fetch(n):
                     time.sleep(1)
@@ -176,7 +282,7 @@ export default defineDomain({
               `,
             }}
             right={{
-              title: "Yields to the loop: ~1 s",
+              title: "Lets the loop move on: about 1 s",
               code: py`
                 async def fetch(n):
                     await asyncio.sleep(1)
@@ -187,17 +293,125 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "The GIL (Global Interpreter Lock) in standard CPython lets only one thread execute Python bytecode at a time per process.",
-        "Threads still help for I/O: blocking I/O calls release the GIL while they wait.",
-        "The GIL doesn't make your code thread-safe: counter += 1 is several steps and can race. Use threading.Lock or a queue.",
-        "concurrent.futures gives one API for both: ThreadPoolExecutor and ProcessPoolExecutor.",
-        "Recent CPython versions also ship an optional free-threaded build without the GIL; the standard build still has it.",
+        "The **GIL** (Global Interpreter Lock) in standard CPython lets only one thread run Python bytecode at a time in each process.",
+        "Threads still help with I/O, because a thread that's waiting on the network or disk lets go of the GIL while it waits.",
+        "The GIL doesn't make your code thread-safe. `counter += 1` is several steps, and two threads can interleave and lose an update. Use `threading.Lock` or a queue.",
+        "`concurrent.futures` gives you one API for both: `ThreadPoolExecutor` and `ProcessPoolExecutor`.",
+        "Recent CPython versions also offer an optional free-threaded build without the GIL. The standard build still has it.",
       ],
-      tip: "Answer \"threads or processes?\" by first classifying the work: I/O-bound or CPU-bound. Then pick the tool.",
+      tip: "Answer \"threads or processes?\" by first sorting the work. Is it waiting on I/O, or busy using the CPU? Then pick the tool.",
     },
   ],
 
   questions: [
+    // ───────────── Start here ─────────────
+    {
+      id: "py-b4-01",
+      domain: "d4",
+      level: "beginner",
+      lesson: "d4-start-classes",
+      type: "output",
+      prompt: "What does this print?",
+      code: py`
+        class Dog:
+            def __init__(self, name):
+                self.name = name
+
+        d = Dog("Rex")
+        print(d.name)
+      `,
+      codeLang: "python",
+      answers: ["Rex"],
+      explanation:
+        "`Dog(\"Rex\")` builds a new dog and runs `__init__` with `name` set to `\"Rex\"`. That line stores it as `self.name`, so `d.name` reads it back.",
+    },
+    {
+      id: "py-b4-02",
+      domain: "d4",
+      level: "beginner",
+      lesson: "d4-start-classes",
+      prompt: "Inside a method, what does `self` refer to?",
+      options: [
+        "The particular object the method is working on",
+        "The class itself, shared by every object",
+        "The file the class is written in",
+        "The value the method will return",
+      ],
+      answer: [0],
+      explanation:
+        "`self` is the one object you're dealing with right now. When you call `rex.speak()`, `self` is `rex`. That's how each object keeps and reads its own data.",
+    },
+    {
+      id: "py-b4-03",
+      domain: "d4",
+      level: "beginner",
+      lesson: "d4-start-methods",
+      type: "output",
+      prompt: "What does this print?",
+      code: py`
+        class Counter:
+            def __init__(self):
+                self.count = 0
+
+            def add(self):
+                self.count += 1
+
+        c = Counter()
+        c.add()
+        c.add()
+        print(c.count)
+      `,
+      codeLang: "python",
+      answers: ["2"],
+      explanation:
+        "The counter starts at 0 in `__init__`. Each call to `c.add()` adds one to that same object's `count`. Two calls means it ends at 2.",
+    },
+    {
+      id: "py-b4-04",
+      domain: "d4",
+      level: "beginner",
+      lesson: "d4-start-methods",
+      prompt: "Which line correctly calls the `add` method on the object `c`?",
+      options: ["`c.add()`", "`add(c)()`", "`Counter.add`", "`c->add()`"],
+      answer: [0],
+      explanation:
+        "You call a method with a dot and brackets: `c.add()`. Python passes `c` in as `self` for you. `Counter.add` without brackets only names the method and doesn't run it, and `->` isn't Python syntax for this.",
+    },
+    {
+      id: "py-b4-05",
+      domain: "d4",
+      level: "beginner",
+      lesson: "d4-start-errors",
+      prompt: "What happens when Python runs `int(\"hello\")` with no `try` around it?",
+      options: [
+        "It raises a `ValueError` and the program stops with a traceback",
+        "It returns `0`",
+        "It returns `None`",
+        "It quietly skips the line",
+      ],
+      answer: [0],
+      explanation:
+        "`int` can only turn text that looks like a whole number into an int. `\"hello\"` doesn't, so Python raises `ValueError`. With nothing to catch it, the program stops and prints a traceback telling you what went wrong.",
+    },
+    {
+      id: "py-b4-06",
+      domain: "d4",
+      level: "beginner",
+      lesson: "d4-start-errors",
+      type: "output",
+      prompt: "What does this print?",
+      code: py`
+        try:
+            n = int("abc")
+        except ValueError:
+            print("Not a number")
+      `,
+      codeLang: "python",
+      answers: ["Not a number"],
+      explanation:
+        "`int(\"abc\")` fails with a `ValueError`. Because it's inside `try`, Python jumps to the matching `except` block and prints the message instead of crashing.",
+    },
+    // ───────────── Interview questions ─────────────
     {
       id: "d4-01",
       domain: "d4",
@@ -219,7 +433,8 @@ export default defineDomain({
       codeLang: "python",
       options: ["`['sit']`", "`[]`", "`AttributeError`", "`None`"],
       answer: [0],
-      explanation: "`tricks` is a class attribute: one list shared by every `Dog`. Create it per instance in `__init__` with `self.tricks = []`.",
+      explanation:
+        "`tricks` is a class attribute, so there's one list shared by every `Dog`. Rex learning a trick adds it to Fido's list too. Give each dog its own list in `__init__` with `self.tricks = []`.",
     },
     {
       id: "d4-02",
@@ -241,7 +456,8 @@ export default defineDomain({
       `,
       codeLang: "python",
       answer: [5],
-      explanation: "Calling a method through an instance passes the instance as the first argument. The method must accept it: `def increment(self):`.",
+      explanation:
+        "When you call a method through an object, Python passes the object in as the first argument. The method has to accept it: `def increment(self):`.",
     },
     {
       id: "d4-03",
@@ -262,7 +478,8 @@ export default defineDomain({
       codeLang: "python",
       options: ["`P-str [P-repr] P-repr`", "`P-str [P-str] P-str`", "`P-repr [P-repr] P-repr`", "`P-str [P-str] P-repr`"],
       answer: [0],
-      explanation: "`print` uses `str()`. A list's string form uses each item's `repr()`. The `!r` conversion in an f-string calls `repr()`.",
+      explanation:
+        "`print` uses `str()`, so you get `P-str`. A list shows each of its items with `repr()`. The `!r` in an f-string also calls `repr()`.",
     },
     {
       id: "d4-04",
@@ -284,7 +501,7 @@ export default defineDomain({
       codeLang: "python",
       answer: [8],
       explanation:
-        "Line 7 prints True. Defining `__eq__` without `__hash__` sets `__hash__` to `None`, so putting a `Point` in a set raises `TypeError: unhashable type: 'Point'`. Add a `__hash__` (e.g. `hash(self.x)`) or use a frozen dataclass.",
+        "Line 7 is fine and prints True. But defining `__eq__` without `__hash__` sets `__hash__` to `None`, so putting a `Point` in a set raises `TypeError: unhashable type: 'Point'`. Add a `__hash__`, for example returning `hash(self.x)`, or use a frozen dataclass.",
     },
     {
       id: "d4-05",
@@ -300,17 +517,19 @@ export default defineDomain({
         ["`__contains__`", "x in obj"],
         ["`__enter__`", "Entering a with block"],
       ],
-      explanation: "Implementing these \"protocols\" lets your objects work with built-in syntax. That's Python's data model.",
+      explanation:
+        "Writing these methods lets your own objects work with Python's built-in syntax. Together, these hooks are called Python's data model.",
     },
     {
       id: "d4-06",
       domain: "d4",
       level: "junior",
       lesson: "d4-classes",
-      prompt: "What does a method decorated with `@classmethod` receive as its first argument?",
-      options: ["The class itself (conventionally `cls`)", "The instance (`self`)", "Nothing: it takes only the explicit arguments", "The parent class"],
+      prompt: "What does a method marked with `@classmethod` receive as its first argument?",
+      options: ["The class itself (by convention called `cls`)", "The instance (`self`)", "Nothing: it takes only the explicit arguments", "The parent class"],
       answer: [0],
-      explanation: "Classmethods get the class they were called on, which makes them ideal for alternative constructors like `Date.from_string(...)`. `@staticmethod` gets nothing implicit.",
+      explanation:
+        "A classmethod gets the class it was called on. That makes it a good fit for extra ways to build an object, like `Date.from_string(...)`. A `@staticmethod` gets nothing extra at all.",
     },
     {
       id: "d4-07",
@@ -333,7 +552,8 @@ export default defineDomain({
       codeLang: "python",
       options: ["`DBCA`", "`DBA`", "`DBACA`", "`DCBA`"],
       answer: [0],
-      explanation: "`D.__mro__` is D, B, C, A, object. `super()` in B means \"next after B in the instance's MRO\", which is C, not A. A runs once.",
+      explanation:
+        "`D.__mro__` is D, B, C, A, object. Inside B, `super()` means \"the next class after B in this object's MRO\", which is C, not A. So the chain is D, B, C, A, and A only runs once.",
     },
     {
       id: "d4-08",
@@ -341,9 +561,10 @@ export default defineDomain({
       level: "senior",
       lesson: "d4-inheritance",
       type: "order",
-      prompt: "`class B(A)`, `class C(A)`, `class D(B, C)`. Put `D.__mro__` in order.",
+      prompt: "Given `class B(A)`, `class C(A)` and `class D(B, C)`, put `D.__mro__` in order.",
       items: ["`D`", "`B`", "`C`", "`A`", "`object`"],
-      explanation: "C3 linearization: the class first, then its bases left to right, with every class before its own bases. A shared base appears once, after all its subclasses.",
+      explanation:
+        "Python's C3 rule puts the class first, then its bases from left to right, always keeping each class ahead of its own bases. A shared base like A appears once, after all the classes that inherit from it.",
     },
     {
       id: "d4-09",
@@ -366,7 +587,7 @@ export default defineDomain({
       `,
       codeLang: "python",
       answer: [7],
-      explanation: "`Animal.__init__` requires `name`. The call must pass it on: `super().__init__(name)`.",
+      explanation: "`Animal.__init__` needs a `name`, so the call has to pass it along: `super().__init__(name)`.",
     },
     {
       id: "d4-10",
@@ -389,7 +610,8 @@ export default defineDomain({
       codeLang: "python",
       options: ["`Item(name='pen', qty=1) True`", "`<Item object at 0x...> False`", "`Item(name='pen', qty=1) False`", "`Item('pen', 1) True`"],
       answer: [0],
-      explanation: "`@dataclass` generates a readable `__repr__` and a field-by-field `__eq__`, so two items with equal fields compare equal.",
+      explanation:
+        "`@dataclass` writes a readable `__repr__` and an `__eq__` that compares field by field. Both items have the same name and quantity, so they're equal.",
     },
     {
       id: "d4-11",
@@ -409,7 +631,8 @@ export default defineDomain({
       `,
       codeLang: "python",
       answer: [6],
-      explanation: "Dataclasses refuse mutable defaults like `[]` (they'd be shared, like the function-default trap). Use `items: list = field(default_factory=list)`.",
+      explanation:
+        "Dataclasses refuse changeable defaults like `[]`, because every instance would share one list, just like the function-default trap. Use `items: list = field(default_factory=list)`.",
     },
     {
       id: "d4-12",
@@ -419,7 +642,8 @@ export default defineDomain({
       prompt: "Which methods does a plain `@dataclass` generate by default? (Choose three.)",
       options: ["`__init__`", "`__repr__`", "`__eq__`", "Ordering methods such as `__lt__`", "`__slots__`"],
       answer: [0, 1, 2],
-      explanation: "Ordering needs `order=True`, and slots need `slots=True` (3.10+). Because `__eq__` is generated and the class isn't frozen, instances are unhashable by default.",
+      explanation:
+        "Ordering needs `order=True`, and slots need `slots=True` (Python 3.10 and later). Because `__eq__` is generated and the class isn't frozen, its instances can't be hashed by default.",
     },
     {
       id: "d4-13",
@@ -444,7 +668,8 @@ export default defineDomain({
       codeLang: "python",
       options: ["`try`, `finally`, `ret`", "`try`, `else`, `finally`, `ret`", "`try`, `ret`, `finally`", "`try`, `else`, `ret`"],
       answer: [0],
-      explanation: "`else` runs only when the try block completes normally. Leaving it with `return` skips `else`. `finally` still runs before the function actually returns, so `ret` prints last.",
+      explanation:
+        "`else` only runs when the `try` block reaches its end normally. Leaving with `return` skips it. `finally` still runs before the function actually hands back its value, so `ret` prints last.",
     },
     {
       id: "d4-14",
@@ -465,7 +690,8 @@ export default defineDomain({
       codeLang: "python",
       options: ["`bad`, `done`", "`bad`, `ok 4`, `done`", "`ok 4`, `done`", "`bad` only"],
       answer: [0],
-      explanation: "`int(\"4x\")` raises `ValueError`, so the handler runs and `else` is skipped. `finally` always runs.",
+      explanation:
+        "`int(\"4x\")` raises `ValueError`, so the handler runs and `else` is skipped. `finally` runs no matter what.",
     },
     {
       id: "d4-15",
@@ -487,7 +713,8 @@ export default defineDomain({
       `,
       codeLang: "python",
       answer: [4],
-      explanation: "Handlers are tried top to bottom and `ValueError` is a subclass of `Exception`, so the broad handler always wins. Put specific exceptions first.",
+      explanation:
+        "Handlers are tried from top to bottom, and `ValueError` is a kind of `Exception`. So the broad handler always catches it first. Put specific exceptions above general ones.",
     },
     {
       id: "d4-16",
@@ -512,13 +739,14 @@ export default defineDomain({
       `,
       codeLang: "python",
       options: [
-        "Prints `<b>` and `</b>`, then the `ValueError` propagates (no `after`)",
-        "Prints `<b>`, then the `ValueError` propagates (no `</b>`)",
+        "Prints `<b>` and `</b>`, then the `ValueError` carries on up (no `after`)",
+        "Prints `<b>`, then the `ValueError` carries on up (no `</b>`)",
         "Prints `<b>`, `</b>`, `after`",
         "Prints `<b>`, `after`, `</b>`",
       ],
       answer: [0],
-      explanation: "`__exit__` always runs, even when the body raises. It returns `False`, so the exception isn't suppressed and `print(\"after\")` is never reached.",
+      explanation:
+        "`__exit__` always runs, even when the body raises. It returns `False`, so the exception isn't swallowed. It carries on up and `print(\"after\")` is never reached.",
     },
     {
       id: "d4-17",
@@ -526,21 +754,22 @@ export default defineDomain({
       level: "junior",
       lesson: "d4-errors",
       type: "order",
-      prompt: "Order what happens for `with open(path) as f: data = f.read()`.",
+      prompt: "Put in order what happens for `with open(path) as f: data = f.read()`.",
       items: [
         "Evaluate `open(path)` to get a context manager",
         "Call its `__enter__()` and bind the result to `f`",
         "Run the body: `data = f.read()`",
         "Call `__exit__()`, which closes the file even if the body raised",
       ],
-      explanation: "That guarantee is why `with` beats a manual `close()`: cleanup can't be skipped by an early return or an exception.",
+      explanation:
+        "That last step is why `with` beats calling `close()` yourself. An early return or an exception can't skip the cleanup.",
     },
     {
       id: "d4-18",
       domain: "d4",
       level: "intermediate",
       lesson: "d4-errors",
-      prompt: "Which are good exception-handling practices? (Choose two.)",
+      prompt: "Which are good exception-handling habits? (Choose two.)",
       options: [
         "Catch the most specific exception you can actually handle",
         "Use `raise NewError(...) from err` to keep the original cause when translating an exception",
@@ -549,23 +778,24 @@ export default defineDomain({
         "Wrap the whole program in one big `try`",
       ],
       answer: [0, 1],
-      explanation: "A bare `except:` also catches `KeyboardInterrupt` and `SystemExit` and hides bugs. Exception chaining with `from` preserves debugging context.",
+      explanation:
+        "A bare `except:` also catches `KeyboardInterrupt` and `SystemExit`, and it hides real bugs. Chaining with `from` keeps the original error attached, which makes debugging much easier.",
     },
     {
       id: "d4-19",
       domain: "d4",
       level: "senior",
       lesson: "d4-concurrency",
-      prompt: "You must resize 50,000 images with a pure-Python function on a standard CPython build. What gives a real speed-up across CPU cores?",
+      prompt: "You need to resize 50,000 images with a pure-Python function on a standard CPython build. What gives a real speed-up across CPU cores?",
       options: [
-        "`multiprocessing` (e.g. `ProcessPoolExecutor`)",
-        "`threading` (e.g. `ThreadPoolExecutor`)",
+        "`multiprocessing` (for example `ProcessPoolExecutor`)",
+        "`threading` (for example `ThreadPoolExecutor`)",
         "`asyncio.gather`",
         "Running the loop inside a generator",
       ],
       answer: [0],
       explanation:
-        "This is CPU-bound Python code. On the standard build the GIL lets only one thread run Python bytecode at a time, so threads and asyncio won't use more cores. Separate processes each have their own interpreter and GIL.",
+        "This work keeps the CPU busy in Python code. On the standard build, the GIL lets only one thread run Python bytecode at a time, so threads and asyncio can't use more cores. Separate processes each have their own interpreter and GIL, so they really do run in parallel.",
     },
     {
       id: "d4-20",
@@ -573,14 +803,15 @@ export default defineDomain({
       level: "senior",
       lesson: "d4-concurrency",
       type: "match",
-      prompt: "Match each workload to the best-fit tool.",
+      prompt: "Match each workload to the tool that fits it best.",
       pairs: [
         ["Thousands of concurrent HTTP requests from one process", "asyncio"],
         ["CPU-heavy number crunching in pure Python", "multiprocessing"],
         ["A few blocking calls to a library with no async support", "threading"],
         ["Run one blocking function from async code without freezing the loop", "asyncio.to_thread()"],
       ],
-      explanation: "Classify first: I/O-bound work suits asyncio or threads; CPU-bound work needs processes. `asyncio.to_thread` (3.9+) offloads a blocking call to a worker thread.",
+      explanation:
+        "Sort the work first. Work that mostly waits on I/O suits asyncio or threads. Work that keeps the CPU busy needs processes. `asyncio.to_thread` (Python 3.9 and later) moves one blocking call onto a worker thread.",
     },
     {
       id: "d4-21",
@@ -605,7 +836,8 @@ export default defineDomain({
       codeLang: "python",
       options: ["`[1, 2, 3] 1`", "`[1, 2, 3] 3`", "`[3, 2, 1] 1`", "`[<coroutine>, <coroutine>, <coroutine>] 0`"],
       answer: [0],
-      explanation: "`gather` runs the coroutines concurrently; their sleeps overlap, so the total is about 1 second. Results come back in argument order, not finish order.",
+      explanation:
+        "`gather` runs the three jobs at the same time, so their one-second sleeps overlap and the total is about 1 second. Results come back in the order you passed them in, not the order they finished.",
     },
     {
       id: "d4-22",
@@ -628,7 +860,8 @@ export default defineDomain({
       `,
       codeLang: "python",
       answer: [4],
-      explanation: "`time.sleep` blocks the whole event loop thread, so the coroutines run one after another. Use `await asyncio.sleep(1)` (or `await asyncio.to_thread(...)` for blocking library calls).",
+      explanation:
+        "`time.sleep` freezes the whole event loop thread, so the jobs end up running one after another. Use `await asyncio.sleep(1)` instead, or `await asyncio.to_thread(...)` for a blocking library call.",
     },
     {
       id: "d4-23",
@@ -637,20 +870,21 @@ export default defineDomain({
       lesson: "d4-concurrency",
       prompt: "Which statement about CPython's GIL is true?",
       options: [
-        "Only one thread executes Python bytecode at a time in a process, but threads can still overlap while waiting on I/O",
+        "Only one thread runs Python bytecode at a time in a process, but threads can still overlap while waiting on I/O",
         "It makes `counter += 1` from many threads safe without a lock",
-        "It prevents a Python program from starting more than one thread",
+        "It stops a Python program from starting more than one thread",
         "It also limits how many processes `multiprocessing` can start",
       ],
       answer: [0],
-      explanation: "The GIL protects the interpreter's internals, not your logic. `counter += 1` is a read, an add, and a write, so threads can interleave and lose updates. Use a `threading.Lock`.",
+      explanation:
+        "The GIL protects the interpreter's own internals, not your program's logic. `counter += 1` is a read, an add and a write, so two threads can interleave and lose an update. Protect it with a `threading.Lock`.",
     },
     {
       id: "d4-24",
       domain: "d4",
       level: "staff",
       lesson: "d4-concurrency",
-      prompt: "An asyncio web service calls a CPU-heavy pure-Python function (about 2 seconds) inside a request handler, and latency spikes for every user. What's the best fix?",
+      prompt: "An asyncio web service calls a CPU-heavy pure-Python function (about 2 seconds) inside a request handler, and response times spike for every user. What's the best fix?",
       options: [
         "Run it in a process pool (`await loop.run_in_executor(process_pool, fn, ...)`) or hand it to a separate worker queue",
         "Add `await asyncio.sleep(0)` before the call",
@@ -659,7 +893,7 @@ export default defineDomain({
       ],
       answer: [0],
       explanation:
-        "CPU work blocks the single event-loop thread, stalling every other request. `async def` alone doesn't make code non-blocking. A process pool (or a job queue like Celery or RQ) runs it elsewhere, sidestepping the GIL too.",
+        "CPU work blocks the single event-loop thread, so every other request waits. Writing `async def` on its own doesn't make code stop blocking. A process pool, or a job queue like Celery or RQ, runs the work somewhere else and gets around the GIL as well.",
     },
     {
       id: "d4-25",
@@ -667,15 +901,15 @@ export default defineDomain({
       level: "staff",
       lesson: "d4-errors",
       type: "order",
-      prompt: "Order a graceful shutdown for a worker service that receives SIGTERM during a deploy.",
+      prompt: "Put in order a graceful shutdown for a worker service that receives SIGTERM during a deploy.",
       items: [
         "Stop accepting new jobs",
         "Let in-flight jobs finish, up to a timeout",
-        "Release resources: flush buffers and close connections (context managers / `finally`)",
+        "Release resources: flush buffers and close connections (context managers or `finally`)",
         "Exit with status 0",
       ],
       explanation:
-        "Draining before exiting avoids half-finished work. Putting cleanup in `with` blocks and `finally` means it also runs if a job raises during shutdown.",
+        "Draining the work before exiting avoids leaving jobs half done. Putting cleanup in `with` blocks and `finally` means it still runs if a job raises during shutdown.",
     },
     {
       id: "d4-26",
@@ -684,21 +918,21 @@ export default defineDomain({
       lesson: "d4-errors",
       prompt: "Your team wraps a third-party payments SDK for the rest of the company. Which error-handling design serves callers best?",
       options: [
-        "A small exception hierarchy (`PaymentError`, `CardDeclined(PaymentError)`, …) that SDK errors are translated into with `raise ... from err`",
+        "A small family of exceptions (`PaymentError`, `CardDeclined(PaymentError)`, and so on) that SDK errors are translated into with `raise ... from err`",
         "Let every SDK exception leak through unchanged",
         "Return `None` on any failure",
         "Raise a plain `Exception(\"failed\")` for every problem",
       ],
       answer: [0],
       explanation:
-        "Callers can catch exactly what they handle (`except CardDeclined`) or everything (`except PaymentError`), they don't depend on the vendor's types (so you can swap SDKs), and `from err` keeps the original traceback for debugging.",
+        "Callers can catch exactly what they handle (`except CardDeclined`) or everything (`except PaymentError`). They don't depend on the vendor's own types, so you can swap SDKs later. And `from err` keeps the original traceback for debugging.",
     },
     {
       id: "d4-27",
       domain: "d4",
       level: "staff",
       lesson: "d4-classes",
-      prompt: "In a plugin system, every plugin class must implement `run()`, and a plugin that forgets should fail loudly when it's instantiated. What fits best?",
+      prompt: "In a plugin system, every plugin class must implement `run()`, and a plugin that forgets should fail loudly as soon as it's created. What fits best?",
       options: [
         "A base class built on `abc.ABC` with `@abstractmethod def run(self)`",
         "A note in the README",
@@ -707,41 +941,42 @@ export default defineDomain({
       ],
       answer: [0],
       explanation:
-        "Instantiating a subclass that hasn't implemented every abstract method raises `TypeError` immediately. For duck-typed plugins that don't share a base class, `typing.Protocol` gives the same contract to static type checkers.",
+        "Creating an instance of a subclass that hasn't filled in every abstract method raises `TypeError` straight away. For plugins that don't share a base class, `typing.Protocol` gives static type checkers the same contract.",
     },
     {
       id: "d4-28",
       domain: "d4",
       level: "staff",
       lesson: "d4-inheritance",
-      prompt: "Why do teams often prefer composition over a deep inheritance hierarchy? (Choose two.)",
+      prompt: "Why do teams often prefer composition over a deep inheritance tree? (Choose two.)",
       options: [
         "Behaviour can be swapped by passing in a different collaborator, which makes testing and change easier",
-        "It avoids fragile coupling to base-class internals and surprising MRO and `super()` chains",
+        "It avoids fragile ties to base-class internals and surprising MRO and `super()` chains",
         "Composition makes attribute lookup significantly faster",
         "Python doesn't allow inheritance more than two levels deep",
         "Composed objects don't need tests",
       ],
       answer: [0, 1],
-      explanation: "Inheritance ties a subclass to its parents' implementation details. Composition (\"has-a\") keeps pieces independent and replaceable. Python allows deep hierarchies; it just rarely pays off.",
+      explanation:
+        "Inheritance ties a subclass to the inner workings of its parents. Composition, where an object has other objects rather than being a kind of them, keeps the pieces separate and easy to replace. Python does allow deep trees; they just rarely pay off.",
     },
   ],
 
   cards: [
-    { id: "c4-dataclass", domain: "d4", kind: "service", term: "@dataclass", definition: "Generates __init__, __repr__, and __eq__ from annotated fields; options include frozen, order, slots." },
-    { id: "c4-property", domain: "d4", kind: "service", term: "@property", definition: "Turns a method into a computed attribute, with optional setter and deleter." },
-    { id: "c4-classmethod", domain: "d4", kind: "service", term: "@classmethod", definition: "Method that receives the class (cls); often used for alternative constructors." },
-    { id: "c4-staticmethod", domain: "d4", kind: "service", term: "@staticmethod", definition: "Method that receives no implicit first argument; a plain function namespaced in the class." },
-    { id: "c4-super", domain: "d4", kind: "service", term: "super()", definition: "Proxy that calls the next class in the instance's MRO." },
-    { id: "c4-contextmanager", domain: "d4", kind: "service", term: "contextlib.contextmanager", definition: "Builds a context manager from a generator: code before yield is setup, after it is cleanup." },
-    { id: "c4-gather", domain: "d4", kind: "service", term: "asyncio.gather", definition: "Runs awaitables concurrently and returns their results in argument order." },
-    { id: "c4-threadpool", domain: "d4", kind: "service", term: "ThreadPoolExecutor", definition: "concurrent.futures pool of threads; good for blocking I/O work." },
-    { id: "c4-processpool", domain: "d4", kind: "service", term: "ProcessPoolExecutor", definition: "concurrent.futures pool of processes; sidesteps the GIL for CPU-bound work." },
-    { id: "c4-lock", domain: "d4", kind: "service", term: "threading.Lock", definition: "Mutual-exclusion lock; use it with with to protect shared state between threads." },
-    { id: "c4-mro", domain: "d4", kind: "concept", term: "MRO", definition: "Method Resolution Order: the C3-linearized class list Python searches for attributes (Cls.__mro__)." },
-    { id: "c4-gil", domain: "d4", kind: "concept", term: "GIL", definition: "CPython's Global Interpreter Lock: one thread runs Python bytecode at a time per process." },
-    { id: "c4-dunder", domain: "d4", kind: "concept", term: "Dunder methods", definition: "Double-underscore hooks like __len__ and __eq__ that connect your class to built-in syntax." },
-    { id: "c4-ctx", domain: "d4", kind: "concept", term: "Context manager", definition: "Object with __enter__ and __exit__ used by with to guarantee setup and cleanup." },
-    { id: "c4-eafp", domain: "d4", kind: "concept", term: "EAFP", definition: "\"Easier to ask forgiveness than permission\": try the operation and handle the exception." },
+    { id: "c4-dataclass", domain: "d4", kind: "service", term: "@dataclass", definition: "Writes __init__, __repr__ and __eq__ for you from the annotated fields. Options include frozen, order and slots." },
+    { id: "c4-property", domain: "d4", kind: "service", term: "@property", definition: "Turns a method into an attribute that's worked out when you read it. You can add a setter and deleter too." },
+    { id: "c4-classmethod", domain: "d4", kind: "service", term: "@classmethod", definition: "A method that receives the class (cls) instead of an instance. Often used for extra ways to build an object." },
+    { id: "c4-staticmethod", domain: "d4", kind: "service", term: "@staticmethod", definition: "A method that gets no automatic first argument. It's a plain function that lives inside the class for tidiness." },
+    { id: "c4-super", domain: "d4", kind: "service", term: "super()", definition: "Calls the next class in the object's MRO, which lets each class in a chain run its part." },
+    { id: "c4-contextmanager", domain: "d4", kind: "service", term: "contextlib.contextmanager", definition: "Builds a context manager from a generator. The code before yield is the setup, and the code after it is the cleanup." },
+    { id: "c4-gather", domain: "d4", kind: "service", term: "asyncio.gather", definition: "Runs several awaitables at the same time and returns their results in the order you passed them." },
+    { id: "c4-threadpool", domain: "d4", kind: "service", term: "ThreadPoolExecutor", definition: "A pool of threads from concurrent.futures. A good fit for work that spends its time waiting on I/O." },
+    { id: "c4-processpool", domain: "d4", kind: "service", term: "ProcessPoolExecutor", definition: "A pool of processes from concurrent.futures. It gets around the GIL for CPU-heavy work." },
+    { id: "c4-lock", domain: "d4", kind: "service", term: "threading.Lock", definition: "Lets only one thread at a time into a section of code. Use it in a with block to protect shared data." },
+    { id: "c4-mro", domain: "d4", kind: "concept", term: "MRO", definition: "Method Resolution Order: the list of classes Python searches, in order, to find an attribute. You can see it with Cls.__mro__." },
+    { id: "c4-gil", domain: "d4", kind: "concept", term: "GIL", definition: "CPython's Global Interpreter Lock. It lets only one thread run Python bytecode at a time in each process." },
+    { id: "c4-dunder", domain: "d4", kind: "concept", term: "Dunder methods", definition: "Double-underscore methods like __len__ and __eq__. They connect your class to built-in syntax such as len() and ==." },
+    { id: "c4-ctx", domain: "d4", kind: "concept", term: "Context manager", definition: "An object with __enter__ and __exit__. The with statement uses it to make sure setup and cleanup always happen." },
+    { id: "c4-eafp", domain: "d4", kind: "concept", term: "EAFP", definition: "\"Easier to ask forgiveness than permission\": try the operation and handle the exception, instead of checking everything first." },
   ],
 });

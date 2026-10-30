@@ -71,7 +71,7 @@ export default defineCourse({
     scope: {
       label: "Topics covered",
       groups: [
-        { category: "Basics", icon: "🐳", services: ["Containers vs VMs", "Images", "docker run", "ps / logs / exec", "stop / kill / rm"] },
+        { category: "Basics", icon: "🐳", services: ["Containers versus VMs", "Images", "docker run", "ps / logs / exec", "stop / kill / rm"] },
         { category: "Dockerfiles", icon: "🧱", services: ["FROM", "RUN", "COPY", "CMD", "ENTRYPOINT", "ARG / ENV", "USER", ".dockerignore"] },
         { category: "Builds", icon: "⚡", services: ["Layers", "Build cache", "Multi-stage", "Cache mounts", "Base images"] },
         { category: "Runtime", icon: "🔌", services: ["Volumes", "Bind mounts", "Ports", "Networks & DNS", "Docker Compose"] },
@@ -80,10 +80,10 @@ export default defineCourse({
       ],
     },
     tips: [
-      { icon: "🧪", tip: "Type the commands. `docker run --rm -it alpine sh` gives you a disposable Linux box to experiment in." },
+      { icon: "🧪", tip: "Type the commands yourself. `docker run --rm -it alpine sh` gives you a throwaway Linux box to experiment in." },
       { icon: "📦", tip: "Order Dockerfile steps from least to most frequently changed. Dependencies first, source code last." },
       { icon: "🗄️", tip: "If losing a container would lose data, that data belongs in a named volume." },
-      { icon: "🔌", tip: "Can't connect? Check three things: the -p direction (HOST:CONTAINER), the app listening on 0.0.0.0, and the network the containers share." },
+      { icon: "🔌", tip: "Can't connect? Check three things: the -p order (host port first, then container port), the app listening on 0.0.0.0, and the network the containers share." },
       { icon: "🏷️", tip: "Never deploy `latest`. Use versioned tags or digests so you always know what's running." },
       { icon: "🛡️", tip: "Run as non-root, keep secrets out of layers, and rebuild images regularly to pick up base-image patches." },
     ],
@@ -94,12 +94,12 @@ export default defineCourse({
     {
       title: "Containers",
       items: [
-        ["docker run -d --name api -p 8080:3000 img", "Background container, named, host 8080 → container 3000"],
+        ["docker run -d --name api -p 8080:3000 img", "Named background container, host port 8080 to container port 3000"],
         ["docker run --rm -it img sh", "Throwaway interactive shell"],
-        ["docker ps · docker ps -a", "Running · all containers"],
-        ["docker logs -f api", "Follow stdout/stderr"],
+        ["docker ps · docker ps -a", "Running containers · all containers"],
+        ["docker logs -f api", "Follow a container's stdout and stderr"],
         ["docker exec -it api sh", "Shell inside a running container"],
-        ["docker stop / kill / rm -f", "SIGTERM then SIGKILL · SIGKILL · stop and delete"],
+        ["docker stop / kill / rm -f", "SIGTERM, then SIGKILL · SIGKILL at once · stop and delete"],
       ],
     },
     {
@@ -109,8 +109,8 @@ export default defineCourse({
         ["COPY package*.json ./ then RUN npm ci then COPY . .", "Cache-friendly order"],
         ["RUN a && b && cleanup", "One layer; cleanup in the same step"],
         ['CMD ["node", "server.js"]', "Exec form: the app is PID 1 and gets signals"],
-        ["ENTRYPOINT + CMD", "Fixed program + default arguments"],
-        ["ARG vs ENV", "Build-time only vs build and run time"],
+        ["ENTRYPOINT + CMD", "A fixed program plus default arguments"],
+        ["ARG and ENV", "ARG exists only at build time, ENV at build and run time"],
       ],
     },
     {
@@ -119,7 +119,7 @@ export default defineCourse({
         ["docker build -t name:tag .", "Build from the current folder (the context)"],
         ["docker image ls · docker history img", "List images · show an image's layers"],
         ["COPY --from=build /out/app /app", "Take only build output into the final stage"],
-        ["docker tag / docker push", "Name for a registry · upload"],
+        ["docker tag / docker push", "Name it for a registry · upload it"],
         ["name:tag@sha256:…", "Pin exact content by digest"],
       ],
     },

@@ -1,4 +1,4 @@
-import { CodeBlock, CodeCompare, Tiles } from "@/components/learn/blocks";
+import { CodeBlock, CodeCompare, Flow, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { ThreeAreasLab } from "../labs";
 import { sh } from "../snippet";
@@ -13,7 +13,7 @@ export default defineDomain({
     weight: 20,
     emoji: "📸",
     color: "#38bdf8",
-    summary: "Why version control exists, your first repository, the working tree / index / commit flow, and reading history with status, diff and log.",
+    summary: "Why version control exists, how to start your first repository, how a change travels from your files into a commit, and how to read history with status, diff and log.",
   },
 
   tasks: [
@@ -36,6 +36,68 @@ export default defineDomain({
 
   lessons: [
     {
+      id: "d1-start-git",
+      level: "beginner",
+      task: "1.1",
+      title: "What Git is, in plain words",
+      check: ["git-b1-01", "git-b1-02"],
+      visual: (
+        <Flow
+          steps={[
+            { icon: "✏️", label: "You edit files", sub: "Work the way you always do" },
+            { icon: "📸", label: "You save a snapshot", sub: "Git calls each one a commit" },
+            { icon: "📚", label: "History grows", sub: "Every snapshot is kept, in order" },
+            { icon: "⏪", label: "Look back any time", sub: "Compare snapshots or return to one" },
+          ]}
+        />
+      ),
+      points: [
+        "Think of a video game with save points. **Git** gives your project save points, so you can always get back to a version that worked.",
+        "Each save point is called a **commit**. It's a snapshot of every file in the project at that moment, plus a short note saying what changed.",
+        "Git keeps all your commits in order. That list is the project's **history**, and you can read it, compare any two commits, or go back to one.",
+        "Git runs on your own computer and works without the internet. Websites like GitHub are a separate thing: places to store and share Git projects.",
+      ],
+      tip: "You don't need to understand everything to start. If you can save a commit and read the history, you already have Git's most useful feature.",
+    },
+    {
+      id: "d1-start-commit",
+      level: "beginner",
+      task: "1.2",
+      title: "Your first commit: add, then commit",
+      check: ["git-b1-03", "git-b1-04"],
+      visual: (
+        <div className="grid gap-4">
+          <Flow
+            color="#34d399"
+            steps={[
+              { icon: "📝", label: "Edit", sub: "Change or create a file" },
+              { icon: "📦", label: "git add", sub: "Put it in the box for the next commit" },
+              { icon: "🏷️", label: "git commit", sub: "Seal the box and write a label" },
+            ]}
+          />
+          <CodeBlock
+            lang="bash"
+            caption="A first commit, start to finish"
+            code={sh(
+              "git init                       # start tracking this folder",
+              'echo "buy milk" > notes.txt    # make a file',
+              "git status                     # Git sees a new, untracked file",
+              "git add notes.txt              # stage it",
+              'git commit -m "Add shopping list"',
+              "git log --oneline              # your first line of history",
+            )}
+          />
+        </div>
+      ),
+      points: [
+        "Saving a commit takes two steps. Picture packing a parcel: first you put things in the box, then you seal it and write a label.",
+        "`git add <file>` puts a file in the box. Git calls the box the **staging area**: it holds what your next commit will contain.",
+        "`git commit -m \"message\"` seals the box. The message is the label, a short note like \"Add shopping list\" that says what changed.",
+        "`git status` tells you what's going on at any moment: which files are new, which have changed, and which are ready to commit.",
+      ],
+      tip: "When you feel lost, run `git status`. It's always safe, it never changes anything, and it often tells you which command to run next.",
+    },
+    {
       id: "d1-why",
       level: "junior",
       task: "1.1",
@@ -47,15 +109,15 @@ export default defineDomain({
           tiles={[
             { icon: "😵", title: "Without version control", text: "`report_final_v2_REALLY_final.docx`, emailed zips, and no idea who broke what or how to get yesterday's version back.", color: "#fb7185" },
             { icon: "📸", title: "With Git", text: "Every commit is a saved snapshot of the whole project, with who, when, and why. You can compare any two, or go back to any one.", color: "#34d399" },
-            { icon: "🌐", title: "Distributed", text: "Every clone holds the full history. You can commit, branch, and read the log offline; any clone is a complete backup.", color: "#38bdf8" },
-            { icon: "🐙", title: "Git ≠ GitHub", text: "Git is the tool on your machine. GitHub (like GitLab or Bitbucket) hosts Git repositories and adds pull requests, reviews, issues, and CI.", color: "#a78bfa" },
+            { icon: "🌐", title: "Distributed", text: "Every copy holds the full history. You can commit, branch, and read the log offline, and any copy is a complete backup.", color: "#38bdf8" },
+            { icon: "🐙", title: "Git is not GitHub", text: "Git is the tool on your machine. GitHub (like GitLab or Bitbucket) hosts Git repositories and adds pull requests, reviews, issues, and CI.", color: "#a78bfa" },
           ]}
         />
       ),
       points: [
-        "Version control records the history of a project as a series of snapshots called commits.",
+        "**Version control** records a project's history as a series of snapshots. Each snapshot is called a **commit**.",
         "Each commit knows its author, its date, its message, and the commit that came before it.",
-        "Git is distributed: your clone is a full repository, not a thin client of a server.",
+        "Git is **distributed**. Your copy of a project, called a **clone**, holds the full history, so it doesn't need a server to work.",
         "GitHub is a hosting service built around Git. You can use Git with no hosting at all.",
       ],
       tip: "Commit early and often on your own machine. Commits are cheap and local until you push, so they're the best undo button you'll ever have.",
@@ -90,7 +152,7 @@ export default defineDomain({
         "`git init` turns the current folder into a repository by creating a hidden `.git` directory. Delete `.git` and the history is gone.",
         "`git clone <url>` downloads a repository with its whole history and sets up a remote called `origin`.",
         "`user.name` and `user.email` are stamped on every commit you make. `--global` sets them for every repository on this machine.",
-        "Recent Git versions let you choose the first branch's name; most projects now use `main`.",
+        "Recent Git versions let you choose the name of the first branch. Most projects now call it `main`.",
       ],
       tip: "Run `git status` constantly. It tells you which branch you're on, what's staged, what's modified, and usually which command to run next.",
     },
@@ -102,10 +164,11 @@ export default defineDomain({
       check: ["d1-08", "d1-10"],
       visual: <ThreeAreasLab />,
       points: [
-        "Working tree: the files on disk that you edit. Index (staging area): the snapshot your next commit will record. Repository: the commits.",
+        "The **working tree** is the files on disk that you edit. The **index**, also called the staging area, is the snapshot your next commit will record.",
+        "The **repository** is the commits themselves, stored in the hidden `.git` folder.",
         "`git add` copies a file's current content into the index. Edit it again afterwards and the new edit is not staged.",
         "`git commit` records whatever is in the index, not whatever is on disk.",
-        "`git restore <file>` throws away working-tree edits; `git restore --staged <file>` unstages but keeps your edits.",
+        "`git restore <file>` throws away the edits in your working tree. `git restore --staged <file>` takes the file out of the index but keeps your edits.",
         "Commits are full snapshots. Unchanged files are shared between commits, so a commit only stores what changed.",
       ],
       tip: "The index is what lets you make focused commits: stage only the lines that belong together (`git add -p`), commit, then stage the next group.",
@@ -137,8 +200,8 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "`git diff` shows unstaged changes; `git diff --staged` shows what the next commit will contain.",
-        "A good commit is one logical change with a short imperative summary (\"Fix crash…\") and, when needed, a body explaining why.",
+        "`git diff` shows the changes you haven't staged yet. `git diff --staged` shows what the next commit will contain.",
+        "A good commit holds one logical change. Give it a short summary written as a command, like \"Fix crash when cart is empty\", and add a body explaining why when it isn't obvious.",
         "`.gitignore` only affects untracked files. A file Git already tracks stays tracked until you `git rm --cached` it.",
         "`git commit --amend` replaces the last commit with a new one. Only do it before you've pushed.",
       ],
@@ -147,6 +210,83 @@ export default defineDomain({
   ],
 
   questions: [
+    {
+      id: "git-b1-01",
+      domain: "d1",
+      level: "beginner",
+      lesson: "d1-start-git",
+      prompt: "In Git, what is a commit?",
+      options: [
+        "A saved snapshot of your project, with a short message about what changed",
+        "A file that lists the project's settings",
+        "A copy of the project uploaded to a website",
+        "A command that deletes old versions",
+      ],
+      answer: [0],
+      explanation: "A commit is like a save point in a game. It records every file as it was at that moment, plus a message. Your commits, in order, make up the project's history.",
+    },
+    {
+      id: "git-b1-02",
+      domain: "d1",
+      level: "beginner",
+      lesson: "d1-start-git",
+      prompt: "You're on a plane with no internet. Can you still make Git commits?",
+      options: [
+        "Yes: Git runs on your own computer, so commits are saved locally",
+        "No: every commit has to be sent to GitHub straight away",
+        "Only if you've paid for a GitHub account",
+        "Only for files smaller than 1 MB",
+      ],
+      answer: [0],
+      explanation: "Git is a program on your machine, and your history lives in your project folder. You only need the internet when you want to share commits, for example with GitHub.",
+    },
+    {
+      id: "git-b1-03",
+      type: "fill",
+      domain: "d1",
+      level: "beginner",
+      lesson: "d1-start-commit",
+      prompt: "Fill the gap to put `notes.txt` in the staging area, ready for the next commit.",
+      code: "git {{1}} notes.txt\ngit commit -m \"Add shopping list\"",
+      codeLang: "bash",
+      blanks: [{ options: ["add", "save", "push", "log"], answer: 0 }],
+      explanation: "`git add` stages a file, which means it goes into the box for your next commit. Git has no `save` command, `push` sends commits to another computer, and `log` shows history.",
+    },
+    {
+      id: "git-b1-04",
+      type: "output",
+      domain: "d1",
+      level: "beginner",
+      lesson: "d1-start-commit",
+      prompt: "You've just started a repository and made one new file. Type what `git status --short` prints.",
+      code: "git init -q\necho \"buy milk\" > notes.txt\ngit status --short",
+      codeLang: "bash",
+      answers: ["?? notes.txt"],
+      explanation: "`??` means **untracked**: Git can see the file, but you haven't asked it to track it yet. Once you run `git add notes.txt`, the line changes to `A  notes.txt`, meaning added and staged.",
+    },
+    {
+      id: "git-b1-05",
+      type: "output",
+      domain: "d1",
+      level: "beginner",
+      lesson: "d1-start-commit",
+      prompt: "Type the two lines `git log --format=%s` prints. (`%s` shows just each commit's message.)",
+      code:
+        "git init -q\necho hi > a.txt\ngit add a.txt\ngit commit -qm \"First draft\"\necho more >> a.txt\ngit add a.txt\ngit commit -qm \"Add second line\"\ngit log --format=%s",
+      codeLang: "bash",
+      answers: ["Add second line\nFirst draft"],
+      explanation: "`git log` lists commits newest first, so the commit you made last comes at the top. Reading down the list takes you back in time.",
+    },
+    {
+      id: "git-b1-06",
+      domain: "d1",
+      level: "beginner",
+      lesson: "d1-start-git",
+      prompt: "Which command shows what has changed and what's ready to commit, without changing anything?",
+      options: ["`git status`", "`git commit`", "`git init`", "`git add .`"],
+      answer: [0],
+      explanation: "`git status` only reports. It lists new files, changed files and staged files. `git commit` and `git add` change what Git records, and `git init` starts a new repository.",
+    },
     {
       id: "d1-01",
       domain: "d1",
@@ -160,7 +300,7 @@ export default defineDomain({
         "It automatically fixes merge bugs",
       ],
       answer: [0],
-      explanation: "Version control is a history of snapshots with metadata. Everything else (branching, collaboration, undo) is built on that history.",
+      explanation: "Version control keeps a history of snapshots, each labelled with who made it, when and why. Branching, teamwork and undo are all built on that history.",
     },
     {
       id: "d1-02",
@@ -275,7 +415,7 @@ export default defineDomain({
       type: "order",
       prompt: "Order a change's journey through Git's three areas.",
       items: ["You edit the file in the working tree", "`git add` copies that content into the index", "`git commit` records the index as a new commit"],
-      explanation: "Working tree → index → repository. `git status` describes the gaps between them.",
+      explanation: "A change starts in the working tree, moves to the index when you stage it, and lands in the repository when you commit. `git status` tells you what's waiting in each step.",
     },
     {
       id: "d1-10",
@@ -321,10 +461,10 @@ export default defineDomain({
       domain: "d1",
       level: "junior",
       lesson: "d1-history",
-      prompt: "You staged some changes and then kept editing. Which command shows only the staged changes, i.e. what the next commit will contain?",
+      prompt: "You staged some changes and then kept editing. Which command shows only the staged changes, which is exactly what the next commit will contain?",
       options: ["`git diff --staged`", "`git diff`", "`git log`", "`git show`"],
       answer: [0],
-      explanation: "`git diff` compares working tree to index (unstaged changes). `git diff --staged` (also spelled `--cached`) compares index to the last commit.",
+      explanation: "`git diff` compares your working tree with the index, so it shows unstaged changes. `git diff --staged` (also spelled `--cached`) compares the index with the last commit.",
     },
     {
       id: "d1-14",
@@ -436,7 +576,7 @@ export default defineDomain({
         "Commits only store the message",
       ],
       answer: [0],
-      explanation: "Git's model is snapshots built from content-addressed objects: identical content is stored once. (Pack files add delta compression on top, but that's a storage detail.)",
+      explanation: "Git files each piece of content under a hash of that content, so identical files share one stored copy. That's how full snapshots stay cheap. (Pack files also compress similar content, but that's a storage detail.)",
     },
     {
       id: "d1-22",
@@ -468,7 +608,7 @@ export default defineDomain({
         "The changes made by the last commit",
       ],
       answer: [0],
-      explanation: "`git diff` = working tree vs index, `git diff --staged` = index vs HEAD, and `git diff HEAD` = working tree vs HEAD (both combined).",
+      explanation: "`git diff` compares the working tree with the index, and `git diff --staged` compares the index with HEAD. `git diff HEAD` compares the working tree with HEAD, so you see both kinds of change together.",
     },
     {
       id: "d1-24",
@@ -499,7 +639,7 @@ export default defineDomain({
         "Delete the file in a new commit",
       ],
       answer: [0],
-      explanation: "Once pushed, assume the secret is compromised: clones, forks, CI logs and caches may have it. Rotation fixes the risk; history rewriting (e.g. git filter-repo) only reduces exposure.",
+      explanation: "Once it's pushed, assume the secret is out: clones, forks, CI logs and caches may already hold it. Rotating the key removes the risk. Rewriting history, for example with git filter-repo, only reduces exposure.",
     },
   ],
 
@@ -515,7 +655,7 @@ export default defineDomain({
     { id: "c1-gitignore", domain: "d1", kind: "service", term: ".gitignore", definition: "Patterns of untracked files Git should ignore, such as node_modules/ or .env." },
     { id: "c1-working-tree", domain: "d1", kind: "concept", term: "Working tree", definition: "The files checked out on disk that you edit." },
     { id: "c1-index", domain: "d1", kind: "concept", term: "Index (staging area)", definition: "The snapshot your next commit will record. git add puts content here." },
-    { id: "c1-snapshot", domain: "d1", kind: "concept", term: "Commit", definition: "A snapshot of the whole project plus author, message and parent commit(s), identified by a hash." },
+    { id: "c1-snapshot", domain: "d1", kind: "concept", term: "Commit", definition: "A snapshot of the whole project, plus its author, message and parent commit (or commits). A hash of all that is its ID." },
   ],
 
   challenges: [

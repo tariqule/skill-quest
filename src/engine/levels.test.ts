@@ -1,24 +1,25 @@
 import { describe, expect, it } from "vitest";
 import { COURSES } from "@/courses";
 import { examQuestions, levelDeck, weightedExamDeck } from "./game";
-import { LEVELS, levelSplit, nearbyLevels, questionsForLevel } from "./levels";
-import { isCodeTrack } from "./tracks";
+import { levelOf, levelOptions, levelSplit, nearbyLevels, questionsForLevel } from "./levels";
 
-const TRACKS = COURSES.filter(isCodeTrack);
+const TRACKS = COURSES;
 
 describe("nearbyLevels", () => {
   it("orders by distance, lower first on ties", () => {
-    expect(nearbyLevels("junior")).toEqual(["intermediate", "senior", "staff"]);
-    expect(nearbyLevels("senior")).toEqual(["intermediate", "staff", "junior"]);
-    expect(nearbyLevels("staff")).toEqual(["senior", "intermediate", "junior"]);
+    expect(nearbyLevels("beginner")).toEqual(["junior", "intermediate", "senior", "staff"]);
+    expect(nearbyLevels("junior")).toEqual(["beginner", "intermediate", "senior", "staff"]);
+    expect(nearbyLevels("senior")).toEqual(["intermediate", "staff", "junior", "beginner"]);
+    expect(nearbyLevels("staff")).toEqual(["senior", "intermediate", "junior", "beginner"]);
   });
 });
 
 describe.each(TRACKS.map((c) => [c.id, c] as const))("%s at every level", (_, course) => {
-  it.each(LEVELS.map((l) => [l.id] as const))("%s: every game deck is full, level-first, and duplicate-free", (level) => {
+  it.each(levelOptions(course).map((l) => [l.id] as const))("%s: every game deck is full, level-first, and duplicate-free", (level) => {
     const pool = questionsForLevel(course, level);
     expect(pool.length).toBeGreaterThanOrEqual(12);
-    if (level !== "all") expect(pool.every((q) => q.level === level)).toBe(true);
+    if (level === "exam") expect(pool.every((q) => levelOf(q) !== "beginner")).toBe(true);
+    else if (level !== "all") expect(pool.every((q) => levelOf(q) === level)).toBe(true);
 
     // Stage boss, study play and timed drills draw per stage with a nearby-level top-up.
     for (const d of course.domains) {
@@ -29,7 +30,8 @@ describe.each(TRACKS.map((c) => [c.id, c] as const))("%s at every level", (_, co
         expect(deck.length).toBe(Math.min(count, stage.length));
         expect(new Set(deck.map((q) => q.id)).size).toBe(deck.length);
         expect(deck.every((q) => q.domain === d.id)).toBe(true);
-        if (level !== "all") expect(deck.filter((q) => q.level === level).length).toBe(split.atLevel);
+        if (level === "exam") expect(deck.filter((q) => levelOf(q) !== "beginner").length).toBe(split.atLevel);
+        else if (level !== "all") expect(deck.filter((q) => levelOf(q) === level).length).toBe(split.atLevel);
       }
     }
 

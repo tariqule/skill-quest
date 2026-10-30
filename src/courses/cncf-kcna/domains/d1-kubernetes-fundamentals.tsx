@@ -19,7 +19,7 @@ export default defineDomain({
     weight: 44,
     emoji: "☸️",
     color: "#326ce5",
-    summary: "Cluster architecture, the Kubernetes API and kubectl, Pods and workload controllers, namespaces and labels, administration, scheduling, and containers.",
+    summary: "What a Kubernetes cluster is made of and how you work with it: the control plane and nodes, the API and kubectl, Pods and workloads, namespaces and labels, admin tasks, scheduling and containers.",
   },
 
   tasks: [
@@ -63,6 +63,79 @@ export default defineDomain({
   ],
 
   lessons: [
+    // ── Start here ──
+    {
+      id: "d1-b-containers",
+      level: "beginner",
+      task: "1.4",
+      title: "Start here: what a container is",
+      check: ["kcna-b1-01", "kcna-b1-02"],
+      visual: (
+        <Flow
+          color="#326ce5"
+          steps={[
+            { icon: "🧾", label: "Your app", sub: "Code plus everything it needs" },
+            { icon: "📦", label: "Container image", sub: "Packed into one portable bundle" },
+            { icon: "💻", label: "Any machine", sub: "Runs the same way everywhere" },
+          ]}
+        />
+      ),
+      points: [
+        "Think of a shipping container. It holds anything, and every ship, train and truck knows how to carry it without opening it.",
+        "A software **container** works the same way. It packs your app together with everything it needs to run, like libraries and settings.",
+        "The packed bundle is called an **image**. When you start an image, the running copy is a container.",
+        "This solves the classic \"it works on my machine\" problem. The same image runs the same way on your laptop and on a server.",
+      ],
+      tip: "Image is the recipe card. Container is the dish you cooked from it. You can cook many dishes from one card.",
+    },
+    {
+      id: "d1-b-kubernetes",
+      level: "beginner",
+      task: "1.1",
+      title: "Start here: what Kubernetes does",
+      check: ["kcna-b1-03", "kcna-b1-04"],
+      visual: (
+        <Tiles
+          cols={3}
+          tiles={[
+            { icon: "📋", title: "You describe", text: "\"I want three copies of my web app running.\"", color: "#326ce5" },
+            { icon: "🧠", title: "Kubernetes decides", text: "It picks which machines run each copy.", color: "#326ce5" },
+            { icon: "🔁", title: "It keeps watch", text: "If a copy crashes, it starts a new one for you.", color: "#326ce5" },
+          ]}
+        />
+      ),
+      points: [
+        "Picture a busy restaurant kitchen. The head chef doesn't cook every dish. They decide which cook makes what, and step in when someone falls behind.",
+        "**Kubernetes** is that head chef for containers. You tell it what you want running, and it places the containers on machines and keeps them going.",
+        "The group of machines Kubernetes manages is called a **cluster**. Each machine in it is a **node**.",
+        "Kubernetes runs containers inside a small wrapper called a **Pod**. Most Pods hold just one container.",
+      ],
+      tip: "You'll often see Kubernetes shortened to K8s. The 8 stands for the eight letters between the K and the s.",
+    },
+    {
+      id: "d1-b-kubectl",
+      level: "beginner",
+      task: "1.2",
+      title: "Start here: talking to a cluster with kubectl",
+      check: ["kcna-b1-05", "kcna-b1-06"],
+      visual: (
+        <CodeBlock
+          lang="sh"
+          caption="Your first commands: list what's running, then look closer at one Pod."
+          code={`kubectl get pods
+kubectl get nodes
+kubectl describe pod web-7d4b9`}
+        />
+      ),
+      points: [
+        "You talk to a cluster through a command-line tool called **kubectl** (people say \"cube control\" or \"cube cuttle\").",
+        "Most commands follow the same pattern: kubectl, then a verb, then the kind of thing. For example, `kubectl get pods` lists your Pods.",
+        "`kubectl describe` gives you the full story about one thing, including recent events. It's the first place to look when something seems wrong.",
+        "You can also write what you want in a YAML file and send it with `kubectl apply -f`. That file is called a **manifest**.",
+      ],
+      tip: "Lost? `kubectl get` shows a list, `kubectl describe` shows details, and `kubectl logs` shows what a container printed.",
+    },
+
     {
       id: "d1-architecture",
       task: "1.1",
@@ -70,12 +143,13 @@ export default defineDomain({
       check: ["d1-01", "d1-02"],
       visual: <ClusterMap />,
       points: [
-        "The control plane makes decisions: kube-apiserver (the only door), etcd (the state), kube-scheduler (where Pods run), kube-controller-manager (the control loops), and optionally the cloud-controller-manager.",
-        "Every node runs a kubelet (node agent), a container runtime (containerd, CRI-O), and usually kube-proxy (Service networking rules).",
-        "Components never talk to etcd directly. They watch and update objects through the API server, which persists them.",
-        "etcd uses Raft consensus: an odd number of members (3 or 5) tolerates failures while keeping a quorum.",
+        "The **control plane** makes the decisions. It's made of kube-apiserver (the only way in), etcd (where state is stored), kube-scheduler (picks where Pods run) and kube-controller-manager (runs the control loops).",
+        "Some clusters also run a cloud-controller-manager, which talks to the cloud provider.",
+        "Every node runs a **kubelet** (the node agent) and a container runtime such as containerd or CRI-O. Most also run kube-proxy, which sets up Service networking.",
+        "Other components never talk to etcd directly. They watch and update objects through the API server, and the API server saves them.",
+        "etcd uses Raft consensus. An odd number of members, like 3 or 5, lets it survive failures and still keep a majority (a quorum).",
       ],
-      tip: "\"Which component decides which node a Pod runs on?\" → kube-scheduler. \"Which one actually starts the containers?\" → kubelet, through the container runtime.",
+      tip: "Which component decides where a Pod runs? kube-scheduler. Which one actually starts the containers? The kubelet, through the container runtime.",
     },
     {
       id: "d1-api",
@@ -86,7 +160,7 @@ export default defineDomain({
         <div className="grid gap-4">
           <CodeBlock
             lang="yaml"
-            caption="Every object: apiVersion + kind say what it is, metadata names it, spec is what you want, status is what Kubernetes observed."
+            caption="Every object has the same shape. apiVersion and kind say what it is, metadata names it, spec is what you want, and status is what Kubernetes sees."
             code={`apiVersion: apps/v1      # API group/version
 kind: Deployment         # object type
 metadata:
@@ -101,7 +175,7 @@ status:                  # observed state (Kubernetes writes)
           />
           <Flow
             color="#326ce5"
-            loop="Controllers keep comparing desired with actual state and acting on the difference"
+            loop="Controllers keep comparing what you asked for with what's really there, and act on any difference"
             steps={[
               { icon: "📝", label: "kubectl apply -f", sub: "Send the desired state" },
               { icon: "🚪", label: "API server", sub: "Authenticate, authorize, admit, validate" },
@@ -112,13 +186,13 @@ status:                  # observed state (Kubernetes writes)
         </div>
       ),
       points: [
-        "Kubernetes is declarative: you store the desired state in objects, and controllers reconcile the real world toward it continuously.",
-        "Core objects such as Pod, Service, ConfigMap, and Namespace use apiVersion v1; workloads such as Deployment use apps/v1.",
-        "kubectl apply is declarative (create or update from files); kubectl create, run, and scale are imperative commands.",
-        "kubectl explain <kind>.<field> documents fields; kubectl api-resources lists every kind, its short name, and whether it is namespaced.",
-        "CustomResourceDefinitions (CRDs) add new kinds to the API. An operator pairs a CRD with a controller that encodes operational knowledge.",
+        "Kubernetes is **declarative**. You store the state you want in objects, and controllers keep nudging the real world toward it.",
+        "Core objects such as Pod, Service, ConfigMap and Namespace use apiVersion v1. Workloads such as Deployment use apps/v1.",
+        "`kubectl apply` is declarative: it creates or updates objects from files. `kubectl create`, `run` and `scale` are imperative commands that do one thing right now.",
+        "`kubectl explain <kind>.<field>` documents a field. `kubectl api-resources` lists every kind, its short name, and whether it lives in a namespace.",
+        "A **CustomResourceDefinition** (CRD) adds a new kind to the API. An **operator** pairs a CRD with a controller that knows how to run a particular app.",
       ],
-      tip: "spec = what you asked for; status = what is actually true. You never write status.",
+      tip: "spec is what you asked for. status is what's actually true. You never write status yourself.",
     },
     {
       id: "d1-workloads",
@@ -132,26 +206,26 @@ status:                  # observed state (Kubernetes writes)
             steps={[
               { icon: "🚀", label: "Deployment", sub: "Rollouts and rollbacks" },
               { icon: "📑", label: "ReplicaSet", sub: "Keeps N identical Pods" },
-              { icon: "📦", label: "Pods", sub: "Disposable, replaceable" },
+              { icon: "📦", label: "Pods", sub: "Disposable and replaceable" },
             ]}
           />
           <Tiles
             cols={3}
             tiles={[
-              { icon: "🧬", title: "StatefulSet", text: "Stable names (db-0, db-1), ordered start, and a PersistentVolumeClaim per Pod. Pairs with a headless Service.", color: "#326ce5" },
-              { icon: "🛰️", title: "DaemonSet", text: "One Pod on every (matching) node: log shippers, monitoring agents, CNI plugins.", color: "#326ce5" },
-              { icon: "🏁", title: "Job / CronJob", text: "Run to completion, with retries. CronJob creates Jobs on a cron schedule.", color: "#326ce5" },
+              { icon: "🧬", title: "StatefulSet", text: "Stable names (db-0, db-1), ordered startup, and a PersistentVolumeClaim for each Pod. Used with a headless Service.", color: "#326ce5" },
+              { icon: "🛰️", title: "DaemonSet", text: "One Pod on every node (or every matching node). Think log shippers, monitoring agents and CNI plugins.", color: "#326ce5" },
+              { icon: "🏁", title: "Job and CronJob", text: "Run until finished, with retries. A CronJob creates Jobs on a schedule.", color: "#326ce5" },
             ]}
           />
         </div>
       ),
       points: [
-        "A Pod is the smallest deployable unit: one or more containers sharing one IP address (they talk over localhost) and volumes.",
-        "Pods are ephemeral. Don't create bare Pods for apps; a controller recreates them when they fail or a node dies.",
-        "Init containers run to completion before the app containers start. A sidecar is a helper container (proxy, log shipper) running alongside the app.",
-        "Deployments are for stateless apps; StatefulSets for apps that need stable identity and storage; DaemonSets for per-node agents.",
+        "A **Pod** is the smallest thing you can deploy. It holds one or more containers that share one IP address and can share volumes. Containers in a Pod talk over localhost.",
+        "Pods are short-lived. Don't create bare Pods for your apps. Use a controller, which recreates Pods when they fail or a node dies.",
+        "**Init containers** run to completion before the app containers start. A **sidecar** is a helper container, like a proxy or log shipper, that runs next to the app.",
+        "Use Deployments for stateless apps, StatefulSets for apps that need a stable identity and storage, and DaemonSets for agents that run on every node.",
       ],
-      tip: "\"Exactly one copy on every node\" → DaemonSet. \"Stable hostname and its own disk per replica\" → StatefulSet.",
+      tip: "Exactly one copy on every node? DaemonSet. A stable hostname and its own disk for each replica? StatefulSet.",
     },
     {
       id: "d1-config",
@@ -170,19 +244,19 @@ status:                  # observed state (Kubernetes writes)
           <Tiles
             cols={2}
             tiles={[
-              { icon: "🏷️", title: "Labels + selectors", text: "Key/value pairs you can select on: Services, Deployments, and NetworkPolicies find Pods with selectors like app=web.", color: "#f59e0b" },
-              { icon: "📝", title: "Annotations", text: "Non-identifying metadata for tools and people (build info, owner, config hints). Not used for selection.", color: "#f59e0b" },
+              { icon: "🏷️", title: "Labels and selectors", text: "Key/value pairs you can select on. Services, Deployments and NetworkPolicies find their Pods with selectors like app=web.", color: "#f59e0b" },
+              { icon: "📝", title: "Annotations", text: "Extra notes for tools and people, like build info, owner or config hints. Nothing selects on them.", color: "#f59e0b" },
             ]}
           />
         </div>
       ),
       points: [
-        "Namespaces divide one cluster into virtual clusters for teams or environments; names must be unique within a namespace, not across the cluster.",
-        "ConfigMaps hold non-sensitive configuration; Secrets hold sensitive data. Both can be consumed as environment variables or mounted files.",
-        "Secret values are only base64-encoded, not encrypted. Protect them with RBAC and enable encryption at rest for etcd.",
-        "Labels drive behaviour (selection); annotations only describe.",
+        "**Namespaces** split one cluster into virtual clusters, for teams or environments. A name only has to be unique inside its namespace, not across the cluster.",
+        "**ConfigMaps** hold ordinary settings. **Secrets** hold sensitive data. Your app can read either one as environment variables or as mounted files.",
+        "Secret values are only base64-encoded, not encrypted. Protect them with RBAC, and turn on encryption at rest for etcd.",
+        "Labels change behaviour, because things select on them. Annotations only describe.",
       ],
-      tip: "A Service that sends traffic to nothing usually has a selector that doesn't match the Pod labels.",
+      tip: "A Service that sends traffic nowhere usually has a selector that doesn't match the Pod labels.",
     },
     {
       id: "d1-admin",
@@ -194,9 +268,9 @@ status:                  # observed state (Kubernetes writes)
           <Tiles
             cols={3}
             tiles={[
-              { icon: "🗝️", title: "kubeconfig", text: "~/.kube/config lists clusters, users, and contexts (cluster + user + namespace). kubectl config use-context switches.", color: "#38bdf8" },
-              { icon: "🛠️", title: "kubeadm", text: "Bootstraps a conformant cluster (kubeadm init, kubeadm join) and upgrades it one minor version at a time.", color: "#38bdf8" },
-              { icon: "🧾", title: "Quotas", text: "ResourceQuota caps a namespace's total usage; LimitRange sets per-container defaults and min/max.", color: "#38bdf8" },
+              { icon: "🗝️", title: "kubeconfig", text: "~/.kube/config lists clusters, users and contexts. A context is a cluster plus a user plus a namespace. kubectl config use-context switches between them.", color: "#38bdf8" },
+              { icon: "🛠️", title: "kubeadm", text: "Sets up a conformant cluster (kubeadm init, kubeadm join) and upgrades it one minor version at a time.", color: "#38bdf8" },
+              { icon: "🧾", title: "Quotas", text: "A ResourceQuota caps a namespace's total usage. A LimitRange sets defaults and min/max values for each container.", color: "#38bdf8" },
             ]}
           />
           <Flow
@@ -204,19 +278,19 @@ status:                  # observed state (Kubernetes writes)
             steps={[
               { icon: "🚧", label: "kubectl cordon", sub: "Mark the node unschedulable" },
               { icon: "🚚", label: "kubectl drain", sub: "Evict Pods (respects PodDisruptionBudgets)" },
-              { icon: "🔧", label: "Maintain / upgrade", sub: "Patch the OS, upgrade the kubelet" },
+              { icon: "🔧", label: "Maintain or upgrade", sub: "Patch the OS, upgrade the kubelet" },
               { icon: "✅", label: "kubectl uncordon", sub: "Allow scheduling again" },
             ]}
           />
         </div>
       ),
       points: [
-        "Kubernetes ships about three minor releases a year, and the three most recent minor versions are supported with patches (roughly 14 months each).",
+        "Kubernetes ships about three minor releases a year. The three most recent minor versions get patches, for roughly 14 months each.",
         "Upgrade the control plane first, then the nodes. A kubelet must never be newer than the API server.",
-        "A PodDisruptionBudget limits how many replicas of an app voluntary disruptions such as drains can take down at once.",
-        "Managed services (EKS, GKE, AKS, and others) run the control plane for you; you still manage workloads and usually node upgrades.",
+        "A **PodDisruptionBudget** limits how many replicas of an app can be taken down at once by planned disruptions, like draining a node.",
+        "Managed services such as EKS, GKE and AKS run the control plane for you. You still look after your workloads, and usually the node upgrades too.",
       ],
-      tip: "Node maintenance order: cordon → drain → work → uncordon.",
+      tip: "Node maintenance goes cordon, drain, do the work, uncordon.",
     },
     {
       id: "d1-scheduling",
@@ -229,21 +303,21 @@ status:                  # observed state (Kubernetes writes)
           <Tiles
             cols={3}
             tiles={[
-              { icon: "🟩", title: "Guaranteed", text: "Every container sets CPU and memory requests equal to limits. Evicted last.", color: "#34d399" },
-              { icon: "🟨", title: "Burstable", text: "At least one request or limit set, but not Guaranteed.", color: "#fbbf24" },
-              { icon: "🟥", title: "BestEffort", text: "No requests or limits at all. First to be evicted under node pressure.", color: "#fb7185" },
+              { icon: "🟩", title: "Guaranteed", text: "Every container sets CPU and memory requests equal to its limits. Evicted last.", color: "#34d399" },
+              { icon: "🟨", title: "Burstable", text: "At least one request or limit is set, but the Pod isn't Guaranteed.", color: "#fbbf24" },
+              { icon: "🟥", title: "BestEffort", text: "No requests or limits at all. First to be evicted when a node runs short.", color: "#fb7185" },
             ]}
           />
         </div>
       ),
       points: [
-        "The scheduler places Pods by requests, not actual usage: filtering removes nodes that can't fit the Pod, scoring ranks the rest.",
-        "Limits are enforced at runtime: going over the CPU limit throttles the container; going over the memory limit gets it OOMKilled.",
-        "Taints repel Pods from nodes; tolerations allow (but don't force) a Pod onto a tainted node. Use nodeSelector or node affinity to attract it.",
-        "Taint effects: NoSchedule (no new Pods), PreferNoSchedule (avoid if possible), NoExecute (also evicts running Pods that don't tolerate it).",
-        "Pod anti-affinity spreads replicas across nodes or zones; PriorityClasses let important Pods preempt lower-priority ones.",
+        "The scheduler places Pods by their **requests**, not by what they really use. First it filters out nodes that can't fit the Pod, then it scores the rest.",
+        "**Limits** are enforced while the container runs. Going over the CPU limit slows the container down (throttling). Going over the memory limit gets it OOMKilled.",
+        "A **taint** keeps Pods away from a node. A **toleration** lets a Pod onto a tainted node, but doesn't send it there. To pull it there, use nodeSelector or node affinity.",
+        "Taint effects: NoSchedule (no new Pods), PreferNoSchedule (avoid if possible), and NoExecute (also evicts running Pods that don't tolerate it).",
+        "Pod anti-affinity spreads replicas across nodes or zones. PriorityClasses let important Pods push out lower-priority ones.",
       ],
-      tip: "Pending Pod? Read the FailedScheduling event in kubectl describe pod: it names the unmet requests, taints, or selectors.",
+      tip: "Pod stuck Pending? Read the FailedScheduling event in `kubectl describe pod`. It names the request, taint or selector that couldn't be met.",
     },
     {
       id: "d1-containers",
@@ -257,29 +331,111 @@ status:                  # observed state (Kubernetes writes)
               { name: "kubelet", color: "#326ce5", items: ["Talks CRI (gRPC)"] },
               { name: "High-level runtime (CRI implementation)", color: "#38bdf8", items: ["containerd", "CRI-O"] },
               { name: "Low-level OCI runtime", color: "#34d399", items: ["runc", "crun", "Sandboxed: gVisor, Kata Containers"] },
-              { name: "Linux kernel", color: "#a78bfa", items: ["namespaces = isolation", "cgroups = resource limits"] },
+              { name: "Linux kernel", color: "#a78bfa", items: ["namespaces for isolation", "cgroups for resource limits"] },
             ]}
           />
           <Tiles
             cols={2}
             tiles={[
-              { icon: "🧅", title: "Image layers", text: "Each Dockerfile instruction adds a read-only layer; layers are shared and cached. Multi-stage builds keep only what runs.", color: "#f59e0b" },
-              { icon: "🔖", title: "Tag vs digest", text: "Tags (:1.4, :latest) can be moved. A digest (@sha256:…) always names exactly the same image.", color: "#f59e0b" },
+              { icon: "🧅", title: "Image layers", text: "Each Dockerfile instruction adds a read-only layer. Layers are shared and cached. Multi-stage builds keep only what the app needs to run.", color: "#f59e0b" },
+              { icon: "🔖", title: "Tag versus digest", text: "Tags like :1.4 or :latest can be moved to a different image. A digest (@sha256:…) always names exactly the same image.", color: "#f59e0b" },
             ]}
           />
         </div>
       ),
       points: [
-        "Containers share the host kernel and are isolated with Linux namespaces (PID, network, mount, …) and limited with cgroups. VMs each boot their own kernel.",
-        "OCI defines open specifications for images, runtimes, and distribution (registries), so an image built by any tool runs on any compliant runtime.",
-        "Kubernetes removed dockershim in v1.24; images built with Docker still run, because they are standard OCI images.",
-        "Prefer small base images, non-root users, and immutable tags or digests; avoid :latest in production.",
+        "Containers share the host's kernel. Linux **namespaces** (PID, network, mount and others) isolate them, and **cgroups** limit their resources. A virtual machine boots its own kernel instead.",
+        "**OCI** defines open specs for images, runtimes and distribution (registries). So an image built by any tool runs on any runtime that follows the spec.",
+        "Kubernetes removed dockershim in v1.24. Images built with Docker still run, because they're standard OCI images.",
+        "Prefer small base images, non-root users, and fixed tags or digests. Avoid :latest in production.",
       ],
-      tip: "CRI = kubelet ↔ runtime. OCI = image and runtime formats. Don't mix them up.",
+      tip: "CRI is how the kubelet talks to the runtime. OCI is the image and runtime format. Don't mix them up.",
     },
   ],
 
   questions: [
+    // ── Start here ──
+    {
+      id: "kcna-b1-01",
+      domain: "d1",
+      lesson: "d1-b-containers",
+      level: "beginner",
+      prompt: "What does a container package together?",
+      options: [
+        "An app and everything it needs to run, like libraries and settings",
+        "Only the app's source code, as text",
+        "A full physical server",
+        "A list of users who may log in",
+      ],
+      answer: [0],
+      explanation: "A container bundles the app with its libraries and settings. That's why it runs the same way on a laptop and on a server.",
+    },
+    {
+      id: "kcna-b1-02",
+      domain: "d1",
+      lesson: "d1-b-containers",
+      level: "beginner",
+      prompt: "What's the difference between a container image and a container?",
+      options: [
+        "The image is the packaged bundle, and a container is a running copy of it",
+        "They're two names for exactly the same thing",
+        "The container is the bundle, and the image is a screenshot of it",
+        "An image only works on Windows",
+      ],
+      answer: [0],
+      explanation: "Think of the image as a recipe and the container as a dish cooked from it. You can start many containers from one image.",
+    },
+    {
+      id: "kcna-b1-03",
+      domain: "d1",
+      lesson: "d1-b-kubernetes",
+      level: "beginner",
+      prompt: "What is Kubernetes mainly for?",
+      options: [
+        "Running and looking after containers across a group of machines",
+        "Writing the code inside an app",
+        "Designing website layouts",
+        "Replacing a computer's operating system",
+      ],
+      answer: [0],
+      explanation: "Kubernetes is a container orchestrator. You tell it what should be running, and it places containers on machines and restarts them if they fail.",
+    },
+    {
+      id: "kcna-b1-04",
+      domain: "d1",
+      lesson: "d1-b-kubernetes",
+      level: "beginner",
+      prompt: "In Kubernetes, what is a node?",
+      options: [
+        "One machine in the cluster that runs your containers",
+        "A single line in a YAML file",
+        "A type of container image",
+        "A person who manages the cluster",
+      ],
+      answer: [0],
+      explanation: "A cluster is a group of machines, and each machine is a node. Nodes can be physical servers or virtual machines.",
+    },
+    {
+      id: "kcna-b1-05",
+      domain: "d1",
+      lesson: "d1-b-kubectl",
+      level: "beginner",
+      prompt: "Which command lists the Pods in your current namespace?",
+      options: ["`kubectl get pods`", "`kubectl show all`", "`kube list pods`", "`docker pods`"],
+      answer: [0],
+      explanation: "kubectl commands follow a verb-then-thing pattern. `get` lists things, so `kubectl get pods` lists your Pods.",
+    },
+    {
+      id: "kcna-b1-06",
+      domain: "d1",
+      lesson: "d1-b-kubectl",
+      level: "beginner",
+      prompt: "A Pod isn't working and you want its details and recent events. Which command do you reach for first?",
+      options: ["`kubectl describe pod <name>`", "`kubectl delete pod <name>`", "`kubectl get nodes`", "`kubectl version`"],
+      answer: [0],
+      explanation: "`kubectl describe` shows the full picture of one object, with an Events list at the bottom. Deleting it first would throw away the clues.",
+    },
+
     // ── Architecture ──
     {
       id: "d1-01",
@@ -288,25 +444,25 @@ status:                  # observed state (Kubernetes writes)
       prompt: "A newly created Pod has no node assigned. Which control plane component chooses a node for it?",
       options: ["kube-scheduler", "kubelet", "kube-controller-manager", "etcd"],
       answer: [0],
-      explanation: "The scheduler watches for unscheduled Pods, filters and scores nodes, and binds the Pod to one. The kubelet on that node then runs it.",
+      explanation: "The scheduler watches for Pods with no node, filters and scores the nodes, and binds the Pod to one. The kubelet on that node then runs it.",
     },
     {
       id: "d1-02",
       domain: "d1",
       lesson: "d1-architecture",
-      prompt: "Where does Kubernetes persist the desired and current state of every object in the cluster?",
+      prompt: "Where does Kubernetes store the desired and current state of every object in the cluster?",
       options: ["etcd", "The kubelet's local disk", "The container registry", "kube-proxy's rule table"],
       answer: [0],
-      explanation: "etcd is the consistent key-value store behind the API server. All cluster state lives there, which is why it must be backed up.",
+      explanation: "etcd is the consistent key-value store behind the API server. All cluster state lives there, which is why you have to back it up.",
     },
     {
       id: "d1-03",
       domain: "d1",
       lesson: "d1-architecture",
-      prompt: "Which component runs on every worker node, registers the node with the cluster, and makes sure the containers of Pods assigned to it are running?",
+      prompt: "Which component runs on every worker node, registers the node with the cluster, and makes sure the containers of the Pods assigned to it are running?",
       options: ["kubelet", "kube-apiserver", "kube-scheduler", "cloud-controller-manager"],
       answer: [0],
-      explanation: "The kubelet is the node agent. It watches the API server for Pods bound to its node and drives the container runtime through the CRI.",
+      explanation: "The kubelet is the node agent. It watches the API server for Pods bound to its node and tells the container runtime what to run, through the CRI.",
     },
     {
       id: "d1-04",
@@ -315,7 +471,7 @@ status:                  # observed state (Kubernetes writes)
       prompt: "Which component is the only one that reads from and writes to etcd directly?",
       options: ["kube-apiserver", "kube-scheduler", "kubelet", "kube-controller-manager"],
       answer: [0],
-      explanation: "Every other component works through the API server, which validates requests and persists objects in etcd.",
+      explanation: "Every other component goes through the API server. The API server checks each request and saves the objects in etcd.",
     },
     {
       id: "d1-05",
@@ -324,25 +480,25 @@ status:                  # observed state (Kubernetes writes)
       prompt: "A team runs a 3-member etcd cluster. How many members can fail while the cluster still accepts writes?",
       options: ["1", "0", "2", "3"],
       answer: [0],
-      explanation: "Raft needs a majority (quorum). With 3 members the quorum is 2, so the cluster tolerates one failure. Five members tolerate two.",
+      explanation: "Raft needs a majority, called a quorum. With 3 members the quorum is 2, so the cluster survives one failure. Five members survive two.",
     },
     {
       id: "d1-06",
       domain: "d1",
       lesson: "d1-architecture",
-      prompt: "A Deployment's Pods keep being recreated after they are deleted by hand. Which component runs the control loop responsible for this?",
+      prompt: "A Deployment's Pods keep coming back after someone deletes them by hand. Which component runs the control loop behind this?",
       options: ["kube-controller-manager", "kube-proxy", "etcd", "The container runtime"],
       answer: [0],
-      explanation: "The controller manager runs the Deployment and ReplicaSet controllers, which notice fewer Pods than desired and create replacements.",
+      explanation: "The controller manager runs the Deployment and ReplicaSet controllers. They notice there are fewer Pods than wanted and create replacements.",
     },
     {
       id: "d1-07",
       domain: "d1",
       lesson: "d1-architecture",
-      prompt: "On a cloud cluster, which component provisions the cloud provider's load balancer when someone creates a Service of type LoadBalancer?",
+      prompt: "On a cloud cluster, which component creates the cloud provider's load balancer when someone creates a Service of type LoadBalancer?",
       options: ["cloud-controller-manager", "kube-scheduler", "kubelet", "CoreDNS"],
       answer: [0],
-      explanation: "The cloud-controller-manager holds cloud-specific controllers, including the service controller that creates and updates load balancers.",
+      explanation: "The cloud-controller-manager holds the cloud-specific controllers. One of them, the service controller, creates and updates load balancers.",
     },
     {
       id: "d1-08",
@@ -351,7 +507,7 @@ status:                  # observed state (Kubernetes writes)
       prompt: "Which components run on worker nodes in a typical Kubernetes cluster? (Choose three.)",
       options: ["kubelet", "kube-proxy", "A container runtime such as containerd", "etcd", "kube-scheduler", "kube-controller-manager"],
       answer: [0, 1, 2],
-      explanation: "Worker nodes run the kubelet, a container runtime, and usually kube-proxy. etcd, the scheduler, and the controller manager are control plane components.",
+      explanation: "Worker nodes run the kubelet, a container runtime, and usually kube-proxy. etcd, the scheduler and the controller manager belong to the control plane.",
     },
     {
       id: "d1-09",
@@ -366,7 +522,7 @@ status:                  # observed state (Kubernetes writes)
         ["kubelet", "Runs Pods on its node"],
         ["kube-proxy", "Programs Service networking rules"],
       ],
-      explanation: "The API server is the front door, etcd the memory, the scheduler the placement brain, the kubelet the node agent, and kube-proxy the Service plumbing.",
+      explanation: "The API server is the front door, etcd is the memory, the scheduler decides placement, the kubelet is the node agent, and kube-proxy handles Service plumbing.",
     },
     {
       id: "d1-10",
@@ -380,7 +536,7 @@ status:                  # observed state (Kubernetes writes)
         "The scheduler binds each Pod to a node",
         "The kubelet on that node asks the container runtime to start the containers",
       ],
-      explanation: "Everything flows through the API server: controllers turn the Deployment into Pods, the scheduler picks nodes, and kubelets make it real.",
+      explanation: "Everything goes through the API server. Controllers turn the Deployment into Pods, the scheduler picks nodes, and the kubelets make it real.",
     },
 
     // ── API and kubectl ──
@@ -391,43 +547,43 @@ status:                  # observed state (Kubernetes writes)
       prompt: "In a Kubernetes object, which field holds the state the user wants, as opposed to the state Kubernetes observes?",
       options: ["spec", "status", "metadata", "kind"],
       answer: [0],
-      explanation: "You write spec (desired state). Kubernetes controllers write status (observed state) and work to make status match spec.",
+      explanation: "You write spec, the desired state. Kubernetes controllers write status, the observed state, and work to make status match spec.",
     },
     {
       id: "d1-12",
       domain: "d1",
       lesson: "d1-api",
-      prompt: "A team wants a new kind, `Database`, that they can create with kubectl like any built-in object, with a controller that provisions real databases from it. What should they use?",
+      prompt: "A team wants a new kind, `Database`, that they can create with kubectl like any built-in object, plus a controller that sets up real databases from it. What should they use?",
       options: ["A CustomResourceDefinition with a custom controller (an operator)", "A ConfigMap per database", "A DaemonSet", "An annotation on every Pod"],
       answer: [0],
-      explanation: "A CRD extends the Kubernetes API with a new resource type; an operator is the controller that reconciles those resources into real infrastructure.",
+      explanation: "A CRD adds a new resource type to the Kubernetes API. An operator is the controller that turns those resources into real infrastructure.",
     },
     {
       id: "d1-13",
       domain: "d1",
       lesson: "d1-api",
-      prompt: "Which command creates or updates resources from manifest files and is the usual choice for a declarative workflow?",
+      prompt: "Which command creates or updates resources from manifest files, and is the usual choice for a declarative workflow?",
       options: ["`kubectl apply -f manifests/`", "`kubectl run`", "`kubectl create deployment`", "`kubectl edit`"],
       answer: [0],
-      explanation: "kubectl apply compares the files with the live objects and creates or patches them. run and create are imperative; edit changes the live object by hand.",
+      explanation: "`kubectl apply` compares your files with the live objects, then creates or patches them. `run` and `create` are imperative, and `edit` changes the live object by hand.",
     },
     {
       id: "d1-14",
       domain: "d1",
       lesson: "d1-api",
-      prompt: "A developer can't remember which fields a Deployment's rolling update strategy accepts. Which command shows the documentation from the cluster's own API?",
+      prompt: "A developer can't remember which fields a Deployment's rolling update strategy accepts. Which command shows the docs from the cluster's own API?",
       options: ["`kubectl explain deployment.spec.strategy`", "`kubectl describe deployment`", "`kubectl get deployment -o wide`", "`kubectl logs deployment`"],
       answer: [0],
-      explanation: "kubectl explain prints field documentation from the API schema. describe shows a live object and its events.",
+      explanation: "`kubectl explain` prints field documentation straight from the API schema. `describe` shows a live object and its events instead.",
     },
     {
       id: "d1-15",
       domain: "d1",
       lesson: "d1-api",
-      prompt: "Which command lists every resource type the cluster serves, with short names and whether each is namespaced?",
+      prompt: "Which command lists every resource type the cluster serves, with short names and whether each one is namespaced?",
       options: ["`kubectl api-resources`", "`kubectl get all`", "`kubectl cluster-info`", "`kubectl version`"],
       answer: [0],
-      explanation: "api-resources lists every kind, including custom resources, with its API group, short name (such as deploy or svc), and scope.",
+      explanation: "`api-resources` lists every kind, custom resources included, with its API group, short name (such as deploy or svc) and scope.",
     },
     {
       id: "d1-16",
@@ -442,7 +598,7 @@ status:                  # observed state (Kubernetes writes)
         "Desired state is stored only in the kubeconfig file",
       ],
       answer: [0, 1],
-      explanation: "Kubernetes stores intent in objects and runs control loops that keep driving reality toward it. status is written by Kubernetes, not users.",
+      explanation: "Kubernetes stores what you want in objects, and control loops keep pushing reality toward it. Kubernetes writes status, not users.",
     },
     {
       id: "d1-17",
@@ -456,14 +612,14 @@ status:                  # observed state (Kubernetes writes)
         "`kubectl describe deployment web`",
       ],
       answer: [0],
-      explanation: "--dry-run=client builds the object locally without sending it, and -o yaml prints it so it can be saved and edited.",
+      explanation: "`--dry-run=client` builds the object locally without sending it. `-o yaml` prints it, so you can save it and edit it.",
     },
     {
       id: "d1-18",
       domain: "d1",
       lesson: "d1-api",
       type: "lines",
-      prompt: "This manifest is rejected by the API server. Tap the line that causes it.",
+      prompt: "The API server rejects this manifest. Tap the line that causes it.",
       code: `apiVersion: apps/v1
 kind: Pod
 metadata:
@@ -474,7 +630,7 @@ spec:
     image: nginx:1.27`,
       codeLang: "yaml",
       answer: [1],
-      explanation: "Pods are core objects served at apiVersion v1. apps/v1 serves Deployments, ReplicaSets, StatefulSets, and DaemonSets, but not Pods. Line 1 is what has to change.",
+      explanation: "Pods are core objects, served at apiVersion v1. apps/v1 serves Deployments, ReplicaSets, StatefulSets and DaemonSets, but not Pods. Line 1 is the one to change.",
     },
     {
       id: "d1-19",
@@ -488,7 +644,7 @@ spec:
         "The process that starts containers on a node",
       ],
       answer: [0],
-      explanation: "The operator pattern encodes human operational knowledge in a controller that watches custom resources and acts on them.",
+      explanation: "The operator pattern captures what a human expert would do to run an app. It's a controller that watches custom resources and acts on them.",
     },
 
     // ── Workloads ──
@@ -496,10 +652,10 @@ spec:
       id: "d1-21",
       domain: "d1",
       lesson: "d1-workloads",
-      prompt: "What is the smallest deployable unit of computing that you can create and manage in Kubernetes?",
+      prompt: "What is the smallest deployable unit of computing you can create and manage in Kubernetes?",
       options: ["Pod", "Container", "Node", "Deployment"],
       answer: [0],
-      explanation: "Kubernetes schedules Pods, not individual containers. A Pod wraps one or more containers that share networking and storage.",
+      explanation: "Kubernetes schedules Pods, not single containers. A Pod wraps one or more containers that share networking and storage.",
     },
     {
       id: "d1-22",
@@ -508,25 +664,25 @@ spec:
       prompt: "A log-shipping agent must run exactly one copy on every node, including nodes added later. Which workload resource fits best?",
       options: ["DaemonSet", "Deployment with replicas equal to the node count", "StatefulSet", "CronJob"],
       answer: [0],
-      explanation: "A DaemonSet runs one Pod per eligible node and automatically adds Pods to new nodes.",
+      explanation: "A DaemonSet runs one Pod on each eligible node, and adds a Pod automatically when a new node joins. A Deployment wouldn't keep up as nodes come and go.",
     },
     {
       id: "d1-23",
       domain: "d1",
       lesson: "d1-workloads",
-      prompt: "A database cluster needs each replica to keep a stable name (db-0, db-1, db-2) and its own persistent volume across restarts. Which resource should be used?",
+      prompt: "A database cluster needs each replica to keep a stable name (db-0, db-1, db-2) and its own persistent volume across restarts. Which resource should you use?",
       options: ["StatefulSet", "Deployment", "DaemonSet", "ReplicaSet"],
       answer: [0],
-      explanation: "StatefulSets give Pods stable ordinal names, ordered rollout, and a PersistentVolumeClaim per Pod from volumeClaimTemplates.",
+      explanation: "StatefulSets give Pods stable numbered names, an ordered rollout, and a PersistentVolumeClaim for each Pod from volumeClaimTemplates.",
     },
     {
       id: "d1-24",
       domain: "d1",
       lesson: "d1-workloads",
-      prompt: "Two containers in the same Pod need to communicate. What is the simplest way?",
+      prompt: "Two containers in the same Pod need to talk to each other. What's the simplest way?",
       options: ["Over localhost, because containers in a Pod share one network namespace", "Through a NodePort Service", "Only through a shared ConfigMap", "They can't; containers must be in separate Pods to talk"],
       answer: [0],
-      explanation: "All containers in a Pod share the Pod's IP address and ports, so they reach each other on localhost.",
+      explanation: "All the containers in a Pod share the Pod's IP address and ports. So they can reach each other on localhost.",
     },
     {
       id: "d1-25",
@@ -535,7 +691,7 @@ spec:
       prompt: "A nightly report must run at 02:00, finish, and not run again until the next night. Which resource fits?",
       options: ["CronJob", "DaemonSet", "Deployment", "StatefulSet"],
       answer: [0],
-      explanation: "A CronJob creates a Job on a cron schedule; the Job runs Pods to completion with retries.",
+      explanation: "A CronJob creates a Job on a schedule. The Job runs its Pods until they finish, retrying if they fail.",
     },
     {
       id: "d1-26",
@@ -553,13 +709,13 @@ spec:
       prompt: "A Pod must wait until a database migration script has finished before the app container starts. What should the developer add to the Pod?",
       options: ["An init container that runs the migration", "A second app container with the migration", "A liveness probe", "A PodDisruptionBudget"],
       answer: [0],
-      explanation: "Init containers run one after another to completion before any app container starts.",
+      explanation: "Init containers run one after another, each to completion, before any app container starts.",
     },
     {
       id: "d1-28",
       domain: "d1",
       lesson: "d1-workloads",
-      prompt: "Why should applications usually be run through a controller such as a Deployment instead of as bare Pods? (Choose two.)",
+      prompt: "Why should apps usually run through a controller such as a Deployment instead of as bare Pods? (Choose two.)",
       options: [
         "A controller replaces Pods that fail or are lost with their node",
         "A controller handles rolling updates and rollbacks",
@@ -568,7 +724,7 @@ spec:
         "Controllers make Pods immune to OOM kills",
       ],
       answer: [0, 1],
-      explanation: "Bare Pods are not recreated when they die or their node fails. Controllers self-heal, scale, and roll out new versions.",
+      explanation: "A bare Pod isn't recreated when it dies or its node fails. Controllers heal themselves, scale, and roll out new versions.",
     },
     {
       id: "d1-29",
@@ -583,7 +739,7 @@ spec:
         ["Job", "One-off data migration"],
         ["CronJob", "Hourly cleanup task"],
       ],
-      explanation: "Pick the controller by lifecycle: long-running stateless, long-running stateful, per node, run once, or run on a schedule.",
+      explanation: "Pick the controller by how the work lives: long-running and stateless, long-running and stateful, one per node, run once, or run on a schedule.",
     },
     {
       id: "d1-30",
@@ -607,7 +763,7 @@ spec:
         image: nginx:1.27`,
       codeLang: "yaml",
       answer: [10],
-      explanation: "A Deployment's selector must match its template's labels, or the API server rejects it. The template label app: frontend on line 10 should be app: web.",
+      explanation: "A Deployment's selector has to match its template's labels, or the API server rejects it. The template label app: frontend on line 10 should be app: web.",
     },
 
     // ── Namespaces, labels, config ──
@@ -615,10 +771,10 @@ spec:
       id: "d1-31",
       domain: "d1",
       lesson: "d1-config",
-      prompt: "Two teams share one cluster and both want a Deployment named `api`. How can they do this without a name conflict?",
+      prompt: "Two teams share one cluster and both want a Deployment named `api`. How can they do this without a name clash?",
       options: ["Put each team's resources in its own namespace", "Use different labels on each Deployment", "Run two kube-schedulers", "Add an annotation with the team name"],
       answer: [0],
-      explanation: "Names must be unique within a namespace, not across the cluster. Namespaces also scope RBAC and ResourceQuotas per team.",
+      explanation: "Names only have to be unique inside a namespace, not across the whole cluster. Namespaces also let you set RBAC and ResourceQuotas per team.",
     },
     {
       id: "d1-32",
@@ -632,7 +788,7 @@ spec:
         "Secrets are automatically rotated every 24 hours",
       ],
       answer: [0],
-      explanation: "base64 is an encoding, not protection. Cluster operators enable encryption at rest for etcd and limit who can read Secrets.",
+      explanation: "base64 is just an encoding, and anyone can decode it. Cluster operators turn on encryption at rest for etcd and limit who can read Secrets.",
     },
     {
       id: "d1-33",
@@ -641,7 +797,7 @@ spec:
       prompt: "How does a Service know which Pods to send traffic to?",
       options: ["Its label selector matches labels on the Pods", "It lists Pod names in an annotation", "It routes to every Pod in the namespace", "The scheduler tells it at Pod creation"],
       answer: [0],
-      explanation: "Services, ReplicaSets, and many other objects find their Pods with label selectors such as app=web.",
+      explanation: "Services, ReplicaSets and many other objects find their Pods with label selectors, such as app=web.",
     },
     {
       id: "d1-34",
@@ -650,16 +806,16 @@ spec:
       prompt: "Which namespaces exist in a newly created Kubernetes cluster? (Choose two.)",
       options: ["kube-system", "default", "kube-apps", "cluster-admin", "kube-storage"],
       answer: [0, 1],
-      explanation: "A new cluster starts with default, kube-system (system components such as CoreDNS), kube-public, and kube-node-lease. The other names are made up.",
+      explanation: "A new cluster starts with default, kube-system (for system components such as CoreDNS), kube-public and kube-node-lease. The other names are made up.",
     },
     {
       id: "d1-35",
       domain: "d1",
       lesson: "d1-config",
-      prompt: "A team wants to change an app's log level for each environment without rebuilding the image. Where should the setting live?",
+      prompt: "A team wants to change an app's log level in each environment without rebuilding the image. Where should the setting live?",
       options: ["In a ConfigMap consumed as an environment variable or mounted file", "Hard-coded in the Dockerfile", "In the Pod's status field", "In a node label"],
       answer: [0],
-      explanation: "ConfigMaps decouple configuration from images, so the same image runs in every environment with different settings.",
+      explanation: "ConfigMaps keep settings separate from the image. The same image then runs in every environment with different settings.",
     },
     {
       id: "d1-36",
@@ -668,13 +824,13 @@ spec:
       prompt: "Which of these resources are cluster-scoped rather than namespaced? (Choose two.)",
       options: ["Node", "PersistentVolume", "Deployment", "ConfigMap", "Service"],
       answer: [0, 1],
-      explanation: "Nodes, PersistentVolumes, Namespaces, StorageClasses, and ClusterRoles are cluster-wide. Deployments, ConfigMaps, and Services live in a namespace.",
+      explanation: "Nodes, PersistentVolumes, Namespaces, StorageClasses and ClusterRoles belong to the whole cluster. Deployments, ConfigMaps and Services live inside a namespace.",
     },
     {
       id: "d1-37",
       domain: "d1",
       lesson: "d1-config",
-      prompt: "What is the difference between labels and annotations?",
+      prompt: "What's the difference between labels and annotations?",
       options: [
         "Labels identify and can be selected on; annotations hold non-identifying metadata for tools and people",
         "Annotations are selectable; labels are free text",
@@ -682,7 +838,7 @@ spec:
         "There is no difference; they are aliases",
       ],
       answer: [0],
-      explanation: "Selectors work only on labels. Annotations carry extra information such as build IDs, contact details, or tool configuration.",
+      explanation: "Selectors only work on labels. Annotations carry extra information, like build IDs, contact details or tool settings.",
     },
     {
       id: "d1-38",
@@ -691,7 +847,7 @@ spec:
       prompt: "Which command lists the Pods labeled `app=web` in every namespace?",
       options: ["`kubectl get pods -l app=web -A`", "`kubectl get pods --name=web`", "`kubectl describe namespace web`", "`kubectl logs -l web`"],
       answer: [0],
-      explanation: "-l (or --selector) filters by label, and -A (--all-namespaces) searches every namespace.",
+      explanation: "`-l` (or `--selector`) filters by label, and `-A` (`--all-namespaces`) searches every namespace.",
     },
 
     // ── Administration ──
@@ -707,25 +863,25 @@ spec:
         "`kubectl scale` every Deployment to zero",
       ],
       answer: [0],
-      explanation: "Cordoning stops new Pods; draining evicts existing ones (respecting PodDisruptionBudgets) so controllers recreate them elsewhere; uncordon brings the node back.",
+      explanation: "Cordon stops new Pods landing on the node. Drain evicts the existing ones, respecting PodDisruptionBudgets, so controllers recreate them elsewhere. Uncordon brings the node back.",
     },
     {
       id: "d1-42",
       domain: "d1",
       lesson: "d1-admin",
-      prompt: "A developer works with a staging and a production cluster from one laptop. What does kubectl use to know which cluster, user, and default namespace to talk to?",
+      prompt: "A developer works with a staging and a production cluster from one laptop. How does kubectl know which cluster, user and default namespace to use?",
       options: ["The current context in the kubeconfig file", "The KUBERNETES_SERVICE_HOST variable on the laptop", "A label on the Namespace", "etcd on the laptop"],
       answer: [0],
-      explanation: "A kubeconfig context ties a cluster, a user, and optionally a namespace together; kubectl config use-context switches between them.",
+      explanation: "A kubeconfig context ties together a cluster, a user and, optionally, a namespace. `kubectl config use-context` switches between them.",
     },
     {
       id: "d1-43",
       domain: "d1",
       lesson: "d1-admin",
-      prompt: "In which order should a cluster be upgraded to a new Kubernetes minor version?",
+      prompt: "In which order should you upgrade a cluster to a new Kubernetes minor version?",
       options: ["Control plane first, then the worker nodes' kubelets", "Worker nodes first, then the control plane", "All components at the same moment", "Only etcd; the rest updates itself"],
       answer: [0],
-      explanation: "A kubelet must never be newer than the API server, so the control plane is upgraded first and nodes follow.",
+      explanation: "A kubelet must never be newer than the API server. So you upgrade the control plane first, and the nodes follow.",
     },
     {
       id: "d1-44",
@@ -734,7 +890,7 @@ spec:
       prompt: "A platform team wants to cap the total CPU and memory that the `team-a` namespace can request. Which object should they create?",
       options: ["ResourceQuota", "LimitRange", "PodDisruptionBudget", "PriorityClass"],
       answer: [0],
-      explanation: "A ResourceQuota limits aggregate usage in a namespace. A LimitRange sets per-container defaults and bounds.",
+      explanation: "A ResourceQuota limits the total usage in a namespace. A LimitRange sets defaults and bounds for each container instead.",
     },
     {
       id: "d1-45",
@@ -743,25 +899,25 @@ spec:
       prompt: "During node drains, at least 2 of an app's 3 replicas must always stay up. What should the team define?",
       options: ["A PodDisruptionBudget with minAvailable: 2", "A ResourceQuota of 2 Pods", "A taint with NoExecute", "A readiness probe"],
       answer: [0],
-      explanation: "PodDisruptionBudgets limit voluntary disruptions such as drains; the eviction API refuses evictions that would break the budget.",
+      explanation: "PodDisruptionBudgets limit planned disruptions such as drains. The eviction API refuses any eviction that would break the budget.",
     },
     {
       id: "d1-46",
       domain: "d1",
       lesson: "d1-admin",
-      prompt: "Which tool from the Kubernetes project bootstraps a minimum viable, conformant cluster with `init` and `join` commands?",
+      prompt: "Which tool from the Kubernetes project sets up a minimal, conformant cluster with `init` and `join` commands?",
       options: ["kubeadm", "kubectl", "Helm", "kube-proxy"],
       answer: [0],
-      explanation: "kubeadm init sets up a control plane and kubeadm join adds nodes. It also performs version upgrades with kubeadm upgrade.",
+      explanation: "`kubeadm init` sets up a control plane and `kubeadm join` adds nodes. It also handles version upgrades with `kubeadm upgrade`.",
     },
     {
       id: "d1-47",
       domain: "d1",
       lesson: "d1-admin",
       type: "order",
-      prompt: "Order the steps for safely taking a worker node out for maintenance and bringing it back.",
+      prompt: "Put in order the steps for safely taking a worker node out for maintenance and bringing it back.",
       items: ["Cordon the node", "Drain the node", "Perform the maintenance", "Uncordon the node"],
-      explanation: "Stop new scheduling, move existing Pods away, do the work, then make the node schedulable again.",
+      explanation: "Stop new scheduling, move the existing Pods away, do the work, then make the node schedulable again.",
     },
 
     // ── Scheduling ──
@@ -769,7 +925,7 @@ spec:
       id: "d1-51",
       domain: "d1",
       lesson: "d1-scheduling",
-      prompt: "A node has the taint `gpu=true:NoSchedule`. A Pod has a matching toleration but no nodeSelector or affinity. What happens when it is scheduled?",
+      prompt: "A node has the taint `gpu=true:NoSchedule`. A Pod has a matching toleration but no nodeSelector or affinity. What happens when it's scheduled?",
       options: [
         "It may be placed on the GPU node or on any other suitable node",
         "It is always placed on the GPU node",
@@ -777,7 +933,7 @@ spec:
         "It evicts the Pods already on the GPU node",
       ],
       answer: [0],
-      explanation: "A toleration only permits the Pod onto the tainted node. To make it land there, add a nodeSelector or node affinity for the GPU node's label.",
+      explanation: "A toleration only allows the Pod onto the tainted node. To make it land there, add a nodeSelector or node affinity for the GPU node's label.",
     },
     {
       id: "d1-52",
@@ -786,13 +942,13 @@ spec:
       prompt: "What does the scheduler use to decide whether a Pod fits on a node's CPU and memory?",
       options: ["The Pod's resource requests", "The Pod's resource limits", "The node's current real-time usage only", "The container image size"],
       answer: [0],
-      explanation: "Scheduling is based on requests: the sum of requests on a node can't exceed its allocatable capacity. Limits are enforced later at runtime.",
+      explanation: "Scheduling is based on requests: the requests on a node can't add up to more than its allocatable capacity. Limits only come into play later, while the container runs.",
     },
     {
       id: "d1-53",
       domain: "d1",
       lesson: "d1-scheduling",
-      prompt: "A container keeps getting restarted with the reason OOMKilled. What is happening?",
+      prompt: "A container keeps getting restarted with the reason OOMKilled. What's happening?",
       options: [
         "It used more memory than its memory limit, so it was killed",
         "It used more CPU than its CPU limit",
@@ -800,7 +956,7 @@ spec:
         "The image couldn't be pulled",
       ],
       answer: [0],
-      explanation: "Memory can't be throttled, so exceeding the memory limit gets the container killed. Exceeding the CPU limit only throttles it.",
+      explanation: "Memory can't be throttled, so going over the memory limit gets the container killed. Going over the CPU limit only slows it down.",
     },
     {
       id: "d1-54",
@@ -809,16 +965,16 @@ spec:
       prompt: "Every container in a Pod sets CPU and memory requests equal to its limits. Which QoS class does the Pod get?",
       options: ["Guaranteed", "Burstable", "BestEffort", "Critical"],
       answer: [0],
-      explanation: "Requests equal to limits for CPU and memory in every container gives Guaranteed, the last class to be evicted under node pressure.",
+      explanation: "Requests equal to limits for CPU and memory, in every container, gives you Guaranteed. It's the last class to be evicted when a node runs short.",
     },
     {
       id: "d1-55",
       domain: "d1",
       lesson: "d1-scheduling",
-      prompt: "Which taint effect also evicts already-running Pods that don't tolerate it?",
+      prompt: "Which taint effect also evicts Pods that are already running and don't tolerate it?",
       options: ["NoExecute", "NoSchedule", "PreferNoSchedule", "NoAdmit"],
       answer: [0],
-      explanation: "NoExecute keeps new Pods off and evicts existing Pods without a matching toleration (optionally after tolerationSeconds).",
+      explanation: "NoExecute keeps new Pods off and evicts existing Pods that have no matching toleration, optionally after tolerationSeconds. NoSchedule only affects new Pods.",
     },
     {
       id: "d1-56",
@@ -836,7 +992,7 @@ spec:
       prompt: "Which settings can make the scheduler place a Pod only on nodes labeled `disktype=ssd`? (Choose two.)",
       options: ["A nodeSelector of disktype: ssd", "A required node affinity rule on disktype In [ssd]", "A toleration for disktype=ssd", "A PodDisruptionBudget", "An annotation disktype=ssd on the Pod"],
       answer: [0, 1],
-      explanation: "nodeSelector and required node affinity attract Pods to labeled nodes. Tolerations only relate to taints, and annotations aren't used for scheduling.",
+      explanation: "nodeSelector and required node affinity pull Pods toward labeled nodes. Tolerations only deal with taints, and the scheduler ignores annotations.",
     },
     {
       id: "d1-58",
@@ -857,7 +1013,7 @@ spec:
         memory: 512Mi`,
       codeLang: "yaml",
       answer: [10],
-      explanation: "A limit can't be lower than its request. The CPU limit of 250m (line 10) is below the 500m request, so validation fails.",
+      explanation: "A limit can't be lower than its request. The CPU limit of 250m on line 10 is below the 500m request, so validation fails.",
     },
     {
       id: "d1-59",
@@ -878,16 +1034,16 @@ spec:
     image: example/trainer:1.0`,
       codeLang: "yaml",
       answer: [8],
-      explanation: "A toleration must match the taint's key, value, and effect. effect: NoExecute doesn't tolerate a NoSchedule taint; it should be NoSchedule (or omitted to match every effect).",
+      explanation: "A toleration has to match the taint's key, value and effect. effect: NoExecute doesn't tolerate a NoSchedule taint. It should say NoSchedule, or leave the effect out to match every effect.",
     },
     {
       id: "d1-60",
       domain: "d1",
       lesson: "d1-scheduling",
-      prompt: "A Pod stays Pending and its events say `0/3 nodes are available: 3 Insufficient cpu`. What is the most direct fix?",
+      prompt: "A Pod stays Pending and its events say `0/3 nodes are available: 3 Insufficient cpu`. What's the most direct fix?",
       options: ["Lower the Pod's CPU request or add node capacity", "Raise the Pod's CPU limit", "Add a liveness probe", "Delete the Pod's Service"],
       answer: [0],
-      explanation: "No node has enough unrequested CPU for the Pod's request. Reduce the request, free capacity, or add nodes (for example with a cluster autoscaler).",
+      explanation: "No node has enough unrequested CPU left for this Pod's request. Lower the request, free up capacity, or add nodes, for example with a cluster autoscaler.",
     },
 
     // ── Containers ──
@@ -898,7 +1054,7 @@ spec:
       prompt: "Which interface does the kubelet use to talk to container runtimes such as containerd and CRI-O?",
       options: ["Container Runtime Interface (CRI)", "Container Network Interface (CNI)", "Container Storage Interface (CSI)", "Open Container Initiative (OCI) distribution spec"],
       answer: [0],
-      explanation: "CRI is the gRPC API between the kubelet and the runtime. CNI is for networking, CSI for storage, OCI for image and runtime formats.",
+      explanation: "CRI is the gRPC API between the kubelet and the runtime. CNI is for networking, CSI is for storage, and OCI covers image and runtime formats.",
     },
     {
       id: "d1-62",
@@ -912,7 +1068,7 @@ spec:
         "Containers always provide stronger isolation than VMs",
       ],
       answer: [0],
-      explanation: "Sharing the kernel makes containers light and fast to start; VMs virtualize hardware and boot a full OS.",
+      explanation: "Sharing the kernel makes containers light and quick to start. A VM pretends to be a whole computer and boots a full operating system.",
     },
     {
       id: "d1-63",
@@ -921,16 +1077,16 @@ spec:
       prompt: "Which Linux kernel feature limits how much CPU and memory a container can use?",
       options: ["cgroups", "namespaces", "chroot", "SELinux labels"],
       answer: [0],
-      explanation: "Control groups (cgroups) account for and limit resources. Namespaces isolate what a process can see (PIDs, network, mounts).",
+      explanation: "Control groups (cgroups) track and limit resources. Namespaces do something different: they control what a process can see, like PIDs, network and mounts.",
     },
     {
       id: "d1-64",
       domain: "d1",
       lesson: "d1-containers",
-      prompt: "A team needs production to run exactly the image that passed testing, even if someone re-pushes the same tag later. How should the image be referenced?",
+      prompt: "A team needs production to run exactly the image that passed testing, even if someone re-pushes the same tag later. How should they reference the image?",
       options: ["By its digest, for example `myapp@sha256:…`", "By the :latest tag", "By the image name only", "By the registry hostname"],
       answer: [0],
-      explanation: "Tags are mutable pointers. A digest identifies the exact image content and never changes.",
+      explanation: "A tag is a label that can be moved to another image. A digest identifies the exact image content and never changes.",
     },
     {
       id: "d1-65",
@@ -944,13 +1100,13 @@ spec:
         "They must be converted into virtual machine images",
       ],
       answer: [0],
-      explanation: "Removing dockershim changed which runtime the kubelet talks to, not the image format. OCI images work on any compliant runtime.",
+      explanation: "Removing dockershim changed which runtime the kubelet talks to, not the image format. OCI images work on any runtime that follows the spec.",
     },
     {
       id: "d1-66",
       domain: "d1",
       lesson: "d1-containers",
-      prompt: "Which practices produce smaller, safer container images? (Choose two.)",
+      prompt: "Which practices give you smaller, safer container images? (Choose two.)",
       options: [
         "Use a multi-stage build so the final image holds only runtime artifacts",
         "Start from a minimal base image and run as a non-root user",
@@ -959,7 +1115,7 @@ spec:
         "Always deploy the :latest tag",
       ],
       answer: [0, 1],
-      explanation: "Multi-stage builds and minimal bases shrink the image and its attack surface; non-root reduces the impact of a compromise. Secrets never belong in images.",
+      explanation: "Multi-stage builds and minimal bases shrink the image and leave less to attack. Running as non-root limits the damage if something goes wrong. Secrets never belong in images.",
     },
     {
       id: "d1-67",
@@ -973,16 +1129,16 @@ spec:
         ["OCI image spec", "Standard format for container images"],
         ["Container registry", "Stores and serves images"],
       ],
-      explanation: "The kubelet calls a CRI runtime (containerd or CRI-O), which uses an OCI runtime (runc) to start processes from OCI images pulled from a registry.",
+      explanation: "The kubelet calls a CRI runtime such as containerd or CRI-O. That runtime uses an OCI runtime such as runc to start processes from OCI images pulled from a registry.",
     },
     {
       id: "d1-68",
       domain: "d1",
       lesson: "d1-containers",
-      prompt: "A security team wants untrusted workloads to run with stronger isolation than a standard shared-kernel container. Which kind of runtime addresses this?",
+      prompt: "A security team wants untrusted workloads to run with stronger isolation than a standard shared-kernel container. Which kind of runtime does that?",
       options: ["A sandboxed runtime such as gVisor or Kata Containers", "A bigger CPU limit", "A ConfigMap", "Running the container as root"],
       answer: [0],
-      explanation: "Sandboxed runtimes add a user-space kernel (gVisor) or a lightweight VM (Kata Containers) between the workload and the host kernel. Kubernetes selects them with a RuntimeClass.",
+      explanation: "Sandboxed runtimes put an extra layer between the workload and the host kernel: a user-space kernel (gVisor) or a lightweight VM (Kata Containers). Kubernetes picks them with a RuntimeClass.",
     },
     {
       id: "d1-69",
@@ -997,16 +1153,16 @@ spec:
         "Eviction order is random",
       ],
       answer: [0, 1],
-      explanation: "Under node pressure the kubelet evicts BestEffort first, then Burstable Pods using more than their requests; Guaranteed Pods go last.",
+      explanation: "When a node runs short, the kubelet evicts BestEffort Pods first, then Burstable Pods using more than they requested. Guaranteed Pods go last.",
     },
     {
       id: "d1-70",
       domain: "d1",
       lesson: "d1-admin",
-      prompt: "Roughly how many Kubernetes minor releases are published per year?",
+      prompt: "Roughly how many Kubernetes minor releases come out each year?",
       options: ["About three", "One", "Twelve", "About six"],
       answer: [0],
-      explanation: "Kubernetes ships about three minor releases a year, and the three most recent minor versions receive patch releases.",
+      explanation: "Kubernetes ships about three minor releases a year. The three most recent minor versions get patch releases.",
     },
     {
       id: "d1-71",
@@ -1015,35 +1171,35 @@ spec:
       prompt: "A Deployment named `web` should run 5 replicas instead of 3. Which imperative command does this?",
       options: ["`kubectl scale deployment web --replicas=5`", "`kubectl rollout restart deployment web`", "`kubectl expose deployment web --port=5`", "`kubectl set image deployment web web=5`"],
       answer: [0],
-      explanation: "kubectl scale changes the replica count. In a declarative workflow you would change replicas in the manifest and apply it.",
+      explanation: "`kubectl scale` changes the replica count. In a declarative workflow you'd change replicas in the manifest and apply it instead.",
     },
   ],
 
   cards: [
-    { id: "k-apiserver", domain: "d1", kind: "service", term: "kube-apiserver", definition: "Front door of the control plane; the only component that talks to etcd" },
-    { id: "k-etcd", domain: "d1", kind: "service", term: "etcd", definition: "Consistent key-value store holding all cluster state (Raft consensus)" },
-    { id: "k-scheduler", domain: "d1", kind: "service", term: "kube-scheduler", definition: "Filters and scores nodes, then binds each new Pod to one" },
-    { id: "k-cm", domain: "d1", kind: "service", term: "kube-controller-manager", definition: "Runs the built-in reconciliation loops (Deployment, Node, Job, …)" },
-    { id: "k-ccm", domain: "d1", kind: "service", term: "cloud-controller-manager", definition: "Cloud-specific loops: nodes, routes, and load balancers" },
-    { id: "k-kubelet", domain: "d1", kind: "service", term: "kubelet", definition: "Node agent that runs Pods through the container runtime and reports status" },
-    { id: "k-kubeproxy", domain: "d1", kind: "service", term: "kube-proxy", definition: "Programs node rules so Service virtual IPs reach Pods" },
-    { id: "k-containerd", domain: "d1", kind: "service", term: "containerd", definition: "CNCF graduated container runtime that implements CRI" },
-    { id: "k-crio", domain: "d1", kind: "service", term: "CRI-O", definition: "Lightweight runtime built specifically for the Kubernetes CRI" },
-    { id: "k-kubeadm", domain: "d1", kind: "service", term: "kubeadm", definition: "Bootstraps and upgrades clusters with init, join, and upgrade" },
-    { id: "k-kubectl", domain: "d1", kind: "service", term: "kubectl", definition: "Command-line client for the Kubernetes API" },
-    { id: "c-pod", domain: "d1", kind: "concept", term: "Pod", definition: "Smallest deployable unit: containers sharing an IP and volumes" },
-    { id: "c-deployment", domain: "d1", kind: "concept", term: "Deployment", definition: "Manages ReplicaSets for stateless apps: scaling, rolling updates, rollbacks" },
-    { id: "c-statefulset", domain: "d1", kind: "concept", term: "StatefulSet", definition: "Stable Pod names, ordered rollout, and a volume per replica" },
-    { id: "c-daemonset", domain: "d1", kind: "concept", term: "DaemonSet", definition: "One Pod on every matching node" },
-    { id: "c-job", domain: "d1", kind: "concept", term: "Job / CronJob", definition: "Run Pods to completion; CronJob does it on a schedule" },
-    { id: "c-namespace", domain: "d1", kind: "concept", term: "Namespace", definition: "Virtual cluster that scopes names, RBAC, and quotas" },
-    { id: "c-crd", domain: "d1", kind: "concept", term: "CustomResourceDefinition", definition: "Adds a new resource kind to the Kubernetes API" },
-    { id: "c-operator", domain: "d1", kind: "concept", term: "Operator", definition: "Controller plus custom resources that automate running an app" },
-    { id: "c-taint", domain: "d1", kind: "concept", term: "Taint / toleration", definition: "Taints repel Pods from nodes; tolerations allow Pods onto them" },
-    { id: "c-qos", domain: "d1", kind: "concept", term: "QoS classes", definition: "Guaranteed, Burstable, BestEffort: decide eviction order" },
-    { id: "c-pdb", domain: "d1", kind: "concept", term: "PodDisruptionBudget", definition: "Limits how many replicas voluntary disruptions can take down" },
-    { id: "c-cri", domain: "d1", kind: "concept", term: "CRI", definition: "gRPC interface between the kubelet and container runtimes" },
-    { id: "c-cgroups", domain: "d1", kind: "concept", term: "cgroups vs namespaces", definition: "cgroups limit resources; namespaces isolate what a process sees" },
+    { id: "k-apiserver", domain: "d1", kind: "service", term: "kube-apiserver", definition: "The front door of the control plane, and the only component that talks to etcd." },
+    { id: "k-etcd", domain: "d1", kind: "service", term: "etcd", definition: "A consistent key-value store that holds all cluster state, kept in agreement with Raft." },
+    { id: "k-scheduler", domain: "d1", kind: "service", term: "kube-scheduler", definition: "Filters and scores nodes, then binds each new Pod to one." },
+    { id: "k-cm", domain: "d1", kind: "service", term: "kube-controller-manager", definition: "Runs the built-in control loops, like the Deployment, Node and Job controllers." },
+    { id: "k-ccm", domain: "d1", kind: "service", term: "cloud-controller-manager", definition: "Runs the cloud-specific loops for nodes, routes and load balancers." },
+    { id: "k-kubelet", domain: "d1", kind: "service", term: "kubelet", definition: "The node agent. It runs Pods through the container runtime and reports their status." },
+    { id: "k-kubeproxy", domain: "d1", kind: "service", term: "kube-proxy", definition: "Sets up rules on each node so Service virtual IPs reach Pods." },
+    { id: "k-containerd", domain: "d1", kind: "service", term: "containerd", definition: "A CNCF graduated container runtime that implements CRI." },
+    { id: "k-crio", domain: "d1", kind: "service", term: "CRI-O", definition: "A lightweight runtime built just for the Kubernetes CRI." },
+    { id: "k-kubeadm", domain: "d1", kind: "service", term: "kubeadm", definition: "Sets up and upgrades clusters with init, join and upgrade." },
+    { id: "k-kubectl", domain: "d1", kind: "service", term: "kubectl", definition: "The command-line tool for talking to the Kubernetes API." },
+    { id: "c-pod", domain: "d1", kind: "concept", term: "Pod", definition: "The smallest thing you can deploy: one or more containers sharing an IP and volumes." },
+    { id: "c-deployment", domain: "d1", kind: "concept", term: "Deployment", definition: "Manages ReplicaSets for stateless apps, handling scaling, rolling updates and rollbacks." },
+    { id: "c-statefulset", domain: "d1", kind: "concept", term: "StatefulSet", definition: "Stable Pod names, ordered rollout, and a volume for each replica." },
+    { id: "c-daemonset", domain: "d1", kind: "concept", term: "DaemonSet", definition: "Runs one Pod on every matching node." },
+    { id: "c-job", domain: "d1", kind: "concept", term: "Job and CronJob", definition: "A Job runs Pods until they finish. A CronJob does that on a schedule." },
+    { id: "c-namespace", domain: "d1", kind: "concept", term: "Namespace", definition: "A virtual cluster that scopes names, RBAC and quotas." },
+    { id: "c-crd", domain: "d1", kind: "concept", term: "CustomResourceDefinition", definition: "Adds a new resource kind to the Kubernetes API." },
+    { id: "c-operator", domain: "d1", kind: "concept", term: "Operator", definition: "A controller plus custom resources that automate running an app." },
+    { id: "c-taint", domain: "d1", kind: "concept", term: "Taint and toleration", definition: "A taint keeps Pods off a node. A toleration lets a Pod onto it anyway." },
+    { id: "c-qos", domain: "d1", kind: "concept", term: "QoS classes", definition: "Guaranteed, Burstable and BestEffort. They decide the eviction order." },
+    { id: "c-pdb", domain: "d1", kind: "concept", term: "PodDisruptionBudget", definition: "Limits how many replicas planned disruptions can take down at once." },
+    { id: "c-cri", domain: "d1", kind: "concept", term: "CRI", definition: "The gRPC interface between the kubelet and container runtimes." },
+    { id: "c-cgroups", domain: "d1", kind: "concept", term: "cgroups versus namespaces", definition: "cgroups limit resources. Namespaces isolate what a process can see." },
   ],
 
   challenges: [
@@ -1054,7 +1210,7 @@ spec:
       title: "Place the Pods",
       goal: "Get ml-trainer onto node-gpu, postgres onto node-ssd, and web onto a normal node, with nothing left Pending.",
       hint: "A toleration only lets a Pod onto a tainted node. Something else has to pull it there.",
-      takeaway: "Taints repel, tolerations permit, and nodeSelector or node affinity attract. Dedicated nodes usually need both a taint and a label.",
+      takeaway: "Taints push Pods away, tolerations let them in, and nodeSelector or node affinity pull them toward a node. Dedicated nodes usually need both a taint and a label.",
       render: (onSolved) => <SchedulingLab goal="place" onSolved={onSolved} />,
     },
   ],

@@ -12,7 +12,7 @@ export default defineDomain({
     weight: 25,
     emoji: "🌿",
     color: "#61dafb",
-    summary: "Components and JSX, props vs state, how a render is triggered and committed, and how keys guide reconciliation.",
+    summary: "How components and JSX work, the difference between props and state, what happens during a render, and how keys help React match list items.",
   },
 
   tasks: [
@@ -22,6 +22,66 @@ export default defineDomain({
   ],
 
   lessons: [
+    {
+      id: "d1-b-what",
+      level: "beginner",
+      task: "1.1",
+      title: "What React is, and why people use it",
+      check: ["react-b1-01", "react-b1-02"],
+      visual: (
+        <Tiles
+          cols={3}
+          tiles={[
+            { icon: "🧱", title: "Components", text: "Small, reusable pieces of a page, like a button or a menu. You build big screens out of them.", color: "#61dafb" },
+            { icon: "📝", title: "Describe it", text: "You say what the screen should look like. React works out how to change the page.", color: "#a78bfa" },
+            { icon: "🔁", title: "Stay in sync", text: "When your data changes, React updates only the parts of the page that need it.", color: "#34d399" },
+          ]}
+        />
+      ),
+      points: [
+        "**React** is a JavaScript library for building user interfaces: the parts of an app that people see and click.",
+        "You build a page from **components**. A component is one reusable piece of the screen, like a button, a search box or a product card.",
+        "Think of LEGO bricks. You make a few small bricks, then snap them together into bigger things. One `ProductCard` can appear a hundred times on a page.",
+        "When your data changes, you don't edit the page by hand. React compares the new screen with the old one and updates only what changed.",
+      ],
+      tip: "If you know a little HTML and JavaScript, you already know most of what React builds on. React adds a way to split the page into components and keep it in step with your data.",
+    },
+    {
+      id: "d1-b-first",
+      level: "beginner",
+      task: "1.1",
+      title: "Your first component",
+      check: ["react-b1-03", "react-b1-04"],
+      visual: (
+        <div className="grid gap-3">
+          <Flow
+            color="#61dafb"
+            steps={[
+              { icon: "✍️", label: "Write a function", sub: "Give it a capitalised name" },
+              { icon: "🧾", label: "Return JSX", sub: "HTML-like markup for the screen" },
+              { icon: "🏷️", label: "Use it as a tag", sub: "<Hello /> shows it on the page" },
+            ]}
+          />
+          <CodeBlock
+            lang="jsx"
+            caption="A whole component. It's a function that returns what should appear on screen."
+            code={`function Hello() {
+  return <h1>Hello, world!</h1>;
+}
+
+// Use it like an HTML tag:
+<Hello />`}
+          />
+        </div>
+      ),
+      points: [
+        "A component is a plain JavaScript function. Its name starts with a capital letter, like `Hello` or `ProductCard`.",
+        "The function returns **JSX**, which looks like HTML but lives inside your JavaScript. `<h1>Hello</h1>` is JSX.",
+        "To show a component, write its name as a tag: `<Hello />`. The slash closes the tag, because there's nothing inside it.",
+        "Curly braces let you put JavaScript inside JSX. `<p>{2 + 2}</p>` shows 4 on the page.",
+      ],
+      tip: "Keep your first components tiny. One that shows a single heading is a fine start, and you'll combine them into bigger ones later.",
+    },
     {
       id: "d1-jsx",
       level: "junior",
@@ -68,11 +128,11 @@ export default defineDomain({
       ),
       points: [
         "A component is a JavaScript function whose name starts with a capital letter and returns JSX.",
-        "JSX compiles to plain function calls, so `{}` holds any JavaScript expression, and `className` / `htmlFor` replace `class` / `for`.",
-        "Return one root; use a Fragment `<>…</>` to group siblings without an extra DOM node.",
-        "Components must be pure: same props and state in, same JSX out, with no side effects during render.",
+        "JSX turns into plain function calls, so curly braces `{}` can hold any JavaScript expression. You write `className` instead of `class`, and `htmlFor` instead of `for`.",
+        "A component returns one root element. To return several side by side, wrap them in a **Fragment**, `<>…</>`, which groups them without adding an extra element to the page.",
+        "Components must be **pure**: give them the same props and state and they return the same JSX. They don't change anything outside themselves while rendering.",
       ],
-      tip: "Interviewers love \"why capital letters?\": lowercase tags are treated as built-in HTML elements (strings); capitalised ones are references to your components.",
+      tip: "Interviewers like asking why components need capital letters. The answer: lowercase tags are treated as built-in HTML elements, and capitalised ones point to your own components.",
     },
     {
       id: "d1-props-state",
@@ -103,11 +163,11 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "Data flows down: parents pass props; children ask for changes by calling callbacks they received as props.",
-        "Never mutate props. Treat them like a snapshot you were handed.",
-        "Local variables are recreated on every render, so they can't remember anything and changing them doesn't re-render.",
+        "Data flows down. A parent passes props to its children, and a child asks for changes by calling a function it got as a prop.",
+        "Never change props inside a child. Treat them like a photo you were handed: you can look, but you don't draw on it.",
+        "Plain variables inside a component start fresh on every render. They can't remember anything, and changing one doesn't update the screen. That's what state is for.",
       ],
-      tip: "A one-liner that lands well: \"Props are configuration from outside; state is memory from inside.\"",
+      tip: "A line that works well in interviews: \"Props are settings from outside. State is memory from inside.\"",
     },
     {
       id: "d1-rerender",
@@ -139,11 +199,11 @@ export default defineDomain({
       ),
       points: [
         "A component re-renders when its state changes, when its parent re-renders, or when a context it reads changes.",
-        "Rendering means calling your function. It doesn't mean the DOM changes: React only commits differences.",
-        "Since React 18, updates inside event handlers, timeouts, and promises are batched into one render.",
+        "Rendering means React calls your function. It doesn't mean the page changes. React only applies the differences, and that step is called the **commit**.",
+        "Since React 18, several state updates in one event handler, timeout or promise are **batched**: React groups them and renders once.",
         "Setting state to the same value (by `Object.is`) lets React skip re-rendering that component's children.",
       ],
-      tip: "When asked \"what is a render?\", separate render (calling components) from commit (touching the DOM). It shows you know why extra renders are usually cheap.",
+      tip: "When asked what a render is, separate the two steps. Rendering is calling your components. Committing is touching the page. It shows you know why extra renders are usually cheap.",
     },
     {
       id: "d1-keys",
@@ -153,17 +213,61 @@ export default defineDomain({
       check: ["d1-13", "d1-16"],
       visual: <KeysVisual />,
       points: [
-        "Keys tell React which item is which between renders. Use a stable id from your data.",
-        "Index keys are fine only for static lists that never reorder, insert, or delete.",
-        "State belongs to a position in the tree: same component type at the same spot keeps its state; a different type or a different key resets it.",
-        "Change a component's `key` on purpose to reset its state, e.g. `<Profile key={userId} />`.",
-        "Never define a component inside another component: it becomes a new type on every render and remounts.",
+        "A **key** tells React which list item is which between renders. Use an id that comes with your data and never changes.",
+        "Using the array index as the key is fine only for lists that never get reordered, added to or trimmed.",
+        "State belongs to a spot in the component tree. The same component type in the same spot keeps its state. A different type, or a different key, starts it fresh.",
+        "You can change a component's `key` on purpose to reset its state. For example, `<Profile key={userId} />` starts over whenever the user changes.",
+        "Don't define a component inside another component. It becomes a brand-new type on every render, so React throws it away and builds it again each time.",
       ],
-      tip: "If asked why `Math.random()` keys are bad: every render produces new keys, so React remounts every item, losing state and focus.",
+      tip: "If you're asked why `Math.random()` keys are bad: every render makes new keys, so React rebuilds every item from scratch. Typed text and focus are lost.",
     },
   ],
 
   questions: [
+    {
+      id: "react-b1-01",
+      domain: "d1",
+      lesson: "d1-b-what",
+      level: "beginner",
+      prompt: "What is React mainly used for?",
+      options: ["Building user interfaces out of reusable components", "Storing data in a database", "Styling pages instead of CSS", "Running a web server"],
+      answer: [0],
+      explanation: "React is a JavaScript library for building the parts of an app that people see and use. It doesn't store data or replace CSS. You split the screen into components and React keeps them up to date.",
+    },
+    {
+      id: "react-b1-02",
+      domain: "d1",
+      lesson: "d1-b-what",
+      level: "beginner",
+      prompt: "In React, what is a component?",
+      options: ["One reusable piece of the user interface, like a button or a card", "A file that holds only your CSS", "A kind of database table", "A browser plugin you install"],
+      answer: [0],
+      explanation: "A component is a building block of the screen. You write it once and use it as often as you like, the way you'd reuse the same LEGO brick in many places.",
+    },
+    {
+      id: "react-b1-03",
+      domain: "d1",
+      lesson: "d1-b-first",
+      level: "beginner",
+      prompt: "What does this component show on the page?",
+      code: `function Total() {
+  return <p>Total: {3 + 4}</p>;
+}`,
+      codeLang: "jsx",
+      options: ["Total: 7", "Total: {3 + 4}", "Total: 3 + 4", "Nothing, because JSX can't do maths"],
+      answer: [0],
+      explanation: "Curly braces in JSX mean \"run this JavaScript and show the result\". So `{3 + 4}` becomes 7, and the paragraph reads Total: 7.",
+    },
+    {
+      id: "react-b1-04",
+      domain: "d1",
+      lesson: "d1-b-first",
+      level: "beginner",
+      prompt: "Which name works for a React component?",
+      options: ["`ProductCard`", "`productCard`", "`product_card`"],
+      answer: [0],
+      explanation: "Component names start with a capital letter. React treats lowercase tags like `<div>` as plain HTML, so the capital letter is how it knows `<ProductCard />` is one of your components.",
+    },
     {
       id: "d1-01",
       domain: "d1",
@@ -228,7 +332,7 @@ export default defineDomain({
       codeLang: "jsx",
       options: ["<div>0</div>", "<div></div>", "<div><p>You have 0 messages</p></div>", "It throws, because 0 isn't a valid child"],
       answer: [0],
-      explanation: "`0 && …` evaluates to `0`, and React renders numbers, so a stray \"0\" appears. Use `count > 0 && …` or a ternary. `false`, `null`, and `undefined` render nothing; `0` does not.",
+      explanation: "`0 && …` gives `0`, and React shows numbers, so a stray \"0\" appears. Use `count > 0 && …` or a ternary. `false`, `null` and `undefined` show nothing, but `0` does.",
     },
     {
       id: "d1-05",
@@ -243,7 +347,7 @@ export default defineDomain({
         "State is shared automatically between every instance of a component",
       ],
       answer: [0],
-      explanation: "Props flow down and the child must not change them. State is private memory for each component instance; calling its setter schedules a re-render.",
+      explanation: "Props flow down, and the child must not change them. State is private memory for each copy of a component, and calling its setter asks React to re-render.",
     },
     {
       id: "d1-06",
@@ -317,7 +421,7 @@ export default defineDomain({
       codeLang: "jsx",
       options: ["Ada", "Grace", "undefined", "Ada, then Grace"],
       answer: [0],
-      explanation: "State is a snapshot. Calling the setter schedules the next render; it doesn't change the `name` constant this handler closed over. The next render will show \"Grace\".",
+      explanation: "State is a snapshot. Calling the setter asks for the next render. It doesn't change the `name` this handler already captured. The next render will show \"Grace\".",
     },
     {
       id: "d1-10",
@@ -333,7 +437,7 @@ export default defineDomain({
         "React compares the new output with the previous one",
         "React commits only the changed DOM nodes",
       ],
-      explanation: "Trigger → render → commit. Rendering is calling your components; committing is applying the minimal DOM changes.",
+      explanation: "The order is trigger, then render, then commit. Rendering is React calling your components. Committing is React applying the smallest set of changes to the page.",
     },
     {
       id: "d1-11",
@@ -415,7 +519,7 @@ export default defineDomain({
       prompt: "Keys in a list must be unique…",
       options: ["Among siblings in that list", "Across the whole app", "Across every list that uses the same component", "Only in production builds"],
       answer: [0],
-      explanation: "Keys only need to be unique among siblings. Two different lists can reuse the same keys.",
+      explanation: "Keys only need to be unique among items in the same list. Two different lists can use the same keys without any problem.",
     },
     {
       id: "d1-16",
@@ -533,7 +637,7 @@ function Lengths() {
         "Tell teams not to put inputs inside rows",
       ],
       answer: [0],
-      explanation: "The root cause is identity: index keys tie state to positions. Fix it at the API so every consumer gets correct identity; remounting the whole list throws away all state and focus.",
+      explanation: "The real problem is identity: index keys tie state to positions in the list. Fix it in the shared component so every user of it gets proper keys. Rebuilding the whole list throws away all state and focus.",
     },
     {
       id: "d1-23",
@@ -580,7 +684,7 @@ function Lengths() {
         "Turn Strict Mode off in development and on in production",
       ],
       answer: [0],
-      explanation: "In development Strict Mode calls components twice and runs an extra effect setup + cleanup to surface impure code. Production runs once, but the bug (side effects during render) is real and would also hurt concurrent rendering and the React Compiler.",
+      explanation: "In development, Strict Mode calls components twice and runs effects an extra time, to expose code that isn't pure. Production runs once, but the bug is real: side effects during render also break concurrent rendering and the React Compiler.",
     },
   ],
 
@@ -589,12 +693,12 @@ function Lengths() {
     { id: "c-d1-component", domain: "d1", kind: "concept", term: "Component", definition: "A capitalised function that takes props and returns JSX. Must be pure: same inputs, same output, no side effects during render." },
     { id: "c-d1-props", domain: "d1", kind: "concept", term: "Props", definition: "Read-only inputs passed from parent to child, like function arguments." },
     { id: "c-d1-state", domain: "d1", kind: "concept", term: "State", definition: "A component's memory between renders. Updated only through its setter, which schedules a re-render." },
-    { id: "c-d1-render", domain: "d1", kind: "concept", term: "Render vs commit", definition: "Render = React calls your components to compute JSX. Commit = React applies the minimal changes to the DOM." },
+    { id: "c-d1-render", domain: "d1", kind: "concept", term: "Render vs commit", definition: "Rendering is when React calls your components to work out the JSX. Committing is when React applies the smallest set of changes to the page." },
     { id: "c-d1-snapshot", domain: "d1", kind: "concept", term: "State as a snapshot", definition: "Within one render, state values are constants. Setting state affects the next render, not the current variables." },
     { id: "c-d1-batching", domain: "d1", kind: "concept", term: "Automatic batching", definition: "React groups several state updates (in handlers, timeouts, promises) into one re-render." },
-    { id: "c-d1-reconciliation", domain: "d1", kind: "concept", term: "Reconciliation", definition: "Diffing the new element tree with the previous one by type and key to find the minimal DOM updates." },
+    { id: "c-d1-reconciliation", domain: "d1", kind: "concept", term: "Reconciliation", definition: "How React compares the new tree of elements with the old one, by type and key, to find the smallest set of changes to make to the page." },
     { id: "c-d1-key", domain: "d1", kind: "service", term: "key", definition: "Special prop that gives list items a stable identity among siblings. Changing it remounts the component and resets its state." },
     { id: "c-d1-fragment", domain: "d1", kind: "service", term: "Fragment (<>…</>)", definition: "Groups several children without adding a DOM element. Use `<Fragment key>` when a keyed group is needed." },
-    { id: "c-d1-strict", domain: "d1", kind: "service", term: "StrictMode", definition: "Development-only checks: renders components twice and runs effects setup → cleanup → setup to expose impure code and missing cleanups." },
+    { id: "c-d1-strict", domain: "d1", kind: "service", term: "StrictMode", definition: "Checks that run only in development. It renders components twice and runs each effect, its cleanup, then the effect again, to expose impure code and missing cleanups." },
   ],
 });

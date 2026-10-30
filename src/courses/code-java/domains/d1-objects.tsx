@@ -1,4 +1,4 @@
-import { CodeBlock, CodeCompare, Tiles } from "@/components/learn/blocks";
+import { CodeBlock, CodeCompare, Flow, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { java } from "../java";
 import { IntegerCacheLab, StringPool } from "../visuals";
@@ -13,7 +13,8 @@ export default defineDomain({
     weight: 25,
     emoji: "🧱",
     color: "#f89820",
-    summary: "The four OOP pillars, interfaces vs abstract classes, == vs equals, the hashCode contract, wrappers and autoboxing, and how Strings really work.",
+    summary:
+      "The four ideas behind object-oriented code, interfaces and abstract classes, == and equals, the hashCode rule, wrapper types and autoboxing, and how Strings really work.",
   },
 
   tasks: [
@@ -22,23 +23,135 @@ export default defineDomain({
       title: "Model with classes, interfaces, and inheritance",
       covers: [
         "Encapsulation, inheritance, polymorphism, abstraction",
-        "Overriding (runtime) vs overloading (compile time); field hiding",
-        "Interfaces with default and static methods vs abstract classes",
+        "Overriding (decided at runtime) and overloading (decided at compile time); field hiding",
+        "Interfaces with default and static methods, compared with abstract classes",
       ],
     },
     {
       id: "1.2",
       title: "Compare objects correctly",
-      covers: ["== vs equals", "The equals/hashCode contract", "Primitives vs wrappers, autoboxing, the Integer cache, unboxing null"],
+      covers: ["== and equals", "The equals and hashCode contract", "Primitives and wrappers, autoboxing, the Integer cache, unboxing null"],
     },
     {
       id: "1.3",
       title: "Use Strings efficiently",
-      covers: ["String immutability and the string pool", "intern() and compile-time constants", "StringBuilder and the cost of concatenation in loops"],
+      covers: ["String immutability and the string pool", "intern() and compile-time constants", "StringBuilder and the cost of joining strings in a loop"],
     },
   ],
 
   lessons: [
+    {
+      id: "d1-start-hello",
+      level: "beginner",
+      task: "1.1",
+      title: "What Java is and your first program",
+      check: ["java-b1-01", "java-b1-02"],
+      visual: (
+        <div className="grid gap-4">
+          <CodeBlock
+            lang="java"
+            caption="Save this as Main.java. The file name must match the class name."
+            code={java`
+              public class Main {
+                public static void main(String[] args) {
+                  System.out.println("Hello, Java!");
+                }
+              }
+            `}
+          />
+          <Flow
+            color="#f89820"
+            steps={[
+              { icon: "✍️", label: "Write Main.java", sub: "Plain text you can read" },
+              { icon: "🔧", label: "javac Main.java", sub: "The compiler checks it and makes Main.class" },
+              { icon: "▶️", label: "java Main", sub: "The JVM runs it and prints the output" },
+            ]}
+          />
+        </div>
+      ),
+      points: [
+        "**Java** is a programming language used for apps, websites, Android phones and big company systems. You write instructions, and the computer follows them in order.",
+        "Java code lives inside a **class**. For now, think of the class as the box your program sits in.",
+        "The program starts at the `main` method. Every line inside its curly braces `{ }` runs, top to bottom.",
+        "`System.out.println(...)` prints a line of text. Each statement ends with a semicolon `;`, like a full stop at the end of a sentence.",
+      ],
+      tip: "Before Java runs your code, a tool called the **compiler** (`javac`) checks it. A missing semicolon or a typo is caught here, before anything runs.",
+    },
+    {
+      id: "d1-start-variables",
+      level: "beginner",
+      task: "1.2",
+      title: "Variables and their types",
+      check: ["java-b1-03", "java-b1-04"],
+      visual: (
+        <div className="grid gap-4">
+          <CodeBlock
+            lang="java"
+            code={java`
+              int age = 30;             // a whole number
+              double price = 4.99;      // a decimal number
+              boolean done = false;     // true or false
+              String name = "Ada";      // text
+              System.out.println(name + " is " + age);   // Ada is 30
+            `}
+          />
+          <Tiles
+            cols={4}
+            tiles={[
+              { icon: "🔢", title: "int", text: "Whole numbers like 3 or -10", color: "#f89820" },
+              { icon: "📏", title: "double", text: "Decimal numbers like 4.99", color: "#f89820" },
+              { icon: "✅", title: "boolean", text: "Just true or false", color: "#f89820" },
+              { icon: "🔤", title: "String", text: "Text in double quotes", color: "#38bdf8" },
+            ]}
+          />
+        </div>
+      ),
+      points: [
+        "A **variable** is a named box that holds a value. In Java you say what type of value goes in the box when you create it.",
+        "`int age = 30;` makes a box called `age` that can only ever hold whole numbers, and puts 30 in it.",
+        "Once a box has a type, it keeps it. Trying to put text into an `int` box is an error the compiler catches.",
+        "`String` (with a capital S) holds text. You can join strings and other values with `+`, as in `\"Hi \" + name`.",
+      ],
+      tip: "Lowercase types like `int`, `double` and `boolean` are called **primitives**: plain values. `String` starts with a capital letter because it's a class, which you'll meet next.",
+    },
+    {
+      id: "d1-start-objects",
+      level: "beginner",
+      task: "1.1",
+      title: "Classes are blueprints, objects are the things",
+      check: ["java-b1-05", "java-b1-06"],
+      visual: (
+        <div className="grid gap-4">
+          <CodeBlock
+            lang="java"
+            code={java`
+              class Dog {                  // the blueprint
+                String name;               // every dog has a name
+                Dog(String name) {         // the constructor runs on "new"
+                  this.name = name;
+                }
+              }
+
+              Dog rex = new Dog("Rex");    // one real dog
+              System.out.println(rex.name);  // Rex
+            `}
+          />
+          <Tiles
+            tiles={[
+              { icon: "📐", title: "Class", text: "The blueprint. It says what every Dog has and can do.", color: "#f89820" },
+              { icon: "🐕", title: "Object", text: "One real Dog built from the blueprint, with its own name.", color: "#38bdf8" },
+            ]}
+          />
+        </div>
+      ),
+      points: [
+        "A **class** is a blueprint, like the plan for a house. An **object** is one actual house built from that plan. You can build many from one plan.",
+        "Variables inside a class, like `name`, are called **fields**. Every object gets its own copy.",
+        "`new Dog(\"Rex\")` builds a new object and runs the class's **constructor**, the special method that sets up its starting values.",
+        "You reach an object's fields and methods with a dot, as in `rex.name`.",
+      ],
+      tip: "In a constructor, `this.name` means \"the name field of the object being built\". It tells it apart from the `name` parameter passed in.",
+    },
     {
       id: "d1-oop",
       level: "junior",
@@ -69,34 +182,34 @@ export default defineDomain({
           <Tiles
             cols={4}
             tiles={[
-              { icon: "🔒", title: "Encapsulation", text: "Private fields, public methods that guard the invariants.", color: "#f89820" },
-              { icon: "🧬", title: "Inheritance", text: "extends one class, implements many interfaces.", color: "#38bdf8" },
+              { icon: "🔒", title: "Encapsulation", text: "Keep fields private and change them only through methods that check the rules.", color: "#f89820" },
+              { icon: "🧬", title: "Inheritance", text: "A class extends one parent class and can implement many interfaces.", color: "#38bdf8" },
               { icon: "🎭", title: "Polymorphism", text: "One call, many behaviours: the object's real class picks the method at runtime.", color: "#a78bfa" },
-              { icon: "🧩", title: "Abstraction", text: "Code against an interface or abstract type, not the details.", color: "#34d399" },
+              { icon: "🧩", title: "Abstraction", text: "Write code against an interface or abstract type, not the details behind it.", color: "#34d399" },
             ]}
           />
         </div>
       ),
       points: [
-        "Overriding is resolved at runtime from the object's class (dynamic dispatch). Overloading is resolved at compile time from the declared argument types.",
-        "Fields and static methods are not polymorphic: they are hidden, and the declared type decides which one you get.",
-        "An override may return a subtype (covariant return) but may not reduce visibility or throw broader checked exceptions.",
-        "Returning an internal mutable collection from a getter breaks encapsulation: return a copy or an unmodifiable view.",
+        "**Overriding** is decided at runtime by the object's real class. **Overloading** (same name, different parameters) is decided at compile time by the declared argument types.",
+        "Fields and static methods don't follow the object. A subclass field with the same name just hides the parent's, and the declared type decides which one you get.",
+        "An override may return a more specific type (a covariant return). It can't make the method less visible or throw broader checked exceptions.",
+        "Handing out an internal list from a getter breaks encapsulation, because callers can change it. Return a copy or a read-only view instead.",
       ],
-      tip: "When asked to 'explain polymorphism', write two lines: `Animal a = new Dog(); a.speak();` and say which method runs and why. Concrete beats definitions.",
+      tip: "When asked to explain polymorphism, write two lines, `Animal a = new Dog(); a.speak();`, and say which method runs and why. A concrete example beats a definition.",
     },
     {
       id: "d1-abstract",
       level: "junior",
       task: "1.1",
-      title: "Interfaces vs abstract classes",
+      title: "Interfaces and abstract classes",
       check: ["d1-06", "d1-07"],
       visual: (
         <div className="grid gap-4">
           <div className="grid gap-3 md:grid-cols-2">
             <CodeBlock
               lang="java"
-              caption="Interface: a capability many unrelated classes can have."
+              caption="Interface: a capability that many unrelated classes can have."
               code={java`
                 interface Chargeable {
                   int capacity();                 // abstract
@@ -109,7 +222,7 @@ export default defineDomain({
             />
             <CodeBlock
               lang="java"
-              caption="Abstract class: shared state and constructor logic."
+              caption="Abstract class: shared fields and constructor logic."
               code={java`
                 abstract class Entity {
                   protected final String id;      // state
@@ -124,25 +237,25 @@ export default defineDomain({
           <Tiles
             cols={2}
             tiles={[
-              { icon: "🔌", title: "Interface", text: "No instance state, no constructor. A class can implement many. Default, static, and private methods allowed.", color: "#38bdf8" },
-              { icon: "🏛️", title: "Abstract class", text: "Fields, constructors, any visibility. A class can extend only one.", color: "#f89820" },
+              { icon: "🔌", title: "Interface", text: "No per-object fields and no constructor. A class can implement many. Default, static and private methods are allowed.", color: "#38bdf8" },
+              { icon: "🏛️", title: "Abstract class", text: "Can have fields, constructors and any visibility. A class can extend only one.", color: "#f89820" },
             ]}
           />
         </div>
       ),
       points: [
-        "Default methods (Java 8) let you add methods to a published interface without breaking existing implementations.",
-        "If two interfaces give the same default method, the class must override it (it can call `A.super.hi()`).",
-        "Prefer interfaces for types; use an abstract class when subclasses genuinely share state or construction.",
-        "An interface with exactly one abstract method is a functional interface: a lambda can implement it.",
+        "**Default methods** (from Java 8) let you add a method with a body to a published interface without breaking the classes that already implement it.",
+        "If two interfaces give a class the same default method, the class must override it. It can still call one of them with `A.super.hi()`.",
+        "Use interfaces for types by default. Reach for an abstract class when subclasses really do share fields or setup code.",
+        "An interface with exactly one abstract method is a **functional interface**, which means a lambda can implement it.",
       ],
-      tip: "The modern answer is 'interface by default, abstract class when you need shared state'. Mention default methods to show you know post-Java-8 interfaces.",
+      tip: "The modern answer is \"an interface by default, an abstract class when you need shared state\". Mentioning default methods shows you know how interfaces changed after Java 8.",
     },
     {
       id: "d1-equality",
       level: "intermediate",
       task: "1.2",
-      title: "== vs equals, hashCode, and the Integer cache",
+      title: "== and equals, hashCode, and the Integer cache",
       check: ["d1-10", "d1-12"],
       visual: (
         <div className="grid gap-6">
@@ -180,13 +293,13 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "`==` compares values for primitives and references for objects. `equals` compares meaning, if the class overrides it.",
-        "Contract: equal objects must have equal hash codes. Unequal objects may share a hash code (a collision).",
-        "`equals` must be reflexive, symmetric, transitive, consistent, and return false for null.",
-        "Autoboxing uses `Integer.valueOf`, which caches -128 to 127. That's why `==` on boxed numbers 'works' in small tests and fails later.",
-        "Unboxing a null wrapper throws `NullPointerException`, e.g. `int n = map.get(key)` when the key is missing.",
+        "For primitives, `==` compares values. For objects, it checks whether both sides are the same object. `equals` compares what the objects mean, if the class overrides it.",
+        "The rule: equal objects must have equal hash codes. Unequal objects are allowed to share a hash code, which is called a collision.",
+        "`equals` must give the same answer both ways round, be consistent, and return false for `null` rather than throwing.",
+        "Autoboxing uses `Integer.valueOf`, which reuses cached objects for -128 to 127. That's why `==` on boxed numbers seems to work in small tests and then fails later.",
+        "Unboxing a null wrapper throws `NullPointerException`. For example, `int n = map.get(key)` blows up when the key is missing.",
       ],
-      tip: "If you override equals, say 'and hashCode' in the same breath. Interviewers listen for it.",
+      tip: "If you override equals, say \"and hashCode\" in the same breath. Interviewers listen for it.",
     },
     {
       id: "d1-strings",
@@ -200,7 +313,7 @@ export default defineDomain({
           <CodeCompare
             lang="java"
             left={{
-              title: "O(n²): copies the whole string each time",
+              title: "O(n²): copies the whole string every time",
               code: java`
                 String s = "";
                 for (int i = 0; i < n; i++) {
@@ -209,7 +322,7 @@ export default defineDomain({
               `,
             }}
             right={{
-              title: "O(n): one growing buffer",
+              title: "O(n): one buffer that grows",
               code: java`
                 StringBuilder sb = new StringBuilder(n);
                 for (int i = 0; i < n; i++) {
@@ -222,17 +335,120 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "Strings never change. `concat`, `toUpperCase`, `trim` return new strings; ignoring the result does nothing.",
-        "String literals (and compile-time constants) are interned in the pool, so equal literals share one object.",
-        "`new String(\"x\")` and strings built at runtime are separate objects: compare with `equals`, never `==`.",
-        "Immutability makes strings safe as map keys, safe to share between threads, and lets them cache their hash code.",
-        "`StringBuilder` is the unsynchronized, faster choice; `StringBuffer` is its legacy synchronized twin.",
+        "Strings never change. `concat`, `toUpperCase` and `trim` all return new strings, so if you ignore the result, nothing happens.",
+        "String literals (and compile-time constants) are stored once in the **string pool**, so equal literals share one object.",
+        "`new String(\"x\")` and strings built while the program runs are separate objects. Compare them with `equals`, never `==`.",
+        "Because they can't change, strings are safe as map keys, safe to share between threads, and can cache their own hash code.",
+        "`StringBuilder` is the faster choice for building text. `StringBuffer` is its older, synchronized twin.",
       ],
-      tip: "A classic follow-up: 'how many objects does `new String(\"hi\")` create?' Say: the literal in the pool (if not already there) plus one new heap object.",
+      tip: "A classic follow-up is \"how many objects does `new String(\"hi\")` create?\". The answer: the literal in the pool (if it isn't there already) plus one new object on the heap.",
     },
   ],
 
   questions: [
+    // ───────────── Start here ─────────────
+    {
+      id: "java-b1-01",
+      domain: "d1",
+      level: "beginner",
+      lesson: "d1-start-hello",
+      type: "output",
+      prompt: "What does this line print?",
+      codeLang: "java",
+      code: java`
+        System.out.println("Hello, Java!");
+      `,
+      answers: ["Hello, Java!"],
+      explanation:
+        "`System.out.println` prints whatever is in the brackets, then moves to a new line. The double quotes mark the text as a String, but they aren't printed.",
+    },
+    {
+      id: "java-b1-02",
+      domain: "d1",
+      level: "beginner",
+      lesson: "d1-start-hello",
+      prompt: "What does running `javac Main.java` do?",
+      options: [
+        "Checks the code and turns it into a `Main.class` file the JVM can run",
+        "Runs the program and prints its output",
+        "Deletes the source file once it has run",
+        "Downloads Java onto your computer",
+      ],
+      answer: [0],
+      explanation:
+        "`javac` is the Java compiler. It checks your code for mistakes and translates it into bytecode, saved as `Main.class`. Then `java Main` starts the JVM, which actually runs it.",
+    },
+    {
+      id: "java-b1-03",
+      domain: "d1",
+      level: "beginner",
+      lesson: "d1-start-variables",
+      type: "output",
+      prompt: "What does this print?",
+      codeLang: "java",
+      code: java`
+        int a = 7;
+        int b = 2;
+        System.out.println(a + b);
+      `,
+      answers: ["9"],
+      explanation:
+        "Both variables are `int`s, so `+` adds them as numbers: 7 plus 2 is 9. If either one were a String, `+` would join them as text instead.",
+    },
+    {
+      id: "java-b1-04",
+      domain: "d1",
+      level: "beginner",
+      lesson: "d1-start-variables",
+      type: "fill",
+      prompt: "Fill the gap with the type that holds text.",
+      codeLang: "java",
+      code: java`
+        {{1}} name = "Ada";
+        System.out.println("Hi " + name);  // Hi Ada
+      `,
+      blanks: [{ options: ["String", "string", "int", "char"], answer: 0 }],
+      explanation:
+        "Text in double quotes is a `String`, spelled with a capital S because it's a class. Lowercase `string` doesn't exist in Java, `int` holds whole numbers, and `char` holds a single character like `'A'`.",
+    },
+    {
+      id: "java-b1-05",
+      domain: "d1",
+      level: "beginner",
+      lesson: "d1-start-objects",
+      type: "output",
+      prompt: "What does this print?",
+      codeLang: "java",
+      code: java`
+        class Dog {
+          String name;
+          Dog(String name) { this.name = name; }
+        }
+
+        Dog d = new Dog("Rex");
+        System.out.println(d.name);
+      `,
+      answers: ["Rex"],
+      explanation:
+        "`new Dog(\"Rex\")` builds a Dog and runs its constructor, which stores `\"Rex\"` in the object's `name` field. `d.name` reads that field back.",
+    },
+    {
+      id: "java-b1-06",
+      domain: "d1",
+      level: "beginner",
+      lesson: "d1-start-objects",
+      prompt: "What's the difference between a class and an object?",
+      options: [
+        "A class is the blueprint; an object is one thing built from it with `new`",
+        "They're two words for exactly the same thing",
+        "An object is the blueprint; a class is built from it",
+        "A class can only ever produce one object",
+      ],
+      answer: [0],
+      explanation:
+        "Think of a cookie cutter and cookies. The class (`Dog`) describes what every dog has. Each `new Dog(...)` makes a separate object with its own values, and you can make as many as you like.",
+    },
+    // ───────────── Interview questions ─────────────
     {
       id: "d1-01",
       domain: "d1",
@@ -253,7 +469,8 @@ export default defineDomain({
       `,
       options: ["`Woof`", "`...`", "Compile error: `Animal` has no `Dog` methods", "`ClassCastException`"],
       answer: [0],
-      explanation: "Overridden methods are chosen at runtime from the object's actual class (dynamic dispatch). The object is a `Dog`, so `Dog.speak()` runs even though the variable is typed `Animal`.",
+      explanation:
+        "Java picks an overridden method at runtime, based on the object's real class. This is called dynamic dispatch. The object is a `Dog`, so `Dog.speak()` runs, even though the variable's type is `Animal`.",
     },
     {
       id: "d1-02",
@@ -271,7 +488,8 @@ export default defineDomain({
       `,
       options: ["`object`", "`string`", "Compile error: ambiguous call", "`hello`"],
       answer: [0],
-      explanation: "Overloads are picked at compile time from the declared (static) type of the argument. `x` is declared `Object`, so `describe(Object)` is chosen, even though it holds a String at runtime. Only overriding is dynamic.",
+      explanation:
+        "Overloads are picked at compile time, using the declared type of the argument. `x` is declared as `Object`, so `describe(Object)` is chosen, even though it holds a String when the program runs. Only overriding is decided at runtime.",
     },
     {
       id: "d1-03",
@@ -295,7 +513,8 @@ export default defineDomain({
       `,
       options: ["`AB`", "`BB`", "`AA`", "`BA`"],
       answer: [0],
-      explanation: "Fields are not polymorphic: `B.name` hides `A.name`, and the declared type `A` decides which field `obj.name` reads, so it's \"A\". The method `who()` is overridden, so the object's class decides: \"B\".",
+      explanation:
+        "Fields don't follow the object. `B.name` just hides `A.name`, and the declared type `A` decides which field `obj.name` reads, so you get \"A\". The method `who()` is overridden, so the object's real class decides: \"B\".",
     },
     {
       id: "d1-04",
@@ -320,7 +539,8 @@ export default defineDomain({
         }
       `,
       answer: [10],
-      explanation: "Returning the internal list hands out a live, mutable reference: `team.getMembers().add(\"\")` skips the validation in `add`. Return `List.copyOf(members)` or `Collections.unmodifiableList(members)`. `final` on the field only stops reassignment, not mutation.",
+      explanation:
+        "Returning the internal list hands callers the real, changeable list, so `team.getMembers().add(\"\")` skips the check in `add`. Return `List.copyOf(members)` or `Collections.unmodifiableList(members)` instead. `final` on the field only stops it being reassigned; the list itself can still change.",
     },
     {
       id: "d1-05",
@@ -331,11 +551,12 @@ export default defineDomain({
       options: [
         "An overriding method may return a subtype of the original return type.",
         "An overriding method may make a `public` method `protected`.",
-        "A `static` method in a subclass overrides the parent's static method, so calls dispatch at runtime.",
+        "A `static` method in a subclass overrides the parent's static method, so calls are decided at runtime.",
         "An overriding method may declare new, broader checked exceptions.",
       ],
       answer: [0],
-      explanation: "Covariant return types are allowed (e.g. `Dog clone()` overriding `Animal clone()`). Overrides can't reduce visibility or widen checked exceptions, and static methods are hidden, not overridden: the declared type picks them at compile time.",
+      explanation:
+        "Covariant return types are allowed, for example `Dog clone()` overriding `Animal clone()`. An override can't make a method less visible or throw broader checked exceptions. Static methods are hidden, not overridden, so the declared type picks them at compile time.",
     },
     {
       id: "d1-06",
@@ -345,7 +566,8 @@ export default defineDomain({
       prompt: "Which two can an abstract class have that an interface cannot? (Choose two.)",
       options: ["Instance fields (per-object state)", "A constructor", "Default methods", "Static methods", "Private methods"],
       answer: [0, 1],
-      explanation: "Interfaces can't hold per-object state or define constructors. Since Java 8 they can have default and static methods, and since Java 9 private methods, so those don't distinguish them.",
+      explanation:
+        "Interfaces can't hold per-object fields or define constructors. Since Java 8 they can have default and static methods, and since Java 9 private ones too, so those don't tell the two apart.",
     },
     {
       id: "d1-07",
@@ -367,7 +589,8 @@ export default defineDomain({
         "It compiles, but calling `hi()` throws at runtime",
       ],
       answer: [0],
-      explanation: "Two unrelated defaults with the same signature clash, and Java refuses to guess. `C` must override `hi()`; it can delegate with `A.super.hi()` or `B.super.hi()`.",
+      explanation:
+        "Two unrelated default methods with the same signature clash, and Java won't guess which one you meant. `C` has to override `hi()`. Inside it, you can call one of them with `A.super.hi()` or `B.super.hi()`.",
     },
     {
       id: "d1-08",
@@ -382,7 +605,8 @@ export default defineDomain({
         "When you want callers to implement the type with a lambda",
       ],
       answer: [0],
-      explanation: "Shared fields and constructors are the abstract class's strength. Cross-cutting capabilities, multiple inheritance of type, and lambda targets (functional interfaces) are all interface jobs.",
+      explanation:
+        "Shared fields and constructors are what abstract classes are good at. A capability shared by unrelated classes, inheriting from several types, and being a lambda target are all jobs for interfaces.",
     },
     {
       id: "d1-09",
@@ -399,7 +623,8 @@ export default defineDomain({
       `,
       options: ["`true false true`", "`true true true`", "`false false true`", "`true false false`"],
       answer: [0],
-      explanation: "Identical literals share one pooled object, so `a == b`. `new String` always creates a separate object, so `a == c` is false. `equals` compares characters: true.",
+      explanation:
+        "Identical literals share one object from the pool, so `a == b` is true. `new String` always makes a separate object, so `a == c` is false. `equals` compares the characters, so it's true.",
     },
     {
       id: "d1-10",
@@ -415,7 +640,8 @@ export default defineDomain({
       `,
       options: ["`true false`", "`true true`", "`false false`", "`false true`"],
       answer: [0],
-      explanation: "Autoboxing calls `Integer.valueOf`, which returns cached objects for -128 to 127. 127 boxes to the same object; 128 creates two different objects, so `==` (reference comparison) is false. Always compare wrappers with `equals`.",
+      explanation:
+        "Autoboxing calls `Integer.valueOf`, which hands back cached objects for -128 to 127. So both 127s are the same object. 128 is outside the cache, so you get two different objects and `==`, which compares objects, is false. Always compare wrappers with `equals`.",
     },
     {
       id: "d1-11",
@@ -440,14 +666,15 @@ export default defineDomain({
         }
       `,
       answer: [10],
-      explanation: "Two equal points get different identity hash codes, so the set looks in the wrong bucket and never even calls `equals`. Equal objects must have equal hash codes: use `Objects.hash(x, y)` (or make `Point` a record).",
+      explanation:
+        "Two equal points get different identity hash codes, so the set looks in the wrong bucket and never even calls `equals`. Equal objects must have equal hash codes. Use `Objects.hash(x, y)`, or make `Point` a record.",
     },
     {
       id: "d1-12",
       domain: "d1",
       level: "intermediate",
       lesson: "d1-equality",
-      prompt: "Which two statements are required by the `equals`/`hashCode` contract? (Choose two.)",
+      prompt: "Which two statements are required by the `equals` and `hashCode` contract? (Choose two.)",
       options: [
         "If `a.equals(b)` is true, then `a.hashCode() == b.hashCode()` must be true.",
         "`a.equals(null)` must return false, not throw.",
@@ -456,7 +683,8 @@ export default defineDomain({
         "`equals` must compare every field of the class.",
       ],
       answer: [0, 1],
-      explanation: "Equal objects need equal hashes, and `equals(null)` is false. The reverse isn't required: different objects may collide on a hash. You choose which fields define equality, as long as equals and hashCode use the same ones.",
+      explanation:
+        "Equal objects need equal hash codes, and `equals(null)` must be false. The reverse isn't required: different objects are allowed to share a hash code. You choose which fields define equality, as long as `equals` and `hashCode` use the same ones.",
     },
     {
       id: "d1-13",
@@ -472,7 +700,8 @@ export default defineDomain({
       `,
       options: ["`NullPointerException` on line 2", "Prints `0`", "Prints `null`", "Compile error: `Integer` can't be assigned to `int`"],
       answer: [0],
-      explanation: "`get` returns null for a missing key, and assigning it to an `int` auto-unboxes with `intValue()`, which throws NPE. Use `stock.getOrDefault(\"apples\", 0)`.",
+      explanation:
+        "`get` returns null for a missing key. Putting that into an `int` unboxes it by calling `intValue()` on null, which throws `NullPointerException`. Use `stock.getOrDefault(\"apples\", 0)` instead.",
     },
     {
       id: "d1-14",
@@ -491,7 +720,8 @@ export default defineDomain({
       `,
       options: ["`hi | hi there`", "`HI THERE | hi there`", "`hi there | hi there`", "`hi | hi`"],
       answer: [0],
-      explanation: "Strings are immutable: `concat` and `toUpperCase` return new strings that are thrown away, so `s` is still \"hi\". `StringBuilder` is mutable, so `append` changes it in place.",
+      explanation:
+        "Strings can't change. `concat` and `toUpperCase` return new strings, and here they're thrown away, so `s` is still \"hi\". A `StringBuilder` can change, so `append` updates it in place.",
     },
     {
       id: "d1-15",
@@ -508,7 +738,8 @@ export default defineDomain({
       `,
       options: ["O(n²)", "O(n)", "O(n log n)", "O(1)"],
       answer: [0],
-      explanation: "Each `+=` builds a brand-new string and copies every existing character: 1 + 2 + … + n copies, which is O(n²). A `StringBuilder` appends into one growing buffer for O(n) total (amortized).",
+      explanation:
+        "Each `+=` builds a brand-new string and copies every character so far. That's 1 + 2 + … + n copies, which grows as O(n²). A `StringBuilder` adds to one growing buffer, so the total is O(n).",
     },
     {
       id: "d1-16",
@@ -516,9 +747,10 @@ export default defineDomain({
       level: "junior",
       lesson: "d1-strings",
       type: "order",
-      prompt: "Arrange the body of `join(List<String> words)` so `join(List.of(\"a\", \"b\", \"c\"))` returns `\"a,b,c\"`.",
+      prompt: "Put the body of `join(List<String> words)` in order so `join(List.of(\"a\", \"b\", \"c\"))` returns `\"a,b,c\"`.",
       items: ["`StringBuilder sb = new StringBuilder();`", "`for (String w : words) {`", "`if (sb.length() > 0) sb.append(',');`", "`sb.append(w);`", "`}`", "`return sb.toString();`"],
-      explanation: "Add the separator before each word except the first (the buffer is empty then), then append the word. Appending the word first would leave a trailing comma. In real code, `String.join(\",\", words)` does this for you.",
+      explanation:
+        "Add the comma before each word except the first, which is when the buffer is still empty, then add the word. Adding the word first would leave a comma at the end. In real code, `String.join(\",\", words)` does this for you.",
     },
     {
       id: "d1-17",
@@ -533,7 +765,8 @@ export default defineDomain({
         ["`Animal a = new Dog(); a.speak()` runs Dog's version", "Polymorphism"],
         ["`interface Shape { double area(); }`", "Abstraction"],
       ],
-      explanation: "Encapsulation hides state behind methods; inheritance reuses a parent's members; polymorphism lets the runtime class pick the method; abstraction exposes what a type does, not how.",
+      explanation:
+        "Encapsulation hides state behind methods. Inheritance reuses what a parent class has. Polymorphism lets the object's real class pick the method. Abstraction shows what a type does, not how it does it.",
     },
     {
       id: "d1-18",
@@ -548,7 +781,8 @@ export default defineDomain({
         "Because Java has no mutable character sequences",
       ],
       answer: [0],
-      explanation: "Immutability makes pooling safe (nobody can change a shared literal), lets a String cache its hash code, keeps map keys stable, and makes strings thread-safe for free. `==` still compares references, and `StringBuilder` is the mutable option.",
+      explanation:
+        "Because nobody can change a shared literal, pooling is safe. A String can also cache its hash code, map keys stay stable, and threads can share strings without locks. `==` still compares objects, and `StringBuilder` is the changeable option.",
     },
     {
       id: "d1-19",
@@ -565,7 +799,8 @@ export default defineDomain({
       `,
       options: ["`false true`", "`true true`", "`false false`", "`true false`"],
       answer: [0],
-      explanation: "`a` isn't a compile-time constant, so `a + \"va\"` is computed at runtime into a new String: `b == c` is false. `intern()` returns the pooled \"java\", which is `c`: true. If `a` were declared `final`, the compiler would fold the concatenation and `b == c` would be true.",
+      explanation:
+        "`a` isn't a compile-time constant, so `a + \"va\"` is worked out while the program runs and makes a new String. That's why `b == c` is false. `intern()` returns the pooled \"java\", which is `c`, so the second check is true. If `a` were `final`, the compiler would join the strings itself and `b == c` would be true.",
     },
     {
       id: "d1-20",
@@ -582,7 +817,8 @@ export default defineDomain({
       `,
       options: ["`false`, `true`, `true`", "`true`, `true`, `true`", "`false`, `true`, `false`", "`true`, `true`, `false`"],
       answer: [0],
-      explanation: "`big.equals(10)` boxes 10 to an `Integer`, and `Long.equals` returns false for anything that isn't a `Long`. `equals(10L)` is true. `big == 10` mixes a wrapper with a primitive, so `big` is unboxed and the values are compared: true.",
+      explanation:
+        "`big.equals(10)` boxes 10 as an `Integer`, and `Long.equals` returns false for anything that isn't a `Long`. `equals(10L)` is true. `big == 10` mixes a wrapper with a primitive, so Java unboxes `big` and compares the numbers, which gives true.",
     },
     {
       id: "d1-21",
@@ -602,22 +838,24 @@ export default defineDomain({
         }
       `,
       answer: [3],
-      explanation: "A string read from a database is a different object from the pooled literal \"admin\", so `==` compares references and fails. Use `\"admin\".equals(role)` (literal first is also null-safe).",
+      explanation:
+        "A string read from a database is a different object from the pooled literal \"admin\", so `==` compares two different objects and fails. Use `\"admin\".equals(role)`. Putting the literal first also means it can't throw if `role` is null.",
     },
     {
       id: "d1-22",
       domain: "d1",
       level: "staff",
       lesson: "d1-equality",
-      prompt: "A widely shared `Money` class has setters and is used as a key in caches across many services. Keys occasionally 'disappear' from those caches. What is the best long-term fix?",
+      prompt: "A widely shared `Money` class has setters and is used as a key in caches across many services. Keys sometimes \"disappear\" from those caches. What's the best long-term fix?",
       options: [
-        "Make `Money` an immutable value type (final fields, or a record), deprecate the setters, and migrate callers to copy-with methods like `withAmount(...)`",
-        "Document 'never mutate a key' on the class and rely on code review",
+        "Make `Money` an immutable value type (final fields, or a record), deprecate the setters, and move callers to copy-with methods like `withAmount(...)`",
+        "Document \"never mutate a key\" on the class and rely on code review",
         "Override `hashCode()` to return a constant so lookups never miss",
         "Switch every cache to `IdentityHashMap`",
       ],
       answer: [0],
-      explanation: "Mutating a key after insertion changes its hash, so the map looks in the wrong bucket. Immutability removes the whole class of bug. A constant hash makes every map O(n) (or O(log n) after treeifying); identity maps break value lookups; documentation doesn't scale across teams.",
+      explanation:
+        "Changing a key after it's in a map changes its hash, so the map looks in the wrong bucket. Making the type immutable removes that whole kind of bug. A constant hash makes every lookup slow, identity maps break lookups by value, and documentation alone doesn't hold up across many teams.",
     },
     {
       id: "d1-23",
@@ -632,30 +870,32 @@ export default defineDomain({
         "Copy the interface into `PaymentGateway2` and ask every team to migrate",
       ],
       answer: [0],
-      explanation: "Default methods exist precisely for evolving published interfaces: existing implementations keep compiling and running. A new abstract method breaks every implementor; switching to an abstract class breaks anyone who already extends another class; a parallel interface splits the ecosystem.",
+      explanation:
+        "Default methods were made for exactly this: growing a published interface while existing implementations keep compiling and running. A new abstract method breaks every implementer. Switching to an abstract class breaks anyone who already extends another class, and a second interface splits everyone in two.",
     },
     {
       id: "d1-24",
       domain: "d1",
       level: "staff",
       lesson: "d1-strings",
-      prompt: "A reporting service builds multi-megabyte CSV exports with `+=` inside nested loops and shows latency spikes and heavy GC. Which two changes fix the root cause? (Choose two.)",
+      prompt: "A reporting service builds multi-megabyte CSV exports with `+=` inside nested loops, and it shows latency spikes and heavy garbage collection. Which two changes fix the root cause? (Choose two.)",
       options: [
-        "Build each export with one `StringBuilder`, pre-sized when the size is roughly known",
+        "Build each export with one `StringBuilder`, sized up front when you roughly know the size",
         "Stream rows straight to the response `Writer` instead of building one giant String in memory",
         "Call `System.gc()` after each export",
         "Call `intern()` on every row string",
         "Increase the thread stack size with `-Xss`",
       ],
       answer: [0, 1],
-      explanation: "Repeated `+=` creates and copies a new String every time (O(n²) work and garbage). One builder fixes the copying; streaming avoids holding the whole export in memory at all. `System.gc()` is only a hint, interning fills the pool with one-off strings, and stack size has nothing to do with heap garbage.",
+      explanation:
+        "Every `+=` makes and copies a new String, so the work and the garbage grow as O(n²). One builder fixes the copying, and streaming avoids holding the whole export in memory at all. `System.gc()` is only a hint, interning fills the pool with one-off strings, and stack size has nothing to do with heap garbage.",
     },
     {
       id: "d1-25",
       domain: "d1",
       level: "staff",
       lesson: "d1-equality",
-      prompt: "In review, a teammate compares `Integer` order ids with `==` and says 'all the tests pass'. The tests only use ids below 100. What is the best response?",
+      prompt: "In review, a teammate compares `Integer` order ids with `==` and says \"all the tests pass\". The tests only use ids below 100. What's the best response?",
       options: [
         "Request changes: it only works because of the -128 to 127 cache. Use `equals` (or primitive `long`/`int`), and add a test with an id above 127",
         "Approve: the JVM caches every `Integer`, so `==` is safe",
@@ -663,24 +903,25 @@ export default defineDomain({
         "Request changes: wrap the ids in `String.valueOf` and compare with `==`",
       ],
       answer: [0],
-      explanation: "The tests pass by accident: boxed values outside the cache are distinct objects, so production ids like 5000 compare false. The fix is value comparison, plus a test that would have caught it. Tuning the cache just moves the cliff, and string `==` has the same reference problem.",
+      explanation:
+        "The tests pass by luck. Boxed values outside the cache are separate objects, so real ids like 5000 compare as false. The fix is to compare values, plus a test that would have caught it. Tuning the cache just moves the cliff, and `==` on strings has the same problem.",
     },
   ],
 
   cards: [
-    { id: "j-objects-equals", domain: "d1", kind: "service", term: "Objects.equals(a, b)", definition: "Null-safe equality: true if both are null or a.equals(b)" },
-    { id: "j-objects-hash", domain: "d1", kind: "service", term: "Objects.hash(...)", definition: "Builds a hashCode from several fields; pair it with equals" },
-    { id: "j-stringbuilder", domain: "d1", kind: "service", term: "StringBuilder", definition: "Mutable, unsynchronized character buffer for building strings in loops" },
-    { id: "j-intern", domain: "d1", kind: "service", term: "String.intern()", definition: "Returns the canonical copy of a string from the string pool" },
-    { id: "j-valueof", domain: "d1", kind: "service", term: "Integer.valueOf(int)", definition: "Boxing factory used by autoboxing; caches -128 to 127" },
-    { id: "j-string-join", domain: "d1", kind: "service", term: "String.join(delim, items)", definition: "Joins strings with a separator, no trailing delimiter" },
-    { id: "j-encapsulation", domain: "d1", kind: "concept", term: "Encapsulation", definition: "Hide state behind methods that protect the object's invariants" },
-    { id: "j-polymorphism", domain: "d1", kind: "concept", term: "Polymorphism", definition: "One call, many behaviours: the object's runtime class picks the overridden method" },
-    { id: "j-overload-override", domain: "d1", kind: "concept", term: "Overloading vs overriding", definition: "Overloads are chosen at compile time by argument types; overrides at runtime by the object" },
-    { id: "j-default-method", domain: "d1", kind: "concept", term: "Default method", definition: "Interface method with a body; lets published interfaces evolve without breaking implementors" },
-    { id: "j-string-pool", domain: "d1", kind: "concept", term: "String pool", definition: "JVM table of interned strings; equal literals share one object" },
-    { id: "j-autoboxing", domain: "d1", kind: "concept", term: "Autoboxing", definition: "Automatic int ↔ Integer conversion; unboxing null throws NullPointerException" },
-    { id: "j-equals-contract", domain: "d1", kind: "concept", term: "equals/hashCode contract", definition: "Equal objects must have equal hash codes; equals is reflexive, symmetric, transitive" },
+    { id: "j-objects-equals", domain: "d1", kind: "service", term: "Objects.equals(a, b)", definition: "Equality that copes with null: true if both are null, or if a.equals(b)." },
+    { id: "j-objects-hash", domain: "d1", kind: "service", term: "Objects.hash(...)", definition: "Builds a hashCode from several fields. Use the same fields as your equals method." },
+    { id: "j-stringbuilder", domain: "d1", kind: "service", term: "StringBuilder", definition: "A changeable text buffer for building strings in a loop, without making a new String each time." },
+    { id: "j-intern", domain: "d1", kind: "service", term: "String.intern()", definition: "Returns the single shared copy of a string from the string pool." },
+    { id: "j-valueof", domain: "d1", kind: "service", term: "Integer.valueOf(int)", definition: "Turns an int into an Integer. Autoboxing uses it, and it reuses cached objects for -128 to 127." },
+    { id: "j-string-join", domain: "d1", kind: "service", term: "String.join(delim, items)", definition: "Joins strings with a separator between them, with no extra separator at the end." },
+    { id: "j-encapsulation", domain: "d1", kind: "concept", term: "Encapsulation", definition: "Keeping an object's data private and changing it only through methods that protect its rules." },
+    { id: "j-polymorphism", domain: "d1", kind: "concept", term: "Polymorphism", definition: "One call, many behaviours: the object's real class decides which overridden method runs." },
+    { id: "j-overload-override", domain: "d1", kind: "concept", term: "Overloading and overriding", definition: "Overloads are chosen at compile time by the argument types. Overrides are chosen at runtime by the object's class." },
+    { id: "j-default-method", domain: "d1", kind: "concept", term: "Default method", definition: "An interface method with a body. It lets a published interface grow without breaking the classes that implement it." },
+    { id: "j-string-pool", domain: "d1", kind: "concept", term: "String pool", definition: "A table the JVM keeps of shared strings. Equal literals point at the same object." },
+    { id: "j-autoboxing", domain: "d1", kind: "concept", term: "Autoboxing", definition: "Java converting between int and Integer for you. Unboxing a null Integer throws NullPointerException." },
+    { id: "j-equals-contract", domain: "d1", kind: "concept", term: "equals and hashCode contract", definition: "Equal objects must have equal hash codes, and equals must give the same answer in both directions." },
   ],
 
   challenges: [
@@ -690,8 +931,8 @@ export default defineDomain({
       lesson: "d1-equality",
       title: "Find the cache cliff",
       goal: "Find the smallest positive number where `a == b` turns false.",
-      hint: "Start inside the green cache range and use +1 to walk to its edge.",
-      takeaway: "Integer.valueOf caches -128 to 127 by default. From 128 up, every autobox is a new object, so == compares different references.",
+      hint: "Start inside the green cache range and press +1 to walk to its edge.",
+      takeaway: "By default, Integer.valueOf reuses cached objects for -128 to 127. From 128 up, every autobox makes a new object, so == compares two different objects.",
       render: (onSolved) => <IntegerCacheLab goal="edge" onSolved={onSolved} />,
     },
   ],

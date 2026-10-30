@@ -63,7 +63,7 @@ export function ProductPickerLab({ goal, onSolved }: GoalProps<"allCorrect">) {
 
   return (
     <div>
-      <LabHeader title="Pick the right Google Cloud AI product" hint="Read each business need and tap the offering that fits best. Instant feedback." />
+      <LabHeader title="Pick the right Google Cloud AI product" hint="Read each business need and tap the offering that fits best. You'll see straight away if you're right." />
       <div className="grid gap-2">
         {JOBS.map((j, i) => {
           const a = answers[i];
@@ -124,7 +124,7 @@ const G_QUESTIONS: {
     q: "How many vacation days do new Lumen Bikes employees get?",
     best: "enterprise",
     answers: {
-      none: { text: "New employees typically get 10 to 15 vacation days.", good: false, note: "A confident guess. The model has never seen your HR policy: a hallucination risk." },
+      none: { text: "New employees typically get 10 to 15 vacation days.", good: false, note: "A confident guess. The model has never seen your HR policy, so it may be making this up." },
       enterprise: { text: "New employees get 18 vacation days in their first year. [Source: People Handbook, section 4.2]", good: true, note: "Grounded in first-party enterprise data, with a citation." },
       search: { text: "Public web results suggest many employers offer around 10 days.", good: false, note: "World data can't see your private policy documents." },
     },

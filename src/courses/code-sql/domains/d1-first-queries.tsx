@@ -1,4 +1,4 @@
-import { CodeBlock, CodeCompare, Tiles } from "@/components/learn/blocks";
+import { CodeBlock, CodeCompare, Flow, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { QueryBuilderLab } from "../labs";
 import { sql } from "../sql";
@@ -26,7 +26,7 @@ export default defineDomain({
     {
       id: "1.2",
       title: "Reading rows with SELECT and WHERE",
-      covers: ["Choosing columns", "Comparison operators", "AND, OR, NOT and precedence", "BETWEEN, IN, LIKE", "Quoting strings vs identifiers"],
+      covers: ["Choosing columns", "Comparison operators", "AND, OR, NOT and precedence", "BETWEEN, IN, LIKE", "Quoting text values and names"],
     },
     {
       id: "1.3",
@@ -36,11 +36,69 @@ export default defineDomain({
     {
       id: "1.4",
       title: "Changing data",
-      covers: ["INSERT", "UPDATE", "DELETE vs TRUNCATE vs DROP", "RETURNING", "Upserts with ON CONFLICT"],
+      covers: ["INSERT", "UPDATE", "DELETE, TRUNCATE and DROP", "RETURNING", "Upserts with ON CONFLICT"],
     },
   ],
 
   lessons: [
+    {
+      id: "d1-start-what",
+      level: "beginner",
+      task: "1.1",
+      title: "What is a database?",
+      check: ["sql-b1-01", "sql-b1-02"],
+      visual: (
+        <div className="grid gap-4">
+          <Flow
+            steps={[
+              { icon: "🙋", label: "You ask a question", sub: "Written in SQL" },
+              { icon: "🗄️", label: "The database looks it up", sub: "In its tables" },
+              { icon: "📋", label: "You get rows back", sub: "A small table of answers" },
+            ]}
+          />
+          <TableAnatomy />
+        </div>
+      ),
+      points: [
+        "A database is a program that stores information and answers questions about it. Your bank, an online shop and your phone's contacts all keep their data in one.",
+        "Think of a library. The shelves hold the books, and the librarian finds the ones you ask for. A database is the shelves and the librarian together.",
+        "The data lives in tables. A table looks like a spreadsheet: each row is one thing, like one customer, and each column is one detail about it, like their city.",
+        "SQL (say \"ess-cue-ell\" or \"sequel\") is the language you use to ask. You describe what you want, and the database works out how to fetch it.",
+      ],
+      tip: "Reading data never changes it. While you're only asking questions, you can't break anything, so experiment freely.",
+    },
+    {
+      id: "d1-start-first",
+      level: "beginner",
+      task: "1.2",
+      title: "Your first query",
+      check: ["sql-b1-03", "sql-b1-04"],
+      visual: (
+        <div className="grid gap-4">
+          <CodeBlock
+            lang="sql"
+            caption="Read it as a sentence: select every column from customers."
+            code={sql`
+              SELECT * FROM customers;
+            `}
+          />
+          <CodeBlock
+            lang="sql"
+            caption="Only the name and city columns, for every customer."
+            code={sql`
+              SELECT name, city FROM customers;
+            `}
+          />
+        </div>
+      ),
+      points: [
+        "The simplest useful query is `SELECT * FROM customers;`. It means \"show me every column of every row in the customers table\".",
+        "SELECT says which columns you want. FROM says which table to look in. The * is a shortcut for \"all the columns\".",
+        "To see only some columns, list them with commas between them, like `SELECT name, city FROM customers;`.",
+        "The semicolon marks the end of the query. SQL doesn't care whether you write select or SELECT, but capitals make the keywords easy to spot.",
+      ],
+      tip: "Read a query out loud: \"select name and city from customers\". SQL was designed to read a bit like an English sentence.",
+    },
     {
       id: "d1-tables",
       level: "junior",
@@ -93,10 +151,10 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "SELECT picks columns, FROM picks the table, WHERE picks rows. SELECT * means \"every column\".",
-        "WHERE keeps a row only when the condition is true. Combine conditions with AND, OR and NOT; AND binds tighter than OR, so use parentheses.",
-        "BETWEEN a AND b includes both ends. IN ('a', 'b') is shorthand for several = … OR = … tests.",
-        "LIKE matches patterns: % is any run of characters, _ is exactly one. In PostgreSQL, LIKE is case-sensitive and ILIKE isn't.",
+        "SELECT picks the columns, FROM picks the table, and WHERE picks the rows. SELECT * means \"every column\".",
+        "WHERE keeps a row only when the condition is true. Combine conditions with AND, OR and NOT. AND is applied before OR, so add parentheses to make your meaning clear.",
+        "BETWEEN a AND b includes both ends. IN ('a', 'b') is a short way to write several \"equals\" tests joined by OR.",
+        "LIKE matches patterns: % stands for any run of characters and _ for exactly one. In PostgreSQL, LIKE is case-sensitive and ILIKE isn't.",
         "Text values go in 'single quotes'. \"Double quotes\" name a column or table.",
       ],
       tip: "Write SELECT queries freely: they never change data. That makes them the safest way to explore a new database.",
@@ -123,7 +181,7 @@ export default defineDomain({
           <Tiles
             cols={3}
             tiles={[
-              { icon: "🔀", title: "No ORDER BY = no order", text: "Rows come back in whatever order is cheapest. It can change between runs.", color: "#f472b6" },
+              { icon: "🔀", title: "No ORDER BY, no order", text: "Rows come back in whatever order is cheapest. It can change between runs.", color: "#f472b6" },
               { icon: "✂️", title: "LIMIT after sorting", text: "`LIMIT` keeps the first n rows of the sorted result, so sort first or you get random rows.", color: "#38bdf8" },
               { icon: "🏷️", title: "AS names a column", text: "Aliases from `SELECT` work in `ORDER BY` but not in `WHERE`, which runs earlier.", color: "#34d399" },
             ]}
@@ -131,10 +189,10 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "ORDER BY sorts by one or more keys. Each key is ASC (default) or DESC; later keys only break ties in earlier ones.",
-        "LIMIT n returns at most n rows; OFFSET m skips m rows first. Standard SQL spells it OFFSET m ROWS FETCH FIRST n ROWS ONLY.",
+        "ORDER BY sorts by one or more columns. Each is ASC (smallest first, the default) or DESC (largest first). Later columns only break ties in earlier ones.",
+        "LIMIT n returns at most n rows, and OFFSET m skips m rows first. Standard SQL spells it OFFSET m ROWS FETCH FIRST n ROWS ONLY.",
         "DISTINCT removes duplicate rows from the result. All NULLs count as one value for DISTINCT.",
-        "PostgreSQL sorts NULLs last in ASC order and first in DESC order (some databases do the opposite). NULLS FIRST / NULLS LAST overrides it.",
+        "PostgreSQL sorts NULLs last in ASC order and first in DESC order (some databases do the opposite). Write NULLS FIRST or NULLS LAST to choose.",
       ],
       tip: "When you paginate, sort by something unique (add id as a final key). Otherwise rows with equal values can repeat or vanish between pages.",
     },
@@ -176,15 +234,84 @@ export default defineDomain({
       points: [
         "INSERT adds rows. List the columns you're filling; columns you leave out get their DEFAULT (or NULL).",
         "UPDATE … SET changes columns in every row the WHERE matches. With no WHERE, that's every row in the table.",
-        "DELETE removes the rows the WHERE matches. TRUNCATE empties a whole table quickly; DROP TABLE removes the table itself.",
+        "DELETE removes the rows the WHERE matches. TRUNCATE empties a whole table quickly. DROP TABLE removes the table itself.",
         "PostgreSQL's RETURNING hands back the rows you just inserted, updated or deleted, such as generated ids.",
-        "INSERT … ON CONFLICT (key) DO UPDATE / DO NOTHING is PostgreSQL's upsert: insert, or update the row that already has that key.",
+        "INSERT … ON CONFLICT (key) DO UPDATE is PostgreSQL's upsert: it inserts the row, or updates the row that already has that key. DO NOTHING skips it instead.",
       ],
       tip: "Wrap risky changes in BEGIN … COMMIT. Check the row count the database reports, and ROLLBACK if it's not what you expected.",
     },
   ],
 
   questions: [
+    {
+      id: "sql-b1-01",
+      domain: "d1",
+      level: "beginner",
+      lesson: "d1-start-what",
+      prompt: "What is a database, in everyday terms?",
+      options: [
+        "A program that stores information in an organised way and answers questions about it",
+        "A website for sharing spreadsheets with friends",
+        "A programming language for building phone apps",
+        "A backup copy of all the files on your computer",
+      ],
+      answer: [0],
+      explanation:
+        "A database stores data and lets you ask questions about it, a bit like a library with a librarian. SQL is the language you ask in. Backups and websites can use databases, but they aren't what a database is.",
+    },
+    {
+      id: "sql-b1-02",
+      domain: "d1",
+      level: "beginner",
+      lesson: "d1-start-what",
+      prompt: "A `products` table has the columns name, price and colour. What is one column?",
+      options: [
+        "One detail, such as price, that every product has",
+        "One product, with all of its details",
+        "The whole list of products",
+        "A question you ask the table",
+      ],
+      answer: [0],
+      explanation:
+        "A column is one kind of detail, like price, and every row has a value for it. One product with all its details is a row. The question you ask is a query.",
+    },
+    {
+      id: "sql-b1-03",
+      type: "fill",
+      domain: "d1",
+      level: "beginner",
+      lesson: "d1-start-first",
+      prompt: "Fill the gap so the query shows every column of the `customers` table.",
+      code: "SELECT {{1}} FROM customers;",
+      codeLang: "sql",
+      blanks: [{ options: ["*", "ALL", "EVERY", "?"], answer: 0 }],
+      explanation:
+        "The star, *, is SQL's shortcut for \"all the columns\". The other words aren't column lists, so the database would reject the query or misread it.",
+    },
+    {
+      id: "sql-b1-04",
+      type: "output",
+      domain: "d1",
+      level: "beginner",
+      lesson: "d1-start-first",
+      prompt: "The `customers` table holds the three rows shown in the comment. How many rows does the query return? Type the number.",
+      code: "-- customers(name, city)\n-- (Ana, Lisbon)  (Bo, Oslo)  (Cy, Lisbon)\nSELECT name FROM customers;",
+      codeLang: "sql",
+      answers: ["3"],
+      explanation:
+        "There's no WHERE clause, so nothing is filtered out and you get every row: Ana, Bo and Cy. Choosing only the name column changes which columns you see, not how many rows.",
+    },
+    {
+      id: "sql-b1-05",
+      domain: "d1",
+      level: "beginner",
+      lesson: "d1-start-first",
+      prompt: "In `SELECT name FROM customers;`, which word names the table?",
+      options: ["`customers`", "`name`", "`SELECT`", "`FROM`"],
+      answer: [0],
+      explanation:
+        "The table's name comes straight after FROM, so here it's customers. `name` is the column you want, and SELECT and FROM are SQL keywords.",
+    },
     {
       id: "d1-01",
       domain: "d1",
@@ -245,7 +372,7 @@ export default defineDomain({
       ],
       answer: [0],
       explanation:
-        "Concurrency, constraints and transactions are what a database adds. Rows have no guaranteed order, duplicates are allowed unless you add a constraint, and you still need backups.",
+        "A database lets many people work at once (concurrency), enforces rules such as types and keys (constraints), and makes a group of changes happen together or not at all (transactions). Rows have no guaranteed order, duplicates are allowed unless you add a constraint, and you still need backups.",
     },
     {
       id: "d1-05",
@@ -488,7 +615,7 @@ export default defineDomain({
       codeLang: "sql",
       options: ["45", "70", "35", "29"],
       answer: [0],
-      explanation: "Only pen (2 → 4) and mug (8 → 16) match `price < 10`; lamp stays 25. 4 + 16 + 25 = 45.",
+      explanation: "Only pen and mug match `price < 10`, so pen goes from 2 to 4 and mug from 8 to 16. Lamp stays at 25. The total is 4 plus 16 plus 25, which is 45.",
     },
     {
       id: "d1-21",
@@ -505,7 +632,7 @@ export default defineDomain({
       codeLang: "sql",
       answer: [2],
       explanation:
-        "The semicolon ends the statement early, so `UPDATE accounts SET balance = 0` runs with no WHERE and changes every row. The leftover `WHERE id = 42;` is then a syntax error on its own.",
+        "The semicolon after `SET balance = 0` ends the statement early, so `UPDATE accounts SET balance = 0` runs with no WHERE and changes every row. The leftover `WHERE id = 42;` is then a syntax error on its own.",
     },
     {
       id: "d1-22",
@@ -520,7 +647,7 @@ export default defineDomain({
         "`INSERT customers WHERE name = 'Eli';`",
       ],
       answer: [0],
-      explanation: "INSERT INTO table (columns) VALUES (values). Listing the columns keeps the statement working even if the table later gains a column.",
+      explanation: "The shape is INSERT INTO table (columns) VALUES (values). Listing the columns keeps the statement working even if the table later gains a column.",
     },
     {
       id: "d1-23",
@@ -623,21 +750,21 @@ export default defineDomain({
   ],
 
   cards: [
-    { id: "c1-select", domain: "d1", kind: "service", term: "SELECT", definition: "Reads data: chooses the columns (or expressions) to return." },
+    { id: "c1-select", domain: "d1", kind: "service", term: "SELECT", definition: "Reads data. You list the columns (or calculations) you want back." },
     { id: "c1-where", domain: "d1", kind: "service", term: "WHERE", definition: "Keeps only the rows for which a condition is true." },
     { id: "c1-orderby", domain: "d1", kind: "service", term: "ORDER BY", definition: "Sorts the result by one or more keys, each ASC or DESC." },
-    { id: "c1-limit", domain: "d1", kind: "service", term: "LIMIT / OFFSET", definition: "Returns at most n rows after skipping m. Sort first, or the rows are arbitrary." },
-    { id: "c1-distinct", domain: "d1", kind: "service", term: "DISTINCT", definition: "Removes duplicate rows from the result (all NULLs count as one value)." },
-    { id: "c1-like", domain: "d1", kind: "service", term: "LIKE", definition: "Pattern match: % is any run of characters, _ is one. Case-sensitive in PostgreSQL; ILIKE isn't." },
-    { id: "c1-insert", domain: "d1", kind: "service", term: "INSERT", definition: "Adds new rows: INSERT INTO t (cols) VALUES (…)." },
+    { id: "c1-limit", domain: "d1", kind: "service", term: "LIMIT / OFFSET", definition: "Returns at most n rows after skipping m. Sort first, or you get whichever rows come out first." },
+    { id: "c1-distinct", domain: "d1", kind: "service", term: "DISTINCT", definition: "Removes duplicate rows from the result. All NULLs count as one value here." },
+    { id: "c1-like", domain: "d1", kind: "service", term: "LIKE", definition: "Matches text against a pattern: % is any run of characters and _ is exactly one. It's case-sensitive in PostgreSQL, and ILIKE isn't." },
+    { id: "c1-insert", domain: "d1", kind: "service", term: "INSERT", definition: "Adds new rows, written as INSERT INTO t (cols) VALUES (…)." },
     { id: "c1-update", domain: "d1", kind: "service", term: "UPDATE", definition: "Changes column values in every row the WHERE matches (all rows if there's no WHERE)." },
     { id: "c1-delete", domain: "d1", kind: "service", term: "DELETE", definition: "Removes the rows the WHERE matches." },
-    { id: "c1-returning", domain: "d1", kind: "service", term: "RETURNING", definition: "PostgreSQL: returns values from the rows an INSERT, UPDATE or DELETE touched." },
-    { id: "c1-onconflict", domain: "d1", kind: "service", term: "ON CONFLICT", definition: "PostgreSQL upsert: on a unique-key clash, DO NOTHING or DO UPDATE using EXCLUDED values." },
+    { id: "c1-returning", domain: "d1", kind: "service", term: "RETURNING", definition: "In PostgreSQL, hands back values from the rows an INSERT, UPDATE or DELETE just touched, such as new ids." },
+    { id: "c1-onconflict", domain: "d1", kind: "service", term: "ON CONFLICT", definition: "PostgreSQL's upsert. When a new row clashes with a unique key, DO NOTHING skips it and DO UPDATE changes the existing row, with EXCLUDED holding the new values." },
     { id: "c1-table", domain: "d1", kind: "concept", term: "Table", definition: "A named set of rows that all have the same typed columns. Rows have no built-in order." },
-    { id: "c1-pk", domain: "d1", kind: "concept", term: "Primary key", definition: "Column(s) whose values are unique and never NULL, identifying exactly one row." },
+    { id: "c1-pk", domain: "d1", kind: "concept", term: "Primary key", definition: "One or more columns whose values are unique and never NULL, so each value identifies exactly one row." },
     { id: "c1-null", domain: "d1", kind: "concept", term: "NULL", definition: "A marker for a missing or unknown value. Not zero, not an empty string." },
-    { id: "c1-quotes", domain: "d1", kind: "concept", term: "Single vs double quotes", definition: "'text' is a string value; \"name\" is an identifier such as a column or table." },
+    { id: "c1-quotes", domain: "d1", kind: "concept", term: "Single and double quotes", definition: "'text' in single quotes is a text value. \"name\" in double quotes is an identifier, such as a column or table name." },
   ],
 
   challenges: [

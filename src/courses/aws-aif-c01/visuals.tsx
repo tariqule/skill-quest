@@ -6,10 +6,10 @@ import { Flow, type GoalProps } from "@/components/learn/blocks";
 /** Concept diagrams specific to the AWS AI Practitioner course. */
 
 const RINGS = [
-  { name: "Artificial Intelligence", color: "#38bdf8", text: "Any technique that makes machines act smart: rules, search, learning." },
+  { name: "Artificial Intelligence", color: "#38bdf8", text: "Any technique that makes a machine act smart, from fixed rules to search to learning." },
   { name: "Machine Learning", color: "#a78bfa", text: "AI that learns patterns from data instead of hand-written rules." },
-  { name: "Deep Learning", color: "#f59e0b", text: "ML with many-layered neural networks. Great for images, speech, text." },
-  { name: "Generative AI", color: "#34d399", text: "Deep learning models that create new content: text, images, code, audio." },
+  { name: "Deep Learning", color: "#f59e0b", text: "Machine learning that uses neural networks with many layers. Great for images, speech and text." },
+  { name: "Generative AI", color: "#34d399", text: "Deep learning models that create new content, like text, images, code and audio." },
 ];
 
 export function AiRings() {
@@ -172,7 +172,7 @@ export function TokenDemo({ goal, onSolved }: GoalProps<"exact12">) {
         ))}
       </div>
       <p className="mt-2 text-sm text-slate-400">
-        ≈ <b className="text-white">{tokens.length}</b> tokens. Models read and bill by tokens, not words. (Real tokenizers differ; this is an illustration.)
+        About <b className="text-white">{tokens.length}</b> tokens. Models read and charge by tokens, not words. Real tokenizers split text a little differently, so treat this as a demo.
       </p>
     </div>
   );
@@ -249,15 +249,15 @@ export function AgentLoop() {
       <div className="grid content-center gap-2 text-sm">
         <div className="rounded-xl border border-white/10 bg-slate-950/60 p-3">
           <b className="text-white">🔌 MCP</b>
-          <span className="text-slate-300"> is the universal plug between agents and tools: databases, APIs, files.</span>
+          <span className="text-slate-300"> is a universal plug between agents and their tools, like databases, APIs and files.</span>
         </div>
         <div className="rounded-xl border border-white/10 bg-slate-950/60 p-3">
           <b className="text-white">🧠 Memory</b>
-          <span className="text-slate-300"> keeps short-term (this chat) and long-term (past sessions) context.</span>
+          <span className="text-slate-300"> holds short-term context (this chat) and long-term context (past chats).</span>
         </div>
         <div className="rounded-xl border border-white/10 bg-slate-950/60 p-3">
           <b className="text-white">👥 Multi-agent</b>
-          <span className="text-slate-300"> a supervisor hands parts of the job to specialist agents.</span>
+          <span className="text-slate-300"> means a supervisor agent hands parts of the job to specialist agents.</span>
         </div>
       </div>
     </div>
@@ -269,7 +269,7 @@ export function RagFlow() {
     { icon: "🙋", label: "Question", text: "\"What's our refund window?\"" },
     { icon: "🔢", label: "Embed", text: "The question becomes a vector." },
     { icon: "🗄️", label: "Search vectors", text: "Find the closest document chunks (OpenSearch, Aurora, Neptune…)." },
-    { icon: "📎", label: "Augment prompt", text: "Paste the best chunks into the prompt as context." },
+    { icon: "📎", label: "Augment prompt", text: "Add the best chunks to the prompt as context." },
     { icon: "🤖", label: "Generate", text: "The FM answers from those chunks: \"30 days, per policy v4.\"" },
   ];
   const [i, setI] = useState(0);
@@ -325,14 +325,14 @@ export function TemperatureDial() {
         <span className="text-xl">🔥</span>
       </div>
       <div className="mt-3 rounded-xl border border-white/10 bg-slate-950/60 p-3">
-        <div className="text-xs text-slate-400">temperature = {cur.t} · prompt: &quot;Describe the sky.&quot;</div>
+        <div className="text-xs text-slate-400">Temperature {cur.t} · prompt: &quot;Describe the sky.&quot;</div>
         <div className="mt-1 text-lg text-white">&ldquo;{cur.out}&rdquo;</div>
         <div className="mt-1 text-sm text-slate-400">{cur.note}</div>
       </div>
       <div className="mt-3 grid gap-2 text-sm sm:grid-cols-3">
-        <div className="rounded-lg bg-white/5 p-2"><b className="text-white">Top P</b> <span className="text-slate-400">keep tokens until their probabilities add up to P</span></div>
-        <div className="rounded-lg bg-white/5 p-2"><b className="text-white">Top K</b> <span className="text-slate-400">only the K most likely next tokens</span></div>
-        <div className="rounded-lg bg-white/5 p-2"><b className="text-white">Max tokens</b> <span className="text-slate-400">caps answer length and cost</span></div>
+        <div className="rounded-lg bg-white/5 p-2"><b className="text-white">Top P</b> <span className="text-slate-400">picks from the likeliest tokens until their chances add up to P</span></div>
+        <div className="rounded-lg bg-white/5 p-2"><b className="text-white">Top K</b> <span className="text-slate-400">picks only from the K likeliest next tokens</span></div>
+        <div className="rounded-lg bg-white/5 p-2"><b className="text-white">Max tokens</b> <span className="text-slate-400">caps how long, and how costly, the answer can be</span></div>
       </div>
     </div>
   );
@@ -441,7 +441,7 @@ export function SharedResponsibility() {
       <div className="rounded-xl border-2 border-sky-400/50 bg-sky-400/10 p-3">
         <div className="text-xs font-bold uppercase tracking-wider text-sky-300">🧑‍💻 You: security IN the cloud</div>
         <div className="mt-2 flex flex-wrap gap-1.5 text-sm">
-          {["Your data & prompts", "IAM users and roles", "Encryption choices (KMS)", "Guardrails config", "App code", "Network setup (VPC)"].map((x) => (
+          {["Your data and prompts", "IAM users and roles", "Encryption choices (KMS)", "Guardrails config", "App code", "Network setup (VPC)"].map((x) => (
             <span key={x} className="rounded-md bg-slate-950/70 px-2 py-1 text-slate-100">{x}</span>
           ))}
         </div>
@@ -449,7 +449,7 @@ export function SharedResponsibility() {
       <div className="rounded-xl border-2 border-amber-400/50 bg-amber-400/10 p-3">
         <div className="text-xs font-bold uppercase tracking-wider text-amber-300">☁️ AWS: security OF the cloud</div>
         <div className="mt-2 flex flex-wrap gap-1.5 text-sm">
-          {["Data centers", "Hardware", "Global network", "Managed service infrastructure (e.g. Bedrock hosting)"].map((x) => (
+          {["Data centers", "Hardware", "Global network", "Managed service infrastructure, such as Bedrock hosting"].map((x) => (
             <span key={x} className="rounded-md bg-slate-950/70 px-2 py-1 text-slate-100">{x}</span>
           ))}
         </div>
@@ -486,7 +486,7 @@ export function ScopingMatrix() {
         <div className="col-span-2 rounded bg-white/5 py-1 text-slate-300">🛒 Buy (prebuilt)</div>
         <div className="col-span-3 rounded bg-white/5 py-1 text-slate-300">🔨 Build (self-built)</div>
       </div>
-      <p className="mt-2 text-xs text-slate-500">Higher scope = more ownership of data, model, and security controls.</p>
+      <p className="mt-2 text-xs text-slate-500">The higher the scope, the more of the data, model and security controls you own.</p>
     </div>
   );
 }
@@ -496,11 +496,11 @@ export function GuardrailsPipeline() {
     <Flow
       color="#34d399"
       steps={[
-        { icon: "🙋", label: "User prompt", sub: "Could contain harm or an attack" },
+        { icon: "🙋", label: "User prompt", sub: "Might contain something harmful, or an attack" },
         { icon: "🛡️", label: "Input guardrail", sub: "Content filters, denied topics, prompt-attack filter" },
         { icon: "🤖", label: "Foundation model", sub: "Generates a response" },
         { icon: "🛡️", label: "Output guardrail", sub: "PII redaction, word filters, grounding check" },
-        { icon: "✅", label: "Safe answer", sub: "Or a blocked message you configure" },
+        { icon: "✅", label: "Safe answer", sub: "Or a blocked message you write yourself" },
       ]}
     />
   );

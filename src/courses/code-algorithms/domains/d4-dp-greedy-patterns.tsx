@@ -13,7 +13,7 @@ export default defineDomain({
     weight: 25,
     emoji: "🏔️",
     color: "#34d399",
-    summary: "Memoization vs tabulation, classic DP shapes, when greedy works and when it fails, and mapping problem cues to techniques.",
+    summary: "Saving answers so you never solve the same thing twice, when taking the best move now works, and how to spot which technique a problem needs.",
   },
 
   tasks: [
@@ -26,11 +26,56 @@ export default defineDomain({
     {
       id: "4.3",
       title: "Interview patterns",
-      covers: ["Cue → technique mapping", "Prefix sums and hash maps", "Using constraints to pick an approach", "A repeatable problem-solving process", "Streaming top-k designs"],
+      covers: ["Matching problem cues to techniques", "Prefix sums and hash maps", "Using constraints to pick an approach", "A repeatable problem-solving process", "Streaming top-k designs"],
     },
   ],
 
   lessons: [
+    {
+      id: "algo-b-notepad",
+      level: "beginner",
+      check: ["algo-b4-01", "algo-b4-02"],
+      task: "4.1",
+      title: "Dynamic programming: keep a notepad",
+      visual: (
+        <Flow
+          color="#34d399"
+          steps={[
+            { icon: "❓", label: "Need an answer", sub: "Have I worked this out before?" },
+            { icon: "📒", label: "Check the notepad", sub: "Yes: read it, no work needed" },
+            { icon: "✍️", label: "Otherwise, solve it", sub: "Then write it down for next time" },
+          ]}
+        />
+      ),
+      points: [
+        "Imagine adding up 1 + 1 + 1 + 1 + 1. Then someone adds one more 1. You don't start again: you remember 5 and say 6.",
+        "**Dynamic programming**, or DP, is that habit in code. You save the answers to small problems and reuse them to build bigger answers.",
+        "It pays off when the same small problems come up again and again. Without the notepad, a program can redo the same work millions of times.",
+      ],
+      tip: "If you notice your solution computing the same thing twice, ask whether you could just store it the first time.",
+    },
+    {
+      id: "algo-b-greedy",
+      level: "beginner",
+      check: ["algo-b4-03", "algo-b4-04"],
+      task: "4.2",
+      title: "Greedy: grab the best move now",
+      visual: (
+        <Tiles
+          cols={2}
+          tiles={[
+            { icon: "🪙", title: "Making change", text: "To give 30 cents with 25, 10, 5 and 1 cent coins, take the biggest coin that fits each time: 25, then 5.", color: "#34d399" },
+            { icon: "⚠️", title: "Not always right", text: "With odd coin sets, grabbing the biggest coin first can use more coins than needed.", color: "#34d399" },
+          ]}
+        />
+      ),
+      points: [
+        "A **greedy** algorithm makes the choice that looks best right now, and never goes back to change it.",
+        "Giving change with the biggest coin that fits is a greedy algorithm. With normal coins it gives the fewest coins.",
+        "Greedy is quick and simple, but it isn't always right. Sometimes a choice that looks worse now leads to a better result later.",
+      ],
+      tip: "Before trusting a greedy idea, try a few tiny examples to see whether you can break it.",
+    },
     {
       id: "algo-memo",
       level: "intermediate",
@@ -54,11 +99,12 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "DP applies when a problem has overlapping subproblems (the same inputs recur) and optimal substructure (the best answer is built from best sub-answers).",
-        "Memoization: write the natural recursion, cache results. Only computes the states you actually reach.",
-        "Tabulation: fill a table from the base cases up. No recursion, and often easy to shrink to O(1) or one row of space.",
+        "DP fits when a problem has **overlapping subproblems**, meaning the same smaller inputs come up again and again.",
+        "It also needs **optimal substructure**: the best answer is built from the best answers to smaller pieces.",
+        "**Memoization** means writing the natural recursion and caching each result. It only computes the states you actually reach.",
+        "**Tabulation** means filling a table from the base cases up. There's no recursion, and you can often shrink the space to one row or a couple of values.",
       ],
-      tip: "Start with the recursive brute force, spot the repeated calls, add a cache. Then offer the bottom-up version if asked to optimise space.",
+      tip: "Start with the plain recursive version, spot the repeated calls and add a cache. Offer the bottom-up version if you're asked to save space.",
     },
     {
       id: "algo-dp-patterns",
@@ -71,12 +117,12 @@ export default defineDomain({
           <Tiles
             cols={3}
             tiles={[
-              { icon: "🪜", title: "1D: stairs, house robber", text: "`dp[i]` from `dp[i - 1]` and `dp[i - 2]`. O(n) time, O(1) space.", color: "#34d399" },
-              { icon: "🪙", title: "Coin change", text: "Unbounded choices: `dp[a] = min(dp[a - c] + 1)` over coins c.", color: "#34d399" },
-              { icon: "🎒", title: "0/1 knapsack", text: "Each item once: `dp[i][w]` = best value using the first i items within weight w.", color: "#34d399" },
-              { icon: "📈", title: "LIS", text: "`dp[i]` = longest increasing run ending at i: O(n²), or O(n log n) with binary search.", color: "#34d399" },
-              { icon: "🔤", title: "LCS / edit distance", text: "2D over two strings: match → diagonal + 1; otherwise best of neighbours.", color: "#34d399" },
-              { icon: "🗺️", title: "Grid paths", text: "`dp[r][c] = dp[r - 1][c] + dp[r][c - 1]` (or min cost).", color: "#34d399" },
+              { icon: "🪜", title: "1D: stairs, house robber", text: "`dp[i]` comes from `dp[i - 1]` and `dp[i - 2]`. O(n) time, O(1) space.", color: "#34d399" },
+              { icon: "🪙", title: "Coin change", text: "Coins can repeat: `dp[a] = min(dp[a - c] + 1)` over every coin c.", color: "#34d399" },
+              { icon: "🎒", title: "0/1 knapsack", text: "Each item used at most once. `dp[i][w]` is the best value from the first i items within weight w.", color: "#34d399" },
+              { icon: "📈", title: "LIS", text: "`dp[i]` is the longest increasing run that ends at i. O(n²), or O(n log n) with binary search.", color: "#34d399" },
+              { icon: "🔤", title: "LCS / edit distance", text: "A 2D table over two strings. On a match, take the diagonal plus 1. Otherwise take the best neighbour.", color: "#34d399" },
+              { icon: "🗺️", title: "Grid paths", text: "`dp[r][c] = dp[r - 1][c] + dp[r][c - 1]`, or the minimum for cheapest-path problems.", color: "#34d399" },
             ]}
           />
           <CodeBlock
@@ -96,11 +142,11 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "The recipe: define the state (what `dp[i]` means), write the recurrence, set base cases, choose a fill order, read the answer.",
-        "Two sequences (strings, arrays) usually means a 2D table indexed by positions in each.",
-        "Complexity = number of states × work per state.",
+        "The recipe has five steps. Define the state (what `dp[i]` means), write the rule that builds it, set the base cases, pick a fill order, then read off the answer.",
+        "Two sequences, like two strings or two arrays, usually mean a 2D table indexed by a position in each.",
+        "The cost is the number of states times the work done for each state.",
       ],
-      tip: "Say the state definition in plain words before writing code: \"dp[a] is the fewest coins that make amount a.\"",
+      tip: "Say the state in plain words before you code: \"dp[a] is the fewest coins that make amount a.\"",
     },
     {
       id: "algo-greedy",
@@ -114,7 +160,7 @@ export default defineDomain({
             <div className="font-semibold text-emerald-300">✅ Greedy works</div>
             <ul className="mt-2 grid gap-1.5 text-sm text-slate-200">
               <li>📅 Most meetings in one room: always take the one that ends first</li>
-              <li>🦘 Jump game: track the farthest reachable index</li>
+              <li>🦘 Jump game: track the farthest index you can reach</li>
               <li>🗺️ Dijkstra, Prim, Kruskal, Huffman coding</li>
               <li>🪙 Coins 25/10/5/1: largest coin first is optimal</li>
             </ul>
@@ -122,20 +168,20 @@ export default defineDomain({
           <div className="rounded-xl border border-rose-400/30 bg-rose-400/5 p-3">
             <div className="font-semibold text-rose-300">❌ Greedy fails</div>
             <ul className="mt-2 grid gap-1.5 text-sm text-slate-200">
-              <li>🪙 Coins 1/3/4 for 6: greedy picks 4+1+1 (3 coins); 3+3 is better</li>
-              <li>🎒 0/1 knapsack by value-per-weight</li>
+              <li>🪙 Coins 1/3/4 for 6: greedy picks 4+1+1 (3 coins), but 3+3 is better</li>
+              <li>🎒 0/1 knapsack by value per weight</li>
               <li>📅 Meetings chosen by shortest length or earliest start</li>
-              <li>➡️ Use DP (or prove the greedy choice) instead</li>
+              <li>💡 Use DP instead, or prove the greedy choice is safe</li>
             </ul>
           </div>
         </div>
       ),
       points: [
-        "Greedy makes the locally best choice and never revisits it. Fast (often just a sort plus one pass) but only correct with proof.",
-        "Proof tool: the exchange argument. Show that swapping any optimal solution's first choice for the greedy one never makes it worse.",
-        "No proof and a small counterexample? Switch to DP.",
+        "Greedy makes the choice that looks best right now and never revisits it. It's fast, often just a sort and one pass, but it's only correct if you can prove it.",
+        "The usual proof is an **exchange argument**: show that swapping the greedy choice into any optimal solution never makes it worse.",
+        "If you can't prove it and you find a small counterexample, switch to DP.",
       ],
-      tip: "Before committing to greedy, try to break it with a tiny counterexample. Interviewers love asking \"does that always work?\"",
+      tip: "Before you commit to greedy, try to break it with a tiny counterexample. Interviewers love asking \"does that always work?\"",
     },
     {
       id: "algo-patterns",
@@ -170,15 +216,67 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "Constraints narrow the field: n ≤ 20 → exponential is fine; n ≤ 10⁵ → O(n log n); sorted input → binary search or two pointers.",
-        "\"Have I seen this before?\" in O(1) → hash map. Range sums → prefix sums.",
-        "At scale, the same patterns reappear as systems: streaming top-k, rolling windows, bisecting deployments.",
+        "Limits narrow the options. With n up to 20, exponential is fine. With n up to 10⁵, aim for O(n log n). Sorted input suggests binary search or two pointers.",
+        "Need to ask \"have I seen this before?\" in O(1)? Use a hash map. Need range sums? Use prefix sums.",
+        "At scale the same patterns come back as systems: streaming top-k, rolling windows, bisecting deployments.",
       ],
-      tip: "If you're stuck, say which patterns you're considering and why each does or doesn't fit. That reasoning earns credit.",
+      tip: "If you're stuck, say which patterns you're considering and why each one does or doesn't fit. That reasoning earns credit.",
     },
   ],
 
   questions: [
+    {
+      id: "algo-b4-01",
+      domain: "d4",
+      level: "beginner",
+      lesson: "algo-b-notepad",
+      prompt: "What's the main idea behind dynamic programming?",
+      options: [
+        "Save the answers to smaller problems and reuse them instead of working them out again",
+        "Always pick the biggest number first",
+        "Run the program on a faster computer",
+        "Sort the input before doing anything",
+      ],
+      answer: [0],
+      explanation: "DP is like keeping a notepad of answers you've already worked out. When the same small problem comes up again, you read the answer instead of redoing the work.",
+    },
+    {
+      id: "algo-b4-02",
+      domain: "d4",
+      level: "beginner",
+      lesson: "algo-b-notepad",
+      type: "output",
+      prompt: "Type what this prints. Each step reuses the answer saved in the step before.",
+      code: js("const total = [0];", "for (let i = 1; i <= 4; i++) {", "  total[i] = total[i - 1] + i;", "}", "console.log(total[4]);"),
+      codeLang: "js",
+      answers: ["10"],
+      explanation: "The saved totals grow 0, 1, 3, 6, 10. Each one is the previous total plus the new number, so nothing is ever added up twice. That's DP in its simplest form.",
+    },
+    {
+      id: "algo-b4-03",
+      domain: "d4",
+      level: "beginner",
+      lesson: "algo-b-greedy",
+      prompt: "What does a greedy algorithm do at each step?",
+      options: [
+        "Takes the option that looks best right now and doesn't go back",
+        "Tries every possible combination",
+        "Saves every answer in a table",
+        "Picks an option at random",
+      ],
+      answer: [0],
+      explanation: "Greedy means grabbing the best-looking move at each step, like always taking the biggest coin that fits. It's fast, but it only works for some problems.",
+    },
+    {
+      id: "algo-b4-04",
+      domain: "d4",
+      level: "beginner",
+      lesson: "algo-b-greedy",
+      prompt: "You give 30 cents in change using 25, 10, 5 and 1 cent coins, always taking the biggest coin that fits. Which coins do you hand over?",
+      options: ["25 and 5", "10, 10 and 10", "25, 1, 1, 1, 1 and 1", "Thirty 1 cent coins"],
+      answer: [0],
+      explanation: "The biggest coin that fits 30 is 25, which leaves 5. The biggest coin that fits 5 is 5. Two coins, and with these coins that's the fewest possible.",
+    },
     {
       id: "algo4-01",
       domain: "d4",
@@ -189,7 +287,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["Exponential, about O(2ⁿ)", "O(n)", "O(n²)", "O(log n)"],
       answer: [0],
-      explanation: "The call tree branches twice per level and recomputes the same values. The tight bound is about O(1.618ⁿ), usually quoted as O(2ⁿ). A cache makes it O(n).",
+      explanation: "Each call branches into two, and the same values get worked out again and again. The exact bound is about O(1.618ⁿ), usually quoted as O(2ⁿ). Adding a cache makes it O(n).",
     },
     {
       id: "algo4-02",
@@ -213,7 +311,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["`5 9`", "`5 15`", "`5 5`", "`8 9`"],
       answer: [0],
-      explanation: "fib(5) is 5. With the cache, each of fib(2)…fib(5) is computed once; the second call to fib(2) and fib(3) hits the cache. That's 2n − 1 = 9 calls, versus 15 without memoization.",
+      explanation: "fib(5) is 5. With the cache, fib(2) through fib(5) are each worked out once, and the repeat calls to fib(2) and fib(3) hit the cache. That's 2n − 1, so 9 calls, compared with 15 without the cache.",
     },
     {
       id: "algo4-03",
@@ -223,7 +321,7 @@ export default defineDomain({
       prompt: "Which two properties make a problem a good fit for dynamic programming? (Choose two.)",
       options: ["Overlapping subproblems", "Optimal substructure", "The input is sorted", "There is exactly one valid answer", "The input is a graph"],
       answer: [0, 1],
-      explanation: "Overlap makes caching pay off; optimal substructure lets you build the best answer from best sub-answers.",
+      explanation: "Repeated subproblems are what make caching pay off. Optimal substructure is what lets you build the best answer from the best answers to smaller pieces.",
     },
     {
       id: "algo4-04",
@@ -236,9 +334,9 @@ export default defineDomain({
         ["Memoization", "Top-down: recursion plus a cache"],
         ["Tabulation", "Bottom-up: fill a table in dependency order"],
         ["Space optimisation", "Keep only the last row or the last two values"],
-        ["State", "The parameters that identify a subproblem, e.g. `dp[i][j]`"],
+        ["State", "The parameters that identify a subproblem, for example `dp[i][j]`"],
       ],
-      explanation: "Both styles compute the same states; they differ in order, recursion, and how easily you can drop old states.",
+      explanation: "Both styles compute the same states. They differ in the order, in whether they recurse, and in how easily you can throw away old states.",
     },
     {
       id: "algo4-05",
@@ -259,7 +357,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["8", "5", "13", "10"],
       answer: [0],
-      explanation: "Ways to reach step i = ways(i − 1) + ways(i − 2): 1, 1, 2, 3, 5, 8. It's Fibonacci with O(1) space.",
+      explanation: "The ways to reach step i are the ways to reach i − 1 plus the ways to reach i − 2. That gives 1, 1, 2, 3, 5, 8. It's Fibonacci, using O(1) space.",
     },
     {
       id: "algo4-06",
@@ -282,7 +380,7 @@ export default defineDomain({
       ),
       codeLang: "js",
       answer: [6],
-      explanation: "Every `dp[a]` starts at Infinity, and `Math.max(Infinity, x)` is always Infinity. We want the fewest coins: `Math.min`.",
+      explanation: "Every `dp[a]` starts at Infinity, and `Math.max(Infinity, x)` is always Infinity. We want the fewest coins, so it should be `Math.min`.",
     },
     {
       id: "algo4-07",
@@ -303,7 +401,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["6", "9", "4", "3"],
       answer: [0],
-      explanation: "The first row and column have one path each. Then dp[1][1] = 2, dp[1][2] = 3, dp[2][1] = 3, dp[2][2] = 6. (Also C(4, 2) = 6.)",
+      explanation: "The first row and first column have one path each. Then dp[1][1] is 2, dp[1][2] and dp[2][1] are 3, and dp[2][2] is 6. You can also get it as C(4, 2), which is 6.",
     },
     {
       id: "algo4-08",
@@ -311,7 +409,7 @@ export default defineDomain({
       level: "intermediate",
       lesson: "algo-dp-patterns",
       type: "order",
-      prompt: "Order the steps for designing a bottom-up DP solution.",
+      prompt: "Put the steps for designing a bottom-up DP solution in order.",
       items: [
         "Define the state: what does `dp[i]` mean?",
         "Write the recurrence that builds `dp[i]` from smaller states",
@@ -319,7 +417,7 @@ export default defineDomain({
         "Fill the table in an order where every dependency is already computed",
         "Read the answer from the right cell",
       ],
-      explanation: "The state definition drives everything else. Getting it right first makes the recurrence and the fill order follow naturally.",
+      explanation: "The state definition drives everything else. Get it right first and the recurrence and fill order follow naturally.",
     },
     {
       id: "algo4-09",
@@ -334,7 +432,7 @@ export default defineDomain({
         "1 × 6 (6 coins)",
       ],
       answer: [0],
-      explanation: "Greedy takes 4 and is then stuck with 1 + 1. Coin systems like 25/10/5/1 happen to be greedy-safe; arbitrary ones need DP.",
+      explanation: "Greedy grabs the 4 and is then stuck with 1 + 1. Coin sets like 25/10/5/1 happen to be safe for greedy, but an arbitrary set needs DP.",
     },
     {
       id: "algo4-10",
@@ -349,7 +447,7 @@ export default defineDomain({
         "Take the meetings with the fewest conflicts first",
       ],
       answer: [0],
-      explanation: "Finishing earliest leaves the most room for the rest; an exchange argument proves it. The other rules all have small counterexamples.",
+      explanation: "Finishing earliest leaves the most time for everything else, and an exchange argument proves it. Each of the other rules has a small counterexample.",
     },
     {
       id: "algo4-11",
@@ -372,7 +470,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["3", "2", "4", "5"],
       answer: [0],
-      explanation: "Sorted by end: [1,3] taken; [2,4] overlaps; [3,5] taken (starts as the last ends); [6,7] taken; [5,8] overlaps. Three meetings.",
+      explanation: "Sorted by end time: [1,3] is taken. [2,4] overlaps it. [3,5] is taken, since it starts as the last one ends. [6,7] is taken. [5,8] overlaps. That's three meetings.",
     },
     {
       id: "algo4-12",
@@ -393,7 +491,7 @@ export default defineDomain({
       ),
       codeLang: "js",
       answer: [5],
-      explanation: "`reach` is the farthest index you can get to, so it must grow: `Math.max(reach, i + nums[i])`. With `min` it stays at 0 and index 1 looks unreachable.",
+      explanation: "`reach` is the farthest index you can get to, so it has to grow: `Math.max(reach, i + nums[i])`. With `min` it stays at 0, and index 1 looks unreachable.",
     },
     {
       id: "algo4-13",
@@ -410,7 +508,7 @@ export default defineDomain({
         ["Count ways or minimise cost with overlapping choices", "Dynamic programming"],
         ["Fewest steps in a grid or unweighted graph", "BFS"],
       ],
-      explanation: "Recognising the cue is half the interview. Say the cue out loud when you choose the technique.",
+      explanation: "Spotting the cue is half the interview. Say the cue out loud when you choose your technique.",
     },
     {
       id: "algo4-14",
@@ -418,7 +516,7 @@ export default defineDomain({
       level: "junior",
       lesson: "algo-patterns",
       type: "order",
-      prompt: "Order a strong approach to an interview coding problem.",
+      prompt: "Put a strong approach to an interview coding problem in order.",
       items: [
         "Clarify the problem, inputs, and constraints",
         "Work through an example by hand",
@@ -426,7 +524,7 @@ export default defineDomain({
         "Optimise, then write the code",
         "Test with edge cases and state the final complexity",
       ],
-      explanation: "Clarifying and a brute force first protect you from solving the wrong problem and give the interviewer signal early.",
+      explanation: "Clarifying first, then stating a brute force, keeps you from solving the wrong problem and shows the interviewer your thinking early.",
     },
     {
       id: "algo4-15",
@@ -436,7 +534,7 @@ export default defineDomain({
       prompt: "Count the subarrays that sum to k when negative numbers are allowed. Which technique?",
       options: ["Prefix sums with a hash map of how often each prefix appeared: O(n)", "A variable sliding window", "Binary search", "Sort, then two pointers"],
       answer: [0],
-      explanation: "Negatives break the window's monotonic behaviour, and sorting destroys contiguity. For each prefix sum p, add how many earlier prefixes equal p − k.",
+      explanation: "Negative numbers mean shrinking a window doesn't always lower the sum, and sorting scrambles which items are neighbours. Instead, for each prefix sum p, add how many earlier prefixes equal p − k.",
     },
     {
       id: "algo4-16",
@@ -454,7 +552,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["6", "9", "5", "10"],
       answer: [0],
-      explanation: "pre is [0, 3, 4, 8, 9, 14]. pre[4] − pre[1] = 9 − 3 = 6, which is 1 + 4 + 1. Any range sum costs O(1) after O(n) setup.",
+      explanation: "pre is [0, 3, 4, 8, 9, 14]. pre[4] minus pre[1] is 9 − 3, which is 6: the same as 1 + 4 + 1. After O(n) setup, any range sum costs O(1).",
     },
     {
       id: "algo4-17",
@@ -470,7 +568,7 @@ export default defineDomain({
         "Use a single hash map lookup",
       ],
       answer: [0, 1],
-      explanation: "2²⁰ ≈ 10⁶ is cheap, so exhaustive or bitmask approaches fit the constraint. A tiny n is often the interviewer's hint that exponential is fine.",
+      explanation: "2²⁰ is about a million, which is cheap, so trying every subset fits the limit. A tiny n is often the interviewer's hint that exponential is fine.",
     },
     {
       id: "algo4-18",
@@ -492,7 +590,7 @@ export default defineDomain({
       ),
       codeLang: "js",
       answer: [8],
-      explanation: "`dp[i]` is the longest increasing subsequence ending at i, and the best one may end anywhere. dp is [1, 2, 3, 2], so return `Math.max(...dp)`.",
+      explanation: "`dp[i]` is the longest increasing subsequence that ends at i, but the best one can end anywhere. dp is [1, 2, 3, 2], so return `Math.max(...dp)`.",
     },
     {
       id: "algo4-19",
@@ -507,7 +605,7 @@ export default defineDomain({
         "It picks edges at random",
       ],
       answer: [0],
-      explanation: "With non-negative weights, the closest unfinished node can't be improved later, so the greedy choice is safe. Negative edges break that guarantee.",
+      explanation: "When no weight is negative, the closest unfinished node can't get any closer later, so the greedy choice is safe. Negative edges break that guarantee.",
     },
     {
       id: "algo4-20",
@@ -522,7 +620,7 @@ export default defineDomain({
         "It doesn't need base cases",
       ],
       answer: [0],
-      explanation: "Memoization can actually compute fewer states, because it only visits reachable ones. Tabulation's wins are no recursion depth and simple space optimisation.",
+      explanation: "Memoization can actually compute fewer states, because it only visits the ones it reaches. Tabulation wins by having no recursion depth and by making it easy to save space.",
     },
     {
       id: "algo4-21",
@@ -537,7 +635,7 @@ export default defineDomain({
         "Sort both files first",
       ],
       answer: [0],
-      explanation: "A full table would need 10¹⁰ cells. Each row depends only on the previous one, and Hirschberg's trick rebuilds the alignment in linear space. Myers' O((n + m)·D) algorithm, used by diff tools, is fast when the files are similar.",
+      explanation: "A full table would need 10¹⁰ cells. Each row only depends on the one before, and Hirschberg's trick rebuilds the alignment in linear space. Myers' O((n + m)·D) algorithm, used by diff tools, is fast when the files are similar.",
     },
     {
       id: "algo4-22",
@@ -546,13 +644,13 @@ export default defineDomain({
       lesson: "algo-greedy",
       prompt: "Your team's greedy route planner does well in tests, and a stakeholder asks whether it's \"optimal\". What's the right engineering answer?",
       options: [
-        "Only if you can prove the greedy choice property (e.g. with an exchange argument); otherwise call it a heuristic, measure it against an exact solver on small cases, and document the gap",
+        "Only if you can prove the greedy choice property (for example with an exchange argument); otherwise call it a heuristic, measure it against an exact solver on small cases, and document the gap",
         "Yes, greedy algorithms are optimal for routing",
         "No algorithm can ever be optimal",
         "Passing three test cases shows it's optimal",
       ],
       answer: [0],
-      explanation: "Tests can show greedy is wrong, never that it's always right. Benchmarking against an exact solver on small inputs quantifies how far off it is, so the business can make an informed call.",
+      explanation: "Tests can show greedy is wrong, but never that it's always right. Comparing it with an exact solver on small inputs tells you how far off it is, so the business can make an informed call.",
     },
     {
       id: "algo4-23",
@@ -567,24 +665,24 @@ export default defineDomain({
         "Binary search over the timestamps of all events",
       ],
       answer: [0],
-      explanation: "It combines three patterns: hashing to count, a sliding window over time buckets, and a size-k heap for top-k. Sketches trade exactness for bounded memory when the number of distinct tags is huge.",
+      explanation: "It combines three patterns: hashing to count, a sliding window over time buckets, and a size-k heap for the top k. When there are a huge number of distinct tags, a sketch gives up exact counts to keep memory fixed.",
     },
   ],
 
   cards: [
-    { id: "algo-c-memo", domain: "d4", kind: "service", term: "Memoization", definition: "Recursion plus a cache of solved subproblems" },
-    { id: "algo-c-tab", domain: "d4", kind: "service", term: "Tabulation", definition: "Fill a DP table from the base cases upward" },
-    { id: "algo-c-coin", domain: "d4", kind: "service", term: "Coin change DP", definition: "`dp[a] = min(dp[a - c] + 1)` over every coin c" },
-    { id: "algo-c-knapsack", domain: "d4", kind: "service", term: "0/1 knapsack", definition: "Each item at most once: `dp[i][w]` = best value within weight w" },
-    { id: "algo-c-lis", domain: "d4", kind: "service", term: "Longest increasing subsequence", definition: "O(n²) DP, or O(n log n) with binary search" },
-    { id: "algo-c-lcs", domain: "d4", kind: "service", term: "Longest common subsequence", definition: "2D DP over two strings: match → diagonal + 1" },
-    { id: "algo-c-edit", domain: "d4", kind: "service", term: "Edit distance", definition: "Fewest inserts, deletes, and replaces to turn one string into another" },
-    { id: "algo-c-interval", domain: "d4", kind: "service", term: "Interval scheduling", definition: "Greedy: sort by end time, take each meeting that fits" },
-    { id: "algo-c-countmin", domain: "d4", kind: "service", term: "Count-min sketch", definition: "Approximate counts in fixed memory for huge streams" },
-    { id: "algo-c-overlap", domain: "d4", kind: "concept", term: "Overlapping subproblems", definition: "The same smaller inputs are solved again and again" },
-    { id: "algo-c-substructure", domain: "d4", kind: "concept", term: "Optimal substructure", definition: "The best answer is built from best answers to subproblems" },
-    { id: "algo-c-greedychoice", domain: "d4", kind: "concept", term: "Greedy choice property", definition: "A locally best choice is part of some optimal solution" },
-    { id: "algo-c-exchange", domain: "d4", kind: "concept", term: "Exchange argument", definition: "Proof that swapping in the greedy choice never makes things worse" },
-    { id: "algo-c-prefixmap", domain: "d4", kind: "concept", term: "Prefix sums + hash map", definition: "Count subarrays summing to k in O(n), negatives allowed" },
+    { id: "algo-c-memo", domain: "d4", kind: "service", term: "Memoization", definition: "Recursion plus a cache of subproblems you've already solved." },
+    { id: "algo-c-tab", domain: "d4", kind: "service", term: "Tabulation", definition: "Fill a DP table from the base cases upward." },
+    { id: "algo-c-coin", domain: "d4", kind: "service", term: "Coin change DP", definition: "`dp[a] = min(dp[a - c] + 1)` over every coin c." },
+    { id: "algo-c-knapsack", domain: "d4", kind: "service", term: "0/1 knapsack", definition: "Each item used at most once. `dp[i][w]` is the best value you can fit within weight w." },
+    { id: "algo-c-lis", domain: "d4", kind: "service", term: "Longest increasing subsequence", definition: "O(n²) with DP, or O(n log n) with binary search." },
+    { id: "algo-c-lcs", domain: "d4", kind: "service", term: "Longest common subsequence", definition: "A 2D table over two strings. When characters match, take the diagonal plus 1." },
+    { id: "algo-c-edit", domain: "d4", kind: "service", term: "Edit distance", definition: "The fewest inserts, deletes and replaces that turn one string into another." },
+    { id: "algo-c-interval", domain: "d4", kind: "service", term: "Interval scheduling", definition: "Greedy: sort by end time and take each meeting that still fits." },
+    { id: "algo-c-countmin", domain: "d4", kind: "service", term: "Count-min sketch", definition: "Approximate counts in fixed memory, for huge streams." },
+    { id: "algo-c-overlap", domain: "d4", kind: "concept", term: "Overlapping subproblems", definition: "The same smaller inputs get solved again and again." },
+    { id: "algo-c-substructure", domain: "d4", kind: "concept", term: "Optimal substructure", definition: "The best answer is built from the best answers to smaller pieces." },
+    { id: "algo-c-greedychoice", domain: "d4", kind: "concept", term: "Greedy choice property", definition: "The choice that looks best now is part of some optimal solution." },
+    { id: "algo-c-exchange", domain: "d4", kind: "concept", term: "Exchange argument", definition: "A proof that swapping in the greedy choice never makes the solution worse." },
+    { id: "algo-c-prefixmap", domain: "d4", kind: "concept", term: "Prefix sums + hash map", definition: "Counts subarrays that sum to k in O(n), even with negative numbers." },
   ],
 });

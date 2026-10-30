@@ -14,7 +14,7 @@ export default defineDomain({
     weight: 20,
     emoji: "💰",
     color: "#a78bfa",
-    summary: "S3 storage classes and lifecycles, right-sized block and file storage, purchasing options and rightsizing, cost-effective databases, data-transfer-aware networks, and cost tools.",
+    summary: "How to design systems that don't waste money. You'll cover S3 storage classes, right-sized storage, ways to pay less for servers, cheaper databases, network charges and the cost tools.",
   },
 
   tasks: [
@@ -77,6 +77,77 @@ export default defineDomain({
 
   lessons: [
     {
+      id: "d4-start-lights-on",
+      level: "beginner",
+      task: "4.2",
+      title: "Why cloud bills surprise people",
+      check: ["saa-b4-01", "saa-b4-02"],
+      visual: (
+        <Tiles
+          cols={3}
+          tiles={[
+            { icon: "💡", title: "Left running", text: "Servers nobody uses still cost money every hour.", color: "#f87171" },
+            { icon: "📦", title: "Too big", text: "A server far larger than the job needs costs more for no gain.", color: "#f59e0b" },
+            { icon: "✅", title: "Just right", text: "The right size, running only when needed.", color: "#34d399" },
+          ]}
+        />
+      ),
+      points: [
+        "In the cloud you pay for what you leave running, not just for what you actually use. It's like leaving the lights on in an empty house.",
+        "The two classic money leaks are things nobody switched off and things that are much bigger than they need to be.",
+        "**Rightsizing** means picking a size that fits the real workload. **Scheduling** means switching off things like test servers at night and at weekends.",
+        "An architect's job is to meet the requirements at the lowest cost, not to buy the biggest of everything.",
+      ],
+      tip: "Before reaching for a discount, first check what can be turned off or made smaller.",
+    },
+    {
+      id: "d4-start-hot-and-cold",
+      level: "beginner",
+      task: "4.1",
+      title: "Hot and cold storage",
+      check: ["saa-b4-03", "saa-b4-04"],
+      visual: (
+        <Ladder
+          rungs={[
+            { icon: "🧊", name: "Cold: S3 Glacier", text: "Cheapest to keep, but slower and pricier to get back. Like boxes in the attic." },
+            { icon: "🌗", name: "Cool: S3 Standard-IA", text: "Cheaper to keep, with a small fee each time you read it." },
+            { icon: "🔥", name: "Hot: S3 Standard", text: "Data you use all the time. Like clothes in your wardrobe." },
+          ]}
+        />
+      ),
+      points: [
+        "Not all data is used equally. Some you read every day, some once a year, and some only if an auditor asks.",
+        "Think of your clothes. Everyday ones live in the wardrobe. Winter coats go in the attic: cheaper to store out of the way, but a trip to fetch.",
+        "Amazon S3 has **storage classes** that work the same way. **S3 Standard** is for hot data. The **Glacier** classes are for cold archives that cost very little to keep.",
+        "Picking the right class for each kind of data can cut storage bills a lot, with no change to the data itself.",
+      ],
+      tip: "Ask how often the data is read and how fast you need it back. Then pick the coldest class that still meets both.",
+    },
+    {
+      id: "d4-start-pay-less",
+      level: "beginner",
+      task: "4.2",
+      title: "Paying less for servers: commit or be flexible",
+      check: ["saa-b4-05", "saa-b4-06"],
+      visual: (
+        <Tiles
+          cols={3}
+          tiles={[
+            { icon: "🕐", title: "On-Demand", text: "Pay full price by the hour. No promises. Like paying per gym visit.", color: "#38bdf8" },
+            { icon: "📅", title: "Savings Plans", text: "Promise to use AWS for 1 or 3 years and get a big discount. Like a yearly membership.", color: "#34d399" },
+            { icon: "🎲", title: "Spot", text: "Spare capacity at up to 90% off, but AWS can take it back. Like a standby airline seat.", color: "#f59e0b" },
+          ]}
+        />
+      ),
+      points: [
+        "AWS gives you a few ways to pay for the same server. The cheapest one depends on how you'll use it.",
+        "**On-Demand** is the full price, with no promises. It's like paying for each gym visit: flexible, but costly if you go every day.",
+        "**Savings Plans** and **Reserved Instances** give a big discount when you promise to keep using AWS for 1 or 3 years, like a yearly gym membership.",
+        "**Spot Instances** use AWS's spare capacity at up to 90% off. AWS can take them back with a 2-minute warning, so use them only for work that can be interrupted.",
+      ],
+      tip: "Steady, all-day use: commit with a Savings Plan. Work that can stop and restart: Spot. Short or unpredictable: On-Demand.",
+    },
+    {
       id: "d4-s3-tiers",
       task: "4.1",
       title: "S3 storage classes and lifecycle rules",
@@ -85,23 +156,23 @@ export default defineDomain({
         <div className="grid gap-6">
           <Ladder
             rungs={[
-              { icon: "🕳️", name: "Glacier Deep Archive", text: "Lowest storage cost; restores within 12–48 hours; 180-day minimum." },
-              { icon: "🏔️", name: "Glacier Flexible Retrieval", text: "Restores in minutes (expedited) to hours; 90-day minimum." },
-              { icon: "⚡", name: "Glacier Instant Retrieval", text: "Millisecond access for data read about once a quarter; 90-day minimum." },
-              { icon: "1️⃣", name: "One Zone-IA", text: "Infrequent, re-creatable data in a single AZ; 30-day minimum." },
-              { icon: "🧊", name: "Standard-IA", text: "Infrequent but instant access, multi-AZ; 30-day minimum; per-GB retrieval fee." },
-              { icon: "🪣", name: "Standard", text: "Frequent access, no retrieval fee, no minimum duration." },
+              { icon: "🕳️", name: "Glacier Deep Archive", text: "The lowest storage cost. Restores take 12 to 48 hours. You pay for at least 180 days." },
+              { icon: "🏔️", name: "Glacier Flexible Retrieval", text: "Restores in minutes (expedited) up to hours. You pay for at least 90 days." },
+              { icon: "⚡", name: "Glacier Instant Retrieval", text: "Back in milliseconds, for data read about once a quarter. You pay for at least 90 days." },
+              { icon: "1️⃣", name: "One Zone-IA", text: "Rarely read data you could re-create, kept in one AZ. You pay for at least 30 days." },
+              { icon: "🧊", name: "Standard-IA", text: "Rarely read but instant, across several AZs. At least 30 days, plus a fee per GB read." },
+              { icon: "🪣", name: "Standard", text: "Read often. No read fee and no minimum time." },
             ]}
           />
           <S3ClassLab />
         </div>
       ),
       points: [
-        "Infrequent-access and Glacier classes trade lower storage prices for retrieval fees and minimum storage durations: delete early and you still pay for the minimum.",
-        "S3 Intelligent-Tiering moves objects between access tiers automatically, with no retrieval fees, for a small monitoring charge per object. Use it when access patterns are unknown or change.",
-        "Lifecycle rules transition objects as they age (for example Standard → Standard-IA after 30 days → Glacier Deep Archive after a year) and expire them when no longer needed.",
-        "Lifecycle rules can also expire noncurrent versions and abort incomplete multipart uploads, which quietly add cost.",
-        "Requester Pays makes the requester pay for requests and data transfer when you share large data sets.",
+        "The infrequent access and Glacier classes are cheaper to store in, but they charge to read data back and have a **minimum storage duration**. Delete early and you still pay for the minimum.",
+        "**S3 Intelligent-Tiering** moves objects between tiers by itself, with no fee to read them, for a small monitoring charge per object. Use it when nobody knows how often data will be read.",
+        "A **lifecycle rule** moves objects to cheaper classes as they age and deletes them when they're no longer needed. For example: Standard, then Standard-IA after 30 days, then Glacier Deep Archive after a year.",
+        "Lifecycle rules can also delete old object versions and clean up unfinished multipart uploads, both of which quietly add cost.",
+        "With **Requester Pays**, whoever downloads your shared data set pays for the requests and data transfer, not you.",
       ],
       tip: "Read three things in the question: how often data is read, how fast it must come back, and whether it can live in one AZ. Then pick the cheapest class that satisfies all three.",
     },
@@ -115,27 +186,27 @@ export default defineDomain({
           <Tiles
             cols={4}
             tiles={[
-              { icon: "💽", title: "gp2 → gp3", text: "gp3 costs less per GB than gp2 and includes a 3,000 IOPS baseline at any size.", color: "#a78bfa" },
-              { icon: "🐢", title: "st1 and sc1", text: "HDD volumes for throughput-heavy or cold data at a fraction of SSD prices.", color: "#a78bfa" },
-              { icon: "🧹", title: "Clean up", text: "Delete unattached EBS volumes and old snapshots; snapshots are incremental but add up.", color: "#a78bfa" },
+              { icon: "💽", title: "Move gp2 to gp3", text: "gp3 costs less per GB than gp2 and gives 3,000 IOPS at any size.", color: "#a78bfa" },
+              { icon: "🐢", title: "st1 and sc1", text: "Hard-disk volumes for throughput-heavy or cold data, at a fraction of SSD prices.", color: "#a78bfa" },
+              { icon: "🧹", title: "Clean up", text: "Delete unattached EBS volumes and old snapshots. Snapshots only store changes, but they still add up.", color: "#a78bfa" },
               { icon: "📂", title: "EFS lifecycle", text: "Move files not read for a while to EFS Infrequent Access or Archive automatically.", color: "#a78bfa" },
             ]}
           />
           <Layers
             layers={[
-              { name: "Move data into AWS", color: "#34d399", items: ["Internet upload: data in is free", "DataSync: online, scheduled, verified", "Snow Family: offline when the link is too slow", "Transfer Family: partners on SFTP"] },
+              { name: "Move data into AWS", color: "#34d399", items: ["Upload over the internet: data coming in is free", "DataSync: online, scheduled and checked", "Snow Family: offline, when the link is too slow", "Transfer Family: for partners who use SFTP"] },
               { name: "Keep it safe for less", color: "#38bdf8", items: ["AWS Backup lifecycle to cold storage", "Snapshot schedules sized to RPO", "Tape Gateway instead of physical tapes"] },
             ]}
           />
         </div>
       ),
       points: [
-        "Right-size storage: pay for what you need now and let it grow (EFS and S3 grow automatically; RDS storage auto scaling and EBS Elastic Volumes resize on demand).",
-        "Data transfer into AWS from the internet is free; the cost question is time. If uploading would take weeks, ship a Snow device.",
-        "Batch many small files into larger objects before uploading to S3 to cut per-request charges and per-object overhead.",
-        "Replace on-premises tape libraries with Tape Gateway backed by S3 Glacier storage classes.",
+        "Pay for the storage you need now and let it grow. EFS and S3 grow by themselves, and RDS storage auto scaling and EBS Elastic Volumes resize when you need them to.",
+        "Moving data into AWS from the internet is free, so the real question is time. If an upload would take weeks, ship the data on a Snow device instead.",
+        "Bundle many small files into bigger objects before uploading to S3. That cuts the charges you pay per request and per object.",
+        "Replace tape libraries in your own building with Tape Gateway, which stores the virtual tapes in S3 Glacier classes.",
       ],
-      tip: "\"Hundreds of terabytes, slow internet link, deadline in two weeks\" → Snow Family. \"Ongoing, scheduled sync over the network\" → DataSync.",
+      tip: "Hundreds of terabytes, a slow internet link and a two-week deadline point to Snow Family. An ongoing, scheduled sync over the network points to DataSync.",
     },
     {
       id: "d4-compute-cost",
@@ -147,26 +218,26 @@ export default defineDomain({
           <Tiles
             cols={4}
             tiles={[
-              { icon: "🕐", title: "On-Demand", text: "No commitment, pay per second or hour. Short, unpredictable, or uninterruptible workloads.", color: "#38bdf8" },
-              { icon: "📅", title: "Savings Plans", text: "Commit to $/hour for 1 or 3 years. Compute Savings Plans cover EC2, Fargate, and Lambda in any Region, family, or OS.", color: "#34d399" },
-              { icon: "🎟️", title: "Reserved Instances", text: "1- or 3-year commitment for specific instance attributes; Convertible RIs can be exchanged.", color: "#34d399" },
-              { icon: "🎲", title: "Spot Instances", text: "Spare capacity at a deep discount (up to 90%); can be reclaimed with a 2-minute warning.", color: "#f59e0b" },
-              { icon: "🏢", title: "Dedicated Hosts", text: "A whole physical server for you: bring per-socket or per-core licenses, meet compliance.", color: "#f87171" },
-              { icon: "🔒", title: "Capacity Reservations", text: "Reserve On-Demand capacity in an AZ with no term; combine with Savings Plans for a discount.", color: "#f87171" },
-              { icon: "📏", title: "Compute Optimizer", text: "Recommends instance types and sizes, EBS volumes, and Lambda memory from actual usage.", color: "#a78bfa" },
-              { icon: "😴", title: "Hibernation and schedules", text: "Stop dev and test environments outside working hours; hibernation keeps RAM for fast resume.", color: "#a78bfa" },
+              { icon: "🕐", title: "On-Demand", text: "No commitment, paid by the second or hour. For short, unpredictable or uninterruptible work.", color: "#38bdf8" },
+              { icon: "📅", title: "Savings Plans", text: "Commit to a dollar amount per hour for 1 or 3 years. Compute Savings Plans cover EC2, Fargate and Lambda in any Region, family or OS.", color: "#34d399" },
+              { icon: "🎟️", title: "Reserved Instances", text: "Commit to specific instance attributes for 1 or 3 years. Convertible RIs can be exchanged.", color: "#34d399" },
+              { icon: "🎲", title: "Spot Instances", text: "Spare capacity at up to 90% off. AWS can take it back with a 2-minute warning.", color: "#f59e0b" },
+              { icon: "🏢", title: "Dedicated Hosts", text: "A whole physical server for you. Bring licenses counted per socket or core, and meet compliance rules.", color: "#f87171" },
+              { icon: "🔒", title: "Capacity Reservations", text: "Hold On-Demand capacity in an AZ with no term. Add a Savings Plan to get a discount on it.", color: "#f87171" },
+              { icon: "📏", title: "Compute Optimizer", text: "Suggests instance types and sizes, EBS volumes and Lambda memory based on real usage.", color: "#a78bfa" },
+              { icon: "😴", title: "Hibernation and schedules", text: "Stop dev and test environments outside working hours. Hibernation keeps memory contents for a quick restart.", color: "#a78bfa" },
             ]}
           />
         </div>
       ),
       points: [
-        "Cover the steady baseline with Savings Plans or Reserved Instances, the predictable peaks with On-Demand or scheduled scaling, and fault-tolerant extra capacity with Spot.",
-        "Spot suits stateless, flexible work: batch jobs, CI, big data, containers. Diversify instance types and AZs, and checkpoint long jobs.",
-        "Rightsize before you commit: Compute Optimizer and CloudWatch metrics show over-provisioned instances.",
-        "Serverless (Lambda, Fargate) avoids paying for idle capacity on spiky or low-traffic workloads; steady high utilization is often cheaper on EC2 with a commitment.",
-        "Non-production doesn't need production's availability: fewer AZs, smaller sizes, and shutdown schedules.",
+        "Cover the steady baseline with Savings Plans or Reserved Instances. Cover predictable peaks with On-Demand or scheduled scaling, and extra capacity that can survive interruption with Spot.",
+        "Spot suits stateless, flexible work such as batch jobs, CI builds, big data and containers. Mix instance types and AZs, and save progress regularly on long jobs.",
+        "Rightsize before you commit. Compute Optimizer and CloudWatch metrics show which instances are bigger than they need to be.",
+        "Serverless options like Lambda and Fargate mean you don't pay for idle capacity on spiky or quiet workloads. Steady, heavy use is often cheaper on EC2 with a commitment.",
+        "Test and dev environments don't need production's availability. Use fewer AZs, smaller sizes and shutdown schedules.",
       ],
-      tip: "\"Can be interrupted\" or \"flexible start times\" → Spot. \"Steady 24/7 for 3 years, flexibility across instance families\" → Compute Savings Plan.",
+      tip: "If the work can be interrupted or has flexible start times, use Spot. Steady 24/7 use for 3 years, with freedom to change instance families, calls for a Compute Savings Plan.",
     },
     {
       id: "d4-db-cost",
@@ -178,23 +249,23 @@ export default defineDomain({
           <Tiles
             cols={3}
             tiles={[
-              { icon: "🌗", title: "Aurora Serverless v2", text: "Capacity follows load in fine steps: intermittent or unpredictable relational workloads.", color: "#38bdf8" },
-              { icon: "📈", title: "DynamoDB on-demand", text: "Pay per request: new, spiky, or unpredictable traffic. Switch to provisioned + auto scaling when traffic is steady.", color: "#38bdf8" },
-              { icon: "🎟️", title: "Reserved DB instances", text: "1- or 3-year commitments for steady RDS, Aurora, ElastiCache, and Redshift capacity.", color: "#38bdf8" },
-              { icon: "🧊", title: "DynamoDB Standard-IA", text: "Table class with lower storage cost for tables that are rarely read.", color: "#a78bfa" },
-              { icon: "🗃️", title: "Snapshots and retention", text: "Keep only the backups your RPO and compliance need; export old snapshots to S3.", color: "#a78bfa" },
+              { icon: "🌗", title: "Aurora Serverless v2", text: "Capacity follows the load in small steps. Good for relational work that comes and goes, or can't be predicted.", color: "#38bdf8" },
+              { icon: "📈", title: "DynamoDB on-demand", text: "Pay per request, for new, spiky or unpredictable traffic. Switch to provisioned capacity with auto scaling once traffic is steady.", color: "#38bdf8" },
+              { icon: "🎟️", title: "Reserved DB instances", text: "Commit for 1 or 3 years to steady RDS, Aurora, ElastiCache or Redshift capacity.", color: "#38bdf8" },
+              { icon: "🧊", title: "DynamoDB Standard-IA", text: "A table class with cheaper storage, for tables that are rarely read.", color: "#a78bfa" },
+              { icon: "🗃️", title: "Snapshots and retention", text: "Keep only the backups your RPO and compliance rules need. Export old snapshots to S3.", color: "#a78bfa" },
               { icon: "🧠", title: "Cache first", text: "ElastiCache or DAX can be cheaper than scaling the database for read-heavy load.", color: "#a78bfa" },
             ]}
           />
         </div>
       ),
       points: [
-        "Choose the database type by access pattern and cost: DynamoDB for key-value at scale, RDS/Aurora for relational, Redshift for columnar analytics.",
-        "Aurora I/O-Optimized has no per-request I/O charges and suits I/O-heavy clusters; Aurora Standard is cheaper when I/O is modest.",
-        "A dev or test RDS instance can be stopped when idle (it restarts automatically after 7 days); you still pay for storage.",
-        "Moving off commercial engines (for example Oracle to Aurora PostgreSQL) with DMS removes license costs.",
+        "Choose the database by how it's used and what it costs. DynamoDB suits key-value data at scale, RDS and Aurora suit relational data, and Redshift suits columnar analytics.",
+        "**Aurora I/O-Optimized** has no charge per I/O request, which suits busy clusters. **Aurora Standard** is cheaper when I/O is modest.",
+        "You can stop a dev or test RDS instance while it's idle. It starts again by itself after 7 days, and you still pay for its storage.",
+        "Moving off a commercial engine, for example Oracle to Aurora PostgreSQL with DMS, gets rid of the license costs.",
       ],
-      tip: "\"Unpredictable traffic, minimize cost, no capacity planning\" → DynamoDB on-demand or Aurora Serverless v2. \"Steady, predictable usage for years\" → reserved capacity.",
+      tip: "Unpredictable traffic, lowest cost and no capacity planning point to DynamoDB on-demand or Aurora Serverless v2. Steady, predictable use for years points to reserved capacity.",
     },
     {
       id: "d4-network-cost",
@@ -210,20 +281,20 @@ export default defineDomain({
               { icon: "🏠", label: "Same AZ, private IP", sub: "Free" },
               { icon: "↔️", label: "Across AZs", sub: "Charged per GB, each direction" },
               { icon: "🌍", label: "Across Regions", sub: "Charged per GB" },
-              { icon: "📤", label: "Out to the internet", sub: "Charged per GB (CloudFront often cheaper)" },
+              { icon: "📤", label: "Out to the internet", sub: "Charged per GB, often less through CloudFront" },
             ]}
           />
           <VpcBuilderLab />
         </div>
       ),
       points: [
-        "NAT gateways charge per hour and per GB processed. Send S3 and DynamoDB traffic through free gateway endpoints instead.",
-        "One NAT gateway per AZ is resilient and avoids cross-AZ charges; a single shared NAT gateway is cheaper for non-production but is a single point of failure.",
-        "NAT instances can be cheaper for tiny workloads but you manage scaling, patching, failover, and the source/destination check.",
-        "CloudFront reduces origin load and data transfer out; transfer from AWS origins to CloudFront isn't charged.",
-        "Direct Connect has lower data-transfer-out rates than the internet; VPN is cheaper to start. VPC peering has no hourly charge; Transit Gateway charges per attachment and per GB.",
+        "A NAT gateway charges per hour and per GB it handles. Send S3 and DynamoDB traffic through the free gateway endpoints instead.",
+        "One NAT gateway per AZ is resilient and avoids cross-AZ charges. A single shared one is cheaper for non-production, but it's a single point of failure.",
+        "A NAT instance can cost less for tiny workloads, but then you handle scaling, patching, failover and the source/destination check yourself.",
+        "CloudFront takes load off your origin and cuts data transfer out. Moving data from AWS origins to CloudFront is free.",
+        "Direct Connect charges less for data going out than the internet does, while a VPN is cheaper to start. VPC peering has no hourly charge, and Transit Gateway charges per attachment and per GB.",
       ],
-      tip: "\"NAT gateway costs are high and most traffic goes to S3\" → add an S3 gateway endpoint.",
+      tip: "If NAT gateway costs are high and most of the traffic goes to S3, add an S3 gateway endpoint.",
     },
     {
       id: "d4-cost-tools",
@@ -235,8 +306,8 @@ export default defineDomain({
           <Tiles
             cols={4}
             tiles={[
-              { icon: "🔎", title: "Cost Explorer", text: "Visualize and forecast spend, filter by service, account, or tag, and see Savings Plans and RI recommendations.", color: "#34d399" },
-              { icon: "🚨", title: "AWS Budgets", text: "Alerts when actual or forecast cost or usage crosses a threshold; budget actions can apply controls.", color: "#34d399" },
+              { icon: "🔎", title: "Cost Explorer", text: "Charts and forecasts of spend, filtered by service, account or tag, plus Savings Plans and RI suggestions.", color: "#34d399" },
+              { icon: "🚨", title: "AWS Budgets", text: "Alerts when real or forecast cost or usage passes a limit. Budget actions can apply controls too.", color: "#34d399" },
               { icon: "🧾", title: "Cost and Usage Report", text: "The most detailed line-item billing data, delivered to S3 for analysis with Athena or Amazon Quick.", color: "#34d399" },
               { icon: "🏷️", title: "Cost allocation tags", text: "Activate tags in the Billing console to split costs by team, project, or environment.", color: "#34d399" },
             ]}
@@ -245,23 +316,84 @@ export default defineDomain({
             color="#34d399"
             steps={[
               { icon: "🏢", label: "AWS Organizations", sub: "Consolidated billing" },
-              { icon: "📊", label: "Combined usage", sub: "Volume pricing tiers across accounts" },
+              { icon: "📊", label: "Combined usage", sub: "Volume pricing tiers count usage from every account" },
               { icon: "🎟️", label: "Shared discounts", sub: "RIs and Savings Plans apply across accounts" },
             ]}
           />
         </div>
       ),
       points: [
-        "Cost Explorer answers \"where did the money go, and where is it heading?\"; Budgets answers \"tell me before it's too much\"; CUR answers \"give me every line item\".",
-        "Cost allocation tags only appear in billing tools after you activate them; tag consistently (enforce with tag policies or SCPs).",
-        "Consolidated billing gives one bill, aggregated volume discounts, and sharing of Reserved Instance and Savings Plans discounts.",
-        "Use Compute Optimizer and Cost Explorer rightsizing recommendations to find idle and oversized resources.",
+        "Each tool answers one question. Cost Explorer: where did the money go, and where is it heading? Budgets: warn me before it's too much. The Cost and Usage Report: show me every line item.",
+        "Cost allocation tags only show up in billing tools after you activate them. Tag consistently, and enforce it with tag policies or SCPs.",
+        "Consolidated billing gives you one bill, volume discounts on combined usage, and shared Reserved Instance and Savings Plans discounts.",
+        "Use the rightsizing suggestions in Compute Optimizer and Cost Explorer to find idle and oversized resources.",
       ],
-      tip: "\"Alert when the forecast exceeds $X\" → AWS Budgets. \"Analyze spend trends by tag\" → Cost Explorer. \"Detailed hourly line items in S3\" → Cost and Usage Report.",
+      tip: "To get an alert when the forecast goes over a set amount, use AWS Budgets. To study spending trends by tag, use Cost Explorer. For detailed hourly line items in S3, use the Cost and Usage Report.",
     },
   ],
 
   questions: [
+    // ── Start here ──
+    {
+      id: "saa-b4-01",
+      domain: "d4",
+      lesson: "d4-start-lights-on",
+      level: "beginner",
+      prompt: "A test server runs all night and all weekend, but nobody uses it then. What happens to the bill?",
+      options: ["It keeps growing, because running servers cost money even when idle", "It stays at zero while nobody is using it", "AWS refunds the idle hours automatically", "The server gets cheaper the longer it runs"],
+      answer: [0],
+      explanation: "You pay for what you leave running, like leaving the lights on in an empty house. Switching test servers off outside working hours is an easy saving.",
+    },
+    {
+      id: "saa-b4-02",
+      domain: "d4",
+      lesson: "d4-start-lights-on",
+      level: "beginner",
+      prompt: "What does rightsizing mean?",
+      options: ["Choosing a server size that fits the real workload", "Always buying the largest server available", "Moving everything to a different Region", "Renaming servers so they're easier to find"],
+      answer: [0],
+      explanation: "Rightsizing means matching the size to the job. A server much bigger than needed costs more and gives you nothing extra.",
+    },
+    {
+      id: "saa-b4-03",
+      domain: "d4",
+      lesson: "d4-start-hot-and-cold",
+      level: "beginner",
+      prompt: "A company must keep old records for years but almost never reads them. Which kind of S3 storage class fits?",
+      options: ["A cold archive class, such as S3 Glacier Deep Archive", "S3 Standard, for data read all the time", "An EC2 instance store", "An in-memory cache"],
+      answer: [0],
+      explanation: "Archive classes are the attic of S3: very cheap to keep things in, but slower to get them back. That's a good trade for records nobody reads.",
+    },
+    {
+      id: "saa-b4-04",
+      domain: "d4",
+      lesson: "d4-start-hot-and-cold",
+      level: "beginner",
+      prompt: "Which S3 storage class suits photos that a busy app shows to users all day?",
+      options: ["S3 Standard", "S3 Glacier Deep Archive", "S3 Glacier Flexible Retrieval", "A tape library"],
+      answer: [0],
+      explanation: "S3 Standard is for hot data you read all the time. It costs a bit more to store, but there's no fee to read and no waiting.",
+    },
+    {
+      id: "saa-b4-05",
+      domain: "d4",
+      lesson: "d4-start-pay-less",
+      level: "beginner",
+      prompt: "A company will run the same servers all day, every day, for the next three years. How can it pay less than full price?",
+      options: ["Commit with a Savings Plan or Reserved Instances", "Use On-Demand pricing", "Turn the servers off at random times", "Use a bigger instance"],
+      answer: [0],
+      explanation: "Savings Plans and Reserved Instances give a big discount in return for a 1- or 3-year commitment. It's like buying a yearly gym membership instead of paying per visit.",
+    },
+    {
+      id: "saa-b4-06",
+      domain: "d4",
+      lesson: "d4-start-pay-less",
+      level: "beginner",
+      prompt: "What's the catch with Spot Instances?",
+      options: ["AWS can take them back with a 2-minute warning", "They cost more than On-Demand", "They only run for one hour a day", "They can't connect to the internet"],
+      answer: [0],
+      explanation: "Spot Instances are spare capacity at up to 90% off, a bit like standby airline seats. Because AWS can reclaim them, use them only for work that can stop and pick up again.",
+    },
     // ── S3 tiers ──
     {
       id: "d4-01",
@@ -271,7 +403,7 @@ export default defineDomain({
         "A company stores medical images that are rarely accessed, about once a quarter, but when a doctor requests one it must be available in milliseconds. The images must be stored across multiple Availability Zones. Which storage class is MOST cost-effective?",
       options: ["S3 Glacier Instant Retrieval", "S3 Standard", "S3 Glacier Flexible Retrieval", "S3 One Zone-IA"],
       answer: [0],
-      explanation: "Glacier Instant Retrieval gives millisecond access at a much lower storage price than Standard or Standard-IA, for data read about once a quarter. Flexible Retrieval needs a restore; One Zone-IA is single-AZ.",
+      explanation: "Glacier Instant Retrieval gives millisecond access at a much lower storage price than Standard or Standard-IA, for data read about once a quarter. Flexible Retrieval needs a restore first, and One Zone-IA keeps data in a single AZ.",
     },
     {
       id: "d4-02",
@@ -332,7 +464,7 @@ export default defineDomain({
         "A research institute shares a 500 TB public data set in S3. It wants the users who download the data, not the institute, to pay for the requests and data transfer. What should it enable?",
       options: ["S3 Requester Pays on the bucket", "S3 Transfer Acceleration", "CloudFront signed URLs", "S3 Intelligent-Tiering"],
       answer: [0],
-      explanation: "With Requester Pays, the requester's AWS account is charged for requests and data downloads; the bucket owner still pays for storage.",
+      explanation: "With Requester Pays, the AWS account making the requests pays for them and for the downloads. The bucket owner still pays for storage.",
     },
     {
       id: "d4-07",
@@ -507,7 +639,7 @@ export default defineDomain({
         "Add more instances to spread the load",
       ],
       answer: [0],
-      explanation: "Rightsize before committing; otherwise you lock in a discount on capacity you don't need.",
+      explanation: "Rightsize before you commit. Otherwise you lock in a discount on capacity you don't need.",
     },
     {
       id: "d4-20",
@@ -536,7 +668,7 @@ export default defineDomain({
         ["Short, unpredictable, uninterruptible workloads", "On-Demand Instances"],
         ["Bring-your-own per-socket licenses", "Dedicated Hosts"],
       ],
-      explanation: "Interruptible → Spot; steady → commitment; unpredictable → On-Demand; licensing or compliance on physical servers → Dedicated Hosts.",
+      explanation: "Work that can be interrupted goes on Spot, and steady work gets a commitment. Unpredictable work stays On-Demand, and licensing or compliance rules about physical servers call for Dedicated Hosts.",
     },
 
     // ── Database cost ──
@@ -662,7 +794,7 @@ export default defineDomain({
         "Enable cross-zone load balancing",
       ],
       answer: [0, 1],
-      explanation: "CloudFront caches files at the edge, reducing origin traffic and often the per-GB rate; transfer from AWS origins to CloudFront isn't charged. S3 is cheaper than EC2 for storing and serving static files.",
+      explanation: "CloudFront caches files at the edge, which cuts traffic to the origin and often the price per GB. Moving data from AWS origins to CloudFront is free. S3 is cheaper than EC2 for storing and serving static files.",
     },
     {
       id: "d4-31",
@@ -768,33 +900,33 @@ export default defineDomain({
         ["Give me every hourly line item in S3", "AWS Cost and Usage Report"],
         ["Which instances are oversized for their workload?", "AWS Compute Optimizer"],
       ],
-      explanation: "Explore, alert, export, and rightsize: four tools for four jobs.",
+      explanation: "Four tools, four jobs: one to explore spending, one to alert, one to export every line item, and one to suggest better sizes.",
     },
   ],
 
   cards: [
     { id: "s-s3", domain: "d4", kind: "service", term: "Amazon S3", definition: "Object storage with storage classes, lifecycle rules, and replication" },
-    { id: "s-glacier", domain: "d4", kind: "service", term: "Amazon S3 Glacier storage classes", definition: "Archive tiers: Instant Retrieval, Flexible Retrieval, Deep Archive" },
-    { id: "s-backup", domain: "d4", kind: "service", term: "AWS Backup", definition: "Central backup plans, retention, and cross-Region/account copies" },
-    { id: "s-costexplorer", domain: "d4", kind: "service", term: "AWS Cost Explorer", definition: "Visualize, filter, and forecast AWS spend; commitment recommendations" },
+    { id: "s-glacier", domain: "d4", kind: "service", term: "Amazon S3 Glacier storage classes", definition: "The archive classes: Instant Retrieval, Flexible Retrieval and Deep Archive, from quickest to cheapest." },
+    { id: "s-backup", domain: "d4", kind: "service", term: "AWS Backup", definition: "Backup plans and retention rules in one place, with copies to other Regions and accounts." },
+    { id: "s-costexplorer", domain: "d4", kind: "service", term: "AWS Cost Explorer", definition: "Charts, filters and forecasts of your AWS spend, plus suggestions for what to commit to." },
     { id: "s-budgets", domain: "d4", kind: "service", term: "AWS Budgets", definition: "Alerts and actions when cost or usage crosses a threshold" },
     { id: "s-cur", domain: "d4", kind: "service", term: "AWS Cost and Usage Report", definition: "Most detailed line-item billing data delivered to S3" },
-    { id: "s-savingsplans", domain: "d4", kind: "service", term: "Savings Plans", definition: "Discount for a 1- or 3-year $/hour compute commitment" },
+    { id: "s-savingsplans", domain: "d4", kind: "service", term: "Savings Plans", definition: "A discount for promising to spend a set amount per hour on compute for 1 or 3 years." },
     { id: "s-computeoptimizer", domain: "d4", kind: "service", term: "AWS Compute Optimizer", definition: "Rightsizing recommendations for EC2, EBS, Lambda, and more" },
     { id: "s-outposts", domain: "d4", kind: "service", term: "AWS Outposts", definition: "AWS infrastructure and services running in your own data center" },
     { id: "s-wavelength", domain: "d4", kind: "service", term: "AWS Wavelength", definition: "AWS compute at the edge of 5G networks for ultra-low latency" },
-    { id: "c-intelligent", domain: "d4", kind: "concept", term: "S3 Intelligent-Tiering", definition: "Moves objects between tiers automatically; no retrieval fees" },
-    { id: "c-mindays", domain: "d4", kind: "concept", term: "Minimum storage duration", definition: "IA 30 days · Glacier IR/Flexible 90 days · Deep Archive 180 days" },
+    { id: "c-intelligent", domain: "d4", kind: "concept", term: "S3 Intelligent-Tiering", definition: "Moves objects between tiers by itself as their use changes, with no fee to read them." },
+    { id: "c-mindays", domain: "d4", kind: "concept", term: "Minimum storage duration", definition: "The least time you're billed for: 30 days for the IA classes, 90 for Glacier Instant and Flexible Retrieval, and 180 for Deep Archive." },
     { id: "c-lifecycle", domain: "d4", kind: "concept", term: "S3 Lifecycle rule", definition: "Transitions objects to cheaper classes and expires them on a schedule" },
-    { id: "c-requesterpays", domain: "d4", kind: "concept", term: "Requester Pays", definition: "Downloaders pay request and transfer costs for a bucket" },
-    { id: "c-spot", domain: "d4", kind: "concept", term: "Spot Instances", definition: "Spare capacity at up to 90% off; 2-minute interruption notice" },
-    { id: "c-ri", domain: "d4", kind: "concept", term: "Reserved Instances", definition: "1- or 3-year commitment to instance attributes for a discount" },
-    { id: "c-dedicatedhost", domain: "d4", kind: "concept", term: "Dedicated Host", definition: "A physical server for you; supports per-socket/core licenses" },
-    { id: "c-ondemand-ddb", domain: "d4", kind: "concept", term: "DynamoDB on-demand", definition: "Pay per request with no capacity planning" },
-    { id: "c-natcost", domain: "d4", kind: "concept", term: "NAT gateway pricing", definition: "Hourly charge plus a per-GB processing charge" },
-    { id: "c-crossaz", domain: "d4", kind: "concept", term: "Cross-AZ data transfer", definition: "Charged per GB in each direction; same-AZ private traffic is free" },
-    { id: "c-costtags", domain: "d4", kind: "concept", term: "Cost allocation tags", definition: "Tags activated in Billing to group costs by team or project" },
-    { id: "c-consolidated", domain: "d4", kind: "concept", term: "Consolidated billing", definition: "One bill, combined volume pricing, shared RI and Savings Plans discounts" },
+    { id: "c-requesterpays", domain: "d4", kind: "concept", term: "Requester Pays", definition: "A bucket setting where whoever downloads the data pays the request and transfer costs." },
+    { id: "c-spot", domain: "d4", kind: "concept", term: "Spot Instances", definition: "Spare capacity at up to 90% off. AWS can take it back with 2 minutes' notice." },
+    { id: "c-ri", domain: "d4", kind: "concept", term: "Reserved Instances", definition: "A discount for committing to particular instance attributes for 1 or 3 years." },
+    { id: "c-dedicatedhost", domain: "d4", kind: "concept", term: "Dedicated Host", definition: "A whole physical server just for you. Supports licenses counted per socket or core." },
+    { id: "c-ondemand-ddb", domain: "d4", kind: "concept", term: "DynamoDB on-demand", definition: "You pay for each request and don't plan capacity at all." },
+    { id: "c-natcost", domain: "d4", kind: "concept", term: "NAT gateway pricing", definition: "An hourly charge, plus a charge for every GB it handles." },
+    { id: "c-crossaz", domain: "d4", kind: "concept", term: "Cross-AZ data transfer", definition: "Charged per GB in each direction. Private traffic within one AZ is free." },
+    { id: "c-costtags", domain: "d4", kind: "concept", term: "Cost allocation tags", definition: "Tags you activate in Billing so costs can be grouped by team or project." },
+    { id: "c-consolidated", domain: "d4", kind: "concept", term: "Consolidated billing", definition: "One bill for all accounts, volume pricing on combined usage, and shared RI and Savings Plans discounts." },
   ],
 
   challenges: [

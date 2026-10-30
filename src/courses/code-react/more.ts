@@ -30,7 +30,7 @@ export const moreQuestions: Question[] = [
       { options: ["key", "id", "index", "ref"], answer: 0 },
     ],
     explanation:
-      "JSX needs an expression that produces elements, so you `map` the data to `<li>` elements; `forEach` returns `undefined` and renders nothing. `key` gives React a stable identity per item (the item's own id, not the array index) so it can match them up between renders.",
+      "JSX needs an expression that produces elements, so you `map` the data to `<li>` elements. `forEach` returns `undefined` and shows nothing. `key` gives each item a stable identity, its own id rather than the array index, so React can match items up between renders.",
   },
   {
     id: "react-fx-02",
@@ -74,7 +74,7 @@ export const moreQuestions: Question[] = [
       { options: ["tick", "id", "1000", "setInterval"], answer: 0 },
     ],
     explanation:
-      "An effect returns a cleanup function that React calls before re-running the effect and on unmount. Returning `clearInterval(id)` would run it immediately and return `undefined`. The dependency array must list every reactive value the effect reads, here `tick`; `id` is created inside the effect.",
+      "An effect returns a cleanup function, which React calls before running the effect again and when the component is removed. Returning `clearInterval(id)` would run it straight away and return `undefined`. The dependency array must list every value the effect reads, here `tick`. `id` is made inside the effect, so it isn't listed.",
   },
   {
     id: "react-fx-04",
@@ -371,6 +371,6 @@ export const moreQuestions: Question[] = [
     codeLang: "js",
     answers: ["9 4"],
     explanation:
-      "When each component fetches only after its parent has rendered, requests chain into a waterfall (2 + 3 + 4 = 9). Starting them together, for example by fetching at the route or on the server, costs only the slowest one (4). Suspense boundaries then let each part show as it arrives.",
+      "When each component fetches only after its parent has rendered, the requests run one after another like a waterfall, so the times add up to 9. Starting them together, for example by fetching at the route or on the server, costs only the slowest one, 4. Suspense boundaries then let each part show as it arrives.",
   },
 ];

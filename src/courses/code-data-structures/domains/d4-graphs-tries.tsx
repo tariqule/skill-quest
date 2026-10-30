@@ -1,4 +1,4 @@
-import { Tiles } from "@/components/learn/blocks";
+import { CodeBlock, ServiceRows, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { js } from "../snippet";
 import { BigOTable, GraphViews, TrieExplorer } from "../visuals";
@@ -13,7 +13,7 @@ export default defineDomain({
     weight: 20,
     emoji: "🕸️",
     color: "#f59e0b",
-    summary: "Graph vocabulary, adjacency lists vs matrices, tries and autocomplete, and picking the structure whose fast operations match the problem.",
+    summary: "The words for graphs, adjacency lists versus matrices, tries for autocomplete, and how to pick the structure whose fast operations match your problem.",
   },
 
   tasks: [
@@ -32,6 +32,57 @@ export default defineDomain({
 
   lessons: [
     {
+      id: "ds-b-graph",
+      level: "beginner",
+      check: ["ds-b4-01", "ds-b4-02"],
+      task: "4.1",
+      title: "Start here: graphs, like a map of roads",
+      visual: (
+        <div className="grid gap-4">
+          <Tiles
+            cols={3}
+            tiles={[
+              { icon: "🏙️", title: "Vertices", text: "The places: cities, people, web pages.", color: "#f59e0b" },
+              { icon: "🛣️", title: "Edges", text: "The connections between them: roads, friendships, links.", color: "#f59e0b" },
+              { icon: "📒", title: "Neighbour list", text: "For each place, write down the places it connects to.", color: "#f59e0b" },
+            ]}
+          />
+          <CodeBlock lang="js" code={js("const roads = {", "  Paris: ['Lyon', 'Lille'],", "  Lyon: ['Paris'],", "  Lille: ['Paris'],", "};", "console.log(roads.Paris.length); // 2")} />
+        </div>
+      ),
+      points: [
+        "A **graph** is a set of things and the connections between them. A road map is a graph: the cities are connected by roads.",
+        "The things are called **vertices** (or nodes), and the connections are called **edges**.",
+        "Graphs are everywhere. Friends on a social network, pages linking to each other and flights between airports are all graphs.",
+        "The most common way to store one is a **neighbour list**: for each vertex, a list of the vertices it connects to.",
+      ],
+      tip: "A tree is a special kind of graph: everything is connected, and there are no loops.",
+    },
+    {
+      id: "ds-b-choose",
+      level: "beginner",
+      check: ["ds-b4-03", "ds-b4-04"],
+      task: "4.3",
+      title: "Start here: picking the right container",
+      visual: (
+        <ServiceRows
+          rows={[
+            { input: "Keep items in order and read them by position", service: "Array", output: "Like numbered lockers" },
+            { input: "Look something up by its name", service: "Hash map", output: "Like a coat check" },
+            { input: "Undo the last thing you did", service: "Stack", output: "Like a pile of plates" },
+            { input: "Handle things in the order they arrived", service: "Queue", output: "Like a line at a counter" },
+          ]}
+        />
+      ),
+      points: [
+        "Choosing a data structure is like organising a kitchen. Spices go on a rack you can scan, and knives go in a block where each has its own slot.",
+        "Start by asking what your program does most often. Does it look things up by name, keep things in order, or always grab the newest item?",
+        "Then pick the structure that makes that job quick. A hash map is great for lookups by name, but it doesn't keep things in order.",
+        "No structure is best at everything. Each one is fast at some jobs and slow at others.",
+      ],
+      tip: "If you're not sure where to start, an array and a hash map cover a surprising number of problems.",
+    },
+    {
       id: "ds-graph-terms",
       level: "junior",
       check: ["ds4-01", "ds4-02"],
@@ -41,36 +92,36 @@ export default defineDomain({
         <Tiles
           cols={3}
           tiles={[
-            { icon: "🔵", title: "Vertex & edge", text: "Nodes (V) connected by edges (E). A tree is a connected graph with no cycles and V − 1 edges.", color: "#f59e0b" },
-            { icon: "➡️", title: "Directed", text: "Edges are one-way: A → B doesn't imply B → A. Follows, links, dependencies.", color: "#f59e0b" },
-            { icon: "⚖️", title: "Weighted", text: "Edges carry a cost: distance, time, price. Shortest paths then need Dijkstra, not plain BFS.", color: "#f59e0b" },
-            { icon: "🔁", title: "Cycles & DAGs", text: "A directed acyclic graph (DAG) has a topological order: build steps, course prerequisites.", color: "#f59e0b" },
-            { icon: "🏝️", title: "Components", text: "Groups of vertices reachable from each other. Count them with DFS, BFS, or Union-Find.", color: "#f59e0b" },
-            { icon: "🔢", title: "Degree", text: "Edges touching a vertex. Directed graphs split it into in-degree and out-degree.", color: "#f59e0b" },
+            { icon: "🔵", title: "Vertex & edge", text: "Vertices (V) are joined by edges (E). A tree is a connected graph with no cycles and V − 1 edges.", color: "#f59e0b" },
+            { icon: "➡️", title: "Directed", text: "Edges are one-way: an edge from A to B doesn't mean there's one from B to A. Think follows, links and dependencies.", color: "#f59e0b" },
+            { icon: "⚖️", title: "Weighted", text: "Edges carry a cost, such as distance, time or price. Shortest paths then need Dijkstra, not plain BFS.", color: "#f59e0b" },
+            { icon: "🔁", title: "Cycles & DAGs", text: "A directed acyclic graph (DAG) can always be put in a dependency order, like build steps or course prerequisites.", color: "#f59e0b" },
+            { icon: "🏝️", title: "Components", text: "Groups of vertices that can all reach each other. Count them with DFS, BFS or Union-Find.", color: "#f59e0b" },
+            { icon: "🔢", title: "Degree", text: "How many edges touch a vertex. Directed graphs split it into in-degree and out-degree.", color: "#f59e0b" },
           ]}
         />
       ),
       points: [
-        "An undirected simple graph has at most V(V − 1)/2 edges. Sparse graphs have far fewer; dense graphs approach that.",
-        "Grids are implicit graphs: each cell's neighbours are computed from (row ± 1, col ± 1), nothing stored.",
-        "Before coding, ask: directed? weighted? can it have cycles? can it be disconnected?",
+        "An undirected graph with no repeated edges has at most V(V − 1)/2 edges. A **sparse** graph has far fewer than that, and a **dense** graph gets close to it.",
+        "A grid is a graph you never store. Each cell's neighbours are worked out from its position, one row or column away.",
+        "Before you code, ask: is it directed? Is it weighted? Can it have cycles? Can parts of it be disconnected?",
       ],
-      tip: "Many \"non-graph\" problems are graphs in disguise: word ladders, dependency builds, friend circles, maze grids.",
+      tip: "Many problems are graphs in disguise: word ladders, dependency builds, friend circles and maze grids.",
     },
     {
       id: "ds-graph-rep",
       level: "intermediate",
       check: ["ds4-05", "ds4-06"],
       task: "4.1",
-      title: "Adjacency list vs matrix",
+      title: "Adjacency list versus matrix",
       visual: <GraphViews />,
       points: [
-        "Adjacency list: O(V + E) space and fast neighbour iteration. The default for interview problems.",
-        "Adjacency matrix: O(V²) space, O(1) \"is there an edge u–v?\". Fine for small or dense graphs.",
-        "Edge list: just [u, v, w] triples. Handy when you sort edges by weight (Kruskal's algorithm).",
-        "In JavaScript: `Array.from({ length: n }, () => [])` or a `Map` of arrays. Never `new Array(n).fill([])`.",
+        "An **adjacency list** stores each vertex's neighbours. It uses O(V + E) space and makes walking through neighbours fast. It's the default for interview problems.",
+        "An **adjacency matrix** is a V by V grid. It uses O(V²) space but tells you in O(1) whether two vertices are joined. It's fine for small or dense graphs.",
+        "An **edge list** is just a list of [u, v, w] triples. It's handy when you need to sort edges by weight, as in Kruskal's algorithm.",
+        "In JavaScript, build the list with `Array.from({ length: n }, () => [])` or a `Map` of arrays. Never use `new Array(n).fill([])`.",
       ],
-      tip: "Problems often hand you an edge list. Building the adjacency list is your first five lines: practise them until they're automatic.",
+      tip: "Problems often hand you an edge list. Turning it into an adjacency list is your first five lines, so practise them until they're automatic.",
     },
     {
       id: "ds-trie",
@@ -80,12 +131,12 @@ export default defineDomain({
       title: "Tries: prefix trees",
       visual: <TrieExplorer />,
       points: [
-        "Each edge is a character; each node has a `children` map and an `isEnd` flag.",
-        "insert, search, and startsWith take O(L) for a word of length L, no matter how many words are stored.",
-        "`search` checks `isEnd` at the last node; `startsWith` only checks that the path exists.",
-        "Tries cost a lot of memory. Radix tries merge single-child chains; production autocomplete often uses compressed structures.",
+        "A **trie** stores words one character per step down the tree. Each node has a `children` map and an `isEnd` flag that marks the end of a word.",
+        "Insert, search and startsWith take O(L) for a word of length L, no matter how many words the trie holds.",
+        "`search` checks `isEnd` at the last node. `startsWith` only checks that the path exists.",
+        "Tries use a lot of memory. A **radix trie** merges chains of single-child nodes, and real autocomplete systems often use compressed structures like it.",
       ],
-      tip: "Reach for a trie when the problem says prefix, autocomplete, or many words searched in a grid.",
+      tip: "Reach for a trie when the problem says prefix, autocomplete, or searching for many words in a grid.",
     },
     {
       id: "ds-choose",
@@ -95,15 +146,63 @@ export default defineDomain({
       title: "Choosing the right structure",
       visual: <BigOTable />,
       points: [
-        "List the operations the problem needs most, then pick the structure that makes them cheap.",
-        "Lookup by key → hash map. Next smallest or largest → heap. Sorted order or ranges → balanced BST or sorted array. Prefixes → trie. Connectivity as edges arrive → Union-Find.",
-        "Real designs combine structures: an LRU cache is a hash map + doubly linked list; a leaderboard is a hash map + ordered structure.",
+        "List the operations the problem uses most, then pick the structure that makes those cheap.",
+        "For lookup by key, use a hash map. For the next smallest or largest, use a heap. For sorted order or ranges, use a balanced BST or a sorted array.",
+        "For prefixes, use a trie. To track which items are connected as edges arrive, use Union-Find.",
+        "Real designs combine structures. An LRU cache is a hash map plus a doubly linked list, and a leaderboard is a hash map plus an ordered structure.",
       ],
-      tip: "Name the trade-off out loud: \"A hash set gives O(1) lookups but loses order; if we need ranges I'd switch to a balanced tree.\"",
+      tip: "Say the trade-off out loud: \"A hash set gives O(1) lookups but loses order. If we need ranges, I'd switch to a balanced tree.\"",
     },
   ],
 
   questions: [
+    {
+      id: "ds-b4-01",
+      domain: "d4",
+      level: "beginner",
+      lesson: "ds-b-graph",
+      prompt: "In a graph of cities joined by roads, what are the roads?",
+      options: ["The edges", "The vertices", "The leaves", "The roots"],
+      answer: [0],
+      explanation: "Edges are the connections between things, so here they're the roads. The cities themselves are the vertices.",
+    },
+    {
+      id: "ds-b4-02",
+      domain: "d4",
+      level: "beginner",
+      lesson: "ds-b-graph",
+      type: "output",
+      prompt: "Type what this prints. Each person maps to a list of their friends.",
+      code: js("const friends = {", "  ana: ['ben', 'cy', 'dee'],", "  ben: ['ana'],", "};", "console.log(friends.ana.length);"),
+      codeLang: "js",
+      answers: ["3"],
+      explanation: "Ana's neighbour list holds three names, so its length is 3. This kind of list, where each vertex stores who it connects to, is the most common way to store a graph.",
+    },
+    {
+      id: "ds-b4-03",
+      domain: "d4",
+      level: "beginner",
+      lesson: "ds-b-choose",
+      prompt: "Your app needs to look up a user's details by their email address, over and over. Which structure fits best?",
+      options: ["A hash map with emails as keys", "A stack of users", "A queue of users", "An array you search from the start each time"],
+      answer: [0],
+      explanation: "A hash map jumps straight to the value for a key, like a coat check finding your coat from the ticket. Searching an array from the start gets slower as you add more users.",
+    },
+    {
+      id: "ds-b4-04",
+      domain: "d4",
+      level: "beginner",
+      lesson: "ds-b-choose",
+      prompt: "What's the best first question to ask when choosing a data structure?",
+      options: [
+        "Which operations will my program do most often?",
+        "Which structure has the longest name?",
+        "Which structure did I use last time?",
+        "Which structure uses the most memory?",
+      ],
+      answer: [0],
+      explanation: "Every structure is fast at some jobs and slow at others. Once you know the jobs your program repeats, you can pick the structure that makes those quick.",
+    },
     {
       id: "ds4-01",
       domain: "d4",
@@ -112,7 +211,7 @@ export default defineDomain({
       prompt: "A tree with n nodes has how many edges?",
       options: ["n − 1", "n", "n + 1", "2n"],
       answer: [0],
-      explanation: "Every node except the root has exactly one edge to its parent. One more edge would create a cycle; one fewer would disconnect it.",
+      explanation: "Every node except the root has exactly one edge up to its parent. One more edge would create a cycle, and one fewer would split the tree in two.",
     },
     {
       id: "ds4-02",
@@ -122,7 +221,7 @@ export default defineDomain({
       prompt: "What is a DAG?",
       options: ["A directed graph with no cycles", "A graph where every node connects to every other node", "An undirected graph with weighted edges", "A graph with exactly one cycle"],
       answer: [0],
-      explanation: "Directed acyclic graph. Because there are no cycles, a DAG always has a topological order, which is why it models dependencies.",
+      explanation: "DAG stands for directed acyclic graph. Because it has no cycles, you can always line its vertices up so every edge points forward, which is why DAGs model dependencies.",
     },
     {
       id: "ds4-03",
@@ -138,7 +237,7 @@ export default defineDomain({
         "Every vertex must have degree 4",
       ],
       answer: [0, 1],
-      explanation: "The maximum is 5 × 4 / 2 = 10. A connected graph with V − 1 edges has no cycles, so it is a tree. Nothing forces a minimum edge count or rules out cycles.",
+      explanation: "The maximum is 5 times 4, divided by 2, which is 10. A connected graph with V − 1 edges has no cycles, so it's a tree. Nothing forces a minimum number of edges or rules out cycles.",
     },
     {
       id: "ds4-04",
@@ -148,12 +247,12 @@ export default defineDomain({
       type: "match",
       prompt: "Match each graph term to its meaning.",
       pairs: [
-        ["Directed edge", "One-way link: A → B doesn't imply B → A"],
+        ["Directed edge", "One-way link: A to B doesn't imply B to A"],
         ["Weighted edge", "Carries a cost such as distance or time"],
         ["Degree", "Number of edges touching a vertex"],
         ["Connected component", "A maximal group of vertices all reachable from each other"],
       ],
-      explanation: "These four words decide which algorithm applies: direction and weights change shortest-path choices, and components change how many traversals you start.",
+      explanation: "These four words decide which algorithm you need. Direction and weights change how you find shortest paths, and the number of components changes how many traversals you start.",
     },
     {
       id: "ds4-05",
@@ -175,7 +274,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["`[0, 1, 3]`", "`[3]`", "`[0, 1]`", "`[1, 0, 3]`"],
       answer: [0],
-      explanation: "The graph is undirected, so each edge is added both ways. Vertex 2 picks up 0 (from [0, 2]), then 1 (from [1, 2]), then 3 (from [2, 3]), in that order.",
+      explanation: "The graph is undirected, so each edge is added in both directions. Vertex 2 picks up 0 from [0, 2], then 1 from [1, 2], then 3 from [2, 3], in that order.",
     },
     {
       id: "ds4-06",
@@ -190,7 +289,7 @@ export default defineDomain({
         "One array of user ids",
       ],
       answer: [0],
-      explanation: "There are about 10⁸ friendships but 10¹² possible pairs. A matrix would waste almost all its space; lists store only real edges.",
+      explanation: "There are about 10⁸ friendships but 10¹² possible pairs of users. A matrix would waste almost all of its space, while lists only store the friendships that exist.",
     },
     {
       id: "ds4-07",
@@ -205,7 +304,7 @@ export default defineDomain({
         ["Edge list", "Plain [u, v, w] triples, easy to sort by weight"],
         ["Implicit grid graph", "Neighbours computed from (row, col), nothing stored"],
       ],
-      explanation: "Pick by the operation you need: edge checks (matrix), traversal (list), sorting edges (edge list), or no storage at all (grid).",
+      explanation: "Choose by the operation you need most. A matrix is best for checking edges, a list for walking the graph, an edge list for sorting edges, and a grid when you don't want to store anything.",
     },
     {
       id: "ds4-08",
@@ -226,7 +325,7 @@ export default defineDomain({
       ),
       codeLang: "js",
       answer: [2],
-      explanation: "`fill([])` puts the same array object in every slot, so every push lands in one shared list. Use `Array.from({ length: n }, () => [])` to create a fresh array per vertex.",
+      explanation: "`fill([])` puts the very same array in every slot, so every push lands in one shared list. Use `Array.from({ length: n }, () => [])` to give each vertex its own fresh array.",
     },
     {
       id: "ds4-09",
@@ -236,7 +335,7 @@ export default defineDomain({
       prompt: "Searching for a word of length L in a trie that holds n words takes…",
       options: ["O(L)", "O(n)", "O(n · L)", "O(log n)"],
       answer: [0],
-      explanation: "You follow one child per character, so the cost depends only on the word's length, not on how many words are stored.",
+      explanation: "You follow one child for each character, so the cost depends only on how long the word is, not on how many words are stored.",
     },
     {
       id: "ds4-10",
@@ -248,7 +347,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["`false true true`", "`true true true`", "`false false true`", "`true false true`"],
       answer: [0],
-      explanation: "The path c → a exists, so `startsWith('ca')` is true, but no word ends at 'a', so `search('ca')` is false. 'cart' was inserted, so its last node has `isEnd` set.",
+      explanation: "The path through 'c' and then 'a' exists, so `startsWith('ca')` is true. But no word ends at 'a', so `search('ca')` is false. 'cart' was inserted, so its last node has `isEnd` set.",
     },
     {
       id: "ds4-11",
@@ -269,7 +368,7 @@ export default defineDomain({
       ),
       codeLang: "js",
       answer: [7],
-      explanation: "Reaching the last character only proves a prefix exists. A full-word search must `return node.isEnd;`. As written this is `startsWith`.",
+      explanation: "Getting to the last character only proves the prefix exists. A full-word search has to `return node.isEnd;`. As written, this is really `startsWith`.",
     },
     {
       id: "ds4-12",
@@ -277,9 +376,9 @@ export default defineDomain({
       level: "junior",
       lesson: "ds-trie",
       type: "order",
-      prompt: "Order the steps to insert a word into a trie.",
+      prompt: "Put the steps to insert a word into a trie in order.",
       items: ["Start at the root", "For the next character, create a child node if none exists", "Move down into that child", "After the last character, set `isEnd = true` on the current node"],
-      explanation: "Steps 2 and 3 repeat for every character. Marking the final node is what makes `search` tell words from prefixes.",
+      explanation: "The second and third steps repeat for every character. Marking the final node is what lets `search` tell whole words apart from prefixes.",
     },
     {
       id: "ds4-13",
@@ -295,7 +394,7 @@ export default defineDomain({
         ["Undo the last edit", "Stack"],
         ["Keep keys sorted and find the next larger key", "Balanced BST"],
       ],
-      explanation: "Each structure makes one access pattern cheap: membership, minimum, prefix, most recent, and ordered neighbours.",
+      explanation: "Each structure makes one kind of access cheap: checking membership, finding the minimum, matching a prefix, getting the most recent item, and finding the next key in order.",
     },
     {
       id: "ds4-14",
@@ -305,7 +404,7 @@ export default defineDomain({
       prompt: "You need O(1) average insert, delete, and lookup by key, and you don't care about order. Which structure?",
       options: ["Hash map", "Sorted array", "Balanced BST", "Linked list"],
       answer: [0],
-      explanation: "Hash maps give O(1) average for all three. A balanced BST is O(log n) but keeps order; sorted arrays have O(n) inserts; linked lists have O(n) lookups.",
+      explanation: "A hash map does all three in O(1) on average. A balanced BST takes O(log n) but keeps order, a sorted array has O(n) inserts, and a linked list has O(n) lookups.",
     },
     {
       id: "ds4-15",
@@ -321,7 +420,7 @@ export default defineDomain({
         "A FIFO queue",
       ],
       answer: [0, 1],
-      explanation: "Both keep the minimum cheap to find and remove. Scanning an array is O(n), a hash map has no order, and a queue returns the oldest item, not the smallest.",
+      explanation: "Both keep the minimum cheap to find and remove. Scanning an array is O(n), not O(1). A hash map has no order, and a queue gives you the oldest item, not the smallest.",
     },
     {
       id: "ds4-16",
@@ -347,7 +446,7 @@ export default defineDomain({
         "O(n²); a trie makes it O(1)",
       ],
       answer: [0],
-      explanation: "Every pair is compared. Adding values to a Set and checking `has` first is one pass. Sorting first (O(n log n), O(1) extra space) is the alternative when memory is tight.",
+      explanation: "It compares every pair, which is O(n²). Checking `has` and then adding each value to a Set does it in one pass. If memory is tight, sorting first takes O(n log n) time and O(1) extra space.",
     },
     {
       id: "ds4-17",
@@ -357,7 +456,7 @@ export default defineDomain({
       prompt: "How much space does an adjacency matrix use for a graph with V vertices and E edges?",
       options: ["O(V²)", "O(V + E)", "O(E)", "O(V log V)"],
       answer: [0],
-      explanation: "The matrix has a cell for every ordered pair of vertices, whatever the number of edges. Adjacency lists use O(V + E).",
+      explanation: "The matrix has a cell for every ordered pair of vertices, however many edges there are. Adjacency lists use O(V + E).",
     },
     {
       id: "ds4-18",
@@ -377,7 +476,7 @@ export default defineDomain({
       ),
       codeLang: "js",
       answer: [4],
-      explanation: "`includes` scans the array each time, so the whole function is O(n²). With `const seen = new Set()`, `add` is O(1) and the answer is `seen.size`, or simply `new Set(words).size`.",
+      explanation: "`includes` scans the whole array every time, so the function is O(n²). With `const seen = new Set()`, `add` is O(1) and the answer is `seen.size`. Or just write `new Set(words).size`.",
     },
     {
       id: "ds4-19",
@@ -392,7 +491,7 @@ export default defineDomain({
         "Rebuild the graph from event logs on every query",
       ],
       answer: [0],
-      explanation: "The cost is cross-shard hops. Keeping communities together cuts them; caching popular users' lists absorbs the hottest reads. A matrix makes size worse, and alphabetical sharding ignores connectivity.",
+      explanation: "The slow part is hopping between shards. Keeping close-knit groups of users together cuts those hops, and caching popular users' friend lists soaks up the busiest reads. A matrix makes the size problem worse, and sorting by name ignores who's connected to whom.",
     },
     {
       id: "ds4-20",
@@ -407,7 +506,7 @@ export default defineDomain({
         "Switch to an adjacency matrix",
       ],
       answer: [0],
-      explanation: "Most trie nodes in large vocabularies have one child. Merging those chains (and sharing common suffixes, in a DAWG or FST) keeps O(L) lookups with far fewer nodes.",
+      explanation: "In a large vocabulary, most trie nodes have only one child. Merging those chains, and sharing common endings as a DAWG or FST does, keeps lookups at O(L) with far fewer nodes.",
     },
     {
       id: "ds4-21",
@@ -422,22 +521,22 @@ export default defineDomain({
         "A queue of score changes",
       ],
       answer: [0],
-      explanation: "The hash map finds a player's current score in O(1); the ordered structure supports O(log n) update, rank, and range reads. Re-sorting is O(n log n) per update, and a hash map alone has no order.",
+      explanation: "The hash map finds a player's current score in O(1). The ordered structure handles updates, ranks and top-100 reads in O(log n). Re-sorting costs O(n log n) per update, and a hash map alone has no order.",
     },
   ],
 
   cards: [
-    { id: "ds-c-adjlist", domain: "d4", kind: "service", term: "Adjacency list", definition: "Each vertex maps to its neighbours; O(V + E) space" },
-    { id: "ds-c-adjmatrix", domain: "d4", kind: "service", term: "Adjacency matrix", definition: "V × V grid of 0/1 or weights; O(1) edge check" },
-    { id: "ds-c-edgelist", domain: "d4", kind: "service", term: "Edge list", definition: "Array of [u, v, w] triples" },
-    { id: "ds-c-trie", domain: "d4", kind: "service", term: "Trie", definition: "Prefix tree; insert and search a word in O(L)" },
-    { id: "ds-c-radix", domain: "d4", kind: "service", term: "Radix trie", definition: "Trie with single-child chains merged to save memory" },
-    { id: "ds-c-uf", domain: "d4", kind: "service", term: "Union-Find (disjoint set)", definition: "Merge groups and test connectivity in near O(1) amortized" },
-    { id: "ds-c-skiplist", domain: "d4", kind: "service", term: "Skip list", definition: "Layered linked lists with O(log n) expected search; ordered" },
-    { id: "ds-c-dag", domain: "d4", kind: "concept", term: "DAG", definition: "Directed acyclic graph; always has a topological order" },
-    { id: "ds-c-sparse", domain: "d4", kind: "concept", term: "Sparse graph", definition: "E far below V²; prefer adjacency lists" },
-    { id: "ds-c-dense", domain: "d4", kind: "concept", term: "Dense graph", definition: "E close to V²; a matrix is reasonable" },
-    { id: "ds-c-isend", domain: "d4", kind: "concept", term: "`isEnd` flag", definition: "Marks that a trie path spells a whole word" },
-    { id: "ds-c-tradeoff", domain: "d4", kind: "concept", term: "Structure trade-off", definition: "Pick the structure whose fast operations are the ones you call most" },
+    { id: "ds-c-adjlist", domain: "d4", kind: "service", term: "Adjacency list", definition: "Each vertex maps to a list of its neighbours. It uses O(V + E) space." },
+    { id: "ds-c-adjmatrix", domain: "d4", kind: "service", term: "Adjacency matrix", definition: "A V by V grid of 0s and 1s, or weights. Checking for an edge is O(1)." },
+    { id: "ds-c-edgelist", domain: "d4", kind: "service", term: "Edge list", definition: "An array of [u, v, w] triples, one per edge." },
+    { id: "ds-c-trie", domain: "d4", kind: "service", term: "Trie", definition: "A prefix tree. Inserting or searching for a word takes O(L) for a word of length L." },
+    { id: "ds-c-radix", domain: "d4", kind: "service", term: "Radix trie", definition: "A trie that merges chains of single-child nodes to save memory." },
+    { id: "ds-c-uf", domain: "d4", kind: "service", term: "Union-Find (disjoint set)", definition: "Merges groups and checks whether two items are connected, in close to O(1) amortized." },
+    { id: "ds-c-skiplist", domain: "d4", kind: "service", term: "Skip list", definition: "Layers of linked lists that keep items in order, with O(log n) expected search." },
+    { id: "ds-c-dag", domain: "d4", kind: "concept", term: "DAG", definition: "A directed acyclic graph. Its vertices can always be put in a dependency order." },
+    { id: "ds-c-sparse", domain: "d4", kind: "concept", term: "Sparse graph", definition: "A graph with far fewer than V² edges. Adjacency lists suit it best." },
+    { id: "ds-c-dense", domain: "d4", kind: "concept", term: "Dense graph", definition: "A graph with close to V² edges. A matrix is a reasonable choice." },
+    { id: "ds-c-isend", domain: "d4", kind: "concept", term: "`isEnd` flag", definition: "Marks that the path to a trie node spells a whole word." },
+    { id: "ds-c-tradeoff", domain: "d4", kind: "concept", term: "Structure trade-off", definition: "Pick the structure whose fast operations are the ones you call most." },
   ],
 });

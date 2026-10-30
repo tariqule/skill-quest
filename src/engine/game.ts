@@ -1,4 +1,4 @@
-import { hasLevels, nearbyLevels, type LevelChoice } from "./levels";
+import { effectiveLevel, levelOf, nearbyLevels, type LevelChoice } from "./levels";
 import { EXTRA_KINDS, isCodeTrack } from "./tracks";
 import type { Progress } from "./store";
 import type { Course, Question, QuestionKind } from "./types";
@@ -120,11 +120,18 @@ export function deck(questions: Question[], count = questions.length) {
  * short or empty. Courses without levels, or "all", just shuffle the pool.
  */
 export function levelDeck(course: Course, level: LevelChoice, pool: Question[], count: number) {
-  if (!hasLevels(course) || level === "all") return deck(pool, count);
-  const picks = shuffle(pool.filter((q) => q.level === level)).slice(0, count);
-  for (const near of nearbyLevels(level)) {
+  const l = effectiveLevel(course, level);
+  if (l === "all") return deck(pool, count);
+  if (l === "exam") {
+    // Exam level: anything past the basics, topped up with basics only if a stage is tiny.
+    const main = shuffle(pool.filter((q) => levelOf(q) !== "beginner")).slice(0, count);
+    const extra = shuffle(pool.filter((q) => levelOf(q) === "beginner")).slice(0, count - main.length);
+    return shuffle([...main, ...extra]).map(prepare);
+  }
+  const picks = shuffle(pool.filter((q) => levelOf(q) === l)).slice(0, count);
+  for (const near of nearbyLevels(l)) {
     if (picks.length >= count) break;
-    picks.push(...shuffle(pool.filter((q) => q.level === near)).slice(0, count - picks.length));
+    picks.push(...shuffle(pool.filter((q) => levelOf(q) === near)).slice(0, count - picks.length));
   }
   return shuffle(picks).map(prepare);
 }

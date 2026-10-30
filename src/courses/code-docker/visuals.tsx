@@ -16,13 +16,13 @@ const STACKS: Record<Stack, { apps: string[]; mid: { label: string; color: strin
       { label: "Guest OS (full kernel)", color: "#fb7185" },
     ],
     base: ["Hypervisor", "Host hardware"],
-    text: "Each VM boots its own operating system and kernel on virtual hardware. Strong isolation, but each one costs gigabytes and takes a while to start.",
+    text: "Each VM boots its own operating system and kernel on virtual hardware. That isolates them strongly, but each one costs gigabytes and takes a while to start.",
   },
   container: {
     apps: ["App A", "App B", "App C"],
     mid: [{ label: "Bins/libs (from the image)", color: "#a78bfa" }],
     base: ["Container runtime + host OS kernel", "Host hardware"],
-    text: "Containers are isolated processes sharing the host's kernel. Linux namespaces give each its own view (files, network, PIDs); cgroups cap its CPU and memory. They start in about the time the process does.",
+    text: "Containers are isolated processes sharing the host's kernel. Linux namespaces give each one its own view of files, network and processes, and cgroups cap its CPU and memory. They start about as fast as the program itself.",
   },
 };
 

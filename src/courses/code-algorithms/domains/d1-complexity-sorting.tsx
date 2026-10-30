@@ -1,4 +1,4 @@
-import { CodeBlock, CodeCompare, Tiles } from "@/components/learn/blocks";
+import { CodeBlock, CodeCompare, Flow, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { js } from "../snippet";
 import { GrowthChart, PartitionStepper } from "../visuals";
@@ -13,7 +13,7 @@ export default defineDomain({
     weight: 25,
     emoji: "🏜️",
     color: "#f472b6",
-    summary: "Growth rates, counting loops and recursion, amortized and space cost, and merge, quick, heap, and non-comparison sorts.",
+    summary: "How to measure how fast code grows, how to count the work in loops and recursion, and how the main sorting algorithms work.",
   },
 
   tasks: [
@@ -31,6 +31,53 @@ export default defineDomain({
 
   lessons: [
     {
+      id: "algo-b-what",
+      level: "beginner",
+      check: ["algo-b1-01", "algo-b1-02"],
+      task: "1.1",
+      title: "What is an algorithm?",
+      visual: (
+        <Flow
+          color="#f472b6"
+          steps={[
+            { icon: "🥚", label: "Input", sub: "What you start with, like a list of names" },
+            { icon: "📋", label: "Steps", sub: "Clear instructions, followed in order" },
+            { icon: "🍰", label: "Output", sub: "The answer, like the names in A to Z order" },
+          ]}
+        />
+      ),
+      points: [
+        "An **algorithm** is a set of steps that solves a problem. A recipe is one: it takes ingredients and turns them into a cake.",
+        "Programs are full of algorithms. Searching your contacts, sorting emails by date and finding the fastest route all follow one.",
+        "Two algorithms can give the same answer at very different speeds. On a list of a million items, that gap can be seconds versus hours.",
+        "This course teaches the common algorithms and how to tell which one is fast enough for a job.",
+      ],
+      tip: "When you read a problem, first say what goes in and what should come out. The steps in between are the algorithm.",
+    },
+    {
+      id: "algo-b-steps",
+      level: "beginner",
+      check: ["algo-b1-03", "algo-b1-04"],
+      task: "1.2",
+      title: "Counting steps, and why sorting helps",
+      visual: (
+        <Tiles
+          cols={3}
+          tiles={[
+            { icon: "🚶", title: "Check every item", text: "Looking for a name in an unsorted list: 1,000 names can take 1,000 checks.", color: "#f472b6" },
+            { icon: "📖", title: "Use the order", text: "In a sorted phone book you open the middle and throw away half each time: about 10 checks for 1,000 names.", color: "#f472b6" },
+            { icon: "🔤", title: "Sorting", text: "Putting items in order, like A to Z or smallest to largest, so later searches get fast.", color: "#f472b6" },
+          ]}
+        />
+      ),
+      points: [
+        "We judge an algorithm by counting its steps as the input grows. The clock time depends on the computer, but the step count doesn't.",
+        "Checking every item one by one is called **linear** work: twice the items means twice the steps.",
+        "**Sorting** means putting items in order. Once a list is sorted, many jobs get much faster, like finding a name or spotting duplicates.",
+      ],
+      tip: "Picture the input getting ten times bigger. Ask yourself how many more steps your idea would need.",
+    },
+    {
       id: "algo-growth",
       level: "junior",
       check: ["algo1-01", "algo1-02"],
@@ -38,10 +85,10 @@ export default defineDomain({
       title: "How fast does it grow?",
       visual: <GrowthChart />,
       points: [
-        "Big-O describes how work grows with input size n. Drop constants and lower terms: 3n² + 50n + 1000 is O(n²).",
-        "Common order: O(1) < O(log n) < O(n) < O(n log n) < O(n²) < O(2ⁿ) < O(n!).",
-        "Input limits hint at the target: n ≤ 20 allows exponential search, n ≈ 10⁵ needs O(n log n) or better, n ≈ 10⁹ needs O(log n) or a formula.",
-        "Big-O is an upper bound, Big-Ω a lower bound, Big-Θ a tight bound. In interviews \"Big-O\" usually means the tight worst case.",
+        "**Big-O** describes how the work grows as the input size n grows. You drop constants and smaller terms, so 3n² + 50n + 1000 becomes O(n²).",
+        "From slowest-growing to fastest: O(1), O(log n), O(n), O(n log n), O(n²), O(2ⁿ), O(n!).",
+        "Input limits hint at what's expected. Up to about 20 items allows exponential search. Around 10⁵ needs O(n log n) or better. Around 10⁹ needs O(log n) or a formula.",
+        "Big-O is an upper bound, Big-Ω is a lower bound and Big-Θ is a tight bound. In interviews, \"Big-O\" usually means the tight worst case.",
       ],
       tip: "Ask for the input size early. It tells you which complexity the interviewer expects.",
     },
@@ -61,19 +108,20 @@ export default defineDomain({
           <Tiles
             cols={3}
             tiles={[
-              { icon: "🌳", title: "Recursion", text: "Roughly branches^depth calls. Two calls on n − 1 → O(2ⁿ); one call on n / 2 → O(log n).", color: "#f472b6" },
-              { icon: "🧮", title: "Amortized", text: "Average cost per operation over a whole sequence. Dynamic array push: O(1) amortized, O(n) worst.", color: "#f472b6" },
-              { icon: "📦", title: "Space", text: "Extra memory you allocate plus the call stack. Recursion depth d costs O(d) space.", color: "#f472b6" },
+              { icon: "🌳", title: "Recursion", text: "Roughly branches to the power of depth. Two calls on n − 1 gives O(2ⁿ). One call on n / 2 gives O(log n).", color: "#f472b6" },
+              { icon: "🧮", title: "Amortized", text: "The average cost per operation over a long run. A dynamic array push is O(1) amortized, O(n) at worst.", color: "#f472b6" },
+              { icon: "📦", title: "Space", text: "The extra memory you allocate, plus the call stack. Recursion d levels deep costs O(d) space.", color: "#f472b6" },
             ]}
           />
         </div>
       ),
       points: [
-        "Sequential steps add (O(n) + O(n) = O(n)); nested steps multiply (O(n) × O(log n) = O(n log n)).",
-        "A loop that doubles or halves its counter runs O(log n) times.",
-        "Two different inputs get two variables: looping over a and b is O(a + b), nesting them is O(a · b).",
+        "Steps that run one after another add up: O(n) plus O(n) is still O(n).",
+        "Steps nested inside each other multiply: O(n) outside and O(log n) inside gives O(n log n).",
+        "A loop that doubles or halves its counter runs about log n times.",
+        "Two different inputs get two variables. Looping over a and then b is O(a + b). Nesting one inside the other is O(a · b).",
       ],
-      tip: "Derive the complexity line by line aloud. It's more convincing than announcing an answer.",
+      tip: "Work out the complexity line by line, out loud. It's more convincing than announcing an answer.",
     },
     {
       id: "algo-merge-quick",
@@ -102,16 +150,16 @@ export default defineDomain({
               "  return out.concat(l.slice(i), r.slice(j));",
               "}",
             )}
-            caption="Merge sort: O(n log n) always, O(n) extra space, stable (`<=` keeps equal items in order)"
+            caption="Merge sort is always O(n log n), uses O(n) extra space, and is stable: the `<=` keeps equal items in their original order."
           />
         </div>
       ),
       points: [
-        "Both are divide and conquer. Merge sort splits evenly and does its work while merging; quicksort does its work while partitioning.",
-        "Quicksort: O(n log n) on average, in place (O(log n) stack), but O(n²) when pivots are consistently the smallest or largest. Random pivots make that very unlikely.",
-        "Merge sort: guaranteed O(n log n) and stable, but needs O(n) extra memory. Great for linked lists and external sorting.",
+        "Both use **divide and conquer**: split the problem, solve the parts, combine. Merge sort does its real work while merging. Quicksort does it while partitioning.",
+        "Quicksort averages O(n log n) and sorts in place, using only O(log n) stack. If the pivot is always the smallest or largest item, it slows to O(n²). Random pivots make that very unlikely.",
+        "Merge sort is always O(n log n) and stable, but needs O(n) extra memory. It's a great fit for linked lists and for data on disk.",
       ],
-      tip: "If asked \"which is faster?\", say quicksort is usually faster in memory thanks to cache locality, but merge sort has the guarantee and stability.",
+      tip: "If asked which is faster, say quicksort usually wins in memory because it uses the cache well. Merge sort gives you the guarantee and stability.",
     },
     {
       id: "algo-sort-choice",
@@ -123,34 +171,86 @@ export default defineDomain({
         <Tiles
           cols={3}
           tiles={[
-            { icon: "⛰️", title: "Heap sort", text: "Build a max-heap, swap the max to the end, repeat. O(n log n) worst case, in place, not stable.", color: "#f472b6" },
-            { icon: "🃏", title: "Insertion sort", text: "Grow a sorted prefix. O(n²) worst, but very fast for tiny or nearly sorted input.", color: "#f472b6" },
-            { icon: "🔢", title: "Counting / radix", text: "No comparisons: O(n + k) for integers in a small range k. Beats the O(n log n) bound.", color: "#f472b6" },
-            { icon: "🧷", title: "Stable", text: "Equal keys keep their original order. Lets you sort by one key, then another.", color: "#f472b6" },
-            { icon: "🟨", title: "JS `sort()`", text: "Sorts in place, is stable (required since ES2019), and compares strings unless you pass a comparator.", color: "#f472b6" },
-            { icon: "📉", title: "Lower bound", text: "Any comparison sort needs Ω(n log n) comparisons in the worst case.", color: "#f472b6" },
+            { icon: "⛰️", title: "Heap sort", text: "Build a max-heap, swap the largest item to the end, repeat. O(n log n) worst case, in place, not stable.", color: "#f472b6" },
+            { icon: "🃏", title: "Insertion sort", text: "Grow a sorted section one item at a time. O(n²) at worst, but very fast for tiny or nearly sorted input.", color: "#f472b6" },
+            { icon: "🔢", title: "Counting / radix", text: "No comparisons at all: O(n + k) for integers in a small range k. That beats the O(n log n) limit.", color: "#f472b6" },
+            { icon: "🧷", title: "Stable", text: "Equal items keep their original order. That lets you sort by one key, then by another.", color: "#f472b6" },
+            { icon: "🟨", title: "JS `sort()`", text: "Sorts in place and is stable (required since ES2019). Without a comparator it compares items as strings.", color: "#f472b6" },
+            { icon: "📉", title: "Lower bound", text: "Any sort that works by comparing items needs Ω(n log n) comparisons in the worst case.", color: "#f472b6" },
           ]}
         />
       ),
       points: [
-        "Always pass a comparator for numbers: `nums.sort((a, b) => a - b)`.",
-        "Library sorts are hybrids: Timsort (merge + insertion runs) in V8, Python, and Java's object sort; introsort (quick + heap + insertion) in many C++ libraries.",
-        "Data bigger than memory? External merge sort: sort chunks, write them out, k-way merge.",
+        "Always pass a comparator when sorting numbers: `nums.sort((a, b) => a - b)`.",
+        "Library sorts are hybrids. V8, Python and Java's object sort use Timsort, a mix of merge and insertion sort. Many C++ libraries use introsort, which mixes quicksort, heap sort and insertion sort.",
+        "If the data is bigger than memory, use an external merge sort: sort chunks that fit, write them to disk, then merge them k at a time.",
       ],
-      tip: "In interviews you can usually call the built-in sort and say \"that's O(n log n)\". Know the default comparator trap.",
+      tip: "In interviews you can usually call the built-in sort and say it's O(n log n). Just know the default comparator trap.",
     },
   ],
 
   questions: [
+    {
+      id: "algo-b1-01",
+      domain: "d1",
+      level: "beginner",
+      lesson: "algo-b-what",
+      prompt: "Which of these is the best everyday example of an algorithm?",
+      options: [
+        "A recipe that lists the steps to bake a cake",
+        "A photo of a cake",
+        "The oven itself",
+        "The word \"cake\"",
+      ],
+      answer: [0],
+      explanation: "An algorithm is a list of steps that turns an input into an output. A recipe does exactly that: ingredients go in, steps are followed in order, and a cake comes out.",
+    },
+    {
+      id: "algo-b1-02",
+      domain: "d1",
+      level: "beginner",
+      lesson: "algo-b-what",
+      prompt: "Two algorithms both sort the same list correctly. Why might you still prefer one of them?",
+      options: [
+        "One might need far fewer steps, so it finishes much faster on big inputs",
+        "Only one of them can really be correct",
+        "The one with the longer name is more accurate",
+        "There's never a reason to prefer one",
+      ],
+      answer: [0],
+      explanation: "Getting the right answer is the first goal, but speed matters too. On a million items, a smarter algorithm can finish in a second while a slow one takes hours.",
+    },
+    {
+      id: "algo-b1-03",
+      domain: "d1",
+      level: "beginner",
+      lesson: "algo-b-steps",
+      prompt: "You check an unsorted list of 1,000 names one by one, looking for \"Zoe\". In the worst case, how many names do you check?",
+      options: ["1,000", "1", "10", "500"],
+      answer: [0],
+      explanation: "If Zoe is last, or not there at all, you have to look at every name. That's called linear work: twice as many names means twice as many checks.",
+    },
+    {
+      id: "algo-b1-04",
+      domain: "d1",
+      level: "beginner",
+      lesson: "algo-b-steps",
+      type: "output",
+      prompt: "Type what this prints. `sort` with `(a, b) => a - b` puts numbers from smallest to largest.",
+      code: js("const nums = [5, 2, 8, 1];", "nums.sort((a, b) => a - b);", "console.log(nums[0]);"),
+      codeLang: "js",
+      answers: ["1"],
+      explanation: "After sorting, the list is `[1, 2, 5, 8]`. The first item, `nums[0]`, is the smallest number: `1`.",
+    },
     {
       id: "algo1-01",
       domain: "d1",
       level: "junior",
       lesson: "algo-growth",
       type: "order",
-      prompt: "Order these from slowest-growing to fastest-growing.",
+      prompt: "Put these in order from slowest-growing to fastest-growing.",
       items: ["O(log n)", "O(n)", "O(n log n)", "O(n²)", "O(2ⁿ)"],
-      explanation: "Logarithmic beats linear, linearithmic sits just above linear, then quadratic, then exponential, which explodes even for modest n.",
+      explanation: "Logarithmic grows slower than linear. Linearithmic, O(n log n), sits just above linear. Then comes quadratic, and then exponential, which explodes even for modest n.",
     },
     {
       id: "algo1-02",
@@ -160,7 +260,7 @@ export default defineDomain({
       prompt: "Simplify `O(3n² + 50n + 1000)`.",
       options: ["O(n²)", "O(3n²)", "O(n² + n)", "O(1000)"],
       answer: [0],
-      explanation: "Big-O drops constant factors and lower-order terms. For large n the n² term dominates everything else.",
+      explanation: "Big-O drops constant factors and smaller terms. Once n gets large, the n² term is so much bigger than the rest that nothing else matters.",
     },
     {
       id: "algo1-03",
@@ -170,7 +270,7 @@ export default defineDomain({
       prompt: "The input has up to 10⁵ items and the time limit is about a second. Which complexity should you aim for?",
       options: ["O(n log n) or better", "O(n²)", "O(2ⁿ)", "O(n³)"],
       answer: [0],
-      explanation: "n log n is about 1.7 million operations. n² is 10¹⁰, far too slow at roughly 10⁸ simple operations per second.",
+      explanation: "A computer does roughly 10⁸ simple operations per second. n log n here is about 1.7 million operations, which is fine. n² is 10¹⁰, which is far too slow.",
     },
     {
       id: "algo1-04",
@@ -180,7 +280,7 @@ export default defineDomain({
       prompt: "Which two of these are O(n)? (Choose two.)",
       options: ["O(2n + 5)", "O(n + log n)", "O(n log n)", "O(n² / 1000)", "O(n · m) where m is unbounded"],
       answer: [0, 1],
-      explanation: "Constants and smaller terms drop away. n log n and n²/1000 still grow faster than linear, and n · m depends on a second variable.",
+      explanation: "Constants and smaller terms drop away, so the first two are just O(n). n log n and n²/1000 still grow faster than linear, and n · m depends on a second input.",
     },
     {
       id: "algo1-05",
@@ -192,7 +292,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["O(log n)", "O(n)", "O(n / 2)", "O(√n)"],
       answer: [0],
-      explanation: "i takes the values 1, 2, 4, 8, … so the loop runs about log₂ n times.",
+      explanation: "i goes 1, 2, 4, 8 and so on, doubling each time. It reaches n after about log₂ n steps, so the loop runs O(log n) times.",
     },
     {
       id: "algo1-06",
@@ -204,7 +304,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["O(n²)", "O(n log n)", "O(n)", "O(n³)"],
       answer: [0],
-      explanation: "The inner loop runs n, n − 1, …, 1 times: n(n + 1)/2 in total. Halving the work doesn't change the growth rate.",
+      explanation: "The inner loop runs n times, then n − 1, down to 1. That adds up to n(n + 1)/2. It's about half of n², but halving doesn't change how fast it grows, so it's O(n²).",
     },
     {
       id: "algo1-07",
@@ -216,7 +316,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["O(n log n)", "O(n²)", "O(log n)", "O(n)"],
       answer: [0],
-      explanation: "The outer loop runs n times and the doubling inner loop runs about log₂ n times each: they multiply.",
+      explanation: "The outer loop runs n times. Each time, the doubling inner loop runs about log₂ n times. Nested loops multiply, so the total is O(n log n).",
     },
     {
       id: "algo1-08",
@@ -228,7 +328,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["O(2ⁿ)", "O(n)", "O(n²)", "O(log n)"],
       answer: [0],
-      explanation: "Each call makes two calls on n − 1, so the call tree doubles at every level: about 2ⁿ calls. Space is only O(n), the depth of the tree. Computing `f(n - 1)` once and doubling it would be O(n).",
+      explanation: "Each call makes two more calls on n − 1, so the number of calls doubles at every level: about 2ⁿ in total. The space is only O(n), the depth of the tree. Computing `f(n - 1)` once and doubling it would make it O(n).",
     },
     {
       id: "algo1-09",
@@ -237,13 +337,13 @@ export default defineDomain({
       lesson: "algo-merge-quick",
       prompt: "When does quicksort hit its O(n²) worst case?",
       options: [
-        "When the pivot is always the smallest or largest element, e.g. a last-element pivot on already-sorted input",
+        "When the pivot is always the smallest or largest element, for example a last-element pivot on already-sorted input",
         "When the array has an even length",
         "When you sort numbers instead of strings",
         "When the array fits in the CPU cache",
       ],
       answer: [0],
-      explanation: "A bad pivot peels off just one element per level, giving n levels of O(n) work. Random or median-of-three pivots avoid this in practice.",
+      explanation: "A bad pivot splits off just one element each time. That gives n levels, each doing O(n) work. Picking a random pivot, or the median of three, avoids this in practice.",
     },
     {
       id: "algo1-10",
@@ -251,14 +351,14 @@ export default defineDomain({
       level: "junior",
       lesson: "algo-merge-quick",
       type: "order",
-      prompt: "Order the steps of merge sort.",
+      prompt: "Put the steps of merge sort in order.",
       items: [
         "If the array has 0 or 1 elements, return it",
         "Split it into two halves",
         "Recursively sort each half",
         "Merge the two sorted halves by repeatedly taking the smaller front item",
       ],
-      explanation: "Base case, divide, conquer, combine. There are log n levels of splitting and each level's merges cost O(n) in total.",
+      explanation: "First the base case, then split, then sort each half, then combine. There are log n levels of splitting, and the merges at each level cost O(n) in total.",
     },
     {
       id: "algo1-11",
@@ -280,7 +380,7 @@ export default defineDomain({
       ),
       codeLang: "js",
       answer: [8],
-      explanation: "The loop stops when either array runs out, so the leftovers of the other (here, 9) are dropped. Return `out.concat(a.slice(i), b.slice(j))`.",
+      explanation: "The loop stops as soon as one array runs out, so whatever is left in the other one (here, 9) gets dropped. Return `out.concat(a.slice(i), b.slice(j))` instead.",
     },
     {
       id: "algo1-12",
@@ -296,7 +396,7 @@ export default defineDomain({
         ["Insertion sort", "O(n²) worst, but fast on tiny or nearly sorted input"],
         ["Counting sort", "O(n + k) for integers in a small range k"],
       ],
-      explanation: "No single sort wins everywhere. Guarantees, memory, stability, and input shape decide.",
+      explanation: "No single sort wins everywhere. You choose based on guarantees, memory, stability and what the input looks like.",
     },
     {
       id: "algo1-13",
@@ -308,7 +408,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["`[1, 10, 100, 9]`", "`[1, 9, 10, 100]`", "`[100, 10, 9, 1]`", "`[10, 9, 1, 100]`"],
       answer: [0],
-      explanation: "Without a comparator, `sort` converts items to strings and compares them as text: \"1\" < \"10\" < \"100\" < \"9\". Use `nums.sort((a, b) => a - b)`.",
+      explanation: "Without a comparator, `sort` turns items into strings and compares them as text, the way a dictionary would: \"1\", \"10\", \"100\", \"9\". For numbers, use `nums.sort((a, b) => a - b)`.",
     },
     {
       id: "algo1-14",
@@ -323,7 +423,7 @@ export default defineDomain({
         "It gives the same output on every run",
       ],
       answer: [0],
-      explanation: "Stability matters when you sort records by one key after another, for example by name and then by department.",
+      explanation: "Stability matters when you sort records by one key and then another. For example, sort by name, then by department, and each department stays in name order.",
     },
     {
       id: "algo1-15",
@@ -344,7 +444,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["`Ben Di Ana Cy`", "`Di Ben Cy Ana`", "`Ben Di Cy Ana`", "`Ana Cy Ben Di`"],
       answer: [0],
-      explanation: "`Array.prototype.sort` has been required to be stable since ES2019. The 25-year-olds keep their order (Ben, Di), then the 30-year-olds (Ana, Cy).",
+      explanation: "Since ES2019, `Array.prototype.sort` must be stable. The 25-year-olds keep their original order (Ben, Di), then come the 30-year-olds in theirs (Ana, Cy).",
     },
     {
       id: "algo1-16",
@@ -352,11 +452,11 @@ export default defineDomain({
       level: "intermediate",
       lesson: "algo-sort-choice",
       type: "lines",
-      prompt: "This should sort numbers in ascending order, but the result isn't reliably sorted. Tap the buggy line.",
+      prompt: "This should sort numbers from smallest to largest, but the result isn't reliably sorted. Tap the buggy line.",
       code: js("const scores = [42, 7, 19, 3];", "scores.sort((a, b) => a > b);", "console.log(scores);"),
       codeLang: "js",
       answer: [2],
-      explanation: "A comparator must return a negative, zero, or positive number. A boolean becomes 1 or 0, never negative, so the engine gets inconsistent answers. Use `(a, b) => a - b`.",
+      explanation: "A comparator must return a negative number, zero or a positive number. A boolean turns into 1 or 0 and is never negative, so the engine gets inconsistent answers. Use `(a, b) => a - b`.",
     },
     {
       id: "algo1-17",
@@ -366,7 +466,7 @@ export default defineDomain({
       prompt: "Which two sorts are O(n log n) in the worst case? (Choose two.)",
       options: ["Merge sort", "Heap sort", "Quicksort with a fixed last-element pivot", "Insertion sort", "Bubble sort"],
       answer: [0, 1],
-      explanation: "Merge sort and heap sort guarantee O(n log n). Quicksort can degrade to O(n²), and insertion and bubble sort are O(n²) in the worst case.",
+      explanation: "Merge sort and heap sort guarantee O(n log n). Quicksort can slow to O(n²), and insertion sort and bubble sort are O(n²) in the worst case.",
     },
     {
       id: "algo1-18",
@@ -378,7 +478,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["O(n): one stack frame per element", "O(1): no new arrays are created", "O(log n)", "O(n²)"],
       answer: [0],
-      explanation: "The recursion goes n calls deep before any of them return, so the call stack holds n frames. An iterative loop would be O(1).",
+      explanation: "The function calls itself n times before any call returns, so the call stack holds n frames at once. A plain loop would need only O(1) extra space.",
     },
     {
       id: "algo1-19",
@@ -403,7 +503,7 @@ export default defineDomain({
       ),
       codeLang: "js",
       answer: [10],
-      explanation: "The pivot lives at `hi`. After the loop, slot i is the first item ≥ pivot, so the final swap must be `[arr[i], arr[hi]] = [arr[hi], arr[i]]`.",
+      explanation: "The pivot sits at `hi`. After the loop, slot i holds the first item that's at least the pivot, so the final swap must be `[arr[i], arr[hi]] = [arr[hi], arr[i]]`.",
     },
     {
       id: "algo1-20",
@@ -418,7 +518,7 @@ export default defineDomain({
         "They're the same complexity",
       ],
       answer: [0],
-      explanation: "Interviewers want you to see the time-space trade-off and tie the choice to requirements, not recite a rule.",
+      explanation: "The interviewer wants to see that you spot the trade-off between time and memory, and that you tie your choice to the requirements instead of reciting a rule.",
     },
     {
       id: "algo1-21",
@@ -433,7 +533,7 @@ export default defineDomain({
         "Bubble sort, because it uses the least memory",
       ],
       answer: [0],
-      explanation: "Merging reads each sorted run sequentially, which storage handles well. A heap over the k run heads picks the next smallest record in O(log k). Distributed engines use the same idea at larger scale.",
+      explanation: "Merging reads each sorted chunk from start to end, which disks handle well. A min-heap over the k chunk heads finds the next smallest record in O(log k). Distributed engines use the same idea at larger scale.",
     },
     {
       id: "algo1-22",
@@ -458,7 +558,7 @@ export default defineDomain({
         "About 2× more work",
       ],
       answer: [0],
-      explanation: "O(n²) means 100× the input costs 100² = 10,000× the time. Fixing the algorithm is far cheaper than scaling hardware, and a hash map makes it a single pass.",
+      explanation: "With O(n²), 100 times the input costs 100 squared, which is 10,000 times the work. Fixing the algorithm is far cheaper than buying hardware, and a hash map does it in a single pass.",
     },
     {
       id: "algo1-23",
@@ -473,7 +573,7 @@ export default defineDomain({
         "Use a hash map for appends instead",
       ],
       answer: [0],
-      explanation: "Amortized analysis bounds the total, not each operation. Latency-sensitive paths care about the worst case, so allocate up front or grow in fixed-size chunks that never copy everything at once.",
+      explanation: "Amortized analysis limits the total cost, not the cost of each single operation. Now and then a resize copies everything. If latency matters, allocate up front or grow in fixed-size chunks that never copy the whole buffer.",
     },
     {
       id: "algo1-24",
@@ -488,24 +588,24 @@ export default defineDomain({
         "Counting sort for every input type",
       ],
       answer: [0],
-      explanation: "Hybrids keep quicksort's or merge sort's speed while guaranteeing O(n log n). Timsort also exploits already-sorted runs, which are common in real data.",
+      explanation: "Hybrids keep the speed of quicksort or merge sort and still guarantee O(n log n). Timsort also takes advantage of stretches that are already sorted, which are common in real data.",
     },
   ],
 
   cards: [
-    { id: "algo-c-jssort", domain: "d1", kind: "service", term: "`Array.prototype.sort`", definition: "In place and stable; compares as strings unless given a comparator" },
-    { id: "algo-c-merge", domain: "d1", kind: "service", term: "Merge sort", definition: "Split, sort halves, merge: O(n log n), stable, O(n) space" },
-    { id: "algo-c-quick", domain: "d1", kind: "service", term: "Quicksort", definition: "Partition around a pivot: O(n log n) average, O(n²) worst" },
-    { id: "algo-c-heapsort", domain: "d1", kind: "service", term: "Heap sort", definition: "Build a max-heap, extract repeatedly: O(n log n), in place" },
-    { id: "algo-c-insertion", domain: "d1", kind: "service", term: "Insertion sort", definition: "Grow a sorted prefix; great for small or nearly sorted input" },
-    { id: "algo-c-counting", domain: "d1", kind: "service", term: "Counting sort", definition: "Tally integer keys: O(n + k), no comparisons" },
-    { id: "algo-c-timsort", domain: "d1", kind: "service", term: "Timsort", definition: "Hybrid merge + insertion sort that exploits sorted runs" },
-    { id: "algo-c-bigo", domain: "d1", kind: "concept", term: "Big-O", definition: "Upper bound on growth; constants and lower terms dropped" },
-    { id: "algo-c-theta", domain: "d1", kind: "concept", term: "Big-Θ", definition: "Tight bound: grows exactly that fast, up to constants" },
-    { id: "algo-c-omega", domain: "d1", kind: "concept", term: "Big-Ω", definition: "Lower bound on growth" },
-    { id: "algo-c-amortized", domain: "d1", kind: "concept", term: "Amortized analysis", definition: "Average cost per operation over a worst-case sequence" },
-    { id: "algo-c-stable", domain: "d1", kind: "concept", term: "Stable sort", definition: "Equal keys keep their original order" },
-    { id: "algo-c-dandc", domain: "d1", kind: "concept", term: "Divide and conquer", definition: "Split the problem, solve parts recursively, combine the results" },
-    { id: "algo-c-lowerbound", domain: "d1", kind: "concept", term: "Comparison-sort lower bound", definition: "No comparison sort beats Ω(n log n) in the worst case" },
+    { id: "algo-c-jssort", domain: "d1", kind: "service", term: "`Array.prototype.sort`", definition: "Sorts in place and is stable. Compares items as strings unless you give it a comparator." },
+    { id: "algo-c-merge", domain: "d1", kind: "service", term: "Merge sort", definition: "Split in half, sort each half, merge. O(n log n), stable, uses O(n) extra space." },
+    { id: "algo-c-quick", domain: "d1", kind: "service", term: "Quicksort", definition: "Partition around a pivot, then sort each side. O(n log n) on average, O(n²) at worst." },
+    { id: "algo-c-heapsort", domain: "d1", kind: "service", term: "Heap sort", definition: "Build a max-heap and pull the largest item out again and again. O(n log n), in place." },
+    { id: "algo-c-insertion", domain: "d1", kind: "service", term: "Insertion sort", definition: "Grow a sorted section one item at a time. Great for small or nearly sorted input." },
+    { id: "algo-c-counting", domain: "d1", kind: "service", term: "Counting sort", definition: "Count how often each integer key appears. O(n + k), with no comparisons." },
+    { id: "algo-c-timsort", domain: "d1", kind: "service", term: "Timsort", definition: "A mix of merge sort and insertion sort that takes advantage of already sorted stretches." },
+    { id: "algo-c-bigo", domain: "d1", kind: "concept", term: "Big-O", definition: "An upper bound on how fast the work grows, with constants and smaller terms dropped." },
+    { id: "algo-c-theta", domain: "d1", kind: "concept", term: "Big-Θ", definition: "A tight bound: the work grows exactly that fast, give or take a constant factor." },
+    { id: "algo-c-omega", domain: "d1", kind: "concept", term: "Big-Ω", definition: "A lower bound on how fast the work grows." },
+    { id: "algo-c-amortized", domain: "d1", kind: "concept", term: "Amortized analysis", definition: "The average cost per operation across a whole worst-case sequence of operations." },
+    { id: "algo-c-stable", domain: "d1", kind: "concept", term: "Stable sort", definition: "A sort where equal items keep their original order." },
+    { id: "algo-c-dandc", domain: "d1", kind: "concept", term: "Divide and conquer", definition: "Split the problem, solve the parts recursively, then combine the results." },
+    { id: "algo-c-lowerbound", domain: "d1", kind: "concept", term: "Comparison-sort lower bound", definition: "No sort that works by comparing items can beat Ω(n log n) in the worst case." },
   ],
 });

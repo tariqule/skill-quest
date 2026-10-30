@@ -11,9 +11,11 @@ export default function CodingList() {
   const { level } = useLevelPool();
   const progress = useProgress();
   const all = course.coding ?? [];
-  const shown = level === "all" ? all : all.filter((c) => c.level === level);
+  // Challenges start at Junior; beginners see those as their first steps.
+  const target = level === "beginner" && !all.some((c) => c.level === "beginner") ? "junior" : level;
+  const shown = target === "all" ? all : all.filter((c) => c.level === target);
   const solved = shown.filter((c) => progress.coding[c.id]?.solved).length;
-  const skill = LEVEL_BY_ID[level];
+  const skill = LEVEL_BY_ID[target];
 
   return (
     <main className="mx-auto w-full max-w-4xl px-4 py-6 sm:py-10">
@@ -24,6 +26,12 @@ export default function CodingList() {
       <p className="mt-1 max-w-2xl text-slate-400">
         Write real code in the editor and run it against tests, like a live interview. Hints are there if you get stuck, but each one costs a bit of XP.
       </p>
+
+      {target !== level && (
+        <p className="mt-4 rounded-xl border border-rose-300/30 bg-rose-300/[0.07] p-3 text-sm text-rose-100">
+          🐣 You&apos;re on Beginner. These are the easiest challenges, so they&apos;re a good next step once the basics feel comfortable. Use the hints whenever you get stuck.
+        </p>
+      )}
 
       <div className="mt-5 grid gap-3 rounded-2xl border border-white/10 bg-[#07111c]/90 p-4 sm:grid-cols-[1fr_auto] sm:items-center">
         <div>

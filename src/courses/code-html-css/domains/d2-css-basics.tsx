@@ -1,4 +1,4 @@
-import { CodeBlock, Flow, Tiles } from "@/components/learn/blocks";
+import { CodeBlock, Flow, Layers, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { BoxModelLab, SelectorLab, SpecificityDuelLab } from "../labs";
 
@@ -12,7 +12,7 @@ export default defineDomain({
     weight: 25,
     emoji: "🎨",
     color: "#2965f1",
-    summary: "How CSS attaches to HTML, selectors and combinators, the cascade, specificity and inheritance, and how big every box really is.",
+    summary: "How CSS connects to HTML, how to pick the elements you want to style, how the browser decides which rule wins, and how big every box really is.",
   },
 
   tasks: [
@@ -22,6 +22,64 @@ export default defineDomain({
   ],
 
   lessons: [
+    {
+      id: "d2-b-what",
+      level: "beginner",
+      task: "2.1",
+      title: "What CSS is",
+      check: ["web-b2-01", "web-b2-02"],
+      visual: (
+        <div className="grid gap-3">
+          <CodeBlock
+            lang="css"
+            caption="One rule that turns every main heading purple and makes it bigger."
+            code={`h1 {
+  color: purple;
+  font-size: 40px;
+}`}
+          />
+          <Tiles
+            cols={3}
+            tiles={[
+              { icon: "🎯", title: "Selector: h1", text: "Which elements to style.", color: "#38bdf8" },
+              { icon: "🔧", title: "Property: color", text: "What you want to change.", color: "#a78bfa" },
+              { icon: "🟣", title: "Value: purple", text: "What to change it to.", color: "#c084fc" },
+            ]}
+          />
+        </div>
+      ),
+      points: [
+        "**CSS** controls how a page looks: colours, fonts, sizes and where things sit.",
+        "If HTML is the walls of a house, CSS is the paint, the furniture and how the rooms are arranged.",
+        "A CSS **rule** says which elements to style and how. `h1 { color: purple; }` turns every main heading purple.",
+        "Inside the curly braces, each line is a **declaration**: a property, a colon, a value, then a semicolon.",
+      ],
+      tip: "One rule can restyle every page that uses it. That's why sites keep their CSS in a separate file that each page links to.",
+    },
+    {
+      id: "d2-b-boxes",
+      level: "beginner",
+      task: "2.3",
+      title: "Every element is a box",
+      check: ["web-b2-03", "web-b2-04"],
+      visual: (
+        <Layers
+          layers={[
+            { name: "Margin: the gap on the wall", color: "#f97316", items: ["Space outside the border, between this box and the next"] },
+            { name: "Border: the frame", color: "#facc15", items: ["A line around the padding"] },
+            { name: "Padding: the card mount", color: "#34d399", items: ["Space inside the border, around the content"] },
+            { name: "Content: the photo", color: "#38bdf8", items: ["Your text or image"] },
+          ]}
+        />
+      ),
+      points: [
+        "The browser draws every element as a rectangle, a **box**, even round-looking buttons and single lines of text.",
+        "Think of a framed photo on a wall. The photo is the **content**, the card mount is the **padding**, the frame is the **border**, and the gap to the next frame is the **margin**.",
+        "`padding: 16px` adds space inside the border. `margin: 16px` adds space outside it.",
+        "`px` stands for pixels, the tiny dots on a screen. Sizes in CSS need a unit like `px`, except for zero.",
+      ],
+      tip: "Give a box a bright border while you work, like `border: 2px solid red;`. You'll see exactly how big it is and where its edges are.",
+    },
     {
       id: "d2-rules",
       level: "junior",
@@ -52,12 +110,12 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "A rule has a selector (which elements) and declarations (what to change). Many rules can apply to the same element.",
-        "CSS is forgiving: an unknown property or invalid value drops just that declaration, and the browser carries on.",
-        "Lengths other than 0 need a unit: `padding: 20px`, not `padding: 20`.",
-        "Link one external stylesheet from every page so the whole site shares, and caches, one set of styles.",
+        "A rule has a **selector**, which picks the elements, and **declarations**, which say what to change. Many rules can apply to the same element.",
+        "CSS is forgiving. If a property is misspelt or a value is invalid, the browser skips just that one line and carries on.",
+        "Sizes other than 0 need a unit. Write `padding: 20px`, not `padding: 20`.",
+        "Link one shared stylesheet from every page. The whole site then uses one set of styles, and the browser only downloads it once.",
       ],
-      tip: "In DevTools' Styles panel, a declaration with a strike-through was overridden; one with a warning icon was invalid and ignored. Those two cases explain most \"my CSS doesn't work\" moments.",
+      tip: "In the browser's DevTools Styles panel, a crossed-out line was beaten by another rule, and one with a warning icon was invalid and ignored. Those two cases explain most \"my CSS doesn't work\" moments.",
     },
     {
       id: "d2-selectors",
@@ -83,12 +141,12 @@ p::first-line { } /* pseudo-element: a part */`}
         </div>
       ),
       points: [
-        "Type, class, id and attribute selectors pick elements by what they are; combinators (space, `>`, `+`, `~`) pick them by where they are.",
-        "`.a.b` (no space) is one element with both classes; `.a .b` (space) is a `.b` somewhere inside an `.a`.",
-        "Pseudo-classes (`:hover`, `:focus-visible`, `:nth-child()`, `:checked`) select states and positions; pseudo-elements (`::before`, `::first-line`) select parts.",
-        "Prefer classes for styling. IDs are unique and very specific, which makes them hard to override.",
+        "Type, class, id and attribute selectors pick elements by what they are. **Combinators**, a space, `>`, `+` or `~`, pick them by where they sit relative to other elements.",
+        "`.a.b`, with no space, means one element with both classes. `.a .b`, with a space, means a `.b` somewhere inside an `.a`.",
+        "**Pseudo-classes**, like `:hover`, `:focus-visible`, `:nth-child()` and `:checked`, select an element in a certain state or position. **Pseudo-elements**, like `::before` and `::first-line`, select a part of an element.",
+        "Use classes for styling. IDs are unique and very strong in the cascade, which makes them hard to override later.",
       ],
-      tip: "Read selectors right to left: `nav ul > li a` is \"any link, inside a list item that is a direct child of a list, inside a nav\". That's also how browsers match them.",
+      tip: "Read selectors right to left. `nav ul > li a` means \"any link, inside a list item that's a direct child of a list, inside a nav\". That's also how browsers match them.",
     },
     {
       id: "d2-cascade",
@@ -121,12 +179,12 @@ nav li:hover a    /* (0,1,3) */
         </div>
       ),
       points: [
-        "When rules conflict, the cascade decides: importance, then inline styles, then layers, then specificity, then order of appearance.",
-        "Specificity counts (IDs, classes + attributes + pseudo-classes, types + pseudo-elements). One ID beats any number of classes.",
-        "Some properties inherit from the parent (color, font, line-height, text-align); box properties don't (margin, padding, border, background, width).",
-        "`!important` jumps the queue. Save it for utilities and user overrides; using it to win fights starts an arms race.",
+        "When rules disagree, the **cascade** decides. It checks importance first, then inline styles, then layers, then specificity, then which rule comes last.",
+        "**Specificity** is a selector's strength, counted in three columns: IDs, then classes, attributes and pseudo-classes, then element types and pseudo-elements. One ID beats any number of classes.",
+        "Some properties pass down from parent to child, like color, font, line-height and text-align. Box properties don't, like margin, padding, border, background and width.",
+        "`!important` jumps the queue. Save it for small utility classes and user overrides. Using it to win style fights only starts an arms race.",
       ],
-      tip: "When a style loses, look at the crossed-out declaration in DevTools and compare the two selectors' specificity before reaching for !important.",
+      tip: "When a style loses, find the crossed-out line in DevTools and compare the two selectors' specificity before you reach for !important.",
     },
     {
       id: "d2-box",
@@ -136,17 +194,61 @@ nav li:hover a    /* (0,1,3) */
       check: ["d2-19", "d2-20"],
       visual: <BoxModelLab />,
       points: [
-        "Every element is a box: content, then padding, then border, then margin on the outside.",
-        "With the default `box-sizing: content-box`, `width` sets only the content; padding and border are added on. `border-box` puts them inside the width.",
-        "Vertical margins between blocks collapse: 30px above and 20px below gives a 30px gap, not 50px.",
-        "`display: block` takes the full width and starts a new line; `inline` flows in text and ignores width and height; `inline-block` flows in text but accepts sizes.",
-        "`rem` is relative to the root font size, `em` to the element's font size, `%` to the containing block, `vw` to the viewport width.",
+        "Every element is a box. From the inside out it has content, then padding, then a border, then margin.",
+        "With the default `box-sizing: content-box`, `width` sets only the content, and padding and border are added on top. With `border-box`, they fit inside the width instead.",
+        "Vertical margins between blocks **collapse**, which means they overlap. A 30px margin above and a 20px margin below give a 30px gap, not 50px.",
+        "`display: block` takes the full width and starts on a new line. `inline` sits inside a line of text and ignores width and height. `inline-block` sits in the text but accepts a size.",
+        "Relative units scale with something else. `rem` follows the page's root font size, `em` the element's own font size, `%` the box it's inside, and `vw` the width of the browser window.",
       ],
-      tip: "Turn on border-box globally with `*, *::before, *::after { box-sizing: border-box; }`. It's in almost every modern reset for a reason.",
+      tip: "Turn on border-box everywhere with `*, *::before, *::after { box-sizing: border-box; }`. Almost every modern starter stylesheet includes it, for good reason.",
     },
   ],
 
   questions: [
+    {
+      id: "web-b2-01",
+      domain: "d2",
+      lesson: "d2-b-what",
+      level: "beginner",
+      prompt: "In `h1 { color: purple; }`, what does `h1` do?",
+      options: ["Picks which elements the rule styles", "Sets the colour", "Makes the text bigger", "Ends the rule"],
+      answer: [0],
+      explanation: "The part before the curly braces is the **selector**. Here it picks every `<h1>` on the page, and the declaration inside the braces says what to change.",
+    },
+    {
+      id: "web-b2-02",
+      type: "fill",
+      domain: "d2",
+      lesson: "d2-b-what",
+      level: "beginner",
+      prompt: "Fill the gap to make paragraph text blue.",
+      code: `p {
+  {{1}}: blue;
+}`,
+      codeLang: "css",
+      blanks: [{ options: ["color", "background", "font", "text"], answer: 0 }],
+      explanation: "`color` sets the colour of the text. `background` would colour the area behind the text instead, and `font` and `text` don't set text colour.",
+    },
+    {
+      id: "web-b2-03",
+      domain: "d2",
+      lesson: "d2-b-boxes",
+      level: "beginner",
+      prompt: "Which property adds space inside an element's border?",
+      options: ["`padding`", "`margin`", "`border`"],
+      answer: [0],
+      explanation: "Padding sits between the content and the border, like the card mount inside a frame. Margin is the space outside the border, between boxes.",
+    },
+    {
+      id: "web-b2-04",
+      domain: "d2",
+      lesson: "d2-b-boxes",
+      level: "beginner",
+      prompt: "In the framed-photo comparison, what is the margin?",
+      options: ["The gap between this frame and the next one", "The photo itself", "The frame", "The card mount inside the frame"],
+      answer: [0],
+      explanation: "Margin is the space outside a box's border. It keeps neighbouring boxes apart, the way you'd leave a gap between frames on a wall.",
+    },
     // ── d2-rules ──
     {
       id: "d2-01",
@@ -161,7 +263,7 @@ nav li:hover a    /* (0,1,3) */
       codeLang: "css",
       options: ["A declaration (a property and its value)", "A selector", "An at-rule", "A comment"],
       answer: [0],
-      explanation: "`p` is the selector. Inside the braces are declarations, each a property (`color`) and a value (`navy`) ending with a semicolon.",
+      explanation: "`p` is the selector. Inside the braces are declarations, and each one is a property (`color`) and a value (`navy`) ending with a semicolon.",
     },
     {
       id: "d2-02",
@@ -208,7 +310,7 @@ nav li:hover a    /* (0,1,3) */
 }`,
       codeLang: "css",
       answer: [2],
-      explanation: "Lengths need a unit (`20px`, `1.25rem`). Only `0` may be unitless. An invalid value means the declaration is ignored.",
+      explanation: "Sizes need a unit, like `20px` or `1.25rem`. Only `0` can go without one. An invalid value means the browser ignores that declaration.",
     },
     {
       id: "d2-05",
@@ -246,7 +348,7 @@ nav li:hover a    /* (0,1,3) */
         ["`h2 ~ p`", "Every later paragraph sibling of an h2"],
         ["`a[href^=\"https\"]`", "Links whose href starts with https"],
       ],
-      explanation: "Space = descendant, `>` = child, `+` = next sibling, `~` = any following sibling. `^=` in an attribute selector means \"starts with\" (`$=` ends with, `*=` contains).",
+      explanation: "A space means descendant, `>` means direct child, `+` means the very next sibling, and `~` means any later sibling. In an attribute selector, `^=` means \"starts with\", `$=` means \"ends with\" and `*=` means \"contains\".",
     },
     {
       id: "d2-08",
@@ -274,7 +376,7 @@ nav li:hover a    /* (0,1,3) */
       codeLang: "css",
       options: ["The 1st, 3rd and 5th", "The 2nd and 4th", "Only the 1st", "Every item after the 2nd"],
       answer: [0],
-      explanation: "Plug in n = 0, 1, 2…: 1, 3, 5. `2n+1` is the same as the keyword `odd`; `2n` (or `even`) gives 2 and 4.",
+      explanation: "Try n as 0, 1, then 2, and you get 1, 3 and 5. `2n+1` is the same as the keyword `odd`, while `2n`, or `even`, gives 2 and 4.",
     },
     {
       id: "d2-10",
@@ -332,7 +434,7 @@ article a[target="_blank"]::after {
       codeLang: "css",
       options: ["Green", "Blue", "A mix of both", "Neither: conflicting rules cancel out"],
       answer: [0],
-      explanation: "Same selector, same specificity, so order of appearance decides: the later rule wins.",
+      explanation: "Both rules have the same selector and so the same specificity. When that happens, the rule that comes later in the CSS wins.",
     },
     {
       id: "d2-13",
@@ -357,7 +459,7 @@ a     { color: green; }`,
       type: "order",
       prompt: "Order these from weakest to strongest when they all set the same property on the same element.",
       items: ["`p`", "`p.intro`", "`.intro.lead`", "`#main p`", "`style=\"…\"` attribute"],
-      explanation: "(0,0,1) < (0,1,1) < (0,2,0) < (1,0,1), and an inline style attribute beats all normal stylesheet rules. Compare IDs first, then classes, then types.",
+      explanation: "From weakest to strongest: (0,0,1), then (0,1,1), then (0,2,0), then (1,0,1). An inline style attribute beats all normal stylesheet rules. Compare IDs first, then classes, then types.",
     },
     {
       id: "d2-15",
@@ -416,7 +518,7 @@ a     { color: green; }`,
         "Freeze all CSS changes until a full rewrite ships in one release",
       ],
       answer: [0],
-      explanation: "Low, uniform specificity makes the cascade predictable again; a layer lets new code beat old code by layer order instead of heavier selectors; linting stops the problem returning. Escalating specificity or inline styles deepen the war, and a big-bang rewrite is risky.",
+      explanation: "Keeping specificity low and even makes the cascade predictable again. A layer lets new code beat old code by layer order instead of heavier selectors, and linting stops the problem coming back. Stronger selectors or inline styles only make the fight worse, and rewriting everything at once is risky.",
     },
 
     // ── d2-box ──
@@ -428,7 +530,7 @@ a     { color: green; }`,
       type: "order",
       prompt: "Order the parts of the CSS box model from the inside out.",
       items: ["Content", "Padding", "Border", "Margin"],
-      explanation: "Content in the middle, padding around it (it shows the background), then the border, then margin: transparent space that pushes other boxes away.",
+      explanation: "Content sits in the middle. Padding goes around it and shows the background colour. Then comes the border, then the margin, which is see-through space that pushes other boxes away.",
     },
     {
       id: "d2-20",
@@ -445,7 +547,7 @@ a     { color: green; }`,
       codeLang: "css",
       options: ["250px", "200px", "240px", "270px"],
       answer: [0],
-      explanation: "200 (content) + 2 × 20 (padding) + 2 × 5 (border) = 250px. The margin adds space outside the border (270px in total footprint) but isn't part of the visible box.",
+      explanation: "Add the 200px of content, 20px of padding on each side and 5px of border on each side, and you get 250px. The margin adds space outside the border, 270px in total, but it isn't part of the visible box.",
     },
     {
       id: "d2-21",
@@ -462,7 +564,7 @@ a     { color: green; }`,
       codeLang: "css",
       options: ["150px", "200px", "160px", "250px"],
       answer: [0],
-      explanation: "With border-box, `width` is the border box: 200px. Padding and border are carved out of it, leaving 200 − 40 − 10 = 150px of content.",
+      explanation: "With border-box, `width` covers everything up to the border, so the box is 200px. Padding and border are taken out of that: 200 minus 40 minus 10 leaves 150px for the content.",
     },
     {
       id: "d2-22",
@@ -477,7 +579,7 @@ a     { color: green; }`,
       codeLang: "css",
       options: ["30px", "50px", "20px", "25px"],
       answer: [0],
-      explanation: "Adjacent vertical margins in normal block flow collapse into the larger one: max(30, 20) = 30px. Margins don't collapse between flex or grid items, or horizontally.",
+      explanation: "Vertical margins that touch in normal flow collapse into the larger of the two, so 30 and 20 give 30px. Margins don't collapse between flex or grid items, or side to side.",
     },
     {
       id: "d2-23",
@@ -493,7 +595,7 @@ a     { color: green; }`,
         ["`vw`", "1% of the viewport's width"],
         ["`px`", "A fixed CSS pixel"],
       ],
-      explanation: "`rem` stays consistent across the page; `em` scales with the local font size (for `font-size` itself, it's the parent's size). `%` depends on the property; for width it's the containing block.",
+      explanation: "`rem` stays the same across the page. `em` scales with the local font size, and inside `font-size` itself it means the parent's size. What `%` refers to depends on the property. For width, it's the box the element sits in.",
     },
     {
       id: "d2-24",
@@ -511,7 +613,7 @@ a     { color: green; }`,
       codeLang: "css",
       options: ["31.25px", "20px", "25px", "16px"],
       answer: [0],
-      explanation: "`em` in font-size multiplies the parent's size, so it compounds: 16 × 1.25 = 20, × 1.25 = 25, × 1.25 = 31.25px. With `1.25rem` every level would be 20px.",
+      explanation: "`em` in font-size multiplies the parent's size, so it builds up at each level: 16 times 1.25 is 20, then 25, then 31.25px. With `1.25rem`, every level would be 20px.",
     },
     {
       id: "d2-25",
@@ -554,15 +656,15 @@ a     { color: green; }`,
 
   cards: [
     { id: "c-d2-rule", domain: "d2", kind: "concept", term: "Rule", definition: "A selector plus a block of declarations: `.card { padding: 16px; }`." },
-    { id: "c-d2-cascade", domain: "d2", kind: "concept", term: "Cascade", definition: "The algorithm that picks one winning value when rules conflict: importance, inline, layers, specificity, then order." },
-    { id: "c-d2-specificity", domain: "d2", kind: "concept", term: "Specificity", definition: "A selector's weight as (IDs, classes/attributes/pseudo-classes, types/pseudo-elements), compared column by column." },
-    { id: "c-d2-inheritance", domain: "d2", kind: "concept", term: "Inheritance", definition: "Some properties (color, font, line-height) pass from parent to child; box properties (margin, border, background) don't." },
+    { id: "c-d2-cascade", domain: "d2", kind: "concept", term: "Cascade", definition: "The process that picks one winning value when rules disagree. It checks importance, inline styles, layers, specificity, then order." },
+    { id: "c-d2-specificity", domain: "d2", kind: "concept", term: "Specificity", definition: "A selector's strength, counted in three columns: IDs, then classes, attributes and pseudo-classes, then types and pseudo-elements. Compared one column at a time." },
+    { id: "c-d2-inheritance", domain: "d2", kind: "concept", term: "Inheritance", definition: "Some properties, like color, font and line-height, pass from parent to child. Box properties, like margin, border and background, don't." },
     { id: "c-d2-important", domain: "d2", kind: "service", term: "!important", definition: "Marks a declaration as important, beating all normal declarations, inline styles included. Use sparingly." },
-    { id: "c-d2-combinators", domain: "d2", kind: "concept", term: "Combinators", definition: "Space (descendant), `>` (child), `+` (next sibling), `~` (later sibling). They add no specificity." },
-    { id: "c-d2-nth", domain: "d2", kind: "service", term: ":nth-child()", definition: "Matches by position among siblings: `:nth-child(2)`, `odd`, `even`, `3n+1`." },
+    { id: "c-d2-combinators", domain: "d2", kind: "concept", term: "Combinators", definition: "A space for descendants, `>` for direct children, `+` for the next sibling and `~` for any later sibling. They add no specificity." },
+    { id: "c-d2-nth", domain: "d2", kind: "service", term: ":nth-child()", definition: "Matches elements by their position among siblings, like `:nth-child(2)`, `odd`, `even` or `3n+1`." },
     { id: "c-d2-pseudo-el", domain: "d2", kind: "service", term: "::before / ::after", definition: "Pseudo-elements that insert generated content (`content: \"…\"`) as the first or last child of an element." },
-    { id: "c-d2-boxsizing", domain: "d2", kind: "service", term: "box-sizing", definition: "`content-box` (default): width is the content only. `border-box`: width includes padding and border." },
-    { id: "c-d2-collapse", domain: "d2", kind: "concept", term: "Margin collapsing", definition: "Adjacent vertical margins in block flow merge into the larger one. Not in flex or grid layouts." },
+    { id: "c-d2-boxsizing", domain: "d2", kind: "service", term: "box-sizing", definition: "With `content-box`, the default, width covers the content only. With `border-box`, width includes padding and border." },
+    { id: "c-d2-collapse", domain: "d2", kind: "concept", term: "Margin collapsing", definition: "Vertical margins that touch in normal flow merge into the larger one. This doesn't happen in flex or grid layouts." },
     { id: "c-d2-display", domain: "d2", kind: "service", term: "display", definition: "Sets the box type: `block`, `inline`, `inline-block`, `flex`, `grid`, `none`." },
     { id: "c-d2-rem", domain: "d2", kind: "service", term: "rem", definition: "Relative to the root element's font size (often 16px). Respects the user's font-size preference without compounding." },
     { id: "c-d2-em", domain: "d2", kind: "service", term: "em", definition: "Relative to the element's own font size (the parent's when used in font-size). Compounds when nested." },
@@ -585,7 +687,7 @@ a     { color: green; }`,
       lesson: "d2-box",
       title: "Make it exactly 240px",
       goal: "Keep box-sizing: content-box and give the box at least 20px padding and at least 4px border, with a visible width (border edge to border edge) of exactly 240px.",
-      hint: "With content-box, visible width = width + 2 × padding + 2 × border.",
+      hint: "With content-box, the visible width is the width plus the padding on both sides plus the border on both sides.",
       takeaway: "Under content-box you have to subtract padding and border yourself. That arithmetic is why most projects switch to border-box.",
       render: (onSolved) => <BoxModelLab goal="fit" onSolved={onSolved} />,
     },
@@ -605,8 +707,8 @@ a     { color: green; }`,
       lesson: "d2-cascade",
       title: "Specificity duel",
       goal: "Pick the winning rule in at least 6 of 8 duels.",
-      hint: "Compare (IDs, classes, types) left to right. Inline styles and !important come before specificity.",
-      takeaway: "The cascade is mechanical: importance, inline, specificity column by column, then order. You can always predict the winner.",
+      hint: "Compare IDs, then classes, then types, from left to right. Inline styles and !important are checked before specificity.",
+      takeaway: "The cascade follows fixed steps: importance, inline styles, specificity one column at a time, then order. So you can always predict the winner.",
       render: (onSolved) => <SpecificityDuelLab goal="basics" onSolved={onSolved} />,
     },
   ],

@@ -18,7 +18,7 @@ export default defineDomain({
     emoji: "✨",
     color: "#a78bfa",
     summary:
-      "Tokens, embeddings, transformers, foundation models, GenAI use cases, limits, and AWS GenAI infrastructure.",
+      "How generative AI works under the hood (tokens, embeddings, transformers and foundation models), what it's good and bad at, and the AWS services you build it with.",
   },
 
   tasks: [
@@ -56,6 +56,79 @@ export default defineDomain({
   ],
 
   lessons: [
+    // ── Start here ──
+    {
+      id: "d2-start-genai",
+      level: "beginner",
+      check: ["aif-b2-01", "aif-b2-02"],
+      task: "2.1",
+      title: "What generative AI is",
+      visual: (
+        <Flow
+          color="#a78bfa"
+          steps={[
+            { icon: "✍️", label: "You write a prompt", sub: "\"Write a thank-you note to a customer\"" },
+            { icon: "🧠", label: "The model", sub: "Trained on a huge amount of text" },
+            { icon: "📝", label: "New content", sub: "A note that didn't exist a second ago" },
+          ]}
+        />
+      ),
+      points: [
+        "**Generative AI** is AI that creates something new: text, images, audio, video or code.",
+        "You've seen the small version already. Your phone suggests the next word as you type. Generative AI does the same trick at a huge scale, one piece at a time.",
+        "The instruction you give it is called a **prompt**. The model reads your prompt and writes a reply.",
+        "A **large language model (LLM)** is a generative model trained on huge amounts of text, so it's good with words.",
+      ],
+      tip: "Older ML sorts or predicts, like \"spam or not spam\". Generative AI makes new content. That's the difference the exam cares about.",
+    },
+    {
+      id: "d2-start-limits",
+      level: "beginner",
+      check: ["aif-b2-03", "aif-b2-04"],
+      task: "2.2",
+      title: "What it's good at, and where it slips",
+      visual: (
+        <Tiles
+          cols={2}
+          tiles={[
+            { icon: "👍", title: "Good at", text: "Drafting, summarising, translating, brainstorming and chatting in plain language.", color: "#34d399" },
+            { icon: "⚠️", title: "Watch out for", text: "Made-up facts said with confidence, and answers that change each time you ask.", color: "#f87171" },
+          ]}
+        />
+      ),
+      points: [
+        "Think of generative AI as a very well-read new intern. It writes fast and sounds sure of itself, but you still check its work.",
+        "Sometimes it states things that are simply false. This is called a **hallucination**.",
+        "Ask the same question twice and you may get two different answers. It isn't broken, it's how these models pick their words.",
+        "It also only knows what it read during training, so it can miss recent news unless you give it the facts.",
+      ],
+      tip: "If a task needs one exact answer every time, like working out tax from a formula, a normal program is the safer choice.",
+    },
+    {
+      id: "d2-start-bedrock",
+      level: "beginner",
+      check: ["aif-b2-05", "aif-b2-06"],
+      task: "2.3",
+      title: "Using AI models through the cloud",
+      visual: (
+        <Tiles
+          cols={2}
+          tiles={[
+            { icon: "🔌", title: "The cloud", text: "Like electricity from the grid: you plug in and pay for what you use, instead of owning a power plant.", color: "#38bdf8" },
+            { icon: "📚", title: "Amazon Bedrock", text: "A shelf of ready-trained models from Amazon and other companies, all reached the same way.", color: "#a78bfa" },
+          ]}
+        />
+      ),
+      points: [
+        "Running a big AI model takes powerful, expensive computers. Most companies don't want to buy and look after them.",
+        "**The cloud** means renting computing power over the internet instead. It's like getting electricity from the grid rather than building your own generator.",
+        "**Amazon Bedrock** is the AWS service that gives you ready-trained models from Amazon and other companies. Your app sends a prompt and gets the answer back.",
+        "You pay for what you use, so you can try an idea cheaply before committing to it.",
+      ],
+      tip: "When a question says \"use a foundation model without managing servers\", the answer is usually Amazon Bedrock.",
+    },
+
+    // ── Exam lessons ──
     {
       id: "d2-tokens",
       check: ["d2-01", "d2-26"],
@@ -63,9 +136,10 @@ export default defineDomain({
       title: "Tokens: how models read",
       visual: <TokenDemo />,
       points: [
-        "The context window is the max tokens per request (prompt + history + documents + answer).",
-        "On-demand Bedrock pricing charges per input token and per output token.",
-        "Chunking splits long documents into pieces before embedding.",
+        "A **token** is a chunk of text, roughly a short word or part of a longer one. Models read and write in tokens, not letters or words.",
+        "The **context window** is the most tokens a model can handle in one request. That covers your prompt, the chat history, any documents and the answer.",
+        "With on-demand pricing, Amazon Bedrock charges you for every input token and every output token.",
+        "**Chunking** means cutting a long document into smaller pieces before you turn them into embeddings.",
       ],
     },
     {
@@ -80,8 +154,9 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "Embedding models (for example Amazon Titan Text Embeddings) turn text into vectors.",
-        "Vector databases find the nearest vectors fast. This powers semantic search and RAG.",
+        "An **embedding** is a list of numbers that captures what a piece of text means. Similar meanings get similar numbers, like nearby points on a map.",
+        "Embedding models, such as Amazon Titan Text Embeddings, do this conversion for you.",
+        "A **vector database** can quickly find the stored embeddings closest to a new one. That's what powers search by meaning and RAG.",
       ],
     },
     {
@@ -93,19 +168,19 @@ export default defineDomain({
         <div className="grid gap-4">
           <Tiles
             tiles={[
-              { icon: "🔤", title: "Transformer LLM", text: "Self-attention reads all tokens at once. Powers chat, summaries, code.", color: "#a78bfa" },
-              { icon: "🖼️", title: "Multimodal model", text: "Handles more than one type: text + images (+ audio, video).", color: "#38bdf8" },
+              { icon: "🔤", title: "Transformer LLM", text: "Uses self-attention to look at every token at once. Powers chat, summaries and code.", color: "#a78bfa" },
+              { icon: "🖼️", title: "Multimodal model", text: "Works with more than one kind of data, such as text and images, sometimes audio and video too.", color: "#38bdf8" },
             ]}
           />
           <div>
-            <div className="mb-2 text-sm font-semibold text-white">🌫️ Diffusion model: noise → image</div>
+            <div className="mb-2 text-sm font-semibold text-white">🌫️ Diffusion model: from noise to an image</div>
             <DiffusionSteps />
           </div>
         </div>
       ),
       points: [
-        "A foundation model (FM) is large, pre-trained on broad data, and adaptable to many tasks.",
-        "Amazon Nova is Amazon's own FM family in Bedrock.",
+        "A **foundation model (FM)** is a large model trained on a broad mix of data. You can then adapt it to many different jobs.",
+        "**Amazon Nova** is Amazon's own family of foundation models, available in Amazon Bedrock.",
       ],
     },
     {
@@ -116,18 +191,20 @@ export default defineDomain({
       visual: (
         <Flow
           color="#a78bfa"
-          loop="User feedback improves the next version"
+          loop="Feedback from users shapes the next version"
           steps={[
-            { icon: "🧺", label: "Data selection", sub: "Huge, diverse, curated" },
-            { icon: "🧩", label: "Model selection", sub: "Architecture, size" },
-            { icon: "🏗️", label: "Pre-training", sub: "Self-supervised, very costly" },
-            { icon: "🎛️", label: "Fine-tuning", sub: "Adapt to tasks" },
-            { icon: "📏", label: "Evaluation", sub: "Benchmarks, humans" },
-            { icon: "🚀", label: "Deploy", sub: "Serve and gather feedback" },
+            { icon: "🧺", label: "Data selection", sub: "Huge, varied, carefully chosen" },
+            { icon: "🧩", label: "Model selection", sub: "Pick the design and size" },
+            { icon: "🏗️", label: "Pre-training", sub: "Self-supervised and very costly" },
+            { icon: "🎛️", label: "Fine-tuning", sub: "Adapt it to specific tasks" },
+            { icon: "📏", label: "Evaluation", sub: "Benchmarks and human review" },
+            { icon: "🚀", label: "Deploy", sub: "Serve it and gather feedback" },
           ]}
         />
       ),
-      points: ["Most companies skip pre-training and start from an existing FM."],
+      points: [
+        "Pre-training a foundation model costs a fortune, so most companies skip it. They start from an existing model and adapt it.",
+      ],
     },
     {
       id: "d2-agents",
@@ -136,8 +213,9 @@ export default defineDomain({
       title: "Agentic AI and MCP",
       visual: <AgentLoop />,
       points: [
-        "GenAI answers. Agentic AI acts: it plans, calls tools, checks results, and repeats.",
-        "Context engineering = curating what the model sees (instructions, retrieved data, memory, tool results) within the token limit.",
+        "Generative AI answers. **Agentic AI** acts: it makes a plan, calls tools, checks the results and repeats until the job is done.",
+        "**Context engineering** means choosing what the model gets to see: instructions, retrieved data, memory and tool results, all within its token limit.",
+        "The **Model Context Protocol (MCP)** is an open standard for plugging agents into tools and data, a bit like USB for AI.",
       ],
     },
     {
@@ -150,24 +228,24 @@ export default defineDomain({
           <div className="rounded-xl border border-emerald-400/30 bg-emerald-400/5 p-3">
             <div className="font-semibold text-emerald-300">👍 Strengths</div>
             <ul className="mt-2 grid gap-1 text-sm text-slate-200">
-              <li>• Adaptable to many tasks</li>
-              <li>• Responsive and conversational</li>
+              <li>• Adapts to many tasks</li>
+              <li>• Quick to respond and easy to talk to</li>
               <li>• Creates content fast</li>
             </ul>
           </div>
           <div className="rounded-xl border border-rose-400/30 bg-rose-400/5 p-3">
             <div className="font-semibold text-rose-300">👎 Weaknesses</div>
             <ul className="mt-2 grid gap-1 text-sm text-slate-200">
-              <li>• Hallucinations (confident but wrong)</li>
-              <li>• Hard to interpret</li>
+              <li>• Hallucinations: confident but wrong</li>
+              <li>• Hard to see why it answered that way</li>
               <li>• Nondeterministic: answers vary</li>
             </ul>
           </div>
         </div>
       ),
       points: [
-        "Choose models by type, capability, cost, latency, compliance, and complexity.",
-        "Measure value with ROI, efficiency, conversion rate, revenue per user, and customer lifetime value.",
+        "When you choose a model, weigh its type, how capable it is, cost, speed, compliance needs and how complex it is to run.",
+        "Show the value with business numbers: return on investment, time saved, conversion rate, revenue per user and customer lifetime value.",
       ],
     },
     {
@@ -179,14 +257,14 @@ export default defineDomain({
         <Layers
           layers={[
             { name: "Apps for people", color: "#34d399", items: ["Amazon Quick (work assistant, BI, automation)", "Kiro (agentic IDE)", "AWS Transform (modernisation)"] },
-            { name: "Build with models & agents", color: "#a78bfa", items: ["Amazon Bedrock", "Bedrock AgentCore", "Strands Agents", "Amazon Nova models"] },
+            { name: "Build with models and agents", color: "#a78bfa", items: ["Amazon Bedrock", "Bedrock AgentCore", "Strands Agents", "Amazon Nova models"] },
             { name: "Build your own models", color: "#38bdf8", items: ["Amazon SageMaker AI", "SageMaker JumpStart", "EC2 (Trainium, Inferentia)"] },
           ]}
         />
       ),
       points: [
-        "Managed services lower the barrier: no servers, fast experiments, pay as you go.",
-        "Cost levers: on-demand tokens vs Provisioned Throughput (needed for custom models), Region choice, redundancy.",
+        "Managed services make starting easy. There are no servers to run, you can experiment quickly, and you pay as you go.",
+        "The big cost choices are paying per token on demand or reserving Provisioned Throughput, which custom models need. Region and redundancy also change the bill.",
       ],
     },
     {
@@ -198,27 +276,29 @@ export default defineDomain({
         <div className="grid gap-4">
           <Layers
             layers={[
-              { name: "SaaS: you just use it", color: "#34d399", items: ["A finished app the provider runs for you", "e.g. a web email service"] },
-              { name: "PaaS: you bring the code", color: "#a78bfa", items: ["Provider runs servers and runtime", "You deploy and manage the app"] },
-              { name: "IaaS: you get building blocks", color: "#38bdf8", items: ["Virtual servers, storage, networking", "Most flexible, e.g. Amazon EC2"] },
+              { name: "SaaS: you just use it", color: "#34d399", items: ["A finished app the provider runs for you", "For example, a web email service"] },
+              { name: "PaaS: you bring the code", color: "#a78bfa", items: ["The provider runs servers and runtime", "You deploy and manage the app"] },
+              { name: "IaaS: you get building blocks", color: "#38bdf8", items: ["Virtual servers, storage, networking", "The most flexible, like Amazon EC2"] },
             ]}
           />
           <Tiles
             cols={3}
             tiles={[
-              { icon: "🌍", title: "Region", text: "A geographic area with several data-center clusters. Your data stays in it unless you move it." },
-              { icon: "🏢", title: "Availability Zone", text: "One or more isolated data centers inside a Region, with separate power and networking." },
-              { icon: "📍", title: "Edge location", text: "Points of presence close to users, used by Amazon CloudFront for low-latency delivery." },
+              { icon: "🌍", title: "Region", text: "A part of the world with several groups of data centers. Your data stays there unless you move it." },
+              { icon: "🏢", title: "Availability Zone", text: "One or more separate data centers inside a Region, each with its own power and networking." },
+              { icon: "📍", title: "Edge location", text: "Small sites close to users. Amazon CloudFront uses them to deliver content quickly." },
             ]}
           />
         </div>
       ),
       points: [
-        "Choose a Region by compliance (data residency), proximity to users (latency), which services are available there, and price.",
-        "Cloud benefits: pay as you go instead of buying hardware (CapEx → OpEx), economies of scale, no capacity guessing, speed, and going global in minutes.",
-        "Core services AI apps lean on: S3 for data (storage classes from Standard to Glacier Deep Archive), EC2 for compute, Lambda for serverless code, IAM for access.",
+        "Pick a **Region** based on four things: rules about where data must live, how close it is to your users, which services it offers, and price.",
+        "With the cloud you pay as you go instead of buying hardware up front. In finance terms, capital spending becomes operating spending.",
+        "You also get the provider's economies of scale, no guessing about capacity, speed, and the ability to go global in minutes.",
+        "AI apps lean on a few core services: **S3** stores data, **EC2** gives you servers, **Lambda** runs code without servers, and **IAM** controls access.",
+        "S3 has storage classes for every need, from Standard for everyday data down to Glacier Deep Archive for data you almost never read.",
       ],
-      tip: "\"Data must stay in the EU\" → pick an EU Region. That's data residency, a Region decision.",
+      tip: "If a question says \"data must stay in the EU\", pick an EU Region. Keeping data in one place is called data residency, and it's a Region decision.",
     },
     {
       id: "d2-bedrock-costs",
@@ -230,34 +310,118 @@ export default defineDomain({
           <Tiles
             cols={3}
             tiles={[
-              { icon: "⚡", title: "On-demand", text: "Pay per token (text), per input token (embeddings), or per image. No commitment; best for unpredictable traffic.", color: "#38bdf8" },
-              { icon: "📦", title: "Batch", text: "Many requests at once, results written to S3. Up to about 50% cheaper.", color: "#34d399" },
-              { icon: "🔒", title: "Provisioned Throughput", text: "Reserve model units for a term. Guarantees capacity; usually not a cost saver.", color: "#a78bfa" },
+              { icon: "⚡", title: "On-demand", text: "Pay per token for text, per input token for embeddings, or per image. No commitment. Best when traffic is unpredictable.", color: "#38bdf8" },
+              { icon: "📦", title: "Batch", text: "Send many requests at once and get the results in S3. Up to about 50% cheaper.", color: "#34d399" },
+              { icon: "🔒", title: "Provisioned Throughput", text: "Reserve model capacity for a set term. You get guaranteed capacity, but it usually doesn't save money.", color: "#a78bfa" },
             ]}
           />
           <Tiles
             tiles={[
-              { icon: "💰", title: "What changes cost", text: "Number of input and output tokens (the main driver), model size and provider, and the pricing mode.", color: "#f59e0b" },
-              { icon: "⏱️", title: "What changes latency", text: "Model size and type, and input and output length. Temperature, Top P, and Top K change neither cost nor latency.", color: "#f87171" },
+              { icon: "💰", title: "What changes cost", text: "Mostly the number of input and output tokens. Also model size, provider and pricing mode.", color: "#f59e0b" },
+              { icon: "⏱️", title: "What changes speed", text: "Model size and type, plus how long the input and output are. Temperature, Top P and Top K change neither cost nor speed.", color: "#f87171" },
             ]}
           />
         </div>
       ),
       points: [
-        "Model invocation logging sends prompts and responses to CloudWatch Logs and/or S3 for auditing and analysis.",
-        "Bedrock publishes CloudWatch metrics, including how often guardrails filtered content, so you can alarm on them.",
-        "Running a fine-tuned model also costs more than the base model.",
+        "**Model invocation logging** saves every prompt and response to CloudWatch Logs, S3 or both, so you can audit and analyse them later.",
+        "Bedrock sends metrics to CloudWatch, including how often guardrails blocked content. You can set alarms on them.",
+        "Running a fine-tuned model also costs more than running the base model.",
       ],
-      tip: "\"Lower the temperature to save money\" is a classic wrong answer. Fewer tokens or a smaller model saves money.",
+      tip: "\"Lower the temperature to save money\" is a classic wrong answer. Using fewer tokens or a smaller model is what saves money.",
     },
   ],
 
   questions: [
+    // ── Start here ──
+    {
+      id: "aif-b2-01",
+      domain: "d2",
+      level: "beginner",
+      lesson: "d2-start-genai",
+      prompt: "What makes generative AI different from older kinds of AI?",
+      options: [
+        "It creates new content, such as text or images",
+        "It only sorts things into categories",
+        "It never needs any data",
+        "It only works with numbers in spreadsheets",
+      ],
+      answer: [0],
+      explanation:
+        "Older AI mostly sorts or predicts, like deciding whether an email is spam. Generative AI makes something new, such as a paragraph, a picture or some code.",
+    },
+    {
+      id: "aif-b2-02",
+      domain: "d2",
+      level: "beginner",
+      lesson: "d2-start-genai",
+      prompt: "You type \"Summarise this email in two sentences\" into an AI assistant. What is that instruction called?",
+      options: ["A prompt", "A token", "A label", "A model"],
+      answer: [0],
+      explanation:
+        "The instruction you give a generative model is a prompt. The model reads it and writes a reply. Clear prompts usually get better answers.",
+    },
+    {
+      id: "aif-b2-03",
+      domain: "d2",
+      level: "beginner",
+      lesson: "d2-start-limits",
+      prompt: "An AI assistant confidently names a book that doesn't exist. What is this called?",
+      options: ["A hallucination", "A prompt", "Training", "A context window"],
+      answer: [0],
+      explanation:
+        "When a model states something false as if it were true, that's a hallucination. It's why you check important facts the model gives you.",
+    },
+    {
+      id: "aif-b2-04",
+      domain: "d2",
+      level: "beginner",
+      lesson: "d2-start-limits",
+      prompt: "Which job is generative AI best suited for?",
+      options: [
+        "Drafting a first version of a product description",
+        "Working out exact tax from a fixed formula",
+        "Storing a bank's account balances",
+        "Counting the rows in a spreadsheet",
+      ],
+      answer: [0],
+      explanation:
+        "Generative AI is great at writing drafts in plain language. Exact sums and record keeping need one right answer every time, so a normal program does them better.",
+    },
+    {
+      id: "aif-b2-05",
+      domain: "d2",
+      level: "beginner",
+      lesson: "d2-start-bedrock",
+      prompt: "What does \"using the cloud\" mean for a company?",
+      options: [
+        "Renting computing power over the internet and paying for what you use",
+        "Storing files only on office laptops",
+        "Buying and running all your own servers",
+        "Using AI only when the weather is cloudy",
+      ],
+      answer: [0],
+      explanation:
+        "The cloud is computing you rent over the internet, a bit like electricity from the grid. You don't buy the machines, and you pay for what you use.",
+    },
+    {
+      id: "aif-b2-06",
+      domain: "d2",
+      level: "beginner",
+      lesson: "d2-start-bedrock",
+      prompt: "Which AWS service gives you ready-trained AI models from Amazon and other companies, without managing servers?",
+      options: ["Amazon Bedrock", "Amazon S3", "Amazon EC2", "AWS Lambda"],
+      answer: [0],
+      explanation:
+        "Amazon Bedrock is a shelf of ready-trained models you reach through one service. S3 stores files, EC2 rents servers and Lambda runs small pieces of code.",
+    },
+
+    // ── Exam questions ──
     {
       id: "d2-01",
       domain: "d2",
       lesson: "d2-tokens",
-      prompt: "What is a token in the context of large language models?",
+      prompt: "What is a token, when we talk about large language models?",
       options: [
         "A security credential for calling the model API",
         "A unit of text, such as a word or part of a word, that the model processes",
@@ -266,7 +430,7 @@ export default defineDomain({
       ],
       answer: [1],
       explanation:
-        "LLMs read and generate text as tokens (words or sub-word pieces). Pricing and context window limits are measured in tokens.",
+        "LLMs read and write text in tokens, which are whole words or pieces of words. Prices and context window limits are both counted in tokens.",
     },
     {
       id: "d2-02",
@@ -281,26 +445,26 @@ export default defineDomain({
       ],
       answer: [0],
       explanation:
-        "Embeddings turn text, images, or other data into vectors where similar meanings sit close together. They power semantic search and RAG. Example: Amazon Titan Text Embeddings.",
+        "Embeddings turn text, images or other data into lists of numbers, called vectors, where similar meanings sit close together. They power search by meaning and RAG. Amazon Titan Text Embeddings is one example.",
     },
     {
       id: "d2-03",
       domain: "d2",
       lesson: "d2-models",
-      prompt: "Which neural network architecture, built on the self-attention mechanism, underpins most modern LLMs?",
+      prompt: "Which neural network design, built on self-attention, sits behind most modern LLMs?",
       options: ["Convolutional neural network", "Recurrent neural network", "Transformer", "Generative adversarial network"],
       answer: [2],
-      explanation: "Transformers use self-attention to weigh relationships between all tokens in a sequence in parallel.",
+      explanation: "Transformers use self-attention to weigh how every token relates to every other token, all at the same time rather than one by one.",
     },
     {
       id: "d2-04",
       domain: "d2",
       lesson: "d2-models",
-      prompt: "Which type of model generates images by learning to gradually remove noise?",
+      prompt: "Which type of model makes images by learning to remove noise, a little at a time?",
       options: ["Diffusion model", "Linear regression", "Decision tree", "k-nearest neighbors"],
       answer: [0],
       explanation:
-        "Diffusion models start from random noise and denoise step by step into an image. Stable Diffusion and Amazon Nova Canvas are image generation models.",
+        "A diffusion model starts from random static and cleans it up step by step until an image appears. Stable Diffusion and Amazon Nova Canvas are image generation models.",
     },
     {
       id: "d2-05",
@@ -315,7 +479,7 @@ export default defineDomain({
       ],
       answer: [1],
       explanation:
-        "FMs are pre-trained on massive, broad (often unlabeled) data using self-supervised learning, then adapted through prompting, RAG, or fine-tuning.",
+        "Foundation models are pre-trained on huge, broad, mostly unlabeled data using self-supervised learning. You then adapt them with prompting, RAG or fine-tuning.",
     },
     {
       id: "d2-06",
@@ -329,17 +493,17 @@ export default defineDomain({
         "When the model produces images instead of text",
       ],
       answer: [1],
-      explanation: "Hallucinations are plausible but wrong outputs. Reduce them with RAG grounding, lower temperature, guardrails, and clear prompts.",
+      explanation: "A hallucination is an answer that sounds right but is wrong or made up. You can reduce them with RAG, a lower temperature, guardrails and clear prompts.",
     },
     {
       id: "d2-07",
       domain: "d2",
       lesson: "d2-proscons",
-      prompt: "Which are limitations or disadvantages of generative AI? (Choose two.)",
+      prompt: "Which of these are limitations of generative AI? (Choose two.)",
       options: ["Hallucinations", "Nondeterministic outputs", "Inability to produce text", "Always requires labeled data"],
       answer: [0, 1],
       explanation:
-        "GenAI can hallucinate and can give different answers to the same prompt (nondeterminism). Other limits: interpretability, toxicity, and knowledge cutoffs.",
+        "Generative AI can hallucinate, and it can give different answers to the same prompt, which is called nondeterminism. Other limits are that it's hard to interpret, it can be toxic, and its knowledge stops at a cutoff date.",
     },
     {
       id: "d2-08",
@@ -353,7 +517,7 @@ export default defineDomain({
         "An ensemble of several classification models",
       ],
       answer: [1],
-      explanation: "Multimodal models handle several modalities (text, images, audio, video), for example describing an image in text.",
+      explanation: "A multimodal model handles more than one kind of data, such as text, images, audio and video. For example, it can look at a photo and describe it in words.",
     },
     {
       id: "d2-09",
@@ -367,13 +531,13 @@ export default defineDomain({
         "The list of AWS Regions where the model runs",
       ],
       answer: [1],
-      explanation: "The context window caps how much text (prompt + history + retrieved documents + response) fits into a single call.",
+      explanation: "The context window is the limit on how much fits into one call. Your prompt, the chat history, any retrieved documents and the reply all count toward it.",
     },
     {
       id: "d2-10",
       domain: "d2",
       lesson: "d2-tokens",
-      prompt: "Which pricing model applies when you call a model in Amazon Bedrock on demand?",
+      prompt: "How are you charged when you call a model in Amazon Bedrock on demand?",
       options: [
         "You pay per input and output token processed",
         "A fixed monthly license per user",
@@ -382,61 +546,61 @@ export default defineDomain({
       ],
       answer: [0],
       explanation:
-        "On-demand Bedrock pricing is per token (input and output). Provisioned Throughput reserves capacity for a commitment term, and is required for custom (fine-tuned) models.",
+        "On-demand Bedrock pricing is per token, for both input and output. Provisioned Throughput is different: it reserves capacity for a set term, and custom fine-tuned models need it.",
     },
     {
       id: "d2-11",
       domain: "d2",
       lesson: "d2-stack",
-      prompt: "Which AWS service is a fully managed way to access foundation models from Amazon, Anthropic, Meta, Mistral, and others through one API?",
+      prompt: "Which AWS service gives you fully managed access to foundation models from Amazon, Anthropic, Meta, Mistral and others through one API?",
       options: ["Amazon SageMaker AI", "Amazon Bedrock", "Amazon Quick", "AWS Lambda"],
       answer: [1],
-      explanation: "Amazon Bedrock is serverless, API-based access to many FMs, plus Knowledge Bases, Agents, Guardrails, and model customization.",
+      explanation: "Amazon Bedrock is serverless access to many foundation models through one API. It also includes Knowledge Bases, Agents, Guardrails and ways to customise models.",
     },
     {
       id: "d2-12",
       domain: "d2",
       lesson: "d2-stack",
-      prompt: "A development team wants an AI-powered IDE that turns a plain-language feature request into a spec, a task plan, and working code. Which AWS tool fits?",
+      prompt: "A development team wants an AI-powered IDE that turns a plain-language feature request into a spec, a task plan and working code. Which AWS tool fits?",
       options: ["Kiro", "Amazon Lex", "AWS CloudFormation", "Amazon Polly"],
       answer: [0],
       explanation:
-        "Kiro is AWS's agentic IDE. It supports spec-driven development: it turns requirements into specs and tasks, then helps write and update the code.",
+        "Kiro is AWS's agentic IDE, a code editor with an AI agent built in. It works spec first: it turns requirements into a spec and tasks, then helps write and update the code.",
     },
     {
       id: "d2-13",
       domain: "d2",
       lesson: "d2-stack",
-      prompt: "Employees want one AI workspace where they can ask questions across company documents, build dashboards in plain language, and automate routine tasks. Which service fits?",
+      prompt: "Employees want one AI workspace to ask questions across company documents, build dashboards in plain language and automate routine tasks. Which service fits?",
       options: ["Amazon Quick", "Amazon Lex", "Amazon Polly", "Amazon EMR"],
       answer: [0],
       explanation:
-        "Amazon Quick (Quick Suite) is the agentic AI workspace that succeeded Amazon Q Business. It combines research, BI dashboards, and automation over company data.",
+        "Amazon Quick, also called Quick Suite, is the agentic AI workspace that replaced Amazon Q Business. It brings research, BI dashboards and automation together over your company's data.",
     },
     {
       id: "d2-14",
       domain: "d2",
       lesson: "d2-agents",
-      prompt: "A developer wants an open-source SDK to build an AI agent in a few lines of code, letting the model decide which tools to call. Which option fits?",
+      prompt: "A developer wants an open-source SDK to build an AI agent in a few lines of code, where the model decides which tools to call. Which option fits?",
       options: ["Strands Agents", "AWS Glue", "Amazon Inspector", "Amazon Translate"],
       answer: [0],
       explanation:
-        "Strands Agents is an open-source, model-driven SDK for building agents: you give it a model, a prompt, and tools, and the model plans which tools to use.",
+        "Strands Agents is an open-source SDK where the model drives the agent. You give it a model, a prompt and some tools, and the model plans which tools to use.",
     },
     {
       id: "d2-15",
       domain: "d2",
       lesson: "d2-stack",
-      prompt: "Which SageMaker feature offers a hub of pre-trained models and solution templates you can deploy or fine-tune with a few clicks?",
+      prompt: "Which SageMaker feature offers a hub of pre-trained models and solution templates you can deploy or fine-tune in a few clicks?",
       options: ["SageMaker JumpStart", "SageMaker Clarify", "SageMaker Model Monitor", "SageMaker Debugger"],
       answer: [0],
-      explanation: "SageMaker JumpStart is the model hub for open and proprietary FMs and ML solutions, deployable into your own account.",
+      explanation: "SageMaker JumpStart is a model hub with open and commercial foundation models and ready-made ML solutions. You deploy them into your own account.",
     },
     {
       id: "d2-16",
       domain: "d2",
       lesson: "d2-lifecycle",
-      prompt: "What is the main advantage of using a pre-trained foundation model instead of training a model from scratch?",
+      prompt: "What's the main advantage of starting from a pre-trained foundation model instead of training one from scratch?",
       options: [
         "Lower cost and faster time to value",
         "It never hallucinates",
@@ -444,22 +608,22 @@ export default defineDomain({
         "It always outperforms custom models",
       ],
       answer: [0],
-      explanation: "Training from scratch needs huge data and compute. FMs let you start from broad capability and adapt cheaply.",
+      explanation: "Training from scratch needs enormous amounts of data and computing power. A foundation model already knows a lot, so adapting it is far cheaper and quicker.",
     },
     {
       id: "d2-17",
       domain: "d2",
       lesson: "d2-stack",
-      prompt: "Which AWS chips are purpose-built for low-cost, high-performance deep learning inference?",
+      prompt: "Which AWS chips are built specifically for low-cost, high-performance deep learning inference?",
       options: ["AWS Inferentia", "AWS Graviton", "AWS Nitro", "AWS Outposts"],
       answer: [0],
-      explanation: "AWS Inferentia accelerates inference. AWS Trainium is for training. Graviton is a general-purpose Arm CPU.",
+      explanation: "AWS Inferentia speeds up inference, as the name hints. AWS Trainium is for training. Graviton is a general-purpose Arm processor.",
     },
     {
       id: "d2-18",
       domain: "d2",
       lesson: "d2-proscons",
-      prompt: "Which business metric would best measure the value of a GenAI customer support assistant?",
+      prompt: "Which business metric would best show the value of a GenAI customer support assistant?",
       options: [
         "Reduction in average handle time and improved customer satisfaction",
         "Number of GPUs used",
@@ -468,7 +632,7 @@ export default defineDomain({
       ],
       answer: [0],
       explanation:
-        "Business value metrics include conversion rate, efficiency, average revenue per user, cost savings, and customer lifetime value, not internal technical stats.",
+        "Business value shows up in things like conversion rate, time saved, revenue per user, cost savings and customer lifetime value. Internal technical numbers don't prove value on their own.",
     },
     {
       id: "d2-19",
@@ -483,7 +647,7 @@ export default defineDomain({
       ],
       answer: [0],
       explanation:
-        "MCP is like a universal plug: a standard way for an agent to discover and call tools, APIs, and data, so each integration doesn't need custom code.",
+        "MCP works like a universal plug. It gives agents one standard way to find and call tools, APIs and data, so you don't write custom code for every connection.",
     },
     {
       id: "d2-20",
@@ -498,61 +662,61 @@ export default defineDomain({
       ],
       answer: [0],
       explanation:
-        "Context engineering goes beyond one prompt: it curates everything the model sees, including system instructions, history, retrieved documents, memory, and tool outputs, within the token limit.",
+        "Context engineering goes beyond writing one prompt. You choose everything the model sees, including system instructions, history, retrieved documents, memory and tool outputs, while staying inside the token limit.",
     },
     {
       id: "d2-21",
       domain: "d2",
       lesson: "d2-agents",
-      prompt: "A company wants several specialised agents (research, writing, review) that a supervisor agent coordinates. What is this pattern called?",
+      prompt: "A company wants several specialist agents for research, writing and review, coordinated by a supervisor agent. What is this pattern called?",
       options: ["A multi-agent system", "Batch transform", "Transfer learning", "Data augmentation"],
       answer: [0],
       explanation:
-        "Multi-agent systems split complex work among specialised agents. Common patterns include supervisor/worker, sequential hand-offs, and agents collaborating in parallel.",
+        "A multi-agent system splits a big job among specialist agents. Common patterns are a supervisor with workers, agents handing work along in sequence, and agents working side by side.",
     },
     {
       id: "d2-22",
       domain: "d2",
       lesson: "d2-agents",
-      prompt: "A team built an agent and now needs a secure, serverless place to run it at scale, with memory, identity, and tool access built in. Which AWS service fits?",
+      prompt: "A team has built an agent and now needs a secure, serverless place to run it at scale, with memory, identity and tool access built in. Which AWS service fits?",
       options: ["Amazon Bedrock AgentCore", "Amazon Polly", "AWS Artifact", "Amazon Textract"],
       answer: [0],
       explanation:
-        "Amazon Bedrock AgentCore provides building blocks to run agents in production: Runtime, Memory, Gateway (turns APIs into tools), Identity, Policy, and observability. It works with any framework, such as Strands Agents.",
+        "Amazon Bedrock AgentCore gives you the pieces to run agents in production: Runtime, Memory, Gateway (which turns APIs into tools), Identity, Policy and observability. It works with any agent framework, Strands Agents included.",
     },
     {
       id: "d2-23",
       domain: "d2",
       lesson: "d2-models",
-      prompt: "Which is Amazon's own family of foundation models available in Amazon Bedrock?",
+      prompt: "Which is Amazon's own family of foundation models in Amazon Bedrock?",
       options: ["Amazon Nova", "Amazon Neptune", "Amazon Inspector", "Amazon Macie"],
       answer: [0],
       explanation:
-        "Amazon Nova includes text and multimodal understanding models plus creative models for images and video, and speech models. Neptune is a graph database.",
+        "Amazon Nova includes models that understand text and images, creative models that make images and video, and speech models. Neptune, by contrast, is a graph database.",
     },
     {
       id: "d2-24",
       domain: "d2",
       lesson: "d2-stack",
-      prompt: "A company wants AI agents to help modernise legacy applications, such as moving .NET or mainframe code. Which AWS service is built for this?",
+      prompt: "A company wants AI agents to help modernise old applications, such as moving .NET or mainframe code. Which AWS service is built for this?",
       options: ["AWS Transform", "Amazon Translate", "Amazon Lex", "AWS Glue DataBrew"],
       answer: [0],
-      explanation: "AWS Transform uses agentic AI to speed up migration and modernisation projects. Don't confuse it with Amazon Translate, which translates human languages.",
+      explanation: "AWS Transform uses agentic AI to speed up migration and modernisation projects. Don't mix it up with Amazon Translate, which translates between human languages.",
     },
     {
       id: "d2-25",
       domain: "d2",
       lesson: "d2-lifecycle",
       type: "order",
-      prompt: "Put the foundation model lifecycle stages in order.",
+      prompt: "Put the stages of the foundation model lifecycle in order.",
       items: ["Select data", "Pre-train the model", "Fine-tune for a task", "Evaluate", "Deploy and collect feedback"],
-      explanation: "Data selection, pre-training, fine-tuning, evaluation, then deployment. Feedback from users feeds the next round of improvement.",
+      explanation: "First you choose the data, then pre-train, fine-tune, evaluate and deploy. What users tell you feeds into the next round of improvements.",
     },
     {
       id: "d2-26",
       domain: "d2",
       lesson: "d2-tokens",
-      prompt: "A chatbot sends very long prompts and gets long answers. What happens to cost with on-demand token pricing?",
+      prompt: "A chatbot sends very long prompts and gets long answers. With on-demand token pricing, what happens to cost?",
       options: [
         "Cost rises with both input and output tokens",
         "Cost is fixed per request no matter the length",
@@ -560,13 +724,13 @@ export default defineDomain({
         "Longer prompts reduce cost",
       ],
       answer: [0],
-      explanation: "On-demand pricing charges per input and per output token. Trimming prompts, capping output, and prompt caching all cut cost and latency.",
+      explanation: "On-demand pricing charges for every input token and every output token. Shorter prompts, a cap on answer length and prompt caching all cut both cost and wait time.",
     },
     {
       id: "d2-27",
       domain: "d2",
       lesson: "d2-stack",
-      prompt: "Why might a team pick Amazon Bedrock over training its own model? (Choose two.)",
+      prompt: "Why might a team choose Amazon Bedrock over training its own model? (Choose two.)",
       options: [
         "Faster time to market",
         "No infrastructure to manage",
@@ -575,17 +739,17 @@ export default defineDomain({
         "It always costs nothing",
       ],
       answer: [0, 1],
-      explanation: "Managed GenAI services lower the barrier to entry: no servers, pay-as-you-go, quick experimentation. You still own security of your data and must handle hallucinations.",
+      explanation: "Managed GenAI services make it easy to start: no servers, pay as you go, quick experiments. You're still responsible for securing your data, and hallucinations can still happen.",
     },
     // ── Practice set 2 ──
     {
       id: "d2-28",
       domain: "d2",
       lesson: "d2-proscons",
-      prompt: "An online store wants product descriptions written automatically from a list of product attributes. Which approach fits?",
+      prompt: "An online store wants product descriptions written automatically from a list of product details. Which approach fits?",
       options: ["Text generation with a large language model", "K-means clustering", "Linear regression", "Amazon Inspector"],
       answer: [0],
-      explanation: "Generating fluent text from structured inputs is a core LLM use case.",
+      explanation: "Turning a list of facts into smooth, readable text is exactly what large language models are good at.",
     },
     {
       id: "d2-29",
@@ -599,13 +763,13 @@ export default defineDomain({
         "Brainstorming product names",
       ],
       answer: [0],
-      explanation: "When a precise, deterministic answer is required, a formula or rules engine is more reliable and cheaper than a GenAI model.",
+      explanation: "When you need one precise answer every time, a formula or rules engine is more reliable and cheaper than a generative model.",
     },
     {
       id: "d2-30",
       domain: "d2",
       lesson: "d2-proscons",
-      prompt: "Users notice that the same prompt returns slightly different answers each time. What explains this?",
+      prompt: "Users notice the same prompt gives slightly different answers each time. Why?",
       options: [
         "Sampling during generation makes outputs nondeterministic",
         "The model is retrained after every request",
@@ -613,13 +777,13 @@ export default defineDomain({
         "Tokens are billed randomly",
       ],
       answer: [0],
-      explanation: "LLMs sample the next token from a probability distribution. Lowering temperature makes results more consistent.",
+      explanation: "An LLM picks each next token by sampling from a list of likely options, so results can vary. Lowering the temperature makes answers more consistent.",
     },
     {
       id: "d2-31",
       domain: "d2",
       lesson: "d2-proscons",
-      prompt: "Why is it hard to explain exactly why an LLM gave a specific answer?",
+      prompt: "Why is it hard to explain exactly why an LLM gave a particular answer?",
       options: [
         "Its behaviour comes from billions of learned parameters, so interpretability is low",
         "LLMs don't use any data",
@@ -627,7 +791,7 @@ export default defineDomain({
         "LLM answers are always random",
       ],
       answer: [0],
-      explanation: "Low interpretability is a key GenAI limitation. It matters in regulated settings where decisions must be explained.",
+      explanation: "An LLM's behaviour is spread across billions of learned numbers, so there's no simple reason to point at. That matters in regulated work, where decisions must be explained.",
     },
     {
       id: "d2-32",
@@ -641,13 +805,13 @@ export default defineDomain({
         "A billing unit for model training",
       ],
       answer: [0],
-      explanation: "Embeddings are vectors. Similar meanings produce vectors that are close together, which powers semantic search.",
+      explanation: "An embedding is a vector, an ordered list of numbers. Things with similar meanings end up with vectors close together, which is how search by meaning works.",
     },
     {
       id: "d2-33",
       domain: "d2",
       lesson: "d2-lifecycle",
-      prompt: "A model doesn't know about a product your company launched last month. What is the most likely reason?",
+      prompt: "A model doesn't know about a product your company launched last month. What's the most likely reason?",
       options: [
         "Its training data stops at a knowledge cutoff; use RAG to supply fresh information",
         "The temperature is too low",
@@ -655,7 +819,7 @@ export default defineDomain({
         "The context window is too large",
       ],
       answer: [0],
-      explanation: "FMs only know what was in their training data. RAG injects current documents at query time without retraining.",
+      explanation: "A foundation model only knows what was in its training data, which stops at a cutoff date. RAG hands it current documents when the question comes in, with no retraining.",
     },
     {
       id: "d2-34",
@@ -664,16 +828,16 @@ export default defineDomain({
       prompt: "A company has steady, high-volume traffic to a Bedrock model and needs guaranteed capacity. Which option fits?",
       options: ["Provisioned Throughput", "On-demand calls with a higher temperature", "Amazon Polly", "A larger context window"],
       answer: [0],
-      explanation: "Provisioned Throughput reserves model capacity for a commitment term. On-demand pricing suits variable or low traffic.",
+      explanation: "Provisioned Throughput reserves model capacity for a set term. On-demand pricing is the better fit when traffic is low or changes a lot.",
     },
     {
       id: "d2-35",
       domain: "d2",
       lesson: "d2-stack",
-      prompt: "A team must summarise a million documents overnight and doesn't need real-time answers. What is the most cost-effective option in Bedrock?",
+      prompt: "A team must summarise a million documents overnight and doesn't need answers in real time. What's the most cost-effective option in Bedrock?",
       options: ["Batch inference", "One real-time request per document during business hours", "Raise the temperature", "Fine-tune a new model first"],
       answer: [0],
-      explanation: "Bedrock batch inference processes large jobs asynchronously at a lower price than on-demand real-time calls.",
+      explanation: "Bedrock batch inference works through big jobs in the background, at a lower price than on-demand real-time calls.",
     },
     {
       id: "d2-36",
@@ -682,16 +846,16 @@ export default defineDomain({
       prompt: "Which metric best shows that a GenAI shopping assistant increased sales?",
       options: ["Conversion rate", "Number of tokens per response", "Embedding dimension", "Model temperature"],
       answer: [0],
-      explanation: "Conversion rate is a business metric tied to revenue. Token counts and settings are technical details.",
+      explanation: "Conversion rate, the share of visitors who buy, is a business metric tied to revenue. Token counts and settings are technical details.",
     },
     {
       id: "d2-37",
       domain: "d2",
       lesson: "d2-proscons",
-      prompt: "An internal GenAI tool cut report-writing time from 4 hours to 1 hour. Which kind of business value is this?",
+      prompt: "An internal GenAI tool cut report writing from 4 hours to 1 hour. What kind of business value is this?",
       options: ["Efficiency (productivity gain)", "Model accuracy", "Data residency", "Lower latency of the network"],
       answer: [0],
-      explanation: "Saving employee time is an efficiency gain, one of the business metrics used to justify GenAI.",
+      explanation: "Saving people's time is an efficiency gain. It's one of the business metrics companies use to justify spending on GenAI.",
     },
     {
       id: "d2-38",
@@ -700,31 +864,31 @@ export default defineDomain({
       prompt: "A team wants to deploy an open-source foundation model into its own account, choosing the instance type and managing the endpoint. Which option fits?",
       options: ["Amazon SageMaker JumpStart", "Amazon Quick", "Amazon Polly", "AWS Artifact"],
       answer: [0],
-      explanation: "JumpStart deploys pre-trained models to SageMaker AI endpoints you control. Bedrock is serverless, with AWS managing the hosting.",
+      explanation: "JumpStart deploys pre-trained models to SageMaker AI endpoints that you control. Bedrock is serverless, so AWS looks after the hosting for you.",
     },
     {
       id: "d2-39",
       domain: "d2",
       lesson: "d2-stack",
-      prompt: "Which AWS chips are purpose-built for cost-effective training of deep learning models?",
+      prompt: "Which AWS chips are built specifically for cost-effective training of deep learning models?",
       options: ["AWS Trainium", "AWS Inferentia", "AWS Nitro", "AWS Snowball"],
       answer: [0],
-      explanation: "Trainium targets training. Inferentia targets inference.",
+      explanation: "The names give it away. Trainium is for training, and Inferentia is for inference.",
     },
     {
       id: "d2-40",
       domain: "d2",
       lesson: "d2-agents",
-      prompt: "An AI agent must remember a customer's preferences across separate conversations days apart. What capability does it need?",
+      prompt: "An AI agent must remember a customer's preferences across separate conversations, days apart. What does it need?",
       options: ["Long-term memory, such as AgentCore Memory", "A higher temperature", "A smaller context window", "Batch inference"],
       answer: [0],
-      explanation: "Short-term memory covers one session. Long-term memory persists facts and preferences across sessions.",
+      explanation: "Short-term memory only lasts for one conversation. Long-term memory keeps facts and preferences from one conversation to the next.",
     },
     {
       id: "d2-41",
       domain: "d2",
       lesson: "d2-agents",
-      prompt: "How does an AI agent check live inventory before answering a customer?",
+      prompt: "How does an AI agent check live stock levels before answering a customer?",
       options: [
         "It calls a tool or API (for example through MCP) and uses the result",
         "It guesses from its training data",
@@ -732,7 +896,7 @@ export default defineDomain({
         "It retrains itself on the spot",
       ],
       answer: [0],
-      explanation: "Tool use lets agents fetch live data and take actions. MCP standardises how agents connect to those tools.",
+      explanation: "Tools let an agent fetch live data and take actions. MCP gives agents a standard way to connect to those tools.",
     },
     {
       id: "d2-42",
@@ -741,21 +905,21 @@ export default defineDomain({
       type: "order",
       prompt: "Put the steps an AI agent takes to handle a request in order.",
       items: ["Receive the user's goal", "Plan the steps", "Call tools or APIs", "Observe the results", "Respond or continue to the next step"],
-      explanation: "Agents loop: plan, act with tools, observe, and either finish or plan the next step.",
+      explanation: "An agent works in a loop. It plans, acts with tools, looks at what happened, and then either finishes or plans the next step.",
     },
     {
       id: "d2-43",
       domain: "d2",
       lesson: "d2-models",
       type: "match",
-      prompt: "Match each model type to an example of its output.",
+      prompt: "Match each model type to an example of what it produces.",
       pairs: [
         ["Diffusion model", "A product photo generated from a description"],
         ["Large language model", "A summary of a 20-page report"],
         ["Embedding model", "A vector used for semantic search"],
         ["Multimodal model", "A caption describing an uploaded photo"],
       ],
-      explanation: "Diffusion models make images, LLMs make text, embedding models make vectors, and multimodal models combine input types.",
+      explanation: "Diffusion models make images. LLMs write text. Embedding models turn things into vectors. Multimodal models handle more than one kind of input at once.",
     },
     {
       id: "d2-44",
@@ -769,13 +933,13 @@ export default defineDomain({
         ["Amazon Bedrock", "Builders calling foundation models through an API"],
         ["Amazon SageMaker AI", "Data scientists training custom models"],
       ],
-      explanation: "AWS's GenAI stack goes from ready-made apps (Quick, Kiro) to model APIs (Bedrock) to full ML platforms (SageMaker AI).",
+      explanation: "AWS's GenAI tools run from ready-made apps (Quick, Kiro), through model APIs (Bedrock), to a full ML platform (SageMaker AI).",
     },
     {
       id: "d2-45",
       domain: "d2",
       lesson: "d2-proscons",
-      prompt: "Which are advantages of generative AI? (Choose two.)",
+      prompt: "Which of these are advantages of generative AI? (Choose two.)",
       options: [
         "One model can adapt to many different tasks",
         "Natural, conversational interaction",
@@ -784,7 +948,7 @@ export default defineDomain({
         "No need to evaluate outputs",
       ],
       answer: [0, 1],
-      explanation: "Adaptability and conversational ability are strengths. Accuracy is not guaranteed, outputs vary, and evaluation is always needed.",
+      explanation: "Being adaptable and easy to talk to are real strengths. Accuracy isn't guaranteed, answers vary, and you always need to evaluate the output.",
     },
     // ── Practice set 3 ──
     {
@@ -794,61 +958,61 @@ export default defineDomain({
       prompt: "A company keeps sensitive systems in its own data center but runs new AI workloads on AWS. Which cloud deployment model is this?",
       options: ["Hybrid cloud", "Public cloud only", "Private cloud only", "Software as a Service"],
       answer: [0],
-      explanation: "Hybrid cloud combines on-premises (private) infrastructure with public cloud services.",
+      explanation: "Hybrid cloud mixes your own on-premises machines with public cloud services.",
     },
     {
       id: "d2-47",
       domain: "d2",
       lesson: "d2-cloud-basics",
-      prompt: "Which factors should drive the choice of AWS Region for a new AI application? (Choose two.)",
+      prompt: "Which factors should guide the choice of AWS Region for a new AI application? (Choose two.)",
       options: ["Data residency and compliance requirements", "Proximity to users for lower latency", "The color of the AWS console", "The number of IAM users in the account", "Whether the team prefers Python"],
       answer: [0, 1],
-      explanation: "Choose a Region by compliance, latency to users, which services are available there, and pricing.",
+      explanation: "You choose a Region by the rules your data must follow, how close it is to your users, which services it offers, and price.",
     },
     {
       id: "d2-48",
       domain: "d2",
       lesson: "d2-cloud-basics",
-      prompt: "Renting virtual servers, storage, and networking that you configure yourself, such as Amazon EC2, is an example of which cloud type?",
+      prompt: "Renting virtual servers, storage and networking that you set up yourself, such as Amazon EC2, is which cloud type?",
       options: ["Infrastructure as a Service (IaaS)", "Software as a Service (SaaS)", "Platform as a Service (PaaS)", "On-premises hosting"],
       answer: [0],
-      explanation: "IaaS gives the most flexibility: you manage the OS and apps on provider-run hardware.",
+      explanation: "IaaS gives you the most freedom. The provider runs the hardware and you manage the operating system and apps on top.",
     },
     {
       id: "d2-49",
       domain: "d2",
       lesson: "d2-cloud-basics",
-      prompt: "A new GenAI feature isn't available in the AWS Region a company uses. What is the most likely explanation?",
+      prompt: "A new GenAI feature isn't available in the AWS Region a company uses. What's the most likely reason?",
       options: ["New services and features roll out to Regions at different times", "Regions share every service at the same moment", "Availability Zones control service availability", "Edge locations host the service instead"],
       answer: [0],
-      explanation: "Service availability varies by Region. Check the Region table before choosing where to deploy.",
+      explanation: "Each Region gets new services on its own timeline. Check which services a Region offers before you decide where to deploy.",
     },
     {
       id: "d2-50",
       domain: "d2",
       lesson: "d2-cloud-basics",
-      prompt: "Which is one of the advantages of cloud computing?",
+      prompt: "Which of these is an advantage of cloud computing?",
       options: ["Trade up-front capital expense for pay-as-you-go operating expense", "You must buy hardware for peak demand", "Capacity has to be planned years ahead", "Every Region has identical prices"],
       answer: [0],
-      explanation: "Other advantages include economies of scale, no capacity guessing, speed and agility, and going global in minutes.",
+      explanation: "Instead of buying hardware up front, you pay as you go. Other advantages are economies of scale, no guessing about capacity, speed, and going global in minutes.",
     },
     {
       id: "d2-51",
       domain: "d2",
       lesson: "d2-cloud-basics",
-      prompt: "Training archives must be kept for 7 years and are almost never read. Which Amazon S3 storage class is the most cost-effective?",
+      prompt: "Training archives must be kept for 7 years and are almost never read. Which Amazon S3 storage class is most cost-effective?",
       options: ["S3 Glacier Deep Archive", "S3 Standard", "S3 Standard-Infrequent Access", "S3 Intelligent-Tiering"],
       answer: [0],
-      explanation: "Deep Archive is the cheapest class for rarely accessed long-term data, with retrieval in hours. Intelligent-Tiering suits unknown access patterns.",
+      explanation: "Glacier Deep Archive is the cheapest class for long-term data you rarely touch, and getting files back takes hours. Intelligent-Tiering is for when you don't know how often data will be used.",
     },
     {
       id: "d2-52",
       domain: "d2",
       lesson: "d2-cloud-basics",
-      prompt: "Which AWS service runs code without managing servers, billing only for requests and run time, and is often used behind Bedrock Agents action groups?",
+      prompt: "Which AWS service runs code without you managing servers, charges only for requests and run time, and often sits behind Bedrock Agents action groups?",
       options: ["AWS Lambda", "Amazon EC2", "Amazon S3 Glacier", "AWS Artifact"],
       answer: [0],
-      explanation: "Lambda is serverless and event-driven. Agents can call Lambda functions to perform actions.",
+      explanation: "Lambda runs your code when something triggers it, with no servers to manage. Agents can call Lambda functions to carry out actions.",
     },
     {
       id: "d2-53",
@@ -857,7 +1021,7 @@ export default defineDomain({
       prompt: "A team wants to cut the cost of a Bedrock workload that runs overnight and doesn't need instant answers. What helps most?",
       options: ["Use Bedrock batch inference", "Lower the temperature", "Raise Top K", "Buy Provisioned Throughput for six months"],
       answer: [0],
-      explanation: "Batch inference can be up to about 50% cheaper. Sampling settings don't affect price, and Provisioned Throughput reserves capacity rather than saving money.",
+      explanation: "Batch inference can be up to about 50% cheaper. Sampling settings don't change the price, and Provisioned Throughput reserves capacity rather than saving money.",
     },
     {
       id: "d2-54",
@@ -866,7 +1030,7 @@ export default defineDomain({
       prompt: "How are embedding models billed in Amazon Bedrock on demand?",
       options: ["Per input token processed", "Per image generated", "Per hour of GPU time", "A flat monthly fee"],
       answer: [0],
-      explanation: "Text models bill input and output tokens, embedding models bill input tokens, and image models bill per image.",
+      explanation: "Text models bill for input and output tokens. Embedding models only bill for input tokens, because they return numbers, not text. Image models bill per image.",
     },
     {
       id: "d2-55",
@@ -875,7 +1039,7 @@ export default defineDomain({
       prompt: "Which change does NOT reduce the cost of a Bedrock text application?",
       options: ["Lowering the temperature", "Sending shorter prompts", "Capping the response length", "Switching to a smaller model that meets quality needs"],
       answer: [0],
-      explanation: "Temperature, Top P, and Top K change the style of output, not the price. Tokens and model size drive cost.",
+      explanation: "Temperature, Top P and Top K change the style of the answer, not the price. Token counts and model size are what drive cost.",
     },
     {
       id: "d2-56",
@@ -884,16 +1048,16 @@ export default defineDomain({
       prompt: "Which factors affect how quickly a model responds? (Choose two.)",
       options: ["The size of the model", "The number of input and output tokens", "The temperature setting", "The Top P setting", "The name of the S3 bucket"],
       answer: [0, 1],
-      explanation: "Latency depends on model size and type and on input and output length. Temperature, Top P, and Top K don't change it.",
+      explanation: "Response time depends on the model's size and type, and on how long the input and output are. Temperature, Top P and Top K don't change it.",
     },
     {
       id: "d2-57",
       domain: "d2",
       lesson: "d2-bedrock-costs",
-      prompt: "An operations team wants an alarm when Bedrock Guardrails start filtering many responses. What should they use?",
+      prompt: "An operations team wants an alarm when Bedrock Guardrails start blocking lots of responses. What should they use?",
       options: ["Amazon CloudWatch metrics published by Bedrock, with a CloudWatch alarm", "AWS Artifact", "Amazon Polly", "S3 Lifecycle rules"],
       answer: [0],
-      explanation: "Bedrock publishes CloudWatch metrics, including a count of filtered content, and you can alarm on them. Invocation logging adds the full request and response detail.",
+      explanation: "Bedrock sends metrics to CloudWatch, including a count of blocked content, and you can set an alarm on them. Invocation logging adds the full detail of each request and response.",
     },
     {
       id: "d2-58",
@@ -902,7 +1066,7 @@ export default defineDomain({
       prompt: "Employees want Amazon Quick to answer only from documents they're allowed to see. What makes this work?",
       options: ["Users sign in through IAM Identity Center, and answers respect each user's document access", "Every user shares one admin login", "Answers are always generated from public internet data", "Temperature is set to 0"],
       answer: [0],
-      explanation: "Quick authenticates users (often via IAM Identity Center with an external identity provider) and generates responses only from content each user can access.",
+      explanation: "Quick signs each user in, often through IAM Identity Center connected to your company's login system. It then answers only from content that person is allowed to see.",
     },
     {
       id: "d2-59",
@@ -916,7 +1080,7 @@ export default defineDomain({
         ["Quick Flows", "Simple automations described in plain language"],
         ["Quick Sight", "AI-powered BI dashboards you can ask questions about"],
       ],
-      explanation: "Quick also has Quick Automate for multi-step agentic workflows with approvals, and Spaces for shared team workspaces.",
+      explanation: "Quick also has Quick Automate for multi-step agent workflows with approvals, and Spaces where teams share their work.",
     },
     {
       id: "d2-60",
@@ -925,7 +1089,7 @@ export default defineDomain({
       prompt: "A company wants natural, real-time spoken conversations with customers using an Amazon model. Which Nova 2 model fits?",
       options: ["Nova 2 Sonic (speech-to-speech)", "Nova 2 Multimodal Embeddings", "Amazon Neptune", "Amazon Textract"],
       answer: [0],
-      explanation: "Nova 2 Sonic handles real-time voice. Nova 2 Lite is a fast, cost-effective reasoning model, Multimodal Embeddings powers semantic search, and Omni combines multimodal reasoning with image generation.",
+      explanation: "Nova 2 Sonic handles live voice conversations. Nova 2 Lite is a fast, low-cost reasoning model, Multimodal Embeddings powers search by meaning, and Omni mixes multimodal reasoning with image generation.",
     },
     {
       id: "d2-61",
@@ -934,35 +1098,35 @@ export default defineDomain({
       prompt: "How does a Bedrock agent know which company APIs it can call to look up orders?",
       options: ["You define action groups, described with an OpenAPI schema and often backed by Lambda functions", "The agent searches the internet for APIs", "The temperature setting lists them", "AWS Artifact registers them"],
       answer: [0],
-      explanation: "Action groups tell the agent which operations exist and how to call them. Knowledge bases supply documents for RAG.",
+      explanation: "Action groups tell the agent which operations exist and how to call them. Knowledge bases are the other half: they supply documents for RAG.",
     },
   ],
 
   cards: [
-    { id: "s-bedrock", domain: "d2", kind: "service", term: "Amazon Bedrock", definition: "Serverless API access to foundation models from many providers" },
-    { id: "s-jumpstart", domain: "d2", kind: "service", term: "SageMaker JumpStart", definition: "Hub of pre-trained models and solutions to deploy or fine-tune" },
-    { id: "s-kiro", domain: "d2", kind: "service", term: "Kiro", definition: "Agentic IDE: turns requirements into specs, tasks, and code" },
-    { id: "s-quick", domain: "d2", kind: "service", term: "Amazon Quick", definition: "Agentic AI workspace: research, BI, and automation over company data" },
-    { id: "s-strands", domain: "d2", kind: "service", term: "Strands Agents", definition: "Open-source SDK to build model-driven AI agents" },
-    { id: "s-agentcore", domain: "d2", kind: "service", term: "Bedrock AgentCore", definition: "Run agents in production: runtime, memory, gateway, identity, policy" },
+    { id: "s-bedrock", domain: "d2", kind: "service", term: "Amazon Bedrock", definition: "Serverless access to foundation models from many providers through one API" },
+    { id: "s-jumpstart", domain: "d2", kind: "service", term: "SageMaker JumpStart", definition: "A hub of pre-trained models and solutions to deploy or fine-tune" },
+    { id: "s-kiro", domain: "d2", kind: "service", term: "Kiro", definition: "An agentic IDE that turns requirements into specs, tasks and code" },
+    { id: "s-quick", domain: "d2", kind: "service", term: "Amazon Quick", definition: "An AI workspace for research, BI and automation over company data" },
+    { id: "s-strands", domain: "d2", kind: "service", term: "Strands Agents", definition: "An open-source SDK where the model drives the agent" },
+    { id: "s-agentcore", domain: "d2", kind: "service", term: "Bedrock AgentCore", definition: "Runs agents in production: runtime, memory, gateway, identity and policy" },
     { id: "s-nova", domain: "d2", kind: "service", term: "Amazon Nova", definition: "Amazon's own family of foundation models in Bedrock" },
-    { id: "s-transform", domain: "d2", kind: "service", term: "AWS Transform", definition: "Agentic AI for migrating and modernising legacy apps" },
-    { id: "c-pt", domain: "d2", kind: "concept", term: "Provisioned Throughput", definition: "Reserved model capacity, required for custom models in Bedrock" },
-    { id: "c-token", domain: "d2", kind: "concept", term: "Token", definition: "A unit of text (word or sub-word) the model reads and writes" },
-    { id: "c-embedding", domain: "d2", kind: "concept", term: "Embedding", definition: "A vector that captures semantic meaning for similarity search" },
-    { id: "c-hallucination", domain: "d2", kind: "concept", term: "Hallucination", definition: "Confident but false or fabricated output" },
-    { id: "c-transformer", domain: "d2", kind: "concept", term: "Transformer", definition: "Self-attention architecture behind modern LLMs" },
-    { id: "c-diffusion", domain: "d2", kind: "concept", term: "Diffusion model", definition: "Generates images by iteratively removing noise" },
-    { id: "c-mcp", domain: "d2", kind: "concept", term: "MCP", definition: "Open standard that plugs agents into tools and data" },
-    { id: "c-context", domain: "d2", kind: "concept", term: "Context engineering", definition: "Curating everything the model sees: instructions, data, memory, tools" },
-    { id: "c-region", domain: "d2", kind: "concept", term: "AWS Region", definition: "Geographic area; choose by compliance, latency, services, price" },
-    { id: "c-az", domain: "d2", kind: "concept", term: "Availability Zone", definition: "Isolated data center(s) within a Region" },
-    { id: "c-iaas", domain: "d2", kind: "concept", term: "IaaS / PaaS / SaaS", definition: "Building blocks / platform for your code / finished app" },
-    { id: "c-hybrid", domain: "d2", kind: "concept", term: "Hybrid cloud", definition: "On-premises systems plus public cloud" },
-    { id: "s-lambda", domain: "d2", kind: "service", term: "AWS Lambda", definition: "Serverless functions billed per request and run time" },
-    { id: "c-batchbedrock", domain: "d2", kind: "concept", term: "Bedrock batch inference", definition: "Bulk requests, results in S3, up to ~50% cheaper" },
-    { id: "c-latency", domain: "d2", kind: "concept", term: "Model latency drivers", definition: "Model size/type and token counts, not temperature" },
-    { id: "c-nova2", domain: "d2", kind: "concept", term: "Amazon Nova 2", definition: "Lite (reasoning), Sonic (voice), Multimodal Embeddings, Omni" },
+    { id: "s-transform", domain: "d2", kind: "service", term: "AWS Transform", definition: "Agentic AI that helps migrate and modernise old apps" },
+    { id: "c-pt", domain: "d2", kind: "concept", term: "Provisioned Throughput", definition: "Reserved model capacity. Custom models in Bedrock need it" },
+    { id: "c-token", domain: "d2", kind: "concept", term: "Token", definition: "A chunk of text, roughly a short word, that the model reads and writes" },
+    { id: "c-embedding", domain: "d2", kind: "concept", term: "Embedding", definition: "A list of numbers that captures meaning, used to find similar things" },
+    { id: "c-hallucination", domain: "d2", kind: "concept", term: "Hallucination", definition: "An answer that sounds sure of itself but is false or made up" },
+    { id: "c-transformer", domain: "d2", kind: "concept", term: "Transformer", definition: "The self-attention design behind modern LLMs" },
+    { id: "c-diffusion", domain: "d2", kind: "concept", term: "Diffusion model", definition: "Makes images by removing noise, one step at a time" },
+    { id: "c-mcp", domain: "d2", kind: "concept", term: "MCP", definition: "An open standard that plugs agents into tools and data" },
+    { id: "c-context", domain: "d2", kind: "concept", term: "Context engineering", definition: "Choosing everything the model sees: instructions, data, memory and tool results" },
+    { id: "c-region", domain: "d2", kind: "concept", term: "AWS Region", definition: "A part of the world with AWS data centers. Choose by compliance, distance to users, services and price" },
+    { id: "c-az", domain: "d2", kind: "concept", term: "Availability Zone", definition: "One or more separate data centers inside a Region" },
+    { id: "c-iaas", domain: "d2", kind: "concept", term: "IaaS, PaaS, SaaS", definition: "Building blocks, a platform for your code, or a finished app" },
+    { id: "c-hybrid", domain: "d2", kind: "concept", term: "Hybrid cloud", definition: "Your own on-premises systems used together with public cloud" },
+    { id: "s-lambda", domain: "d2", kind: "service", term: "AWS Lambda", definition: "Runs code without servers, billed per request and run time" },
+    { id: "c-batchbedrock", domain: "d2", kind: "concept", term: "Bedrock batch inference", definition: "Many requests at once, results in S3, up to about 50% cheaper" },
+    { id: "c-latency", domain: "d2", kind: "concept", term: "What slows a model down", definition: "Model size and type, and token counts. Temperature makes no difference" },
+    { id: "c-nova2", domain: "d2", kind: "concept", term: "Amazon Nova 2", definition: "Lite for reasoning, Sonic for voice, Multimodal Embeddings for search, Omni for both reasoning and images" },
     { id: "c-quickindex", domain: "d2", kind: "concept", term: "Quick Index", definition: "Amazon Quick's managed knowledge base of company data" },
   ],
 
@@ -974,7 +1138,7 @@ export default defineDomain({
       title: "Exactly 12 tokens",
       goal: "Edit the sentence until it comes to exactly 12 tokens.",
       hint: "Long words split into several tokens, and punctuation counts too.",
-      takeaway: "Tokens aren't words. Cost and context limits are counted in tokens, so wording affects price.",
+      takeaway: "Tokens aren't the same as words. Cost and context limits are counted in tokens, so how you word things changes the price.",
       render: (onSolved) => <TokenDemo goal="exact12" onSolved={onSolved} />,
     },
     {
@@ -982,9 +1146,9 @@ export default defineDomain({
       domain: "d2",
       lesson: "d2-embeddings",
       title: "Search by meaning",
-      goal: "Find the refund documents using a question that never says \"refund\".",
+      goal: "Find the refund documents with a question that never uses the word \"refund\".",
       hint: "Embeddings match meaning, not exact words.",
-      takeaway: "Semantic search compares vectors, so \"money back\" finds \"refund\". That's how RAG retrieval works.",
+      takeaway: "Search by meaning compares vectors, so \"money back\" finds \"refund\". That's how RAG finds the right documents.",
       render: (onSolved) => <EmbeddingLab goal="refunds" onSolved={onSolved} />,
     },
   ],

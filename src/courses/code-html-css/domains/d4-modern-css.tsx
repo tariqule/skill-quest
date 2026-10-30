@@ -13,7 +13,7 @@ export default defineDomain({
     weight: 20,
     emoji: "🔭",
     color: "#14b8a6",
-    summary: "Custom properties and theming, :has() and friends, nesting, container queries, cascade layers, and how teams keep CSS healthy at scale.",
+    summary: "CSS variables and themes, newer selectors like :has(), nesting, container queries, cascade layers, and how teams keep CSS tidy as a site grows.",
   },
 
   tasks: [
@@ -25,6 +25,56 @@ export default defineDomain({
 
   lessons: [
     {
+      id: "d4-b-vars",
+      level: "beginner",
+      task: "4.1",
+      title: "Reusable values with variables",
+      check: ["web-b4-01", "web-b4-02"],
+      visual: (
+        <CodeBlock
+          lang="css"
+          caption="Name the colour once, then use it anywhere. Change it in one place and both rules follow."
+          code={`:root {
+  --brand: #7c3aed;
+}
+
+.button { background: var(--brand); }
+.link   { color: var(--brand); }`}
+        />
+      ),
+      points: [
+        "Big sites reuse the same colours and sizes everywhere. Typing `#7c3aed` in fifty places makes a rebrand painful.",
+        "A **custom property**, often called a CSS variable, gives a value a name. You write the name with two dashes: `--brand: #7c3aed;`.",
+        "You use it with `var()`: `color: var(--brand);`. Change the value in one place and everything that uses it updates.",
+        "It's like a label on a paint tin. Every room says \"use the Brand tin\". Swap what's in the tin, and every room changes colour.",
+      ],
+      tip: "Put shared variables on `:root`, which stands for the whole page. Then any element can use them.",
+    },
+    {
+      id: "d4-b-team",
+      level: "beginner",
+      task: "4.4",
+      title: "CSS for a whole team",
+      check: ["web-b4-03", "web-b4-04"],
+      visual: (
+        <Tiles
+          cols={3}
+          tiles={[
+            { icon: "🎨", title: "Tokens", text: "Named choices like --color-primary and --space-2.", color: "#f97316" },
+            { icon: "🧩", title: "Components", text: "Buttons, cards and menus built from those tokens.", color: "#38bdf8" },
+            { icon: "📏", title: "Rules", text: "Agreed names and lint checks, so everyone writes CSS the same way.", color: "#a78bfa" },
+          ]}
+        />
+      ),
+      points: [
+        "When lots of people work on one site, CSS can turn into a tangle of rules that fight each other.",
+        "A **design system** is a shared kit: agreed colours, spacing and fonts, plus ready-made components like buttons and cards.",
+        "Its smallest pieces are **design tokens**: named design choices like `--color-primary` or `--space-2`, usually stored as custom properties.",
+        "It's like a newspaper's style guide. Every writer follows the same rules, so it reads like one paper, not fifty.",
+      ],
+      tip: "Pick class names that say what something is, like `.card` or `.price`, not how it looks, like `.big-red`. Looks change. Meaning usually doesn't.",
+    },
+    {
       id: "d4-vars",
       level: "intermediate",
       task: "4.1",
@@ -32,13 +82,13 @@ export default defineDomain({
       check: ["d4-01", "d4-03"],
       visual: <ThemeVisual />,
       points: [
-        "Declare a custom property with two dashes (`--brand: #7c3aed;`) and read it with `var(--brand)`. Names are case-sensitive.",
-        "Custom properties inherit, so a value set on `:root` is available everywhere and a value set on `.card` overrides it inside that card.",
-        "`var(--x, fallback)` uses the fallback when `--x` isn't defined. If the substituted value is invalid for the property, the property falls back to inherited or initial, not to an earlier declaration.",
-        "Themes are just different values: swap them under `[data-theme=\"dark\"]` or `@media (prefers-color-scheme: dark)` and every component follows.",
-        "`@property` registers a type (`<color>`, `<length>`, `<angle>`), so the browser can animate the property and check its values.",
+        "Create a custom property with two dashes, `--brand: #7c3aed;`, and read it with `var(--brand)`. Names are case-sensitive, so `--Brand` is a different one.",
+        "Custom properties pass down to children. A value set on `:root` works everywhere, and a value set on `.card` replaces it inside that card.",
+        "`var(--x, fallback)` uses the fallback when `--x` isn't defined. If the value turns out to be invalid for the property, the property goes back to its inherited or starting value, not to an earlier declaration.",
+        "A theme is just a different set of values. Swap them under `[data-theme=\"dark\"]` or `@media (prefers-color-scheme: dark)` and every component follows.",
+        "`@property` gives a custom property a type, like `<color>`, `<length>` or `<angle>`. The browser can then animate it and check its values.",
       ],
-      tip: "Custom properties are live at runtime, unlike preprocessor variables. JavaScript can set one with `el.style.setProperty(\"--x\", \"10px\")` and everything that uses it updates.",
+      tip: "Custom properties stay live in the browser, unlike Sass variables, which disappear when the CSS is built. JavaScript can set one with `el.style.setProperty(\"--x\", \"10px\")` and everything using it updates.",
     },
     {
       id: "d4-selectors",
@@ -78,12 +128,12 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "`:has()` selects an element by what it contains or what follows it: `.card:has(img)`, `form:has(:invalid)`, `h2:has(+ p)`.",
-        "`:is(a, b)` groups selectors and takes the specificity of its most specific argument; `:where(a, b)` does the same matching with zero specificity.",
-        "Native nesting: `&` is the parent selector. `&.x` is the same element with class x; `& .x` or plain `.x` is a descendant.",
-        "Use `:where()` for library and reset styles so anyone can override them with a single class.",
+        "`:has()` selects an element by what's inside it or what comes after it. For example, `.card:has(img)`, `form:has(:invalid)` and `h2:has(+ p)`.",
+        "`:is(a, b)` groups selectors and takes the specificity of the strongest one in the list. `:where(a, b)` matches the same way but adds no specificity at all.",
+        "CSS now supports nesting rules inside rules. `&` stands for the parent selector. `&.x` is the same element with class x, while `& .x` or a plain `.x` is something inside it.",
+        "Wrap library and reset styles in `:where()` so anyone can override them with a single class.",
       ],
-      tip: "Keep nesting shallow (one or two levels). Deep nesting quietly builds long, high-specificity selectors that are hard to override, the same trap Sass users learned to avoid.",
+      tip: "Keep nesting shallow, one or two levels. Deep nesting quietly builds long, strong selectors that are hard to override. Sass users learned to avoid the same trap.",
     },
     {
       id: "d4-containers",
@@ -108,13 +158,13 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "Media queries ask about the viewport; container queries ask about the component's own space, so one card can adapt to a sidebar and a main column.",
-        "Mark the wrapper with `container-type: inline-size`, then write `@container (min-width: 420px) { … }`. An element can't query its own size, only an ancestor's.",
-        "Container units such as `cqi` (1% of the container's inline size) size things relative to the container.",
-        "`@layer` groups styles into named layers. The cascade compares layer order before specificity, so `utilities` can beat `components` with a single class.",
-        "Normal unlayered styles beat all layers, and for `!important` declarations the order flips: earlier layers win.",
+        "Media queries ask about the browser window. **Container queries** ask about the space around a component, so one card can adapt whether it's in a narrow sidebar or a wide main column.",
+        "Mark the wrapper with `container-type: inline-size`, then write `@container (min-width: 420px) { … }`. An element can't ask about its own size, only an ancestor's.",
+        "Container units size things relative to the container. For example, `1cqi` is 1% of the container's width.",
+        "`@layer` groups styles into named **cascade layers**. The cascade checks layer order before specificity, so a `utilities` layer can beat `components` with a single class.",
+        "Normal styles that aren't in any layer beat all layers. For `!important` declarations the order flips, and earlier layers win.",
       ],
-      tip: "Adopting layers in an old codebase? Put the legacy stylesheet into its own early layer first. Otherwise, as unlayered CSS, it beats everything you put in layers.",
+      tip: "Adding layers to an old codebase? Put the old stylesheet in its own early layer first. Otherwise, as unlayered CSS, it beats everything you put in layers.",
     },
     {
       id: "d4-systems",
@@ -142,16 +192,64 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "Design tokens are named design decisions (colour, space, type, radius) stored as custom properties: primitives, then semantic names, then component hooks.",
-        "Components should read semantic tokens, never raw hex values, so a theme or rebrand is a change of values, not of code.",
-        "Expose custom properties (`--button-bg`) as a component's styling API instead of letting consumers override internal selectors.",
-        "Migrate in steps: add new tokens, alias old names to them, move components over with a codemod or lint warnings, then delete the aliases.",
+        "**Design tokens** are named design decisions, like colour, spacing, type and corner radius, stored as custom properties. They come in tiers: raw values, then names for meaning, then hooks for single components.",
+        "Components should use the meaningful names, never raw colour codes. Then a new theme or rebrand is a change of values, not a change of code.",
+        "Offer custom properties like `--button-bg` as the way to restyle a component, instead of letting other teams override its internal selectors.",
+        "Change tokens in steps. Add the new ones, point the old names at them, move components across with scripts or lint warnings, then delete the old names.",
       ],
-      tip: "Write down your CSS conventions (naming, layers, tokens, allowed units) in one short doc and enforce what you can with lint rules. Conventions that live only in reviewers' heads don't scale past one team.",
+      tip: "Write your CSS conventions, like naming, layers, tokens and allowed units, in one short doc, and enforce what you can with lint rules. Rules that live only in reviewers' heads don't work past one team.",
     },
   ],
 
   questions: [
+    {
+      id: "web-b4-01",
+      domain: "d4",
+      lesson: "d4-b-vars",
+      level: "beginner",
+      prompt: "Which line correctly uses a custom property named `--brand`?",
+      options: ["`color: var(--brand);`", "`color: --brand;`", "`color: $brand;`", "`color: brand();`"],
+      answer: [0],
+      explanation: "You read a custom property by wrapping its name in `var()`. A bare `--brand` isn't a valid colour, and `$brand` is how the Sass tool writes variables, not plain CSS.",
+    },
+    {
+      id: "web-b4-02",
+      type: "fill",
+      domain: "d4",
+      lesson: "d4-b-vars",
+      level: "beginner",
+      prompt: "Fill the gap so the card uses the `--gap` value for its padding.",
+      code: `:root {
+  --gap: 16px;
+}
+
+.card {
+  padding: {{1}}(--gap);
+}`,
+      codeLang: "css",
+      blanks: [{ options: ["var", "use", "get", "css"], answer: 0 }],
+      explanation: "`var(--gap)` swaps in the value you stored, here `16px`. If you later change `--gap` to `24px`, the card's padding follows.",
+    },
+    {
+      id: "web-b4-03",
+      domain: "d4",
+      lesson: "d4-b-team",
+      level: "beginner",
+      prompt: "What is a design token?",
+      options: ["A named design choice, like a colour or a spacing size, that everyone reuses", "A password for editing the CSS", "A small image used as an icon", "A special kind of HTML tag"],
+      answer: [0],
+      explanation: "A design token gives a design decision a name, like `--color-primary`. Everyone uses the name instead of the raw value, so the whole site stays consistent.",
+    },
+    {
+      id: "web-b4-04",
+      domain: "d4",
+      lesson: "d4-b-team",
+      level: "beginner",
+      prompt: "Why do teams agree on shared colours and spacing?",
+      options: ["So the site looks consistent and changes happen in one place", "So the CSS file gets as long as possible", "So every page can have its own colours", "Because browsers refuse to load CSS otherwise"],
+      answer: [0],
+      explanation: "Shared choices keep every page looking like part of the same site. When the brand changes, you update the shared values once instead of hunting through every file.",
+    },
     // ── d4-vars ──
     {
       id: "d4-01",
@@ -346,7 +444,7 @@ h2 { color: blue; }`,
 /* <button class="btn primary">Buy</button> */`,
       codeLang: "css",
       answer: [3],
-      explanation: "The space makes it `.btn .primary`, a descendant. The button has both classes on one element, which needs `&.primary` (no space) → `.btn.primary`.",
+      explanation: "The space makes it `.btn .primary`, which looks for a `.primary` inside the button. Here one element has both classes, which needs `&.primary` with no space. That becomes `.btn.primary`.",
     },
     {
       id: "d4-13",
@@ -378,7 +476,7 @@ h2 { color: blue; }`,
       codeLang: "css",
       options: ["Only the card in `.main`", "Both: the screen is wider than 500px", "Only the card in `.sidebar`", "Neither: cards aren't containers"],
       answer: [0],
-      explanation: "Each card queries its nearest container ancestor. The sidebar is 320px (no match); main is 900px (match). The viewport width doesn't matter.",
+      explanation: "Each card asks its nearest container ancestor. The sidebar is 320px, so no match. Main is 900px, so it matches. The window width doesn't matter.",
     },
     {
       id: "d4-15",
@@ -471,7 +569,7 @@ h2 { color: blue; }`,
         ["`--color-action: var(--blue-600)`", "Semantic: a meaning that themes can remap"],
         ["`--button-bg: var(--color-action)`", "Component: one component's styling hook"],
       ],
-      explanation: "Primitives name values, semantic tokens name intent, component tokens expose hooks. A dark theme or rebrand remaps the semantic tier, and components never reference primitives directly.",
+      explanation: "Primitive tokens name raw values, semantic tokens name what a value is for, and component tokens give each component its own hooks. A dark theme or rebrand changes the semantic tier, and components never use primitives directly.",
     },
     {
       id: "d4-21",
@@ -506,7 +604,7 @@ h2 { color: blue; }`,
         "Ban stylesheets and use only inline `style` attributes",
       ],
       answer: [0, 1],
-      explanation: "Scoping prevents collisions by construction; automated checks catch the rest before merge. `!important` and inline styles make overrides harder and kill reuse, media queries and pseudo-classes.",
+      explanation: "Scoping stops styles from clashing in the first place, and automated checks catch the rest before code is merged. `!important` and inline styles make overrides harder, and inline styles can't use media queries or pseudo-classes at all.",
     },
     {
       id: "d4-23",
@@ -571,17 +669,17 @@ h2 { color: blue; }`,
   ],
 
   cards: [
-    { id: "c-d4-custom", domain: "d4", kind: "concept", term: "Custom property", definition: "A `--name: value` declaration that inherits and is read with `var()`. Live at runtime; the basis of theming." },
+    { id: "c-d4-custom", domain: "d4", kind: "concept", term: "Custom property", definition: "A `--name: value` declaration that passes down to children and is read with `var()`. It stays live in the browser, which makes it the basis of theming." },
     { id: "c-d4-var", domain: "d4", kind: "service", term: "var()", definition: "Substitutes a custom property's value: `var(--x)` or `var(--x, fallback)`." },
     { id: "c-d4-property", domain: "d4", kind: "service", term: "@property", definition: "Registers a custom property with a type, initial value and inheritance, so it can be animated." },
     { id: "c-d4-has", domain: "d4", kind: "service", term: ":has()", definition: "Matches an element that has something matching its argument: `.card:has(img)`, `h2:has(+ p)`." },
-    { id: "c-d4-is", domain: "d4", kind: "service", term: ":is()", definition: "Matches any selector in its list; specificity of its most specific argument." },
-    { id: "c-d4-where", domain: "d4", kind: "service", term: ":where()", definition: "Like :is() but always zero specificity. Ideal for easily overridden defaults." },
-    { id: "c-d4-nesting", domain: "d4", kind: "service", term: "& (nesting selector)", definition: "Refers to the parent rule's selector: `&:hover`, `&.active`; `& .x` is a descendant." },
+    { id: "c-d4-is", domain: "d4", kind: "service", term: ":is()", definition: "Matches any selector in its list, and takes the specificity of the strongest one." },
+    { id: "c-d4-where", domain: "d4", kind: "service", term: ":where()", definition: "Like :is(), but it always adds zero specificity. Ideal for defaults that should be easy to override." },
+    { id: "c-d4-nesting", domain: "d4", kind: "service", term: "& (nesting selector)", definition: "Stands for the parent rule's selector, as in `&:hover` or `&.active`. `& .x`, with a space, means something inside it." },
     { id: "c-d4-container", domain: "d4", kind: "service", term: "@container", definition: "Applies rules based on the size of the nearest ancestor with `container-type`." },
     { id: "c-d4-containertype", domain: "d4", kind: "service", term: "container-type", definition: "`inline-size` makes an element a query container for its width (and enables `cqi` units inside it)." },
-    { id: "c-d4-layer", domain: "d4", kind: "service", term: "@layer", definition: "Named cascade layers. Later layers win over earlier ones before specificity; unlayered styles beat all layers." },
-    { id: "c-d4-tokens", domain: "d4", kind: "concept", term: "Design tokens", definition: "Named design decisions (colour, space, type, radius) in tiers: primitive → semantic → component." },
+    { id: "c-d4-layer", domain: "d4", kind: "service", term: "@layer", definition: "Named cascade layers. Later layers beat earlier ones, whatever the specificity, and styles outside any layer beat all layers." },
+    { id: "c-d4-tokens", domain: "d4", kind: "concept", term: "Design tokens", definition: "Named design decisions, like colour, spacing, type and radius. They come in three tiers: primitive, then semantic, then component." },
     { id: "c-d4-bem", domain: "d4", kind: "concept", term: "BEM", definition: "Block__Element--Modifier naming (`.card__title--large`): flat, single-class selectors with clear ownership." },
     { id: "c-d4-focusvisible", domain: "d4", kind: "service", term: ":focus-visible", definition: "Matches focused elements when a focus indicator should be shown, typically keyboard focus." },
     { id: "c-d4-reducedmotion", domain: "d4", kind: "service", term: "prefers-reduced-motion", definition: "Media feature for the user's OS setting to minimise animation." },
@@ -594,7 +692,7 @@ h2 { color: blue; }`,
       lesson: "d4-selectors",
       title: "Modern cascade duel",
       goal: "Pick the winning rule in at least 5 of 7 duels involving :is(), :where(), :not(), :has() and @layer.",
-      hint: ":where() is always zero; :is(), :not() and :has() take their strongest argument; layer order comes before specificity, and unlayered beats layered.",
+      hint: ":where() always counts as zero. :is(), :not() and :has() take their strongest argument. Layer order comes before specificity, and unlayered styles beat layered ones.",
       takeaway: "Modern selectors and layers follow the same mechanical cascade. Once you know how each one counts, the winner is predictable.",
       render: (onSolved) => <SpecificityDuelLab goal="modern" onSolved={onSolved} />,
     },

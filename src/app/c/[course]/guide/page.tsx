@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { GuideContent } from "@/components/Guide";
 import { PageShell } from "@/components/ui";
 
-export const metadata: Metadata = { title: "Study guide · Cert Quest" };
+export const metadata: Metadata = { title: "Study guide · SkillQuest" };
 
 export default function GuidePage() {
   return (

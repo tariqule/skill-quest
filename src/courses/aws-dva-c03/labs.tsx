@@ -226,7 +226,7 @@ export function SqsLab({ goal, onSolved }: GoalProps<"once" | "dlq">) {
 
   const banner: Record<SqsOutcome, { cls: string; text: string }> = {
     once: { cls: "border-emerald-400/40 bg-emerald-400/10 text-emerald-100", text: "✓ Processed exactly once, then deleted." },
-    dup: { cls: "border-rose-400/40 bg-rose-400/10 text-rose-100", text: `✗ Processed ${run?.processed ?? 0}+ times: duplicate side effects (double emails, double charges).` },
+    dup: { cls: "border-rose-400/40 bg-rose-400/10 text-rose-100", text: `✗ Processed ${run?.processed ?? 0}+ times, so its side effects happen more than once (double emails, double charges).` },
     dlq: poison
       ? { cls: "border-sky-400/40 bg-sky-400/10 text-sky-100", text: "✓ The poison message is parked in the DLQ for inspection. The main queue keeps flowing." }
       : {
@@ -267,7 +267,7 @@ export function SqsLab({ goal, onSolved }: GoalProps<"once" | "dlq">) {
           <div className={`rounded-xl border p-3 text-sm ${banner[run.outcome].cls}`}>{banner[run.outcome].text}</div>
         </div>
       )}
-      <p className="mt-2 text-xs text-slate-500">With Lambda polling the queue, AWS recommends a visibility timeout of at least 6× the function timeout.</p>
+      <p className="mt-2 text-xs text-slate-500">With Lambda polling the queue, AWS recommends a visibility timeout of at least 6 times the function timeout.</p>
     </div>
   );
 }
@@ -401,14 +401,14 @@ type RetryOption = "none" | "immediate" | "backoff";
 const CREDENTIALS: { id: CredentialOption; label: string; detail: string }[] = [
   { id: "accessKey", label: "Long-term access key in an env var", detail: "AWS_ACCESS_KEY_ID baked into the function config" },
   { id: "invoke", label: "Execution role: bedrock:InvokeModel", detail: "On the one model ARN the app uses" },
-  { id: "invokeStream", label: "Execution role: InvokeModel + InvokeModelWithResponseStream", detail: "On the one model ARN the app uses" },
+  { id: "invokeStream", label: "Execution role: InvokeModel and InvokeModelWithResponseStream", detail: "On the one model ARN the app uses" },
   { id: "wildcard", label: "Execution role: bedrock:* on *", detail: "Every Bedrock action on every resource" },
 ];
 
 const RETRIES: { id: RetryOption; label: string }[] = [
   { id: "none", label: "No retries" },
   { id: "immediate", label: "5 immediate retries" },
-  { id: "backoff", label: "Exponential backoff + jitter (max 4 attempts)" },
+  { id: "backoff", label: "Exponential backoff with jitter (up to 4 attempts)" },
 ];
 
 const MAX_TOKEN_STEPS = [128, 256, 512, 1024, 4096];
@@ -481,7 +481,7 @@ function simulateBedrock(cred: CredentialOption, api: ApiOption, maxTokens: numb
   if (!succeeded) {
     log.push({
       tone: "bad",
-      text: retry === "none" ? "Gave up after one throttled call: the user sees an error." : "Every retry landed inside the throttling window: retrying instantly just adds load.",
+      text: retry === "none" ? "Gave up after one throttled call: the user sees an error." : "Every retry landed inside the throttling window. Retrying instantly just adds more load.",
     });
     return { log, ok: false, safe: false };
   }
@@ -518,7 +518,7 @@ export function BedrockLab({ goal, onSolved }: GoalProps<"safe" | "stream">) {
 
   const verdict = run
     ? run.ok && run.safe
-      ? { cls: "border-emerald-400/40 bg-emerald-400/10 text-emerald-100", text: "✓ Complete answer, least privilege, no PII sent, cost capped. Safe and successful." }
+      ? { cls: "border-emerald-400/40 bg-emerald-400/10 text-emerald-100", text: "✓ A complete answer, least privilege, no personal data sent, and a capped cost. Safe and successful." }
       : run.ok
         ? { cls: "border-amber-400/40 bg-amber-400/10 text-amber-100", text: "⚠️ The request worked, but not safely. Fix the warnings above." }
         : { cls: "border-rose-400/40 bg-rose-400/10 text-rose-100", text: "✗ The user didn't get a complete answer." }

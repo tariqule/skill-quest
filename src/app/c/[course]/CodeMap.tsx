@@ -3,15 +3,16 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, type CSSProperties } from "react";
-import { LevelPicker, TerminalWindow, Typewriter } from "@/components/code/ui";
+import { TerminalWindow, Typewriter } from "@/components/code/ui";
 import { TrackCore3D } from "@/components/three";
 import { Bar } from "@/components/ui";
 import { BADGES } from "@/engine/badges";
 import { courseCopy } from "@/engine/copy";
 import { useCourse, useProgress } from "@/engine/course-context";
 import { domainMastery, overallReadiness, pct } from "@/engine/game";
-import { LEVEL_BY_ID, LEVELS, type LevelChoice } from "@/engine/levels";
-import { MODE_BY_ID } from "@/engine/modes";
+import { effectiveLevel, LEVEL_BY_ID } from "@/engine/levels";
+import { CourseLevel, LevelUpBanner } from "@/components/LevelControls";
+import { MODE_BY_ID, modesFor } from "@/engine/modes";
 import { buildPath, type PathNode } from "@/engine/path";
 import { levelInfo } from "@/engine/store";
 
@@ -34,9 +35,6 @@ export function CodeMap() {
     if (!s.onboarded && s.xp === 0) router.replace(href("/start"));
   }, [router, store, href]);
 
-  const counts = Object.fromEntries(
-    LEVELS.map((l) => [l.id, l.id === "all" ? course.questions.length : course.questions.filter((q) => q.level === l.id).length]),
-  ) as Record<LevelChoice, number>;
   const slug = course.shortTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 
   return (
@@ -103,15 +101,8 @@ export function CodeMap() {
         </div>
       </TerminalWindow>
 
-      <section className="mt-8">
-        <h2 className="font-mono text-lg font-black uppercase tracking-wider text-white">
-          <span className="text-emerald-300">&gt;</span> Select difficulty
-        </h2>
-        <p className="mt-1 text-sm text-slate-400">Trials, drills, boss battles, study play, and the {copy.simulator} only use questions at this level.</p>
-        <div className="mt-4">
-          <LevelPicker value={p.level} onChange={(l) => store.setLevel(l)} counts={counts} />
-        </div>
-      </section>
+      <LevelUpBanner />
+      <CourseLevel title="> Select your level" note={`Lessons, trials, drills, study play and the ${copy.simulator} follow this level. Change it any time.`} />
 
       {codingAtLevel.length > 0 && (
         <section className="mt-8">
@@ -167,6 +158,14 @@ export function CodeMap() {
                   <Tile key={n.key} node={n} label={n.type === "quest" ? "BOSS" : `${d.number}-${ni + 1}`} color={d.color} />
                 ))}
               </div>
+              <div className="mt-4 flex flex-wrap gap-2 font-mono text-xs">
+                <Link href={href(`/study/${d.id}`)} className="rounded-lg border border-sky-400/40 bg-sky-400/10 px-2.5 py-1 font-bold text-sky-100 hover:bg-sky-400/20">
+                  📚 Study
+                </Link>
+                <Link href={href(`/game/${d.id}`)} className="rounded-lg border border-amber-300/40 bg-amber-400/10 px-2.5 py-1 font-bold text-amber-100 hover:bg-amber-400/20">
+                  🎮 Mini game{p.games[d.id] ? ` · best ${p.games[d.id].best}` : ""}
+                </Link>
+              </div>
               {!w.unlocked && <p className="mt-3 font-mono text-xs text-slate-500">🔒 Beat the previous stage&apos;s boss to unlock.</p>}
             </TerminalWindow>
           );
@@ -178,7 +177,7 @@ export function CodeMap() {
           <span className="text-emerald-300">&gt;</span> Arcade
         </h2>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {course.modes
+          {modesFor(course, effectiveLevel(course, p.level))
             .map((id) => MODE_BY_ID[id])
             .map((m) => (
               <Link
@@ -256,12 +255,13 @@ function Tile({ node, label, color }: { node: PathNode; label: string; color: st
   const lesson = node.type === "lesson" ? lessonById[node.key] : null;
   const level = lesson?.level ? LEVEL_BY_ID[lesson.level] : null;
   const locked = node.state === "locked";
+  const later = node.state === "later";
   const done = node.state === "done";
   const current = node.state === "current";
   const boss = node.type === "quest";
   const body = (
     <div
-      className={`pixel-tile relative h-full p-3 transition ${locked ? "opacity-40" : "hover:-translate-y-0.5"} ${current ? "node-current" : ""}`}
+      className={`pixel-tile relative h-full p-3 transition ${locked ? "opacity-40" : later ? "opacity-55 hover:opacity-90" : "hover:-translate-y-0.5"} ${current ? "node-current" : ""}`}
       style={{
         background: done ? `${color}30` : boss ? "linear-gradient(135deg, #be185d55, #7c3aed44)" : "rgb(255 255 255 / 0.04)",
         boxShadow: current ? `inset 0 0 0 2px ${color}, 0 0 22px -4px ${color}` : `inset 0 0 0 1px ${done ? color : "rgb(255 255 255 / 0.1)"}`,
@@ -269,9 +269,11 @@ function Tile({ node, label, color }: { node: PathNode; label: string; color: st
     >
       <div className="flex items-center justify-between font-mono text-xs font-black" style={{ color: boss ? "#f472b6" : color }}>
         <span>{label}</span>
-        <span>{done ? "★" : locked ? "🔒" : boss ? "⚔️" : current ? "▶" : "·"}</span>
+        <span>{done ? "★" : locked ? "🔒" : boss ? "⚔️" : current ? "▶" : later ? "⏭" : node.basics ? "🐣" : "·"}</span>
       </div>
       <div className="mt-2 line-clamp-3 text-xs leading-snug text-slate-200">{boss ? "Stage boss: prove the whole stage" : node.title}</div>
+      {later && <div className="mt-1 text-[10px] text-slate-500">after the basics</div>}
+      {node.optional && !later && node.basics && <div className="mt-1 text-[10px] text-rose-200/70">basics · optional</div>}
       {level && (
         <div className="mt-2 inline-block rounded px-1.5 py-0.5 font-mono text-[10px] font-bold" style={{ background: `${level.color}22`, color: level.color }}>
           {level.icon} {level.name}

@@ -1,4 +1,4 @@
-import { CodeCompare, Tiles } from "@/components/learn/blocks";
+import { CodeBlock, CodeCompare, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { StackQueueLab } from "../labs";
 import { js } from "../snippet";
@@ -14,7 +14,7 @@ export default defineDomain({
     weight: 25,
     emoji: "⚓",
     color: "#a78bfa",
-    summary: "LIFO and FIFO, deques and monotonic stacks, Map and Set, collisions, load factor, and hash tables at scale.",
+    summary: "Stacks and queues, deques and monotonic stacks, JavaScript's Map and Set, and how hash tables handle collisions, grow, and spread across servers.",
   },
 
   tasks: [
@@ -37,6 +37,55 @@ export default defineDomain({
 
   lessons: [
     {
+      id: "ds-b-lines",
+      level: "beginner",
+      check: ["ds-b2-01", "ds-b2-02"],
+      task: "2.1",
+      title: "Start here: stacks of plates and queues at a counter",
+      visual: (
+        <Tiles
+          tiles={[
+            { icon: "🍽️", title: "Stack", text: "Plates in a pile. You put new plates on top and take from the top, so the last plate added is the first one used.", color: "#a78bfa" },
+            { icon: "☕", title: "Queue", text: "A line at a coffee counter. New people join the back and the person at the front is served first.", color: "#a78bfa" },
+          ]}
+        />
+      ),
+      points: [
+        "A **stack** works like a pile of plates. You add to the top and take from the top, so the newest item comes out first.",
+        "A **queue** works like a line at a counter. People join at the back and leave from the front, so the oldest item comes out first.",
+        "In JavaScript an array can be a stack: `push` puts an item on top and `pop` takes the top one off.",
+        "Your browser's back button is a stack of pages. A printer working through jobs in order is a queue.",
+      ],
+      tip: "Ask yourself: should the newest thing go first, or the oldest? Newest means stack, oldest means queue.",
+    },
+    {
+      id: "ds-b-lookup",
+      level: "beginner",
+      check: ["ds-b2-03", "ds-b2-04"],
+      task: "2.2",
+      title: "Start here: looking things up by name",
+      visual: (
+        <div className="grid gap-4">
+          <Tiles
+            cols={3}
+            tiles={[
+              { icon: "🧥", title: "Key", text: "Your coat check ticket number, like `\"ticket-42\"`.", color: "#a78bfa" },
+              { icon: "🧺", title: "Value", text: "The coat stored under that ticket.", color: "#a78bfa" },
+              { icon: "⚡", title: "Fast", text: "The attendant goes straight to the right hook instead of checking every coat.", color: "#a78bfa" },
+            ]}
+          />
+          <CodeBlock lang="js" code={js("const ages = new Map();", "ages.set('Ana', 31);", "ages.set('Ben', 27);", "console.log(ages.get('Ana')); // 31")} />
+        </div>
+      ),
+      points: [
+        "A **hash map** stores pairs: a **key** you look things up by, and a **value** stored under it. Think of a coat check, where your ticket is the key and your coat is the value.",
+        "Finding a value by its key is fast, even with millions of entries. You don't search through everything.",
+        "In JavaScript you'll use `Map`. `set(key, value)` stores a pair and `get(key)` reads it back.",
+        "A **set** is like a hash map with only keys. It answers one question quickly: is this item in here?",
+      ],
+      tip: "Whenever a problem asks \"have I seen this before?\", a Set or Map is usually the answer.",
+    },
+    {
       id: "ds-stack",
       level: "junior",
       check: ["ds2-01", "ds2-02"],
@@ -44,11 +93,11 @@ export default defineDomain({
       title: "Stacks: last in, first out",
       visual: <StackQueueLab mode="brackets" />,
       points: [
-        "`push`, `pop`, and peek are O(1). A JavaScript array used only with `push`/`pop` is a stack.",
-        "Classic uses: undo, the call stack, bracket matching, DFS, and evaluating expressions.",
-        "A monotonic stack (kept increasing or decreasing) finds the next greater or smaller element for every item in O(n).",
+        "A stack is **LIFO**: last in, first out. `push`, `pop` and peeking at the top are all O(1). A JavaScript array that you only `push` and `pop` is a stack.",
+        "Stacks show up in undo history, the call stack, bracket matching, depth-first search and evaluating expressions.",
+        "A **monotonic stack** keeps its items in increasing or decreasing order. It finds the next greater or smaller item for every element in O(n).",
       ],
-      tip: "When a problem says \"most recent\" or \"matching pair\", think stack.",
+      tip: "When a problem mentions \"the most recent\" or \"a matching pair\", think stack.",
     },
     {
       id: "ds-queue",
@@ -70,12 +119,12 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "Enqueue at the back, dequeue at the front, both O(1) in a proper queue (linked list, ring buffer, or head index).",
-        "`array.shift()` removes index 0, so the rest may have to move. Don't rely on engine optimisations in an interview.",
-        "A deque adds and removes at both ends in O(1): the tool for sliding-window maximum.",
-        "Two stacks make a queue: refill the outbox only when it's empty, and every item moves once: O(1) amortized.",
+        "A queue is **FIFO**: first in, first out. You enqueue at the back and dequeue at the front. A proper queue does both in O(1), using a linked list, a ring buffer or a head index.",
+        "`array.shift()` removes index 0, so every other item may have to slide down. Some engines optimise this, but don't rely on that in an interview.",
+        "A **deque** (double-ended queue) adds and removes at both ends in O(1). It's the tool for the sliding-window maximum problem.",
+        "You can build a queue from two stacks. Refill the outbox only when it's empty. Each item moves across once, so dequeue is O(1) amortized.",
       ],
-      tip: "BFS needs a queue. Saying \"I'll use `shift()` here, which is O(n) in the worst case; in production I'd use a head index\" shows depth.",
+      tip: "BFS needs a queue. Saying \"I'll use `shift()` here, which can be O(n). In production I'd use a head index\" shows you know the cost.",
     },
     {
       id: "ds-hashmap",
@@ -99,17 +148,17 @@ export default defineDomain({
           <Tiles
             cols={3}
             tiles={[
-              { icon: "🗺️", title: "Map", text: "Any key type (objects by identity), keeps insertion order, has `.size`. get/set/has/delete O(1) average.", color: "#a78bfa" },
-              { icon: "🎟️", title: "Set", text: "Unique values. Membership checks and dedupe: `[...new Set(arr)]`.", color: "#a78bfa" },
-              { icon: "📦", title: "Plain object", text: "Keys become strings (or symbols). `obj[someObject]` uses the key \"[object Object]\".", color: "#a78bfa" },
+              { icon: "🗺️", title: "Map", text: "Takes any key type, comparing objects by identity. It keeps insertion order and has `.size`. Get, set, has and delete are O(1) on average.", color: "#a78bfa" },
+              { icon: "🎟️", title: "Set", text: "Holds unique values. Use it for membership checks and removing duplicates: `[...new Set(arr)]`.", color: "#a78bfa" },
+              { icon: "📦", title: "Plain object", text: "Keys get turned into strings (or symbols). `obj[someObject]` actually uses the key \"[object Object]\".", color: "#a78bfa" },
             ]}
           />
         </div>
       ),
       points: [
-        "Hash maps turn \"have I seen this?\" from an O(n) scan into an O(1) average lookup: trading space for time.",
-        "Frequency counting: `m.set(x, (m.get(x) ?? 0) + 1)`.",
-        "Caches built on a Map need a bound (LRU eviction, TTL), or they become memory leaks.",
+        "A hash map turns \"have I seen this?\" from an O(n) scan into an O(1) lookup on average. You spend extra memory to save time.",
+        "To count how often each item appears, write `m.set(x, (m.get(x) ?? 0) + 1)`.",
+        "A cache built on a Map needs a size limit, such as LRU eviction or a time to live. Without one, it keeps growing and becomes a memory leak.",
       ],
       tip: "Say \"O(1) on average\" for hash lookups. The worst case is O(n).",
     },
@@ -121,17 +170,64 @@ export default defineDomain({
       title: "Inside a hash table: buckets and collisions",
       visual: <HashBuckets />,
       points: [
-        "A hash function maps a key to a number; `hash % buckets` picks the bucket.",
-        "Collisions are unavoidable (more possible keys than buckets). Separate chaining stores a list per bucket; open addressing probes for another slot.",
-        "Load factor = entries ÷ buckets. Past a threshold the table grows (often doubling) and rehashes every key, keeping operations O(1) amortized.",
-        "If many keys collide, lookups degrade to O(n). Seeded hash functions defend against attackers choosing colliding keys.",
-        "Across servers, `hash % N` remaps almost everything when N changes; consistent hashing moves only about 1/N of keys.",
+        "A **hash function** turns a key into a number. The table then uses `hash % buckets` to pick which bucket the entry goes in.",
+        "A **collision** is two keys landing in the same bucket, and you can't avoid them. **Separate chaining** keeps a list in each bucket. **Open addressing** looks for another free slot.",
+        "The **load factor** is the number of entries divided by the number of buckets. Past a limit, the table grows, often doubling, and rehashes every key, so operations stay O(1) amortized.",
+        "If many keys collide, lookups slow down to O(n). Seeded hash functions stop attackers from choosing keys that all collide on purpose.",
+        "Across servers, `hash % N` moves almost every key when N changes. **Consistent hashing** moves only about 1/N of them.",
       ],
-      tip: "If asked to design a hash map, cover: hash function, collision strategy, load factor, resizing, and the average vs worst case.",
+      tip: "If you're asked to design a hash map, cover the hash function, the collision strategy, the load factor, resizing, and the average versus worst case.",
     },
   ],
 
   questions: [
+    {
+      id: "ds-b2-01",
+      domain: "d2",
+      level: "beginner",
+      lesson: "ds-b-lines",
+      prompt: "You add plates 1, 2 and 3 to a stack, in that order. Which plate do you take off first?",
+      options: ["Plate 3", "Plate 1", "Plate 2", "Any plate, at random"],
+      answer: [0],
+      explanation: "A stack hands back the newest item first. Plate 3 went on last, so it sits on top and comes off first. That rule is called last in, first out.",
+    },
+    {
+      id: "ds-b2-02",
+      domain: "d2",
+      level: "beginner",
+      lesson: "ds-b-lines",
+      prompt: "Which everyday situation works like a queue?",
+      options: ["People waiting in line at a ticket booth", "A pile of books where you always take the top one", "A dictionary sorted from A to Z", "A drawer where you grab whatever is closest"],
+      answer: [0],
+      explanation: "In a line, whoever arrived first is served first, and newcomers join the back. That's exactly how a queue works. The pile of books is a stack, because the newest book comes off first.",
+    },
+    {
+      id: "ds-b2-03",
+      domain: "d2",
+      level: "beginner",
+      lesson: "ds-b-lookup",
+      type: "output",
+      prompt: "Type what this prints.",
+      code: js("const prices = new Map();", "prices.set('tea', 3);", "prices.set('cake', 5);", "console.log(prices.get('cake'));"),
+      codeLang: "js",
+      answers: ["5"],
+      explanation: "`set` stores the value 5 under the key `'cake'`. `get('cake')` looks up that key and hands back 5.",
+    },
+    {
+      id: "ds-b2-04",
+      domain: "d2",
+      level: "beginner",
+      lesson: "ds-b-lookup",
+      prompt: "What makes a hash map useful?",
+      options: [
+        "It finds a value by its key quickly, without checking every entry",
+        "It keeps every value sorted from smallest to largest",
+        "It can only hold numbers, which keeps it small",
+        "It always uses less memory than an array",
+      ],
+      answer: [0],
+      explanation: "Like a coat check attendant who goes straight to your hook, a hash map jumps right to the value for a key. That stays fast even when the map holds millions of entries.",
+    },
     {
       id: "ds2-01",
       domain: "d2",
@@ -142,7 +238,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["`4 2`", "`1 3`", "`4 3`", "`2 2`"],
       answer: [0],
-      explanation: "After popping 2 the stack is `[1]`, then `[1, 3, 4]`. `pop()` returns the top, 4, leaving 2 items.",
+      explanation: "After 2 is popped the stack is `[1]`, and the next two pushes make it `[1, 3, 4]`. `pop()` returns the top item, 4, which leaves 2 items behind.",
     },
     {
       id: "ds2-02",
@@ -152,7 +248,7 @@ export default defineDomain({
       prompt: "Which problem is the classic fit for a stack?",
       options: ["Checking that brackets like `{[()]}` are balanced", "Serving print jobs in arrival order", "Finding the shortest path in an unweighted graph", "Looking up a user by email"],
       answer: [0],
-      explanation: "The most recent unmatched opener must match the next closer: last in, first out. Arrival order is a queue, shortest paths use BFS (a queue), and lookups use a hash map.",
+      explanation: "Each closing bracket must match the most recent opening bracket that's still unmatched, which is last in, first out. Arrival order calls for a queue, shortest paths use BFS with a queue, and lookups use a hash map.",
     },
     {
       id: "ds2-03",
@@ -177,7 +273,7 @@ export default defineDomain({
       ),
       codeLang: "js",
       answer: [11],
-      explanation: "Unmatched openers left on the stack mean the string isn't balanced. The last line must be `return stack.length === 0;`.",
+      explanation: "If openers are still on the stack at the end, they were never matched, so the string isn't balanced. The last line should be `return stack.length === 0;`.",
     },
     {
       id: "ds2-04",
@@ -185,14 +281,14 @@ export default defineDomain({
       level: "junior",
       lesson: "ds-stack",
       type: "order",
-      prompt: "Order the steps of the stack-based bracket checker.",
+      prompt: "Put the steps of the stack-based bracket checker in order.",
       items: [
         "Create an empty stack",
         "Scan left to right: push each opener; on each closer, pop the top",
         "If the stack was empty or the popped opener doesn't match the closer, return false",
         "After the scan, return whether the stack is empty",
       ],
-      explanation: "Each closer must match the most recent opener, and nothing may be left over at the end. O(n) time, O(n) space.",
+      explanation: "Each closer has to match the most recent opener, and nothing can be left over at the end. The check takes O(n) time and O(n) space.",
     },
     {
       id: "ds2-05",
@@ -204,7 +300,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["`b 2`", "`d 2`", "`a 3`", "`c 2`"],
       answer: [0],
-      explanation: "The first `shift` removes 'a', leaving `['b', 'c']`; pushing 'd' gives `['b', 'c', 'd']`. The next `shift` returns 'b', leaving 2 items. First in, first out.",
+      explanation: "The first `shift` removes 'a', leaving `['b', 'c']`, and pushing 'd' gives `['b', 'c', 'd']`. The next `shift` returns 'b' and leaves 2 items. First in, first out.",
     },
     {
       id: "ds2-06",
@@ -219,17 +315,17 @@ export default defineDomain({
         "It sorts the array first",
       ],
       answer: [0],
-      explanation: "Engines sometimes optimise it, but you can't count on that. A head index, ring buffer, or linked list gives a true O(1) dequeue. (`shift` on an empty array returns `undefined`.)",
+      explanation: "Engines sometimes optimise it, but you can't count on that. A head index, a ring buffer or a linked list gives you a true O(1) dequeue. On an empty array, `shift` just returns `undefined`.",
     },
     {
       id: "ds2-07",
       domain: "d2",
       level: "senior",
       lesson: "ds-queue",
-      prompt: "A queue is built from two stacks: push to `inbox`; to dequeue, if `outbox` is empty move everything from `inbox` to `outbox`, then pop `outbox`. What is the amortized cost of a dequeue?",
+      prompt: "A queue is built from two stacks. You push to `inbox`. To dequeue, if `outbox` is empty you move everything from `inbox` to `outbox`, then pop `outbox`. What is the amortized cost of a dequeue?",
       options: ["O(1): each element is moved at most once", "O(n) every time", "O(log n)", "O(n²)"],
       answer: [0],
-      explanation: "Each element is pushed to inbox once, moved once, and popped once. A single dequeue can be O(n), but the total over n operations is O(n).",
+      explanation: "Each item is pushed to the inbox once, moved once and popped once. A single dequeue can take O(n), but the total over n operations is O(n), so the average is O(1).",
     },
     {
       id: "ds2-08",
@@ -244,7 +340,7 @@ export default defineDomain({
         ["Deque", "Sliding-window maximum (add and remove at both ends)"],
         ["Priority queue", "Always serve the most urgent item next"],
       ],
-      explanation: "LIFO, FIFO, both ends, and \"best next\" are the four access patterns. Pick the structure that makes your most frequent operation O(1) or O(log n).",
+      explanation: "Newest first, oldest first, both ends, and best next are the four ways you might want to take items out. Pick the structure that makes your most frequent operation O(1) or O(log n).",
     },
     {
       id: "ds2-09",
@@ -266,7 +362,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["O(n) time, O(n) space", "O(n²) time, O(1) space", "O(n log n) time, O(1) space", "O(n) time, O(1) space"],
       answer: [0],
-      explanation: "One pass with O(1) average map operations, and the map can hold up to n entries. That's the classic space-for-time trade.",
+      explanation: "It makes one pass, and each map operation is O(1) on average. The map can end up holding n entries. That's the classic trade of memory for speed.",
     },
     {
       id: "ds2-10",
@@ -278,7 +374,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["`3 3`", "`3 5`", "`1 3`", "`undefined 3`"],
       answer: [0],
-      explanation: "'a' appears three times. `size` counts distinct keys: a, b, c.",
+      explanation: "'a' appears three times, so its count is 3. `size` counts different keys, and there are three: a, b and c.",
     },
     {
       id: "ds2-11",
@@ -290,7 +386,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["`3,1,2 3`", "`1,2,3 3`", "`3,1,3,2,1,2 6`", "`3,1,2 4`"],
       answer: [0],
-      explanation: "A Set ignores duplicates and iterates in insertion order (not sorted). Adding 2 again changes nothing.",
+      explanation: "A Set ignores duplicates and lists items in the order they were first added, not sorted. Adding 2 again changes nothing.",
     },
     {
       id: "ds2-12",
@@ -302,7 +398,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["`1 second`", "`2 first`", "`2 second`", "`1 first`"],
       answer: [0],
-      explanation: "Plain-object keys are converted to strings, and both objects become \"[object Object]\". The second write overwrites the first. Use a `Map` to key by object identity.",
+      explanation: "A plain object turns its keys into strings, and both objects become \"[object Object]\". So the second write replaces the first. Use a `Map` when you want to key by the object itself.",
     },
     {
       id: "ds2-13",
@@ -312,7 +408,7 @@ export default defineDomain({
       prompt: "A chained hash table has 8 buckets and holds 12 entries. What is its load factor?",
       options: ["1.5", "0.67", "12", "8"],
       answer: [0],
-      explanation: "Load factor = entries ÷ buckets = 12 ÷ 8 = 1.5. With chaining it can exceed 1, but chains get longer, so tables usually resize well before that.",
+      explanation: "The load factor is entries divided by buckets, and 12 divided by 8 is 1.5. With chaining it can go above 1, but the chains get longer, so tables usually resize well before that.",
     },
     {
       id: "ds2-14",
@@ -322,7 +418,7 @@ export default defineDomain({
       prompt: "When does a hash map lookup degrade to O(n)?",
       options: ["When many keys collide into the same bucket", "When the map holds more than 1,000 keys", "Whenever the keys are strings", "When you call `has` before `get`"],
       answer: [0],
-      explanation: "If every key hashes to one bucket, a lookup scans a chain of n entries. Good hash functions and resizing make that very unlikely for ordinary data.",
+      explanation: "If every key lands in one bucket, a lookup has to scan a chain of n entries. A good hash function and resizing make that very unlikely for ordinary data.",
     },
     {
       id: "ds2-15",
@@ -338,7 +434,7 @@ export default defineDomain({
         "Doubling the hash function's output",
       ],
       answer: [0, 1],
-      explanation: "Chaining keeps colliding entries together in a bucket; open addressing (linear probing, quadratic probing, double hashing) stores them elsewhere in the array.",
+      explanation: "Chaining keeps colliding entries together in one bucket. Open addressing stores them somewhere else in the array, using linear probing, quadratic probing or double hashing.",
     },
     {
       id: "ds2-16",
@@ -366,7 +462,7 @@ export default defineDomain({
       ),
       codeLang: "js",
       answer: [9],
-      explanation: "`set` always appends, so the bucket holds two pairs for 'x' and `find` returns the older one. It must update the existing pair when the key is already present.",
+      explanation: "`set` always adds a new pair, so the bucket ends up with two pairs for 'x' and `find` returns the older one. `set` needs to update the existing pair when the key is already there.",
     },
     {
       id: "ds2-17",
@@ -374,14 +470,14 @@ export default defineDomain({
       level: "senior",
       lesson: "ds-hashing",
       type: "order",
-      prompt: "Order what `set(key, value)` does in a chained hash table.",
+      prompt: "Put the steps of `set(key, value)` in a chained hash table in order.",
       items: [
         "Hash the key to a number",
-        "Reduce it to a bucket index, e.g. `hash % buckets.length`",
+        "Reduce it to a bucket index, for example `hash % buckets.length`",
         "Scan that bucket: update the value if the key exists, otherwise append",
         "If the load factor passes the limit, grow the table and rehash every key",
       ],
-      explanation: "Hash, pick a bucket, handle the collision chain, then resize if needed. Resizing is O(n) but rare, so set stays O(1) amortized.",
+      explanation: "Hash the key, pick a bucket, deal with anything already in that bucket, then resize if needed. Resizing is O(n) but rare, so `set` stays O(1) amortized.",
     },
     {
       id: "ds2-18",
@@ -396,7 +492,7 @@ export default defineDomain({
         "Objects don't support deleting keys",
       ],
       answer: [0],
-      explanation: "Object keys become strings, so two different objects collide on \"[object Object]\". Map also keeps insertion order and has `size`. Neither guarantees worst-case O(1).",
+      explanation: "Object keys turn into strings, so two different user objects both become \"[object Object]\" and overwrite each other. A Map also keeps insertion order and has `size`. Neither one guarantees O(1) in the worst case.",
     },
     {
       id: "ds2-19",
@@ -420,7 +516,7 @@ export default defineDomain({
       ),
       codeLang: "js",
       answer: [8],
-      explanation: "The loop reads `nums[stack[...]]` and writes `res[stack.pop()]`, both treating stack entries as indexes, but line 8 pushes the value. It should be `stack.push(i)`. Each index is pushed and popped once: O(n).",
+      explanation: "The loop reads `nums[stack[...]]` and writes `res[stack.pop()]`, so it treats stack entries as indexes. Line 8 pushes the value instead, and it should be `stack.push(i)`. Each index is pushed and popped once, so the whole thing is O(n).",
     },
     {
       id: "ds2-20",
@@ -435,7 +531,7 @@ export default defineDomain({
         ["One resize-and-rehash", "O(n), but rare enough to amortize"],
         ["Membership check in a sorted array", "O(log n)"],
       ],
-      explanation: "Average O(1) depends on a good hash and a bounded load factor. A sorted array with binary search is a solid alternative when memory is tight or order matters.",
+      explanation: "The O(1) average relies on a good hash function and a load factor kept in check. A sorted array with binary search is a solid alternative when memory is tight or you need the order.",
     },
     {
       id: "ds2-21",
@@ -450,7 +546,7 @@ export default defineDomain({
         "Collisions corrupt values; switch from a map to a set",
       ],
       answer: [0],
-      explanation: "If attackers can predict the hash, they can force every key into one bucket and turn each request into O(n) work. Many runtimes seed their string hashes for this reason; limiting key count and size helps too.",
+      explanation: "If attackers can predict the hash, they can push every key into one bucket and make each request do O(n) work. Many runtimes seed their string hashes for this reason. Limiting how many keys come in, and how long they are, helps too.",
     },
     {
       id: "ds2-22",
@@ -475,7 +571,7 @@ export default defineDomain({
         "Clear the whole cache on every request",
       ],
       answer: [0],
-      explanation: "An unbounded cache is a memory leak. A Map's insertion order makes a simple LRU possible; a TTL also bounds staleness. Clearing on every request removes the benefit of caching.",
+      explanation: "A cache with no limit is a memory leak. Because a Map remembers insertion order, a simple LRU is easy to build on it. A time to live also stops users' data from going stale. Clearing on every request throws away the point of caching.",
     },
     {
       id: "ds2-23",
@@ -490,7 +586,7 @@ export default defineDomain({
         "Run the service on one bigger server",
       ],
       answer: [0],
-      explanation: "The problem is durability and sharing, not Big-O. A broker persists jobs, hands each one to one worker, and redelivers unacknowledged jobs. Plan for at-least-once delivery with idempotent handlers.",
+      explanation: "The problem is keeping jobs safe and sharing them, not Big-O. A message broker saves jobs to disk, gives each one to a single worker, and sends it again if the worker never confirms. Plan for jobs that may run more than once, and make the handlers safe to repeat.",
     },
     {
       id: "ds2-24",
@@ -505,24 +601,24 @@ export default defineDomain({
         "Store every key on every node",
       ],
       answer: [0],
-      explanation: "With modulo placement, changing N changes almost every key's node. Consistent hashing maps keys and nodes onto a ring, so a new node only takes over neighbouring ranges. Virtual nodes even out the load.",
+      explanation: "With modulo placement, changing N changes the node for almost every key. Consistent hashing places keys and nodes on a ring, so a new node only takes over the ranges next to it. Virtual nodes spread the load more evenly.",
     },
   ],
 
   cards: [
-    { id: "ds-c-stack", domain: "d2", kind: "service", term: "Stack", definition: "LIFO: push, pop, and peek in O(1)" },
-    { id: "ds-c-queue", domain: "d2", kind: "service", term: "Queue", definition: "FIFO: enqueue at the back, dequeue at the front" },
-    { id: "ds-c-deque", domain: "d2", kind: "service", term: "Deque", definition: "Add and remove at both ends in O(1)" },
-    { id: "ds-c-map", domain: "d2", kind: "service", term: "`Map`", definition: "Key→value store; any key type, keeps insertion order" },
-    { id: "ds-c-set", domain: "d2", kind: "service", term: "`Set`", definition: "Unique values; O(1) average has/add/delete" },
-    { id: "ds-c-weakmap", domain: "d2", kind: "service", term: "`WeakMap`", definition: "Object keys held weakly; entries can be garbage collected with the key" },
-    { id: "ds-c-monostack", domain: "d2", kind: "service", term: "Monotonic stack", definition: "Stack kept sorted to find next greater/smaller elements in O(n)" },
-    { id: "ds-c-hashfn", domain: "d2", kind: "concept", term: "Hash function", definition: "Turns a key into a number that picks a bucket" },
-    { id: "ds-c-collision", domain: "d2", kind: "concept", term: "Collision", definition: "Two different keys land in the same bucket" },
-    { id: "ds-c-chaining", domain: "d2", kind: "concept", term: "Separate chaining", definition: "Each bucket holds a list of its entries" },
-    { id: "ds-c-openaddr", domain: "d2", kind: "concept", term: "Open addressing", definition: "On a collision, probe for another free slot in the array" },
-    { id: "ds-c-load", domain: "d2", kind: "concept", term: "Load factor", definition: "Entries ÷ buckets; too high triggers a resize" },
-    { id: "ds-c-consistent", domain: "d2", kind: "concept", term: "Consistent hashing", definition: "Hash ring that moves only ~1/N of keys when nodes change" },
+    { id: "ds-c-stack", domain: "d2", kind: "service", term: "Stack", definition: "Last in, first out. Push, pop and peek are all O(1)." },
+    { id: "ds-c-queue", domain: "d2", kind: "service", term: "Queue", definition: "First in, first out. You add at the back and remove from the front." },
+    { id: "ds-c-deque", domain: "d2", kind: "service", term: "Deque", definition: "A double-ended queue. You can add and remove at both ends in O(1)." },
+    { id: "ds-c-map", domain: "d2", kind: "service", term: "`Map`", definition: "Stores key and value pairs. Keys can be any type, and it remembers insertion order." },
+    { id: "ds-c-set", domain: "d2", kind: "service", term: "`Set`", definition: "Holds unique values. Has, add and delete are O(1) on average." },
+    { id: "ds-c-weakmap", domain: "d2", kind: "service", term: "`WeakMap`", definition: "A map with object keys held weakly, so an entry can be garbage collected along with its key." },
+    { id: "ds-c-monostack", domain: "d2", kind: "service", term: "Monotonic stack", definition: "A stack kept in sorted order. It finds the next greater or smaller element for every item in O(n)." },
+    { id: "ds-c-hashfn", domain: "d2", kind: "concept", term: "Hash function", definition: "Turns a key into a number, which picks the bucket the entry goes in." },
+    { id: "ds-c-collision", domain: "d2", kind: "concept", term: "Collision", definition: "Two different keys landing in the same bucket." },
+    { id: "ds-c-chaining", domain: "d2", kind: "concept", term: "Separate chaining", definition: "Handling collisions by keeping a list of entries in each bucket." },
+    { id: "ds-c-openaddr", domain: "d2", kind: "concept", term: "Open addressing", definition: "Handling a collision by probing for another free slot in the array." },
+    { id: "ds-c-load", domain: "d2", kind: "concept", term: "Load factor", definition: "Entries divided by buckets. When it gets too high, the table resizes." },
+    { id: "ds-c-consistent", domain: "d2", kind: "concept", term: "Consistent hashing", definition: "Placing keys and nodes on a ring, so only about 1/N of keys move when a node joins or leaves." },
   ],
 
   challenges: [
@@ -531,9 +627,9 @@ export default defineDomain({
       domain: "d2",
       lesson: "ds-stack",
       title: "Balance the brackets",
-      goal: "Process `{[()()]}` with push and pop until you prove it's balanced.",
-      hint: "Openers get pushed. On a closer, pop and check the top is its partner.",
-      takeaway: "A stack matches each closer with the most recent unmatched opener, in O(n).",
+      goal: "Work through `{[()()]}` with push and pop until you've shown it's balanced.",
+      hint: "Push every opening bracket. When you meet a closing one, pop and check that the top was its partner.",
+      takeaway: "A stack matches each closing bracket with the most recent unmatched opener, in O(n).",
       render: (onSolved) => <StackQueueLab goal="balanced" onSolved={onSolved} />,
     },
     {
@@ -541,9 +637,9 @@ export default defineDomain({
       domain: "d2",
       lesson: "ds-queue",
       title: "A queue from two stacks",
-      goal: "Serve customers 1, 2, 3, 4 in arrival order using only an inbox stack and an outbox stack.",
-      hint: "Only move items to the outbox when it's empty. Moving reverses their order.",
-      takeaway: "Each item moves once, so a two-stack queue dequeues in O(1) amortized.",
+      goal: "Serve customers 1, 2, 3 and 4 in the order they arrived, using only an inbox stack and an outbox stack.",
+      hint: "Only move items to the outbox when it's empty. Moving them flips their order.",
+      takeaway: "Each item moves across once, so a two-stack queue dequeues in O(1) amortized.",
       render: (onSolved) => <StackQueueLab goal="twoStacks" onSolved={onSolved} />,
     },
   ],

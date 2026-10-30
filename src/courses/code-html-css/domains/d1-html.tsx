@@ -13,7 +13,7 @@ export default defineDomain({
     weight: 25,
     emoji: "🌱",
     color: "#e34f26",
-    summary: "What a web page is, how the browser turns HTML into pixels, elements and attributes, semantic structure, and accessible forms.",
+    summary: "What a web page is and how the browser draws it, how to write tags and attributes, how to give a page a clear structure, and how to build forms everyone can use.",
   },
 
   tasks: [
@@ -24,6 +24,63 @@ export default defineDomain({
   ],
 
   lessons: [
+    {
+      id: "d1-b-start",
+      level: "beginner",
+      task: "1.1",
+      title: "What HTML is",
+      check: ["web-b1-01", "web-b1-02"],
+      visual: (
+        <Tiles
+          cols={3}
+          tiles={[
+            { icon: "🧱", title: "HTML", text: "The structure: headings, paragraphs, images and links.", color: "#f97316" },
+            { icon: "🎨", title: "CSS", text: "The look: colours, fonts, spacing and layout.", color: "#38bdf8" },
+            { icon: "⚙️", title: "JavaScript", text: "The behaviour: what happens when you click or type.", color: "#facc15" },
+          ]}
+        />
+      ),
+      points: [
+        "Every web page is built from **HTML**, a way of marking up text so the browser knows what each part is: a heading, a paragraph, a link.",
+        "Think of a house. HTML is the walls and rooms, CSS is the paint and furniture, and JavaScript is the wiring that makes things switch on.",
+        "HTML isn't a programming language. It doesn't do maths or make decisions. It describes your content.",
+        "An HTML file is plain text with a name ending in `.html`. You can write one in any text editor and open it in your browser.",
+      ],
+      tip: "To see the HTML behind any page, right-click it and choose View Page Source. Most sites look busy in there, but you'll soon recognise the tags.",
+    },
+    {
+      id: "d1-b-tags",
+      level: "beginner",
+      task: "1.2",
+      title: "Your first tags",
+      check: ["web-b1-03", "web-b1-04"],
+      visual: (
+        <div className="grid gap-3">
+          <Flow
+            color="#f97316"
+            steps={[
+              { icon: "🟢", label: "Opening tag", sub: "<p>" },
+              { icon: "📝", label: "Content", sub: "Hello!" },
+              { icon: "🔴", label: "Closing tag", sub: "</p>" },
+            ]}
+          />
+          <CodeBlock
+            lang="html"
+            caption="Three elements: a main heading, a paragraph and a link."
+            code={`<h1>My first page</h1>
+<p>Hello! This is a paragraph.</p>
+<a href="https://example.com">Visit a site</a>`}
+          />
+        </div>
+      ),
+      points: [
+        "HTML is made of **tags**: short words in angle brackets. `<p>` starts a paragraph and `</p>` ends it.",
+        "An opening tag, its content and a closing tag together make an **element**. The closing tag has a slash: `</p>`.",
+        "`<h1>` is the main heading, `<p>` is a paragraph, and `<a>` is a link. Those three get you surprisingly far.",
+        "Some tags carry extra details called **attributes**. In `<a href=\"https://example.com\">`, the `href` says where the link goes.",
+      ],
+      tip: "If something looks wrong, check that you closed every tag you opened. A missing `</p>` or `</a>` is the most common beginner slip.",
+    },
     {
       id: "d1-web",
       level: "junior",
@@ -53,12 +110,12 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "A web page is a text file of HTML. The browser reads it top to bottom and builds the DOM: a tree of elements you can style and script.",
-        "HTML says what things are, CSS says how they look, JavaScript says what they do. Keep the jobs separate.",
-        "Every page starts with `<!DOCTYPE html>` (standards mode), then `<html lang>`, a `<head>` with metadata and a `<body>` with content.",
-        "A plain `<script>` in the head pauses parsing until it has downloaded and run. `defer` lets parsing continue and runs the script once the DOM is ready.",
+        "A web page is a text file of HTML. The browser reads it top to bottom and builds the **DOM**, a tree of elements that CSS can style and JavaScript can change.",
+        "HTML says what things are, CSS says how they look, and JavaScript says what they do. Keeping those jobs apart makes each one easier to change.",
+        "Every page starts with `<!DOCTYPE html>`, which tells the browser to use modern rules. Then comes `<html lang>`, a `<head>` with details about the page, and a `<body>` with the content.",
+        "A plain `<script>` in the head makes the browser stop reading the page until the script has downloaded and run. With `defer`, the browser keeps reading and runs the script once the page is built.",
       ],
-      tip: "Save any HTML file and open it in your browser, then right-click → Inspect. The Elements panel shows the DOM tree the browser actually built, which is not always what you typed.",
+      tip: "Open any HTML file in your browser, right-click and choose Inspect. The Elements panel shows the DOM tree the browser actually built, which isn't always what you typed.",
     },
     {
       id: "d1-elements",
@@ -85,12 +142,12 @@ export default defineDomain({
       ),
       points: [
         "Elements nest like boxes inside boxes. Close them in the reverse order you opened them: `<p><strong>…</strong></p>`.",
-        "Void elements such as `<img>`, `<br>`, `<input>`, `<meta>` and `<link>` have no content and no closing tag.",
-        "Attributes add information: `href` for where a link goes, `src` and `alt` for images, `id` (unique) and `class` (reusable) for styling and scripting.",
-        "Boolean attributes (`checked`, `disabled`, `required`) are on whenever they are present, whatever value you write.",
-        "The parser never gives up: broken markup is silently repaired into some tree, which may not be the one you meant.",
+        "Some elements, called **void elements**, never hold content, so they have no closing tag. Examples are `<img>`, `<br>`, `<input>`, `<meta>` and `<link>`.",
+        "Attributes add information. `href` says where a link goes, and `src` and `alt` describe an image. `id` names one unique element, and `class` is a reusable label for styling and scripts.",
+        "Some attributes, like `checked`, `disabled` and `required`, are simple on switches. If the attribute is there at all, it's on, whatever value you write.",
+        "The browser never gives up on broken HTML. It quietly repairs it into some tree, which may not be the one you meant.",
       ],
-      tip: "Indent nested elements consistently. Most nesting bugs jump out the moment the indentation is right.",
+      tip: "Indent nested elements the same way every time. Most nesting mistakes jump out as soon as the indentation is tidy.",
     },
     {
       id: "d1-semantic",
@@ -109,12 +166,12 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "Semantic elements describe meaning: `<header>`, `<nav>`, `<main>`, `<aside>`, `<footer>` become landmarks that screen reader users can jump between.",
-        "Headings form an outline. Use one `<h1>` for the page, then `<h2>`, `<h3>` in order. Pick the level by structure, never by size; CSS handles size.",
-        "`<article>` is self-contained (a post, a product card, a comment). `<section>` groups related content under a heading.",
-        "Use `<div>` and `<span>` only when no element has the right meaning, usually as styling hooks.",
+        "**Semantic** elements describe what content means. `<header>`, `<nav>`, `<main>`, `<aside>` and `<footer>` become **landmarks**, regions that screen reader users can jump between.",
+        "Headings form an outline, like a table of contents. Use one `<h1>` for the page, then `<h2>` and `<h3>` in order. Pick the level by structure, not size. CSS handles size.",
+        "`<article>` is for content that makes sense on its own, like a post, a product card or a comment. `<section>` groups related content under a heading.",
+        "Use `<div>` and `<span>` only when no other element has the right meaning. They're mostly handy hooks for styling.",
       ],
-      tip: "Try reading your page with CSS turned off. If it still makes sense as a document, your HTML is doing its job.",
+      tip: "Try reading your page with the CSS turned off. If it still makes sense as a document, your HTML is doing its job.",
     },
     {
       id: "d1-a11y",
@@ -153,16 +210,58 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "A `<label for=\"x\">` must match the input's `id=\"x\"`. Clicking the label then focuses the field and screen readers announce its name.",
-        "Buttons do things, links go places. Use `<button>` for actions and `<a href>` for navigation.",
-        "Inside a `<form>`, a `<button>` is `type=\"submit\"` by default. Give other buttons `type=\"button\"`.",
-        "Placeholders are not labels: they vanish as you type and often have poor contrast.",
+        "A `<label for=\"x\">` must match the input's `id=\"x\"`. Then clicking the label puts the cursor in the field, and screen readers read out its name.",
+        "Buttons do things and links go places. Use `<button>` for actions, like Save, and `<a href>` for moving to another page.",
+        "Inside a `<form>`, a `<button>` submits the form unless you say otherwise. Give buttons that shouldn't submit `type=\"button\"`.",
+        "Placeholder text isn't a label. It disappears as soon as you type, and it's often pale and hard to read.",
       ],
-      tip: "Unplug your mouse for five minutes and use your own page with Tab, Shift+Tab, Enter and Space. You'll find most accessibility bugs yourself.",
+      tip: "Put your mouse away for five minutes and use your page with Tab, Shift+Tab, Enter and Space. You'll find most accessibility problems yourself.",
     },
   ],
 
   questions: [
+    {
+      id: "web-b1-01",
+      domain: "d1",
+      lesson: "d1-b-start",
+      level: "beginner",
+      prompt: "What is HTML's job on a web page?",
+      options: ["Saying what each piece of content is, like a heading or a link", "Choosing the colours and fonts", "Storing users' passwords", "Making the computer run faster"],
+      answer: [0],
+      explanation: "HTML describes your content so the browser knows what each part is. Colours and fonts are CSS's job, and passwords live on a server, not in HTML.",
+    },
+    {
+      id: "web-b1-02",
+      domain: "d1",
+      lesson: "d1-b-start",
+      level: "beginner",
+      prompt: "In the house comparison, which part is CSS?",
+      options: ["The paint and furniture: how it looks", "The walls and rooms: the structure", "The wiring: what happens when you flip a switch"],
+      answer: [0],
+      explanation: "CSS is about looks. HTML is the structure, like the walls, and JavaScript is the behaviour, like the wiring that makes a light come on.",
+    },
+    {
+      id: "web-b1-03",
+      domain: "d1",
+      lesson: "d1-b-tags",
+      level: "beginner",
+      prompt: "Which tag closes a paragraph?",
+      options: ["`</p>`", "`<p>`", "`<end p>`", "`(p)`"],
+      answer: [0],
+      explanation: "A closing tag is the same word as the opening tag with a slash in front: `</p>`. The browser then knows exactly where the paragraph ends.",
+    },
+    {
+      id: "web-b1-04",
+      type: "fill",
+      domain: "d1",
+      lesson: "d1-b-tags",
+      level: "beginner",
+      prompt: "Fill the gap so the link goes to example.com.",
+      code: `<a {{1}}="https://example.com">Visit a site</a>`,
+      codeLang: "html",
+      blanks: [{ options: ["href", "src", "link", "url"], answer: 0 }],
+      explanation: "`href` tells a link where to go. `src` is a different attribute, used by things like images to load a file into the page.",
+    },
     // ── d1-web ──
     {
       id: "d1-01",
@@ -177,7 +276,7 @@ export default defineDomain({
         "Storing user accounts on the server",
       ],
       answer: [0],
-      explanation: "HTML is the structure and meaning of the content. CSS handles presentation, JavaScript handles behaviour, and servers store data.",
+      explanation: "HTML gives content its structure and meaning. CSS handles how it looks, JavaScript handles what it does, and servers store the data.",
     },
     {
       id: "d1-02",
@@ -193,7 +292,7 @@ export default defineDomain({
         "Layout: work out every box's size and position",
         "Paint the pixels to the screen",
       ],
-      explanation: "The browser parses HTML into the DOM (requesting stylesheets as it finds them), computes styles, lays out boxes, then paints. Change a size and it must lay out and paint again; change only a colour and it can skip layout.",
+      explanation: "The browser reads the HTML into the DOM, fetching stylesheets as it finds them. Then it works out the styles, lays out the boxes and paints them. Change a size and it has to lay out and paint again. Change only a colour and it can skip the layout step.",
     },
     {
       id: "d1-03",
@@ -248,7 +347,7 @@ export default defineDomain({
         "`defer` also delays inline scripts that have no `src`",
       ],
       answer: [0, 1],
-      explanation: "`defer` keeps order and waits for parsing; `async` is first-come-first-run, good for independent scripts like analytics. Both attributes only affect external classic scripts; on an inline classic script, `defer` is ignored.",
+      explanation: "`defer` keeps scripts in order and waits until the page is read. `async` runs each script as soon as it arrives, which suits independent scripts like analytics. Both only affect external classic scripts. On an inline classic script, `defer` is ignored.",
     },
 
     // ── d1-elements ──
@@ -514,16 +613,16 @@ export default defineDomain({
     { id: "c-d1-dom", domain: "d1", kind: "concept", term: "DOM", definition: "The Document Object Model: the tree of elements and text the browser builds from HTML. CSS styles it and JavaScript changes it." },
     { id: "c-d1-doctype", domain: "d1", kind: "service", term: "<!DOCTYPE html>", definition: "The first line of every page. Puts the browser in standards mode instead of legacy quirks mode." },
     { id: "c-d1-viewport", domain: "d1", kind: "service", term: "<meta name=\"viewport\">", definition: "`content=\"width=device-width, initial-scale=1\"` makes phones use their real width, so responsive CSS works." },
-    { id: "c-d1-defer", domain: "d1", kind: "service", term: "defer", definition: "Script attribute: download in parallel, run in order after the HTML is parsed. The usual choice for app scripts." },
+    { id: "c-d1-defer", domain: "d1", kind: "service", term: "defer", definition: "A script attribute. The script downloads while the page is read, then runs in order once the HTML is parsed. The usual choice for app scripts." },
     { id: "c-d1-void", domain: "d1", kind: "concept", term: "Void element", definition: "An element that can't have content and has no closing tag: `img`, `br`, `hr`, `input`, `meta`, `link`." },
     { id: "c-d1-boolean", domain: "d1", kind: "concept", term: "Boolean attribute", definition: "An attribute that's on when present, whatever its value: `checked`, `disabled`, `required`, `hidden`." },
     { id: "c-d1-semantic", domain: "d1", kind: "concept", term: "Semantic HTML", definition: "Choosing elements for their meaning (`<nav>`, `<button>`, `<h2>`) rather than their look, so tools and people understand the page." },
-    { id: "c-d1-main", domain: "d1", kind: "service", term: "<main>", definition: "The page's unique primary content. One visible per page; the target of \"skip to content\" links." },
+    { id: "c-d1-main", domain: "d1", kind: "service", term: "<main>", definition: "The page's main, unique content. There's one visible per page, and \"skip to content\" links usually point to it." },
     { id: "c-d1-article", domain: "d1", kind: "service", term: "<article>", definition: "Self-contained content that makes sense on its own: a post, a comment, a product card." },
     { id: "c-d1-section", domain: "d1", kind: "service", term: "<section>", definition: "A thematic group of content, normally with its own heading." },
-    { id: "c-d1-label", domain: "d1", kind: "service", term: "<label for>", definition: "Names a form control. `for` must equal the control's `id`; clicking the label focuses the control." },
+    { id: "c-d1-label", domain: "d1", kind: "service", term: "<label for>", definition: "Names a form control. `for` must match the control's `id`. Clicking the label then puts focus on the control." },
     { id: "c-d1-button", domain: "d1", kind: "service", term: "<button>", definition: "Native action control: focusable, activated by Enter and Space. Defaults to `type=\"submit\"` inside a form." },
-    { id: "c-d1-alt", domain: "d1", kind: "service", term: "alt", definition: "Image text alternative. Describe what the image communicates; `alt=\"\"` marks it decorative." },
+    { id: "c-d1-alt", domain: "d1", kind: "service", term: "alt", definition: "Text that stands in for an image. Describe what the image tells the reader. `alt=\"\"` marks it as decoration." },
     { id: "c-d1-aria", domain: "d1", kind: "concept", term: "First rule of ARIA", definition: "If a native HTML element or attribute already does it, use that. ARIA changes what's announced, not behaviour." },
     { id: "c-d1-landmark", domain: "d1", kind: "concept", term: "Landmark", definition: "A page region (banner, navigation, main, complementary, contentinfo) that assistive technology users can jump between." },
   ],

@@ -18,7 +18,7 @@ export default defineDomain({
     emoji: "🔐",
     color: "#f87171",
     summary:
-      "Shared responsibility, IAM, KMS, PrivateLink, CloudTrail, Config, Audit Manager, Artifact, and data governance.",
+      "Keeping AI systems and their data safe: who's responsible for what, controlling access, encryption, private networking, audit trails, compliance reports and good data governance.",
   },
 
   tasks: [
@@ -46,6 +46,56 @@ export default defineDomain({
   ],
 
   lessons: [
+    // ── Start here ──
+    {
+      id: "d5-start-shared",
+      level: "beginner",
+      check: ["aif-b5-01", "aif-b5-02"],
+      task: "5.1",
+      title: "Who keeps what safe",
+      visual: (
+        <Tiles
+          cols={2}
+          tiles={[
+            { icon: "🏢", title: "AWS, the landlord", text: "Guards the building: the data centers, the hardware and the network.", color: "#f59e0b" },
+            { icon: "🔑", title: "You, the tenant", text: "Lock your own door: your data, who gets access and how things are set up.", color: "#f87171" },
+          ]}
+        />
+      ),
+      points: [
+        "When you use AWS, keeping things secure is a shared job. AWS does some of it and you do the rest.",
+        "Think of renting a flat. The landlord looks after the building, the front door and the wiring. You lock your own door and decide who gets a key.",
+        "AWS protects its data centers, hardware and network. You protect your data, choose who can use it, and set things up safely.",
+        "This split is called the **shared responsibility model**. It applies to AI services like Amazon Bedrock too.",
+      ],
+      tip: "On the exam, AWS secures the cloud itself. You secure whatever you put in it, like your data and permissions.",
+    },
+    {
+      id: "d5-start-access",
+      level: "beginner",
+      check: ["aif-b5-03", "aif-b5-04"],
+      task: "5.1 · 5.2",
+      title: "Key cards, safes and a visitor log",
+      visual: (
+        <Tiles
+          cols={3}
+          tiles={[
+            { icon: "🪪", title: "Key cards", text: "**IAM** decides who can open which doors, and what they can do inside.", color: "#f87171" },
+            { icon: "🔒", title: "A locked safe", text: "**Encryption** scrambles data so only someone with the key can read it.", color: "#a78bfa" },
+            { icon: "📒", title: "A visitor log", text: "**AWS CloudTrail** writes down who did what, and when.", color: "#f59e0b" },
+          ]}
+        />
+      ),
+      points: [
+        "Picture a secure office. Key cards control who gets in, valuables go in a safe, and a sign-in book records every visit.",
+        "On AWS, **IAM** (Identity and Access Management) is the key card system. It decides who can use which services and data.",
+        "A good rule is to give each person or app only the access it needs, and nothing more. This is called **least privilege**.",
+        "**Encryption** locks data so it's unreadable without a key, and **AWS CloudTrail** keeps the visitor log for audits.",
+      ],
+      tip: "If a question asks how to see who did something in your account, think CloudTrail.",
+    },
+
+    // ── Exam lessons ──
     {
       id: "d5-shared",
       check: ["d5-01", "d5-10"],
@@ -57,8 +107,10 @@ export default defineDomain({
           <ResponsibilityLab />
         </div>
       ),
-      points: ["Even with a managed service like Bedrock, your data, access, and configuration are yours to secure."],
-      tip: "\"OF the cloud\" = AWS. \"IN the cloud\" = you.",
+      points: [
+        "Even with a managed service like Bedrock, securing your data, your access settings and your configuration is still your job.",
+      ],
+      tip: "Security \"of\" the cloud is AWS's job. Security \"in\" the cloud is yours.",
     },
     {
       id: "d5-toolbox",
@@ -69,18 +121,18 @@ export default defineDomain({
         <Tiles
           cols={3}
           tiles={[
-            { icon: "🔑", title: "IAM", text: "Who can do what. Roles + least privilege.", color: "#f87171" },
-            { icon: "🔐", title: "KMS", text: "Encryption keys, at rest and in transit.", color: "#f87171" },
-            { icon: "🚇", title: "PrivateLink", text: "VPC → Bedrock without the public internet.", color: "#f87171" },
-            { icon: "🔍", title: "Macie", text: "Finds PII in S3 before you train on it.", color: "#f87171" },
-            { icon: "🗝️", title: "Secrets Manager", text: "Stores and rotates API keys.", color: "#f87171" },
-            { icon: "🤖", title: "AgentCore Identity & Policy", text: "What agents can access, and which tool actions are allowed.", color: "#f87171" },
+            { icon: "🔑", title: "IAM", text: "Who can do what. Use roles, and grant the least access needed.", color: "#f87171" },
+            { icon: "🔐", title: "KMS", text: "Manages the encryption keys that protect stored data.", color: "#f87171" },
+            { icon: "🚇", title: "PrivateLink", text: "Connects your VPC to Bedrock without touching the public internet.", color: "#f87171" },
+            { icon: "🔍", title: "Macie", text: "Finds personal data in S3 before you train on it.", color: "#f87171" },
+            { icon: "🗝️", title: "Secrets Manager", text: "Stores API keys safely and changes them on a schedule.", color: "#f87171" },
+            { icon: "🤖", title: "AgentCore Identity and Policy", text: "Controls what agents can reach, and which tool actions they're allowed to take.", color: "#f87171" },
           ]}
         />
       ),
       points: [
-        "Threats to plan for: prompt injection, data leakage, toxicity, vulnerabilities.",
-        "Log every AI interaction for audits. Filter and validate outputs.",
+        "Plan for the main threats: prompt injection, data leaking out, toxic output and software vulnerabilities.",
+        "Log every AI interaction so you can audit it later, and check and filter what the model sends back.",
       ],
     },
     {
@@ -92,14 +144,17 @@ export default defineDomain({
         <Flow
           color="#f87171"
           steps={[
-            { icon: "📚", label: "Ground with RAG", sub: "Answer from your documents, with citations" },
-            { icon: "🧪", label: "Validate output", sub: "Check format, facts, and rules" },
-            { icon: "📊", label: "Confidence score", sub: "Low confidence → human or fallback" },
-            { icon: "🛡️", label: "Grounding check", sub: "Guardrails flags unsupported claims" },
+            { icon: "📚", label: "Ground with RAG", sub: "Answer from your documents, with sources" },
+            { icon: "🧪", label: "Validate output", sub: "Check the format, the facts and the rules" },
+            { icon: "📊", label: "Confidence score", sub: "If confidence is low, hand off to a person or a safe fallback" },
+            { icon: "🛡️", label: "Grounding check", sub: "Guardrails flags claims the sources don't support" },
           ]}
         />
       ),
-      points: ["Data lineage and source citation show where an answer's facts came from. SageMaker Model Cards record data origins."],
+      points: [
+        "**Data lineage** and source citations show where the facts in an answer came from.",
+        "SageMaker Model Cards record where a model's training data came from.",
+      ],
     },
     {
       id: "d5-watchers",
@@ -111,15 +166,18 @@ export default defineDomain({
           cols={3}
           tiles={[
             { icon: "🕵️", title: "CloudTrail", text: "Who called which API, and when", color: "#f59e0b" },
-            { icon: "📈", title: "CloudWatch", text: "Metrics, logs, alarms", color: "#f59e0b" },
-            { icon: "📐", title: "Config", text: "Are resources set up by the rules?", color: "#f59e0b" },
+            { icon: "📈", title: "CloudWatch", text: "Metrics, logs and alarms", color: "#f59e0b" },
+            { icon: "📐", title: "Config", text: "Are your resources set up the way your rules say?", color: "#f59e0b" },
             { icon: "🩺", title: "Inspector", text: "Scans for software vulnerabilities", color: "#f59e0b" },
             { icon: "📜", title: "Artifact", text: "Download AWS compliance reports", color: "#f59e0b" },
-            { icon: "💡", title: "Trusted Advisor", text: "Best-practice checks: cost, security, limits", color: "#f59e0b" },
+            { icon: "💡", title: "Trusted Advisor", text: "Best-practice checks for cost, security and limits", color: "#f59e0b" },
           ]}
         />
       ),
-      points: ["Data governance: lifecycle, retention, residency (keep data in approved Regions), logging, monitoring."],
+      points: [
+        "**Data governance** covers how long you keep data, where it lives, and how it's logged and monitored.",
+        "Keeping data inside approved Regions is called **data residency**.",
+      ],
     },
     {
       id: "d5-scoping",
@@ -128,8 +186,8 @@ export default defineDomain({
       title: "Generative AI Security Scoping Matrix",
       visual: <ScopingMatrix />,
       points: [
-        "Use it to decide which security and governance controls are yours to own.",
-        "Governance process: written policies, a regular review cadence, transparency standards, and team training.",
+        "Use the matrix to work out which security and governance controls are yours to own. The more of the model you build yourself, the more you own.",
+        "A good governance process has written policies, regular reviews, standards for transparency, and training for the team.",
       ],
     },
     {
@@ -150,8 +208,8 @@ export default defineDomain({
           <Tiles
             cols={3}
             tiles={[
-              { icon: "🌐", title: "Internet gateway", text: "Gives public subnets a route to the internet.", color: "#38bdf8" },
-              { icon: "↗️", title: "NAT gateway", text: "Lets private instances reach out to the internet without being reachable from it.", color: "#38bdf8" },
+              { icon: "🌐", title: "Internet gateway", text: "Gives public subnets a way to reach the internet.", color: "#38bdf8" },
+              { icon: "↗️", title: "NAT gateway", text: "Lets private machines reach out to the internet, but nobody can reach in.", color: "#38bdf8" },
               { icon: "🪣", title: "S3 gateway endpoint", text: "Private access to S3 from a VPC, for example for SageMaker training data.", color: "#38bdf8" },
             ]}
           />
@@ -159,18 +217,18 @@ export default defineDomain({
             color="#a78bfa"
             steps={[
               { icon: "🔐", label: "S3 data encrypted with KMS", sub: "SSE-KMS" },
-              { icon: "🎫", label: "IAM role for Bedrock", sub: "S3 read + KMS decrypt permissions" },
+              { icon: "🎫", label: "IAM role for Bedrock", sub: "Permission to read S3 and decrypt with KMS" },
               { icon: "🎛️", label: "Fine-tune custom model", sub: "Bedrock reads the data securely" },
             ]}
           />
         </div>
       ),
       points: [
-        "IAM basics: users and groups get JSON policies; services get IAM roles. Grant least privilege.",
-        "CloudTrail shows who called which Bedrock API, including denied calls, so you can audit access.",
-        "SageMaker network isolation mode blocks all outbound traffic from training containers.",
+        "IAM basics: people and groups get permissions through JSON policies. AWS services get permissions through **IAM roles**. Always grant the least access needed.",
+        "CloudTrail shows who called which Bedrock API, including calls that were denied, so you can audit access.",
+        "SageMaker **network isolation mode** blocks all outgoing traffic from training containers.",
       ],
-      tip: "\"Access Bedrock without the internet\" → VPC endpoint (PrivateLink). \"Bedrock can't read my encrypted bucket\" → give its role KMS decrypt.",
+      tip: "To reach Bedrock without the internet, use a VPC endpoint (PrivateLink). If Bedrock can't read your encrypted bucket, give its role permission to decrypt with KMS.",
     },
     {
       id: "d5-data-governance",
@@ -185,37 +243,100 @@ export default defineDomain({
               { icon: "📥", label: "Collect" },
               { icon: "⚙️", label: "Process" },
               { icon: "🗄️", label: "Store" },
-              { icon: "📊", label: "Consume" },
-              { icon: "🧊", label: "Archive / delete" },
+              { icon: "📊", label: "Use" },
+              { icon: "🧊", label: "Archive or delete" },
             ]}
           />
           <Tiles
             cols={4}
             tiles={[
-              { icon: "✅", title: "Data quality", text: "Complete, accurate, timely, consistent.", color: "#34d399" },
-              { icon: "🎭", title: "Privacy tech", text: "Masking, obfuscation, encryption, tokenization.", color: "#34d399" },
-              { icon: "🔑", title: "Access control", text: "Role-based, fine-grained, SSO + MFA, logged, reviewed.", color: "#34d399" },
-              { icon: "🧬", title: "Integrity", text: "Backups, lineage, audit trails, tested controls.", color: "#34d399" },
+              { icon: "✅", title: "Data quality", text: "Complete, accurate, up to date and consistent.", color: "#34d399" },
+              { icon: "🎭", title: "Privacy tech", text: "Masking, obfuscation, encryption and tokenization.", color: "#34d399" },
+              { icon: "🔑", title: "Access control", text: "Based on roles, fine-grained, single sign-on with MFA, logged and reviewed.", color: "#34d399" },
+              { icon: "🧬", title: "Integrity", text: "Backups, lineage, audit trails and tested controls.", color: "#34d399" },
             ]}
           />
         </div>
       ),
       points: [
-        "Data management concepts: lifecycle, logging, residency, monitoring (quality, anomalies, drift), analysis, and retention.",
-        "Monitor AI systems on three fronts: model performance (accuracy, precision, recall, F1, latency), infrastructure (CPU/GPU, network, storage, logs), and bias, fairness, and compliance.",
-        "Clear data roles: data owners, data stewards, and data custodians, overseen by a governance council.",
-        "MLOps principles: version data, code, and models; automate; continuous integration, delivery, retraining, and monitoring.",
-        "AWS Artifact also offers third-party software vendors' compliance reports to customers who were granted access.",
+        "Managing data well means looking after its lifecycle, logging, residency, monitoring, analysis and how long you keep it.",
+        "Monitor AI systems on three fronts. First, model performance: accuracy, precision, recall, F1 and speed.",
+        "Second, the infrastructure: CPU and GPU use, network, storage and logs. Third, signs of bias, unfairness or compliance problems.",
+        "Give data clear owners. **Data owners**, **data stewards** and **data custodians** each have a role, and a governance council oversees them.",
+        "MLOps habits apply here too: keep versions of data, code and models, automate, and keep integrating, delivering, retraining and monitoring.",
+        "AWS Artifact can also share compliance reports from third-party software vendors with customers they've given access to.",
       ],
     },
   ],
 
   questions: [
+    // ── Start here ──
+    {
+      id: "aif-b5-01",
+      domain: "d5",
+      level: "beginner",
+      lesson: "d5-start-shared",
+      prompt: "A company uses Amazon Bedrock. Who is responsible for deciding which employees can use it?",
+      options: [
+        "The company itself",
+        "AWS",
+        "The model provider",
+        "Nobody, it's automatic",
+      ],
+      answer: [0],
+      explanation:
+        "Under the shared responsibility model, AWS protects the data centers and hardware. Deciding who gets access to your account and data is your job, like a tenant handing out door keys.",
+    },
+    {
+      id: "aif-b5-02",
+      domain: "d5",
+      level: "beginner",
+      lesson: "d5-start-shared",
+      prompt: "Which of these does AWS take care of under the shared responsibility model?",
+      options: [
+        "Physical security of its data centers",
+        "Choosing which of your staff can see your data",
+        "Deciding what data you upload",
+        "Writing your company's AI policies",
+      ],
+      answer: [0],
+      explanation:
+        "AWS looks after the building: data centers, hardware and its network. Everything you put in the cloud, including who can see it, stays your responsibility.",
+    },
+    {
+      id: "aif-b5-03",
+      domain: "d5",
+      level: "beginner",
+      lesson: "d5-start-access",
+      prompt: "A new intern only needs to read one report. What's the safest way to set up their access?",
+      options: [
+        "Give access to that one report and nothing else",
+        "Give them full admin access",
+        "Share your own login with them",
+        "Give no access and email them everything",
+      ],
+      answer: [0],
+      explanation:
+        "This is least privilege: give only the access a person needs to do their job. If their account is ever misused, the damage stays small.",
+    },
+    {
+      id: "aif-b5-04",
+      domain: "d5",
+      level: "beginner",
+      lesson: "d5-start-access",
+      prompt: "Which AWS service keeps a record of who did what in your account, and when?",
+      options: ["AWS CloudTrail", "Amazon Polly", "Amazon S3 Glacier", "Amazon Translate"],
+      answer: [0],
+      explanation:
+        "CloudTrail is like a visitor log. It records each action in your account, so you can look back and see who made a change and when.",
+    },
+
+    // ── Exam questions ──
     {
       id: "d5-01",
       domain: "d5",
       lesson: "d5-shared",
-      prompt: "Under the AWS shared responsibility model, which is the CUSTOMER's responsibility when using Amazon Bedrock?",
+      prompt: "Under the AWS shared responsibility model, which of these is the CUSTOMER's job when using Amazon Bedrock?",
       options: [
         "Securing the physical data centers",
         "Managing IAM permissions and protecting the data they send to models",
@@ -224,86 +345,86 @@ export default defineDomain({
       ],
       answer: [1],
       explanation:
-        "AWS secures 'of' the cloud (infrastructure). Customers secure 'in' the cloud: data, IAM access, encryption choices, and application configuration.",
+        "AWS secures the cloud itself, meaning the infrastructure. Customers secure what's in the cloud: their data, IAM access, encryption choices and app settings.",
     },
     {
       id: "d5-02",
       domain: "d5",
       lesson: "d5-watchers",
-      prompt: "Which service records API calls made to Amazon Bedrock for auditing who did what and when?",
+      prompt: "Which service records the API calls made to Amazon Bedrock, so you can audit who did what and when?",
       options: ["AWS CloudTrail", "Amazon CloudWatch", "AWS Config", "Amazon Inspector"],
       answer: [0],
       explanation:
-        "CloudTrail logs API activity (who, what, when). CloudWatch handles metrics, logs, and alarms. Config tracks resource configuration changes.",
+        "CloudTrail logs API activity: who, what and when. CloudWatch handles metrics, logs and alarms. Config tracks changes to how resources are set up.",
     },
     {
       id: "d5-03",
       domain: "d5",
       lesson: "d5-toolbox",
-      prompt: "A company wants to connect its VPC to Amazon Bedrock without traffic traversing the public internet. What should it use?",
+      prompt: "A company wants to connect its VPC to Amazon Bedrock without any traffic crossing the public internet. What should it use?",
       options: ["AWS PrivateLink (VPC interface endpoint)", "An internet gateway", "Amazon CloudFront", "A NAT gateway only"],
       answer: [0],
-      explanation: "PrivateLink interface endpoints keep traffic between your VPC and Bedrock on the AWS network.",
+      explanation: "A PrivateLink interface endpoint keeps the traffic between your VPC and Bedrock on the AWS network the whole way.",
     },
     {
       id: "d5-04",
       domain: "d5",
       lesson: "d5-toolbox",
-      prompt: "Which service manages encryption keys used to encrypt training data and custom models at rest?",
+      prompt: "Which service manages the encryption keys used to protect stored training data and custom models?",
       options: ["AWS KMS", "AWS IAM", "Amazon Macie", "AWS Shield"],
       answer: [0],
-      explanation: "AWS Key Management Service (KMS) creates and controls encryption keys. Bedrock supports customer managed keys for custom models.",
+      explanation: "AWS Key Management Service (KMS) creates and controls encryption keys. Bedrock lets you use your own customer managed keys for custom models.",
     },
     {
       id: "d5-05",
       domain: "d5",
       lesson: "d5-toolbox",
-      prompt: "Which service discovers sensitive data such as PII stored in Amazon S3 buckets?",
+      prompt: "Which service finds sensitive data, such as personal details, stored in Amazon S3 buckets?",
       options: ["Amazon Macie", "Amazon Inspector", "AWS Artifact", "AWS Trusted Advisor"],
       answer: [0],
-      explanation: "Macie uses ML to find and classify sensitive data in S3. Useful before using S3 data for training.",
+      explanation: "Macie uses ML to find and label sensitive data in S3. That's useful to run before you train a model on S3 data.",
     },
     {
       id: "d5-06",
       domain: "d5",
       lesson: "d5-watchers",
-      prompt: "An auditor requests AWS's SOC and ISO compliance reports. Where can you download them?",
+      prompt: "An auditor asks for AWS's SOC and ISO compliance reports. Where can you download them?",
       options: ["AWS Artifact", "AWS Trusted Advisor", "Amazon Inspector", "AWS CloudTrail"],
       answer: [0],
-      explanation: "AWS Artifact is the self-service portal for AWS compliance reports and agreements.",
+      explanation: "AWS Artifact is the self-service place to download AWS compliance reports and agreements.",
     },
     {
       id: "d5-07",
       domain: "d5",
       lesson: "d5-watchers",
-      prompt: "A company wants automated recommendations on cost savings, security gaps, and service limits across its AWS account. Which service provides these checks?",
+      prompt: "A company wants automatic suggestions about saving money, security gaps and service limits across its AWS account. Which service gives these checks?",
       options: ["AWS Trusted Advisor", "AWS Artifact", "Amazon Macie", "Amazon Polly"],
       answer: [0],
-      explanation: "AWS Trusted Advisor inspects your account and recommends improvements for cost, security, performance, fault tolerance, and service limits.",
+      explanation: "AWS Trusted Advisor looks over your account and suggests improvements for cost, security, performance, fault tolerance and service limits.",
     },
     {
       id: "d5-08",
       domain: "d5",
       lesson: "d5-watchers",
-      prompt: "Which service continuously evaluates whether AWS resource configurations comply with your rules?",
+      prompt: "Which service keeps checking whether your AWS resources are set up the way your rules require?",
       options: ["AWS Config", "AWS CloudTrail", "Amazon Polly", "AWS Lambda"],
       answer: [0],
-      explanation: "AWS Config records configuration history and evaluates resources against Config rules.",
+      explanation: "AWS Config records the history of how resources are set up and checks them against rules you define, called Config rules.",
     },
     {
       id: "d5-09",
       domain: "d5",
       lesson: "d5-watchers",
-      prompt: "Which service automatically scans workloads for software vulnerabilities and unintended network exposure?",
+      prompt: "Which service automatically scans workloads for software vulnerabilities and accidental network exposure?",
       options: ["Amazon Inspector", "Amazon Macie", "AWS Artifact", "Amazon Comprehend"],
       answer: [0],
-      explanation: "Amazon Inspector scans EC2, container images, and Lambda for vulnerabilities.",
+      explanation: "Amazon Inspector scans EC2 instances, container images and Lambda functions for known vulnerabilities.",
     },
     {
       id: "d5-10",
       domain: "d5",
       lesson: "d5-shared",
-      prompt: "Does Amazon Bedrock use your prompts and responses to train the base foundation models?",
+      prompt: "Does Amazon Bedrock use your prompts and responses to train its base foundation models?",
       options: [
         "No, your data is not used to train base models or shared with model providers",
         "Yes, all prompts are shared with model providers",
@@ -312,16 +433,16 @@ export default defineDomain({
       ],
       answer: [0],
       explanation:
-        "Bedrock does not store or use your prompts and completions to train AWS or third-party base models. Fine-tuning creates a private copy in your account.",
+        "Bedrock doesn't store or use your prompts and answers to train AWS or third-party base models. When you fine-tune, you get a private copy of the model in your own account.",
     },
     {
       id: "d5-11",
       domain: "d5",
       lesson: "d5-toolbox",
-      prompt: "What is the security principle of granting only the permissions needed to perform a task?",
+      prompt: "What is the security principle of giving only the permissions needed for a task?",
       options: ["Least privilege", "Defense in depth only", "Shared responsibility", "Data residency"],
       answer: [0],
-      explanation: "Least privilege via IAM policies limits blast radius. Use roles, not long-lived access keys.",
+      explanation: "Least privilege, set through IAM policies, limits the damage if something goes wrong. Use roles rather than long-lived access keys.",
     },
     {
       id: "d5-12",
@@ -336,52 +457,52 @@ export default defineDomain({
       ],
       answer: [0],
       explanation:
-        "Data lineage and cataloging (for example AWS Glue Data Catalog, SageMaker ML Lineage Tracking) support reproducibility and audits.",
+        "Data lineage is the family tree of your data: where it started and every change along the way. Tools like the AWS Glue Data Catalog and SageMaker ML Lineage Tracking help you repeat results and pass audits.",
     },
     {
       id: "d5-13",
       domain: "d5",
       lesson: "d5-toolbox",
-      prompt: "An attacker inserts malicious examples into a training dataset to corrupt model behavior. What is this called?",
+      prompt: "An attacker slips harmful examples into a training dataset to corrupt how a model behaves. What is this called?",
       options: ["Data poisoning", "Prompt leaking", "Model inversion", "Phishing"],
       answer: [0],
       explanation:
-        "Data poisoning targets training data. Protect with data validation, access controls, and lineage tracking.",
+        "Data poisoning attacks the training data. You defend against it by validating data, controlling who can change it, and tracking its lineage.",
     },
     {
       id: "d5-14",
       domain: "d5",
       lesson: "d5-toolbox",
-      prompt: "An AI app needs a third-party API key. The team must not hard-code the key and wants it rotated automatically. Which service should store it?",
+      prompt: "An AI app needs a third-party API key. The team mustn't put the key in the code and wants it changed automatically. Where should it be stored?",
       options: ["AWS Secrets Manager", "Amazon S3", "AWS CloudTrail", "Amazon Comprehend"],
       answer: [0],
-      explanation: "AWS Secrets Manager stores, encrypts, and rotates secrets such as API keys and database passwords, so they never live in code.",
+      explanation: "AWS Secrets Manager stores, encrypts and rotates secrets like API keys and database passwords, so they never sit in your code.",
     },
     {
       id: "d5-15",
       domain: "d5",
       lesson: "d5-watchers",
-      prompt: "A company must keep data in a specific country for regulatory reasons. Which concept is this?",
+      prompt: "A company must keep its data inside one country for legal reasons. What is this called?",
       options: ["Data residency", "Data drift", "Data augmentation", "Data labeling"],
       answer: [0],
-      explanation: "Data residency requirements are met by choosing appropriate AWS Regions and controlling cross-Region features.",
+      explanation: "You meet data residency rules by choosing the right AWS Regions and controlling features that copy data between Regions.",
     },
     {
       id: "d5-16",
       domain: "d5",
       lesson: "d5-watchers",
-      prompt: "Which SageMaker governance tool gives a single place to view model information, such as performance and risk, across the organization?",
+      prompt: "Which SageMaker governance tool gives one place to see model information, such as performance and risk, across the whole organisation?",
       options: ["SageMaker Model Dashboard", "SageMaker Canvas", "SageMaker Data Wrangler", "SageMaker Debugger"],
       answer: [0],
       explanation:
-        "SageMaker governance includes Role Manager (permissions), Model Cards (documentation), and Model Dashboard (central monitoring view).",
+        "SageMaker's governance tools are Role Manager for permissions, Model Cards for documentation, and Model Dashboard for one central view of all your models.",
     },
     {
       id: "d5-17",
       domain: "d5",
       lesson: "d5-scoping",
       type: "match",
-      prompt: "Match each use of generative AI to its Generative AI Security Scoping Matrix scope.",
+      prompt: "Match each use of generative AI to its scope in the Generative AI Security Scoping Matrix.",
       pairs: [
         ["Employees use a public consumer chatbot", "Scope 1: Consumer app"],
         ["Using a SaaS product with built-in GenAI features", "Scope 2: Enterprise app"],
@@ -390,23 +511,23 @@ export default defineDomain({
         ["Training your own model from scratch", "Scope 5: Self-trained models"],
       ],
       explanation:
-        "The scoping matrix goes from least to most ownership. The higher the scope, the more security, governance, and data responsibility sits with you.",
+        "The scopes run from owning the least to owning the most. The higher the scope, the more of the security, governance and data responsibility is yours.",
     },
     {
       id: "d5-18",
       domain: "d5",
       lesson: "d5-toolbox",
-      prompt: "An agent must only call approved tools and must never issue refunds over $500, enforced outside the model's own reasoning. Which capability fits?",
+      prompt: "An agent may only call approved tools and must never issue refunds over $500. The rule has to be enforced outside the model's own reasoning. Which capability fits?",
       options: ["Policy in Amazon Bedrock AgentCore", "A higher temperature", "Amazon Polly", "AWS Glue"],
       answer: [0],
       explanation:
-        "Policy in AgentCore applies deterministic rules to what agents can do with tools, so limits hold even if the model is tricked. AgentCore Identity controls who and what the agent can access.",
+        "Policy in AgentCore applies fixed rules to what agents can do with tools, so the limits hold even if someone tricks the model. AgentCore Identity controls who and what the agent can reach.",
     },
     {
       id: "d5-19",
       domain: "d5",
       lesson: "d5-hallucination",
-      prompt: "Which techniques help detect or reduce hallucinations? (Choose two.)",
+      prompt: "Which techniques help catch or reduce hallucinations? (Choose two.)",
       options: [
         "Ground answers with RAG and cite sources",
         "Validate outputs and use confidence scoring before showing answers",
@@ -415,7 +536,7 @@ export default defineDomain({
         "Disable logging",
       ],
       answer: [0, 1],
-      explanation: "Grounding (RAG with citations), output validation, confidence scoring, and Bedrock Guardrails contextual grounding checks all help catch made-up answers.",
+      explanation: "Grounding with RAG and citations, checking the output, confidence scores and the Bedrock Guardrails grounding check all help catch made-up answers.",
     },
     {
       id: "d5-20",
@@ -429,13 +550,13 @@ export default defineDomain({
         ["Amazon CloudWatch", "What are my metrics and logs, and should an alarm fire?"],
         ["AWS Artifact", "Where are AWS's compliance reports?"],
       ],
-      explanation: "CloudTrail = audit trail of actions. Config = configuration compliance. CloudWatch = monitoring. Artifact = AWS compliance documents.",
+      explanation: "CloudTrail is the record of actions. Config checks that settings follow your rules. CloudWatch is for monitoring. Artifact holds AWS's compliance documents.",
     },
     {
       id: "d5-21",
       domain: "d5",
       lesson: "d5-watchers",
-      prompt: "Which are data governance strategies for AI? (Choose two.)",
+      prompt: "Which of these are data governance strategies for AI? (Choose two.)",
       options: [
         "Define retention periods and data lifecycle rules",
         "Keep data in approved Regions to meet residency rules",
@@ -444,23 +565,23 @@ export default defineDomain({
         "Let every user access every dataset",
       ],
       answer: [0, 1],
-      explanation: "Data governance covers lifecycle, retention, residency, logging, monitoring, and access control.",
+      explanation: "Data governance covers the data's lifecycle, how long you keep it, where it lives, logging, monitoring and who can access it.",
     },
     // ── Practice set 2 ──
     {
       id: "d5-22",
       domain: "d5",
       lesson: "d5-toolbox",
-      prompt: "How is data protected in transit between your application and the Amazon Bedrock API?",
+      prompt: "How is data protected while it travels between your app and the Amazon Bedrock API?",
       options: ["TLS encryption (HTTPS)", "AWS Artifact", "Amazon Polly", "A higher temperature"],
       answer: [0],
-      explanation: "AWS API calls use TLS, which encrypts data in transit. KMS covers encryption at rest.",
+      explanation: "AWS API calls use TLS, which encrypts data while it's moving. KMS covers encryption for data that's stored.",
     },
     {
       id: "d5-23",
       domain: "d5",
       lesson: "d5-toolbox",
-      prompt: "An application on Amazon EC2 needs to call Bedrock. What is the most secure way to give it access?",
+      prompt: "An app on Amazon EC2 needs to call Bedrock. What's the most secure way to give it access?",
       options: [
         "Attach an IAM role with least-privilege permissions to the instance",
         "Hard-code an IAM user's access keys in the code",
@@ -468,13 +589,13 @@ export default defineDomain({
         "Make the model public",
       ],
       answer: [0],
-      explanation: "IAM roles provide temporary, automatically rotated credentials. Never embed long-lived access keys in code.",
+      explanation: "An IAM role hands the app short-lived credentials that change automatically. Never put long-lived access keys in your code.",
     },
     {
       id: "d5-24",
       domain: "d5",
       lesson: "d5-watchers",
-      prompt: "An auditor needs a record of the full prompts and responses sent to Bedrock models. Which feature provides this?",
+      prompt: "An auditor needs a record of the full prompts and responses sent to Bedrock models. Which feature provides it?",
       options: [
         "Bedrock model invocation logging to CloudWatch Logs or Amazon S3",
         "AWS Trusted Advisor",
@@ -482,7 +603,7 @@ export default defineDomain({
         "SageMaker Ground Truth",
       ],
       answer: [0],
-      explanation: "CloudTrail records API activity (who called what). Model invocation logging captures the request and response content itself.",
+      explanation: "CloudTrail records API activity, meaning who called what. Model invocation logging goes further and saves the content of each request and response.",
     },
     {
       id: "d5-25",
@@ -491,22 +612,22 @@ export default defineDomain({
       prompt: "Training data in Amazon S3 must be deleted automatically one year after it's created. What should the team use?",
       options: ["An S3 Lifecycle rule", "Amazon Polly", "A larger context window", "AWS Artifact"],
       answer: [0],
-      explanation: "S3 Lifecycle rules enforce retention by moving or expiring objects on a schedule, supporting data governance.",
+      explanation: "S3 Lifecycle rules move or delete objects on a schedule. That's how you enforce how long data is kept.",
     },
     {
       id: "d5-26",
       domain: "d5",
       lesson: "d5-toolbox",
-      prompt: "A company wants central, fine-grained access control over data-lake tables used to train models. Which service fits?",
+      prompt: "A company wants one central, fine-grained way to control access to the data-lake tables it uses to train models. Which service fits?",
       options: ["AWS Lake Formation", "Amazon Lex", "Amazon Polly", "AWS Budgets"],
       answer: [0],
-      explanation: "Lake Formation manages permissions on data-lake databases, tables, and columns in one place.",
+      explanation: "Lake Formation manages permissions on data-lake databases, tables and even single columns, all in one place.",
     },
     {
       id: "d5-27",
       domain: "d5",
       lesson: "d5-toolbox",
-      prompt: "The app must never show credit card numbers that the model might generate. Which control fits?",
+      prompt: "The app must never show credit card numbers the model might produce. Which control fits?",
       options: [
         "Output filtering, such as Bedrock Guardrails sensitive information filters",
         "Raising the temperature",
@@ -514,7 +635,7 @@ export default defineDomain({
         "Turning off encryption",
       ],
       answer: [0],
-      explanation: "Validating and filtering outputs prevents data leakage. Guardrails can block or mask PII in responses.",
+      explanation: "Checking and filtering the model's output stops data from leaking. Guardrails can block or mask personal data in replies.",
     },
     {
       id: "d5-28",
@@ -528,13 +649,13 @@ export default defineDomain({
         "Use Amazon CloudFront for public caching",
       ],
       answer: [0],
-      explanation: "VPC isolation and private connectivity (such as PrivateLink) keep AI endpoints off the public internet.",
+      explanation: "Running it in a VPC and connecting privately, for example with PrivateLink, keeps AI endpoints off the public internet.",
     },
     {
       id: "d5-29",
       domain: "d5",
       lesson: "d5-scoping",
-      prompt: "Which is part of a sound governance process for AI systems?",
+      prompt: "Which of these is part of a sound governance process for AI systems?",
       options: [
         "Written policies with a regular review cadence and documented approvals",
         "Letting each developer decide their own rules",
@@ -542,7 +663,7 @@ export default defineDomain({
         "Turning off logging to save cost",
       ],
       answer: [0],
-      explanation: "Governance needs clear policies, scheduled reviews, transparency standards, and team training.",
+      explanation: "Good governance needs clear policies, reviews on a schedule, transparency standards and training for the team.",
     },
     {
       id: "d5-30",
@@ -551,14 +672,14 @@ export default defineDomain({
       type: "order",
       prompt: "Put the stages of the data lifecycle for AI training data in order.",
       items: ["Collect the data with consent", "Store it securely and encrypted", "Use it for training or inference", "Retain it for the required period", "Delete it securely"],
-      explanation: "Data governance applies at every stage, from consent at collection to secure deletion when retention ends.",
+      explanation: "Data governance applies at every stage, from getting consent when you collect data to deleting it safely when the retention period ends.",
     },
     {
       id: "d5-31",
       domain: "d5",
       lesson: "d5-toolbox",
       type: "match",
-      prompt: "Match each security need to the AWS service.",
+      prompt: "Match each security need to the AWS service that handles it.",
       pairs: [
         ["Store and rotate database passwords", "AWS Secrets Manager"],
         ["Find PII in S3 buckets", "Amazon Macie"],
@@ -566,7 +687,7 @@ export default defineDomain({
         ["Private connection from a VPC to Bedrock", "AWS PrivateLink"],
         ["Scan container images for vulnerabilities", "Amazon Inspector"],
       ],
-      explanation: "Each service covers one security job. Exams often ask you to pick the right one from a scenario.",
+      explanation: "Each service covers one security job. The exam often describes a situation and asks you to pick the right one.",
     },
     // ── Practice set 3 ──
     {
@@ -576,34 +697,34 @@ export default defineDomain({
       prompt: "An app in a private subnet with no internet access must call Amazon Bedrock. What should the team set up?",
       options: ["A VPC interface endpoint for Bedrock (AWS PrivateLink)", "An internet gateway on the private subnet", "A public IP on every instance", "Amazon CloudFront"],
       answer: [0],
-      explanation: "VPC endpoints powered by PrivateLink reach AWS services privately, keeping traffic on the AWS network.",
+      explanation: "VPC endpoints, powered by PrivateLink, reach AWS services privately. The traffic never leaves the AWS network.",
     },
     {
       id: "d5-33",
       domain: "d5",
       lesson: "d5-network",
-      prompt: "Instances in a private subnet need to download software updates from the internet but must not be reachable from it. What provides this?",
+      prompt: "Machines in a private subnet need to download software updates from the internet, but nobody on the internet should be able to reach them. What provides this?",
       options: ["A NAT gateway", "An internet gateway attached directly to the private subnet", "AWS Artifact", "An S3 Lifecycle rule"],
       answer: [0],
-      explanation: "NAT gateways allow outbound-only internet access for private subnets. Internet gateways serve public subnets.",
+      explanation: "A NAT gateway gives private subnets outgoing internet access only. An internet gateway is for public subnets.",
     },
     {
       id: "d5-34",
       domain: "d5",
       lesson: "d5-network",
-      prompt: "SageMaker training jobs in a private VPC must read data from Amazon S3 without using the internet. What is the simplest option?",
+      prompt: "SageMaker training jobs in a private VPC must read data from Amazon S3 without using the internet. What's the simplest option?",
       options: ["An S3 gateway VPC endpoint", "A NAT gateway to the public S3 endpoint", "Copy data to Amazon Polly", "Turn off encryption"],
       answer: [0],
-      explanation: "An S3 gateway endpoint gives private access to S3 from the VPC. An interface endpoint is also available.",
+      explanation: "An S3 gateway endpoint gives the VPC private access to S3. An interface endpoint would also work.",
     },
     {
       id: "d5-35",
       domain: "d5",
       lesson: "d5-network",
-      prompt: "Bedrock fails to fine-tune a model from training data in an S3 bucket encrypted with a KMS key (SSE-KMS). What is the most likely fix?",
+      prompt: "Bedrock fails to fine-tune a model from training data in an S3 bucket encrypted with a KMS key (SSE-KMS). What's the most likely fix?",
       options: ["Give Bedrock's IAM role permission to read the bucket and to decrypt with the KMS key", "Make the bucket public", "Delete the KMS key", "Raise the model's temperature"],
       answer: [0],
-      explanation: "Bedrock needs an IAM role with both S3 access and kms:Decrypt on the key that encrypted the data.",
+      explanation: "Bedrock's IAM role needs two things: access to the S3 bucket, and kms:Decrypt on the key that encrypted the data. Without the second, it can't read the files.",
     },
     {
       id: "d5-36",
@@ -612,16 +733,16 @@ export default defineDomain({
       prompt: "A security team needs to see which users tried to call Bedrock's ListCustomModels API, including calls that were denied. Which service records this?",
       options: ["AWS CloudTrail", "Amazon Polly", "AWS Trusted Advisor", "SageMaker Canvas"],
       answer: [0],
-      explanation: "CloudTrail logs API activity, successful and denied, for auditing who did what.",
+      explanation: "CloudTrail logs API activity, whether it succeeded or was denied, so you can audit who did what.",
     },
     {
       id: "d5-37",
       domain: "d5",
       lesson: "d5-network",
-      prompt: "In IAM, how should an AWS service such as Bedrock or SageMaker get permission to access other resources?",
+      prompt: "In IAM, how should an AWS service like Bedrock or SageMaker get permission to use other resources?",
       options: ["Through an IAM role assumed by the service", "By embedding a user's access keys", "By sharing the root user", "Through an S3 storage class"],
       answer: [0],
-      explanation: "Services assume IAM roles with least-privilege policies. Users and groups get policies too, but services should never use long-lived user keys.",
+      explanation: "Services take on an IAM role with least-privilege policies. People and groups get policies too, but a service should never use a person's long-lived keys.",
     },
     {
       id: "d5-38",
@@ -630,7 +751,7 @@ export default defineDomain({
       prompt: "A regulator requires that SageMaker training containers can't send any data out. Which setting enforces this?",
       options: ["Network isolation mode for the training job", "A higher batch size", "Amazon Lex", "S3 Intelligent-Tiering"],
       answer: [0],
-      explanation: "Network isolation blocks all outbound network access from the job's containers, even to S3.",
+      explanation: "Network isolation blocks all outgoing network access from the job's containers, even to S3.",
     },
     {
       id: "d5-39",
@@ -639,90 +760,90 @@ export default defineDomain({
       type: "order",
       prompt: "Put the stages of the data lifecycle in order.",
       items: ["Collection", "Processing", "Storage", "Consumption", "Archival"],
-      explanation: "Governance controls (access, retention, residency, logging) apply at every stage.",
+      explanation: "Governance controls like access, retention, residency and logging apply at every one of these stages.",
     },
     {
       id: "d5-40",
       domain: "d5",
       lesson: "d5-data-governance",
-      prompt: "Which privacy-enhancing technologies reduce the risk of exposing personal data used in AI? (Choose two.)",
+      prompt: "Which privacy technologies lower the risk of exposing personal data used in AI? (Choose two.)",
       options: ["Data masking or obfuscation", "Encryption and tokenization", "Publishing raw data for transparency", "Disabling access logs", "Sharing one admin account"],
       answer: [0, 1],
-      explanation: "Masking, obfuscation, encryption, and tokenization protect data while it's stored, processed, and used.",
+      explanation: "Masking, obfuscation, encryption and tokenization all protect data while it's stored, processed and used. Tokenization, for example, swaps a card number for a meaningless stand-in.",
     },
     {
       id: "d5-41",
       domain: "d5",
       lesson: "d5-data-governance",
       type: "match",
-      prompt: "Match each data-quality dimension to its meaning.",
+      prompt: "Match each measure of data quality to what it means.",
       pairs: [
         ["Completeness", "Covers a diverse, comprehensive range of scenarios"],
         ["Accuracy", "Correct, up to date, and representative"],
         ["Timeliness", "How old the data in the store is"],
         ["Consistency", "Coherent across the whole data lifecycle"],
       ],
-      explanation: "Assessing data quality is the first step in secure data engineering.",
+      explanation: "Checking data quality is the first step in handling data securely. Bad data leads to bad models.",
     },
     {
       id: "d5-42",
       domain: "d5",
       lesson: "d5-data-governance",
-      prompt: "Which belong in monitoring a production AI system? (Choose two.)",
+      prompt: "Which of these belong in monitoring a production AI system? (Choose two.)",
       options: ["Model performance metrics such as precision, recall, and latency", "Infrastructure metrics such as CPU and GPU use, network, and storage", "The office Wi-Fi password", "The color of dashboards", "How many slides the team presented"],
       answer: [0, 1],
-      explanation: "Monitor model performance, infrastructure health, and bias, fairness, and compliance signals.",
+      explanation: "You monitor how well the model performs, how healthy the infrastructure is, and signs of bias, unfairness or compliance problems.",
     },
     {
       id: "d5-43",
       domain: "d5",
       lesson: "d5-data-governance",
-      prompt: "Which is a key MLOps principle?",
+      prompt: "Which of these is a key MLOps principle?",
       options: ["Version control for data, code, and models so you can roll back", "Deploying models by hand with no records", "Training once and never monitoring", "Keeping models only on laptops"],
       answer: [0],
-      explanation: "MLOps adds automation, continuous integration and delivery, continuous retraining, and continuous monitoring.",
+      explanation: "Keeping versions lets you roll back when something breaks. MLOps also adds automation, continuous integration and delivery, regular retraining and constant monitoring.",
     },
     {
       id: "d5-44",
       domain: "d5",
       lesson: "d5-data-governance",
-      prompt: "Data quality drops and input patterns shift after a model is deployed. Which data management activity catches this?",
+      prompt: "After a model goes live, data quality drops and the input patterns shift. Which data management activity catches this?",
       options: ["Data monitoring (quality, anomalies, drift)", "Data archival", "Choosing an S3 storage class", "Prompt caching"],
       answer: [0],
-      explanation: "Data monitoring tracks quality, anomalies, and drift. SageMaker Model Monitor automates this for endpoints.",
+      explanation: "Data monitoring watches quality, odd values and drift. SageMaker Model Monitor does this automatically for endpoints.",
     },
     {
       id: "d5-45",
       domain: "d5",
       lesson: "d5-watchers",
-      prompt: "A customer wants the compliance reports of a third-party software vendor it buys through AWS Marketplace. Where can it get them, if the vendor grants access?",
+      prompt: "A customer wants the compliance reports of a third-party software vendor it buys from through AWS Marketplace. Where can it get them, if the vendor grants access?",
       options: ["AWS Artifact (third-party reports)", "AWS Lambda", "Amazon Translate", "Amazon Inspector"],
       answer: [0],
-      explanation: "Artifact provides AWS's own compliance reports and, with access granted, independent software vendors' reports, with notifications when new ones arrive.",
+      explanation: "Artifact offers AWS's own compliance reports and, once access is granted, reports from independent software vendors. It can also notify you when new ones arrive.",
     },
   ],
 
   cards: [
-    { id: "s-cloudtrail", domain: "d5", kind: "service", term: "AWS CloudTrail", definition: "Audit log of API calls: who did what, when" },
-    { id: "s-config", domain: "d5", kind: "service", term: "AWS Config", definition: "Track and evaluate resource configuration compliance" },
-    { id: "s-kms", domain: "d5", kind: "service", term: "AWS KMS", definition: "Create and manage encryption keys" },
-    { id: "s-macie", domain: "d5", kind: "service", term: "Amazon Macie", definition: "Discover sensitive data (PII) in S3" },
-    { id: "s-artifact", domain: "d5", kind: "service", term: "AWS Artifact", definition: "Download AWS compliance reports (SOC, ISO)" },
-    { id: "s-inspector", domain: "d5", kind: "service", term: "Amazon Inspector", definition: "Automated vulnerability scanning of workloads" },
-    { id: "s-cloudwatch", domain: "d5", kind: "service", term: "Amazon CloudWatch", definition: "Metrics, logs, dashboards, and alarms" },
-    { id: "s-trustedadvisor", domain: "d5", kind: "service", term: "AWS Trusted Advisor", definition: "Best-practice checks for cost, security, and limits" },
-    { id: "s-secrets", domain: "d5", kind: "service", term: "AWS Secrets Manager", definition: "Store and rotate API keys and passwords" },
-    { id: "s-privatelink", domain: "d5", kind: "service", term: "AWS PrivateLink", definition: "Private connectivity from your VPC to AWS services" },
-    { id: "c-scoping", domain: "d5", kind: "concept", term: "GenAI Security Scoping Matrix", definition: "Scopes 1-5 from consumer app to self-trained model" },
-    { id: "c-shared", domain: "d5", kind: "concept", term: "Shared responsibility", definition: "AWS secures the cloud; you secure what you put in it" },
-    { id: "c-leastpriv", domain: "d5", kind: "concept", term: "Least privilege", definition: "Grant only the permissions needed for the task" },
-    { id: "c-poisoning", domain: "d5", kind: "concept", term: "Data poisoning", definition: "Corrupting training data to manipulate a model" },
-    { id: "c-vpcendpoint", domain: "d5", kind: "concept", term: "VPC endpoint", definition: "Private access to AWS services without the internet" },
-    { id: "c-nat", domain: "d5", kind: "concept", term: "NAT gateway", definition: "Outbound-only internet for private subnets" },
-    { id: "c-kmsrole", domain: "d5", kind: "concept", term: "Bedrock + SSE-KMS bucket", definition: "Role needs S3 read plus KMS decrypt" },
-    { id: "c-netiso", domain: "d5", kind: "concept", term: "SageMaker network isolation", definition: "Training containers get no outbound access" },
-    { id: "c-pet", domain: "d5", kind: "concept", term: "Privacy-enhancing tech", definition: "Masking, obfuscation, encryption, tokenization" },
-    { id: "c-mlops", domain: "d5", kind: "concept", term: "MLOps principles", definition: "Versioning, automation, CI/CD, continuous retraining and monitoring" },
+    { id: "s-cloudtrail", domain: "d5", kind: "service", term: "AWS CloudTrail", definition: "A log of API calls: who did what, and when" },
+    { id: "s-config", domain: "d5", kind: "service", term: "AWS Config", definition: "Tracks how resources are set up and checks them against your rules" },
+    { id: "s-kms", domain: "d5", kind: "service", term: "AWS KMS", definition: "Creates and manages encryption keys" },
+    { id: "s-macie", domain: "d5", kind: "service", term: "Amazon Macie", definition: "Finds sensitive personal data in S3" },
+    { id: "s-artifact", domain: "d5", kind: "service", term: "AWS Artifact", definition: "Download AWS compliance reports, like SOC and ISO" },
+    { id: "s-inspector", domain: "d5", kind: "service", term: "Amazon Inspector", definition: "Automatically scans workloads for vulnerabilities" },
+    { id: "s-cloudwatch", domain: "d5", kind: "service", term: "Amazon CloudWatch", definition: "Metrics, logs, dashboards and alarms" },
+    { id: "s-trustedadvisor", domain: "d5", kind: "service", term: "AWS Trusted Advisor", definition: "Best-practice checks for cost, security and limits" },
+    { id: "s-secrets", domain: "d5", kind: "service", term: "AWS Secrets Manager", definition: "Stores API keys and passwords and rotates them" },
+    { id: "s-privatelink", domain: "d5", kind: "service", term: "AWS PrivateLink", definition: "A private connection from your VPC to AWS services" },
+    { id: "c-scoping", domain: "d5", kind: "concept", term: "GenAI Security Scoping Matrix", definition: "Scopes 1 to 5, from a consumer app up to a model you train yourself" },
+    { id: "c-shared", domain: "d5", kind: "concept", term: "Shared responsibility", definition: "AWS secures the cloud itself. You secure what you put in it" },
+    { id: "c-leastpriv", domain: "d5", kind: "concept", term: "Least privilege", definition: "Give only the permissions a task actually needs" },
+    { id: "c-poisoning", domain: "d5", kind: "concept", term: "Data poisoning", definition: "Corrupting training data to change how a model behaves" },
+    { id: "c-vpcendpoint", domain: "d5", kind: "concept", term: "VPC endpoint", definition: "Private access to AWS services without going over the internet" },
+    { id: "c-nat", domain: "d5", kind: "concept", term: "NAT gateway", definition: "Outgoing-only internet access for private subnets" },
+    { id: "c-kmsrole", domain: "d5", kind: "concept", term: "Bedrock and an SSE-KMS bucket", definition: "Bedrock's role needs permission to read S3 and to decrypt with KMS" },
+    { id: "c-netiso", domain: "d5", kind: "concept", term: "SageMaker network isolation", definition: "Training containers can't send anything out" },
+    { id: "c-pet", domain: "d5", kind: "concept", term: "Privacy-enhancing tech", definition: "Masking, obfuscation, encryption and tokenization" },
+    { id: "c-mlops", domain: "d5", kind: "concept", term: "MLOps principles", definition: "Versioning, automation, CI/CD, regular retraining and constant monitoring" },
   ],
 
   challenges: [
@@ -731,9 +852,9 @@ export default defineDomain({
       domain: "d5",
       lesson: "d5-shared",
       title: "Whose job is it?",
-      goal: "Assign every task to AWS or to you, with all six correct.",
-      hint: "AWS secures the infrastructure; you secure your data, access, and configuration.",
-      takeaway: "Even on managed services like Bedrock, IAM, encryption choices, and guardrail settings are yours.",
+      goal: "Give every task to either AWS or you, and get all six right.",
+      hint: "AWS secures the infrastructure. You secure your data, your access settings and your configuration.",
+      takeaway: "Even on managed services like Bedrock, IAM, encryption choices and guardrail settings are still yours.",
       render: (onSolved) => <ResponsibilityLab goal="allCorrect" onSolved={onSolved} />,
     },
   ],

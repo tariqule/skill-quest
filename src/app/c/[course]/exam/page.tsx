@@ -18,6 +18,7 @@ export default function ExamPage() {
   const copy = courseCopy(course);
   const progress = useProgress();
   const { pool: levelPool, level } = useLevelPool();
+  const [tryAnyway, setTryAnyway] = useState(false);
   const examPool = examQuestions(course).filter((q) => levelPool.includes(q));
   // A level with fewer questions than a mode asks for gets a shorter, proportionally scaled run.
   const MODES = course.config.examModes.map((m) => {
@@ -129,6 +130,29 @@ export default function ExamPage() {
   const answeredCount = answers.filter(Boolean).length;
   const mm = Math.floor(Math.max(0, secondsLeft) / 60);
   const ss = String(Math.max(0, secondsLeft) % 60).padStart(2, "0");
+
+  if (phase === "intro" && level === "beginner" && !tryAnyway) {
+    return (
+      <PageShell title={`${copy.gateIcon} ${copy.gate}`} subtitle="This one comes after the basics.">
+        <div className="rounded-3xl border border-rose-300/30 bg-rose-300/[0.07] p-6 text-slate-200">
+          <div className="text-4xl">🐣</div>
+          <p className="mt-2 text-lg font-bold text-white">You&apos;re on the Beginner level.</p>
+          <p className="mt-1 text-slate-300">
+            The full {copy.simulator} is timed and gives no feedback until the end, which can feel rough on day one. Finish the &quot;Start here&quot; lessons first,
+            then level up from the map. You can still try it now if you&apos;re curious.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Link href={href()} className="rounded-xl bg-sky-400 px-5 py-2.5 font-black text-slate-950">
+              Back to the basics
+            </Link>
+            <button type="button" onClick={() => setTryAnyway(true)} className="rounded-xl border border-white/15 px-5 py-2.5 font-semibold text-slate-200">
+              Try it anyway
+            </button>
+          </div>
+        </div>
+      </PageShell>
+    );
+  }
 
   if (phase === "intro") {
     return (

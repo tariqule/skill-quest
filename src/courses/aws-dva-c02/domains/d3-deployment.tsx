@@ -16,7 +16,8 @@ export default defineDomain({
     weight: 24,
     emoji: "🚀",
     color: "#34d399",
-    summary: "Packaging artifacts, CloudFormation, SAM, and CDK, testing environments, Lambda versions and aliases, deployment strategies, and CI/CD.",
+    summary:
+      "How you package code, describe infrastructure with CloudFormation, SAM, and CDK, test safely, and release new versions with Lambda aliases, deployment strategies, and CI/CD pipelines.",
   },
 
   tasks: [
@@ -70,34 +71,111 @@ export default defineDomain({
   ],
 
   lessons: [
+    // ── Start here (beginner) ──
+    {
+      id: "d3-start-deploying",
+      level: "beginner",
+      task: "3.1",
+      title: "What deploying means",
+      check: ["dva2-b3-01", "dva2-b3-02"],
+      visual: (
+        <Flow
+          color="#34d399"
+          steps={[
+            { icon: "💻", label: "Your laptop", sub: "Where you write and try the code" },
+            { icon: "📦", label: "Package", sub: "The code plus everything it needs to run" },
+            { icon: "🧪", label: "Dev and test", sub: "Practice copies for trying changes" },
+            { icon: "🌍", label: "Production", sub: "The copy real users rely on" },
+          ]}
+        />
+      ),
+      points: [
+        "Code on your laptop helps nobody else. **Deploying** means copying your finished code onto servers in the cloud, where your users can reach it.",
+        "Think of a restaurant. The chef tries a new dish in the kitchen first, and it only goes on the menu once it tastes right.",
+        "Teams do the same with **environments**: separate copies of the app called dev, test, and production. You try changes in dev and test, and real users only see production.",
+        "Before you deploy, you bundle the code and its libraries into a **package**, a single file AWS can run. For Lambda, that's usually a .zip file or a container image.",
+      ],
+      tip: "When a question mentions dev, test, staging, or prod, it's talking about separate copies of the same app.",
+    },
+    {
+      id: "d3-start-testing",
+      level: "beginner",
+      task: "3.2",
+      title: "Why you test before you ship",
+      check: ["dva2-b3-03", "dva2-b3-04"],
+      visual: (
+        <Tiles
+          cols={3}
+          tiles={[
+            { icon: "🧩", title: "Unit test", text: "Checks one small piece on its own, like a single function.", color: "#38bdf8" },
+            { icon: "🔗", title: "Integration test", text: "Checks that pieces work together, like your function and a real queue.", color: "#38bdf8" },
+            { icon: "🎭", title: "Mock", text: "A stand-in for a service you don't want to call for real, like a payment provider.", color: "#38bdf8" },
+          ]}
+        />
+      ),
+      points: [
+        "A **test** is a small program that runs your code and checks the result. It catches mistakes before your users do.",
+        "Lambda functions run when an event arrives, like a file landing in S3. A **test event** is a sample of that message in JSON, so you can run the function whenever you like.",
+        "Some code calls services you shouldn't hit during tests, like a real payment system. A **mock** stands in for that service and always gives the same, predictable answer.",
+        "AI assistants such as Amazon Q Developer can draft tests for you. Read every check they write before you trust it.",
+      ],
+      tip: "Tests should never touch production systems or real money. Look for answers that use a mock, a sandbox, or a separate dev environment.",
+    },
+    {
+      id: "d3-start-pipeline",
+      level: "beginner",
+      task: "3.4",
+      title: "Automating releases with CI/CD",
+      check: ["dva2-b3-05", "dva2-b3-06"],
+      visual: (
+        <Flow
+          color="#a78bfa"
+          steps={[
+            { icon: "🌿", label: "Commit", sub: "You save a change in Git" },
+            { icon: "🔨", label: "Build and test", sub: "AWS CodeBuild" },
+            { icon: "✋", label: "Approve", sub: "An optional sign-off" },
+            { icon: "🚀", label: "Deploy", sub: "AWS CodeDeploy or CloudFormation" },
+          ]}
+        />
+      ),
+      points: [
+        "Deploying by hand is slow and easy to get wrong. **CI/CD** (continuous integration and continuous delivery) automates it, like a car wash that moves every car through the same steps.",
+        "On AWS, **CodePipeline** runs the whole line. **CodeBuild** builds and tests your code, and **CodeDeploy** puts the new version on your servers or functions.",
+        "**Infrastructure as code** means writing down your servers, databases, and permissions in a text file called a **template**. **CloudFormation** reads the template and builds everything for you.",
+        "If a new version misbehaves, you **roll back**: you put the last working version back in place.",
+      ],
+      tip: "A question about a release that runs on every commit is almost always about CodePipeline.",
+    },
+
+    // ── Exam lessons ──
     {
       id: "d3-packaging",
       task: "3.1 · 3.4",
-      title: "Packaging artifacts and configuration",
+      title: "Packaging your code and settings",
       check: ["d3-01", "d3-02"],
       visual: (
         <div className="grid gap-4">
           <Tiles
             cols={2}
             tiles={[
-              { icon: "🗜️", title: ".zip archive", text: "Up to 50 MB zipped for direct upload (larger through S3), 250 MB unzipped including layers.", color: "#34d399" },
-              { icon: "🐳", title: "Container image", text: "Up to 10 GB, stored in Amazon ECR. Good for big dependencies or existing container tooling.", color: "#34d399" },
+              { icon: "🗜️", title: ".zip archive", text: "Up to 50 MB zipped if you upload it directly, or more through S3. The limit is 250 MB unzipped, layers included.", color: "#34d399" },
+              { icon: "🐳", title: "Container image", text: "Up to 10 GB, stored in Amazon ECR. A good fit for big libraries, or if you already build containers.", color: "#34d399" },
             ]}
           />
           <Layers
             layers={[
-              { name: "Repository root", color: "#38bdf8", items: ["template.yaml (SAM)", "buildspec.yml (CodeBuild)", "appspec.yml (CodeDeploy)", "Dockerfile", ".ebextensions/*.config (Beanstalk)"] },
-              { name: "Kept out of the package", color: "#f87171", items: ["Secrets", "Dev and test dependencies", "Per-environment values (use env vars, Parameter Store, AppConfig)"] },
+              { name: "At the root of your repository", color: "#38bdf8", items: ["template.yaml (SAM)", "buildspec.yml (CodeBuild)", "appspec.yml (CodeDeploy)", "Dockerfile", ".ebextensions/*.config (Beanstalk)"] },
+              { name: "Keep out of the package", color: "#f87171", items: ["Secrets", "Libraries you only need for development and tests", "Values that change per environment (put them in environment variables, Parameter Store, or AppConfig)"] },
             ]}
           />
         </div>
       ),
       points: [
-        "Bundle runtime dependencies with the code (or in a layer); never install them at invocation time.",
-        "AWS AppConfig deploys feature flags and configuration gradually, validates them, and rolls back automatically on a CloudWatch alarm.",
-        "Set resources to fit the app: Lambda memory, ECS task CPU and memory, Beanstalk instance types.",
+        "Ship your libraries inside the package, or in a **layer**: a shared bundle of libraries that several functions can use. Never install them while the function is running.",
+        "**AWS AppConfig** rolls out settings and feature flags a little at a time. It checks them first, and rolls back on its own if a CloudWatch alarm fires.",
+        "Size the resources to fit the app: memory for Lambda, CPU and memory for an ECS task, and the instance type for Elastic Beanstalk.",
       ],
-      tip: "Dependencies over 250 MB unzipped → package the function as a container image.",
+      tip: "If your libraries come to more than 250 MB unzipped, package the function as a container image instead.",
     },
     {
       id: "d3-iac",
@@ -109,28 +187,29 @@ export default defineDomain({
           <Flow
             color="#38bdf8"
             steps={[
-              { icon: "🧑‍💻", label: "Author", sub: "CloudFormation YAML, SAM template, or CDK code" },
-              { icon: "🧱", label: "Synthesize / transform", sub: "CDK synth and the SAM transform both produce CloudFormation" },
-              { icon: "🔍", label: "Change set", sub: "Preview what will change" },
-              { icon: "🏗️", label: "Stack update", sub: "Rolls back automatically on failure" },
+              { icon: "🧑‍💻", label: "Write it", sub: "A CloudFormation or SAM template, or CDK code" },
+              { icon: "🧱", label: "Turn it into CloudFormation", sub: "cdk synth and the SAM transform both produce a CloudFormation template" },
+              { icon: "🔍", label: "Preview a change set", sub: "See what will change before it happens" },
+              { icon: "🏗️", label: "Update the stack", sub: "If anything fails, it rolls back on its own" },
             ]}
           />
           <Tiles
             cols={3}
             tiles={[
-              { icon: "📜", title: "CloudFormation", text: "Parameters, Mappings, Conditions, Resources (required), Outputs. Export + ImportValue to share between stacks.", color: "#a78bfa" },
-              { icon: "🐿️", title: "AWS SAM", text: "Transform: AWS::Serverless-2016-10-31. Short syntax for functions, APIs, tables. sam build, local, deploy.", color: "#a78bfa" },
-              { icon: "🧰", title: "AWS CDK", text: "Infrastructure in TypeScript, Python, Java, C#, or Go. cdk synth, diff, deploy.", color: "#a78bfa" },
+              { icon: "📜", title: "CloudFormation", text: "Sections: Parameters, Mappings, Conditions, Resources (the only required one), and Outputs. Export an output and use ImportValue to share it with another stack.", color: "#a78bfa" },
+              { icon: "🐿️", title: "AWS SAM", text: "Add Transform: AWS::Serverless-2016-10-31 and you get short syntax for functions, APIs, and tables. Then use sam build, sam local, and sam deploy.", color: "#a78bfa" },
+              { icon: "🧰", title: "AWS CDK", text: "Write infrastructure in TypeScript, Python, Java, C#, or Go. Then use cdk synth, cdk diff, and cdk deploy.", color: "#a78bfa" },
             ]}
           />
         </div>
       ),
       points: [
-        "Intrinsic functions: Ref, Fn::GetAtt, Fn::Sub, Fn::Join, Fn::FindInMap, Fn::ImportValue, Fn::If.",
-        "DeletionPolicy: Retain or Snapshot keeps data stores when a stack or resource is deleted.",
-        "SAM deploys to different environments with samconfig.toml configuration environments or --parameter-overrides.",
+        "A **stack** is everything CloudFormation built from one template, managed together. Update the template and CloudFormation works out what to add, change, or remove.",
+        "**Intrinsic functions** are small helpers you call inside a template: Ref, Fn::GetAtt, Fn::Sub, Fn::Join, Fn::FindInMap, Fn::ImportValue, and Fn::If.",
+        "Set DeletionPolicy to Retain or Snapshot on a data store. Then deleting the stack, or removing the resource from it, won't throw your data away.",
+        "To deploy one SAM template to several environments, use configuration environments in samconfig.toml, or pass different values with --parameter-overrides.",
       ],
-      tip: "\"See what will change before updating production\" → create a change set.",
+      tip: "If a question asks how to see what will change before you update production, the answer is a change set.",
     },
     {
       id: "d3-testing",
@@ -142,26 +221,26 @@ export default defineDomain({
           <Flow
             color="#f59e0b"
             steps={[
-              { icon: "🧪", label: "sam local generate-event", sub: "Sample S3, SQS, API Gateway payloads" },
-              { icon: "λ", label: "sam local invoke / start-api", sub: "Run in a local container" },
-              { icon: "🎭", label: "Mock integrations", sub: "API Gateway returns canned responses" },
-              { icon: "🚦", label: "Dev stage", sub: "Deployed, isolated from prod" },
+              { icon: "🧪", label: "sam local generate-event", sub: "Creates sample S3, SQS, and API Gateway events" },
+              { icon: "λ", label: "sam local invoke or start-api", sub: "Runs your function in a local container" },
+              { icon: "🎭", label: "Mock integrations", sub: "API Gateway sends back a fixed, made-up response" },
+              { icon: "🚦", label: "Dev stage", sub: "A deployed copy, kept apart from production" },
             ]}
           />
           <Tiles
             cols={3}
             tiles={[
-              { icon: "🌿", title: "Amplify branches", text: "Each Git branch can get its own hosted environment for testing.", color: "#38bdf8" },
-              { icon: "🔁", title: "Event-driven tests", text: "Send test events; check EventBridge patterns with TestEventPattern; assert on the queue or table.", color: "#38bdf8" },
-              { icon: "🤖", title: "Amazon Q Developer", text: "Generates unit tests for existing code from the IDE.", color: "#38bdf8" },
+              { icon: "🌿", title: "Amplify branches", text: "Each Git branch can get its own hosted copy of the app for testing.", color: "#38bdf8" },
+              { icon: "🔁", title: "Event-driven tests", text: "Send a test event, check EventBridge patterns with TestEventPattern, then look at the queue or table to see what happened.", color: "#38bdf8" },
+              { icon: "🤖", title: "Amazon Q Developer", text: "Writes unit tests for your existing code, right from your editor.", color: "#38bdf8" },
             ]}
           />
         </div>
       ),
       points: [
-        "Integration tests should stub or mock external APIs, or use the provider's sandbox, never production systems.",
-        "Use a separate API Gateway stage (and Lambda alias) for dev and test so production traffic is never touched.",
-        "Deploy the same SAM template to staging with different parameters instead of maintaining copies.",
+        "Integration tests check that your code works with other systems. Point them at a mock or the provider's sandbox, never at a live production system.",
+        "Give dev and test their own API Gateway stage and Lambda alias. Then your experiments never touch real users' traffic.",
+        "Deploy the same SAM template to staging with different parameters. One template beats several copies that slowly drift apart.",
       ],
     },
     {
@@ -174,26 +253,27 @@ export default defineDomain({
           <Flow
             color="#a78bfa"
             steps={[
-              { icon: "🚪", label: "API Gateway prod stage", sub: "Stage variable alias = prod" },
-              { icon: "🏷️", label: "Alias: prod", sub: "90% → v7 · 10% → v8" },
-              { icon: "📦", label: "Versions 7 and 8", sub: "Immutable snapshots of code + config" },
+              { icon: "🚪", label: "API Gateway prod stage", sub: "Its stage variable sets the alias to prod" },
+              { icon: "🏷️", label: "Alias: prod", sub: "90% of calls go to v7, 10% to v8" },
+              { icon: "📦", label: "Versions 7 and 8", sub: "Frozen snapshots of code and settings" },
             ]}
           />
           <Tiles
             cols={3}
             tiles={[
-              { icon: "🐤", title: "Canary10Percent5Minutes", text: "10% of traffic for 5 minutes, then the rest.", color: "#34d399" },
-              { icon: "📈", title: "Linear10PercentEvery1Minute", text: "Add 10% every minute until 100%.", color: "#34d399" },
-              { icon: "💥", title: "AllAtOnce", text: "Shift everything immediately.", color: "#34d399" },
+              { icon: "🐤", title: "Canary10Percent5Minutes", text: "10% of traffic for 5 minutes, then the rest all at once.", color: "#34d399" },
+              { icon: "📈", title: "Linear10PercentEvery1Minute", text: "Another 10% every minute until it reaches 100%.", color: "#34d399" },
+              { icon: "💥", title: "AllAtOnce", text: "Everything moves to the new version right away.", color: "#34d399" },
             ]}
           />
         </div>
       ),
       points: [
-        "A published version is immutable; $LATEST is the editable one. An alias is a named pointer that can move between versions.",
-        "SAM AutoPublishAlias plus DeploymentPreference uses CodeDeploy to shift alias traffic, with pre-traffic and post-traffic hook functions and CloudWatch alarms for automatic rollback.",
-        "Stage variables let one API definition target different aliases per stage, for example function:${stageVariables.alias}. Each alias needs its own invoke permission.",
-        "Approved container versions: reference immutable image tags (such as a commit SHA) or digests, and enable ECR tag immutability.",
+        "Publishing a Lambda **version** freezes your code and settings so they can't change. $LATEST is the only copy you can still edit.",
+        "An **alias** is a name, like prod, that points at a version. You can move it to another version without changing anything that calls it.",
+        "In SAM, AutoPublishAlias plus DeploymentPreference hands the alias to CodeDeploy. It shifts traffic gradually, runs pre-traffic and post-traffic hook functions, and rolls back if a CloudWatch alarm fires.",
+        "**Stage variables** let one API call a different alias in each stage, for example function:${stageVariables.alias}. Each alias needs its own invoke permission.",
+        "For containers, deploy an approved version by using a tag that never moves, like the commit SHA, or the image digest. Turn on tag immutability in ECR.",
       ],
     },
     {
@@ -203,11 +283,12 @@ export default defineDomain({
       check: ["d3-28", "d3-30"],
       visual: <DeployStrategies />,
       points: [
-        "Elastic Beanstalk policies: all at once, rolling, rolling with additional batch, immutable, and traffic splitting. Blue/green uses a cloned environment and a URL (CNAME) swap.",
-        "CodeDeploy reads appspec.yml for lifecycle hooks. EC2/on-premises deployments are in-place or blue/green; Lambda and ECS shift traffic.",
-        "CodeDeploy rollback redeploys the last known good revision as a new deployment, triggered on failure or a CloudWatch alarm.",
+        "Elastic Beanstalk offers five deployment policies: all at once, rolling, rolling with additional batch, immutable, and traffic splitting.",
+        "For **blue/green** on Beanstalk, you clone the environment, deploy to the clone, then swap the two environment URLs. That's called a CNAME swap.",
+        "CodeDeploy reads appspec.yml to learn which scripts to run at each step. On EC2 or on-premises servers it deploys in place or blue/green. For Lambda and ECS it shifts traffic.",
+        "A CodeDeploy rollback redeploys the last version that worked, as a brand-new deployment. It can start when a deployment fails or when a CloudWatch alarm fires.",
       ],
-      tip: "Fastest rollback with zero downtime → immutable or blue/green. Cheapest and fastest for dev → all at once.",
+      tip: "Need zero downtime and a fast rollback? Pick immutable or blue/green. Need the cheapest, fastest deploy to a dev environment? Pick all at once.",
     },
     {
       id: "d3-cicd",
@@ -219,64 +300,166 @@ export default defineDomain({
           <Flow
             color="#34d399"
             steps={[
-              { icon: "🌿", label: "Source", sub: "Commit or tag in a Git repository" },
-              { icon: "🔨", label: "Build + test", sub: "CodeBuild runs buildspec.yml" },
-              { icon: "✋", label: "Manual approval", sub: "Optional gate before prod" },
-              { icon: "🚀", label: "Deploy", sub: "CodeDeploy, CloudFormation, ECS, Beanstalk" },
+              { icon: "🌿", label: "Source", sub: "A commit or tag in a Git repository" },
+              { icon: "🔨", label: "Build and test", sub: "CodeBuild follows buildspec.yml" },
+              { icon: "✋", label: "Manual approval", sub: "An optional sign-off before production" },
+              { icon: "🚀", label: "Deploy", sub: "CodeDeploy, CloudFormation, ECS, or Beanstalk" },
             ]}
           />
           <Tiles
             cols={2}
             tiles={[
-              { icon: "🔨", title: "buildspec.yml phases", text: "install → pre_build → build → post_build, then artifacts and reports.", color: "#f59e0b" },
-              { icon: "📦", title: "CodeArtifact", text: "Private npm, PyPI, Maven, NuGet repositories with upstream caching of public packages.", color: "#f59e0b" },
+              { icon: "🔨", title: "buildspec.yml phases", text: "install, pre_build, build, then post_build. After those come artifacts and test reports.", color: "#f59e0b" },
+              { icon: "📦", title: "CodeArtifact", text: "Private npm, PyPI, Maven, and NuGet repositories. It can also fetch and keep copies of public packages.", color: "#f59e0b" },
             ]}
           />
         </div>
       ),
       points: [
-        "CodePipeline models stages and actions, passes artifacts between them through an S3 artifact store, and starts on source changes.",
-        "Use branches and Git tags for release management: for example, deploy to production only from release tags.",
-        "Orchestrated workflows promote the same artifact through dev, test, and prod rather than rebuilding it for each one.",
+        "**CodePipeline** strings stages and actions together. It starts when your source changes, and passes files between stages through an S3 artifact store.",
+        "Use branches and Git tags to manage releases. For example, deploy to production only when someone pushes a release tag.",
+        "Build once, then promote that same artifact through dev, test, and prod. If you rebuild for each environment, prod might not run exactly what you tested.",
       ],
     },
   ],
 
   questions: [
+    // ── Start here (beginner) ──
+    {
+      id: "dva2-b3-01",
+      domain: "d3",
+      lesson: "d3-start-deploying",
+      level: "beginner",
+      prompt: "You've finished a new feature on your laptop. What does it mean to deploy it?",
+      options: [
+        "Copy the finished code onto servers in the cloud so users can reach it",
+        "Write the first draft of the code",
+        "Delete the old code from your laptop",
+        "Email the code to every user",
+      ],
+      answer: [0],
+      explanation: "Deploying is the step that moves your code from your own machine to servers your users can reach. Until then, only you can run it.",
+    },
+    {
+      id: "dva2-b3-02",
+      domain: "d3",
+      lesson: "d3-start-deploying",
+      level: "beginner",
+      prompt: "Why do teams keep separate dev, test, and production copies of the same app?",
+      options: [
+        "So they can try changes safely before real users see them",
+        "Because AWS charges less for three copies than for one",
+        "So the production copy never needs updating",
+        "Because each copy must use a different programming language",
+      ],
+      answer: [0],
+      explanation: "Dev and test are practice copies, like a restaurant kitchen trying a dish before it goes on the menu. If something breaks there, no customer notices.",
+    },
+    {
+      id: "dva2-b3-03",
+      domain: "d3",
+      lesson: "d3-start-testing",
+      level: "beginner",
+      prompt: "A Lambda function runs whenever a file lands in an S3 bucket. What is a test event for this function?",
+      options: [
+        "A sample JSON message that looks like the real S3 notification, so you can run the function on demand",
+        "A CloudWatch alarm that fires when the function fails",
+        "A user who reports bugs by email",
+        "A second S3 bucket that stores test results",
+      ],
+      answer: [0],
+      explanation: "Lambda functions are started by events, and each event is a JSON message. A test event is a realistic copy of that message, so you don't have to upload a real file every time you want to try your code.",
+    },
+    {
+      id: "dva2-b3-04",
+      domain: "d3",
+      lesson: "d3-start-testing",
+      level: "beginner",
+      prompt: "Your code charges customers through an outside payment service. In your automated tests, what's the safest way to handle that call?",
+      options: [
+        "Replace the payment service with a mock that returns a fake, predictable answer",
+        "Charge a real card on every test run",
+        "Skip testing any code that touches payments",
+        "Run the tests against the production payment service at night",
+      ],
+      answer: [0],
+      explanation: "A mock pretends to be the payment service and always answers the same way. Your tests stay fast and repeatable, and nobody gets charged by accident.",
+    },
+    {
+      id: "dva2-b3-05",
+      domain: "d3",
+      lesson: "d3-start-pipeline",
+      level: "beginner",
+      prompt: "Which AWS service runs a whole release, from a code commit through build, test, and deploy?",
+      options: ["AWS CodePipeline", "Amazon S3", "AWS CodeArtifact", "Amazon CloudWatch"],
+      answer: [0],
+      explanation: "CodePipeline is the conveyor belt that moves each change through its stages. CodeArtifact only stores software packages, and S3 and CloudWatch handle storage and monitoring.",
+    },
+    {
+      id: "dva2-b3-06",
+      domain: "d3",
+      lesson: "d3-start-pipeline",
+      level: "beginner",
+      prompt: "What is an AWS CloudFormation template?",
+      options: [
+        "A text file that describes the AWS resources you want, so CloudFormation can build them for you",
+        "A screenshot of how the AWS console looked when you set things up",
+        "A log file that lists errors from your app",
+        "A monthly bill for your AWS account",
+      ],
+      answer: [0],
+      explanation: "A template is like a recipe for your infrastructure. You write down the servers, tables, and permissions you need, and CloudFormation builds them the same way every time.",
+    },
+    {
+      id: "dva2-b3-07",
+      domain: "d3",
+      lesson: "d3-start-pipeline",
+      level: "beginner",
+      prompt: "A new release is causing errors for users. The team decides to roll back. What does that mean?",
+      options: [
+        "Put the last working version back in place",
+        "Delete the whole application and start again",
+        "Turn off the servers until the bug is fixed",
+        "Ask users to clear their browser cache",
+      ],
+      answer: [0],
+      explanation: "Rolling back means returning to the version that worked before. It gets users out of trouble quickly while you fix the bug calmly.",
+    },
+
     // ── Packaging ──
     {
       id: "d3-01",
       domain: "d3",
       lesson: "d3-packaging",
-      prompt: "A Python Lambda function needs machine learning libraries that total about 1.2 GB when unzipped. How should the developer package the function?",
+      prompt: "A Python Lambda function needs machine learning libraries that come to about 1.2 GB unzipped. How should the developer package the function?",
       options: ["As a container image stored in Amazon ECR", "As a .zip archive uploaded directly", "As five Lambda layers", "By downloading the libraries from S3 in the handler on every invocation"],
       answer: [0],
-      explanation: ".zip deployments (including layers) are limited to 250 MB unzipped. Container images can be up to 10 GB.",
+      explanation: "A .zip deployment, layers included, can be at most 250 MB unzipped, so 1.2 GB won't fit. A container image can be up to 10 GB.",
     },
     {
       id: "d3-02",
       domain: "d3",
       lesson: "d3-packaging",
-      prompt: "Uploading a 70 MB .zip deployment package directly to a Lambda function fails. The package is 180 MB unzipped. What should the developer do?",
+      prompt: "Uploading a 70 MB .zip deployment package straight to a Lambda function fails. The package is 180 MB unzipped. What should the developer do?",
       options: ["Upload the package to Amazon S3 and point the function's code at the S3 object", "Split the function into two smaller functions", "Increase the function's memory", "Convert the code to a layer of 70 MB"],
       answer: [0],
-      explanation: "Direct uploads are limited to 50 MB zipped. Larger packages, still under 250 MB unzipped, are deployed from S3.",
+      explanation: "A direct upload can be at most 50 MB zipped. A bigger package that's still under 250 MB unzipped can be deployed from S3 instead.",
     },
     {
       id: "d3-03",
       domain: "d3",
       lesson: "d3-packaging",
       prompt:
-        "A team wants to turn on a new feature for 10% of users, increase gradually, and automatically roll back if an error alarm fires, without redeploying code. Which service should they use?",
+        "A team wants to turn on a new feature for 10% of users, raise that gradually, and roll back on its own if an error alarm fires. They don't want to redeploy code. Which service should they use?",
       options: ["AWS AppConfig feature flags with a gradual deployment strategy and a CloudWatch alarm", "Lambda environment variables", "An S3 static file edited by hand", "AWS CloudShell"],
       answer: [0],
-      explanation: "AppConfig deploys configuration and feature flags gradually with validators and alarm-based rollback, separately from code deployments.",
+      explanation: "AppConfig rolls out settings and feature flags gradually, checks them with validators, and rolls back when an alarm fires. It does all this separately from your code deployments.",
     },
     {
       id: "d3-04",
       domain: "d3",
       lesson: "d3-packaging",
-      prompt: "A CodeBuild project fails immediately with an error that it can't find buildspec.yml. The file is in a folder named ci/. What should the developer do?",
+      prompt: "A CodeBuild project fails right away because it can't find buildspec.yml. The file is in a folder named ci/. What should the developer do?",
       options: [
         "Move buildspec.yml to the root of the source, or set the project's buildspec path to ci/buildspec.yml",
         "Rename the file to appspec.yml",
@@ -284,7 +467,7 @@ export default defineDomain({
         "Increase the build timeout",
       ],
       answer: [0],
-      explanation: "CodeBuild looks for buildspec.yml in the source root by default. You can override the location in the project settings.",
+      explanation: "CodeBuild looks for buildspec.yml at the root of the source unless you tell it otherwise. You can point it at another location in the project settings.",
     },
     {
       id: "d3-05",
@@ -299,32 +482,32 @@ export default defineDomain({
         "Upload only the source file and let Lambda resolve imports",
       ],
       answer: [0, 1],
-      explanation: "Dependencies must be in the deployment package or a layer. Installing at runtime is slow and unreliable, and dev dependencies only make the package bigger.",
+      explanation: "Libraries have to be in the deployment package or in a layer. Installing them while the function runs is slow and can fail, and dev-only libraries just make the package bigger.",
     },
     {
       id: "d3-06",
       domain: "d3",
       lesson: "d3-packaging",
-      prompt: "Amazon ECS tasks for a service keep stopping with an out-of-memory error during peak load. What should the developer change?",
+      prompt: "Tasks in an Amazon ECS service keep stopping with an out-of-memory error at peak load. What should the developer change?",
       options: ["Increase the memory value in the task definition and deploy a new revision", "Add more environment variables", "Increase the container image size", "Switch the image tag to latest"],
       answer: [0],
-      explanation: "Task and container CPU and memory are set in the task definition. A new revision with more memory, rolled out to the service, fixes the limit.",
+      explanation: "You set CPU and memory for a task and its containers in the task definition. Create a new revision with more memory and roll it out to the service.",
     },
     // ── IaC ──
     {
       id: "d3-07",
       domain: "d3",
       lesson: "d3-iac",
-      prompt: "Before updating a production CloudFormation stack, the team wants to see exactly which resources will be added, modified, or replaced. What should they use?",
+      prompt: "Before updating a production CloudFormation stack, the team wants to see exactly which resources will be added, changed, or replaced. What should they use?",
       options: ["A change set", "Drift detection", "A stack policy", "The DependsOn attribute"],
       answer: [0],
-      explanation: "A change set previews the changes an update will make, including replacements, before you execute it. Drift detection compares live resources with the template.",
+      explanation: "A change set shows what an update will do, including any replacements, before you run it. Drift detection answers a different question: has anyone changed the live resources so they no longer match the template?",
     },
     {
       id: "d3-08",
       domain: "d3",
       lesson: "d3-iac",
-      prompt: "A networking stack creates a VPC. A separate application stack must use the VPC's ID. How should the developer share it?",
+      prompt: "A networking stack creates a VPC. A separate application stack needs the VPC's ID. How should the developer share it?",
       options: [
         "Export the VPC ID in the networking stack's Outputs and use Fn::ImportValue in the application stack",
         "Hard-code the VPC ID in the application template",
@@ -332,31 +515,31 @@ export default defineDomain({
         "Use Fn::GetAtt across stacks",
       ],
       answer: [0],
-      explanation: "Cross-stack references use exported outputs and Fn::ImportValue. GetAtt only works within one template.",
+      explanation: "To share a value between stacks, you export it as an output in one stack and read it with Fn::ImportValue in the other. Fn::GetAtt only works inside a single template.",
     },
     {
       id: "d3-09",
       domain: "d3",
       lesson: "d3-iac",
       type: "match",
-      prompt: "Match each CloudFormation template section to its purpose.",
+      prompt: "Match each CloudFormation template section to what it's for.",
       pairs: [
-        ["Parameters", "Values supplied when the stack is created or updated"],
-        ["Mappings", "Static lookup tables, such as an AMI ID per Region"],
+        ["Parameters", "Values you supply when you create or update the stack"],
+        ["Mappings", "Fixed lookup tables, such as an AMI ID for each Region"],
         ["Conditions", "Create resources only when an expression is true"],
         ["Resources", "The AWS resources to create; the only required section"],
         ["Outputs", "Values to display or export to other stacks"],
       ],
-      explanation: "Transform (used by SAM), Rules, Metadata, and Description are other optional sections.",
+      explanation: "A template can also have Transform (used by SAM), Rules, Metadata, and Description sections. All of those are optional too.",
     },
     {
       id: "d3-10",
       domain: "d3",
       lesson: "d3-iac",
-      prompt: "Which line tells CloudFormation to process a template as an AWS SAM template?",
+      prompt: "Which line tells CloudFormation to treat a template as an AWS SAM template?",
       options: ["Transform: AWS::Serverless-2016-10-31", "AWSTemplateFormatVersion: 2010-09-09", "Resources: AWS::Serverless", "Mappings: SAM"],
       answer: [0],
-      explanation: "The SAM transform expands AWS::Serverless::* resources into standard CloudFormation resources during deployment.",
+      explanation: "The SAM transform expands the short AWS::Serverless::* resources into standard CloudFormation resources when you deploy.",
     },
     {
       id: "d3-11",
@@ -365,7 +548,7 @@ export default defineDomain({
       type: "order",
       prompt: "Put the steps of a typical AWS SAM workflow for a new function in order.",
       items: ["sam init", "sam build", "sam local invoke", "sam deploy --guided"],
-      explanation: "Initialize a project, build the artifacts, test locally, then deploy (guided the first time, which saves settings to samconfig.toml).",
+      explanation: "You start a project, build it, test it on your machine, then deploy. The first deploy is guided and saves your answers to samconfig.toml.",
     },
     {
       id: "d3-12",
@@ -379,7 +562,7 @@ export default defineDomain({
         "Retries the update every hour until it succeeds",
       ],
       answer: [0],
-      explanation: "On failure, CloudFormation rolls back the update by default. The stack's events show the first failure and its reason.",
+      explanation: "By default CloudFormation rolls back a failed update, so you're never left half-way. The stack's events show the first failure and why it happened.",
     },
     {
       id: "d3-13",
@@ -394,23 +577,23 @@ export default defineDomain({
         "CDK replaces the need for IAM permissions",
       ],
       answer: [0, 1],
-      explanation: "CDK apps synthesize to CloudFormation templates, and cdk deploy deploys them as stacks. Constructs offer higher-level building blocks.",
+      explanation: "A CDK app turns into a CloudFormation template, and cdk deploy deploys it as a stack. Constructs give you ready-made, higher-level building blocks.",
     },
     {
       id: "d3-14",
       domain: "d3",
       lesson: "d3-iac",
-      prompt: "An Amazon RDS instance is defined in a CloudFormation stack. The data must be kept if the stack is deleted. What should the developer set on the resource?",
+      prompt: "An Amazon RDS instance is defined in a CloudFormation stack. Its data must survive if the stack is deleted. What should the developer set on the resource?",
       options: ["DeletionPolicy: Retain or DeletionPolicy: Snapshot", "DependsOn", "UpdateReplacePolicy: Delete", "Condition: false"],
       answer: [0],
-      explanation: "DeletionPolicy controls what happens to a resource when it's removed from the stack or the stack is deleted. Retain keeps it; Snapshot saves a final snapshot.",
+      explanation: "DeletionPolicy decides what happens to a resource when it leaves the stack or the stack is deleted. Retain keeps the resource, and Snapshot saves a final snapshot first.",
     },
     // ── Testing ──
     {
       id: "d3-15",
       domain: "d3",
       lesson: "d3-testing",
-      prompt: "A developer wants to test a Lambda function locally with a realistic Amazon S3 put event before deploying. Which approach requires the LEAST effort?",
+      prompt: "A developer wants to test a Lambda function locally with a realistic Amazon S3 put event before deploying. Which approach takes the LEAST effort?",
       options: [
         "Run sam local generate-event s3 put to create the payload, then sam local invoke with that event",
         "Deploy to production and upload a file",
@@ -418,23 +601,23 @@ export default defineDomain({
         "Use AWS CloudTrail to replay the event",
       ],
       answer: [0],
-      explanation: "SAM CLI generates sample event payloads for many services and runs the function locally in a container that mimics Lambda.",
+      explanation: "The SAM CLI can create sample events for many services. It then runs your function locally in a container that behaves like Lambda.",
     },
     {
       id: "d3-16",
       domain: "d3",
       lesson: "d3-testing",
-      prompt: "A frontend team needs to start integrating with an API before the backend is built. How can the developer give them working endpoints quickly?",
+      prompt: "A frontend team needs to start building against an API before the backend exists. How can the developer give them working endpoints quickly?",
       options: ["Configure API Gateway mock integrations that return sample responses", "Have the frontend team wait", "Point the API at the production database", "Use a Lambda authorizer"],
       answer: [0],
-      explanation: "Mock integrations return responses defined in API Gateway without calling a backend, so clients can develop against the real API contract.",
+      explanation: "A mock integration returns a response you define in API Gateway, with no backend behind it. The frontend team can build against the real API shape straight away.",
     },
     {
       id: "d3-17",
       domain: "d3",
       lesson: "d3-testing",
       prompt:
-        "A team deploys a SAM application to dev. They now need the same template in a staging environment with a different table name and memory size. What should they do?",
+        "A team deploys a SAM application to dev. Now they need the same template in a staging environment, with a different table name and memory size. What should they do?",
       options: [
         "Add a staging configuration environment to samconfig.toml (or pass --parameter-overrides) and run sam deploy --config-env staging",
         "Copy the template and edit the values by hand",
@@ -442,7 +625,7 @@ export default defineDomain({
         "Use one stack for both environments",
       ],
       answer: [0],
-      explanation: "Template parameters plus SAM configuration environments let one template deploy as separate stacks with environment-specific values.",
+      explanation: "Template parameters plus SAM configuration environments let one template deploy as separate stacks. Each environment gets its own values.",
     },
     {
       id: "d3-18",
@@ -457,16 +640,16 @@ export default defineDomain({
         "Send test traffic to the prod stage with a special header",
       ],
       answer: [0, 1],
-      explanation: "Each stage is an independent deployment with its own URL and settings, and stage variables route each stage to the right backend.",
+      explanation: "Each stage is its own deployment, with its own URL and settings. Stage variables then send each stage to the right backend.",
     },
     {
       id: "d3-19",
       domain: "d3",
       lesson: "d3-testing",
-      prompt: "A developer wrote an Amazon EventBridge rule and wants to confirm that a sample event matches its pattern before deploying. What should the developer do?",
+      prompt: "A developer wrote an Amazon EventBridge rule and wants to check that a sample event matches its pattern before deploying. What should the developer do?",
       options: ["Test the pattern against the sample event with the EventBridge TestEventPattern API or the console sandbox", "Deploy to production and wait for real events", "Enable AWS CloudTrail", "Create an SQS FIFO queue"],
       answer: [0],
-      explanation: "TestEventPattern reports whether an event matches a pattern, so pattern logic can be tested in isolation and in automated tests.",
+      explanation: "TestEventPattern tells you whether an event matches a pattern. That means you can test the pattern on its own, and in automated tests too.",
     },
     {
       id: "d3-20",
@@ -481,16 +664,16 @@ export default defineDomain({
         "Hard-code test responses into the production code path",
       ],
       answer: [0, 1],
-      explanation: "Mocks make tests fast and repeatable; a provider sandbox checks the real contract without real money. Test code should never change production behaviour.",
+      explanation: "Mocks keep tests fast and repeatable. A provider's sandbox checks the real contract without real money. Test code should never change how production behaves.",
     },
     {
       id: "d3-21",
       domain: "d3",
       lesson: "d3-testing",
-      prompt: "A developer wants AI-generated unit tests for an existing Lambda handler, created from inside the IDE. Which tool should the developer use?",
+      prompt: "A developer wants AI-generated unit tests for an existing Lambda handler, created from inside the editor. Which tool should the developer use?",
       options: ["Amazon Q Developer", "AWS CodeDeploy", "AWS AppConfig", "Amazon Inspector"],
       answer: [0],
-      explanation: "Amazon Q Developer can generate unit tests for selected code, which the developer then reviews and runs.",
+      explanation: "Amazon Q Developer can write unit tests for the code you select. You then review them and run them.",
     },
     // ── Versions and aliases ──
     {
@@ -498,26 +681,26 @@ export default defineDomain({
       domain: "d3",
       lesson: "d3-aliases",
       prompt:
-        "API Gateway should invoke a stable reference to a Lambda function that the team can point at a new version without changing the API configuration. What should the integration use?",
+        "API Gateway should call a stable reference to a Lambda function. The team wants to point that reference at a new version without changing the API configuration. What should the integration use?",
       options: ["The ARN of a Lambda alias such as prod", "The ARN of $LATEST", "The ARN of a specific numbered version", "The function's CloudWatch log group"],
       answer: [0],
-      explanation: "An alias is a pointer that can be moved to any version. Versions are immutable, and $LATEST changes with every code update.",
+      explanation: "An alias is a pointer you can move to any version. A numbered version never changes, and $LATEST changes every time someone updates the code.",
     },
     {
       id: "d3-23",
       domain: "d3",
       lesson: "d3-aliases",
-      prompt: "A team wants 10% of production invocations to run a new Lambda version and 90% to stay on the current one. What should they configure?",
+      prompt: "A team wants 10% of production calls to run a new Lambda version, while 90% stay on the current one. What should they configure?",
       options: ["Weighted routing on the prod alias, with 10% going to the new version", "Two functions behind a load balancer", "Reserved concurrency of 10%", "A new API Gateway stage"],
       answer: [0],
-      explanation: "Aliases support weighted traffic between two versions. CodeDeploy can shift those weights automatically.",
+      explanation: "An alias can split traffic between two versions by weight. CodeDeploy can change those weights for you over time.",
     },
     {
       id: "d3-24",
       domain: "d3",
       lesson: "d3-aliases",
       prompt:
-        "With AWS SAM, a team wants each deployment to send 10% of traffic to the new version for 5 minutes, then the rest, rolling back automatically if an error alarm fires. What should they add to the function?",
+        "With AWS SAM, a team wants each deployment to send 10% of traffic to the new version for 5 minutes, then the rest. It should roll back on its own if an error alarm fires. What should they add to the function?",
       options: [
         "AutoPublishAlias and a DeploymentPreference of type Canary10Percent5Minutes with the alarm listed",
         "A Lambda layer",
@@ -525,14 +708,14 @@ export default defineDomain({
         "An SQS dead-letter queue",
       ],
       answer: [0],
-      explanation: "SAM publishes a new version, updates the alias, and uses CodeDeploy to shift traffic. Listed alarms and hook functions can trigger rollback.",
+      explanation: "SAM publishes a new version, updates the alias, and has CodeDeploy shift the traffic. The alarms and hook functions you list can trigger a rollback.",
     },
     {
       id: "d3-25",
       domain: "d3",
       lesson: "d3-aliases",
       prompt:
-        "One API Gateway REST API has dev and prod stages. Each stage must invoke the matching Lambda alias without duplicating the API definition. How should the integration be configured?",
+        "One API Gateway REST API has dev and prod stages. Each stage must call the matching Lambda alias, without copying the API definition. How should the integration be set up?",
       options: [
         "Use a stage variable in the integration's function ARN, such as function:${stageVariables.alias}, and grant invoke permission for each alias",
         "Create two separate APIs",
@@ -540,27 +723,27 @@ export default defineDomain({
         "Use a usage plan per stage",
       ],
       answer: [0],
-      explanation: "Stage variables are resolved at runtime per stage. Because the ARN is dynamic, API Gateway needs explicit lambda:InvokeFunction permission on each alias.",
+      explanation: "API Gateway fills in stage variables at runtime, separately for each stage. Because the ARN isn't fixed, you have to grant lambda:InvokeFunction permission on each alias yourself.",
     },
     {
       id: "d3-26",
       domain: "d3",
       lesson: "d3-aliases",
       type: "match",
-      prompt: "Match each Lambda traffic-shifting deployment preference to its behaviour.",
+      prompt: "Match each Lambda traffic-shifting deployment preference to how it behaves.",
       pairs: [
         ["Canary10Percent5Minutes", "10% of traffic for 5 minutes, then the remaining 90% at once"],
         ["Linear10PercentEvery1Minute", "Another 10% of traffic every minute until all traffic shifts"],
         ["AllAtOnce", "All traffic moves to the new version immediately"],
       ],
-      explanation: "Canary shifts in two steps, linear in equal increments, and all-at-once in one step.",
+      explanation: "Canary moves traffic in two steps, linear in equal steps, and all-at-once in a single step.",
     },
     {
       id: "d3-27",
       domain: "d3",
       lesson: "d3-aliases",
       prompt:
-        "Integration tests passed against a container image tagged latest, but production later pulled a different image with the same tag. How should the team make sure environments use the approved image?",
+        "Integration tests passed against a container image tagged latest. Later, production pulled a different image with the same tag. How should the team make sure every environment uses the approved image?",
       options: [
         "Reference an immutable tag, such as the commit SHA, or the image digest, and enable tag immutability in Amazon ECR",
         "Keep using latest and redeploy more often",
@@ -568,7 +751,7 @@ export default defineDomain({
         "Push images to a public repository",
       ],
       answer: [0],
-      explanation: "Mutable tags can be moved to a different image. Unique, immutable tags or digests guarantee every environment runs exactly what was tested.",
+      explanation: "A normal tag can be moved to a different image at any time. A unique tag that can't move, or the image digest, guarantees every environment runs exactly what you tested.",
     },
     // ── Strategies ──
     {
@@ -576,25 +759,25 @@ export default defineDomain({
       domain: "d3",
       lesson: "d3-strategies",
       prompt:
-        "An Elastic Beanstalk production environment must keep full capacity during deployments, and a failed deployment must be undone quickly with minimal impact. Which deployment policy fits BEST?",
+        "An Elastic Beanstalk production environment must keep full capacity during deployments. A failed deployment must be undone quickly, with little impact. Which deployment policy fits BEST?",
       options: ["Immutable", "All at once", "Rolling", "Rolling with additional batch"],
       answer: [0],
-      explanation: "Immutable launches the new version on fresh instances in a temporary Auto Scaling group. If they fail health checks, they are terminated and the original instances keep serving.",
+      explanation: "Immutable starts the new version on fresh instances in a temporary Auto Scaling group. If they fail their health checks, Beanstalk terminates them and the original instances carry on serving.",
     },
     {
       id: "d3-29",
       domain: "d3",
       lesson: "d3-strategies",
-      prompt: "A developer needs the fastest possible deployment to an Elastic Beanstalk development environment, and brief downtime is acceptable. Which policy should they choose?",
+      prompt: "A developer needs the fastest possible deployment to an Elastic Beanstalk development environment. A short outage is fine. Which policy should they choose?",
       options: ["All at once", "Immutable", "Rolling with additional batch", "Blue/green with a URL swap"],
       answer: [0],
-      explanation: "All at once deploys to every instance simultaneously: fastest, but the app is briefly unavailable and a failure affects everything.",
+      explanation: "All at once deploys to every instance at the same time. It's the fastest, but the app is down briefly, and a failure hits everything.",
     },
     {
       id: "d3-30",
       domain: "d3",
       lesson: "d3-strategies",
-      prompt: "How can a developer perform a blue/green deployment with AWS Elastic Beanstalk?",
+      prompt: "How can a developer do a blue/green deployment with AWS Elastic Beanstalk?",
       options: [
         "Clone the environment, deploy the new version to the clone, test it, then swap environment URLs",
         "Use the rolling policy with a batch size of 100%",
@@ -602,16 +785,16 @@ export default defineDomain({
         "Edit .ebextensions on the running instances",
       ],
       answer: [0],
-      explanation: "Swapping environment URLs (a CNAME swap) moves traffic to the new environment. Swapping back is the rollback.",
+      explanation: "Swapping the environment URLs (a CNAME swap) sends traffic to the new environment. To roll back, you swap them back.",
     },
     {
       id: "d3-31",
       domain: "d3",
       lesson: "d3-strategies",
-      prompt: "Which file tells AWS CodeDeploy where to copy files and which scripts to run at each lifecycle event on EC2 instances?",
+      prompt: "Which file tells AWS CodeDeploy where to copy files on EC2 instances, and which scripts to run at each lifecycle event?",
       options: ["appspec.yml", "buildspec.yml", "template.yaml", "Dockerfile"],
       answer: [0],
-      explanation: "The AppSpec file (appspec.yml at the root of the revision) maps files and lifecycle hooks. buildspec.yml is for CodeBuild.",
+      explanation: "The AppSpec file, appspec.yml at the root of the revision, maps files and lifecycle hooks. buildspec.yml belongs to CodeBuild.",
     },
     {
       id: "d3-32",
@@ -620,7 +803,7 @@ export default defineDomain({
       type: "order",
       prompt: "Put these CodeDeploy lifecycle hooks for an EC2 in-place deployment in the order they run.",
       items: ["ApplicationStop", "BeforeInstall", "AfterInstall", "ApplicationStart", "ValidateService"],
-      explanation: "Stop the old app, prepare, install (CodeDeploy copies the files), configure, start, then validate. Load balancer hooks wrap this sequence when one is used.",
+      explanation: "CodeDeploy stops the old app, gets ready, copies the files in, configures them, starts the app, then checks it works. If there's a load balancer, its hooks wrap around this sequence.",
     },
     {
       id: "d3-33",
@@ -635,17 +818,17 @@ export default defineDomain({
         "It requires creating a new pipeline",
       ],
       answer: [0, 1],
-      explanation: "CodeDeploy rolls back by redeploying the last known good revision as a new deployment, on failure or when monitored alarms fire.",
+      explanation: "CodeDeploy rolls back by redeploying the last revision that worked, as a new deployment. That can happen when a deployment fails or when an alarm you're watching fires.",
     },
     // ── CI/CD ──
     {
       id: "d3-34",
       domain: "d3",
       lesson: "d3-cicd",
-      prompt: "Every push to the main branch must automatically build, test, and deploy an application through several stages. Which service orchestrates this release workflow?",
+      prompt: "Every push to the main branch must build, test, and deploy an application through several stages, with nobody stepping in. Which service runs this release workflow?",
       options: ["AWS CodePipeline", "AWS CodeArtifact", "AWS CloudShell", "Amazon ECR"],
       answer: [0],
-      explanation: "CodePipeline models the release as stages (source, build, test, deploy) and runs them on each change, calling CodeBuild, CodeDeploy, CloudFormation, and others.",
+      explanation: "CodePipeline models a release as stages, such as source, build, test, and deploy, and runs them on every change. Along the way it calls CodeBuild, CodeDeploy, CloudFormation, and other services.",
     },
     {
       id: "d3-35",
@@ -654,31 +837,31 @@ export default defineDomain({
       prompt: "A team lead must sign off before a pipeline deploys to production. What should the developer add to the pipeline?",
       options: ["A manual approval action before the production deploy stage", "A longer CodeBuild timeout", "A Lambda layer", "A second source action"],
       answer: [0],
-      explanation: "Manual approval actions pause the pipeline until an authorized person approves or rejects. They can notify approvers through Amazon SNS.",
+      explanation: "A manual approval action pauses the pipeline until an authorized person approves or rejects. It can notify the approvers through Amazon SNS.",
     },
     {
       id: "d3-36",
       domain: "d3",
       lesson: "d3-cicd",
-      prompt: "Builds need private npm packages published by internal teams and should also cache public packages from npmjs.com. Which service fits?",
+      prompt: "Builds need private npm packages published by internal teams. They should also cache public packages from npmjs.com. Which service fits?",
       options: ["AWS CodeArtifact with an upstream repository connected to the public npm registry", "Amazon ECR", "Amazon S3 static website hosting", "AWS AppConfig"],
       answer: [0],
-      explanation: "CodeArtifact hosts private package repositories and can fetch and keep public packages through external connections.",
+      explanation: "CodeArtifact hosts private package repositories. Through an external connection, it can also fetch public packages and keep copies of them.",
     },
     {
       id: "d3-37",
       domain: "d3",
       lesson: "d3-cicd",
-      prompt: "Which of these are valid phases in a CodeBuild buildspec.yml file? (Choose two.)",
+      prompt: "Which of these are real phases in a CodeBuild buildspec.yml file? (Choose two.)",
       options: ["pre_build", "post_build", "ApplicationStart", "BeforeAllowTraffic", "ValidateService"],
       answer: [0, 1],
-      explanation: "Buildspec phases are install, pre_build, build, and post_build. The others are CodeDeploy AppSpec hooks.",
+      explanation: "The buildspec phases are install, pre_build, build, and post_build. The other three are CodeDeploy AppSpec hooks.",
     },
     {
       id: "d3-38",
       domain: "d3",
       lesson: "d3-cicd",
-      prompt: "A team wants production deployments to run only for release tags such as v1.4.0, while every commit to main deploys to test. How should the production pipeline start?",
+      prompt: "A team wants production deployments to run only for release tags such as v1.4.0. Every commit to main should still deploy to test. How should the production pipeline start?",
       options: [
         "Configure a CodePipeline trigger that filters on Git tags matching the release pattern",
         "Deploy every commit to production",
@@ -686,30 +869,30 @@ export default defineDomain({
         "Run the production pipeline on a fixed hourly schedule",
       ],
       answer: [0],
-      explanation: "Pipeline triggers can filter on branches and Git tags, so tagging a release is what promotes it to production.",
+      explanation: "Pipeline triggers can filter on branches and Git tags. Tagging a release is then what sends it to production.",
     },
   ],
 
   cards: [
-    { id: "s-cfn", domain: "d3", kind: "service", term: "AWS CloudFormation", definition: "Provision resources from templates as stacks" },
-    { id: "s-sam", domain: "d3", kind: "service", term: "AWS SAM", definition: "Serverless shorthand for CloudFormation plus a local test CLI" },
-    { id: "s-cdk", domain: "d3", kind: "service", term: "AWS CDK", definition: "Define infrastructure in code; synthesizes to CloudFormation" },
-    { id: "s-codepipeline", domain: "d3", kind: "service", term: "AWS CodePipeline", definition: "Orchestrates source, build, test, and deploy stages" },
-    { id: "s-codebuild", domain: "d3", kind: "service", term: "AWS CodeBuild", definition: "Managed build and test runner driven by buildspec.yml" },
-    { id: "s-codedeploy", domain: "d3", kind: "service", term: "AWS CodeDeploy", definition: "Deploys to EC2, on-premises, Lambda, and ECS with rollbacks" },
-    { id: "s-codeartifact", domain: "d3", kind: "service", term: "AWS CodeArtifact", definition: "Private package repositories (npm, PyPI, Maven)" },
-    { id: "s-beanstalk", domain: "d3", kind: "service", term: "AWS Elastic Beanstalk", definition: "Upload code; it provisions and deploys the environment" },
-    { id: "s-appconfig", domain: "d3", kind: "service", term: "AWS AppConfig", definition: "Safe, gradual deployment of configuration and feature flags" },
-    { id: "s-ecr", domain: "d3", kind: "service", term: "Amazon ECR", definition: "Private container image registry" },
-    { id: "s-ecs", domain: "d3", kind: "service", term: "Amazon ECS", definition: "Run containers as tasks and services, on EC2 or Fargate" },
-    { id: "s-amplify", domain: "d3", kind: "service", term: "AWS Amplify", definition: "Build and host web apps with per-branch environments" },
-    { id: "c-changeset", domain: "d3", kind: "concept", term: "Change set", definition: "Preview what a stack update will change" },
-    { id: "c-alias", domain: "d3", kind: "concept", term: "Lambda alias", definition: "Named pointer to a version; supports weighted traffic" },
-    { id: "c-stagevar", domain: "d3", kind: "concept", term: "Stage variable", definition: "Per-stage value in API Gateway, such as the Lambda alias to call" },
-    { id: "c-canary", domain: "d3", kind: "concept", term: "Canary deployment", definition: "Small share of traffic first, then the rest" },
-    { id: "c-bluegreen", domain: "d3", kind: "concept", term: "Blue/green deployment", definition: "New environment alongside the old; switch traffic over" },
-    { id: "c-immutable", domain: "d3", kind: "concept", term: "Immutable deployment", definition: "New version on fresh instances; terminate them to roll back" },
-    { id: "c-appspec", domain: "d3", kind: "concept", term: "appspec.yml", definition: "CodeDeploy file mapping and lifecycle hooks" },
-    { id: "c-buildspec", domain: "d3", kind: "concept", term: "buildspec.yml", definition: "CodeBuild phases: install, pre_build, build, post_build" },
+    { id: "s-cfn", domain: "d3", kind: "service", term: "AWS CloudFormation", definition: "Builds AWS resources from a template and manages them together as a stack." },
+    { id: "s-sam", domain: "d3", kind: "service", term: "AWS SAM", definition: "A short way to write serverless CloudFormation, plus a CLI for testing on your own machine." },
+    { id: "s-cdk", domain: "d3", kind: "service", term: "AWS CDK", definition: "Lets you define infrastructure in a programming language. It turns into a CloudFormation template." },
+    { id: "s-codepipeline", domain: "d3", kind: "service", term: "AWS CodePipeline", definition: "Runs a release through its source, build, test, and deploy stages." },
+    { id: "s-codebuild", domain: "d3", kind: "service", term: "AWS CodeBuild", definition: "A managed service that builds and tests your code, following buildspec.yml." },
+    { id: "s-codedeploy", domain: "d3", kind: "service", term: "AWS CodeDeploy", definition: "Deploys to EC2, on-premises servers, Lambda, and ECS, and can roll back." },
+    { id: "s-codeartifact", domain: "d3", kind: "service", term: "AWS CodeArtifact", definition: "Private package repositories for npm, PyPI, Maven, and more." },
+    { id: "s-beanstalk", domain: "d3", kind: "service", term: "AWS Elastic Beanstalk", definition: "You upload code, and it sets up and deploys the whole environment for you." },
+    { id: "s-appconfig", domain: "d3", kind: "service", term: "AWS AppConfig", definition: "Rolls out settings and feature flags safely, a little at a time." },
+    { id: "s-ecr", domain: "d3", kind: "service", term: "Amazon ECR", definition: "A private registry for your container images." },
+    { id: "s-ecs", domain: "d3", kind: "service", term: "Amazon ECS", definition: "Runs containers as tasks and services, on EC2 or Fargate." },
+    { id: "s-amplify", domain: "d3", kind: "service", term: "AWS Amplify", definition: "Builds and hosts web apps, with a separate environment for each branch." },
+    { id: "c-changeset", domain: "d3", kind: "concept", term: "Change set", definition: "A preview of what a stack update will change, before you run it." },
+    { id: "c-alias", domain: "d3", kind: "concept", term: "Lambda alias", definition: "A name that points at a version. It can split traffic between two versions." },
+    { id: "c-stagevar", domain: "d3", kind: "concept", term: "Stage variable", definition: "A value set per API Gateway stage, such as which Lambda alias to call." },
+    { id: "c-canary", domain: "d3", kind: "concept", term: "Canary deployment", definition: "Send a small share of traffic to the new version first, then the rest." },
+    { id: "c-bluegreen", domain: "d3", kind: "concept", term: "Blue/green deployment", definition: "Build a new environment next to the old one, then switch traffic over." },
+    { id: "c-immutable", domain: "d3", kind: "concept", term: "Immutable deployment", definition: "Put the new version on fresh instances. To roll back, terminate them." },
+    { id: "c-appspec", domain: "d3", kind: "concept", term: "appspec.yml", definition: "The CodeDeploy file that maps files and lifecycle hooks." },
+    { id: "c-buildspec", domain: "d3", kind: "concept", term: "buildspec.yml", definition: "The CodeBuild file with the install, pre_build, build, and post_build phases." },
   ],
 });

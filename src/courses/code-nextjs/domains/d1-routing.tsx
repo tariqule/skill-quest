@@ -1,4 +1,4 @@
-import { CodeBlock, CodeCompare, Flow, Tiles } from "@/components/learn/blocks";
+import { CodeBlock, CodeCompare, Flow, ServiceRows, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { FileStack } from "../visuals";
 
@@ -12,7 +12,7 @@ export default defineDomain({
     weight: 25,
     emoji: "🗺️",
     color: "#38bdf8",
-    summary: "Folders become URLs, special files stack into layouts and boundaries, params arrive as Promises, and <Link> makes navigation instant.",
+    summary: "How folders turn into web addresses, how special files like layouts wrap your pages, how to read values from the URL, and how <Link> makes moving between pages fast.",
   },
 
   tasks: [
@@ -39,6 +39,53 @@ export default defineDomain({
   ],
 
   lessons: [
+    {
+      id: "d1-b-what",
+      level: "beginner",
+      task: "1.1",
+      title: "What Next.js is",
+      check: ["next-b1-01", "next-b1-02"],
+      visual: (
+        <Tiles
+          cols={3}
+          tiles={[
+            { icon: "⚛️", title: "React", text: "Components and state: the pieces of your screen.", color: "#61dafb" },
+            { icon: "🧭", title: "Routing", text: "Each web address shows the right page.", color: "#a78bfa" },
+            { icon: "🖥️", title: "Server", text: "Code that runs before the page reaches the browser.", color: "#34d399" },
+          ]}
+        />
+      ),
+      points: [
+        "**Next.js** is a framework built on top of React. React gives you components, and Next.js adds what a full website needs: pages, web addresses, a server and fast loading.",
+        "Think of React as a set of good kitchen tools. Next.js is the whole restaurant around them, with a front door, a menu and staff who bring the food out.",
+        "You still write normal React components. Next.js decides which one to show for each web address and gets it to the browser quickly.",
+        "Next.js can run your code on the **server**, the computer that hosts your site, as well as in the visitor's browser.",
+      ],
+      tip: "You start a new project with `npx create-next-app@latest`. It sets up the folders for you, plus a local server you can open in your browser while you work.",
+    },
+    {
+      id: "d1-b-folders",
+      level: "beginner",
+      task: "1.1",
+      title: "Folders become web addresses",
+      check: ["next-b1-03", "next-b1-04"],
+      visual: (
+        <ServiceRows
+          rows={[
+            { input: "You create", service: "app/page.tsx", output: "Visitors see /" },
+            { input: "You create", service: "app/about/page.tsx", output: "Visitors see /about" },
+            { input: "You create", service: "app/blog/page.tsx", output: "Visitors see /blog" },
+          ]}
+        />
+      ),
+      points: [
+        "In Next.js, the `app` folder decides your site's web addresses. This is called **routing**: matching a web address to the page it should show.",
+        "A file named `page.tsx` makes a page. `app/page.tsx` is your home page, at `/`.",
+        "Each folder adds a piece to the address. `app/about/page.tsx` shows up at `/about`.",
+        "It's like a filing cabinet. Each drawer label is part of the address, and the `page.tsx` inside is what visitors see.",
+      ],
+      tip: "Only files named `page.tsx` turn into pages. You can keep other files, like small components, in the same folders and they won't get web addresses of their own.",
+    },
     {
       id: "d1-routing",
       level: "junior",
@@ -70,11 +117,11 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "Folders define URL segments; a `page.tsx` file makes that segment publicly reachable.",
-        "`[slug]` matches one segment, `[...slug]` one or more, `[[...slug]]` zero or more.",
-        "Other files (components, utils) can live next to routes: only `page` and `route` files are reachable.",
+        "Each folder inside `app` adds a piece to the web address. A `page.tsx` file in a folder makes that address something visitors can open.",
+        "Square brackets make a **dynamic segment**, a part of the address that can change. `[slug]` matches one piece, `[...slug]` matches one or more, and `[[...slug]]` matches zero or more.",
+        "Other files, like components and helpers, can sit next to your routes. Only `page` and `route` files can be opened by visitors.",
       ],
-      tip: "Interviewers love \"how would you structure this app?\" Sketch the folder tree first, then say which folders are groups, which are dynamic, and where the layouts go.",
+      tip: "Interviewers often ask how you'd structure an app. Sketch the folder tree first, then say which folders are groups, which are dynamic, and where the layouts go.",
     },
     {
       id: "d1-layouts",
@@ -84,12 +131,12 @@ export default defineDomain({
       check: ["d1-06", "d1-08"],
       visual: <FileStack />,
       points: [
-        "The root layout is required and must render `<html>` and `<body>`.",
-        "Layouts persist across navigation and keep state; templates remount and reset client state.",
-        "`error.tsx` must be a Client Component and does not catch errors from the layout in the same folder: the parent's boundary does.",
-        "`loading.tsx` wraps the page in `<Suspense>`; it does not cover the layout beside it.",
+        "A **layout** is shared UI that wraps the pages inside its folder, like a header and footer. Every app needs a root layout, and it must render `<html>` and `<body>`.",
+        "Layouts stay put when you move between pages, so their state is kept. A **template** looks similar but is rebuilt on every navigation, so its state resets.",
+        "`error.tsx` must be a Client Component. It doesn't catch errors from the layout in its own folder. The parent folder's error boundary catches those.",
+        "`loading.tsx` wraps the page in `<Suspense>` to show a loading state. It doesn't cover the layout in the same folder.",
       ],
-      tip: "When asked \"what's the difference between layout and template?\", say: same position in the tree, but a template gets a new key per segment, so state resets and effects re-run.",
+      tip: "Asked how a layout differs from a template? They sit in the same place in the tree, but a template gets a new key for each page. So its state resets and its effects run again.",
     },
     {
       id: "d1-params",
@@ -128,11 +175,11 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "`params` (layouts, pages, route handlers) and `searchParams` (pages) are Promises: `await` them or unwrap with React's `use`.",
-        "`PageProps<'/route'>`, `LayoutProps<'/route'>`, and `RouteContext<'/route'>` are global, generated types; no import needed.",
-        "`generateStaticParams` returns one params object per page to prerender. It replaces the Pages Router's `getStaticPaths`.",
+        "`params` holds the dynamic parts of the URL, and `searchParams` holds the query string after `?`. Both are Promises, so you `await` them or unwrap them with React's `use`.",
+        "Next.js generates types for you: `PageProps<'/route'>`, `LayoutProps<'/route'>` and `RouteContext<'/route'>`. They're global, so you don't need to import them.",
+        "To **prerender** a page means building it ahead of time, before anyone asks. `generateStaticParams` returns one params object for each page to build. It replaces the Pages Router's `getStaticPaths`.",
       ],
-      tip: "If you're asked why params became async, the short answer is: it lets Next.js start rendering before request data is known, so more of the page can be prerendered.",
+      tip: "If you're asked why params became async, the short answer: Next.js can start rendering before it knows the request's data, so more of the page can be built ahead of time.",
     },
     {
       id: "d1-navigation",
@@ -165,16 +212,56 @@ export function Nav() {
         </div>
       ),
       points: [
-        "`<Link>` extends `<a>` with prefetching and client-side transitions that keep shared layouts.",
-        "App Router hooks come from `next/navigation` (not `next/router`) and only work in Client Components.",
-        "Layouts don't receive `searchParams`: read them in the page or with `useSearchParams`.",
-        "`redirect()` throws a control-flow error, so call it outside `try/catch`.",
+        "`<Link>` is a smarter `<a>` tag. It loads pages in the background before you click, which is called **prefetching**, and it switches pages without reloading shared layouts.",
+        "Navigation hooks like `useRouter` come from `next/navigation`, not `next/router`. They only work in Client Components.",
+        "Layouts don't get `searchParams`. Read them in the page, or with the `useSearchParams` hook.",
+        "`redirect()` works by throwing a special error, so call it outside any `try/catch`. Otherwise your `catch` swallows the redirect.",
       ],
-      tip: "Mention that a dynamic route with a `loading.tsx` can be partially prefetched, so navigation feels instant even before its data is ready.",
+      tip: "Mention that a dynamic route with a `loading.tsx` can be partly prefetched. Clicking feels instant even before its data is ready.",
     },
   ],
 
   questions: [
+    {
+      id: "next-b1-01",
+      domain: "d1",
+      lesson: "d1-b-what",
+      level: "beginner",
+      prompt: "What is Next.js?",
+      options: ["A framework built on React that adds pages, routing and a server", "A replacement for JavaScript", "A database that stores web pages", "A library of CSS styles"],
+      answer: [0],
+      explanation: "Next.js builds on React. You keep writing React components, and Next.js adds the parts a full website needs, like turning folders into web addresses and running code on a server.",
+    },
+    {
+      id: "next-b1-02",
+      domain: "d1",
+      lesson: "d1-b-what",
+      level: "beginner",
+      prompt: "How does Next.js relate to React?",
+      options: ["Next.js is built on React, so you still write React components", "Next.js replaces React, so you stop writing components", "They're unrelated tools that can't be used together"],
+      answer: [0],
+      explanation: "Next.js uses React underneath. Everything you learn about components, props and state still applies, and Next.js wraps it in a full website setup.",
+    },
+    {
+      id: "next-b1-03",
+      domain: "d1",
+      lesson: "d1-b-folders",
+      level: "beginner",
+      prompt: "Which file shows the page at `/about`?",
+      options: ["`app/about/page.tsx`", "`app/about.html`", "`app/page/about.tsx`", "`app/about/styles.css`"],
+      answer: [0],
+      explanation: "The folder `about` gives the address `/about`, and the file named `page.tsx` inside it is what visitors see there. Other file names don't create pages.",
+    },
+    {
+      id: "next-b1-04",
+      domain: "d1",
+      lesson: "d1-b-folders",
+      level: "beginner",
+      prompt: "What does the file `app/page.tsx` show?",
+      options: ["The home page, at `/`", "A page at `/page`", "Nothing, because it's only a settings file"],
+      answer: [0],
+      explanation: "A `page.tsx` directly inside `app` has no folders in front of it, so its address is just `/`. That's your home page.",
+    },
     {
       id: "d1-01",
       level: "junior",
@@ -199,7 +286,7 @@ export function Nav() {
         ["`app/(marketing)/about/page.tsx`", "`/about` (group names stay out of the URL)"],
         ["`app/_lib/page.tsx`", "Nothing: private folders are not routes"],
       ],
-      explanation: "Brackets make segments dynamic; three dots make them catch-all; double brackets make the catch-all optional. Parentheses create route groups, and a leading underscore opts a folder out of routing.",
+      explanation: "Square brackets make a segment dynamic. Three dots make it catch-all, and double brackets make the catch-all optional. Parentheses create route groups, and a leading underscore keeps a folder out of routing.",
     },
     {
       id: "d1-03",
@@ -266,7 +353,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       type: "order",
       prompt: "Within one route segment, order the special files from the outermost wrapper to the innermost.",
       items: ["`layout.tsx`", "`template.tsx`", "`error.tsx` (error boundary)", "`loading.tsx` (Suspense boundary)", "`not-found.tsx`", "`page.tsx`"],
-      explanation: "The documented hierarchy is layout → template → error → loading → not-found → page. That's why an error boundary can't catch errors from the layout in its own folder.",
+      explanation: "The documented order, from outside in, is layout, template, error, loading, not-found, then page. The error boundary sits inside the layout, which is why it can't catch errors from the layout in its own folder.",
     },
     {
       id: "d1-07",
@@ -413,7 +500,7 @@ export function generateStaticParams() {
       codeLang: "tsx",
       options: ["3", "2", "4", "6"],
       answer: [0],
-      explanation: "Each object is one page: `/products/shoes/1`, `/products/shoes/2`, and `/products/hats/1`.",
+      explanation: "Each object in the list becomes one page, so you get `/products/shoes/1`, `/products/shoes/2` and `/products/hats/1`.",
     },
     {
       id: "d1-15",
@@ -423,7 +510,7 @@ export function generateStaticParams() {
       prompt: "Which Pages Router function does `generateStaticParams` replace?",
       options: ["`getStaticPaths`", "`getServerSideProps`", "`getInitialProps`", "`getStaticProps`"],
       answer: [0],
-      explanation: "Both list the dynamic paths to prerender. Data loading itself now happens directly in async Server Components.",
+      explanation: "Both list the dynamic paths to build ahead of time. Loading the data itself now happens directly in async Server Components.",
     },
     {
       id: "d1-16",
@@ -508,7 +595,7 @@ export function generateStaticParams() {
       prompt: "Which URL does `app/(marketing)/pricing/page.tsx` serve?",
       options: ["`/pricing`", "`/marketing/pricing`", "`/(marketing)/pricing`", "None until you add a `route.ts`"],
       answer: [0],
-      explanation: "Folders in parentheses are route groups: they organise files (and can hold a layout) without adding a URL segment.",
+      explanation: "Folders in parentheses are route groups. They help you organise files, and can hold a layout, without adding anything to the URL.",
     },
     {
       id: "d1-22",
@@ -545,15 +632,15 @@ export function generateStaticParams() {
   cards: [
     { id: "c1-page", domain: "d1", kind: "service", term: "page.tsx", definition: "Makes a route segment publicly reachable and renders its UI. Receives `params` and `searchParams` as Promises." },
     { id: "c1-layout", domain: "d1", kind: "service", term: "layout.tsx", definition: "Shared UI around child segments. Keeps state and doesn't re-render on navigation. The root layout renders `<html>` and `<body>`." },
-    { id: "c1-template", domain: "d1", kind: "service", term: "template.tsx", definition: "Like a layout, but remounts on navigation: client state resets and effects re-run." },
+    { id: "c1-template", domain: "d1", kind: "service", term: "template.tsx", definition: "Like a layout, but rebuilt on every navigation. Its client state resets and its effects run again." },
     { id: "c1-loading", domain: "d1", kind: "service", term: "loading.tsx", definition: "Wraps the page in a Suspense boundary to show instant fallback UI while it streams." },
-    { id: "c1-error", domain: "d1", kind: "service", term: "error.tsx", definition: "A Client Component error boundary for a segment. Receives `error` and `retry()`." },
+    { id: "c1-error", domain: "d1", kind: "service", term: "error.tsx", definition: "An error boundary for one route folder. It must be a Client Component, and it receives `error` and `retry()`." },
     { id: "c1-notfound", domain: "d1", kind: "service", term: "not-found.tsx", definition: "UI rendered when `notFound()` is called in the segment." },
     { id: "c1-gsp", domain: "d1", kind: "service", term: "generateStaticParams", definition: "Returns the params to prerender for dynamic segments at build time. Replaces `getStaticPaths`." },
     { id: "c1-pageprops", domain: "d1", kind: "service", term: "PageProps / LayoutProps", definition: "Global generated types: `PageProps<'/blog/[slug]'>` types `params` and `searchParams` for that route." },
     { id: "c1-link", domain: "d1", kind: "service", term: "<Link>", definition: "Extends `<a>` with prefetching and client-side transitions that keep shared layouts." },
     { id: "c1-userouter", domain: "d1", kind: "service", term: "useRouter (next/navigation)", definition: "Client hook for programmatic navigation: `push`, `replace`, `back`, `refresh`." },
-    { id: "c1-dynamic", domain: "d1", kind: "concept", term: "Dynamic segments", definition: "`[slug]` matches one segment, `[...slug]` one or more (array), `[[...slug]]` zero or more." },
+    { id: "c1-dynamic", domain: "d1", kind: "concept", term: "Dynamic segments", definition: "`[slug]` matches one part of the URL. `[...slug]` matches one or more and gives an array. `[[...slug]]` matches zero or more." },
     { id: "c1-groups", domain: "d1", kind: "concept", term: "Route group `(name)`", definition: "A folder in parentheses organises routes without changing the URL; it can hold its own (even root) layout." },
     { id: "c1-private", domain: "d1", kind: "concept", term: "Private folder `_name`", definition: "A leading underscore opts the folder and its children out of routing, for colocated components and helpers." },
   ],

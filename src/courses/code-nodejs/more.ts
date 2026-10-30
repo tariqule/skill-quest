@@ -21,7 +21,7 @@ export const moreQuestions: Question[] = [
     codeLang: "js",
     blanks: [{ options: ["nextTick", "setImmediate", "queueMicrotask", "emit"], answer: 0 }],
     explanation:
-      "`process.nextTick` callbacks run as soon as the current operation finishes, before promise microtasks and before the event loop moves on to timers. `queueMicrotask` would land in the promise queue, behind the earlier `.then`.",
+      "`process.nextTick` callbacks run as soon as the current operation finishes. That's before promise microtasks, and before the event loop moves on to timers. `queueMicrotask` would land in the promise queue, behind the earlier `.then`.",
   },
   {
     id: "nodejs-fx-02",
@@ -42,7 +42,7 @@ export const moreQuestions: Question[] = [
       { options: ["emit", "dispatch", "fire", "call"], answer: 0 },
     ],
     explanation:
-      "`once` registers a listener that removes itself after its first call; `on` would keep it forever. Events are fired with `emit`. `dispatch` and `addEventListener` belong to the browser's EventTarget.",
+      "`once` adds a listener that removes itself after its first call, while `on` would keep it forever. You fire events with `emit`. `dispatch` and `addEventListener` belong to the browser's EventTarget, not to Node's EventEmitter.",
   },
   {
     id: "nodejs-fx-03",
@@ -50,7 +50,7 @@ export const moreQuestions: Question[] = [
     domain: "d3",
     level: "senior",
     lesson: "d3-unhandled",
-    prompt: "Fill the gaps: a last-resort handler for a synchronous throw nobody caught. Log it, then end the process with a failure code.",
+    prompt: "Fill the gaps to make a last-resort handler for a synchronous throw that nobody caught. Log it, then end the process with a failure code.",
     code: L("process.on('{{1}}', (err) => {", "  console.error(err);", "  process.{{2}}(1);", "});"),
     codeLang: "js",
     blanks: [
@@ -58,7 +58,7 @@ export const moreQuestions: Question[] = [
       { options: ["exit", "kill", "abort", "end"], answer: 0 },
     ],
     explanation:
-      "`uncaughtException` fires for a throw that reaches the top of the stack (`unhandledRejection` is for rejected promises). After it the process state is unreliable, so log and exit with a non-zero code with `process.exit(1)` and let the supervisor restart you.",
+      "`uncaughtException` fires for a throw that reaches the top of the stack. `unhandledRejection` is the one for rejected promises. After an uncaught exception the process can't be trusted, so log it, call `process.exit(1)` to exit with a failure code, and let the supervisor restart you.",
   },
   {
     id: "nodejs-fx-04",
@@ -66,7 +66,7 @@ export const moreQuestions: Question[] = [
     domain: "d2",
     level: "senior",
     lesson: "d2-streams",
-    prompt: "Fill the gaps so the file is gzip-compressed with backpressure handled and errors propagated.",
+    prompt: "Fill the gaps so the file is gzip-compressed, with backpressure handled and errors passed on.",
     code: L(
       "const { pipeline } = require('node:stream/promises');",
       "const fs = require('node:fs');",
@@ -81,7 +81,7 @@ export const moreQuestions: Question[] = [
       { options: ["zlib.createGzip()", "zlib.gzip", "zlib.createGunzip()", "zlib.createDeflate()"], answer: 0 },
     ],
     explanation:
-      "`pipeline` wires the streams, honours backpressure, destroys every stream on error and, in the promise version, lets you `await` the result. `createGzip()` is the Transform that compresses; `createGunzip()` does the reverse and `zlib.gzip` is a buffer-in, callback-out function.",
+      "`pipeline` connects the streams, respects backpressure and destroys every stream if one fails. The promise version also lets you `await` it. `createGzip()` is the Transform that compresses. `createGunzip()` does the opposite, and `zlib.gzip` takes a whole buffer and calls back, so it isn't a stream.",
   },
   {
     id: "nodejs-fx-05",
@@ -89,7 +89,7 @@ export const moreQuestions: Question[] = [
     domain: "d1",
     level: "staff",
     lesson: "d1-blocking",
-    prompt: "A CPU-heavy `fib(40)` blocks the loop. Fill the gaps so a worker thread runs it and the result is logged.",
+    prompt: "A CPU-heavy `fib(40)` blocks the loop. Fill the gaps so a worker thread runs it and the result gets logged.",
     code: L(
       "const { Worker, isMainThread, parentPort, workerData } = require('node:worker_threads');",
       "if (isMainThread) {",
@@ -105,7 +105,7 @@ export const moreQuestions: Question[] = [
       { options: ["message", "data", "result", "done"], answer: 0 },
     ],
     explanation:
-      "`workerData` is a cloned value handed to the worker at start-up (it is read there as `workerData`). The worker replies with `postMessage`, which the parent receives as a `'message'` event. The main thread stays free to serve requests meanwhile.",
+      "`workerData` is a copy of a value handed to the worker when it starts, and the worker reads it as `workerData`. The worker replies with `postMessage`, which the parent receives as a `'message'` event. Meanwhile the main thread stays free to serve requests.",
   },
   {
     id: "nodejs-fx-06",
@@ -126,7 +126,7 @@ export const moreQuestions: Question[] = [
     codeLang: "js",
     blanks: [{ options: ["module.exports", "exports", "export default", "global"], answer: 0 }],
     explanation:
-      "`require` returns whatever `module.exports` points to. Assigning to the bare `exports` variable only rebinds a local alias, so the module would still export an empty object. `export default` is ES module syntax.",
+      "`require` returns whatever `module.exports` points to. Assigning to the bare `exports` variable only changes a local shortcut, so the module would still export an empty object. `export default` is ES module syntax, not CommonJS.",
   },
   {
     id: "nodejs-fx-07",
@@ -134,7 +134,7 @@ export const moreQuestions: Question[] = [
     domain: "d4",
     level: "intermediate",
     lesson: "d4-middleware",
-    prompt: "Fill the gaps so the request moves on after loading the user, and a failure goes to the error-handling middleware.",
+    prompt: "Fill the gaps so the request moves on after the user is loaded, and a failure goes to the error-handling middleware.",
     code: L(
       "app.use(async (req, res, next) => {",
       "  try {",
@@ -151,7 +151,7 @@ export const moreQuestions: Question[] = [
       { options: ["next", "res.send", "console.log", "process.exit"], answer: 0 },
     ],
     explanation:
-      "Calling `next()` hands control to the next middleware; calling `next(err)` with an argument skips to the error handler. Async handlers must do this themselves, because a rejected promise inside them is not caught by Express 4.",
+      "Calling `next()` hands control to the next middleware. Calling `next(err)` with an argument skips ahead to the error handler. Async handlers have to do this themselves, because Express 4 doesn't catch a rejected promise inside them.",
   },
   {
     id: "nodejs-fx-08",
@@ -159,7 +159,7 @@ export const moreQuestions: Question[] = [
     domain: "d4",
     level: "intermediate",
     lesson: "d4-security",
-    prompt: "Fill the gaps to use placeholders for both values with node-postgres, never string concatenation.",
+    prompt: "Fill the gaps to use node-postgres placeholders for both values, instead of joining strings together.",
     code: L(
       "const rows = await db.query(",
       "  'SELECT * FROM users WHERE email = {{1}} AND active = {{2}}',",
@@ -172,7 +172,7 @@ export const moreQuestions: Question[] = [
       { options: ["$2", "$1", "${true}", "$0"], answer: 0 },
     ],
     explanation:
-      "node-postgres numbers its placeholders `$1`, `$2`, … and sends the values separately from the SQL text, so input can never change the query's structure. Other drivers use `?` instead; the principle is the same: parameterise, never concatenate.",
+      "node-postgres numbers its placeholders `$1`, `$2` and so on, and sends the values separately from the SQL text. That way, input can never change the shape of the query. Other drivers use `?` instead, but the rule is the same: use parameters, never string joining.",
   },
 
   // ───────────── Type the output ─────────────
@@ -195,7 +195,7 @@ export const moreQuestions: Question[] = [
     codeLang: "js",
     answers: ["a\nc\nb"],
     explanation:
-      "`f()` runs synchronously up to the first `await`, logging `a`. The rest of the function is queued as a microtask, so `c` prints first and `b` after the script finishes.",
+      "`f()` runs straight away up to the first `await`, so it logs `a`. The rest of the function is queued as a microtask. So `c` prints next, and `b` prints after the script finishes.",
   },
   {
     id: "nodejs-ox-02",
@@ -215,7 +215,7 @@ export const moreQuestions: Question[] = [
     codeLang: "js",
     answers: ["p1\np2\ntick"],
     explanation:
-      "Once the promise microtask queue is being drained, Node keeps draining it until empty. The second `.then` is queued while `p1` runs, so `p2` runs before control returns to the nextTick queue, and `tick` comes last.",
+      "Once Node starts emptying the promise microtask queue, it keeps going until the queue is empty. The second `.then` is queued while `p1` runs, so `p2` runs before Node goes back to the nextTick queue. That's why `tick` comes last.",
   },
   {
     id: "nodejs-ox-03",
@@ -236,7 +236,7 @@ export const moreQuestions: Question[] = [
     codeLang: "js",
     answers: ["A B C A C"],
     explanation:
-      "Listeners run synchronously in registration order. The `once` listener `B` removes itself after the first emit, so the second emit runs only `A` and `C`.",
+      "Listeners run straight away, in the order they were added. The `once` listener, `B`, removes itself after the first emit, so the second emit only runs `A` and `C`.",
   },
   {
     id: "nodejs-ox-04",
@@ -249,7 +249,7 @@ export const moreQuestions: Question[] = [
     codeLang: "js",
     answers: ["4"],
     explanation:
-      "A buffer holds bytes, not characters. `h` and `y` are one byte each and `é` is two in UTF-8, so the length is 4 while the string length is 3. Use `Buffer.byteLength` to get this without allocating.",
+      "A Buffer counts bytes, not characters. `h` and `y` take one byte each and `é` takes two in UTF-8, so the length is 4, even though the string's length is 3. `Buffer.byteLength` gives you the same number without creating a Buffer.",
   },
   {
     id: "nodejs-ox-05",
@@ -271,7 +271,7 @@ export const moreQuestions: Question[] = [
     codeLang: "js",
     answers: ["ok\nunhandled"],
     explanation:
-      "An `async` function never throws synchronously; it returns a rejected promise. The `try/catch` is already finished (`ok` printed) by the time the rejection is noticed, so it lands in `unhandledRejection`. You needed `await f()` inside the `try`.",
+      "An `async` function never throws straight away. It returns a rejected promise instead. The `try/catch` has already finished, printing `ok`, by the time Node notices the rejection, so it goes to `unhandledRejection`. You'd need `await f()` inside the `try` to catch it.",
   },
   {
     id: "nodejs-ox-06",
@@ -289,7 +289,7 @@ export const moreQuestions: Question[] = [
     codeLang: "js",
     answers: ["b"],
     explanation:
-      "`exports` starts as a reference to `module.exports`. Reassigning `module.exports` points it at a new object, but `exports` still references the old one, so the later `exports.c = 3` writes to an object nobody exports.",
+      "`exports` starts out pointing at the same object as `module.exports`. Reassigning `module.exports` points it at a new object, but `exports` still points at the old one. So the later `exports.c = 3` writes to an object nobody exports.",
   },
   {
     id: "nodejs-ox-07",
@@ -305,7 +305,7 @@ export const moreQuestions: Question[] = [
     codeLang: "js",
     answers: ["/b 2"],
     explanation:
-      "A path starting with `/` replaces the base path, and `..` segments are resolved (`/a/..` cancels out), giving `/b`. `getAll` returns every value of a repeated query key, so the count is 2.",
+      "A path that starts with `/` replaces the base path, and `..` segments are resolved, so `/a/..` cancels out and leaves `/b`. `getAll` returns every value for a repeated query key, so there are 2.",
   },
   {
     id: "nodejs-ox-08",
@@ -325,7 +325,7 @@ export const moreQuestions: Question[] = [
     codeLang: "js",
     answers: ["tick\nimmediate\ntimeout"],
     explanation:
-      "The callback runs in the poll phase. `nextTick` runs right after it. The loop then moves to the check phase (`setImmediate`) before it wraps around to timers, so inside an I/O callback `immediate` always beats `timeout`, unlike at the top level, where the order can vary.",
+      "The callback runs in the poll phase, and `nextTick` runs right after it. The loop then moves to the check phase, where `setImmediate` runs, before it comes back round to timers. So inside an I/O callback `immediate` always beats `timeout`. At the top level of a script, the order can vary.",
   },
   {
     id: "nodejs-ox-09",
@@ -348,6 +348,6 @@ export const moreQuestions: Question[] = [
     codeLang: "js",
     answers: ["a,b"],
     explanation:
-      "The chain only advances when a handler calls `next()`. The second handler logs `b` but never calls it, so the request stops there and `c` never runs. A middleware that neither calls `next` nor responds leaves the client hanging.",
+      "The chain only moves on when a handler calls `next()`. The second handler logs `b` but never calls it, so the request stops there and `c` never runs. In a real server, middleware that neither calls `next` nor responds leaves the client hanging.",
   },
 ];

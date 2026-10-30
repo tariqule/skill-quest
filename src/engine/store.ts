@@ -3,6 +3,7 @@
 import { useSyncExternalStore } from "react";
 import { BADGES, type BadgeId } from "./badges";
 import type { LevelChoice } from "./levels";
+import { getProfile } from "./profile";
 import type { Course } from "./types";
 import { pushToast } from "./ui-state";
 
@@ -40,6 +41,8 @@ export interface Progress {
   challengesSolved: string[];
   /** Live coding: progress per challenge id. */
   coding: Record<string, { solved: boolean; attempts: number; hints: number }>;
+  /** Mini games: best score and plays per domain id. */
+  games: Record<string, { best: number; plays: number }>;
   /** Interview tracks: which seniority to practise ("all" mixes them). */
   level: LevelChoice;
 }
@@ -65,6 +68,7 @@ export const INITIAL_PROGRESS: Progress = {
   studied: [],
   challengesSolved: [],
   coding: {},
+  games: {},
   level: "all",
 };
 
@@ -136,7 +140,8 @@ function buildStore(course: Course) {
   function load() {
     if (loaded || typeof window === "undefined") return;
     loaded = true;
-    state = peekProgress(key) ?? INITIAL_PROGRESS;
+    // A brand-new course starts at the level the player picked on the home page.
+    state = peekProgress(key) ?? { ...INITIAL_PROGRESS, level: getProfile().level ?? INITIAL_PROGRESS.level };
     // Roll over daily counters so render code never has to read the clock.
     const day = todayKey();
     if (state.today.day !== day) state = { ...state, today: { day, xp: 0 } };
@@ -304,6 +309,18 @@ function buildStore(course: Course) {
       addXp(course.config.xp.challengeSolved);
       if (challengesSolved.length >= Math.min(5, course.challenges.length)) unlockBadge("tinkerer");
       return true;
+    },
+
+    /** Mini game finished: keep the best score, give a little XP, and the badge once every section is played. */
+    recordGame(domain: string, score: number) {
+      const s = get();
+      const prev = s.games[domain] ?? { best: 0, plays: 0 };
+      const games = { ...s.games, [domain]: { best: Math.max(prev.best, score), plays: prev.plays + 1 } };
+      commit({ ...s, games });
+      const xp = Math.min(30, score * 3);
+      if (xp > 0) addXp(xp);
+      if (course.domains.every((d) => games[d.id])) unlockBadge("arcade");
+      return { xp, best: score > prev.best };
     },
 
     /** Live coding: count a run. Returns the XP earned the first time the challenge is solved (0 otherwise). */

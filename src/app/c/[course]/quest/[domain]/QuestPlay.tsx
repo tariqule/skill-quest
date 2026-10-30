@@ -14,8 +14,9 @@ export function QuestPlay() {
   const { course, store, href, domain: domainById } = useCourse();
   const domain = domainById[domainId];
   if (!domain) notFound();
-  const { length, hearts, starThresholds } = course.config.quest;
   const { level } = useLevelPool();
+  const { length, starThresholds } = course.config.quest;
+  const hearts = level === "beginner" ? course.config.quest.beginnerHearts : course.config.quest.hearts;
   const pool = course.questions.filter((q) => q.domain === domain.id);
   const split = levelSplit(course, level, pool, length);
   const copy = courseCopy(course);

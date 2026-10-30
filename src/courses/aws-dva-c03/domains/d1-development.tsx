@@ -17,7 +17,7 @@ export default defineDomain({
     weight: 30,
     emoji: "⚙️",
     color: "#f59e0b",
-    summary: "Decoupled and event-driven design, messaging and streams, APIs and SDKs, AI-assisted coding, Amazon Bedrock in your code, Lambda, DynamoDB, and caching.",
+    summary: "How to build apps on AWS: decoupled and event-driven design, messaging and streams, APIs and SDKs, AI-assisted coding, Amazon Bedrock in your code, Lambda, DynamoDB, and caching.",
   },
 
   tasks: [
@@ -54,12 +54,89 @@ export default defineDomain({
         "Manage data lifecycles: S3 Lifecycle policies, TTL, retention periods",
         "Choose data stores (ElastiCache, DynamoDB, S3, RDS) by access pattern",
         "Pick the caching solution that fits the data store",
-        "Configure DynamoDB: high-cardinality partition keys, read consistency, query vs scan, keys, attributes, and indexes",
+        "Configure DynamoDB: high-cardinality partition keys, read consistency, query versus scan, keys, attributes, and indexes",
       ],
     },
   ],
 
   lessons: [
+    // ── Start here ──
+    {
+      id: "d1-start-cloud-apps",
+      level: "beginner",
+      task: "1.1",
+      title: "Start here: what building an app on AWS means",
+      check: ["dva3-b1-01", "dva3-b1-02"],
+      visual: (
+        <Flow
+          color="#f59e0b"
+          steps={[
+            { icon: "🙋", label: "Customer orders", sub: "Someone taps Buy in your app" },
+            { icon: "🧾", label: "Ticket on the rail", sub: "A queue holds the order" },
+            { icon: "👩‍🍳", label: "Kitchen stations", sub: "Small services each do one job" },
+            { icon: "🍽️", label: "Order delivered", sub: "The customer gets a result" },
+          ]}
+        />
+      ),
+      points: [
+        "**The cloud** means renting computers in someone else's data center and using them over the internet. AWS (Amazon Web Services) is one company that rents them out.",
+        "Instead of one big program on one machine, an AWS app is usually built from **services**, ready-made building blocks like a database, a queue, or a place to run code.",
+        "Think of a busy restaurant kitchen. The waiter pins each order ticket on a rail, and each station (grill, salad, desserts) picks up its part when it's ready.",
+        "On AWS, that ticket rail is a **queue** such as Amazon SQS. The waiter never has to stand and wait for the cook, and no order gets lost if one station is busy.",
+        "AWS also rents out AI. With **Amazon Bedrock**, your code can send a question to an AI model and get an answer back, the same way it calls any other service.",
+      ],
+      tip: "Your code talks to every AWS service the same way: through an API call, usually made with an AWS SDK (a library for your programming language).",
+    },
+    {
+      id: "d1-start-lambda",
+      level: "beginner",
+      task: "1.2",
+      title: "Start here: running code without a server",
+      check: ["dva3-b1-03", "dva3-b1-04"],
+      visual: (
+        <Flow
+          color="#38bdf8"
+          steps={[
+            { icon: "📸", label: "Something happens", sub: "A photo is uploaded" },
+            { icon: "λ", label: "Lambda runs your code", sub: "Only for as long as it needs" },
+            { icon: "🖼️", label: "Result", sub: "A thumbnail is saved" },
+            { icon: "💤", label: "Nothing to look after", sub: "No server sits waiting" },
+          ]}
+        />
+      ),
+      points: [
+        "A **server** is a computer that runs your program all day. Someone has to keep it updated, patched, and switched on, even at 3 a.m. when nobody uses it.",
+        "**Serverless** means AWS looks after the machines for you. You hand over your code, and you pay only while it's actually running.",
+        "**AWS Lambda** runs a small piece of your code, called a **function**, whenever an **event** happens. An event is something like a file upload, a web request, or a message in a queue.",
+        "It's like a taxi instead of owning a car. You don't park, fuel, or service it. You call it when you need a ride and pay for that trip.",
+      ],
+      tip: "When a question says \"no servers to manage\" or \"run code when something happens\", think of Lambda first.",
+    },
+    {
+      id: "d1-start-data",
+      level: "beginner",
+      task: "1.3",
+      title: "Start here: where an app keeps its data",
+      check: ["dva3-b1-05", "dva3-b1-06"],
+      visual: (
+        <Tiles
+          cols={3}
+          tiles={[
+            { icon: "🗄️", title: "Database", text: "Like a filing cabinet. Each record sits in a labeled folder, so you can find it again fast.", color: "#34d399" },
+            { icon: "🪣", title: "Object storage (S3)", text: "Like a storage unit for whole files: photos, videos, backups, and reports.", color: "#34d399" },
+            { icon: "🗒️", title: "Cache", text: "Like a sticky note on your desk with the answer you look up most, so you don't open the cabinet every time.", color: "#34d399" },
+          ]}
+        />
+      ),
+      points: [
+        "Apps need somewhere to keep data that lasts after the code stops running: users, orders, photos, settings.",
+        "**Amazon DynamoDB** is a database that stores **items**, like one order. Each item has a **key**, such as an order ID, and the key is how DynamoDB finds the item quickly.",
+        "**Amazon S3** stores whole files, called **objects**, in containers called **buckets**.",
+        "A **cache** keeps a copy of popular data in fast memory. Reading from memory is much quicker than asking the database again, so busy apps feel snappy.",
+      ],
+      tip: "Ask what you're storing. Small records you look up by a key fit a database like DynamoDB. Whole files fit S3.",
+    },
+
     {
       id: "d1-patterns",
       task: "1.1",
@@ -70,37 +147,37 @@ export default defineDomain({
           <Tiles
             cols={2}
             tiles={[
-              { icon: "🔗", title: "Tightly coupled, synchronous", text: "Order → Payment → Shipping in one call chain. One slow or failed service fails the whole request.", color: "#f87171" },
-              { icon: "🧩", title: "Loosely coupled, asynchronous", text: "Order publishes an event. Each service consumes it from its own queue, at its own pace.", color: "#34d399" },
+              { icon: "🔗", title: "Tightly coupled, synchronous", text: "The order service calls payment, then shipping, and waits for each one. If one is slow or down, the whole order fails.", color: "#f87171" },
+              { icon: "🧩", title: "Loosely coupled, asynchronous", text: "The order service announces \"order placed\" and moves on. Each other service picks it up from its own queue, at its own pace.", color: "#34d399" },
             ]}
           />
           <Flow
             color="#f59e0b"
             steps={[
-              { icon: "🛒", label: "Order placed", sub: "Producer publishes one event" },
-              { icon: "📣", label: "SNS topic / EventBridge bus", sub: "Fans out to every subscriber" },
-              { icon: "📬", label: "One SQS queue per service", sub: "Buffers and retries independently" },
+              { icon: "🛒", label: "Order placed", sub: "The order service sends one message" },
+              { icon: "📣", label: "SNS topic or EventBridge bus", sub: "Copies it to every subscriber" },
+              { icon: "📬", label: "One SQS queue per service", sub: "Holds messages until that service is ready" },
               { icon: "λ", label: "Consumers", sub: "Payment, shipping, email" },
             ]}
           />
           <Tiles
             cols={4}
             tiles={[
-              { icon: "🪣", title: "S3 Event Notifications", text: "An object upload or delete triggers Lambda, SQS, SNS, or EventBridge.", color: "#a78bfa" },
-              { icon: "💃", title: "Choreography", text: "Services react to events. No central controller (EventBridge rules).", color: "#a78bfa" },
-              { icon: "🎼", title: "Orchestration", text: "A coordinator drives each step, retries, and branches (Step Functions).", color: "#a78bfa" },
-              { icon: "🪶", title: "Stateless", text: "Keep session state in ElastiCache or DynamoDB so any instance can serve any request.", color: "#a78bfa" },
+              { icon: "🪣", title: "S3 Event Notifications", text: "Uploading or deleting a file can trigger Lambda, SQS, SNS, or EventBridge.", color: "#a78bfa" },
+              { icon: "💃", title: "Choreography", text: "Each service reacts to events on its own, with nobody in charge. EventBridge rules work this way.", color: "#a78bfa" },
+              { icon: "🎼", title: "Orchestration", text: "One coordinator runs each step in turn, retries failures, and picks branches. Step Functions works this way.", color: "#a78bfa" },
+              { icon: "🪶", title: "Stateless", text: "Keep login sessions in ElastiCache or DynamoDB, not on the server, so any server can handle any request.", color: "#a78bfa" },
             ]}
           />
         </div>
       ),
       points: [
-        "Synchronous (API Gateway → Lambda): the caller needs the answer now. Asynchronous (SQS, EventBridge): the caller only needs to know the work was accepted.",
-        "Asynchronous messaging lets a producer continue without waiting, and lets a failed consumer catch up later.",
-        "Fanout: one event, many independent consumers (SNS → several SQS queues, or several EventBridge rules).",
-        "Step Functions Standard workflows run up to one year with exactly-once steps; Express workflows run up to five minutes at very high volume.",
+        "Use a **synchronous** call, like API Gateway calling Lambda, when the caller needs the answer right now. Use an **asynchronous** one, like SQS or EventBridge, when the caller only needs to know the work was accepted.",
+        "With asynchronous messaging the sender doesn't wait. If a receiving service crashes, its messages wait in the queue, and it catches up when it's back.",
+        "**Fanout** means one event reaches many independent services. For example, one SNS topic can feed several SQS queues, or several EventBridge rules can match the same event.",
+        "Step Functions has two workflow types. **Standard** workflows can run for up to a year and run each step exactly once. **Express** workflows run for up to five minutes and handle very high volumes.",
       ],
-      tip: "\"Decouple\", \"absorb spikes\", or \"keep working if a downstream service is down\" → put a queue or event bus between the services.",
+      tip: "When a question says \"decouple\", \"absorb spikes\", or \"keep working if a downstream service is down\", the answer is usually a queue or an event bus between the services.",
     },
     {
       id: "d1-messaging",
@@ -112,17 +189,17 @@ export default defineDomain({
           <Tiles
             cols={4}
             tiles={[
-              { icon: "📬", title: "SQS", text: "Queue. Consumers poll, process, then delete. Standard (at-least-once) or FIFO (ordered, deduplicated).", color: "#f59e0b" },
-              { icon: "📣", title: "SNS", text: "Pub/sub push to many subscribers: SQS, Lambda, HTTP, email. Filter policies per subscription.", color: "#f59e0b" },
-              { icon: "🚌", title: "EventBridge", text: "Event bus with content-based rules, schedules, SaaS sources, archive and replay.", color: "#f59e0b" },
-              { icon: "🌊", title: "Kinesis Data Streams", text: "Ordered stream per shard. Many consumers re-read records within the retention window.", color: "#f59e0b" },
+              { icon: "📬", title: "SQS", text: "A queue. Workers pull a message, process it, then delete it. Standard queues deliver at least once. FIFO queues keep order and drop duplicates.", color: "#f59e0b" },
+              { icon: "📣", title: "SNS", text: "Publish once and SNS pushes a copy to every subscriber: SQS, Lambda, HTTP, or email. Each subscription can filter what it gets.", color: "#f59e0b" },
+              { icon: "🚌", title: "EventBridge", text: "An event bus. Rules route events by what's in them. It also runs schedules, takes events from SaaS apps, and can archive and replay events.", color: "#f59e0b" },
+              { icon: "🌊", title: "Kinesis Data Streams", text: "A stream of records, kept in order within each shard. Many readers can read the same records, and read them again while they're kept.", color: "#f59e0b" },
             ]}
           />
           <Flow
             color="#38bdf8"
             steps={[
               { icon: "📡", label: "Producers", sub: "Apps, devices, logs" },
-              { icon: "🚿", label: "Amazon Data Firehose", sub: "Buffers, optionally transforms with Lambda" },
+              { icon: "🚿", label: "Amazon Data Firehose", sub: "Collects records in batches, and can transform them with Lambda" },
               { icon: "🪣", label: "Destination", sub: "S3, OpenSearch Service, and more" },
             ]}
           />
@@ -130,13 +207,15 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "Visibility timeout (default 30 s, max 12 hours) hides a received message. If work outlasts it, the message is delivered again.",
-        "Long polling (WaitTimeSeconds up to 20 s) cuts empty receives and cost. A redrive policy moves repeatedly failing messages to a dead-letter queue.",
-        "FIFO queues order messages within a message group ID and deduplicate within a 5-minute window.",
-        "Kinesis routes records to shards by partition key. A hot key throttles one shard; enhanced fan-out gives each consumer its own read throughput.",
-        "Data Firehose delivers streaming data to a destination with no consumer code to write: use it when you need delivery, not custom real-time processing.",
+        "When a worker receives an SQS message, the message is hidden for the **visibility timeout** (default 30 seconds, max 12 hours). If the work takes longer, the message reappears and gets processed again.",
+        "**Long polling** (WaitTimeSeconds up to 20 seconds) makes a receive call wait for messages to arrive, so you pay for fewer empty replies.",
+        "A **redrive policy** moves a message that keeps failing to a **dead-letter queue** (DLQ), a side queue where you can look at it later.",
+        "**FIFO** (first in, first out) queues keep messages in order within each message group ID. They also drop duplicates sent within 5 minutes of each other.",
+        "Kinesis sends each record to a shard based on its partition key. If one key gets most of the traffic, that one shard is throttled.",
+        "**Enhanced fan-out** gives each reading app its own read throughput, so readers don't slow each other down.",
+        "Amazon Data Firehose delivers streaming data to a destination such as S3, with no consumer code to write. Pick it when you just need delivery, not custom real-time processing.",
       ],
-      tip: "Duplicates in SQS usually mean the visibility timeout is shorter than processing time, or the consumer isn't idempotent.",
+      tip: "Seeing duplicates in SQS? Usually the visibility timeout is shorter than the processing time, or the consumer isn't idempotent (safe to run twice).",
     },
     {
       id: "d1-apis",
@@ -149,30 +228,31 @@ export default defineDomain({
             color="#38bdf8"
             steps={[
               { icon: "🙋", label: "Client request" },
-              { icon: "✅", label: "Request validation", sub: "Models (JSON Schema) reject bad input early" },
-              { icon: "🔀", label: "Mapping template", sub: "Reshape the request for the backend (non-proxy)" },
+              { icon: "✅", label: "Request validation", sub: "A model (JSON Schema) rejects bad input before it reaches your code" },
+              { icon: "🔀", label: "Mapping template", sub: "Reshapes the request for the backend (non-proxy only)" },
               { icon: "⚙️", label: "Integration", sub: "Lambda, HTTP, AWS service, or mock" },
-              { icon: "↩️", label: "Response mapping", sub: "Transform body, override status codes" },
+              { icon: "↩️", label: "Response mapping", sub: "Reshapes the reply and can change the status code" },
             ]}
           />
           <Tiles
             cols={4}
             tiles={[
-              { icon: "⏳", title: "Retry with backoff + jitter", text: "Wait longer after each failure, with randomness, so clients don't retry in lockstep.", color: "#34d399" },
-              { icon: "🔌", title: "Circuit breaker", text: "After repeated failures, fail fast for a while instead of piling up calls. Probe, then close.", color: "#34d399" },
-              { icon: "🪂", title: "Graceful degradation", text: "When a non-critical dependency fails, serve a cached or reduced response instead of an error.", color: "#34d399" },
-              { icon: "🔑", title: "Idempotency key", text: "Record a request ID with a conditional write so a retried message can't charge twice.", color: "#34d399" },
+              { icon: "⏳", title: "Retry with backoff and jitter", text: "Wait a bit longer after each failure, plus a random extra, so clients don't all retry at the same moment.", color: "#34d399" },
+              { icon: "🔌", title: "Circuit breaker", text: "After several failures in a row, stop calling for a while and fail fast. Then send one test call to see if it's back.", color: "#34d399" },
+              { icon: "🪂", title: "Graceful degradation", text: "When an optional service fails, show a cached or simpler result instead of an error.", color: "#34d399" },
+              { icon: "🔑", title: "Idempotency key", text: "Save each request ID with a conditional write. A retried message then can't charge the card twice.", color: "#34d399" },
             ]}
           />
         </div>
       ),
       points: [
-        "Lambda proxy integration passes the whole request to the function, which must return statusCode, headers, and body.",
-        "Non-proxy integrations use mapping templates to transform requests and responses without changing the backend.",
-        "AWS SDKs sign requests, use the default credential provider chain, and retry throttling and 5xx errors with exponential backoff.",
-        "Serialize objects (usually to JSON) before sending them to SQS, SNS, S3, or a cache, and deserialize on read. The DynamoDB document clients convert native objects to DynamoDB's typed attribute format for you.",
+        "With **Lambda proxy integration**, API Gateway passes the whole request to your function. Your function must return statusCode, headers, and body.",
+        "**Non-proxy** integrations use mapping templates to reshape requests and responses, so you don't have to change the backend.",
+        "The AWS SDKs sign each request for you and find credentials through the default credential provider chain. They also retry throttling and 5xx errors with exponential backoff.",
+        "**Serializing** means turning an object into text, usually JSON, before you send it to SQS, SNS, S3, or a cache. You **deserialize** it back into an object when you read it.",
+        "The DynamoDB document clients do this for you, turning normal objects into DynamoDB's typed attribute format and back.",
       ],
-      tip: "Retry only transient errors (throttling, 5xx, timeouts). Retrying a 400 validation error just fails again.",
+      tip: "Retry only temporary errors: throttling, 5xx, and timeouts. A 400 validation error will fail the same way every time.",
     },
     {
       id: "d1-ai-dev",
@@ -186,27 +266,29 @@ export default defineDomain({
             steps={[
               { icon: "📝", label: "requirements.md", sub: "User stories and acceptance criteria" },
               { icon: "📐", label: "design.md", sub: "Architecture, error handling, test strategy" },
-              { icon: "✅", label: "tasks.md", sub: "Discrete, trackable implementation tasks" },
+              { icon: "✅", label: "tasks.md", sub: "Small tasks you can track one by one" },
               { icon: "🤖", label: "Agent implements", sub: "Task by task, then you review" },
             ]}
           />
           <Tiles
             cols={4}
             tiles={[
-              { icon: "🧭", title: "Steering files", text: "Markdown in .kiro/steering/ with your conventions, tech stack, and structure, so you don't repeat them in every chat.", color: "#38bdf8" },
-              { icon: "🪝", title: "Agent hooks", text: "Run a command or an agent prompt automatically on events such as a file save, for example lint or add a companion test.", color: "#38bdf8" },
-              { icon: "🔍", title: "Review and scan", text: "Ask the assistant to review a diff, suggest refactors, and flag insecure code before you commit.", color: "#38bdf8" },
-              { icon: "🔌", title: "MCP tools", text: "Connect the agent to external tools and APIs through the Model Context Protocol.", color: "#38bdf8" },
+              { icon: "🧭", title: "Steering files", text: "Markdown files in .kiro/steering/ that hold your conventions, tech stack, and folder layout, so you don't repeat them in every chat.", color: "#38bdf8" },
+              { icon: "🪝", title: "Agent hooks", text: "Run a command or an agent prompt automatically when something happens, like a file save. For example, lint the file or add a matching test.", color: "#38bdf8" },
+              { icon: "🔍", title: "Review and scan", text: "Ask the assistant to review your changes, suggest cleaner code, and flag insecure code before you commit.", color: "#38bdf8" },
+              { icon: "🔌", title: "MCP tools", text: "Connect the agent to outside tools and APIs through the Model Context Protocol (MCP).", color: "#38bdf8" },
             ]}
           />
         </div>
       ),
       points: [
-        "Spec-driven development turns an idea into requirements, then a design, then tasks before any code is written, so the output can be checked against agreed acceptance criteria.",
-        "AI tools help with code completion, explanations, refactoring suggestions, automated code reviews, and security scanning, but you own the result: review, test, and scan generated code like any other change.",
-        "Give the assistant context (steering files, the relevant files, the spec) instead of long one-off prompts. Never paste secrets or customer data into a prompt.",
+        "**Spec-driven development** turns an idea into requirements, then a design, then tasks, before any code is written. You can then check the output against the acceptance criteria you agreed on.",
+        "AI tools help with code completion, explanations, refactoring suggestions, automated code reviews, and security scanning.",
+        "You still own the result. Review, test, and scan generated code like any other change.",
+        "Give the assistant context, like steering files, the relevant files, and the spec, instead of long one-off prompts.",
+        "Never paste secrets or customer data into a prompt.",
       ],
-      tip: "\"Generated code must meet agreed requirements and be traceable\" → spec-driven development. \"Apply our team's conventions every time\" → steering files.",
+      tip: "If generated code must meet agreed requirements and be traceable, think spec-driven development. If the team's conventions must apply every time, think steering files.",
     },
     {
       id: "d1-bedrock",
@@ -218,31 +300,32 @@ export default defineDomain({
           <Flow
             color="#f59e0b"
             steps={[
-              { icon: "λ", label: "App code (SDK)", sub: "bedrock-runtime client, role credentials" },
-              { icon: "💬", label: "Converse / ConverseStream", sub: "messages + system + inferenceConfig" },
+              { icon: "λ", label: "App code (SDK)", sub: "bedrock-runtime client using role credentials" },
+              { icon: "💬", label: "Converse or ConverseStream", sub: "messages, system prompt, and inferenceConfig" },
               { icon: "🧠", label: "Foundation model", sub: "Chosen by modelId" },
-              { icon: "📦", label: "Response", sub: "output, stopReason, usage (input/output tokens)" },
+              { icon: "📦", label: "Response", sub: "output, stopReason, and usage (input and output tokens)" },
             ]}
           />
           <Tiles
             cols={4}
             tiles={[
-              { icon: "🎛️", title: "maxTokens", text: "Caps the length (and cost) of each response. Too low and stopReason is max_tokens: the answer is cut off.", color: "#34d399" },
-              { icon: "🌊", title: "ConverseStream", text: "Returns text in chunks as it's generated, so users see output sooner. Needs bedrock:InvokeModelWithResponseStream.", color: "#34d399" },
-              { icon: "🚦", title: "ThrottlingException (429)", text: "Account quota exceeded. Retry with exponential backoff and jitter; request a quota increase if it persists.", color: "#f87171" },
-              { icon: "🧮", title: "Usage and cost", text: "You pay per input and output token. Read usage in each response and watch token metrics in CloudWatch.", color: "#38bdf8" },
+              { icon: "🎛️", title: "maxTokens", text: "Caps the length and cost of each answer. Set it too low and stopReason is max_tokens, which means the answer was cut off.", color: "#34d399" },
+              { icon: "🌊", title: "ConverseStream", text: "Sends the text back in chunks as it's written, so users see words sooner. Needs bedrock:InvokeModelWithResponseStream.", color: "#34d399" },
+              { icon: "🚦", title: "ThrottlingException (429)", text: "You went over your account quota. Retry with exponential backoff and jitter, and ask for a higher quota if it keeps happening.", color: "#f87171" },
+              { icon: "🧮", title: "Usage and cost", text: "You pay per input and output token (a token is a chunk of text, roughly a short word). Read usage in each response and watch token metrics in CloudWatch.", color: "#38bdf8" },
             ]}
           />
           <BedrockLab />
         </div>
       ),
       points: [
-        "The Converse API gives one request and response shape across Bedrock models that support messages, so switching models is mostly a modelId change. InvokeModel takes each model's native JSON body.",
-        "Converse needs bedrock:InvokeModel; ConverseStream needs bedrock:InvokeModelWithResponseStream. Scope both to the model ARNs the app actually uses.",
-        "Handle errors by type: retry 429 throttling and 5xx with backoff and jitter; fix 400 validation errors and 403 access errors instead of retrying them.",
-        "Treat the model's text as untrusted input: validate it (for example parse and check JSON) before your code acts on it.",
+        "The **Converse API** uses one request and response shape for every Bedrock model that supports messages. Switching models is then mostly a modelId change.",
+        "**InvokeModel**, by contrast, takes each model's own JSON body.",
+        "Converse needs bedrock:InvokeModel, and ConverseStream needs bedrock:InvokeModelWithResponseStream. Scope both to the model ARNs your app actually uses.",
+        "Handle errors by type. Retry 429 throttling and 5xx errors with backoff and jitter. Fix 400 validation errors and 403 access errors instead of retrying them.",
+        "Treat the model's text as untrusted input. For example, parse and check its JSON before your code acts on it.",
       ],
-      tip: "Truncated answers → check stopReason for max_tokens. Bursty traffic failing with 429 → backoff and jitter first, quota increase second.",
+      tip: "Answers cut off? Check whether stopReason is max_tokens. Bursty traffic failing with 429? Add backoff and jitter first, then ask for a quota increase.",
     },
     {
       id: "d1-lambda",
@@ -253,17 +336,17 @@ export default defineDomain({
         <div className="grid gap-4">
           <Layers
             layers={[
-              { name: "Resources", color: "#f59e0b", items: ["Memory 128 MB – 10,240 MB (CPU scales with it)", "Timeout up to 900 s (15 min), default 3 s", "Ephemeral /tmp 512 MB – 10,240 MB"] },
-              { name: "Code", color: "#38bdf8", items: ["Runtime + handler", "Layers (shared libraries)", "Extensions (monitoring, secrets caching)", "Environment variables"] },
-              { name: "Wiring", color: "#34d399", items: ["Triggers / event source mappings", "Destinations (on success / on failure)", "Execution role", "VPC subnets + security groups"] },
+              { name: "Resources", color: "#f59e0b", items: ["Memory from 128 MB to 10,240 MB (more memory also means more CPU)", "Timeout up to 900 seconds (15 minutes), default 3 seconds", "Temporary /tmp storage from 512 MB to 10,240 MB"] },
+              { name: "Code", color: "#38bdf8", items: ["Runtime and handler", "Layers (shared libraries)", "Extensions (for monitoring or caching secrets)", "Environment variables"] },
+              { name: "Wiring", color: "#34d399", items: ["Triggers and event source mappings", "Destinations (on success or on failure)", "Execution role", "VPC subnets and security groups"] },
             ]}
           />
           <Tiles
             cols={3}
             tiles={[
-              { icon: "☎️", title: "Synchronous", text: "API Gateway, ALB, SDK Invoke. Caller waits and handles errors and retries itself.", color: "#38bdf8" },
-              { icon: "📮", title: "Asynchronous", text: "S3, SNS, EventBridge. Lambda queues the event and retries function errors twice.", color: "#f59e0b" },
-              { icon: "🔁", title: "Event source mapping", text: "SQS, Kinesis, DynamoDB Streams. Lambda polls and invokes with batches.", color: "#34d399" },
+              { icon: "☎️", title: "Synchronous", text: "API Gateway, ALB, and SDK Invoke. The caller waits for the result and handles errors and retries itself.", color: "#38bdf8" },
+              { icon: "📮", title: "Asynchronous", text: "S3, SNS, and EventBridge. Lambda queues the event and retries function errors twice.", color: "#f59e0b" },
+              { icon: "🔁", title: "Event source mapping", text: "SQS, Kinesis, and DynamoDB Streams. Lambda polls the source and calls your function with batches.", color: "#34d399" },
             ]}
           />
           <Flow
@@ -271,19 +354,19 @@ export default defineDomain({
             steps={[
               { icon: "📮", label: "Async event", sub: "Queued by Lambda" },
               { icon: "💥", label: "Function error", sub: "Up to 2 retries" },
-              { icon: "📦", label: "On-failure destination", sub: "SQS, SNS, Lambda, or EventBridge with error details" },
+              { icon: "📦", label: "On-failure destination", sub: "SQS, SNS, Lambda, or EventBridge, with the error details" },
             ]}
           />
         </div>
       ),
       points: [
-        "A function attached to a VPC gets no public IP. Use a NAT gateway for internet access, or VPC endpoints for AWS services.",
-        "Use environment variables for per-environment settings, layers for shared dependencies, and extensions for tools that run alongside the function.",
-        "Work longer than 15 minutes doesn't fit Lambda: split it with Step Functions or run it on ECS/Fargate.",
-        "Destinations record the event plus the result or error; a function DLQ (SQS or SNS) keeps only the event payload. Both apply to asynchronous invocations.",
-        "For SQS batches, enable ReportBatchItemFailures. For Kinesis and DynamoDB Streams, limit retries, bisect the batch on error, and add an on-failure destination.",
+        "A function attached to a VPC gets no public IP address. To reach the internet it needs a NAT gateway. To reach AWS services it can use VPC endpoints instead.",
+        "Use environment variables for settings that differ per environment, layers for libraries that several functions share, and extensions for tools that run alongside your function.",
+        "Lambda can run for 15 minutes at most. For longer work, split it into steps with Step Functions or run it on ECS with Fargate.",
+        "**Destinations** send the event plus the result or error. A function **DLQ** (an SQS queue or SNS topic) keeps only the event itself. Both work only for asynchronous invocations.",
+        "For SQS batches, turn on ReportBatchItemFailures. For Kinesis and DynamoDB Streams, limit retries, split the batch on error (bisect), and add an on-failure destination.",
       ],
-      tip: "A DLQ on the function does nothing for SQS or stream triggers. For SQS, set the DLQ on the source queue.",
+      tip: "A DLQ set on the function does nothing for SQS or stream triggers. For SQS, put the DLQ on the source queue instead.",
     },
     {
       id: "d1-dynamodb",
@@ -296,22 +379,22 @@ export default defineDomain({
           <Tiles
             cols={2}
             tiles={[
-              { icon: "🔎", title: "Query", text: "Needs the partition key; optional sort key condition. Reads only matching items.", color: "#34d399" },
-              { icon: "🧹", title: "Scan", text: "Reads every item, then filters. Filter expressions don't reduce capacity used.", color: "#f87171" },
-              { icon: "🗂️", title: "Local secondary index", text: "Same partition key, different sort key. Created with the table. Supports strong reads.", color: "#38bdf8" },
-              { icon: "🌍", title: "Global secondary index", text: "Any partition and sort key. Add any time. Eventually consistent reads only.", color: "#38bdf8" },
+              { icon: "🔎", title: "Query", text: "Needs the partition key, plus an optional sort key condition. It reads only the items that match.", color: "#34d399" },
+              { icon: "🧹", title: "Scan", text: "Reads every item in the table, then filters. A filter doesn't lower the capacity you use.", color: "#f87171" },
+              { icon: "🗂️", title: "Local secondary index", text: "Same partition key, different sort key. You must create it with the table. Supports strongly consistent reads.", color: "#38bdf8" },
+              { icon: "🌍", title: "Global secondary index", text: "Any partition and sort key. You can add it at any time. Reads are eventually consistent only.", color: "#38bdf8" },
             ]}
           />
           <DynamoCapacityLab />
         </div>
       ),
       points: [
-        "1 RCU = one strongly consistent read per second of up to 4 KB, or two eventually consistent reads. Transactional reads cost double.",
-        "1 WCU = one write per second of up to 1 KB. Transactional writes cost double. Always round item size up.",
-        "Pick a high-cardinality partition key (user ID, order ID) so traffic spreads across partitions.",
-        "Query and Scan return up to 1 MB per call; page with LastEvaluatedKey and ExclusiveStartKey.",
+        "One **read capacity unit** (RCU) covers one strongly consistent read per second of up to 4 KB, or two eventually consistent reads. Transactional reads cost double.",
+        "One **write capacity unit** (WCU) covers one write per second of up to 1 KB. Transactional writes cost double. Always round the item size up.",
+        "Pick a partition key with many different values, like user ID or order ID. This is called **high cardinality**, and it spreads traffic evenly across partitions.",
+        "Query and Scan return at most 1 MB per call. To get the next page, pass the LastEvaluatedKey you got back as ExclusiveStartKey.",
       ],
-      tip: "Capacity math: round the item size up first (to 4 KB for reads, 1 KB for writes), multiply by the rate, then halve for eventual or double for transactional.",
+      tip: "For capacity math, round the item size up first (to 4 KB for reads, 1 KB for writes). Multiply by the rate. Then halve it for eventual reads, or double it for transactions.",
     },
     {
       id: "d1-caching",
@@ -323,32 +406,148 @@ export default defineDomain({
           <Tiles
             cols={2}
             tiles={[
-              { icon: "💤", title: "Lazy loading (cache-aside)", text: "Read cache → on a miss, read the DB and fill the cache. Only requested data is cached; data can go stale.", color: "#f59e0b" },
-              { icon: "✍️", title: "Write-through", text: "Every DB write also updates the cache. Always fresh, but writes cost more and unread data fills the cache.", color: "#f59e0b" },
+              { icon: "💤", title: "Lazy loading (cache-aside)", text: "Check the cache first. On a miss, read the database and put the result in the cache. Only data someone asked for is cached, but it can go stale.", color: "#f59e0b" },
+              { icon: "✍️", title: "Write-through", text: "Every database write also updates the cache. It's always fresh, but writes cost more and the cache fills up with data nobody reads.", color: "#f59e0b" },
             ]}
           />
           <Tiles
             cols={4}
             tiles={[
-              { icon: "⚡", title: "ElastiCache", text: "In-memory Redis OSS / Valkey / Memcached: sessions, leaderboards, query cache.", color: "#38bdf8" },
-              { icon: "🚀", title: "DAX", text: "Write-through cache in front of DynamoDB. Microsecond reads, minimal code change.", color: "#38bdf8" },
-              { icon: "🔍", title: "OpenSearch Service", text: "Full-text search, fuzzy matching, log analytics.", color: "#38bdf8" },
-              { icon: "🧮", title: "Athena", text: "Serverless SQL over files in S3.", color: "#38bdf8" },
+              { icon: "⚡", title: "ElastiCache", text: "In-memory Redis OSS, Valkey, or Memcached. Good for sessions, leaderboards, and saved query results.", color: "#38bdf8" },
+              { icon: "🚀", title: "DAX", text: "A write-through cache in front of DynamoDB. Microsecond reads with very little code change.", color: "#38bdf8" },
+              { icon: "🔍", title: "OpenSearch Service", text: "Full-text search, fuzzy matching, and log analytics.", color: "#38bdf8" },
+              { icon: "🧮", title: "Athena", text: "Run SQL queries on files in S3, with no servers to manage.", color: "#38bdf8" },
             ]}
           />
         </div>
       ),
       points: [
-        "Choose by access pattern: key-value at scale → DynamoDB; relational joins and transactions → RDS or Aurora; objects and files → S3; hot data in memory → ElastiCache.",
-        "Match the cache to the store: DAX for DynamoDB with little code change, ElastiCache for RDS queries or computed results, CloudFront for content at the edge.",
-        "Add a TTL to cached entries to bound staleness under lazy loading.",
-        "Data lifecycle: DynamoDB TTL deletes expired items at no extra cost; S3 Lifecycle rules transition objects (for example to S3 Glacier storage classes) or expire them; log groups and streams have retention periods.",
+        "Choose a store by how you'll use the data. Use DynamoDB for key-value lookups at scale, and RDS or Aurora for relational joins and transactions.",
+        "Use S3 for objects and files, and ElastiCache to keep hot data in memory.",
+        "Match the cache to the store. Use DAX for DynamoDB with little code change, ElastiCache for RDS queries or computed results, and CloudFront for content at the edge.",
+        "Give cached entries a **TTL** (time to live), so lazy-loaded data can only be stale for so long.",
+        "To clean up old data automatically, DynamoDB TTL deletes expired items at no extra cost. S3 Lifecycle rules move objects to cheaper classes, like S3 Glacier, or delete them.",
+        "Log groups and streams also have retention periods, after which old data is removed.",
       ],
-      tip: "\"Must never serve stale data after a write\" → write-through. \"Cache only what's actually read\" → lazy loading.",
+      tip: "If data must never be stale after a write, use write-through. If you only want to cache what's actually read, use lazy loading.",
     },
   ],
 
   questions: [
+    // ── Start here ──
+    {
+      id: "dva3-b1-01",
+      domain: "d1",
+      lesson: "d1-start-cloud-apps",
+      level: "beginner",
+      prompt: "What does it mean to run an app \"in the cloud\"?",
+      options: [
+        "Your app runs on computers in a provider's data centers, which you rent and reach over the internet",
+        "Your app runs only on your own laptop",
+        "Your app works without any computers at all",
+        "Your app can only be used when you're offline",
+      ],
+      answer: [0],
+      explanation:
+        "The cloud is other people's computers that you rent by the hour or by the request. You reach them over the internet, and the provider, here AWS, keeps the hardware running.",
+    },
+    {
+      id: "dva3-b1-02",
+      domain: "d1",
+      lesson: "d1-start-cloud-apps",
+      level: "beginner",
+      prompt: "In a restaurant, the waiter pins order tickets on a rail for the kitchen. An Amazon SQS queue plays the same part in an app. Why is that useful?",
+      options: [
+        "The part that takes orders can keep going even when the part that does the work is busy",
+        "It cooks the food faster",
+        "It makes sure only one order is ever placed",
+        "It removes the need for any kitchen at all",
+      ],
+      answer: [0],
+      explanation:
+        "A queue holds work until someone is free to do it. The sender drops a message in and carries on, and the worker picks it up when it's ready. Nothing is lost if the worker is slow for a moment.",
+    },
+    {
+      id: "dva3-b1-03",
+      domain: "d1",
+      lesson: "d1-start-lambda",
+      level: "beginner",
+      prompt: "What is AWS Lambda?",
+      options: [
+        "A service that runs your code when an event happens, without you managing any servers",
+        "A database for storing customer records",
+        "A tool for drawing architecture diagrams",
+        "A physical server you buy from AWS and keep in your office",
+      ],
+      answer: [0],
+      explanation:
+        "Lambda runs small pieces of code, called functions, in response to events. AWS handles the machines, and you pay only for the time your code actually runs.",
+    },
+    {
+      id: "dva3-b1-04",
+      domain: "d1",
+      lesson: "d1-start-lambda",
+      level: "beginner",
+      prompt: "A photo is uploaded to Amazon S3, and a Lambda function then makes a small thumbnail of it. What started the function?",
+      options: [
+        "The upload event from S3",
+        "A person clicking Run in the AWS console for every photo",
+        "The function was running all day, checking for new photos",
+        "A nightly backup job",
+      ],
+      answer: [0],
+      explanation:
+        "Lambda functions are triggered by events. Here the event is \"a new photo arrived in S3\". The function wakes up, does its one job, and stops.",
+    },
+    {
+      id: "dva3-b1-05",
+      domain: "d1",
+      lesson: "d1-start-data",
+      level: "beginner",
+      prompt: "Each item in a DynamoDB table has a key, such as an order ID. What is the key for?",
+      options: [
+        "Finding the item quickly, like the label on a folder in a filing cabinet",
+        "Encrypting the item so nobody can read it",
+        "Setting the price of the item",
+        "Choosing which programming language can read the item",
+      ],
+      answer: [0],
+      explanation:
+        "The key is how DynamoDB knows where an item lives. Give it the order ID and it goes straight to that one item, instead of searching through everything.",
+    },
+    {
+      id: "dva3-b1-06",
+      domain: "d1",
+      lesson: "d1-start-data",
+      level: "beginner",
+      prompt: "Why would an app keep a copy of popular data in a cache?",
+      options: [
+        "Reading from fast memory is much quicker than asking the database every time",
+        "A cache can never lose data, so it's safer than a database",
+        "Databases can't store data that's popular",
+        "A cache makes the data permanent",
+      ],
+      answer: [0],
+      explanation:
+        "A cache is like a sticky note with an answer you need often. The app checks the note first and only goes to the database when the note doesn't have the answer. The trade-off is that a note can go out of date.",
+    },
+    {
+      id: "dva3-b1-07",
+      domain: "d1",
+      lesson: "d1-start-cloud-apps",
+      level: "beginner",
+      prompt: "Your app needs to ask an AI model to summarize a customer's message. Which AWS service lets your code call an AI model like this?",
+      options: [
+        "Amazon Bedrock",
+        "Amazon SQS",
+        "Amazon DynamoDB",
+        "Amazon S3",
+      ],
+      answer: [0],
+      explanation:
+        "Amazon Bedrock gives your code access to AI models from several companies through one API. SQS is a queue, DynamoDB is a database, and S3 stores files, so none of them generate text.",
+    },
+
     // ── Patterns ──
     {
       id: "d1-01",
@@ -364,7 +563,7 @@ export default defineDomain({
       ],
       answer: [0],
       explanation:
-        "SNS-to-SQS fanout decouples the services: the order service publishes and returns, and each queue holds messages until its consumer is healthy again. Longer timeouts and more retries keep the tight coupling.",
+        "Fanout from SNS to SQS decouples the services. The order service publishes one message and returns straight away, and each queue holds its messages until that service is healthy again. Longer timeouts and more retries keep the services tightly tied together.",
     },
     {
       id: "d1-02",
@@ -380,7 +579,7 @@ export default defineDomain({
       ],
       answer: [0],
       explanation:
-        "Externalizing session state makes the tier stateless, so any instance can serve any user. Sticky sessions still lose the session when the instance is terminated.",
+        "Moving sessions off the servers makes the web tier stateless, so any instance can serve any user. Sticky sessions don't help here: when the instance is terminated, its sessions go with it.",
     },
     {
       id: "d1-03",
@@ -396,7 +595,7 @@ export default defineDomain({
       ],
       answer: [0],
       explanation:
-        "Step Functions orchestrates multi-step workflows with built-in Retry, Catch, Choice states, and callback waits. Standard workflows can run for up to a year and show each execution's history.",
+        "Step Functions coordinates multi-step workflows. It has built-in Retry, Catch, and Choice states, and it can wait for a callback such as a human approval. Standard workflows run for up to a year and keep a visual history of each run.",
     },
     {
       id: "d1-04",
@@ -412,7 +611,7 @@ export default defineDomain({
       ],
       answer: [0],
       explanation:
-        "Fanout gives every service its own copy of the event in its own queue. With a single shared queue, each message is consumed by only one of the competing consumers.",
+        "Fanout gives each service its own copy of the event in its own queue, so one can fail and retry without touching the others. With one shared queue, each message goes to only one of the services.",
     },
     {
       id: "d1-06",
@@ -426,7 +625,7 @@ export default defineDomain({
         ["Choreography", "Services react to events with no central coordinator"],
         ["Orchestration", "A central coordinator tells each service what to do and when"],
       ],
-      explanation: "API Gateway → Lambda is synchronous; SQS is asynchronous; EventBridge rules enable choreography; Step Functions provides orchestration.",
+      explanation: "API Gateway calling Lambda is synchronous, and SQS is asynchronous. With EventBridge rules, services choreograph themselves. With Step Functions, one coordinator orchestrates them.",
     },
     {
       id: "d1-07",
@@ -437,7 +636,7 @@ export default defineDomain({
       options: ["Express workflows", "Standard workflows", "Standard workflows with a Wait state", "Activities polled by Amazon EC2 workers"],
       answer: [0],
       explanation:
-        "Express workflows are built for high-volume, short-duration (up to 5 minutes) event processing and are priced by executions and duration. Standard workflows are priced per state transition and suit long-running, exactly-once work.",
+        "Express workflows are built for huge numbers of short runs (up to 5 minutes each), and you pay by run count and duration. Standard workflows charge per state transition and suit long-running work that must happen exactly once.",
     },
     // ── Messaging ──
     {
@@ -454,7 +653,7 @@ export default defineDomain({
       ],
       answer: [0],
       explanation:
-        "The default visibility timeout is 30 seconds. When processing takes longer, the message becomes visible again and another consumer receives it. Raise the timeout or call ChangeMessageVisibility during long work.",
+        "The default visibility timeout is 30 seconds. If processing takes 60, the message becomes visible again halfway through and another consumer picks it up. Raise the timeout, or call ChangeMessageVisibility during long work.",
     },
     {
       id: "d1-10",
@@ -471,7 +670,7 @@ export default defineDomain({
       ],
       answer: [0, 1],
       explanation:
-        "An SQS dead-letter queue is another SQS queue of the same type. The source queue's redrive policy moves a message there after it has been received maxReceiveCount times without being deleted.",
+        "An SQS dead-letter queue is just another SQS queue of the same type. The source queue's redrive policy moves a message there once it has been received maxReceiveCount times without being deleted.",
     },
     {
       id: "d1-11",
@@ -487,7 +686,7 @@ export default defineDomain({
       ],
       answer: [0],
       explanation:
-        "FIFO queues preserve order within a message group and deduplicate messages. Using the account ID as the group ID keeps per-account order while letting different accounts process in parallel. One group for everything would serialize all accounts.",
+        "FIFO queues keep order within each message group and remove duplicates. Using the account ID as the group ID keeps each account in order while different accounts run in parallel. One group for everything would force every account into a single line.",
     },
     {
       id: "d1-12",
@@ -504,7 +703,7 @@ export default defineDomain({
       ],
       answer: [0, 1],
       explanation:
-        "The partition key decides the shard. A low-cardinality key creates a hot shard; a better key spreads writes, and resharding adds capacity. Retention and enhanced fan-out affect storage and reads, not write throughput.",
+        "The partition key decides which shard a record goes to. A key with few values piles writes onto one shard. A key with more values spreads them out, and splitting the shard adds capacity. Retention and enhanced fan-out affect storage and reading, not writing.",
     },
     {
       id: "d1-14",
@@ -519,7 +718,7 @@ export default defineDomain({
         "AWS CloudTrail trails with event selectors",
       ],
       answer: [0],
-      explanation: "EventBridge rules filter events by content using event patterns and deliver matches to targets, with no routing code to write or run.",
+      explanation: "EventBridge rules match events by their content using event patterns, and send the matches to targets. There's no routing code for you to write or run.",
     },
     {
       id: "d1-15",
@@ -529,7 +728,7 @@ export default defineDomain({
         "A bug caused a consumer to mishandle events delivered through an Amazon EventBridge event bus during the past two days. After the fix, the team wants to reprocess those events. What should the team have configured?",
       options: ["An EventBridge archive, then start a replay for the affected time window", "An SQS delay queue", "A longer Lambda timeout", "An Amazon SNS FIFO topic"],
       answer: [0],
-      explanation: "EventBridge archives store events that match a pattern; a replay sends archived events from a chosen time range back to the bus.",
+      explanation: "An EventBridge archive stores the events that match a pattern. A replay sends archived events from a time range you choose back onto the bus, so the fixed consumer can process them again.",
     },
     {
       id: "d1-16",
@@ -539,7 +738,7 @@ export default defineDomain({
         "A company ingests clickstream data in real time. Three applications must each read the same records in order, and an analytics job must be able to re-read the last 24 hours of records. Which service fits?",
       options: ["Amazon Kinesis Data Streams", "Amazon SQS standard queue", "Amazon SNS standard topic", "Amazon SES"],
       answer: [0],
-      explanation: "Kinesis Data Streams keeps records for the retention period, preserves order within a shard, and lets several consumers read the same records independently. An SQS message is deleted once consumed.",
+      explanation: "Kinesis Data Streams keeps records for the retention period, in order within each shard. Several apps can read the same records, each at its own pace. An SQS message is gone once a consumer deletes it.",
     },
     {
       id: "d1-62",
@@ -549,7 +748,7 @@ export default defineDomain({
         "An application emits thousands of JSON log records per second. The records must land in Amazon S3 in batches for later analysis, and the team doesn't want to write or run any consumer code. Which service should the producers send to?",
       options: ["Amazon Data Firehose with an S3 destination", "Amazon SQS standard queue polled by EC2 instances", "Amazon SNS with an email subscription", "AWS Step Functions Standard workflow"],
       answer: [0],
-      explanation: "Data Firehose buffers streaming records and delivers them to destinations such as S3, optionally transforming them with Lambda, with no consumers to manage. Kinesis Data Streams fits when you need custom real-time consumers.",
+      explanation: "Data Firehose collects streaming records in batches and delivers them to places like S3, and it can transform them with Lambda on the way. You don't run any consumers. Choose Kinesis Data Streams instead when you need your own real-time consumers.",
     },
     // ── APIs and resilience ──
     {
@@ -565,7 +764,7 @@ export default defineDomain({
         "Raise the Lambda timeout to 15 minutes and retry every second",
       ],
       answer: [0],
-      explanation: "Transient errors are best handled with capped retries that wait longer each time, with randomness so many clients don't retry at the same moment.",
+      explanation: "A 503 that clears after a few seconds is a temporary error. Retry a limited number of times, wait longer each time, and add a random extra wait so many clients don't retry at the same moment.",
     },
     {
       id: "d1-18",
@@ -580,7 +779,7 @@ export default defineDomain({
         "Remove error handling so the function fails sooner",
       ],
       answer: [0],
-      explanation: "A circuit breaker stops sending calls to a failing dependency for a period (state can be kept in DynamoDB or ElastiCache), protecting concurrency and latency until the dependency recovers.",
+      explanation: "A circuit breaker stops calling a failing service for a while, so invocations fail fast instead of waiting. That protects your concurrency and response times until the service recovers. You can keep the breaker's state in DynamoDB or ElastiCache.",
     },
     {
       id: "d1-19",
@@ -595,7 +794,7 @@ export default defineDomain({
         "Increase the queue's message retention period",
       ],
       answer: [0],
-      explanation: "Standard queues deliver at least once, so consumers must be idempotent. A conditional put on an idempotency key succeeds only the first time.",
+      explanation: "Standard queues deliver each message at least once, so your consumer has to be idempotent: safe to run twice. A conditional put on the order ID succeeds only the first time, so the second delivery is skipped.",
     },
     {
       id: "d1-20",
@@ -610,7 +809,7 @@ export default defineDomain({
         "Create a usage plan with API keys",
       ],
       answer: [0],
-      explanation: "Mapping templates in non-proxy (custom) integrations transform requests and responses, and can also override response status codes.",
+      explanation: "In a non-proxy (custom) integration, mapping templates reshape requests and responses, and can also change the response status code. Neither the clients nor the backend need to change.",
     },
     {
       id: "d1-21",
@@ -620,7 +819,7 @@ export default defineDomain({
         "A REST API in Amazon API Gateway should reject POST requests that are missing required fields before they reach the backend Lambda function. Which feature should the developer use?",
       options: ["A request validator with a JSON Schema model for the method", "A Lambda authorizer", "Stage variables", "API Gateway caching"],
       answer: [0],
-      explanation: "Request validation checks required parameters and validates the body against a model, returning 400 without invoking the backend.",
+      explanation: "A request validator checks required parameters and checks the body against a model. Bad requests get a 400 straight away, and your Lambda function is never called.",
     },
     {
       id: "d1-22",
@@ -635,7 +834,7 @@ export default defineDomain({
         "They retry 400 validation errors until the request succeeds",
       ],
       answer: [0, 1],
-      explanation: "SDKs sign every request with Signature Version 4 using credentials from the provider chain, and have built-in retry for retryable errors. IAM still authorizes every call.",
+      explanation: "The SDKs sign each request with Signature Version 4, using credentials from the provider chain, and retry the errors that are worth retrying. IAM still checks every call.",
     },
     {
       id: "d1-60",
@@ -651,7 +850,7 @@ export default defineDomain({
       ],
       answer: [0],
       explanation:
-        "SQS bodies and S3 objects are strings or bytes. Deserialize to work with the data, then serialize to the agreed format (here JSON) before handing it to the next service.",
+        "SQS message bodies and S3 objects are just strings or bytes. Deserialize the body to work with it as an object, then serialize it back to JSON before you hand it to the next service.",
     },
     {
       id: "d1-61",
@@ -666,7 +865,7 @@ export default defineDomain({
         "Move the recommendations service into the same deployment as the product service",
       ],
       answer: [0],
-      explanation: "Graceful degradation keeps the core function working when an optional dependency fails, using a fallback instead of an error. Unbounded retries and coupling make the outage spread.",
+      explanation: "Graceful degradation keeps the main feature working when an optional service fails, by using a fallback instead of an error. Endless retries and tighter coupling let the outage spread.",
     },
     // ── AI-assisted development ──
     {
@@ -683,7 +882,7 @@ export default defineDomain({
       ],
       answer: [0],
       explanation:
-        "Spec-driven development captures requirements (requirements.md), a design (design.md), and discrete tasks (tasks.md) before implementation, so the generated code can be checked against what was agreed.",
+        "Spec-driven development writes down the requirements (requirements.md), a design (design.md), and small tasks (tasks.md) before any code. You can then check the generated code against what everyone agreed.",
     },
     {
       id: "d1-53",
@@ -698,7 +897,7 @@ export default defineDomain({
         "Disable the assistant for files that don't follow the conventions",
       ],
       answer: [0],
-      explanation: "Steering files are Markdown files in the project (in Kiro, under .kiro/steering/) that give the agent persistent context such as coding standards, libraries, and project structure.",
+      explanation: "Steering files are Markdown files in the project (in Kiro, under .kiro/steering/). They give the agent lasting context, like coding standards, libraries, and project layout, so nobody has to repeat it.",
     },
     {
       id: "d1-54",
@@ -714,7 +913,7 @@ export default defineDomain({
       ],
       answer: [0, 1],
       explanation:
-        "Generated code can contain bugs, insecure patterns, or broad permissions. The developer remains responsible: review, test, and scan it. Real customer data must not go into prompts, and failing tests are a signal, not noise.",
+        "Generated code can contain bugs, insecure patterns, or overly broad permissions, and you're still responsible for it. Review it, test it, and scan it. Real customer data never goes into prompts, and a failing test is telling you something.",
     },
     {
       id: "d1-55",
@@ -724,7 +923,7 @@ export default defineDomain({
         "A developer wants a linter with auto-fix to run, and a matching unit test file to be created, automatically whenever the AI agent saves a new TypeScript source file. Which Kiro feature fits?",
       options: ["An agent hook triggered by the file save", "A steering file", "A Lambda layer", "An Amazon EventBridge schedule"],
       answer: [0],
-      explanation: "Agent hooks run a shell command or an agent prompt when an event occurs, such as after a file is saved, which automates repetitive follow-up work like linting or creating companion tests.",
+      explanation: "Agent hooks run a shell command or an agent prompt when something happens, like a file save. They're a good fit for repetitive follow-up work, such as linting or creating a matching test file.",
     },
     {
       id: "d1-64",
@@ -738,7 +937,7 @@ export default defineDomain({
         ["Security scanning", "Flags vulnerable patterns such as injection or hard-coded secrets"],
         ["Refactoring suggestion", "Proposes a cleaner structure that keeps behavior the same"],
       ],
-      explanation: "AI tools speed up each part of writing code, but every suggestion is still reviewed and tested by the developer.",
+      explanation: "AI tools speed up each part of writing code, but you still review and test every suggestion.",
     },
     // ── Amazon Bedrock in application code ──
     {
@@ -754,7 +953,7 @@ export default defineDomain({
         "A separate SDK per model provider, called directly over the internet",
       ],
       answer: [0],
-      explanation: "Converse normalizes requests (messages, system, inferenceConfig) and responses (output, stopReason, usage) across supported models, so switching is mostly a different modelId. InvokeModel takes model-specific bodies.",
+      explanation: "Converse uses the same request shape (messages, system, inferenceConfig) and response shape (output, stopReason, usage) across supported models. Switching models is mostly a new modelId. InvokeModel needs a different body for each model.",
     },
     {
       id: "d1-57",
@@ -770,7 +969,7 @@ export default defineDomain({
         "Increase the function's memory to 10,240 MB",
       ],
       answer: [0, 1],
-      explanation: "Streaming returns contentBlockDelta events while the model generates, which cuts time to first text. ConverseStream is authorized by bedrock:InvokeModelWithResponseStream, separate from bedrock:InvokeModel.",
+      explanation: "Streaming sends contentBlockDelta events while the model is still writing, so the first words show up much sooner. ConverseStream needs bedrock:InvokeModelWithResponseStream, which is a separate permission from bedrock:InvokeModel.",
     },
     {
       id: "d1-58",
@@ -786,7 +985,7 @@ export default defineDomain({
         "Remove the IAM role from the function",
       ],
       answer: [0, 1],
-      explanation: "A 429 means the account quota was exceeded for the moment. Backoff with jitter spreads retries out; a quota increase (or other throughput options) fixes sustained demand. Tight-loop retries make throttling worse.",
+      explanation: "A 429 means you're over your account's quota for the moment. Backoff with jitter spreads the retries out, and a quota increase or other throughput options fix steady high demand. Retrying in a tight loop makes the throttling worse.",
     },
     {
       id: "d1-59",
@@ -801,7 +1000,7 @@ export default defineDomain({
         "The prompt contains a stop sequence",
       ],
       answer: [0],
-      explanation: "stopReason max_tokens means the model hit the maxTokens limit. Raise the limit to fit the expected answer, or ask for a shorter output. A stop sequence would show stop_sequence, and throttling returns an error, not a partial answer.",
+      explanation: "stopReason max_tokens means the model hit your maxTokens limit and stopped. Raise the limit to fit the answer, or ask for a shorter one. A stop sequence would show stop_sequence, and throttling returns an error, not half an answer.",
     },
     {
       id: "d1-63",
@@ -816,7 +1015,7 @@ export default defineDomain({
         "Use the longest possible system prompt",
       ],
       answer: [0, 1],
-      explanation: "Bedrock on-demand pricing is per input and output token. Capping output and measuring usage keeps spend visible and bounded; sending unnecessary context raises input tokens on every call.",
+      explanation: "Bedrock on-demand pricing is per input and output token. Capping the output and measuring usage keeps spending visible and limited. Sending extra context you don't need raises the input tokens on every call.",
     },
     {
       id: "d1-65",
@@ -830,7 +1029,7 @@ export default defineDomain({
         ["AccessDeniedException (403)", "Check the caller's IAM permissions for the model"],
         ["ServiceUnavailable (503)", "Retry with backoff; the service is under temporary load"],
       ],
-      explanation: "Retry transient errors (429, 5xx). Client errors (400, 403) need a code or permission fix.",
+      explanation: "Retry the temporary errors, 429 and 5xx. Client errors like 400 and 403 need a fix to the code or the permissions.",
     },
     // ── Lambda configuration ──
     {
@@ -846,7 +1045,7 @@ export default defineDomain({
         "Use provisioned concurrency to extend the timeout",
       ],
       answer: [0],
-      explanation: "Lambda's maximum timeout is 900 seconds (15 minutes). Longer work needs containers on Fargate or a workflow that splits it into shorter steps.",
+      explanation: "Lambda can run for 900 seconds (15 minutes) at most, whatever the memory or concurrency settings. Longer work needs a container on Fargate, or a workflow that splits it into shorter steps.",
     },
     {
       id: "d1-25",
@@ -862,7 +1061,7 @@ export default defineDomain({
       ],
       answer: [0],
       explanation:
-        "Lambda's network interfaces in a VPC have no public IP, even in a public subnet. Outbound internet access goes through a NAT gateway in a public subnet. AWS services can also be reached through VPC endpoints.",
+        "Lambda's network interfaces in a VPC never get a public IP, even in a public subnet. Internet traffic has to go through a NAT gateway in a public subnet. For AWS services, you can use VPC endpoints instead.",
     },
     {
       id: "d1-26",
@@ -871,7 +1070,7 @@ export default defineDomain({
       prompt: "Ten Lambda functions use the same internal validation library. The team wants to update the library once without rebuilding every function's package. What should they use?",
       options: ["A Lambda layer", "A Lambda extension", "Environment variables", "Reserved concurrency"],
       answer: [0],
-      explanation: "Layers package shared libraries or runtimes that many functions reference. A function can use up to five layers.",
+      explanation: "A layer packages libraries or a runtime that many functions can share, so you update it in one place. A function can use up to five layers.",
     },
     {
       id: "d1-28",
@@ -881,7 +1080,7 @@ export default defineDomain({
         "The same Lambda code is deployed to dev, test, and prod, but each environment writes to a different DynamoDB table. How should the developer provide the table name without changing code between environments?",
       options: ["Set the table name in an environment variable for each function", "Hard-code all three names and pick one at random", "Store the name in /tmp", "Create a separate code branch per environment"],
       answer: [0],
-      explanation: "Environment variables hold configuration that changes between environments. Sensitive values belong in Secrets Manager or Parameter Store instead.",
+      explanation: "Environment variables hold settings that change between environments, like a table name. Sensitive values, like passwords, belong in Secrets Manager or Parameter Store instead.",
     },
     {
       id: "d1-30",
@@ -891,7 +1090,7 @@ export default defineDomain({
         "A team wants every Lambda function to send telemetry to a third-party monitoring tool and to cache secrets locally, without changing each function's handler code. What should they add?",
       options: ["Lambda extensions, packaged as layers", "More reserved concurrency", "A function URL", "An Amazon SQS dead-letter queue"],
       answer: [0],
-      explanation: "Extensions run alongside the function in its execution environment and integrate with monitoring, observability, security, and secrets tools. They're usually delivered as layers.",
+      explanation: "Extensions run alongside your function in the same execution environment. They plug in monitoring, security, and secrets tools without touching your handler, and they're usually shipped as layers.",
     },
     // ── Lambda invocation and errors ──
     {
@@ -907,7 +1106,7 @@ export default defineDomain({
         "A longer function timeout",
       ],
       answer: [0],
-      explanation: "Destinations for asynchronous invocations send the event plus invocation details such as the error. A function DLQ would keep only the original event payload.",
+      explanation: "For asynchronous invocations, a destination receives the event plus details about the run, including the error and stack trace. A function DLQ would keep only the original event.",
     },
     {
       id: "d1-32",
@@ -921,7 +1120,7 @@ export default defineDomain({
         "It returns the error to the event source, which must retry",
       ],
       answer: [0],
-      explanation: "For asynchronous invocations Lambda retries function errors twice by default. You can lower the retry count and the maximum event age, and send failures to a destination or DLQ.",
+      explanation: "For asynchronous invocations, Lambda retries a function error twice by default. You can lower the retry count and the maximum event age, and send failures to a destination or a DLQ.",
     },
     {
       id: "d1-33",
@@ -936,7 +1135,7 @@ export default defineDomain({
         "Switch the queue to short polling",
       ],
       answer: [0],
-      explanation: "With partial batch responses, Lambda deletes the successful messages and returns only the listed failures to the queue.",
+      explanation: "With partial batch responses, your function tells Lambda which messages failed. Lambda deletes the successful ones and puts only the failed ones back on the queue.",
     },
     {
       id: "d1-34",
@@ -951,7 +1150,7 @@ export default defineDomain({
         "Increase the number of shards",
       ],
       answer: [0],
-      explanation: "Stream event source mappings retry a failing batch until it succeeds or expires. Bisecting isolates the bad record, retry limits stop the loop, and the on-failure destination records it.",
+      explanation: "For streams, Lambda keeps retrying a failing batch until it succeeds or the records expire, which stalls the shard. Bisecting finds the bad record, a retry limit ends the loop, and the on-failure destination keeps a copy of it.",
     },
     {
       id: "d1-35",
@@ -965,7 +1164,7 @@ export default defineDomain({
         "Lambda retries the invocation, up to two more times",
         "After the final failure, Lambda sends the event to the on-failure destination",
       ],
-      explanation: "The caller gets an immediate acknowledgement; retries and failure handling happen inside Lambda.",
+      explanation: "The caller gets an answer right away. The retries and the failure handling all happen inside Lambda, after the caller has moved on.",
     },
     {
       id: "d1-37",
@@ -981,7 +1180,7 @@ export default defineDomain({
         "Configure Amazon S3 event notifications",
       ],
       answer: [0, 1],
-      explanation: "DynamoDB Streams captures item-level changes in order, and Lambda polls the stream to process them in near real time.",
+      explanation: "DynamoDB Streams records every item change in order. Lambda reads the stream and updates the index within seconds, with no servers or schedules to manage.",
     },
     // ── DynamoDB ──
     {
@@ -997,7 +1196,7 @@ export default defineDomain({
         "Add a local secondary index on status",
       ],
       answer: [0],
-      explanation: "With only three key values, most traffic lands on one partition (a hot partition). A key with many distinct values spreads load evenly.",
+      explanation: "With only three possible key values, most traffic lands on one partition, called a hot partition. A key with many distinct values, like order ID, spreads the load evenly.",
     },
     {
       id: "d1-39",
@@ -1006,7 +1205,7 @@ export default defineDomain({
       prompt: "An application performs 50 strongly consistent reads per second. Each item is 7 KB. How many read capacity units must be provisioned?",
       options: ["100", "50", "88", "200"],
       answer: [0],
-      explanation: "7 KB rounds up to 8 KB, which is two 4 KB units per read. 2 × 50 = 100 RCU.",
+      explanation: "7 KB rounds up to 8 KB, which is two 4 KB units per read. Two units times 50 reads per second gives 100 RCU.",
     },
     {
       id: "d1-40",
@@ -1015,7 +1214,7 @@ export default defineDomain({
       prompt: "An application writes 20 items per second to a DynamoDB table. Each item is 3.5 KB. How many write capacity units are needed?",
       options: ["80", "20", "70", "160"],
       answer: [0],
-      explanation: "3.5 KB rounds up to 4 KB, which is 4 WCU per write. 4 × 20 = 80 WCU.",
+      explanation: "3.5 KB rounds up to 4 KB, so each write costs 4 WCU. Four units times 20 writes per second gives 80 WCU.",
     },
     {
       id: "d1-42",
@@ -1030,7 +1229,7 @@ export default defineDomain({
         "BatchGetItem for every possible date",
       ],
       answer: [0],
-      explanation: "A Query uses the key condition to read only matching items. A Scan reads the whole table and filters afterward, consuming capacity for every item read.",
+      explanation: "A Query uses the key condition to read only the matching items. A Scan reads the whole table and filters afterwards, so you pay capacity for every item it reads.",
     },
     {
       id: "d1-43",
@@ -1040,7 +1239,7 @@ export default defineDomain({
         "An existing Users table has partition key userId. A new feature must look up users by email address with low latency. What should the developer do?",
       options: ["Add a global secondary index with email as its partition key", "Add a local secondary index on email", "Scan the table and filter by email", "Create a second table and copy data manually"],
       answer: [0],
-      explanation: "GSIs can use a different partition key and can be added to an existing table. LSIs must share the table's partition key and can only be created with the table.",
+      explanation: "A global secondary index (GSI) can use a different partition key, like email, and you can add it to an existing table. A local secondary index (LSI) must share the table's partition key and can only be created with the table.",
     },
     {
       id: "d1-44",
@@ -1050,7 +1249,7 @@ export default defineDomain({
         "Before creating a table, a developer knows the application must query each customer's items sorted by a second attribute, and those queries need strongly consistent reads. Which index type fits?",
       options: ["A local secondary index defined when the table is created", "A global secondary index added later", "A DynamoDB Accelerator (DAX) cluster", "A sparse global secondary index"],
       answer: [0],
-      explanation: "An LSI keeps the table's partition key with an alternate sort key and supports strongly consistent reads. GSIs support only eventually consistent reads.",
+      explanation: "An LSI keeps the table's partition key and adds a different sort key, and it supports strongly consistent reads. A GSI only supports eventually consistent reads.",
     },
     {
       id: "d1-45",
@@ -1065,7 +1264,7 @@ export default defineDomain({
         "Increasing read capacity units",
       ],
       answer: [0, 1],
-      explanation: "A condition expression rejects a write if the item changed since it was read. Transactions apply a group of writes atomically.",
+      explanation: "A condition expression rejects a write if the item changed since you read it. That's called optimistic locking. Transactions apply a group of writes all together or not at all.",
     },
     // ── Caching and data stores ──
     {
@@ -1081,7 +1280,7 @@ export default defineDomain({
         "Cached entries never need a TTL",
       ],
       answer: [0, 1],
-      explanation: "Lazy loading fills the cache on misses, so it holds only requested data but can serve stale values. A TTL limits how stale they get.",
+      explanation: "Lazy loading fills the cache only when there's a miss. So it holds only data someone asked for, but that data can go stale. A TTL limits how stale it can get.",
     },
     {
       id: "d1-48",
@@ -1091,7 +1290,7 @@ export default defineDomain({
         "A product price shown from an Amazon ElastiCache cluster must never be stale after the price is updated in the database. Which caching strategy should the developer use?",
       options: ["Write-through: update the cache whenever the database is written", "Lazy loading with a 24-hour TTL", "No TTL and no cache updates", "Cache only on application start-up"],
       answer: [0],
-      explanation: "Write-through keeps the cache in step with every write, at the cost of extra write work and caching data that might never be read.",
+      explanation: "Write-through updates the cache on every database write, so readers never see an old price. The cost is extra work on each write, and caching some data nobody reads.",
     },
     {
       id: "d1-49",
@@ -1101,7 +1300,7 @@ export default defineDomain({
         "A read-heavy application on DynamoDB needs microsecond read latency for frequently read items, with minimal code changes. Which solution meets these requirements?",
       options: ["DynamoDB Accelerator (DAX)", "A global secondary index", "Strongly consistent reads", "Amazon S3 Transfer Acceleration"],
       answer: [0],
-      explanation: "DAX is an in-memory cache compatible with the DynamoDB API, so the application mostly switches clients. It serves eventually consistent reads from memory.",
+      explanation: "DAX is an in-memory cache that speaks the DynamoDB API, so the app mostly just switches clients. It serves eventually consistent reads from memory in microseconds.",
     },
     {
       id: "d1-50",
@@ -1110,7 +1309,7 @@ export default defineDomain({
       prompt: "Session records in a DynamoDB table should be deleted automatically 24 hours after creation, without consuming write capacity or running a cleanup job. What should the developer use?",
       options: ["DynamoDB Time to Live (TTL) on an expiry timestamp attribute", "A scheduled Lambda function that scans and deletes", "S3 Lifecycle rules", "DynamoDB Streams"],
       answer: [0],
-      explanation: "TTL deletes items after the epoch timestamp in the TTL attribute passes, at no extra cost. Deletion happens in the background, usually within a few days of expiry.",
+      explanation: "TTL deletes an item once the epoch timestamp in its TTL attribute has passed, at no extra cost. Deletion happens in the background, usually within a few days of expiry.",
     },
     {
       id: "d1-51",
@@ -1119,7 +1318,7 @@ export default defineDomain({
       prompt: "Application log files in Amazon S3 must move to a cheaper storage class after 30 days and be deleted after 1 year. What is the simplest solution?",
       options: ["An S3 Lifecycle configuration with a transition rule and an expiration rule", "A Lambda function that copies and deletes objects nightly", "S3 Versioning", "S3 Cross-Region Replication"],
       answer: [0],
-      explanation: "Lifecycle rules transition and expire objects on a schedule with no code.",
+      explanation: "S3 Lifecycle rules move objects to cheaper storage and delete them on a schedule. You don't write or run any code.",
     },
     {
       id: "d1-52",
@@ -1133,43 +1332,43 @@ export default defineDomain({
         ["Ad hoc SQL queries on files already stored in Amazon S3", "Amazon Athena"],
         ["Sub-millisecond in-memory cache for sessions and hot data", "Amazon ElastiCache"],
       ],
-      explanation: "Pick a purpose-built store by access pattern rather than forcing one database to do everything.",
+      explanation: "Pick a store built for each way you use data, instead of forcing one database to do everything.",
     },
   ],
 
   cards: [
-    { id: "s-lambda", domain: "d1", kind: "service", term: "AWS Lambda", definition: "Run code on events without managing servers; up to 15 minutes per invocation" },
-    { id: "s-apigw", domain: "d1", kind: "service", term: "Amazon API Gateway", definition: "Create, secure, and publish REST, HTTP, and WebSocket APIs" },
-    { id: "s-dynamodb", domain: "d1", kind: "service", term: "Amazon DynamoDB", definition: "Serverless key-value and document database" },
-    { id: "s-sqs", domain: "d1", kind: "service", term: "Amazon SQS", definition: "Message queue that decouples producers and consumers" },
-    { id: "s-sns", domain: "d1", kind: "service", term: "Amazon SNS", definition: "Pub/sub topics that push messages to many subscribers" },
-    { id: "s-eventbridge", domain: "d1", kind: "service", term: "Amazon EventBridge", definition: "Event bus with content-based routing rules, schedules, and replay" },
-    { id: "s-stepfunctions", domain: "d1", kind: "service", term: "AWS Step Functions", definition: "Orchestrate workflows as state machines with retries and branching" },
-    { id: "s-kinesis", domain: "d1", kind: "service", term: "Amazon Kinesis Data Streams", definition: "Ordered, replayable real-time data streams split into shards" },
-    { id: "s-elasticache", domain: "d1", kind: "service", term: "Amazon ElastiCache", definition: "Managed in-memory cache (Redis OSS, Valkey, Memcached)" },
-    { id: "s-dax", domain: "d1", kind: "service", term: "DynamoDB Accelerator (DAX)", definition: "In-memory cache for DynamoDB with microsecond reads" },
-    { id: "s-opensearch", domain: "d1", kind: "service", term: "Amazon OpenSearch Service", definition: "Full-text search and log analytics" },
-    { id: "s-athena", domain: "d1", kind: "service", term: "Amazon Athena", definition: "Serverless SQL queries over data in S3" },
-    { id: "s-s3", domain: "d1", kind: "service", term: "Amazon S3", definition: "Object storage with events, lifecycle rules, and presigned URLs" },
-    { id: "s-kiro", domain: "d1", kind: "service", term: "Kiro", definition: "AI development tool with specs, steering files, agent hooks, and an IDE and CLI" },
-    { id: "s-bedrock", domain: "d1", kind: "service", term: "Amazon Bedrock", definition: "Call foundation models from many providers through one managed API" },
-    { id: "s-firehose", domain: "d1", kind: "service", term: "Amazon Data Firehose", definition: "Buffers streaming data and delivers it to S3, OpenSearch Service, and other destinations" },
-    { id: "s-quick", domain: "d1", kind: "service", term: "Amazon Quick", definition: "AI-powered assistant for work: research, business insights, automation, and no-code apps" },
-    { id: "c-visibility", domain: "d1", kind: "concept", term: "Visibility timeout", definition: "How long SQS hides a received message; default 30 s, max 12 h" },
-    { id: "c-dlq", domain: "d1", kind: "concept", term: "Dead-letter queue", definition: "Where messages go after maxReceiveCount failed receives" },
-    { id: "c-fifo", domain: "d1", kind: "concept", term: "SQS FIFO queue", definition: "Ordered per message group ID, deduplicated within 5 minutes" },
-    { id: "c-rcu", domain: "d1", kind: "concept", term: "Read capacity unit", definition: "1 strongly consistent (or 2 eventual) reads/s of up to 4 KB" },
-    { id: "c-gsi", domain: "d1", kind: "concept", term: "Global secondary index", definition: "Different partition key; add any time; eventually consistent reads" },
-    { id: "c-lazy", domain: "d1", kind: "concept", term: "Lazy loading", definition: "Fill the cache on a miss; only requested data, may be stale" },
-    { id: "c-writethrough", domain: "d1", kind: "concept", term: "Write-through", definition: "Update the cache on every database write; always fresh" },
-    { id: "c-idempotency", domain: "d1", kind: "concept", term: "Idempotency", definition: "Processing the same request twice has the same effect as once" },
-    { id: "c-destinations", domain: "d1", kind: "concept", term: "Lambda Destinations", definition: "Send async results or failures, with details, to SQS, SNS, Lambda, or EventBridge" },
-    { id: "c-spec", domain: "d1", kind: "concept", term: "Spec-driven development", definition: "Requirements → design → tasks, agreed before the AI agent writes code" },
-    { id: "c-steering", domain: "d1", kind: "concept", term: "Steering files", definition: "Project Markdown files that give an AI agent persistent conventions and context" },
-    { id: "c-converse", domain: "d1", kind: "concept", term: "Converse API", definition: "One request/response shape across Bedrock models; needs bedrock:InvokeModel" },
-    { id: "c-conversestream", domain: "d1", kind: "concept", term: "ConverseStream", definition: "Streams text deltas as generated; needs bedrock:InvokeModelWithResponseStream" },
-    { id: "c-maxtokens", domain: "d1", kind: "concept", term: "maxTokens", definition: "Caps response length and cost; hitting it gives stopReason max_tokens" },
-    { id: "c-graceful", domain: "d1", kind: "concept", term: "Graceful degradation", definition: "Serve a reduced or cached response when an optional dependency fails" },
+    { id: "s-lambda", domain: "d1", kind: "service", term: "AWS Lambda", definition: "Runs your code when an event happens, with no servers to manage. Each run can last up to 15 minutes." },
+    { id: "s-apigw", domain: "d1", kind: "service", term: "Amazon API Gateway", definition: "Creates, secures, and publishes REST, HTTP, and WebSocket APIs." },
+    { id: "s-dynamodb", domain: "d1", kind: "service", term: "Amazon DynamoDB", definition: "A serverless key-value and document database." },
+    { id: "s-sqs", domain: "d1", kind: "service", term: "Amazon SQS", definition: "A message queue between senders and receivers, so neither has to wait for the other." },
+    { id: "s-sns", domain: "d1", kind: "service", term: "Amazon SNS", definition: "Publish a message to a topic and SNS pushes a copy to every subscriber." },
+    { id: "s-eventbridge", domain: "d1", kind: "service", term: "Amazon EventBridge", definition: "An event bus that routes events by their content, runs schedules, and can replay past events." },
+    { id: "s-stepfunctions", domain: "d1", kind: "service", term: "AWS Step Functions", definition: "Runs multi-step workflows as state machines, with retries and branching built in." },
+    { id: "s-kinesis", domain: "d1", kind: "service", term: "Amazon Kinesis Data Streams", definition: "Real-time data streams split into shards. Records stay in order per shard and can be read again." },
+    { id: "s-elasticache", domain: "d1", kind: "service", term: "Amazon ElastiCache", definition: "A managed in-memory cache running Redis OSS, Valkey, or Memcached." },
+    { id: "s-dax", domain: "d1", kind: "service", term: "DynamoDB Accelerator (DAX)", definition: "An in-memory cache for DynamoDB with microsecond reads." },
+    { id: "s-opensearch", domain: "d1", kind: "service", term: "Amazon OpenSearch Service", definition: "Full-text search and log analytics." },
+    { id: "s-athena", domain: "d1", kind: "service", term: "Amazon Athena", definition: "Run SQL queries on data in S3, with no servers to manage." },
+    { id: "s-s3", domain: "d1", kind: "service", term: "Amazon S3", definition: "Object storage for files, with event notifications, lifecycle rules, and presigned URLs." },
+    { id: "s-kiro", domain: "d1", kind: "service", term: "Kiro", definition: "An AI development tool with specs, steering files, and agent hooks, in an IDE and a CLI." },
+    { id: "s-bedrock", domain: "d1", kind: "service", term: "Amazon Bedrock", definition: "Call foundation models from many providers through one managed API." },
+    { id: "s-firehose", domain: "d1", kind: "service", term: "Amazon Data Firehose", definition: "Collects streaming data in batches and delivers it to S3, OpenSearch Service, and other destinations." },
+    { id: "s-quick", domain: "d1", kind: "service", term: "Amazon Quick", definition: "An AI assistant for work: research, business insights, automation, and no-code apps." },
+    { id: "c-visibility", domain: "d1", kind: "concept", term: "Visibility timeout", definition: "How long SQS hides a message after someone receives it. Default 30 seconds, max 12 hours." },
+    { id: "c-dlq", domain: "d1", kind: "concept", term: "Dead-letter queue", definition: "A side queue for messages that failed maxReceiveCount times, so you can inspect them." },
+    { id: "c-fifo", domain: "d1", kind: "concept", term: "SQS FIFO queue", definition: "Keeps messages in order per message group ID, and drops duplicates sent within 5 minutes." },
+    { id: "c-rcu", domain: "d1", kind: "concept", term: "Read capacity unit", definition: "One strongly consistent read per second of up to 4 KB, or two eventually consistent ones." },
+    { id: "c-gsi", domain: "d1", kind: "concept", term: "Global secondary index", definition: "An index with a different partition key. You can add it any time, and its reads are eventually consistent." },
+    { id: "c-lazy", domain: "d1", kind: "concept", term: "Lazy loading", definition: "Fill the cache only on a miss. It holds only requested data, which may be stale." },
+    { id: "c-writethrough", domain: "d1", kind: "concept", term: "Write-through", definition: "Update the cache on every database write, so it's always fresh." },
+    { id: "c-idempotency", domain: "d1", kind: "concept", term: "Idempotency", definition: "Running the same request twice has the same effect as running it once." },
+    { id: "c-destinations", domain: "d1", kind: "concept", term: "Lambda Destinations", definition: "Send the result or failure of an async run, with details, to SQS, SNS, Lambda, or EventBridge." },
+    { id: "c-spec", domain: "d1", kind: "concept", term: "Spec-driven development", definition: "Agree on requirements, then a design, then tasks, before the AI agent writes any code." },
+    { id: "c-steering", domain: "d1", kind: "concept", term: "Steering files", definition: "Markdown files in the project that give an AI agent lasting conventions and context." },
+    { id: "c-converse", domain: "d1", kind: "concept", term: "Converse API", definition: "One request and response shape for Bedrock models that support messages. Needs bedrock:InvokeModel." },
+    { id: "c-conversestream", domain: "d1", kind: "concept", term: "ConverseStream", definition: "Streams text back as it's generated. Needs bedrock:InvokeModelWithResponseStream." },
+    { id: "c-maxtokens", domain: "d1", kind: "concept", term: "maxTokens", definition: "Caps the length and cost of an answer. Hitting it gives stopReason max_tokens." },
+    { id: "c-graceful", domain: "d1", kind: "concept", term: "Graceful degradation", definition: "Serve a simpler or cached response when an optional service fails." },
   ],
 
   challenges: [
@@ -1178,9 +1377,9 @@ export default defineDomain({
       domain: "d1",
       lesson: "d1-bedrock",
       title: "Make the request succeed safely",
-      goal: "Get a complete answer from Bedrock during a throttling burst: least-privilege role, no PII in the prompt, maxTokens between what the answer needs and the 1,024 budget, and retries that back off.",
-      hint: "Immediate retries all land inside the throttling window. And check stopReason: max_tokens means the answer was cut off.",
-      takeaway: "A safe Bedrock call = role scoped to the model ARN, sensitive data removed before sending, a sensible maxTokens cap, and backoff with jitter for 429s.",
+      goal: "Get a complete answer from Bedrock during a throttling burst. Use a least-privilege role, keep personal data out of the prompt, set maxTokens between what the answer needs and the 1,024 budget, and retry with backoff.",
+      hint: "Instant retries all land inside the throttling window. And check stopReason: max_tokens means the answer was cut off.",
+      takeaway: "A safe Bedrock call has four parts: a role scoped to the model ARN, sensitive data removed before sending, a sensible maxTokens cap, and backoff with jitter for 429s.",
       render: (onSolved) => <BedrockLab goal="safe" onSolved={onSolved} />,
     },
     {
@@ -1188,9 +1387,9 @@ export default defineDomain({
       domain: "d1",
       lesson: "d1-dynamodb",
       title: "Provision the right capacity",
-      goal: "Pick any workload and provision exactly the RCU and WCU it needs: no throttling, no idle capacity.",
-      hint: "Round item size up to 4 KB for reads and 1 KB for writes, multiply by the rate, then halve for eventual or double for transactional.",
-      takeaway: "Capacity planning is just rounding and multiplying. Under-provisioning throttles; over-provisioning wastes money.",
+      goal: "Pick any workload and provision exactly the RCU and WCU it needs, so there's no throttling and no idle capacity.",
+      hint: "Round the item size up to 4 KB for reads and 1 KB for writes, then multiply by the rate. Halve it for eventual reads, or double it for transactions.",
+      takeaway: "Capacity planning is just rounding and multiplying. Too little capacity throttles you, and too much wastes money.",
       render: (onSolved) => <DynamoCapacityLab goal="provision" onSolved={onSolved} />,
     },
     {
@@ -1198,9 +1397,9 @@ export default defineDomain({
       domain: "d1",
       lesson: "d1-messaging",
       title: "Process it exactly once",
-      goal: "Send a healthy message that is processed exactly once and deleted, with no duplicates.",
+      goal: "Send a healthy message that gets processed exactly once and then deleted, with no duplicates.",
       hint: "The message must stay hidden for the whole time the consumer is working on it.",
-      takeaway: "Set the visibility timeout above your processing time, plus a buffer. Otherwise SQS hands the same message to another consumer.",
+      takeaway: "Set the visibility timeout above your processing time, with some to spare. Otherwise SQS hands the same message to another consumer.",
       render: (onSolved) => <SqsLab goal="once" onSolved={onSolved} />,
     },
     {
@@ -1209,8 +1408,8 @@ export default defineDomain({
       lesson: "d1-messaging",
       title: "Quarantine the poison message",
       goal: "Make the always-failing message end up in a dead-letter queue instead of looping forever.",
-      hint: "A redrive policy needs to be switched on, with a maxReceiveCount.",
-      takeaway: "A DLQ with a sensible maxReceiveCount stops one bad message from wasting consumer time and keeps it for debugging.",
+      hint: "Switch on a redrive policy and give it a maxReceiveCount.",
+      takeaway: "A DLQ with a sensible maxReceiveCount stops one bad message from wasting your consumers' time, and keeps it so you can debug it.",
       render: (onSolved) => <SqsLab goal="dlq" onSolved={onSolved} />,
     },
   ],

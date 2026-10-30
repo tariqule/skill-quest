@@ -44,13 +44,13 @@ function reachable(h: Heap): number[] {
 type OpId = "alias" | "copy" | "deep" | "append" | "inner" | "concat" | "iadd";
 
 const OPS: { id: OpId; code: string; needsB: boolean; note: string }[] = [
-  { id: "alias", code: "b = a", needsB: false, note: "Bind b to the same object as a. No copy is made." },
-  { id: "copy", code: "b = a.copy()", needsB: false, note: "New outer list, but its items are the same objects (shallow)." },
-  { id: "deep", code: "b = copy.deepcopy(a)", needsB: false, note: "New outer list and new copies of every nested list." },
-  { id: "append", code: "b.append(5)", needsB: true, note: "Mutates the object b points to." },
-  { id: "inner", code: "b[2].append(9)", needsB: true, note: "Mutates the nested list that b[2] points to." },
-  { id: "concat", code: "b = b + [6]", needsB: true, note: "Builds a NEW list and rebinds b. The old object is untouched." },
-  { id: "iadd", code: "b += [7]", needsB: true, note: "For lists, += extends the SAME object in place." },
+  { id: "alias", code: "b = a", needsB: false, note: "Points b at the same object as a. Nothing is copied." },
+  { id: "copy", code: "b = a.copy()", needsB: false, note: "Makes a new outer list, but its items are the same objects as a's. That's a shallow copy." },
+  { id: "deep", code: "b = copy.deepcopy(a)", needsB: false, note: "Makes a new outer list and new copies of every nested list inside it." },
+  { id: "append", code: "b.append(5)", needsB: true, note: "Changes, in place, the object that b points to." },
+  { id: "inner", code: "b[2].append(9)", needsB: true, note: "Changes, in place, the nested list that b[2] points to." },
+  { id: "concat", code: "b = b + [6]", needsB: true, note: "Builds a brand new list and moves b to it. The old list isn't touched." },
+  { id: "iadd", code: "b += [7]", needsB: true, note: "For lists, += adds to the same list in place. No new list is made." },
 ];
 
 function apply(h: Heap, op: OpId): Heap {
@@ -122,7 +122,7 @@ export function AliasLab({ goal, onSolved }: GoalProps<"deep" | "outer">) {
 
   return (
     <div>
-      <LabHeader title="Names point at objects" hint="Python names are labels on objects. Run lines on b and see whether a changes too." />
+      <LabHeader title="Names point at objects" hint="In Python, a name is a label stuck on an object. Run lines that use b and watch whether a changes too." />
       <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
         <div className="grid content-start gap-2">
           {OPS.map((op) => (
@@ -273,7 +273,7 @@ export function GeneratorLab({ goal, onSolved }: GoalProps<"exhaust" | "predict"
 
   return (
     <div>
-      <LabHeader title="Generator stepper" hint="Each next() resumes the function until the next yield, then freezes it again. Predict what comes out." />
+      <LabHeader title="Generator stepper" hint="Each next() carries on from where the function paused, runs to the next yield, and pauses again. Guess what comes out before you step." />
       <div className="mb-3 flex flex-wrap items-center gap-2 text-sm text-slate-300">
         <span className="font-mono">gen = countdown(</span>
         {[1, 2, 3, 4].map((n) => (

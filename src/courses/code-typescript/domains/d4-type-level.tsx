@@ -1,4 +1,4 @@
-import { CodeBlock, CodeCompare, Tiles } from "@/components/learn/blocks";
+import { CodeBlock, CodeCompare, Flow, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 
 /** Module 4: mapped and conditional types, strict-mode options, and declaration files. */
@@ -11,7 +11,7 @@ export default defineDomain({
     weight: 20,
     emoji: "🏯",
     color: "#f472b6",
-    summary: "Mapped types and key remapping, conditional types, infer, distribution, the strict flags, declaration files, and shipping types.",
+    summary: "Building new types from old ones with mapped and conditional types and infer, choosing the right strict settings in tsconfig, and writing and shipping declaration files.",
   },
 
   tasks: [
@@ -22,6 +22,82 @@ export default defineDomain({
   ],
 
   lessons: [
+    // ── Start here ──
+    {
+      id: "d4-b-alias",
+      level: "beginner",
+      check: ["ts-b4-01", "ts-b4-02"],
+      task: "4.1",
+      title: "Giving a type a name",
+      visual: (
+        <CodeBlock
+          lang="ts"
+          code={`type Point = { x: number; y: number };
+type Size = "small" | "medium" | "large";
+
+const home: Point = { x: 2, y: 5 };
+const shirt: Size = "medium";`}
+        />
+      ),
+      points: [
+        "Writing `{ x: number; y: number }` every time gets tiring. You can give it a name once and reuse it.",
+        "The keyword `type` does that: `type Point = { x: number; y: number }`. It's like saving a contact in your phone instead of typing the number each time.",
+        "After that, `Point` works anywhere a type goes, such as on a variable or a function parameter.",
+        "A named type is called a type alias. Later in this module you'll see how to build new types out of existing ones.",
+      ],
+      tip: "Start type names with a capital letter, like `Point` or `Size`, so they stand out from ordinary variables.",
+    },
+    {
+      id: "d4-b-tsconfig",
+      level: "beginner",
+      check: ["ts-b4-03", "ts-b4-04"],
+      task: "4.3",
+      title: "The settings file and strict mode",
+      visual: (
+        <Flow
+          color="#f472b6"
+          steps={[
+            { icon: "⚙️", label: "tsconfig.json", sub: "Your project's settings" },
+            { icon: "🛡️", label: "\"strict\": true", sub: "Turns on the careful checks" },
+            { icon: "🔍", label: "npx tsc", sub: "Checks every file" },
+            { icon: "✅", label: "Errors listed", sub: "Fix them before you ship" },
+          ]}
+        />
+      ),
+      points: [
+        "A TypeScript project keeps its settings in a file called `tsconfig.json`. It's like the settings screen on a washing machine.",
+        "The most important setting is `\"strict\": true`. It switches on a group of extra checks that catch many more bugs.",
+        "You run the checker with `npx tsc`. It reads the settings, checks every file, and lists anything that's wrong.",
+      ],
+      tip: "Turn on `strict` from day one in a new project. Adding it later to a big codebase is much more work.",
+    },
+    {
+      id: "d4-b-missing",
+      level: "beginner",
+      check: ["ts-b4-05", "ts-b4-06"],
+      task: "4.3",
+      title: "When a value might be missing",
+      visual: (
+        <CodeBlock
+          lang="ts"
+          code={`function greet(name?: string) {
+  // name is string | undefined here
+  return "Hi " + (name ?? "friend");
+}
+
+greet("Ada"); // "Hi Ada"
+greet();      // "Hi friend"`}
+        />
+      ),
+      points: [
+        "In JavaScript, a missing value is usually `undefined` or `null`. Using one by mistake is one of the most common crashes.",
+        "With `strict` on, TypeScript keeps track of values that might be missing and makes you handle them.",
+        "A quick way to handle them is `??`. `name ?? \"friend\"` means \"use `name`, but if it's missing, use \"friend\" instead\".",
+      ],
+      tip: "When TypeScript says a value is \"possibly undefined\", it's pointing at a real crash waiting to happen. Give it a fallback or check it first.",
+    },
+
+    // ── Junior and up ──
     {
       id: "d4-mapped",
       level: "senior",
@@ -43,12 +119,12 @@ type G = Getters<{ name: string }>;  // { getName: () => string }`}
         />
       ),
       points: [
-        "A mapped type builds a new object type by iterating over a union of keys, usually keyof T.",
-        "Add modifiers with ? and readonly; remove them with -? and -readonly.",
-        "Mapping over keyof T keeps the original modifiers (that's how Pick and Partial preserve readonly).",
-        "The as clause renames keys, often with template literal types; mapping a key to never removes it.",
+        "A mapped type builds a new object type by going through a union of keys one at a time, usually `keyof T`.",
+        "You add modifiers with `?` and `readonly`, and remove them with `-?` and `-readonly`.",
+        "Mapping over `keyof T` keeps the original modifiers. That's how `Pick` and `Partial` keep `readonly` intact.",
+        "An `as` clause renames keys, often using template literal types. If you map a key to `never`, it's removed.",
       ],
-      tip: "Writing Partial or Readonly from scratch is a common warm-up. Start with { [K in keyof T]: T[K] } and add the modifier.",
+      tip: "Writing `Partial` or `Readonly` from scratch is a common warm-up. Start with `{ [K in keyof T]: T[K] }` and add the modifier.",
     },
     {
       id: "d4-conditional",
@@ -71,8 +147,8 @@ type E = ElementOf<string[]>;       // string`}
           <Tiles
             cols={4}
             tiles={[
-              { icon: "➖", title: "Exclude<T, U>", text: "Members of T not assignable to U", color: "#f472b6" },
-              { icon: "🎯", title: "Extract<T, U>", text: "Members of T assignable to U", color: "#f472b6" },
+              { icon: "➖", title: "Exclude<T, U>", text: "Members of T that don't fit U", color: "#f472b6" },
+              { icon: "🎯", title: "Extract<T, U>", text: "Members of T that fit U", color: "#f472b6" },
               { icon: "🚫", title: "NonNullable<T>", text: "T without null and undefined", color: "#f472b6" },
               { icon: "⏳", title: "Awaited<T>", text: "Unwraps nested promises", color: "#f472b6" },
             ]}
@@ -80,12 +156,12 @@ type E = ElementOf<string[]>;       // string`}
         </div>
       ),
       points: [
-        "A conditional type picks one branch based on assignability, like a ternary for types.",
-        "When the checked type is a naked type parameter, the conditional distributes over each union member.",
-        "Wrap both sides in a tuple ([T] extends [U]) to check the union as a whole.",
-        "infer declares a type variable to capture part of the matched type.",
+        "A conditional type picks one of two types depending on whether one type fits another. It works like the `? :` operator, but for types.",
+        "When the type being checked is a bare type parameter, the condition runs separately for each member of a union. This is called distribution.",
+        "To check the union as a whole, wrap both sides in a tuple: `[T] extends [U]`.",
+        "`infer` declares a new type variable that captures part of the type being matched.",
       ],
-      tip: "Exclude is literally T extends U ? never : T. Explaining that shows you understand distribution and never in one breath.",
+      tip: "`Exclude` is just `T extends U ? never : T`. Explaining that shows you understand distribution and `never` in one go.",
     },
     {
       id: "d4-strict",
@@ -100,17 +176,17 @@ type E = ElementOf<string[]>;       // string`}
             { icon: "🛡️", title: "In strict", text: "strictNullChecks, noImplicitAny, strictFunctionTypes, strictBindCallApply, strictPropertyInitialization, useUnknownInCatchVariables, alwaysStrict, noImplicitThis", color: "#34d399" },
             { icon: "🔬", title: "Stricter, opt-in", text: "noUncheckedIndexedAccess (index reads may be undefined), exactOptionalPropertyTypes (? doesn't mean | undefined)", color: "#fbbf24" },
             { icon: "🧱", title: "Build safety", text: "isolatedModules and verbatimModuleSyntax flag code that single-file transpilers (esbuild, SWC, Babel) can't emit correctly", color: "#38bdf8" },
-            { icon: "⏩", title: "Speed trade-off", text: "skipLibCheck skips .d.ts files: faster builds, but errors in declaration files go unreported", color: "#f87171" },
+            { icon: "⏩", title: "Speed trade-off", text: "skipLibCheck skips .d.ts files. Builds get faster, but errors in declaration files go unreported", color: "#f87171" },
           ]}
         />
       ),
       points: [
-        "strict is a bundle of flags; new flags are added to it over time, so upgrading TypeScript can surface new errors.",
-        "strictNullChecks is the big one: without it, null and undefined are assignable to everything.",
-        "noUncheckedIndexedAccess and exactOptionalPropertyTypes are not part of strict.",
-        "Roll out strictness flag by flag, or folder by folder, with CI blocking new errors.",
+        "`strict` is a bundle of flags. New flags join the bundle over time, so upgrading TypeScript can surface new errors.",
+        "`strictNullChecks` matters most. Without it, `null` and `undefined` can be assigned to every type.",
+        "`noUncheckedIndexedAccess` and `exactOptionalPropertyTypes` are not part of `strict`. You turn them on separately.",
+        "Roll out strictness one flag or one folder at a time, with CI blocking any new errors.",
       ],
-      tip: "If asked which flag matters most, say strictNullChecks and give an example of the bug class it prevents.",
+      tip: "If someone asks which flag matters most, say `strictNullChecks` and give an example of the bugs it prevents.",
     },
     {
       id: "d4-declarations",
@@ -135,16 +211,74 @@ export {}; // makes this file a module` }}
         />
       ),
       points: [
-        ".d.ts files contain only types: no runtime code is emitted from them.",
-        "For an untyped package, first install @types/<name>; otherwise write a declare module block.",
-        "declare global augments global types (like Window) and must live in a module file.",
-        "Libraries should ship compiled JavaScript plus generated .d.ts files (declaration: true) and point to them from package.json.",
+        "A `.d.ts` file contains only types. No JavaScript is ever produced from it.",
+        "For a package with no types, first try installing `@types/<name>`. If that doesn't exist, write a `declare module` block.",
+        "`declare global` adds to global types like `Window`, and it has to live in a file that is a module.",
+        "A library should ship compiled JavaScript plus generated `.d.ts` files, using `declaration: true`, and point to them from package.json.",
       ],
-      tip: "Mention that declarations are promises the compiler can't check: a wrong .d.ts is a silent bug.",
+      tip: "Mention that declarations are promises the compiler can't check. A wrong `.d.ts` file is a silent bug.",
     },
   ],
 
   questions: [
+    // ── Start here ──
+    {
+      id: "ts-b4-01", domain: "d4", lesson: "d4-b-alias", level: "beginner", type: "fill",
+      prompt: "Fill the gap to give this object type the name `Point`.",
+      code: `{{1}} Point = { x: number; y: number };
+const p: Point = { x: 1, y: 2 };`, codeLang: "ts",
+      blanks: [{ options: ["type", "let", "function", "return"], answer: 0 }],
+      explanation: "The `type` keyword names a type so you can reuse it. `let` creates a variable that holds a value, not a type. `function` and `return` are for writing functions.",
+    },
+    {
+      id: "ts-b4-02", domain: "d4", lesson: "d4-b-alias", level: "beginner", type: "output",
+      prompt: "What does this print?",
+      code: `type Point = { x: number; y: number };
+const p: Point = { x: 2, y: 5 };
+console.log(p.x + p.y);`, codeLang: "ts",
+      answers: ["7"],
+      explanation: "`Point` is just a name for the shape. The object has `x` set to 2 and `y` set to 5, and adding them gives 7. The type name has no effect on what runs.",
+    },
+    {
+      id: "ts-b4-03", domain: "d4", lesson: "d4-b-tsconfig", level: "beginner",
+      prompt: "Which file holds a TypeScript project's settings?",
+      options: ["`tsconfig.json`", "`index.html`", "`settings.txt`", "`package-lock.json`"],
+      answer: [0],
+      explanation: "`tsconfig.json` tells the TypeScript checker how strict to be and which files to check. `index.html` is a web page, and `package-lock.json` records installed package versions.",
+    },
+    {
+      id: "ts-b4-04", domain: "d4", lesson: "d4-b-tsconfig", level: "beginner",
+      prompt: "What does `\"strict\": true` in tsconfig.json do?",
+      options: [
+        "Turns on a group of extra checks that catch more mistakes",
+        "Makes the code run faster",
+        "Stops anyone else from editing the project",
+        "Deletes files that have errors",
+      ],
+      answer: [0],
+      explanation: "`strict` switches on several careful checks at once, such as making you handle values that might be missing. It only affects checking, not how fast the code runs or who can edit it.",
+    },
+    {
+      id: "ts-b4-05", domain: "d4", lesson: "d4-b-missing", level: "beginner", type: "output",
+      prompt: "What does this print?",
+      code: `function greet(name?: string) {
+  return "Hi " + (name ?? "friend");
+}
+console.log(greet());`, codeLang: "ts",
+      answers: ["Hi friend"],
+      explanation: "`greet()` is called with no argument, so `name` is `undefined`. The `??` operator sees that and uses \"friend\" instead. The result is Hi friend.",
+    },
+    {
+      id: "ts-b4-06", domain: "d4", lesson: "d4-b-missing", level: "beginner", type: "fill",
+      prompt: "Fill the gap so `label` falls back to \"guest\" when `nickname` is missing.",
+      code: `function badge(nickname?: string) {
+  const label = nickname {{1}} "guest";
+  return label;
+}`, codeLang: "ts",
+      blanks: [{ options: ["??", "!!", "::", "=>"], answer: 0 }],
+      explanation: "`??` gives you the value on the left unless it's `null` or `undefined`, and then it uses the value on the right. `!!` turns a value into true or false, `::` isn't valid here, and `=>` is for arrow functions.",
+    },
+
     // ── Mapped types ──
     {
       id: "d4-01", domain: "d4", lesson: "d4-mapped", level: "intermediate",
@@ -153,7 +287,7 @@ export {}; // makes this file a module` }}
 type F = Flags<{ dark: string; beta: number }>;`, codeLang: "ts",
       options: ["`{ dark: boolean; beta: boolean }`", "`{ dark: string; beta: number }`", "`boolean[]`", "`{ [K: string]: boolean }`"],
       answer: [0],
-      explanation: "The mapped type iterates over the keys \"dark\" and \"beta\" and gives each one the type boolean.",
+      explanation: "The mapped type goes through the keys \"dark\" and \"beta\" and gives each one the type `boolean`.",
     },
     {
       id: "d4-02", domain: "d4", lesson: "d4-mapped", level: "senior",
@@ -162,7 +296,7 @@ type F = Flags<{ dark: string; beta: number }>;`, codeLang: "ts",
 type M = Mutable<{ readonly id: number; name?: string }>;`, codeLang: "ts",
       options: ["`{ id: number; name: string }`", "`{ readonly id: number; name?: string }`", "`{ id: number; name?: string }`", "`{ id: number; name: string | undefined }`"],
       answer: [0],
-      explanation: "-readonly removes readonly and -? removes optionality. Removing ? also removes the undefined that optionality added, so name is string. That's exactly how Required works.",
+      explanation: "`-readonly` removes `readonly`, and `-?` removes the optional marker. Removing `?` also removes the `undefined` it added, so `name` is a plain `string`. That's exactly how `Required` works.",
     },
     {
       id: "d4-03", domain: "d4", lesson: "d4-mapped", level: "senior",
@@ -178,7 +312,7 @@ type G = Getters<{ name: string; age: number }>;`, codeLang: "ts",
         "A type error: keys can't be renamed in a mapped type",
       ],
       answer: [0],
-      explanation: "The as clause remaps each key through a template literal type, and Capitalize upper-cases the first letter. `string & K` filters out symbol and number keys.",
+      explanation: "The `as` clause renames each key using a template literal type, and `Capitalize` upper-cases the first letter. `string & K` filters out symbol and number keys.",
     },
     {
       id: "d4-19", domain: "d4", lesson: "d4-mapped", level: "senior", type: "order",
@@ -189,7 +323,7 @@ type G = Getters<{ name: string; age: number }>;`, codeLang: "ts",
         "`  : T extends object ? { readonly [K in keyof T]: DeepReadonly<T[K]> }`",
         "`  : T;`",
       ],
-      explanation: "Functions are objects too, so they must be checked first, or the mapped type would turn them into empty object types. Objects recurse; primitives fall through unchanged.",
+      explanation: "Functions are objects too, so you have to check for them first. Otherwise the mapped type would turn them into empty object types. Objects recurse, and primitives fall through unchanged.",
     },
     // ── Conditional types ──
     {
@@ -200,7 +334,7 @@ type A = IsString<"hi">;
 type B = IsString<string | number>;`, codeLang: "ts",
       options: ["`\"yes\" | \"no\"`", "`\"no\"`", "`\"yes\"`", "`never`"],
       answer: [0],
-      explanation: "A conditional over a naked type parameter distributes: it runs once for string (\"yes\") and once for number (\"no\"), then unions the results.",
+      explanation: "A conditional over a bare type parameter distributes. It runs once for `string`, giving \"yes\", and once for `number`, giving \"no\", then joins the results into a union.",
     },
     {
       id: "d4-05", domain: "d4", lesson: "d4-conditional", level: "senior",
@@ -209,7 +343,7 @@ type B = IsString<string | number>;`, codeLang: "ts",
 type B = IsString<string | number>;`, codeLang: "ts",
       options: ["`\"no\"`", "`\"yes\" | \"no\"`", "`\"yes\"`", "`never`"],
       answer: [0],
-      explanation: "Wrapping T in a tuple stops distribution, so the whole union is checked at once. `[string | number]` isn't assignable to `[string]`, so the result is \"no\".",
+      explanation: "Wrapping `T` in a tuple stops distribution, so the whole union is checked at once. `[string | number]` doesn't fit `[string]`, so the result is \"no\".",
     },
     {
       id: "d4-06", domain: "d4", lesson: "d4-conditional", level: "senior",
@@ -219,7 +353,7 @@ type E = ElementOf<string[]>;
 type N = ElementOf<number>;`, codeLang: "ts",
       options: ["`E = string`, `N = never`", "`E = string[]`, `N = number`", "`E = string`, `N = number`", "`E = unknown`, `N = never`"],
       answer: [0],
-      explanation: "infer U captures the element type when T matches an array. number isn't an array, so the false branch gives never.",
+      explanation: "When `T` is an array, `infer U` captures the type of its items. `number` isn't an array, so the false branch gives `never`.",
     },
     {
       id: "d4-07", domain: "d4", lesson: "d4-conditional", level: "senior",
@@ -228,7 +362,7 @@ type N = ElementOf<number>;`, codeLang: "ts",
 type X = Unwrap<Promise<Promise<number>>>;`, codeLang: "ts",
       options: ["`Promise<number>`", "`number`", "`Promise<Promise<number>>`", "`never`"],
       answer: [0],
-      explanation: "Unwrap only peels one layer. The built-in Awaited is recursive, so `Awaited<Promise<Promise<number>>>` is number.",
+      explanation: "`Unwrap` only peels off one layer. The built-in `Awaited` keeps going, so `Awaited<Promise<Promise<number>>>` is `number`.",
     },
     {
       id: "d4-08", domain: "d4", lesson: "d4-conditional", level: "intermediate", type: "match",
@@ -239,7 +373,7 @@ type X = Unwrap<Promise<Promise<number>>>;`, codeLang: "ts",
         ["`NonNullable<string | null | undefined>`", "`string`"],
         ["`Awaited<Promise<number>>`", "`number`"],
       ],
-      explanation: "Exclude and Extract filter union members by assignability, NonNullable removes null and undefined, and Awaited unwraps promises.",
+      explanation: "`Exclude` and `Extract` filter union members by whether they fit the second type. `NonNullable` removes `null` and `undefined`, and `Awaited` unwraps promises.",
     },
     {
       id: "d4-22", domain: "d4", lesson: "d4-conditional", level: "staff",
@@ -251,7 +385,7 @@ type X = Unwrap<Promise<Promise<number>>>;`, codeLang: "ts",
         "Raise the compiler's recursion limit",
       ],
       answer: [0],
-      explanation: "Type-level code is code the whole team must maintain. Codegen or simpler types keep safety with readable errors and fast checks. ts-ignore and any remove the safety, and the recursion limit isn't configurable anyway.",
+      explanation: "Type-level code is code the whole team has to maintain. Code generation or simpler types keep the safety, with readable errors and fast checks. `@ts-ignore` and `any` remove the safety, and you can't configure the recursion limit anyway.",
     },
     // ── Strict ──
     {
@@ -263,7 +397,7 @@ type X = Unwrap<Promise<Promise<number>>>;`, codeLang: "ts",
   return n;
 }`, codeLang: "ts",
       answer: [3],
-      explanation: "An optional parameter is `string | undefined`. Line 2 handles that, but line 3 uses name directly: \"'name' is possibly 'undefined'\". Use n instead.",
+      explanation: "An optional parameter is `string | undefined`. Line 2 handles that, but line 3 uses `name` directly, so TypeScript reports \"'name' is possibly 'undefined'\". Use `n` instead.",
     },
     {
       id: "d4-10", domain: "d4", lesson: "d4-strict", level: "junior", type: "lines",
@@ -273,7 +407,7 @@ type X = Unwrap<Promise<Promise<number>>>;`, codeLang: "ts",
 }
 const s: number = sum(1, 2);`, codeLang: "ts",
       answer: [1],
-      explanation: "noImplicitAny (part of strict) rejects parameters whose type can't be inferred: \"Parameter 'a' implicitly has an 'any' type\". Annotate them: `(a: number, b: number)`.",
+      explanation: "`noImplicitAny`, which is part of `strict`, rejects parameters whose type can't be worked out. The error is \"Parameter 'a' implicitly has an 'any' type\". Add labels: `(a: number, b: number)`.",
     },
     {
       id: "d4-11", domain: "d4", lesson: "d4-strict", level: "senior", type: "lines",
@@ -283,14 +417,14 @@ const scores: Record<string, number> = { ada: 3 };
 const a = scores["ada"];
 const doubled = a * 2;`, codeLang: "ts",
       answer: [4],
-      explanation: "noUncheckedIndexedAccess makes index reads `number | undefined`, because any string key might be missing. Line 4 uses a without checking it first.",
+      explanation: "`noUncheckedIndexedAccess` makes index reads `number | undefined`, because any string key might be missing. Line 4 uses `a` without checking it first.",
     },
     {
       id: "d4-12", domain: "d4", lesson: "d4-strict", level: "intermediate",
       prompt: "Which flags does `strict: true` turn on? (Choose three.)",
       options: ["`strictNullChecks`", "`noImplicitAny`", "`strictFunctionTypes`", "`noUncheckedIndexedAccess`", "`exactOptionalPropertyTypes`"],
       answer: [0, 1, 2],
-      explanation: "strict includes strictNullChecks, noImplicitAny, strictFunctionTypes, and more. noUncheckedIndexedAccess and exactOptionalPropertyTypes are stricter opt-ins you must enable separately.",
+      explanation: "`strict` includes `strictNullChecks`, `noImplicitAny`, `strictFunctionTypes` and several more. `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes` are even stricter, and you have to turn them on separately.",
     },
     {
       id: "d4-13", domain: "d4", lesson: "d4-strict", level: "intermediate", type: "lines",
@@ -301,7 +435,7 @@ const doubled = a * 2;`, codeLang: "ts",
   id!: number;
 }`, codeLang: "ts",
       answer: [2],
-      explanation: "strictPropertyInitialization requires non-optional properties to be assigned in the constructor. email is optional, and `id!` uses a definite assignment assertion to opt out.",
+      explanation: "`strictPropertyInitialization` requires every non-optional property to be set in the constructor, and `name` never is. `email` is optional, and the `!` on `id` tells TypeScript you'll set it somewhere else.",
     },
     {
       id: "d4-18", domain: "d4", lesson: "d4-strict", level: "senior", type: "lines",
@@ -311,7 +445,7 @@ interface Prefs { theme?: "dark" | "light" }
 const a: Prefs = {};
 const b: Prefs = { theme: undefined };`, codeLang: "ts",
       answer: [4],
-      explanation: "With exactOptionalPropertyTypes, `theme?:` means \"may be missing\", not \"may be undefined\". Writing undefined explicitly is an error unless the type says `| undefined`.",
+      explanation: "With `exactOptionalPropertyTypes`, `theme?:` means \"may be left out\", not \"may be undefined\". Writing `undefined` explicitly is an error unless the type says `| undefined`.",
     },
     {
       id: "d4-23", domain: "d4", lesson: "d4-strict", level: "senior",
@@ -323,7 +457,7 @@ const b: Prefs = { theme: undefined };`, codeLang: "ts",
         "Resolution of @types packages",
       ],
       answer: [0],
-      explanation: "skipLibCheck skips checking declaration files. Your .ts code is still checked against them. It's a common, reasonable trade-off, but conflicting or broken type packages can slip through.",
+      explanation: "`skipLibCheck` skips checking declaration files. Your own `.ts` code is still checked against them. It's a common and reasonable trade-off, but broken or conflicting type packages can slip through.",
     },
     {
       id: "d4-20", domain: "d4", lesson: "d4-strict", level: "staff",
@@ -335,7 +469,7 @@ const b: Prefs = { theme: undefined };`, codeLang: "ts",
         "Keep strict off and rely on code review",
       ],
       answer: [0],
-      explanation: "An incremental ratchet keeps shipping, gives each team a manageable scope, and stops the count from growing. Mass suppressions hide real bugs, and long-lived branches rot.",
+      explanation: "Tightening step by step keeps the team shipping, gives each team a manageable amount of work, and stops the count from growing. Suppressing everything hides real bugs, and a long-lived branch goes stale.",
     },
     // ── Declarations ──
     {
@@ -343,7 +477,7 @@ const b: Prefs = { theme: undefined };`, codeLang: "ts",
       prompt: "What does a `.d.ts` file contain?",
       options: ["Type declarations only; it emits no JavaScript", "Compiled JavaScript with types inlined", "Runtime validation code for each type", "Source maps for TypeScript files"],
       answer: [0],
-      explanation: "Declaration files describe the shape of JavaScript that exists elsewhere: a library, a global, or your own compiled output.",
+      explanation: "A declaration file describes the shape of JavaScript that lives somewhere else, such as a library, a global, or your own compiled output. It never produces code.",
     },
     {
       id: "d4-15", domain: "d4", lesson: "d4-declarations", level: "intermediate",
@@ -355,7 +489,7 @@ const b: Prefs = { theme: undefined };`, codeLang: "ts",
         "Copy the library's source into your project",
       ],
       answer: [0],
-      explanation: "DefinitelyTyped often already has types. If not, a small hand-written module declaration covering the functions you use is quick and keeps strict mode on.",
+      explanation: "DefinitelyTyped, the community home of `@types` packages, often already has the types. If not, a small hand-written module declaration for the functions you use is quick and lets you keep `strict` on.",
     },
     {
       id: "d4-16", domain: "d4", lesson: "d4-declarations", level: "senior",
@@ -371,7 +505,7 @@ export {};`, codeLang: "ts",
         "It's required in every .d.ts file",
       ],
       answer: [0],
-      explanation: "A file without imports or exports is a global script, where `declare global` isn't allowed. An empty export turns it into a module so the augmentation is valid.",
+      explanation: "A file with no imports or exports is treated as a global script, and `declare global` isn't allowed there. An empty export turns the file into a module, so the addition to `Window` is valid.",
     },
     {
       id: "d4-17", domain: "d4", lesson: "d4-declarations", level: "junior", type: "match",
@@ -382,7 +516,7 @@ export {};`, codeLang: "ts",
         ["`declare global { interface Window { … } }`", "Adds properties to a global type"],
         ["`npm i -D @types/express`", "Installs community-maintained types"],
       ],
-      explanation: "declare never emits code: it tells the compiler something already exists. @types packages come from DefinitelyTyped.",
+      explanation: "`declare` never produces code. It tells the compiler that something already exists. `@types` packages come from DefinitelyTyped.",
     },
     {
       id: "d4-21", domain: "d4", lesson: "d4-declarations", level: "staff",
@@ -394,7 +528,7 @@ export {};`, codeLang: "ts",
         "A single bundled .d.ts with `any` for every export",
       ],
       answer: [0],
-      explanation: "JavaScript users need runnable JS, TypeScript users need declarations that match it. Shipping raw .ts forces every consumer's compiler settings onto your code.",
+      explanation: "JavaScript users need code they can run, and TypeScript users need declarations that match it. Shipping raw `.ts` files forces every consumer's compiler settings onto your code.",
     },
     {
       id: "d4-24", domain: "d4", lesson: "d4-declarations", level: "staff",
@@ -406,24 +540,24 @@ export {};`, codeLang: "ts",
         "`noEmitOnError: false`",
       ],
       answer: [0],
-      explanation: "Single-file transpilers can't see other files' types, so they can't tell whether a re-export is a type or a value. isolatedModules makes tsc reject those patterns so the build output is correct.",
+      explanation: "A tool that compiles one file at a time can't see other files' types, so it can't tell whether a re-export is a type or a value. `isolatedModules` makes `tsc` reject those patterns, so the build output comes out right.",
     },
   ],
 
   cards: [
-    { id: "t4-mapped", domain: "d4", kind: "concept", term: "Mapped type", definition: "{ [K in Keys]: … } builds an object type by iterating over a union of keys." },
-    { id: "t4-remap", domain: "d4", kind: "concept", term: "Key remapping (as)", definition: "Renames or filters keys in a mapped type; mapping a key to never removes it." },
-    { id: "t4-conditional", domain: "d4", kind: "concept", term: "Conditional type", definition: "T extends U ? X : Y picks a branch by assignability." },
-    { id: "t4-distributive", domain: "d4", kind: "concept", term: "Distributive conditional", definition: "A naked type parameter is checked per union member. Wrap in [T] to stop it." },
-    { id: "t4-infer", domain: "d4", kind: "service", term: "infer", definition: "Captures part of a matched type inside a conditional, e.g. T extends (infer U)[]." },
-    { id: "t4-exclude", domain: "d4", kind: "service", term: "Exclude<T, U>", definition: "Removes union members of T that are assignable to U." },
-    { id: "t4-extract", domain: "d4", kind: "service", term: "Extract<T, U>", definition: "Keeps union members of T that are assignable to U." },
-    { id: "t4-nonnullable", domain: "d4", kind: "service", term: "NonNullable<T>", definition: "T without null and undefined." },
-    { id: "t4-awaited", domain: "d4", kind: "service", term: "Awaited<T>", definition: "Recursively unwraps promise types, like await does." },
-    { id: "t4-strictnull", domain: "d4", kind: "service", term: "strictNullChecks", definition: "null and undefined are separate types that must be handled explicitly." },
-    { id: "t4-unchecked", domain: "d4", kind: "service", term: "noUncheckedIndexedAccess", definition: "Index reads include | undefined. Not part of strict." },
-    { id: "t4-isolated", domain: "d4", kind: "service", term: "isolatedModules", definition: "Flags code that single-file transpilers can't emit correctly." },
-    { id: "t4-dts", domain: "d4", kind: "concept", term: ".d.ts file", definition: "Declarations only: describes JavaScript that exists elsewhere, emits nothing." },
-    { id: "t4-declare-module", domain: "d4", kind: "service", term: "declare module", definition: "Declares the types of a module by name, e.g. an untyped npm package." },
+    { id: "t4-mapped", domain: "d4", kind: "concept", term: "Mapped type", definition: "`{ [K in Keys]: … }` builds an object type by going through a union of keys one at a time." },
+    { id: "t4-remap", domain: "d4", kind: "concept", term: "Key remapping (as)", definition: "Renames or filters keys in a mapped type. Mapping a key to `never` removes it." },
+    { id: "t4-conditional", domain: "d4", kind: "concept", term: "Conditional type", definition: "`T extends U ? X : Y` picks one branch depending on whether `T` fits `U`." },
+    { id: "t4-distributive", domain: "d4", kind: "concept", term: "Distributive conditional", definition: "A bare type parameter is checked once per union member. Wrap it as `[T]` to stop that." },
+    { id: "t4-infer", domain: "d4", kind: "service", term: "infer", definition: "Captures part of a matched type inside a conditional, for example `T extends (infer U)[]`." },
+    { id: "t4-exclude", domain: "d4", kind: "service", term: "Exclude<T, U>", definition: "Removes the members of union `T` that fit `U`." },
+    { id: "t4-extract", domain: "d4", kind: "service", term: "Extract<T, U>", definition: "Keeps only the members of union `T` that fit `U`." },
+    { id: "t4-nonnullable", domain: "d4", kind: "service", term: "NonNullable<T>", definition: "`T` with `null` and `undefined` taken out." },
+    { id: "t4-awaited", domain: "d4", kind: "service", term: "Awaited<T>", definition: "Unwraps promise types all the way down, the same way `await` does." },
+    { id: "t4-strictnull", domain: "d4", kind: "service", term: "strictNullChecks", definition: "Makes `null` and `undefined` separate types that you have to handle on purpose." },
+    { id: "t4-unchecked", domain: "d4", kind: "service", term: "noUncheckedIndexedAccess", definition: "Adds `| undefined` to every index read. It isn't part of `strict`." },
+    { id: "t4-isolated", domain: "d4", kind: "service", term: "isolatedModules", definition: "Flags code that tools compiling one file at a time can't output correctly." },
+    { id: "t4-dts", domain: "d4", kind: "concept", term: ".d.ts file", definition: "Declarations only. It describes JavaScript that exists somewhere else and produces no code." },
+    { id: "t4-declare-module", domain: "d4", kind: "service", term: "declare module", definition: "Declares the types of a module by name, for example an npm package that ships no types." },
   ],
 });

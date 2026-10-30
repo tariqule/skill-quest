@@ -161,7 +161,7 @@ export function SlidingWindowLab({ goal, onSolved }: GoalProps<"shortest">) {
 
   function record() {
     if (!ok) {
-      setMsg(`Sum ${sum} is below ${target}. This window doesn't qualify yet: expand right.`);
+      setMsg(`Sum ${sum} is below ${target}. This window isn't big enough yet, so grow it to the right.`);
       return;
     }
     const len = right - left + 1;
@@ -170,7 +170,7 @@ export function SlidingWindowLab({ goal, onSolved }: GoalProps<"shortest">) {
     setBest(next);
     const bestLen = next.r - next.l + 1;
     if (bestLen === optimal) {
-      setMsg(`✅ Length ${bestLen} is the shortest possible. Pointers moved ${moves} times; each moves at most n = ${WINDOW_NUMS.length} times, so this is O(n).`);
+      setMsg(`✅ Length ${bestLen} is the shortest possible. The pointers moved ${moves} times in total. Each can move at most ${WINDOW_NUMS.length} times, once per number, so this is O(n).`);
       if (goal === "shortest") onSolved?.();
     } else setMsg(better ? `Recorded length ${len}. Can you shrink further and still keep the sum ≥ ${target}?` : `Length ${len} isn't better than your best (${bestLen}).`);
   }

@@ -11,7 +11,7 @@ export default defineDomain({
     weight: 20,
     emoji: "🏞️",
     color: "#34d399",
-    summary: "Controlled vs uncontrolled inputs, lifting state up, context without prop drilling, and replacing unnecessary effects with plain render logic.",
+    summary: "How data moves through an app: form inputs, sharing state between components, context for data many components need, and when you can drop an effect.",
   },
 
   tasks: [
@@ -21,6 +21,71 @@ export default defineDomain({
   ],
 
   lessons: [
+    {
+      id: "d3-b-props",
+      level: "beginner",
+      task: "3.2",
+      title: "Props: passing data down",
+      check: ["react-b3-01", "react-b3-02"],
+      visual: (
+        <div className="grid gap-3">
+          <Flow
+            color="#34d399"
+            steps={[
+              { icon: "🏠", label: "Parent", sub: "Has the data" },
+              { icon: "📨", label: "Props", sub: "label=\"Sale\"" },
+              { icon: "🏷️", label: "Child", sub: "Shows what it was given" },
+            ]}
+          />
+          <CodeBlock
+            lang="jsx"
+            caption="One component, two results, because each copy gets different props."
+            code={`function Badge({ label }) {
+  return <span className="badge">{label}</span>;
+}
+
+<Badge label="New" />
+<Badge label="Sale" />`}
+          />
+        </div>
+      ),
+      points: [
+        "**Props** are the inputs you give a component. You write them like HTML attributes: `<Badge label=\"New\" />`.",
+        "It's like ordering a coffee. You say \"large, with oat milk\", and the barista makes exactly that. The component reads its props and shows the right thing.",
+        "Data flows one way, from a parent component down to its children. A child reads its props but doesn't change them.",
+        "The same component with different props gives different results, so one `Badge` can say \"New\" or \"Sale\".",
+      ],
+      tip: "When a child needs to tell its parent something, the parent passes down a function as a prop and the child calls it. You'll see this with `onClick` all the time.",
+    },
+    {
+      id: "d3-b-forms",
+      level: "beginner",
+      task: "3.1",
+      title: "Reading what the user types",
+      check: ["react-b3-03", "react-b3-04"],
+      visual: (
+        <CodeBlock
+          lang="jsx"
+          caption="Each key press saves the new text in state, and the greeting updates as you type."
+          code={`function NameBox() {
+  const [name, setName] = useState("");
+  return (
+    <>
+      <input value={name} onChange={(e) => setName(e.target.value)} />
+      <p>Hello, {name}</p>
+    </>
+  );
+}`}
+        />
+      ),
+      points: [
+        "Forms are how users give your app information: a name, a search term, a message.",
+        "A common React pattern keeps what the user types in state. Each time they type, `onChange` runs and saves the new text.",
+        "`e` is the event object React hands to your function, and `e.target.value` is the text in the box right now.",
+        "Because the text lives in state, the rest of the component can use it straight away, like showing \"Hello, Sam\" while you type.",
+      ],
+      tip: "Start text state as an empty string, `useState(\"\")`. That gives the input a real value from the very first render.",
+    },
     {
       id: "d3-forms",
       level: "junior",
@@ -65,12 +130,12 @@ export default defineDomain({
         />
       ),
       points: [
-        "Controlled: `value` comes from state and every keystroke goes through `onChange`. Use it for live validation, formatting, or UI that depends on the value.",
-        "Uncontrolled: set `defaultValue` and read the value when needed (a ref or `FormData`). Less code, fewer renders.",
-        "`value` without `onChange` makes a read-only input; `value={undefined}` makes it uncontrolled. Start text state at `\"\"`, not `undefined`.",
-        "Reusable inputs often support both, like native inputs: `value` + `onChange` or `defaultValue`.",
+        "In a **controlled** input, `value` comes from state and every key press goes through `onChange`. Use it when you need the value as the user types, for live checks or formatting.",
+        "In an **uncontrolled** input, the browser keeps the value. You set `defaultValue` and read the value when you need it, with a ref or `FormData`. It's less code and fewer renders.",
+        "Setting `value` without `onChange` makes the input read-only. Setting `value={undefined}` makes it uncontrolled. Start text state at `\"\"`, not `undefined`.",
+        "Reusable input components often support both styles, just like the browser's own inputs: `value` with `onChange`, or `defaultValue`.",
       ],
-      tip: "When asked which to use, don't say \"always controlled\". Say what each costs: controlled gives you the value on every keystroke; uncontrolled avoids re-renders and is enough when you only need the value on submit.",
+      tip: "When asked which to use, don't say \"always controlled\". Say what each costs. Controlled gives you the value on every key press. Uncontrolled avoids re-renders and is enough when you only need the value on submit.",
     },
     {
       id: "d3-lifting",
@@ -103,12 +168,12 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "When two siblings need the same data, move the state to their closest common parent and pass it down.",
-        "Children change shared state by calling a callback prop (inverse data flow).",
-        "Keep one source of truth: don't copy props into state, or the copy goes stale when the prop changes.",
-        "Pass `onClick={() => onDelete(id)}`, not `onClick={onDelete(id)}`, which calls it during render.",
+        "When two sibling components need the same data, move the state up to their closest shared parent and pass it down to both. This is called **lifting state up**.",
+        "Children change that shared state by calling a function the parent passed down as a prop.",
+        "Keep one source of truth. Don't copy a prop into state, because the copy won't update when the prop changes.",
+        "Write `onClick={() => onDelete(id)}`, not `onClick={onDelete(id)}`. The second one calls `onDelete` immediately, while rendering, instead of on click.",
       ],
-      tip: "Talk through \"Thinking in React\": find the minimal state, then ask \"which component owns it?\" before you write any code.",
+      tip: "Talk through the \"Thinking in React\" steps from the docs. Find the smallest set of state you need, then ask which component should own it, before you write any code.",
     },
     {
       id: "d3-context",
@@ -148,11 +213,11 @@ function Button() {
         </div>
       ),
       points: [
-        "Context removes prop drilling for data many components need: theme, current user, locale.",
-        "Try passing props or composing with `children` first; context makes data flow less explicit.",
-        "An inline object `value={{ user, setUser }}` is new on every provider render; wrap it in `useMemo` (or let the React Compiler do it).",
+        "**Prop drilling** is passing a prop through many layers that don't use it. **Context** avoids that for data lots of components need, like the theme, the signed-in user or the language.",
+        "Try plain props, or passing components as `children`, first. Context makes it harder to see where data comes from.",
+        "Writing `value={{ user, setUser }}` makes a new object every time the provider renders, so every reader re-renders. Wrap it in `useMemo`, or let the React Compiler do that.",
       ],
-      tip: "A good answer to \"context vs a state library?\": context transports a value; it doesn't give you selectors, so every consumer re-renders on every change.",
+      tip: "Asked about context versus a state library? Context only carries a value down the tree. It has no way to pick out one field, so every component reading it re-renders on every change.",
     },
     {
       id: "d3-no-effect",
@@ -191,16 +256,66 @@ const sorted = useMemo(
         </div>
       ),
       points: [
-        "If a value can be computed from props or state, compute it during render; don't store it in state and sync it with an effect.",
-        "Effects that set state cause an extra render pass and a frame of stale UI.",
-        "Logic that runs because the user did something belongs in that event's handler.",
-        "Effects are an escape hatch for synchronising with systems outside React.",
+        "If you can work a value out from props or state, do it while rendering. Don't store it in its own state and keep it in sync with an effect.",
+        "An effect that sets state causes a second render, and for a moment the screen shows the old value.",
+        "Code that runs because the user did something, like clicking Buy, belongs in that click's event handler.",
+        "Think of effects as an escape hatch, for syncing with things outside React.",
       ],
-      tip: "Interviewers often show an effect-heavy component and ask you to refactor. Start by deleting state that can be derived; most effects disappear with it.",
+      tip: "Interviewers often show a component full of effects and ask you to clean it up. Start by deleting state you can work out from other state. Most of the effects go with it.",
     },
   ],
 
   questions: [
+    {
+      id: "react-b3-01",
+      domain: "d3",
+      lesson: "d3-b-props",
+      level: "beginner",
+      prompt: "What does this show on the page?",
+      code: `function Hello({ name }) {
+  return <p>Hi, {name}!</p>;
+}
+
+<Hello name="Sam" />`,
+      codeLang: "jsx",
+      options: ["Hi, Sam!", "Hi, name!", "Hi, {name}!", "Nothing, because props need a database"],
+      answer: [0],
+      explanation: "`name` is a prop. The parent wrote `name=\"Sam\"`, so inside the component `name` holds \"Sam\" and the paragraph reads Hi, Sam!",
+    },
+    {
+      id: "react-b3-02",
+      domain: "d3",
+      lesson: "d3-b-props",
+      level: "beginner",
+      prompt: "Which way do props flow in React?",
+      options: ["From a parent component down to its children", "From a child up to its parent", "Sideways between any two components"],
+      answer: [0],
+      explanation: "Props always flow down. A parent decides what to pass and the child uses it. To send information back up, the parent gives the child a function to call.",
+    },
+    {
+      id: "react-b3-03",
+      domain: "d3",
+      lesson: "d3-b-forms",
+      level: "beginner",
+      prompt: "In `onChange={(e) => setName(e.target.value)}`, what is `e.target.value`?",
+      options: ["The text that's in the input box right now", "The name of the component", "How many times the user clicked", "A default value sent by the server"],
+      answer: [0],
+      explanation: "`e` is the change event and `e.target` is the input that changed. Its `value` is the current text in the box, which you then save into state.",
+    },
+    {
+      id: "react-b3-04",
+      type: "fill",
+      domain: "d3",
+      lesson: "d3-b-forms",
+      level: "beginner",
+      prompt: "Fill the gap so the text the user types is saved into state.",
+      code: `const [name, setName] = useState("");
+
+<input value={name} {{1}}={(e) => setName(e.target.value)} />`,
+      codeLang: "jsx",
+      blanks: [{ options: ["onChange", "onClick", "onType", "value"], answer: 0 }],
+      explanation: "`onChange` runs every time the text in the box changes. That's the moment you want to save the new text with `setName`.",
+    },
     {
       id: "d3-01",
       domain: "d3",
@@ -287,7 +402,7 @@ return <input value={name} onChange={(e) => setName(e.target.value)} />;`,
       codeLang: "jsx",
       options: ["Start the state with an empty string: `useState(\"\")`", "Add `defaultValue={name}`", "Use `onInput` instead of `onChange`", "Wrap the input in `memo`"],
       answer: [0],
-      explanation: "`value={undefined}` means uncontrolled; after the first keystroke it becomes a string and the input switches modes. Keep it controlled from the start with `\"\"`.",
+      explanation: "`value={undefined}` means uncontrolled. After the first key press it becomes a string, and the input switches modes. Keep it controlled from the start with `\"\"`.",
     },
     {
       id: "d3-06",
@@ -344,7 +459,7 @@ function Adder({ onAdd }) {
       codeLang: "jsx",
       options: ["10", "5", "3", "6"],
       answer: [0],
-      explanation: "Each click queues two updater functions (+2, +3), so each click adds 5: 0 → 5 → 10. The child changes the parent's state through the callback prop.",
+      explanation: "Each click queues two updater functions, one adding 2 and one adding 3, so every click adds 5. Two clicks take it from 0 to 5 to 10. The child changes the parent's state through the function it got as a prop.",
     },
     {
       id: "d3-09",
@@ -359,7 +474,7 @@ function Adder({ onAdd }) {
         "Pass the value down to the children as a prop",
         "Pass a callback down so the children can request changes",
       ],
-      explanation: "Move the state up, then wire the data down (props) and the events up (callbacks).",
+      explanation: "Move the state up to the shared parent. Then pass the data down as props, and pass functions down so children can report events back up.",
     },
     {
       id: "d3-10",
@@ -389,7 +504,7 @@ function Adder({ onAdd }) {
         "Replacing all local state",
       ],
       answer: [0],
-      explanation: "Context lets any component below a provider read a value directly. It's a transport mechanism, not a performance tool or a state manager.",
+      explanation: "Context lets any component below a provider read a value directly. It's a way to carry data, not a speed-up and not a full state manager.",
     },
     {
       id: "d3-12",
@@ -432,7 +547,7 @@ function App() {
         "Only in development",
       ],
       answer: [0],
-      explanation: "`memo` only compares props. Reading a context subscribes the component to it, so a new value re-renders it regardless.",
+      explanation: "`memo` only compares props. A component that reads a context is signed up for its changes, so a new context value re-renders it anyway.",
     },
     {
       id: "d3-14",
@@ -550,7 +665,7 @@ function App() {
         "Resetting all state when the `userId` prop changes",
       ],
       answer: [0, 1],
-      explanation: "Effects synchronise with external systems. Filtering is render logic, a submit is an event, and a reset is easiest with a `key`.",
+      explanation: "Effects are for syncing with outside systems. Filtering a list is something you do while rendering, a submit belongs in its event handler, and a reset is easiest with a `key`.",
     },
     {
       id: "d3-20",
@@ -588,7 +703,7 @@ useEffect(() => {
         "Decide which component should own each piece of state",
         "Add inverse data flow with callbacks",
       ],
-      explanation: "The React docs' process: structure first, then static data, then minimal state, then ownership, then wiring events upward.",
+      explanation: "This is the process from the React docs. Break the UI into components, build a static version, find the smallest state you need, decide who owns it, then wire events back up.",
     },
     {
       id: "d3-22",
@@ -619,18 +734,18 @@ useEffect(() => {
         "Keep the state, but switch to `useLayoutEffect`",
       ],
       answer: [0],
-      explanation: "Redundant state adds extra renders and sync bugs. Most derivations are cheap; memoize the few that aren't, based on measurement.",
+      explanation: "Extra state that copies other state adds renders and sync bugs. Most calculations are cheap. Memoize the few that aren't, once you've measured them.",
     },
   ],
 
   cards: [
-    { id: "c-d3-controlled", domain: "d3", kind: "concept", term: "Controlled input", definition: "Value comes from React state via `value`; every edit goes through `onChange`." },
-    { id: "c-d3-uncontrolled", domain: "d3", kind: "concept", term: "Uncontrolled input", definition: "The DOM keeps the value. Set `defaultValue`; read it with a ref or `FormData` when needed." },
-    { id: "c-d3-lifting", domain: "d3", kind: "concept", term: "Lifting state up", definition: "Move shared state to the closest common parent and pass value + callbacks down." },
+    { id: "c-d3-controlled", domain: "d3", kind: "concept", term: "Controlled input", definition: "The value comes from React state through `value`, and every edit goes through `onChange`." },
+    { id: "c-d3-uncontrolled", domain: "d3", kind: "concept", term: "Uncontrolled input", definition: "The browser keeps the value. You set `defaultValue`, then read it with a ref or `FormData` when you need it." },
+    { id: "c-d3-lifting", domain: "d3", kind: "concept", term: "Lifting state up", definition: "Move shared state up to the closest shared parent, then pass the value and the functions that change it down as props." },
     { id: "c-d3-inverse", domain: "d3", kind: "concept", term: "Inverse data flow", definition: "Children update parent-owned state by calling callback props." },
     { id: "c-d3-drilling", domain: "d3", kind: "concept", term: "Prop drilling", definition: "Passing a prop through many layers that don't use it, just to reach a deep child. Context or composition fixes it." },
     { id: "c-d3-derived", domain: "d3", kind: "concept", term: "Derived state", definition: "A value computable from props or state. Compute it during render instead of storing and syncing it." },
-    { id: "c-d3-source", domain: "d3", kind: "concept", term: "Single source of truth", definition: "Each piece of state has one owner; everything else reads from it." },
+    { id: "c-d3-source", domain: "d3", kind: "concept", term: "Single source of truth", definition: "Each piece of state has one owner, and everything else reads from it." },
     { id: "c-d3-createcontext", domain: "d3", kind: "service", term: "createContext", definition: "Creates a context with a default value. In React 19, render `<MyContext value={…}>` as the provider." },
     { id: "c-d3-usecontext", domain: "d3", kind: "service", term: "useContext", definition: "Reads the nearest provider's value and re-renders the component when it changes." },
     { id: "c-d3-formdata", domain: "d3", kind: "service", term: "FormData", definition: "Browser API that reads every named field of a form; React form Actions receive one." },

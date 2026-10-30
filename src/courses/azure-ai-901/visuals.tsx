@@ -124,15 +124,15 @@ const RESIDENCY: { id: Residency; label: string }[] = [
 
 const PATTERN: { id: Pattern; label: string }[] = [
   { id: "bursty", label: "📈 Variable, bursty traffic" },
-  { id: "steady", label: "🏭 Steady high volume, low latency variance" },
-  { id: "batch", label: "📦 Huge async job, not time-sensitive" },
+  { id: "steady", label: "🏭 Steady high volume that needs consistent speed" },
+  { id: "batch", label: "📦 A huge background job that isn't urgent" },
 ];
 
 const PICK: Record<Residency, Record<Pattern, { name: string; note: string }>> = {
   none: {
     bursty: { name: "Global Standard", note: "The default starting point: pay per token, newest models first, highest default quota." },
     steady: { name: "Global Provisioned", note: "Reserved capacity in provisioned throughput units (PTUs) for predictable throughput." },
-    batch: { name: "Global Batch", note: "Send a file of requests; 24-hour target turnaround at 50% less than Global Standard." },
+    batch: { name: "Global Batch", note: "Send a file of requests. It aims to finish within 24 hours and costs 50% less than Global Standard." },
   },
   zone: {
     bursty: { name: "Data Zone Standard", note: "Pay per token, processed only inside the Microsoft-defined data zone." },
@@ -246,7 +246,7 @@ export function CvTasks() {
         <div>
           <div className="text-lg font-bold text-sky-300">{tab.label}</div>
           <p className="mt-1 text-slate-300">{tab.text}</p>
-          <p className="mt-3 text-xs text-slate-500">Classic models (CNNs) learned with labeled images. Modern vision transformers and multimodal models also link images to text.</p>
+          <p className="mt-3 text-xs text-slate-500">Older models (CNNs) learned from labeled images. Newer vision transformers and multimodal models also connect images to text.</p>
         </div>
       </div>
     </div>

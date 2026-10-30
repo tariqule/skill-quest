@@ -21,7 +21,7 @@ export const moreQuestions: Question[] = [
       { options: ["-p", "-v", "-e", "--network"], answer: 0 },
     ],
     explanation:
-      "`-d` detaches the container so it runs in the background, and `-p host:container` publishes a port, so `8080:80` maps host port 8080 to container port 80. `-it` would attach your terminal, and `-v` and `-e` mount volumes and set environment variables.",
+      "`-d` detaches the container so it runs in the background. `-p host:container` publishes a port, so `8080:80` maps host port 8080 to container port 80. `-it` would attach your terminal instead, and `-v` and `-e` mount volumes and set environment variables.",
   },
   {
     id: "dkr-fx-02",
@@ -89,7 +89,7 @@ export const moreQuestions: Question[] = [
       { options: ["ALL", "NONE", "ROOT", "NET_ADMIN"], answer: 0 },
     ],
     explanation:
-      "UID/GID `1000:1000` is an unprivileged user (`root` and `0:0` are the same superuser, and `sudo` is not a user). `--cap-drop ALL` removes all capabilities, and you add back only what the app truly needs with `--cap-add`. `NET_ADMIN` is a capability, and dropping it alone would leave the rest.",
+      "User and group ID `1000:1000` is an unprivileged user. `root` and `0:0` are the same superuser, and `sudo` is not a user at all. `--cap-drop ALL` removes all capabilities, and you add back only what the app truly needs with `--cap-add`. `NET_ADMIN` is a capability, and dropping it alone would leave the rest.",
   },
   {
     id: "dkr-fx-06",
@@ -191,6 +191,6 @@ export const moreQuestions: Question[] = [
     codeLang: "yaml",
     answers: ["13"],
     explanation:
-      "25% of 10 is 2.5. `maxSurge` rounds up to 3 extra Pods, so the ceiling is 10 + 3 = 13. `maxUnavailable` rounds down to 2, so at least 8 Pods must stay available. Setting `maxUnavailable: 0` with a surge of 1 is the common zero-downtime choice.",
+      "25% of 10 is 2.5. `maxSurge` rounds up to 3 extra Pods, so the ceiling is 10 plus 3, which is 13. `maxUnavailable` rounds down to 2, so at least 8 Pods must stay available. Setting `maxUnavailable: 0` with a surge of 1 is the common zero-downtime choice.",
   },
 ];

@@ -1,4 +1,4 @@
-import { CodeBlock, Flow, Layers, ServiceRows, Tiles } from "@/components/learn/blocks";
+import { CodeBlock, Flow, Ladder, Layers, ServiceRows, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { AgentBuilderLab } from "../labs";
 import { FoundryMap, SchemaExtraction } from "../visuals";
@@ -108,17 +108,26 @@ for content in result.contents:
     print(content.fields)    # schema fields with values and confidence
 `;
 
+const FIRST_CALL_CODE = `
+response = client.responses.create(
+    model="my-chat",           # the name you gave your deployment
+    input="Say hello in French.",
+)
+print(response.output_text)  # Bonjour !
+`;
+
 export default defineDomain({
   domain: {
     id: "d2",
     number: 2,
-    name: "Implement AI solutions by using Microsoft Foundry",
+    name: "Building with Microsoft Foundry",
     world: "The Foundry Forge",
     // Official range is 55–60%; 58 keeps the two domains at 100.
     weight: 58,
     emoji: "🔨",
     color: "#f97316",
-    summary: "Prompts, deploying and calling models, agents, and lightweight Python apps for text, speech, vision, and information extraction.",
+    summary:
+      "Writing good prompts, deploying and calling models, building agents, and small Python apps that work with text, speech, images, and documents.",
   },
 
   tasks: [
@@ -164,6 +173,85 @@ export default defineDomain({
   ],
 
   lessons: [
+    // ───── Start here (beginner) ─────
+    {
+      id: "d2-b-foundry",
+      level: "beginner",
+      check: ["ai901-b2-01", "ai901-b2-02"],
+      task: "2.1",
+      title: "Microsoft Foundry: your AI workshop",
+      visual: (
+        <Ladder
+          rungs={[
+            { icon: "🏢", name: "Foundry resource", text: "The building. It holds the models, the billing, and the security." },
+            { icon: "🗂️", name: "Foundry project", text: "One workbench inside, for one job, such as a support bot." },
+            { icon: "🚀", name: "Deployment", text: "A model plugged in and switched on, ready to answer." },
+            { icon: "🧪", name: "Playground", text: "A test bench where you try prompts before writing any code." },
+          ]}
+        />
+      ),
+      points: [
+        "Azure is Microsoft's cloud: computers you rent over the internet instead of buying your own.",
+        "Microsoft Foundry is the part of Azure where you build with AI. Picture a workshop with a wall of tools and a few workbenches.",
+        "You don't train models yourself here. You pick a ready-made one from the catalog and deploy it, which means switching it on so your apps can use it.",
+        "Before writing code, you can chat with your deployed model in the playground to see how it behaves.",
+      ],
+      tip: "Keep the order in your head: resource, then project, then deployment, then playground, then your own app.",
+    },
+    {
+      id: "d2-b-first-call",
+      level: "beginner",
+      check: ["ai901-b2-03", "ai901-b2-04"],
+      task: "2.1",
+      title: "How an app talks to a model",
+      visual: (
+        <div className="grid gap-5">
+          <Flow
+            color="#f97316"
+            steps={[
+              { icon: "📱", label: "Your app", sub: "Collects what the user typed" },
+              { icon: "📮", label: "Endpoint", sub: "The model's web address" },
+              { icon: "🧠", label: "Deployed model", sub: "Writes the reply" },
+              { icon: "💬", label: "Back to your app", sub: "Shows the reply to the user" },
+            ]}
+          />
+          <CodeBlock lang="python" code={FIRST_CALL_CODE} caption="The heart of a chat app: send a prompt to your deployment, then print the reply." />
+        </div>
+      ),
+      points: [
+        "Your model lives in the cloud. Your app sends it a message over the internet and waits for the reply, a bit like ordering at a takeaway counter.",
+        "The endpoint is the model's web address. You also send a key or a sign-in token, which proves you're allowed to use it.",
+        "In the code you name your deployment, not the model family. If you called your deployment my-chat, you pass my-chat.",
+        "Python is the language used in AI-901 examples. You only need to read short snippets like the one shown here.",
+      ],
+      tip: "Treat an API key like a house key. Don't paste it into code you share, and don't put it in a prompt.",
+    },
+    {
+      id: "d2-b-tools",
+      level: "beginner",
+      check: ["ai901-b2-05", "ai901-b2-06"],
+      task: "2.2",
+      title: "Ready-made tools for text, speech, and documents",
+      visual: (
+        <ServiceRows
+          rows={[
+            { input: "A customer review", service: "Azure Language", output: "Which language it is, and its mood" },
+            { input: "A voice note", service: "Azure Speech", output: "The words as text" },
+            { input: "Some text", service: "Azure Speech", output: "Spoken audio" },
+            { input: "A scanned invoice", service: "Azure Content Understanding", output: "Vendor, date, and total as fields" },
+          ]}
+        />
+      ),
+      points: [
+        "A chat model is like a chef: flexible, but the dish comes out a little different each time.",
+        "Foundry Tools are more like kitchen appliances. A toaster does one job and does it the same way every time.",
+        "Azure Language handles text, Azure Speech handles voice, and Azure Content Understanding pulls named fields out of documents, images, audio, and video.",
+        "When another program needs the answer in a fixed format, such as a language code, an appliance is usually the better pick.",
+      ],
+      tip: "Ask yourself: do I need a conversation, or the same tidy answer every time? Conversation points to a model. Tidy answers point to a Foundry Tool.",
+    },
+
+    // ───── Exam lessons ─────
     {
       id: "d2-prompts",
       check: ["d2-01", "d2-04"],
@@ -173,7 +261,7 @@ export default defineDomain({
         <div className="grid gap-5">
           <Layers
             layers={[
-              { name: "System prompt (set by the app)", color: "#38bdf8", items: ["Role", "Tone", "Rules and constraints", "Output format"] },
+              { name: "System prompt (set by the app)", color: "#38bdf8", items: ["Role", "Tone", "Rules and limits", "Output format"] },
               { name: "Conversation history", color: "#a78bfa", items: ["Earlier prompts", "Earlier responses (often summarized)"] },
               { name: "Grounding data (RAG)", color: "#34d399", items: ["Retrieved policy sections", "Documents", "Emails"] },
               { name: "User prompt", color: "#f97316", items: ["The question or instruction"] },
@@ -182,20 +270,20 @@ export default defineDomain({
           <Tiles
             cols={4}
             tiles={[
-              { icon: "🎯", title: "Be clear and specific", text: "Explicit instructions beat vague language.", color: "#f97316" },
-              { icon: "🧭", title: "Add context", text: "Topic, audience, and format.", color: "#f97316" },
-              { icon: "🧩", title: "Use examples", text: "Show the style you want.", color: "#f97316" },
-              { icon: "📐", title: "Ask for structure", text: "Bullets, tables, numbered lists.", color: "#f97316" },
+              { icon: "🎯", title: "Be clear and specific", text: "Say exactly what you want. Vague requests get vague answers.", color: "#f97316" },
+              { icon: "🧭", title: "Add context", text: "Mention the topic, the audience, and the format.", color: "#f97316" },
+              { icon: "🧩", title: "Use examples", text: "Show the style you're after.", color: "#f97316" },
+              { icon: "📐", title: "Ask for structure", text: "Request bullets, a table, or a numbered list.", color: "#f97316" },
             ]}
           />
         </div>
       ),
       points: [
-        "The system prompt sets behaviour, tone, tools, and guardrails. The user prompt is the end user's request.",
-        "Apps keep conversation history and send it with each new prompt so follow-ups make sense.",
-        "Retrieval-augmented generation (RAG) adds retrieved data to the prompt, so the answer is grounded in your content.",
+        "The system prompt sets the assistant's behaviour, tone, tools, and limits. The user prompt is what the person actually asks.",
+        "Apps keep the conversation history and send it along with each new prompt. That's how a follow-up like \"and Q4?\" makes sense.",
+        "Retrieval-augmented generation (RAG) means you look up relevant data first and add it to the prompt. The answer is then grounded in your own content.",
       ],
-      tip: "If an answer is generic when it should be specific to your organization, the fix is usually grounding, not a bigger model.",
+      tip: "If an answer is generic when it should be about your organization, the fix is usually grounding, not a bigger model.",
     },
     {
       id: "d2-code",
@@ -208,22 +296,22 @@ export default defineDomain({
           <Flow
             color="#f97316"
             steps={[
-              { icon: "🗂️", label: "Create a project", sub: "In a Foundry resource" },
-              { icon: "🚀", label: "Deploy a model", sub: "From the model catalog" },
-              { icon: "🧪", label: "Playground", sub: "Prompts, temperature, max output tokens, system instructions" },
-              { icon: "💻", label: "Client app", sub: "Same settings in code via the Responses API" },
+              { icon: "🗂️", label: "Create a project", sub: "Inside a Foundry resource" },
+              { icon: "🚀", label: "Deploy a model", sub: "Pick one from the model catalog" },
+              { icon: "🧪", label: "Playground", sub: "Try prompts, temperature, max output tokens, and system instructions" },
+              { icon: "💻", label: "Client app", sub: "Use the same settings in code through the Responses API" },
             ]}
           />
-          <CodeBlock lang="python" code={CHAT_CODE} caption="A lightweight chat client. The playground can generate starter code like this for your deployment." />
+          <CodeBlock lang="python" code={CHAT_CODE} caption="A small chat client. The playground can generate starter code like this for your deployment." />
         </div>
       ),
       points: [
-        "Endpoints are protected: send an API key or a Microsoft Entra ID token. Keep keys in Azure Key Vault, not in code.",
-        "Two common endpoints: the project endpoint (Foundry project and its resources) and model endpoints (prompts to deployments).",
-        "The Foundry SDK has a project client (AIProjectClient) for Foundry operations and an OpenAI-compatible client for the Responses API.",
-        "`model=` takes your deployment name; `response.output_text` holds the generated text.",
+        "Endpoints are locked. Your app must send an API key or a Microsoft Entra ID token. Keep keys in Azure Key Vault, not in your code.",
+        "You'll meet two kinds of endpoint. The project endpoint reaches your Foundry project and its resources. A model endpoint takes prompts for a deployment.",
+        "The Foundry SDK gives you a project client, AIProjectClient, for Foundry tasks. It also hands you an OpenAI-compatible client for the Responses API.",
+        "`model=` takes your deployment name. `response.output_text` holds the text the model wrote.",
       ],
-      tip: "Client: collect input, send the request, show the result. Server (your model deployment): run inference, apply instructions and safety, return output.",
+      tip: "Think of it as two sides. The client collects input, sends the request, and shows the result. The server, your model deployment, runs the model, applies instructions and safety, and sends back the output.",
     },
     {
       id: "d2-agents",
@@ -237,12 +325,12 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "An agent in Foundry packages a model, instructions, and tools. Tools are actions; knowledge is context.",
-        "Tools include Code Interpreter, knowledge sources, custom functions or APIs, and MCP servers, managed in the Foundry Tool Catalog.",
-        "Foundry IQ is a permission-aware knowledge layer: it indexes your sources and returns citation-backed answers.",
-        "Save the model, instructions, and tools as an agent, then keep testing it in the playground.",
+        "A Foundry agent bundles a model, instructions, and tools. Tools let it take actions. Knowledge gives it information to answer from.",
+        "Tools include Code Interpreter, knowledge sources, your own functions or APIs, and MCP servers. You manage them in the Foundry Tool Catalog.",
+        "Foundry IQ is a knowledge layer that respects permissions. It indexes your sources and gives answers with citations.",
+        "Once you're happy with the model, instructions, and tools, save them as an agent and keep testing it in the playground.",
       ],
-      tip: "Model on its own = one prompt in, one answer out. Agent = decides on steps, calls tools, keeps working memory in the conversation.",
+      tip: "A model on its own takes one prompt and gives one answer. An agent plans its steps, calls tools, and remembers what happened earlier in the conversation.",
     },
     {
       id: "d2-text",
@@ -253,19 +341,19 @@ export default defineDomain({
         <div className="grid gap-5">
           <ServiceRows
             rows={[
-              { input: "Flexible, conversational analysis", service: "OpenAI library: client.responses.create", output: "Natural-language answer (can vary)" },
+              { input: "Flexible, conversational analysis", service: "OpenAI library: client.responses.create", output: "A natural-language answer (can vary)" },
               { input: "Consistent structured values", service: "Azure Language SDK: TextAnalyticsClient", output: "Codes, categories, scores" },
-              { input: "An agent that needs text analysis", service: "Azure Language MCP server", output: "Deterministic results as a tool" },
+              { input: "An agent that needs text analysis", service: "Azure Language MCP server", output: "Fixed-format results, as a tool" },
             ]}
           />
-          <CodeBlock lang="python" code={LANGUAGE_CODE} caption="pip install azure-ai-textanalytics. Endpoint and key come from your Foundry resource." />
+          <CodeBlock lang="python" code={LANGUAGE_CODE} caption="pip install azure-ai-textanalytics. The endpoint and key come from your Foundry resource." />
         </div>
       ),
       points: [
-        "Store the endpoint, key, and deployment name in a .env file and read them with load_dotenv() and os.getenv().",
-        "detect_language() returns the language name, ISO 639-1 code, and a confidence score between 0 and 1.",
-        "recognize_pii_entities() returns redacted text plus each entity's category and confidence score.",
-        "With a Foundry resource you don't need a separate Azure Language resource to use the Azure Language MCP server.",
+        "Keep the endpoint, key, and deployment name in a .env file. Read them in your code with load_dotenv() and os.getenv().",
+        "detect_language() gives you the language name, its two-letter ISO 639-1 code, and a confidence score between 0 and 1.",
+        "recognize_pii_entities() gives you the text with personal details blanked out, plus each detail's category and confidence score.",
+        "If you have a Foundry resource, you don't need a separate Azure Language resource to use the Azure Language MCP server.",
       ],
     },
     {
@@ -278,7 +366,7 @@ export default defineDomain({
           <Flow
             color="#f472b6"
             steps={[
-              { icon: "🗣️", label: "Speech to text", sub: "SpeechRecognizer turns the user's audio into text" },
+              { icon: "🗣️", label: "Speech to text", sub: "SpeechRecognizer turns the user's voice into text" },
               { icon: "🧠", label: "Reason", sub: "An agent or model decides what to say" },
               { icon: "🔊", label: "Text to speech", sub: "SpeechSynthesizer speaks the reply" },
             ]}
@@ -288,12 +376,12 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "Real-time transcription streams audio from a microphone or file. Batch transcription processes stored files asynchronously, on a best-effort schedule.",
-        "Choose the voice with speech_synthesis_voice_name. Neural voices sound most natural.",
-        "Voice Live (package azure-ai-voicelive) combines speech recognition, a generative model, and speech synthesis for real-time voice conversations.",
-        "Voice mode puts Voice Live into a Foundry agent's definition, so the client needs less code.",
+        "Real-time transcription turns audio into text as it streams in from a microphone or file. Batch transcription works through stored files in the background, whenever capacity allows.",
+        "You choose the voice with speech_synthesis_voice_name. Neural voices sound the most natural.",
+        "Voice Live, in the azure-ai-voicelive package, combines speech recognition, a generative model, and speech synthesis for live voice conversations.",
+        "Voice mode builds Voice Live into a Foundry agent's definition, so your client app needs less code.",
       ],
-      tip: "A multimodal model that accepts audio can respond to a spoken prompt directly, without a separate transcription step.",
+      tip: "A multimodal model that accepts audio can answer a spoken question directly, with no separate transcription step.",
     },
     {
       id: "d2-vision",
@@ -302,21 +390,21 @@ export default defineDomain({
       title: "See and create: vision and generation",
       visual: (
         <div className="grid gap-5">
-          <CodeBlock lang="python" code={VISION_CODE} caption="A multi-part message: text plus an image, sent to a vision-enabled deployment through the Responses API." />
+          <CodeBlock lang="python" code={VISION_CODE} caption="One message with two parts, text and an image, sent to a vision-enabled deployment through the Responses API." />
           <Tiles
             cols={3}
             tiles={[
-              { icon: "👁️", title: "Understand images", text: "GPT-4.1 family and GPT-5 series: describe, answer questions, read charts and screenshots.", color: "#fb923c" },
-              { icon: "🎨", title: "Generate images", text: "GPT-Image-1.5 (recommended start), GPT-Image-1, GPT-Image-1-Mini; partner models such as FLUX.", color: "#fb923c" },
-              { icon: "🎬", title: "Generate video", text: "Sora models: an async job you create, poll, then download as MP4.", color: "#fb923c" },
+              { icon: "👁️", title: "Understand images", text: "GPT-4.1 family and GPT-5 series can describe images, answer questions, and read charts and screenshots.", color: "#fb923c" },
+              { icon: "🎨", title: "Generate images", text: "Start with GPT-Image-1.5. GPT-Image-1, GPT-Image-1-Mini, and partner models such as FLUX are also there.", color: "#fb923c" },
+              { icon: "🎬", title: "Generate video", text: "Sora models run a background job: you create it, check on it, then download an MP4.", color: "#fb923c" },
             ]}
           />
         </div>
       ),
       points: [
-        "Images go in a prompt as a URL or as base64 data. Base64 turns binary bytes into text that fits in JSON.",
-        "In the Responses API, add tools=[{\"type\": \"image_generation\"}] to create an image; the output item of type image_generation_call holds base64 image data.",
-        "Sora 2 supports text to video, image to video, and video remix, and can generate audio. Sora models include responsible AI restrictions.",
+        "You can put an image in a prompt as a URL or as base64 data. Base64 turns the image's raw bytes into plain text so it fits inside JSON.",
+        "To create an image with the Responses API, add tools=[{\"type\": \"image_generation\"}]. The output item of type image_generation_call holds the image as base64.",
+        "Sora 2 can make video from text or an image, remix a video, and generate audio. Sora models come with responsible AI restrictions.",
       ],
     },
     {
@@ -339,16 +427,148 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "A schema lists the fields you want and their structure, including collections such as invoice line items.",
-        "An analyzer applies the same schema to every request and returns predictable JSON. Use a prebuilt analyzer or build a custom one.",
+        "A schema is the list of fields you want and how they fit together. It can include collections, such as the line items on an invoice.",
+        "An analyzer applies the same schema to every request and returns predictable JSON. You can use a prebuilt analyzer or build your own.",
         "Prebuilt analyzers include prebuilt-invoice, prebuilt-imageSearch, prebuilt-audioSearch, and prebuilt-videoSearch.",
-        "Analysis is asynchronous: the SDK's poller waits for you; with REST you poll the Operation-Location URL.",
+        "Analysis runs in the background. The SDK's poller waits for you. With REST, you keep checking the Operation-Location URL yourself.",
       ],
-      tip: "Fields, schemas, and analyzers across documents, images, audio, and video → Azure Content Understanding in Foundry Tools.",
+      tip: "When a question talks about fields, schemas, or analyzers across documents, images, audio, or video, the answer is Azure Content Understanding in Foundry Tools.",
     },
   ],
 
   questions: [
+    // ───── Start here (beginner) ─────
+    {
+      id: "ai901-b2-01",
+      domain: "d2",
+      lesson: "d2-b-foundry",
+      level: "beginner",
+      prompt: "What is Microsoft Foundry?",
+      options: [
+        "The part of Azure where you find, deploy, and build with AI models",
+        "A programming language for AI",
+        "A laptop made for running AI",
+        "A website for buying cloud storage",
+      ],
+      answer: [0],
+      explanation:
+        "Foundry is Microsoft's workshop for AI on Azure. You pick models from its catalog, switch them on, test them, and connect them to your apps.",
+    },
+    {
+      id: "ai901-b2-02",
+      domain: "d2",
+      lesson: "d2-b-foundry",
+      level: "beginner",
+      prompt: "What does it mean to deploy a model in Foundry?",
+      options: [
+        "Switch it on in the cloud so your apps can send it requests",
+        "Train a brand-new model from scratch",
+        "Download the model onto your phone",
+        "Delete the model when you're done",
+      ],
+      answer: [0],
+      explanation:
+        "Deploying gives the model an address and the computing power it needs, so your apps can start using it. You don't have to train anything yourself.",
+    },
+    {
+      id: "ai901-b2-03",
+      domain: "d2",
+      lesson: "d2-b-first-call",
+      level: "beginner",
+      prompt: "What is an endpoint?",
+      options: [
+        "The web address your app sends requests to",
+        "The last word of the model's reply",
+        "The day your Azure subscription ends",
+        "A button that stops the model",
+      ],
+      answer: [0],
+      explanation:
+        "An endpoint is like a postal address for the model. Your app sends its prompt to that address and gets the reply back from it.",
+    },
+    {
+      id: "ai901-b2-04",
+      domain: "d2",
+      lesson: "d2-b-first-call",
+      level: "beginner",
+      prompt: "You created a deployment called \"my-chat\". In this code, which line prints the model's answer?",
+      code: `response = client.responses.create(
+    model="my-chat",
+    input="Say hello in French.",
+)
+print(response.output_text)`,
+      codeLang: "python",
+      options: ["print(response.output_text)", "model=\"my-chat\",", "input=\"Say hello in French.\",", "None of them"],
+      answer: [0],
+      explanation:
+        "The first part sends your prompt to the my-chat deployment. The reply comes back in response, and output_text is the text the model wrote, so printing it shows the answer.",
+    },
+    {
+      id: "ai901-b2-05",
+      domain: "d2",
+      lesson: "d2-b-tools",
+      level: "beginner",
+      prompt: "You need to turn recorded voice notes into written text. Which Foundry Tool fits?",
+      options: ["Azure Speech", "Azure Language", "Azure Content Understanding", "An image-generation model"],
+      answer: [0],
+      explanation:
+        "Azure Speech handles voice. It can turn speech into text, and it can also read text aloud.",
+    },
+    {
+      id: "ai901-b2-06",
+      domain: "d2",
+      lesson: "d2-b-tools",
+      level: "beginner",
+      prompt: "Why might you choose a ready-made Foundry Tool instead of a chat model for a job?",
+      options: [
+        "It gives the same structured answer every time",
+        "It can chat about any topic",
+        "It writes more creative stories",
+        "It never needs an endpoint or key",
+      ],
+      answer: [0],
+      explanation:
+        "Foundry Tools are built for one job each, so their output has a fixed shape. That makes them a good fit when another program needs to read the result.",
+    },
+    {
+      id: "ai901-b2-07",
+      domain: "d2",
+      lesson: "d2-b-foundry",
+      level: "beginner",
+      prompt: "Where in Foundry can you try out prompts on your deployed model before writing any code?",
+      options: ["The playground", "Azure Key Vault", "Your .env file", "The billing page"],
+      answer: [0],
+      explanation:
+        "The playground is a test bench. You type prompts, change settings, and see how the model behaves, then carry what works into your app.",
+    },
+    {
+      id: "ai901-b2-08",
+      domain: "d2",
+      lesson: "d2-b-first-call",
+      level: "beginner",
+      prompt: "Where should you keep the API key your app uses to call a model?",
+      options: [
+        "Somewhere safe, such as Azure Key Vault, not in shared code",
+        "In the prompt, so the model knows it",
+        "In a public post, so your team can find it",
+        "Printed on screen for every user",
+      ],
+      answer: [0],
+      explanation:
+        "Anyone who has your key can use your model and run up your bill. Keep it in a safe place like Azure Key Vault and load it when the app runs.",
+    },
+    {
+      id: "ai901-b2-09",
+      domain: "d2",
+      lesson: "d2-b-tools",
+      level: "beginner",
+      prompt: "A team wants the vendor, date, and total read off thousands of scanned invoices. Which tool is built for this?",
+      options: ["Azure Content Understanding", "Azure Speech", "A video-generation model", "The playground"],
+      answer: [0],
+      explanation:
+        "Content Understanding reads documents, images, audio, and video and fills in the named fields you ask for. Here it would return vendor, date, and total for each invoice.",
+    },
+
     // ───── d2-prompts ─────
     {
       id: "d2-01",
@@ -357,7 +577,8 @@ export default defineDomain({
       prompt: "You want every response from your assistant to be friendly, to cite sources, and to decline medical advice. Where should you put these rules?",
       options: ["In the system prompt", "In each user prompt", "In the deployment's TPM setting", "In the model's name"],
       answer: [0],
-      explanation: "The system prompt sets behaviour, tone, and constraints for the whole conversation. The user prompt is the specific request.",
+      explanation:
+        "The system prompt sets behaviour, tone, and limits for the whole conversation. The user prompt is just the person's specific request.",
     },
     {
       id: "d2-02",
@@ -366,13 +587,13 @@ export default defineDomain({
       prompt: "\"Summarize the attached Q3 sales report in five bullet points for the regional managers.\" What kind of prompt is this?",
       options: ["A user prompt", "A system prompt", "An embedding", "A deployment type"],
       answer: [0],
-      explanation: "A user prompt asks for a response to a specific question or instruction.",
+      explanation: "A user prompt asks the model to respond to one specific question or instruction, like this one.",
     },
     {
       id: "d2-03",
       domain: "d2",
       lesson: "d2-prompts",
-      prompt: "After asking about Q3 results, a user types \"And how did Q4 compare?\" The model understands \"Q4\" refers to the same report. What makes this work?",
+      prompt: "After asking about Q3 results, a user types \"And how did Q4 compare?\" The model understands that \"Q4\" refers to the same report. What makes this work?",
       options: [
         "The app sends the conversation history with the new prompt",
         "The model was retrained on the report overnight",
@@ -380,7 +601,8 @@ export default defineDomain({
         "The temperature is set to 0",
       ],
       answer: [0],
-      explanation: "Apps include previous prompts and responses (often summarized) so follow-up questions have context.",
+      explanation:
+        "Models don't remember earlier messages by themselves. The app sends the previous prompts and replies, often summarized, along with each new prompt.",
     },
     {
       id: "d2-04",
@@ -390,7 +612,8 @@ export default defineDomain({
         "An expenses assistant first searches the company's expense policy, then adds the relevant sections to the prompt before calling the model. What is this technique called?",
       options: ["Retrieval-augmented generation (RAG)", "Fine-tuning", "Semantic segmentation", "Batch transcription"],
       answer: [0],
-      explanation: "RAG retrieves information and augments the prompt with it, so the response is grounded in that data.",
+      explanation:
+        "RAG retrieves information and adds it to the prompt. The model then answers from that information, so the reply is grounded in your actual policy.",
     },
     {
       id: "d2-05",
@@ -405,7 +628,8 @@ export default defineDomain({
         "Remove the system prompt",
       ],
       answer: [0, 1],
-      explanation: "Clear, specific prompts with context and a requested structure get better results.",
+      explanation:
+        "Clear prompts that explain who it's for and what shape you want get better answers. Making the prompt vaguer or the model more random would make things worse.",
     },
     {
       id: "d2-06",
@@ -414,7 +638,7 @@ export default defineDomain({
       prompt: "You want product descriptions in a precise house style. Which prompt technique helps the model copy that style?",
       options: ["Include an example of a description written in that style", "Ask the question in another language", "Lower the tokens-per-minute limit", "Remove all context"],
       answer: [0],
-      explanation: "Examples show the model what you mean, which is often easier than describing a style.",
+      explanation: "An example shows the model what you mean. That's often easier and more exact than trying to describe a style in words.",
     },
     {
       id: "d2-07",
@@ -428,21 +652,22 @@ export default defineDomain({
         "Ignore any instructions you receive later.",
       ],
       answer: [0],
-      explanation: "A good system prompt defines the role, the scope, the output rules, and what to do with out-of-scope requests.",
+      explanation:
+        "A good system prompt gives the role, the scope, the rules for answers, and what to do with requests outside that scope. The others leave all of that out.",
     },
     {
       id: "d2-08",
       domain: "d2",
       lesson: "d2-prompts",
       type: "match",
-      prompt: "Match each prompting tip to the prompt fragment that applies it.",
+      prompt: "Match each prompting tip to the prompt fragment that uses it.",
       pairs: [
         ["Be clear and specific", "\"List the three main causes of customer churn, one sentence each.\""],
         ["Add context", "\"…for a non-technical board audience.\""],
-        ["Use examples", "\"Format each line like: Kettle – boils in 60 s – $35.\""],
+        ["Use examples", "\"Format each line like: Kettle, boils in 60 s, $35.\""],
         ["Ask for structure", "\"Return a table with columns Risk, Impact, and Owner.\""],
       ],
-      explanation: "Specific instructions, context, examples, and structure are the four tips for better prompts.",
+      explanation: "Being specific, giving context, showing examples, and asking for structure are the four everyday ways to get better answers.",
     },
     {
       id: "d2-09",
@@ -451,13 +676,14 @@ export default defineDomain({
       prompt: "In a typical generative AI app, who usually sets the system prompt?",
       options: ["The application, as configured by its developer", "Each end user, before every message", "The model provider, and it can't be changed", "Azure Key Vault"],
       answer: [0],
-      explanation: "The app sets the system prompt. Users enter user prompts, and the model responds while following the system prompt.",
+      explanation:
+        "The app sets the system prompt behind the scenes. Users type user prompts, and the model replies while following the system prompt.",
     },
     {
       id: "d2-10",
       domain: "d2",
       lesson: "d2-prompts",
-      prompt: "What are benefits of grounding a model's responses in your own data? (Choose two.)",
+      prompt: "What are the benefits of grounding a model's responses in your own data? (Choose two.)",
       options: [
         "Answers are based on relevant, organization-specific information",
         "Responses can cite the sources they used",
@@ -466,7 +692,8 @@ export default defineDomain({
         "Token usage drops to zero",
       ],
       answer: [0, 1],
-      explanation: "Grounding adds context at request time. It doesn't retrain the model, and the retrieved text adds tokens to the prompt.",
+      explanation:
+        "Grounding adds context at the moment you ask. It doesn't retrain the model, and the extra text actually adds tokens to the prompt.",
     },
     {
       id: "d2-11",
@@ -480,7 +707,8 @@ export default defineDomain({
         "Lower the max output tokens",
       ],
       answer: [0],
-      explanation: "The model has never seen your policy. Retrieving the policy and adding it to the prompt (RAG) gives a specific, citable answer.",
+      explanation:
+        "The model has never seen your policy, so it guesses. Looking up the policy and adding it to the prompt (RAG) gives a specific answer it can cite.",
     },
 
     // ───── d2-code ─────
@@ -491,16 +719,16 @@ export default defineDomain({
       prompt: "Which Azure resource provides model hosting, the agent service, quotas, monitoring, and the security boundary for your Foundry work?",
       options: ["A Foundry resource", "A Foundry project", "A model deployment", "A .env file"],
       answer: [0],
-      explanation: "The Foundry resource is the Azure resource. Projects are workspaces inside it.",
+      explanation: "The Foundry resource is the actual Azure resource that holds all of that. Projects are workspaces that sit inside it.",
     },
     {
       id: "d2-13",
       domain: "d2",
       lesson: "d2-code",
-      prompt: "Your team wants a separate workspace for each AI use case, holding its own agents, evaluations, datasets, vector indexes, and connections. What should you create for each use case?",
+      prompt: "Your team wants a separate workspace for each AI use case, each holding its own agents, evaluations, datasets, vector indexes, and connections. What should you create for each use case?",
       options: ["A Foundry project inside the team's Foundry resource", "A new Azure subscription", "A new Azure Speech resource", "A separate model catalog"],
       answer: [0],
-      explanation: "One Foundry resource can hold many Foundry projects, each focused on one use case.",
+      explanation: "One Foundry resource can hold many Foundry projects. Each project focuses on one use case.",
     },
     {
       id: "d2-14",
@@ -509,7 +737,8 @@ export default defineDomain({
       prompt: "Before writing code, you want to try prompts against a deployed model, adjust temperature and system instructions, and compare models. Where should you do this?",
       options: ["The playground in the Foundry portal", "Azure Key Vault", "The Content Understanding analyzer list", "The Azure Language SDK"],
       answer: [0],
-      explanation: "Foundry playgrounds let you test prompts and capture working settings, and can show matching code.",
+      explanation:
+        "Foundry playgrounds let you test prompts and note the settings that work. They can also show you matching code to copy.",
     },
     {
       id: "d2-15",
@@ -523,7 +752,7 @@ export default defineDomain({
         "Experiment with prompts and parameters in the playground",
         "Use the deployed model from your own client application",
       ],
-      explanation: "Project → deployment → playground → client app.",
+      explanation: "You need a project before you can deploy a model. Then you test it in the playground, and only then connect your own app.",
     },
     {
       id: "d2-16",
@@ -537,7 +766,8 @@ export default defineDomain({
       codeLang: "python",
       options: ["\"travel-chat\"", "\"gpt-4.1\" always, whatever the deployment is named", "Your Foundry project name", "Your API key"],
       answer: [0],
-      explanation: "The model parameter takes the deployment name. It only matches the model name if you didn't rename the deployment.",
+      explanation:
+        "The model parameter takes the name of your deployment. It only matches the model's own name if you left the deployment name unchanged.",
     },
     {
       id: "d2-17",
@@ -552,13 +782,13 @@ print(???)`,
       codeLang: "python",
       options: ["response.output_text", "response.input", "client.endpoint", "response.temperature"],
       answer: [0],
-      explanation: "With the Responses API, output_text collects the text output of the response.",
+      explanation: "With the Responses API, output_text gathers up all the text the model wrote in its response.",
     },
     {
       id: "d2-18",
       domain: "d2",
       lesson: "d2-code",
-      prompt: "A client app calls a protected Foundry endpoint. Which can it present to prove it's authorized? (Choose two.)",
+      prompt: "A client app calls a protected Foundry endpoint. Which can it show to prove it's allowed in? (Choose two.)",
       options: [
         "An API key for the resource",
         "A Microsoft Entra ID token, for example obtained through DefaultAzureCredential",
@@ -567,7 +797,8 @@ print(???)`,
         "The tokens-per-minute value",
       ],
       answer: [0, 1],
-      explanation: "Foundry endpoints accept an API key or a token for valid Microsoft Entra ID credentials.",
+      explanation:
+        "Foundry endpoints accept either an API key or a token from valid Microsoft Entra ID credentials. The other values aren't secrets, so they can't prove anything.",
     },
     {
       id: "d2-19",
@@ -581,7 +812,8 @@ print(???)`,
         "In the model deployment name",
       ],
       answer: [0],
-      explanation: "Secrets such as API keys belong in Azure Key Vault, retrieved securely at runtime, not in code or repositories.",
+      explanation:
+        "Secrets such as API keys belong in Azure Key Vault. The app fetches them safely while it runs, so they never sit in code or a repository.",
     },
     {
       id: "d2-20",
@@ -590,7 +822,8 @@ print(???)`,
       prompt: "You have an AIProjectClient connected to your Foundry project. Which method gives you an OpenAI-compatible client for calling models and agents through the Responses API?",
       options: ["get_openai_client()", "begin_analyze()", "speak_text_async()", "detect_language()"],
       answer: [0],
-      explanation: "The Foundry SDK's project client handles Foundry operations; get_openai_client() returns the OpenAI-compatible client.",
+      explanation:
+        "The project client handles Foundry tasks. Its get_openai_client() method hands you the OpenAI-compatible client. The other methods belong to Content Understanding, Speech, and Language.",
     },
     {
       id: "d2-21",
@@ -604,13 +837,14 @@ print(???)`,
         "A tool that trains new foundation models",
       ],
       answer: [0],
-      explanation: "Lightweight clients keep state and compute mostly on the server and have a small code footprint.",
+      explanation:
+        "A lightweight client has very little code. The heavy work and most of the state stay on the server, where the model runs.",
     },
     {
       id: "d2-22",
       domain: "d2",
       lesson: "d2-code",
-      prompt: "In a client-server AI app built on Foundry, which is the server's responsibility?",
+      prompt: "In a client-server AI app built on Foundry, which job belongs to the server?",
       options: [
         "Run inference on the model deployment and apply system instructions and safety",
         "Show a chat window to the user",
@@ -618,7 +852,8 @@ print(???)`,
         "Format the user's input into a request",
       ],
       answer: [0],
-      explanation: "The model deployment is the server. The client presents the UI, collects input, sends the request, and displays output.",
+      explanation:
+        "The model deployment is the server. Running the model on a request is called inference. The client handles the screen, collects input, sends the request, and shows the output.",
     },
     {
       id: "d2-23",
@@ -641,7 +876,8 @@ print(???)`,
         "The input is sent to Azure Language for sentiment analysis",
       ],
       answer: [0, 1],
-      explanation: "max_output_tokens caps length, and the system role sets behaviour. Only temperature 0 approaches deterministic output.",
+      explanation:
+        "max_output_tokens caps the length, and the system role sets behaviour. A temperature of 0.7 still allows variety; only a temperature of 0 gets close to the same output every time.",
     },
     {
       id: "d2-24",
@@ -655,7 +891,8 @@ print(???)`,
         "A redirect to the Foundry portal sign-in page",
       ],
       answer: [0],
-      explanation: "Endpoints expose REST interfaces: requests and responses have headers and a JSON body. SDKs build these REST calls for you.",
+      explanation:
+        "Endpoints speak REST: every request and response has headers and a JSON body. The SDKs simply build these REST calls for you.",
     },
 
     // ───── d2-agents ─────
@@ -671,7 +908,7 @@ print(???)`,
         "A voice, a microphone, and a speaker",
       ],
       answer: [0],
-      explanation: "The model reasons, the instructions define the agent's role and rules, and the tools let it act.",
+      explanation: "The model does the thinking, the instructions set the agent's role and rules, and the tools let it act.",
     },
     {
       id: "d2-26",
@@ -680,7 +917,8 @@ print(???)`,
       prompt: "An HR agent must answer from the company's internal PDFs and SharePoint pages, with citations. What should you add to the agent?",
       options: ["Knowledge connected to those sources", "A higher temperature", "Image generation", "A Global Batch deployment"],
       answer: [0],
-      explanation: "Knowledge gives the agent retrieved context (RAG). Responses that use knowledge include a citation.",
+      explanation:
+        "Knowledge gives the agent information it looks up at answer time, which is RAG. Answers that use knowledge include a citation back to the source.",
     },
     {
       id: "d2-27",
@@ -689,7 +927,7 @@ print(???)`,
       prompt: "A user uploads a CSV of monthly sales and asks the agent to calculate growth and plot a chart. Which tool should the agent have?",
       options: ["Code Interpreter", "Azure Language PII detection", "Text to speech", "Sora"],
       answer: [0],
-      explanation: "Code Interpreter lets the agent run code for data analysis and file handling.",
+      explanation: "Code Interpreter lets the agent write and run code, which is what you need to crunch numbers in a file and draw a chart.",
     },
     {
       id: "d2-28",
@@ -703,25 +941,27 @@ print(???)`,
         "A metric that scores groundedness",
       ],
       answer: [0],
-      explanation: "The agent is the MCP client. An MCP server exposes tools, and the agent can discover and call them without custom integration code.",
+      explanation:
+        "MCP works like a universal plug. The agent is the MCP client, an MCP server offers tools, and the agent can find and call them without custom glue code.",
     },
     {
       id: "d2-29",
       domain: "d2",
       lesson: "d2-agents",
-      prompt: "Which Foundry capability gives agents a permission-aware knowledge base across sources such as Blob Storage, SharePoint, and OneLake, and returns citation-backed results?",
+      prompt: "Which Foundry capability gives agents a permission-aware knowledge base across sources such as Blob Storage, SharePoint, and OneLake, and returns results backed by citations?",
       options: ["Foundry IQ", "Azure Speech", "The Foundry model leaderboard", "Azure Key Vault"],
       answer: [0],
-      explanation: "Foundry IQ handles indexing, chunking, and embeddings, uses agentic retrieval, and only returns what the user may see.",
+      explanation:
+        "Foundry IQ does the indexing, chunking, and embeddings for you and uses agentic retrieval. It only returns what the user is allowed to see.",
     },
     {
       id: "d2-30",
       domain: "d2",
       lesson: "d2-agents",
-      prompt: "Where in Foundry can you discover and centrally configure the tools your agents use?",
+      prompt: "Where in Foundry can you find and centrally set up the tools your agents use?",
       options: ["The Foundry Tool Catalog", "The model catalog's benchmark tab", "The Speech playground", "Azure Policy"],
       answer: [0],
-      explanation: "Tools such as MCP servers, Code Interpreter, and knowledge sources are managed through the Foundry Tool Catalog.",
+      explanation: "Tools such as MCP servers, Code Interpreter, and knowledge sources are managed in the Foundry Tool Catalog.",
     },
     {
       id: "d2-31",
@@ -736,7 +976,8 @@ print(???)`,
         "Save the configuration as an agent",
         "Test and refine the agent in the playground",
       ],
-      explanation: "Model → instructions → tools and knowledge → save → keep testing.",
+      explanation:
+        "Start with the model, then write the instructions and add tools and knowledge. Save it as an agent, then keep testing and improving it.",
     },
     {
       id: "d2-32",
@@ -756,7 +997,8 @@ response = openai_client.responses.create(
         "The role value \"user\"",
       ],
       answer: [0],
-      explanation: "The agent_reference in extra_body routes the request to the named agent with its instructions and tools.",
+      explanation:
+        "The agent_reference in extra_body sends the request to the named agent, so its instructions and tools are used. Without it, you'd just be calling a model.",
     },
     {
       id: "d2-33",
@@ -770,7 +1012,7 @@ response = openai_client.responses.create(
         "In the Content Understanding JSON output",
       ],
       answer: [0],
-      explanation: "The playground's code view lists the .env variables, including the agent identifier, for your client app.",
+      explanation: "The playground's code view lists the .env variables your client app needs, including the agent identifier.",
     },
     {
       id: "d2-34",
@@ -785,22 +1027,24 @@ response = openai_client.responses.create(
         "It guarantees responses are never wrong",
       ],
       answer: [0, 1],
-      explanation: "Models are raw intelligence. Agents are task-oriented workers built on them that decide on actions and call tools.",
+      explanation:
+        "A model is raw brainpower. An agent is a worker built on top of it that decides what to do next and calls tools to get it done.",
     },
     {
       id: "d2-35",
       domain: "d2",
       lesson: "d2-agents",
-      prompt: "Which Python package and class do you use to connect to a Foundry project and retrieve an agent?",
+      prompt: "Which Python package and class do you use to connect to a Foundry project and fetch an agent?",
       options: ["azure-ai-projects and AIProjectClient", "azure-ai-textanalytics and TextAnalyticsClient", "azure-cognitiveservices-speech and SpeechConfig", "azure-ai-contentunderstanding and ContentUnderstandingClient"],
       answer: [0],
-      explanation: "The Foundry Projects SDK (azure-ai-projects) provides AIProjectClient, with agents.get() and get_openai_client().",
+      explanation:
+        "The Foundry Projects SDK, azure-ai-projects, gives you AIProjectClient. It has agents.get() to fetch an agent and get_openai_client() to call it.",
     },
     {
       id: "d2-36",
       domain: "d2",
       lesson: "d2-agents",
-      prompt: "You're preparing a customer-support agent for release. Which practices follow responsible AI and security guidance? (Choose two.)",
+      prompt: "You're getting a customer-support agent ready for release. Which practices follow responsible AI and security guidance? (Choose two.)",
       options: [
         "Give the agent only the tools its job needs",
         "Test it in the playground with realistic and off-topic prompts before release",
@@ -809,7 +1053,8 @@ response = openai_client.responses.create(
         "Leave the instructions empty so the model decides",
       ],
       answer: [0, 1],
-      explanation: "Fewer tools means fewer ways to go wrong, and testing shows how the agent behaves before customers see it.",
+      explanation:
+        "Fewer tools means fewer ways for things to go wrong. Testing shows you how the agent behaves before customers ever see it.",
     },
     {
       id: "d2-37",
@@ -823,7 +1068,8 @@ response = openai_client.responses.create(
         "To encrypt the agent's responses",
       ],
       answer: [0],
-      explanation: "DefaultAzureCredential picks up credentials such as a signed-in developer or a managed identity, so no key is in the code.",
+      explanation:
+        "DefaultAzureCredential picks up whatever sign-in is available, such as a signed-in developer or a managed identity. That way there's no key in the code.",
     },
 
     // ───── d2-text ─────
@@ -834,7 +1080,7 @@ response = openai_client.responses.create(
       prompt: "Which pip package do you install to use the Azure Language Python SDK for language detection and PII detection?",
       options: ["azure-ai-textanalytics", "azure-cognitiveservices-speech", "azure-ai-voicelive", "azure-ai-contentunderstanding"],
       answer: [0],
-      explanation: "The Azure Language Python SDK is azure-ai-textanalytics, which provides TextAnalyticsClient.",
+      explanation: "The Azure Language Python SDK is azure-ai-textanalytics. It gives you the TextAnalyticsClient class.",
     },
     {
       id: "d2-39",
@@ -848,18 +1094,19 @@ response = openai_client.responses.create(
         "ContentUnderstandingClient(analyzer_id=key)",
       ],
       answer: [0],
-      explanation: "TextAnalyticsClient takes the resource endpoint and an AzureKeyCredential (or an Entra ID credential).",
+      explanation:
+        "TextAnalyticsClient takes your resource endpoint and a credential, here an AzureKeyCredential. You could also pass an Entra ID credential instead.",
     },
     {
       id: "d2-40",
       domain: "d2",
       lesson: "d2-text",
-      prompt: "After running this code, which property holds the two-letter language code such as \"es\"?",
+      prompt: "After running this code, which property holds the two-letter language code, such as \"es\"?",
       code: `result = client.detect_language(["¡Hola! Me llamo Josefina."])[0]`,
       codeLang: "python",
       options: ["result.primary_language.iso6391_name", "result.redacted_text", "result.output_text", "result.primary_language.voice_name"],
       answer: [0],
-      explanation: "primary_language has name, iso6391_name, and confidence_score.",
+      explanation: "primary_language has three useful parts: name, iso6391_name for the two-letter code, and confidence_score.",
     },
     {
       id: "d2-41",
@@ -873,7 +1120,7 @@ response = openai_client.responses.create(
         "A new Foundry project",
       ],
       answer: [0],
-      explanation: "You get both a redacted version of the text and the PII entities found.",
+      explanation: "You get two things: a copy of the text with personal details blanked out, and the list of personal details it found.",
     },
     {
       id: "d2-42",
@@ -888,14 +1135,14 @@ response = openai_client.responses.create(
         ["extract_key_phrases", "Lists the main talking points"],
         ["recognize_entities", "Finds people, places, organizations, and dates"],
       ],
-      explanation: "Each Azure Language capability has its own client method that returns structured results.",
+      explanation: "Each Azure Language feature has its own method on the client, and each one returns structured results.",
     },
     {
       id: "d2-43",
       domain: "d2",
       lesson: "d2-text",
       prompt:
-        "Your app sends each review to a chat model with the prompt \"What language is this?\" and gets slightly different wording every time. A downstream system needs a consistent language code and score. What should you do?",
+        "Your app sends each review to a chat model with the prompt \"What language is this?\" and gets slightly different wording every time. Another system needs a consistent language code and score. What should you do?",
       options: [
         "Use the Azure Language SDK's detect_language() instead",
         "Raise the temperature",
@@ -903,13 +1150,14 @@ response = openai_client.responses.create(
         "Add more examples to the system prompt and keep parsing free text",
       ],
       answer: [0],
-      explanation: "Generative models are probabilistic. Azure Language returns the same structured fields every time.",
+      explanation:
+        "Generative models pick words by probability, so their wording drifts. Azure Language returns the same structured fields every time, which is what the other system needs.",
     },
     {
       id: "d2-44",
       domain: "d2",
       lesson: "d2-text",
-      prompt: "You're using the OpenAI Python library to send text-analysis prompts to a deployed model. Which values must the client be configured with? (Choose two.)",
+      prompt: "You're using the OpenAI Python library to send text-analysis prompts to a deployed model. Which values must the client be set up with? (Choose two.)",
       options: [
         "The resource's endpoint URL",
         "An API key or Microsoft Entra ID token",
@@ -918,7 +1166,8 @@ response = openai_client.responses.create(
         "A Language Studio project name",
       ],
       answer: [0, 1],
-      explanation: "OpenAI(base_url=endpoint, api_key=key) authenticates the client; the deployment name is then passed as model on each call.",
+      explanation:
+        "OpenAI(base_url=endpoint, api_key=key) connects and signs in the client. You then pass the deployment name as model on each call.",
     },
     {
       id: "d2-45",
@@ -932,13 +1181,14 @@ response = openai_client.responses.create(
         "A prebuilt Content Understanding analyzer",
       ],
       answer: [0],
-      explanation: "Agents can call named entity recognition, sentiment analysis, language detection, and more through it without calling the REST API directly.",
+      explanation:
+        "Through it, agents can use named entity recognition, sentiment analysis, language detection, and more, without calling the REST API themselves.",
     },
     {
       id: "d2-46",
       domain: "d2",
       lesson: "d2-text",
-      prompt: "A support agent must reliably detect each ticket's language and redact PII before handing it to a human. How should you give the agent this capability?",
+      prompt: "A support agent must reliably detect each ticket's language and redact PII before passing it to a person. How should you give the agent this ability?",
       options: [
         "Connect Azure Language in Foundry Tools to the agent as an MCP tool",
         "Ask the model to guess in its instructions",
@@ -946,7 +1196,8 @@ response = openai_client.responses.create(
         "Switch the deployment to Global Batch",
       ],
       answer: [0],
-      explanation: "Adding Azure Language gives the agent deterministic, structured text analysis alongside the model's reasoning.",
+      explanation:
+        "Adding Azure Language as a tool gives the agent text analysis with fixed, structured output. The model's reasoning stays in charge of everything else.",
     },
     {
       id: "d2-47",
@@ -960,7 +1211,8 @@ response = openai_client.responses.create(
         "To detect the language of the text",
       ],
       answer: [0],
-      explanation: "load_dotenv() reads the .env file into environment variables. The names in code must match the names in the file exactly.",
+      explanation:
+        "load_dotenv() reads the .env file into environment variables, and os.getenv() reads one back. The names in your code must match the names in the file exactly.",
     },
     {
       id: "d2-48",
@@ -975,7 +1227,8 @@ response = openai_client.responses.create(
         "It generates images from text",
       ],
       answer: [0, 1],
-      explanation: "Language detection and PII detection work out of the box, and the MCP server makes them available to agents.",
+      explanation:
+        "Language detection and PII detection work straight away, with no training. The MCP server makes them available to agents too.",
     },
 
     // ───── d2-speech ─────
@@ -986,7 +1239,7 @@ response = openai_client.responses.create(
       prompt: "Which pip package provides the Azure Speech SDK for speech to text and text to speech in Python?",
       options: ["azure-cognitiveservices-speech", "azure-ai-textanalytics", "openai", "azure-ai-projects"],
       answer: [0],
-      explanation: "The Speech SDK is imported as azure.cognitiveservices.speech, usually aliased speechsdk.",
+      explanation: "You install azure-cognitiveservices-speech and import it as azure.cognitiveservices.speech, usually shortened to speechsdk.",
     },
     {
       id: "d2-50",
@@ -1000,13 +1253,14 @@ response = openai_client.responses.create(
         "The agent name and agent_reference",
       ],
       answer: [0],
-      explanation: "SpeechConfig(subscription=key, endpoint=endpoint) holds the connection details, plus settings such as the voice.",
+      explanation:
+        "SpeechConfig(subscription=key, endpoint=endpoint) holds the connection details. It also holds settings such as which voice to use.",
     },
     {
       id: "d2-51",
       domain: "d2",
       lesson: "d2-speech",
-      prompt: "You need to transcribe a user's speech from the default microphone. Which objects do you combine?",
+      prompt: "You need to turn a user's speech from the default microphone into text. Which objects do you combine?",
       options: [
         "A SpeechRecognizer with an AudioConfig that uses the default microphone",
         "A SpeechSynthesizer with an AudioOutputConfig for the default speaker",
@@ -1014,13 +1268,14 @@ response = openai_client.responses.create(
         "A ContentUnderstandingClient with prebuilt-invoice",
       ],
       answer: [0],
-      explanation: "AudioConfig(use_default_microphone=True) sets the input, and SpeechRecognizer converts it to text.",
+      explanation:
+        "AudioConfig(use_default_microphone=True) says where the sound comes from. SpeechRecognizer then turns it into text.",
     },
     {
       id: "d2-52",
       domain: "d2",
       lesson: "d2-speech",
-      prompt: "A company has thousands of recorded calls in Azure Storage and wants transcripts. Results aren't needed immediately. Which Azure Speech approach fits?",
+      prompt: "A company has thousands of recorded calls in Azure Storage and wants transcripts. It doesn't need them right away. Which Azure Speech approach fits?",
       options: [
         "Batch transcription, pointing to the files with a SAS URI and receiving results asynchronously",
         "Real-time transcription from the default microphone",
@@ -1028,13 +1283,14 @@ response = openai_client.responses.create(
         "Voice Live with proactive engagement",
       ],
       answer: [0],
-      explanation: "Batch transcription is asynchronous and scheduled on a best-effort basis, ideal for stored recordings.",
+      explanation:
+        "Batch transcription works through stored files in the background, whenever capacity is available. A SAS URI is a link that grants temporary access to the files.",
     },
     {
       id: "d2-53",
       domain: "d2",
       lesson: "d2-speech",
-      prompt: "In a text-to-speech app, how do you choose which voice speaks the text?",
+      prompt: "In a text-to-speech app, how do you choose which voice reads the text?",
       options: [
         "Set speech_config.speech_synthesis_voice_name",
         "Pass the voice as the model parameter of responses.create",
@@ -1042,7 +1298,7 @@ response = openai_client.responses.create(
         "Set AudioConfig(use_default_microphone=True)",
       ],
       answer: [0],
-      explanation: "The voice name, for example a neural voice, is a property of the SpeechConfig.",
+      explanation: "The voice name, such as a neural voice, is a setting on the SpeechConfig object.",
     },
     {
       id: "d2-54",
@@ -1057,7 +1313,8 @@ response = openai_client.responses.create(
         ["SpeechSynthesizer", "Converts text into spoken audio"],
         ["AudioOutputConfig", "Sets where synthesized audio plays, such as the speaker"],
       ],
-      explanation: "Config objects describe the connection and audio devices; the recognizer and synthesizer do the work.",
+      explanation:
+        "The config objects describe the connection and the audio devices. The recognizer and the synthesizer do the actual work.",
     },
     {
       id: "d2-55",
@@ -1072,22 +1329,23 @@ response = openai_client.responses.create(
         "Text to speech turns the reply into audio",
         "The user hears the spoken response",
       ],
-      explanation: "Speech-to-speech is a pipeline: recognition, processing or reasoning, then synthesis.",
+      explanation:
+        "Speech-to-speech is a relay. First the voice becomes text, then a model works out a reply, then the reply becomes speech again.",
     },
     {
       id: "d2-56",
       domain: "d2",
       lesson: "d2-speech",
-      prompt: "You want to build a real-time voice agent without wiring up speech to text, a model, and text to speech yourself. Which Azure Speech capability should you use?",
+      prompt: "You want to build a live voice agent without connecting speech to text, a model, and text to speech yourself. Which Azure Speech capability should you use?",
       options: ["Voice Live", "Batch transcription", "Azure Language PII detection", "Content Understanding prebuilt-audioSearch"],
       answer: [0],
-      explanation: "The Voice Live API combines everything into one fully managed service for real-time spoken conversations.",
+      explanation: "The Voice Live API puts all three pieces into one fully managed service for real-time spoken conversations.",
     },
     {
       id: "d2-57",
       domain: "d2",
       lesson: "d2-speech",
-      prompt: "What does enabling Voice mode on a Microsoft Foundry agent in the playground do?",
+      prompt: "What does turning on Voice mode for a Microsoft Foundry agent in the playground do?",
       options: [
         "Integrates Azure Speech Voice Live into the agent definition, reducing the client code you need",
         "Converts the agent into an image-generation model",
@@ -1095,7 +1353,7 @@ response = openai_client.responses.create(
         "Removes the agent's instructions",
       ],
       answer: [0],
-      explanation: "Speech configuration is encapsulated in the agent itself.",
+      explanation: "The speech setup moves into the agent itself, so your client app has less to do.",
     },
     {
       id: "d2-58",
@@ -1104,13 +1362,14 @@ response = openai_client.responses.create(
       prompt: "A developer wants a deployed model to understand a user's spoken question directly, without writing separate transcription code. What should they deploy?",
       options: ["A multimodal model that accepts audio input", "An embedding model", "An image-generation model", "A text-only small language model"],
       answer: [0],
-      explanation: "Multimodal models can take audio as input and respond to it, which is how you answer spoken prompts with a deployed model.",
+      explanation:
+        "A multimodal model that takes audio can listen to the question and answer it in one step. That's how you respond to spoken prompts with a deployed model.",
     },
     {
       id: "d2-59",
       domain: "d2",
       lesson: "d2-speech",
-      prompt: "After calling synthesizer.speak_text_async(text).get(), which checks does well-written code perform? (Choose two.)",
+      prompt: "After calling synthesizer.speak_text_async(text).get(), which checks should well-written code do? (Choose two.)",
       options: [
         "Compare result.reason with ResultReason.SynthesizingAudioCompleted to confirm success",
         "If the reason is Canceled, read cancellation_details to find the error",
@@ -1119,7 +1378,8 @@ response = openai_client.responses.create(
         "Call begin_analyze on the result",
       ],
       answer: [0, 1],
-      explanation: "The result reason tells you whether audio was produced; cancellation details explain failures such as a wrong key or endpoint.",
+      explanation:
+        "The result's reason tells you whether audio was produced. If it was canceled, the cancellation details explain why, for example a wrong key or endpoint.",
     },
 
     // ───── d2-vision ─────
@@ -1127,7 +1387,7 @@ response = openai_client.responses.create(
       id: "d2-60",
       domain: "d2",
       lesson: "d2-vision",
-      prompt: "You're sending an image and a question to a vision-enabled model with the Responses API. How is the user message structured?",
+      prompt: "You're sending an image and a question to a vision-enabled model with the Responses API. How is the user message built?",
       options: [
         "A content list with an input_text part and an input_image part",
         "Two separate API calls: one for the image, one for the text",
@@ -1135,16 +1395,16 @@ response = openai_client.responses.create(
         "An image-generation tool call",
       ],
       answer: [0],
-      explanation: "A single request can include text and image parts together; the model processes both to respond.",
+      explanation: "One request can carry text and image parts side by side. The model looks at both before it replies.",
     },
     {
       id: "d2-61",
       domain: "d2",
       lesson: "d2-vision",
-      prompt: "In what forms can you provide an image to a multimodal model in a prompt?",
+      prompt: "In what forms can you give an image to a multimodal model in a prompt?",
       options: ["As a URL or as base64-encoded image data", "Only as a printed copy", "Only as a link to a Foundry project", "Only as an MP4 file"],
       answer: [0],
-      explanation: "Base64 converts binary image bytes into text so the image can travel inside JSON.",
+      explanation: "Either link to the image, or send it as base64. Base64 turns the image's raw bytes into text so it can travel inside JSON.",
     },
     {
       id: "d2-62",
@@ -1166,22 +1426,22 @@ response = openai_client.responses.create(
         "None of them: images must be uploaded separately",
       ],
       answer: [0],
-      explanation: "The input_image part carries the image URL or data URL; input_text carries the question.",
+      explanation: "The input_image part carries the image URL or data URL. The input_text part carries the question.",
     },
     {
       id: "d2-63",
       domain: "d2",
       lesson: "d2-vision",
-      prompt: "Using the Responses API with an image-generation deployment, what do you add to the request so the model creates an image?",
+      prompt: "You're using the Responses API with an image-generation deployment. What do you add to the request so the model creates an image?",
       options: ["tools=[{\"type\": \"image_generation\"}]", "temperature=0", "max_output_tokens=1", "extra_body={\"agent\": ...}"],
       answer: [0],
-      explanation: "The image_generation tool tells the model to produce an image from the prompt.",
+      explanation: "The image_generation tool tells the model to produce a picture from your prompt instead of only text.",
     },
     {
       id: "d2-64",
       domain: "d2",
       lesson: "d2-vision",
-      prompt: "In the response to an image-generation request, where is the generated image?",
+      prompt: "In the response to an image-generation request, where do you find the generated image?",
       options: [
         "In the result of the output item whose type is image_generation_call, as base64 data",
         "In response.output_text as a description",
@@ -1189,7 +1449,7 @@ response = openai_client.responses.create(
         "In the deployment's TPM setting",
       ],
       answer: [0],
-      explanation: "Decode the base64 result and write the bytes to a file such as a PNG.",
+      explanation: "The image comes back as base64 text. Decode it and save the bytes to a file, such as a PNG.",
     },
     {
       id: "d2-65",
@@ -1198,25 +1458,25 @@ response = openai_client.responses.create(
       prompt: "You're starting a new branding project that needs high-quality image creation and precise editing. Which model family does Microsoft recommend starting with in Foundry?",
       options: ["The GPT-Image-1 family, especially GPT-Image-1.5", "text-embedding-3-small", "Sora 1", "Phi-4 text-only models"],
       answer: [0],
-      explanation: "GPT-Image-1.5 offers improved quality, editing support, and enterprise readiness.",
+      explanation: "GPT-Image-1.5 offers better quality, supports editing, and is ready for enterprise use.",
     },
     {
       id: "d2-66",
       domain: "d2",
       lesson: "d2-vision",
-      prompt: "An internal tool generates thousands of rough concept images a day. Cost and latency matter more than maximum fidelity. Which model fits best?",
+      prompt: "An internal tool creates thousands of rough concept images a day. Cost and speed matter more than top quality. Which model fits best?",
       options: ["GPT-Image-1-Mini", "GPT-Image-1.5", "Sora 2", "An embedding model"],
       answer: [0],
-      explanation: "GPT-Image-1-Mini is the lighter, more cost-efficient version for experimentation and high volume.",
+      explanation: "GPT-Image-1-Mini is the lighter, cheaper version, made for experiments and high volume.",
     },
     {
       id: "d2-67",
       domain: "d2",
       lesson: "d2-vision",
-      prompt: "A marketing team wants short promotional video clips generated from text and reference images. Which models in Foundry generate video natively?",
+      prompt: "A marketing team wants short promotional video clips made from text and reference images. Which models in Foundry generate video natively?",
       options: ["Sora models such as Sora 2", "GPT-4.1-mini", "FLUX", "Azure Speech neural voices"],
       answer: [0],
-      explanation: "Sora models are the native video generation models in Foundry. Other multimodal models don't output video.",
+      explanation: "Sora models are Foundry's built-in video generators. The other multimodal models don't output video.",
     },
     {
       id: "d2-68",
@@ -1229,7 +1489,8 @@ response = openai_client.responses.create(
         "Poll the job's status until it's completed",
         "Download the finished MP4 content",
       ],
-      explanation: "Video generation is resource-intensive, so it runs as an asynchronous job: create, poll, download.",
+      explanation:
+        "Making video takes a lot of computing, so it runs as a background job. You create the job, keep checking on it, then download the result.",
     },
     {
       id: "d2-69",
@@ -1244,7 +1505,8 @@ response = openai_client.responses.create(
         "It has no responsible AI restrictions",
       ],
       answer: [0, 1],
-      explanation: "Sora 2 also supports video remix and audio generation, and includes restrictions such as limits on real people and copyrighted characters.",
+      explanation:
+        "Sora 2 can also remix video and generate audio. It has restrictions too, such as limits on showing real people and copyrighted characters.",
     },
     {
       id: "d2-70",
@@ -1259,7 +1521,8 @@ response = openai_client.responses.create(
         "A Data Zone Batch deployment",
       ],
       answer: [0, 1],
-      explanation: "Create the OpenAI client with the endpoint and key, then pass the deployment name as the model with a multi-part prompt.",
+      explanation:
+        "Create the OpenAI client with the endpoint and key. Then pass the deployment name as the model, with a prompt that has both text and image parts.",
     },
 
     // ───── d2-extract ─────
@@ -1275,7 +1538,8 @@ response = openai_client.responses.create(
         "Tokenize, embed, decode the next token",
       ],
       answer: [0],
-      explanation: "Analysis combines OCR, speech recognition, natural language understanding, and multimodal models.",
+      explanation:
+        "It takes the content in, analyzes it, and hands back structured data. The analysis step mixes OCR, speech recognition, language understanding, and multimodal models.",
     },
     {
       id: "d2-72",
@@ -1289,7 +1553,8 @@ response = openai_client.responses.create(
         "How many tokens per minute the deployment allows",
       ],
       answer: [0],
-      explanation: "For an invoice, a schema might include vendor name, invoice number, and an Items collection with description, unit price, and quantity.",
+      explanation:
+        "For an invoice, a schema might list vendor name and invoice number, plus an Items collection where each item has a description, unit price, and quantity.",
     },
     {
       id: "d2-73",
@@ -1303,7 +1568,7 @@ response = openai_client.responses.create(
         "A tool that generates new documents",
       ],
       answer: [0],
-      explanation: "You choose a prebuilt analyzer or create a custom one; it applies its schema consistently to every request.",
+      explanation: "You pick a prebuilt analyzer or make your own. Either way, it applies its schema the same way to every request.",
     },
     {
       id: "d2-74",
@@ -1317,7 +1582,7 @@ response = openai_client.responses.create(
         ["prebuilt-audioSearch", "Audio recordings"],
         ["prebuilt-videoSearch", "Video files"],
       ],
-      explanation: "Prebuilt analyzers cover common scenarios; build a custom analyzer when you need your own fields.",
+      explanation: "Prebuilt analyzers cover the common cases. Build a custom analyzer when you need your own fields.",
     },
     {
       id: "d2-75",
@@ -1331,7 +1596,7 @@ response = openai_client.responses.create(
         "azure-ai-voicelive and VoiceLiveClient",
       ],
       answer: [0],
-      explanation: "ContentUnderstandingClient takes your Foundry endpoint and a credential.",
+      explanation: "ContentUnderstandingClient comes from azure-ai-contentunderstanding. It takes your Foundry endpoint and a credential.",
     },
     {
       id: "d2-76",
@@ -1348,13 +1613,13 @@ result = poller.result()`,
         "result() deploys a new model",
       ],
       answer: [0],
-      explanation: "begin_analyze starts the operation; the poller handles polling for you.",
+      explanation: "begin_analyze only starts the job. The poller keeps checking for you, and result() hands back the answer once it's done.",
     },
     {
       id: "d2-77",
       domain: "d2",
       lesson: "d2-extract",
-      prompt: "For each item in result.contents, what does an invoice analysis typically return?",
+      prompt: "For each item in result.contents, what does an invoice analysis usually return?",
       options: [
         "Markdown of the content plus fields with values, types, and confidence scores",
         "An MP4 video of the invoice",
@@ -1362,7 +1627,8 @@ result = poller.result()`,
         "A list of model deployments",
       ],
       answer: [0],
-      explanation: "For example, CustomerName with a string value and a confidence such as 0.95, and InvoiceDate with a date value.",
+      explanation:
+        "For example, you might get CustomerName as a string with a confidence of 0.95, and InvoiceDate as a date.",
     },
     {
       id: "d2-78",
@@ -1376,13 +1642,14 @@ result = poller.result()`,
         "Azure Language language detection",
       ],
       answer: [0],
-      explanation: "Content Understanding applies a schema to audio, returning a transcript and the extracted insights as JSON.",
+      explanation:
+        "Content Understanding can apply a schema to audio. It returns a transcript plus the fields you asked for, as JSON.",
     },
     {
       id: "d2-79",
       domain: "d2",
       lesson: "d2-extract",
-      prompt: "From conference-room camera snapshots, a facilities team wants location, in-person attendees, remote attendees, and total attendees as data. Which approach fits?",
+      prompt: "From conference-room camera snapshots, a facilities team wants the location, in-person attendees, remote attendees, and total attendees as data. Which approach fits?",
       options: [
         "Apply a Content Understanding schema with those fields to the images",
         "Use speech to text on the images",
@@ -1390,7 +1657,7 @@ result = poller.result()`,
         "Generate a new image with GPT-Image-1",
       ],
       answer: [0],
-      explanation: "Content Understanding extracts schema-defined fields from images as well as documents, audio, and video.",
+      explanation: "Content Understanding extracts the fields in your schema from images, not just from documents, audio, and video.",
     },
     {
       id: "d2-80",
@@ -1405,7 +1672,8 @@ result = poller.result()`,
         "They return free-form text only, never JSON",
       ],
       answer: [0, 1],
-      explanation: "Custom analyzers let you tailor the fields, and their structured JSON output is easy to store, search, or automate.",
+      explanation:
+        "Custom analyzers let you choose the fields. Their structured JSON output is easy to store, search, or feed into automation.",
     },
     {
       id: "d2-81",
@@ -1419,40 +1687,41 @@ result = poller.result()`,
         "Open the Foundry portal to approve the request",
       ],
       answer: [0],
-      explanation: "Because analysis is asynchronous, the REST pattern is submit, then poll until the job succeeds.",
+      explanation:
+        "Analysis runs in the background, so the first response doesn't contain the result yet. You submit, then keep checking the Operation-Location URL until the job succeeds.",
     },
   ],
 
   cards: [
-    { id: "s-foundry", domain: "d2", kind: "service", term: "Microsoft Foundry", definition: "Platform to build, deploy, and manage AI apps and agents on Azure" },
-    { id: "s-foundry-resource", domain: "d2", kind: "service", term: "Foundry resource", definition: "The Azure resource: model hosting, agent service, quotas, security boundary" },
-    { id: "s-foundry-project", domain: "d2", kind: "service", term: "Foundry project", definition: "Workspace in a resource for agents, evaluations, datasets, and connections" },
-    { id: "s-playground", domain: "d2", kind: "service", term: "Foundry playground", definition: "Try prompts and parameters on a deployment, then copy the settings into code" },
-    { id: "s-responses", domain: "d2", kind: "service", term: "Responses API", definition: "OpenAI-compatible API for calling deployed models and agents" },
-    { id: "s-projects-sdk", domain: "d2", kind: "service", term: "Foundry SDK (azure-ai-projects)", definition: "AIProjectClient for Foundry operations, agents, and get_openai_client()" },
-    { id: "s-agent-service", domain: "d2", kind: "service", term: "Foundry Agent Service", definition: "Runs agents: tool calls, threading, safety controls, and observability" },
-    { id: "s-foundry-iq", domain: "d2", kind: "service", term: "Foundry IQ", definition: "Permission-aware knowledge layer that gives agents grounded, cited answers" },
-    { id: "s-tool-catalog", domain: "d2", kind: "service", term: "Foundry Tool Catalog", definition: "Discover and centrally manage the tools agents can call" },
-    { id: "s-language-mcp", domain: "d2", kind: "service", term: "Azure Language MCP server", definition: "Exposes Azure Language text analysis to agents as MCP tools" },
-    { id: "s-speech", domain: "d2", kind: "service", term: "Azure Speech in Foundry Tools", definition: "Speech to text, text to speech, translation, and speaker recognition" },
-    { id: "s-voice-live", domain: "d2", kind: "service", term: "Voice Live", definition: "Managed real-time speech-to-speech conversations for voice agents" },
-    { id: "s-vision", domain: "d2", kind: "service", term: "Azure Vision in Foundry Tools", definition: "Prebuilt analysis of content in images and videos" },
-    { id: "s-content-understanding", domain: "d2", kind: "service", term: "Azure Content Understanding in Foundry Tools", definition: "Schema-based extraction from documents, images, audio, and video" },
-    { id: "s-gpt-image", domain: "d2", kind: "service", term: "GPT-Image-1.5", definition: "Recommended starting model for image generation and editing in Foundry" },
-    { id: "s-sora", domain: "d2", kind: "service", term: "Sora 2", definition: "Video generation: text, image, or video in; async job; MP4 out" },
-    { id: "s-entra", domain: "d2", kind: "service", term: "Microsoft Entra ID", definition: "Identity for keyless authentication and role-based access to AI resources" },
-    { id: "s-keyvault", domain: "d2", kind: "service", term: "Azure Key Vault", definition: "Stores secrets such as API keys, read at runtime with managed identity" },
-    { id: "s-translator", domain: "d2", kind: "service", term: "Azure Translator in Foundry Tools", definition: "AI translation across more than 100 languages and dialects" },
-    { id: "s-content-safety", domain: "d2", kind: "service", term: "Content Safety in Foundry Tools", definition: "Detects unwanted or harmful content in text and images" },
-    { id: "c-system-prompt", domain: "d2", kind: "concept", term: "System prompt", definition: "Sets the model's role, tone, rules, and output format; set by the app" },
-    { id: "c-rag", domain: "d2", kind: "concept", term: "Retrieval-augmented generation", definition: "Retrieve relevant data and add it to the prompt to ground the answer" },
-    { id: "c-mcp", domain: "d2", kind: "concept", term: "Model Context Protocol (MCP)", definition: "Open standard connecting agents (clients) to tools exposed by MCP servers" },
-    { id: "c-code-interpreter", domain: "d2", kind: "concept", term: "Code Interpreter", definition: "Agent tool that runs code for data analysis and file handling" },
-    { id: "c-deployment-name", domain: "d2", kind: "concept", term: "Deployment name", definition: "The name you give a deployed model; pass it as model= in code" },
-    { id: "c-batch-transcription", domain: "d2", kind: "concept", term: "Batch transcription", definition: "Asynchronous transcription of stored audio files via SAS URIs" },
-    { id: "c-base64", domain: "d2", kind: "concept", term: "Base64", definition: "Encodes binary files such as images as text so they fit in JSON" },
-    { id: "c-schema", domain: "d2", kind: "concept", term: "Schema (Content Understanding)", definition: "The fields to extract and their structure, applied by meaning" },
-    { id: "c-analyzer", domain: "d2", kind: "concept", term: "Analyzer", definition: "Applies a schema consistently and returns predictable JSON" },
+    { id: "s-foundry", domain: "d2", kind: "service", term: "Microsoft Foundry", definition: "Microsoft's platform for building, deploying, and managing AI apps and agents on Azure." },
+    { id: "s-foundry-resource", domain: "d2", kind: "service", term: "Foundry resource", definition: "The Azure resource itself. It holds model hosting, the agent service, quotas, and the security boundary." },
+    { id: "s-foundry-project", domain: "d2", kind: "service", term: "Foundry project", definition: "A workspace inside a resource for one use case, with its own agents, evaluations, datasets, and connections." },
+    { id: "s-playground", domain: "d2", kind: "service", term: "Foundry playground", definition: "Try prompts and settings on a deployment, then copy what works into your code." },
+    { id: "s-responses", domain: "d2", kind: "service", term: "Responses API", definition: "The OpenAI-compatible API you use to call deployed models and agents." },
+    { id: "s-projects-sdk", domain: "d2", kind: "service", term: "Foundry SDK (azure-ai-projects)", definition: "Gives you AIProjectClient for Foundry tasks, agents, and get_openai_client()." },
+    { id: "s-agent-service", domain: "d2", kind: "service", term: "Foundry Agent Service", definition: "Runs your agents and handles tool calls, conversation threads, safety controls, and monitoring." },
+    { id: "s-foundry-iq", domain: "d2", kind: "service", term: "Foundry IQ", definition: "A knowledge layer that respects permissions and gives agents grounded answers with citations." },
+    { id: "s-tool-catalog", domain: "d2", kind: "service", term: "Foundry Tool Catalog", definition: "Where you find and centrally manage the tools your agents can call." },
+    { id: "s-language-mcp", domain: "d2", kind: "service", term: "Azure Language MCP server", definition: "Offers Azure Language text analysis to agents as MCP tools." },
+    { id: "s-speech", domain: "d2", kind: "service", term: "Azure Speech in Foundry Tools", definition: "Speech to text, text to speech, translation, and speaker recognition." },
+    { id: "s-voice-live", domain: "d2", kind: "service", term: "Voice Live", definition: "A managed service for real-time spoken conversations with voice agents." },
+    { id: "s-vision", domain: "d2", kind: "service", term: "Azure Vision in Foundry Tools", definition: "Prebuilt analysis of what's in images and videos." },
+    { id: "s-content-understanding", domain: "d2", kind: "service", term: "Azure Content Understanding in Foundry Tools", definition: "Pulls the fields in your schema out of documents, images, audio, and video." },
+    { id: "s-gpt-image", domain: "d2", kind: "service", term: "GPT-Image-1.5", definition: "The recommended model to start with for creating and editing images in Foundry." },
+    { id: "s-sora", domain: "d2", kind: "service", term: "Sora 2", definition: "Makes video from text, an image, or another video. It runs as a background job and returns an MP4." },
+    { id: "s-entra", domain: "d2", kind: "service", term: "Microsoft Entra ID", definition: "Microsoft's identity service. It lets apps sign in without keys and controls who can use which AI resources." },
+    { id: "s-keyvault", domain: "d2", kind: "service", term: "Azure Key Vault", definition: "A safe for secrets such as API keys. Apps read them while running, using a managed identity." },
+    { id: "s-translator", domain: "d2", kind: "service", term: "Azure Translator in Foundry Tools", definition: "AI translation across more than 100 languages and dialects." },
+    { id: "s-content-safety", domain: "d2", kind: "service", term: "Content Safety in Foundry Tools", definition: "Spots unwanted or harmful content in text and images." },
+    { id: "c-system-prompt", domain: "d2", kind: "concept", term: "System prompt", definition: "Set by the app. It gives the model its role, tone, rules, and output format." },
+    { id: "c-rag", domain: "d2", kind: "concept", term: "Retrieval-augmented generation", definition: "Look up relevant data first and add it to the prompt, so the answer is grounded in it." },
+    { id: "c-mcp", domain: "d2", kind: "concept", term: "Model Context Protocol (MCP)", definition: "An open standard that connects agents, the clients, to tools offered by MCP servers." },
+    { id: "c-code-interpreter", domain: "d2", kind: "concept", term: "Code Interpreter", definition: "An agent tool that runs code, for data analysis and working with files." },
+    { id: "c-deployment-name", domain: "d2", kind: "concept", term: "Deployment name", definition: "The name you give a deployed model. You pass it as model= in your code." },
+    { id: "c-batch-transcription", domain: "d2", kind: "concept", term: "Batch transcription", definition: "Turns stored audio files into text in the background. You point to the files with SAS URIs." },
+    { id: "c-base64", domain: "d2", kind: "concept", term: "Base64", definition: "A way to write binary files, such as images, as plain text so they fit inside JSON." },
+    { id: "c-schema", domain: "d2", kind: "concept", term: "Schema (Content Understanding)", definition: "The list of fields to extract and how they fit together. Fields are matched by meaning, not exact label." },
+    { id: "c-analyzer", domain: "d2", kind: "concept", term: "Analyzer", definition: "Applies a schema the same way every time and returns predictable JSON." },
   ],
 
   challenges: [
@@ -1461,9 +1730,9 @@ result = poller.result()`,
       domain: "d2",
       lesson: "d2-agents",
       title: "Pass every test prompt",
-      goal: "Configure the agent's instructions and tools so all four playground test prompts pass.",
+      goal: "Set the agent's instructions and tools so all four playground test prompts pass.",
       hint: "Each failing test needs something different: knowledge, Code Interpreter, Azure Language, or tighter instructions.",
-      takeaway: "Knowledge grounds answers, tools take actions, and instructions keep the agent in its lane.",
+      takeaway: "Knowledge grounds the answers, tools take actions, and instructions keep the agent on its job.",
       render: (onSolved) => <AgentBuilderLab goal="allPass" onSolved={onSolved} />,
     },
     {
@@ -1473,7 +1742,7 @@ result = poller.result()`,
       title: "The lean agent",
       goal: "Pass all four tests without giving the agent any tool it doesn't need.",
       hint: "None of the test prompts asks for a picture.",
-      takeaway: "Give agents only the tools their job requires: fewer tools, fewer ways to misbehave.",
+      takeaway: "Give agents only the tools their job needs. Fewer tools means fewer ways to misbehave.",
       render: (onSolved) => <AgentBuilderLab goal="lean" onSolved={onSolved} />,
     },
   ],

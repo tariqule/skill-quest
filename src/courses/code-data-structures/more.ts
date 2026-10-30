@@ -6,7 +6,7 @@ export const moreQuestions: Question[] = [
   // ───────────── fill the blanks ─────────────
   {
     id: "ds-fx-01", type: "fill", domain: "d1", level: "junior", lesson: "ds-arrays",
-    prompt: "Fill the gaps so the function reverses the array in place with two pointers.",
+    prompt: "Fill the gaps so the function reverses the array in place, using two pointers that move toward each other.",
     codeLang: "js",
     code: js(
       "function reverse(a) {",
@@ -23,7 +23,7 @@ export const moreQuestions: Question[] = [
       { options: ["i < j", "i !== j", "i < a.length", "j > 0"], answer: 0 },
       { options: ["j--", "j++", "j -= 2", "i--"], answer: 0 },
     ],
-    explanation: "The pointers walk toward each other and stop when they meet or cross, so the condition is `i < j`. `i !== j` would run past each other on even-length arrays. Each step moves `j` down by one.",
+    explanation: "The two pointers walk toward each other and should stop when they meet or cross, so the condition is `i < j`. With `i !== j`, the pointers would step past each other on even-length arrays. Each step moves `j` down by one.",
   },
   {
     id: "ds-fx-02", type: "fill", domain: "d1", level: "intermediate", lesson: "ds-linked",
@@ -45,7 +45,7 @@ export const moreQuestions: Question[] = [
       { options: ["head.next", "prev.next", "head", "null"], answer: 0 },
       { options: ["prev", "next", "null", "head"], answer: 0 },
     ],
-    explanation: "Save `head.next` first, because the next line overwrites it. Then point the current node backward at `prev`. Without the saved reference the rest of the list would be lost.",
+    explanation: "Save `head.next` first, because the very next line overwrites it. Then point the current node backwards at `prev`. Without that saved reference, you'd lose the rest of the list.",
   },
   {
     id: "ds-fx-03", type: "fill", domain: "d2", level: "intermediate", lesson: "ds-hashmap",
@@ -66,7 +66,7 @@ export const moreQuestions: Question[] = [
       { options: ["Map", "Set", "Array", "WeakMap"], answer: 0 },
       { options: ["has", "get", "includes", "contains"], answer: 0 },
     ],
-    explanation: "A `Map` stores value to index, so it can hand back the earlier index. Test with `has`: `get` returns `0` for index 0, which is falsy, and would miss a valid pair.",
+    explanation: "A `Map` stores each value with its index, so it can hand back the earlier index. Test with `has`, not `get`: `get` returns `0` for index 0, which counts as false, so you'd miss a valid pair.",
   },
   {
     id: "ds-fx-04", type: "fill", domain: "d2", level: "junior", lesson: "ds-stack",
@@ -88,7 +88,7 @@ export const moreQuestions: Question[] = [
       { options: ["pop", "shift", "peek", "at"], answer: 0 },
       { options: ["===", "!==", ">", "<="], answer: 0 },
     ],
-    explanation: "A stack removes from the same end it adds to, so use `pop` (`shift` takes the oldest opener, a queue). Leftover openers mean the string is invalid, so it must end empty: `=== 0`.",
+    explanation: "A stack takes from the same end it adds to, so you use `pop`. `shift` would take the oldest opener, which makes it a queue. Any openers left over mean the string is invalid, so the stack must end empty: `=== 0`.",
   },
   {
     id: "ds-fx-05", type: "fill", domain: "d3", level: "junior", lesson: "ds-traversal",
@@ -110,7 +110,7 @@ export const moreQuestions: Question[] = [
       { options: ["shift", "pop", "unshift", "splice"], answer: 0 },
       { options: ["push", "unshift", "pop", "shift"], answer: 0 },
     ],
-    explanation: "BFS uses a queue: add at the back with `push`, take from the front with `shift`. Using `pop` would make it a stack, which is depth-first order.",
+    explanation: "Breadth-first search uses a queue. You add at the back with `push` and take from the front with `shift`. Using `pop` would turn it into a stack, which gives depth-first order.",
   },
   {
     id: "ds-fx-06", type: "fill", domain: "d3", level: "senior", lesson: "ds-heap",
@@ -130,11 +130,11 @@ export const moreQuestions: Question[] = [
       { options: ["(i - 1) >> 1", "i >> 1", "i * 2 + 1", "(i + 1) >> 1"], answer: 0 },
       { options: ["parent", "i - 1", "i >> 1", "parent - 1"], answer: 0 },
     ],
-    explanation: "With a zero-based array the parent of index `i` is `floor((i - 1) / 2)`, i.e. `(i - 1) >> 1`. After the swap the moving item lives at the parent's index, so continue from `parent`.",
+    explanation: "In an array that starts at 0, the parent of index `i` is `floor((i - 1) / 2)`, which you can write as `(i - 1) >> 1`. After the swap, the item you're moving sits at the parent's index, so you carry on from `parent`.",
   },
   {
     id: "ds-fx-07", type: "fill", domain: "d4", level: "senior", lesson: "ds-graph-rep",
-    prompt: "Fill the gaps so `hops` returns the fewest edges from `start` to `goal` in an unweighted graph, marking nodes when they are queued.",
+    prompt: "Fill the gaps so `hops` returns the fewest edges from `start` to `goal` in an unweighted graph. Nodes are marked as visited when they're queued.",
     codeLang: "js",
     code: js(
       "function hops(g, start, goal) {",
@@ -156,7 +156,7 @@ export const moreQuestions: Question[] = [
       { options: ["has", "get", "add", "includes"], answer: 0 },
       { options: ["set", "add", "push", "put"], answer: 0 },
     ],
-    explanation: "The `dist` map doubles as the visited set. Check with `has` and record with `set`; setting the distance when a node is queued means it can never be queued twice, which keeps BFS at O(V + E).",
+    explanation: "The `dist` map also works as the visited set. You check it with `has` and record with `set`. Setting the distance as soon as a node is queued means it can never be queued twice, which keeps BFS at O(V + E).",
   },
   {
     id: "ds-fx-08", type: "fill", domain: "d4", level: "staff", lesson: "ds-trie",
@@ -176,7 +176,7 @@ export const moreQuestions: Question[] = [
       { options: ["node.kids[ch]", "node.kids", "root.kids[ch]", "node"], answer: 0 },
       { options: ["true", "false", "word", "ch"], answer: 0 },
     ],
-    explanation: "Each letter descends into that letter's child node. The final node is flagged as a word end; without the flag `app` would be indistinguishable from the prefix of `apple`.",
+    explanation: "Each letter moves you down into that letter's child node. The final node gets the end flag. Without it, the word `app` would look exactly like the start of `apple`.",
   },
   {
     id: "ds-fx-09", type: "fill", domain: "d2", level: "staff", lesson: "ds-hashmap",
@@ -203,7 +203,7 @@ export const moreQuestions: Question[] = [
       { options: ["delete", "clear", "has", "get"], answer: 0 },
       { options: ["next", "first", "pop", "shift"], answer: 0 },
     ],
-    explanation: "A Map iterates in insertion order. Deleting then re-setting a key moves it to the back (most recent), and the first key from `keys().next().value` is the oldest. Both are O(1).",
+    explanation: "A Map lists its keys in insertion order. Deleting a key and setting it again moves it to the back, marking it most recent. The first key, from `keys().next().value`, is the oldest. Both steps are O(1).",
   },
 
   // ───────────── type the output ─────────────
@@ -218,7 +218,7 @@ export const moreQuestions: Question[] = [
       "console.log(a.length, b === a);",
     ),
     answers: ["4 true"],
-    explanation: "`b = a` copies the reference, not the array. Both names point at the same array, so the push is visible through `a` and `b === a` is `true`.",
+    explanation: "`b = a` copies the reference, not the array. Both names point at the same array, so the push shows up through `a` as well, and `b === a` is `true`.",
   },
   {
     id: "ds-ox-02", type: "output", domain: "d1", level: "junior", lesson: "ds-strings",
@@ -229,7 +229,7 @@ export const moreQuestions: Question[] = [
       "console.log(s.indexOf(\"an\"), s.lastIndexOf(\"an\"), s.slice(-3));",
     ),
     answers: ["1 3 ana"],
-    explanation: "`an` first appears at index 1 and last at index 3 (b-a-n-a-n-a). `slice(-3)` takes the last three characters: `ana`.",
+    explanation: "In b-a-n-a-n-a, `an` first appears at index 1 and last appears at index 3. `slice(-3)` takes the last three characters, which are `ana`.",
   },
   {
     id: "ds-ox-03", type: "output", domain: "d2", level: "junior", lesson: "ds-queue",
@@ -243,7 +243,7 @@ export const moreQuestions: Question[] = [
       "console.log(q.join(\"\"));",
     ),
     answers: ["32"],
-    explanation: "After the first `shift` the queue is `[2, 3]`. The second `shift` removes `2` and pushes it to the back: `[3, 2]`.",
+    explanation: "After the first `shift`, the queue is `[2, 3]`. The second `shift` removes `2`, and pushing it puts it at the back, giving `[3, 2]`.",
   },
   {
     id: "ds-ox-04", type: "output", domain: "d2", level: "intermediate", lesson: "ds-hashmap",
@@ -255,7 +255,7 @@ export const moreQuestions: Question[] = [
       "console.log(m.size, m.get(\"a\"), [...m.keys()].join(\"\"));",
     ),
     answers: ["3 3 abc"],
-    explanation: "Three distinct keys, `a` counted three times, and a Map keeps keys in the order they were first inserted: `a`, `b`, `c`.",
+    explanation: "There are three different keys, and `a` was counted three times. A Map keeps keys in the order they were first added, so you get `a`, `b`, `c`.",
   },
   {
     id: "ds-ox-05", type: "output", domain: "d3", level: "intermediate", lesson: "ds-traversal",
@@ -273,7 +273,7 @@ export const moreQuestions: Question[] = [
       "console.log(out.join(\"\"));",
     ),
     answers: ["4231"],
-    explanation: "Children are visited before the node itself: post-order. Node 2's subtree gives `4` then `2`, then node 3, and finally the root `1`.",
+    explanation: "The function visits a node's children before the node itself, which is post-order. Node 2's subtree gives `4` and then `2`. Then comes node 3, and finally the root, `1`.",
   },
   {
     id: "ds-ox-06", type: "output", domain: "d3", level: "intermediate", lesson: "ds-heap",
@@ -285,7 +285,7 @@ export const moreQuestions: Question[] = [
       "console.log(h[(i - 1) >> 1], h[2 * 1 + 1], h[2 * 1 + 2]);",
     ),
     answers: ["3 7 4"],
-    explanation: "The parent of index 4 is `(4 - 1) >> 1 = 1`, so `3`. The children of index 1 are `2 * 1 + 1 = 3` and `2 * 1 + 2 = 4`: values `7` and `4`.",
+    explanation: "The parent of index 4 is `(4 - 1) >> 1`, which is 1, so the first value is `3`. The children of index 1 are at indexes 3 and 4, which hold `7` and `4`.",
   },
   {
     id: "ds-ox-07", type: "output", domain: "d4", level: "senior", lesson: "ds-graph-rep",
@@ -304,7 +304,7 @@ export const moreQuestions: Question[] = [
       "console.log(order.join(\"\"));",
     ),
     answers: ["ABDC"],
-    explanation: "DFS goes deep first: A, then B, then B's neighbour D. Back at A it visits C; C's neighbour D is already seen. Order: A B D C.",
+    explanation: "DFS goes deep first: A, then B, then B's neighbour D. Back at A, it visits C. C's neighbour D has already been seen, so the order is A, B, D, C.",
   },
   {
     id: "ds-ox-08", type: "output", domain: "d4", level: "staff", lesson: "ds-choose",
@@ -317,7 +317,7 @@ export const moreQuestions: Question[] = [
       "console.log(Object.keys(o).join(\"\"), [...m.keys()].join(\"\"));",
     ),
     answers: ["12a 2a1"],
-    explanation: "Objects list integer-like keys first in ascending order, then string keys in insertion order: `1`, `2`, `a`. A Map keeps pure insertion order: `2`, `a`, `1`. That is why a Map is the safer ordered dictionary.",
+    explanation: "Objects list whole-number keys first, smallest to largest, and then string keys in the order you added them: `1`, `2`, `a`. A Map keeps pure insertion order: `2`, `a`, `1`. That's why a Map is the safer choice when order matters.",
   },
   {
     id: "ds-ox-09", type: "output", domain: "d2", level: "staff", lesson: "ds-hashing",
@@ -328,6 +328,6 @@ export const moreQuestions: Question[] = [
       "console.log(s.size, [NaN].indexOf(NaN), [NaN].includes(NaN));",
     ),
     answers: ["2 -1 true"],
-    explanation: "Sets (and `includes`) use SameValueZero: `NaN` equals `NaN`, and `0` equals `-0`, so the set holds two values. `indexOf` uses strict equality, where `NaN !== NaN`, so it returns `-1`.",
+    explanation: "Sets and `includes` use a comparison called SameValueZero, where `NaN` equals `NaN` and `0` equals `-0`. So the set holds just two values. `indexOf` uses strict equality, where `NaN !== NaN`, so it returns `-1`.",
   },
 ];

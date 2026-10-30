@@ -75,4 +75,12 @@ export const ALL_MODES: ModeInfo[] = [
   },
 ];
 
+/** Modes that wait until after the Beginner level (they're timed or exam-style and can feel harsh at first). */
+export const BEGINNER_LOCKED: ModeId[] = ["timed", "boss", "lightning"];
+
+/** The course's modes for this level: Beginner hides the high-pressure ones. */
+export function modesFor(course: Course, level: string): ModeId[] {
+  return level === "beginner" ? course.modes.filter((m) => !BEGINNER_LOCKED.includes(m)) : course.modes;
+}
+
 export const MODE_BY_ID = Object.fromEntries(ALL_MODES.map((m) => [m.id, m])) as Record<ModeId, ModeInfo>;

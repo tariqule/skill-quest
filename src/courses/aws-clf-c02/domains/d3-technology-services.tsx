@@ -16,7 +16,7 @@ export default defineDomain({
     weight: 34,
     emoji: "🏙️",
     color: "#a78bfa",
-    summary: "Ways to use AWS, the global infrastructure, and the core services: compute, databases, networking, storage, AI/ML, analytics, and more.",
+    summary: "How you work with AWS, where its data centers are, and the main services you'll meet: servers, databases, networks, storage, AI and analytics.",
   },
 
   tasks: [
@@ -95,6 +95,78 @@ export default defineDomain({
 
   lessons: [
     {
+      id: "d3-start-building-blocks",
+      level: "beginner",
+      check: ["clf-b3-01", "clf-b3-02"],
+      task: "3.3",
+      title: "The four building blocks",
+      visual: (
+        <Tiles
+          cols={4}
+          tiles={[
+            { icon: "🧑‍🍳", title: "Compute", text: "The cooks. Computers that run your code. On AWS: Amazon EC2.", color: "#38bdf8" },
+            { icon: "🥫", title: "Storage", text: "The pantry. A place to keep files. On AWS: Amazon S3.", color: "#f59e0b" },
+            { icon: "📒", title: "Databases", text: "The order book. Organized records you can search. On AWS: Amazon RDS.", color: "#a78bfa" },
+            { icon: "🚪", title: "Networking", text: "The doors and corridors. How things connect. On AWS: Amazon VPC.", color: "#34d399" },
+          ]}
+        />
+      ),
+      points: [
+        "AWS has hundreds of services, but most apps are built from four kinds of building block: compute, storage, databases and networking.",
+        "Picture a restaurant kitchen. The cooks do the work (**compute**), the pantry holds ingredients (**storage**), and the order book keeps track of every order (**database**).",
+        "The doors and corridors decide who can get in and how food reaches the tables. That's **networking**.",
+        "Once you know which block a service belongs to, its name is much less scary.",
+      ],
+      tip: "When you meet a new AWS service, first ask: is it compute, storage, a database or networking? That narrows the choices fast.",
+    },
+    {
+      id: "d3-start-first-server-and-bucket",
+      level: "beginner",
+      check: ["clf-b3-03", "clf-b3-04"],
+      task: "3.6",
+      title: "Your first server and your first bucket",
+      visual: (
+        <Tiles
+          cols={2}
+          tiles={[
+            { icon: "🖥️", title: "Amazon EC2", text: "A virtual computer you rent by the second. You pick its size and what runs on it.", color: "#38bdf8" },
+            { icon: "🪣", title: "Amazon S3", text: "A storage bucket for files of any kind. Put files in, take them out, from anywhere.", color: "#f59e0b" },
+          ]}
+        />
+      ),
+      points: [
+        "**Amazon EC2** gives you a virtual server, called an **instance**. It's like renting a computer that lives in an AWS data center.",
+        "You choose how big it is, start it in a few minutes, and pay only while it's running.",
+        "**Amazon S3** stores files, which AWS calls **objects**, inside containers called **buckets**. Think of an online storage locker with no size limit.",
+        "S3 is great for photos, backups, videos and website files. EC2 is for running programs.",
+      ],
+      tip: "If the question is about running a program, think EC2. If it's about keeping files, think S3.",
+    },
+    {
+      id: "d3-start-talking-to-aws",
+      level: "beginner",
+      check: ["clf-b3-05", "clf-b3-06"],
+      task: "3.1",
+      title: "Three ways to talk to AWS",
+      visual: (
+        <Flow
+          color="#a78bfa"
+          steps={[
+            { icon: "🖱️", label: "Click", sub: "The AWS Management Console, a website" },
+            { icon: "⌨️", label: "Type", sub: "The AWS CLI, commands in a terminal" },
+            { icon: "🧑‍💻", label: "Code", sub: "An AWS SDK, inside your own app" },
+          ]}
+        />
+      ),
+      points: [
+        "You can use AWS in three main ways. Under the hood, they all send the same kind of request to AWS.",
+        "The **AWS Management Console** is a website where you click buttons. It's the easiest place to start and to look around.",
+        "The **AWS CLI** (command line interface) lets you type commands in a terminal. It's handy for repeating a task without clicking.",
+        "An **SDK** (software development kit) lets your own program call AWS, for example to upload a file to S3.",
+      ],
+      tip: "Learning or doing something once? Use the console. Doing it again and again? Use the CLI or code.",
+    },
+    {
       id: "d3-access",
       check: ["d3-01", "d3-05"],
       task: "3.1",
@@ -104,27 +176,27 @@ export default defineDomain({
           <Tiles
             cols={4}
             tiles={[
-              { icon: "🖱️", title: "Management Console", text: "Web UI. Great for learning and one-time tasks.", color: "#a78bfa" },
-              { icon: "⌨️", title: "AWS CLI", text: "Commands and scripts from a terminal.", color: "#a78bfa" },
-              { icon: "🧑‍💻", title: "SDKs and APIs", text: "Call AWS from application code in your language.", color: "#a78bfa" },
-              { icon: "📜", title: "Infrastructure as code", text: "AWS CloudFormation templates: repeatable, versioned environments.", color: "#a78bfa" },
+              { icon: "🖱️", title: "Management Console", text: "A website you click through. Good for learning and one-off jobs.", color: "#a78bfa" },
+              { icon: "⌨️", title: "AWS CLI", text: "Commands and scripts you run in a terminal.", color: "#a78bfa" },
+              { icon: "🧑‍💻", title: "SDKs and APIs", text: "Call AWS from your app's code, in your own language.", color: "#a78bfa" },
+              { icon: "📜", title: "Infrastructure as code", text: "AWS CloudFormation templates that build the same setup every time, kept under version control.", color: "#a78bfa" },
             ]}
           />
           <Layers
             layers={[
               { name: "Cloud", color: "#38bdf8", items: ["Everything runs on AWS"] },
-              { name: "Hybrid", color: "#a78bfa", items: ["On-premises connected to AWS", "AWS Outposts", "Direct Connect or VPN"] },
-              { name: "On-premises (private cloud)", color: "#94a3b8", items: ["Your own data center"] },
+              { name: "Hybrid", color: "#a78bfa", items: ["Your own data center linked to AWS", "AWS Outposts", "Direct Connect or a VPN"] },
+              { name: "On-premises (private cloud)", color: "#94a3b8", items: ["Everything in your own data center"] },
             ]}
           />
         </div>
       ),
       points: [
-        "One-time or exploratory task → console. Repeatable process across environments → scripts or infrastructure as code.",
-        "Every console click and CLI command calls the same AWS APIs underneath.",
-        "AWS Outposts brings AWS infrastructure and services into your own data center for a consistent hybrid experience.",
+        "For a one-off job or for exploring, use the console. For something you'll repeat across environments, use scripts or **infrastructure as code** (IaC), where a text file describes what to build.",
+        "Every console click and every CLI command ends up calling the same AWS **APIs**, the programmatic doors into each service.",
+        "A **hybrid** setup mixes your own data center with AWS. **AWS Outposts** puts real AWS hardware and services inside your building, so both sides work the same way.",
       ],
-      tip: "\"Same environment in many accounts or Regions, consistently\" → AWS CloudFormation.",
+      tip: "If the same environment must be built in many accounts or Regions, the same way each time, the answer is AWS CloudFormation.",
     },
     {
       id: "d3-global",
@@ -133,12 +205,12 @@ export default defineDomain({
       title: "Regions, Availability Zones, and edge locations",
       visual: <MultiAzLab />,
       points: [
-        "A Region is a separate geographic area with multiple Availability Zones.",
-        "An Availability Zone is one or more discrete data centers with redundant power, networking, and connectivity. AZs are isolated so they don't share single points of failure.",
-        "Use multiple AZs for high availability. Use multiple Regions for disaster recovery, business continuity, lower latency for distant users, or data sovereignty.",
-        "Edge locations are far more numerous than Regions. CloudFront and Route 53 use them to serve users with low latency.",
+        "A **Region** is a separate part of the world, such as Ireland or Tokyo, with several Availability Zones in it.",
+        "An **Availability Zone** (AZ) is one or more data centers with their own backup power and network links. AZs are kept apart so one problem can't knock out two of them.",
+        "Use several AZs to keep running through a local failure. Use several Regions for disaster recovery, to be closer to distant users, or when data must stay in one country (**data sovereignty**).",
+        "**Edge locations** are small sites in many more cities than there are Regions. CloudFront and Route 53 use them to answer users quickly from nearby.",
       ],
-      tip: "\"Survive a data center failure\" → multiple AZs. \"Survive a Regional disaster\" or \"data must stay in a country\" → Region choice.",
+      tip: "To survive a data center failure, use more than one AZ. To survive a disaster in a whole Region, or to keep data in a country, the answer is about which Regions you choose.",
     },
     {
       id: "d3-compute",
@@ -150,10 +222,10 @@ export default defineDomain({
           <Tiles
             cols={4}
             tiles={[
-              { icon: "⚖️", title: "General purpose", text: "Balanced: web servers, code repositories.", color: "#38bdf8" },
-              { icon: "🧮", title: "Compute optimized", text: "High-performance processors: batch, HPC, gaming servers.", color: "#38bdf8" },
-              { icon: "🧠", title: "Memory optimized", text: "Large data sets in memory: in-memory databases.", color: "#38bdf8" },
-              { icon: "💽", title: "Storage optimized", text: "High sequential reads and writes on local storage: data warehousing.", color: "#38bdf8" },
+              { icon: "⚖️", title: "General purpose", text: "A balanced mix. Good for web servers and code repositories.", color: "#38bdf8" },
+              { icon: "🧮", title: "Compute optimized", text: "Fast processors for batch jobs, scientific computing and game servers.", color: "#38bdf8" },
+              { icon: "🧠", title: "Memory optimized", text: "Lots of memory, for working on big data sets, such as in-memory databases.", color: "#38bdf8" },
+              { icon: "💽", title: "Storage optimized", text: "Very fast reading and writing on local disks, for data warehousing.", color: "#38bdf8" },
             ]}
           />
           <Layers
@@ -166,20 +238,20 @@ export default defineDomain({
           <Flow
             color="#f59e0b"
             steps={[
-              { icon: "👥", label: "Users", sub: "Traffic arrives" },
-              { icon: "⚖️", label: "Elastic Load Balancing", sub: "Spreads requests across healthy targets in many AZs" },
-              { icon: "📈", label: "EC2 Auto Scaling group", sub: "Adds or removes instances with demand" },
+              { icon: "👥", label: "Users", sub: "Requests come in" },
+              { icon: "⚖️", label: "Elastic Load Balancing", sub: "Shares requests out across healthy servers in several AZs" },
+              { icon: "📈", label: "EC2 Auto Scaling group", sub: "Adds or removes servers as demand changes" },
             ]}
           />
         </div>
       ),
       points: [
-        "Lambda runs code in response to events. You pay for requests and compute time, with no servers to manage.",
-        "Fargate runs containers for ECS or EKS without managing servers. EKS is managed Kubernetes; ECS is AWS's own orchestrator.",
-        "Auto Scaling provides elasticity. Load balancers distribute traffic and route only to healthy targets.",
-        "Elastic Beanstalk deploys web apps from your code and handles capacity, load balancing, and scaling. Lightsail offers simple servers with bundled monthly pricing.",
+        "**AWS Lambda** runs your code when something happens, such as a file landing in S3. There are no servers to manage, and you pay per request and for the time your code runs.",
+        "A **container** packages an app with everything it needs to run. **Fargate** runs containers for ECS or EKS with no servers to look after. EKS is managed Kubernetes, and ECS is AWS's own container service.",
+        "**Auto Scaling** adds and removes servers as demand changes. A **load balancer** shares incoming traffic between servers and skips any that are unhealthy.",
+        "**Elastic Beanstalk** takes your code and handles the servers, load balancing and scaling for you. **Lightsail** gives you simple servers for one fixed monthly price.",
       ],
-      tip: "\"Already uses Kubernetes\" → EKS. \"Containers without managing servers\" → Fargate. \"Code runs on events\" → Lambda.",
+      tip: "If the company already uses Kubernetes, think EKS. Containers with no servers to manage means Fargate. Code that runs when an event happens means Lambda.",
     },
     {
       id: "d3-databases",
@@ -189,21 +261,21 @@ export default defineDomain({
       visual: (
         <ServiceRows
           rows={[
-            { input: "Relational tables, SQL, joins", service: "Amazon RDS", output: "Managed MySQL, PostgreSQL, MariaDB, Oracle, SQL Server, Db2" },
-            { input: "Relational at cloud scale", service: "Amazon Aurora", output: "MySQL- and PostgreSQL-compatible, storage replicated across 3 AZs" },
-            { input: "Key-value at any scale", service: "Amazon DynamoDB", output: "Serverless NoSQL, single-digit millisecond latency" },
-            { input: "Microsecond reads", service: "Amazon ElastiCache", output: "In-memory cache in front of a database" },
-            { input: "JSON documents", service: "Amazon DocumentDB", output: "MongoDB-compatible document database" },
-            { input: "Highly connected data", service: "Amazon Neptune", output: "Graph database: social networks, fraud rings" },
+            { input: "Tables, SQL and joins", service: "Amazon RDS", output: "MySQL, PostgreSQL, MariaDB, Oracle, SQL Server or Db2, run for you" },
+            { input: "Relational, at cloud scale", service: "Amazon Aurora", output: "Works with MySQL and PostgreSQL, and keeps copies of its storage across 3 AZs" },
+            { input: "Key-value data at any scale", service: "Amazon DynamoDB", output: "Serverless NoSQL with answers in a few milliseconds" },
+            { input: "Reads in microseconds", service: "Amazon ElastiCache", output: "An in-memory cache that sits in front of a database" },
+            { input: "JSON documents", service: "Amazon DocumentDB", output: "A document database that works with MongoDB" },
+            { input: "Data full of connections", service: "Amazon Neptune", output: "A graph database, for things like social networks and fraud rings" },
           ]}
         />
       ),
       points: [
-        "Managed databases remove patching, backups, and hardware work. Choose a database on EC2 only when you need OS-level access or an engine or version a managed service doesn't offer.",
-        "Amazon Redshift is a data warehouse for analytics, not a transactional database.",
-        "Migrate with AWS DMS (moves the data with minimal downtime) and AWS SCT (converts the schema between engines).",
+        "A managed database takes patching, backups and hardware off your hands. Run a database yourself on EC2 only if you need access to the operating system, or an engine or version AWS doesn't offer.",
+        "**Amazon Redshift** is a data warehouse. It's built for analyzing large amounts of data, not for recording day-to-day orders and payments.",
+        "To move a database, AWS DMS copies the data with very little downtime, and AWS SCT converts the schema when you change engines.",
       ],
-      tip: "\"Fully managed, serverless, key-value, any scale\" → DynamoDB. \"Reduce read load with caching\" → ElastiCache.",
+      tip: "Fully managed, serverless, key-value and any scale all point to DynamoDB. If the goal is to take read load off a database with a cache, it's ElastiCache.",
     },
     {
       id: "d3-network",
@@ -216,23 +288,23 @@ export default defineDomain({
           <Tiles
             cols={3}
             tiles={[
-              { icon: "🧭", title: "Amazon Route 53", text: "DNS, domain registration, health checks, and routing policies.", color: "#38bdf8" },
-              { icon: "🔌", title: "AWS Direct Connect", text: "A dedicated private connection from your site to AWS.", color: "#38bdf8" },
-              { icon: "🔐", title: "AWS Site-to-Site VPN", text: "Encrypted tunnels over the internet. Quick to set up.", color: "#38bdf8" },
-              { icon: "🧑‍💻", title: "AWS Client VPN", text: "Remote users connect securely from their devices.", color: "#38bdf8" },
-              { icon: "🕸️", title: "AWS Transit Gateway", text: "A hub that connects many VPCs and on-premises networks.", color: "#38bdf8" },
-              { icon: "🌐", title: "Amazon CloudFront", text: "Content delivery network that caches at edge locations.", color: "#38bdf8" },
+              { icon: "🧭", title: "Amazon Route 53", text: "DNS, the internet's phone book. Also registers domains, checks health and routes traffic.", color: "#38bdf8" },
+              { icon: "🔌", title: "AWS Direct Connect", text: "A private, dedicated line from your building to AWS.", color: "#38bdf8" },
+              { icon: "🔐", title: "AWS Site-to-Site VPN", text: "Encrypted tunnels across the internet. Quick to set up.", color: "#38bdf8" },
+              { icon: "🧑‍💻", title: "AWS Client VPN", text: "Lets remote staff connect safely from their own devices.", color: "#38bdf8" },
+              { icon: "🕸️", title: "AWS Transit Gateway", text: "A central hub that links many VPCs and your own networks.", color: "#38bdf8" },
+              { icon: "🌐", title: "Amazon CloudFront", text: "A content delivery network that keeps copies of your content in edge locations.", color: "#38bdf8" },
             ]}
           />
         </div>
       ),
       points: [
-        "A VPC is your logically isolated network. Subnets live in one AZ each; an internet gateway gives public subnets internet access; a NAT gateway gives private subnets outbound-only access.",
-        "Security groups are stateful instance-level firewalls with allow rules. Network ACLs are stateless subnet-level firewalls with allow and deny rules.",
-        "Amazon Inspector can also report on unintended network reachability of instances.",
-        "Other services: API Gateway (publish APIs), Global Accelerator (route users over the AWS global network), PrivateLink (private access to services).",
+        "A **VPC** (virtual private cloud) is your own private network inside AWS. You split it into **subnets**, and each subnet lives in one Availability Zone.",
+        "An **internet gateway** connects public subnets to the internet. A **NAT gateway** lets servers in private subnets reach out to the internet, while nobody outside can reach in.",
+        "A **security group** is a firewall around each instance. It only has allow rules and remembers replies (**stateful**). A **network ACL** guards a whole subnet, has allow and deny rules, and checks every packet both ways (**stateless**).",
+        "A few more: **API Gateway** publishes APIs, **Global Accelerator** carries users over AWS's own global network, and **PrivateLink** reaches services privately. Amazon Inspector can also flag servers that are reachable by mistake.",
       ],
-      tip: "\"Consistent, private, high-bandwidth link\" → Direct Connect. \"Encrypted connection quickly over the internet\" → Site-to-Site VPN.",
+      tip: "A steady, private, high-bandwidth link means Direct Connect. A quick encrypted connection over the internet means Site-to-Site VPN.",
     },
     {
       id: "d3-storage",
@@ -243,33 +315,33 @@ export default defineDomain({
         <div className="grid gap-4">
           <Ladder
             rungs={[
-              { icon: "🧊", name: "S3 Glacier Deep Archive", text: "Lowest cost; retrieval within hours; long-term retention" },
-              { icon: "❄️", name: "S3 Glacier Flexible Retrieval", text: "Archives retrieved in minutes to hours" },
-              { icon: "🥶", name: "S3 Glacier Instant Retrieval", text: "Rarely accessed, but milliseconds when you need it" },
-              { icon: "🌗", name: "S3 Standard-IA / One Zone-IA", text: "Infrequent access, retrieval fee; One Zone stores in a single AZ" },
-              { icon: "🤖", name: "S3 Intelligent-Tiering", text: "Moves objects between tiers when access patterns change" },
-              { icon: "🪣", name: "S3 Standard", text: "Frequently accessed data" },
+              { icon: "🧊", name: "S3 Glacier Deep Archive", text: "The cheapest. Getting data back takes hours. For keeping things for years." },
+              { icon: "❄️", name: "S3 Glacier Flexible Retrieval", text: "Archives you can get back in minutes to hours." },
+              { icon: "🥶", name: "S3 Glacier Instant Retrieval", text: "Rarely opened, but back in milliseconds when you need it." },
+              { icon: "🌗", name: "S3 Standard-IA and One Zone-IA", text: "For data you read now and then. There's a fee to read it. One Zone keeps it in a single AZ." },
+              { icon: "🤖", name: "S3 Intelligent-Tiering", text: "Moves objects to a cheaper tier by itself when you stop reading them." },
+              { icon: "🪣", name: "S3 Standard", text: "For data you read often." },
             ]}
           />
           <Tiles
             cols={3}
             tiles={[
-              { icon: "🧱", title: "Amazon EBS", text: "Block volumes for one EC2 instance; persist when the instance stops.", color: "#f59e0b" },
-              { icon: "⚡", title: "Instance store", text: "Temporary block storage on the host; data is lost when the instance stops.", color: "#f59e0b" },
-              { icon: "📁", title: "Amazon EFS", text: "Shared, elastic file system for many Linux instances.", color: "#f59e0b" },
-              { icon: "🗄️", title: "Amazon FSx", text: "Managed file systems such as Windows File Server and Lustre.", color: "#f59e0b" },
-              { icon: "🌉", title: "AWS Storage Gateway", text: "On-premises access to cloud storage with a local cache.", color: "#f59e0b" },
-              { icon: "💾", title: "AWS Backup", text: "Central, policy-based backups across AWS services.", color: "#f59e0b" },
+              { icon: "🧱", title: "Amazon EBS", text: "A virtual hard drive for one EC2 instance. It keeps its data when the instance stops.", color: "#f59e0b" },
+              { icon: "⚡", title: "Instance store", text: "Temporary disk on the host machine. The data is lost when the instance stops.", color: "#f59e0b" },
+              { icon: "📁", title: "Amazon EFS", text: "A shared file system that many Linux instances use at once, and that grows as needed.", color: "#f59e0b" },
+              { icon: "🗄️", title: "Amazon FSx", text: "File systems AWS runs for you, such as Windows File Server and Lustre.", color: "#f59e0b" },
+              { icon: "🌉", title: "AWS Storage Gateway", text: "Lets your own building use cloud storage, with a local cache for speed.", color: "#f59e0b" },
+              { icon: "💾", title: "AWS Backup", text: "One place to set backup rules for many AWS services.", color: "#f59e0b" },
             ]}
           />
         </div>
       ),
       points: [
-        "S3 is object storage: virtually unlimited, for backups, data lakes, media, and static website assets.",
-        "Lifecycle policies move objects to cheaper classes after a set time, and can delete them when they expire.",
-        "AWS Elastic Disaster Recovery replicates servers to AWS so you can recover quickly.",
+        "**S3** is object storage with practically no size limit. People use it for backups, data lakes, videos and images, and the files behind websites.",
+        "S3 has **storage classes**: the less often you read data, the cheaper the class you can keep it in. A **lifecycle policy** moves objects to cheaper classes after a set time, and can delete them later.",
+        "**AWS Elastic Disaster Recovery** keeps copies of your servers on AWS, so you can get back up quickly after a disaster.",
       ],
-      tip: "\"Unknown or changing access\" → Intelligent-Tiering. \"Keep 7 years, rarely read, cheapest\" → Glacier Deep Archive.",
+      tip: "If nobody knows how often the data will be read, pick Intelligent-Tiering. If you must keep it for 7 years, rarely read it and pay the least, pick Glacier Deep Archive.",
     },
     {
       id: "d3-more",
@@ -280,49 +352,110 @@ export default defineDomain({
         <div className="grid gap-4">
           <ServiceRows
             rows={[
-              { input: "Images and video", service: "Amazon Rekognition", output: "Objects, faces, unsafe content" },
-              { input: "Text", service: "Amazon Comprehend", output: "Sentiment, key phrases, entities" },
-              { input: "Text", service: "Amazon Polly", output: "Lifelike speech" },
-              { input: "Speech", service: "Amazon Transcribe", output: "Text transcripts" },
-              { input: "Text in one language", service: "Amazon Translate", output: "Text in another" },
-              { input: "Scanned documents", service: "Amazon Textract", output: "Text, forms, and tables" },
-              { input: "Voice or chat", service: "Amazon Lex", output: "Conversational chatbot" },
+              { input: "Images and video", service: "Amazon Rekognition", output: "Spots objects, faces and unsafe content" },
+              { input: "Text", service: "Amazon Comprehend", output: "Finds the mood, key phrases and names in it" },
+              { input: "Text", service: "Amazon Polly", output: "Reads it aloud in a natural voice" },
+              { input: "Speech", service: "Amazon Transcribe", output: "Writes it down as text" },
+              { input: "Text in one language", service: "Amazon Translate", output: "The same text in another language" },
+              { input: "Scanned documents", service: "Amazon Textract", output: "The text, forms and tables, pulled out" },
+              { input: "Voice or chat", service: "Amazon Lex", output: "A chatbot that holds a conversation" },
             ]}
           />
           <Tiles
             cols={4}
             tiles={[
-              { icon: "🔎", title: "Amazon Athena", text: "Serverless SQL queries on data in S3.", color: "#34d399" },
-              { icon: "🌊", title: "Amazon Kinesis", text: "Collect and process streaming data in real time.", color: "#34d399" },
-              { icon: "🧪", title: "AWS Glue", text: "Serverless data integration (ETL) and a data catalog.", color: "#34d399" },
-              { icon: "📊", title: "Amazon Quick", text: "AI-powered business intelligence dashboards and insights.", color: "#34d399" },
-              { icon: "🏬", title: "Amazon Redshift", text: "Data warehouse for analytics.", color: "#34d399" },
-              { icon: "🐘", title: "Amazon EMR", text: "Big data frameworks such as Apache Spark.", color: "#34d399" },
-              { icon: "🔍", title: "Amazon OpenSearch Service", text: "Search and log analytics.", color: "#34d399" },
-              { icon: "🧠", title: "Amazon SageMaker AI", text: "Build, train, and deploy your own ML models.", color: "#34d399" },
+              { icon: "🔎", title: "Amazon Athena", text: "Ask SQL questions of files in S3, with no servers to run.", color: "#34d399" },
+              { icon: "🌊", title: "Amazon Kinesis", text: "Collects and processes data that streams in nonstop, as it arrives.", color: "#34d399" },
+              { icon: "🧪", title: "AWS Glue", text: "Cleans and moves data between stores (ETL), and keeps a catalog of it.", color: "#34d399" },
+              { icon: "📊", title: "Amazon Quick", text: "Business dashboards and insights, with AI built in.", color: "#34d399" },
+              { icon: "🏬", title: "Amazon Redshift", text: "A data warehouse for analyzing large amounts of data.", color: "#34d399" },
+              { icon: "🐘", title: "Amazon EMR", text: "Runs big data tools such as Apache Spark.", color: "#34d399" },
+              { icon: "🔍", title: "Amazon OpenSearch Service", text: "Search, and analysis of log data.", color: "#34d399" },
+              { icon: "🧠", title: "Amazon SageMaker AI", text: "Build, train and run your own machine learning models.", color: "#34d399" },
             ]}
           />
           <Layers
             layers={[
-              { name: "Messaging", color: "#f59e0b", items: ["SQS: queue to decouple", "SNS: pub/sub notifications", "EventBridge: event bus and rules", "Step Functions: workflows"] },
-              { name: "Business apps", color: "#38bdf8", items: ["Amazon Connect: contact center", "Amazon SES: email"] },
-              { name: "Developer tools", color: "#a78bfa", items: ["CodeBuild: build and test", "CodePipeline: release pipeline", "X-Ray: trace requests"] },
-              { name: "End-user computing", color: "#f87171", items: ["WorkSpaces: virtual desktops", "AppStream 2.0: stream apps", "WorkSpaces Secure Browser"] },
-              { name: "Web, mobile, IoT", color: "#34d399", items: ["AWS Amplify: full-stack web and mobile apps", "AWS IoT Core: connect devices"] },
+              { name: "Messaging", color: "#f59e0b", items: ["SQS: a queue between parts of an app", "SNS: one message sent to many subscribers", "EventBridge: routes events using rules", "Step Functions: step-by-step workflows"] },
+              { name: "Business apps", color: "#38bdf8", items: ["Amazon Connect: a contact center", "Amazon SES: sending email"] },
+              { name: "Developer tools", color: "#a78bfa", items: ["CodeBuild: builds and tests code", "CodePipeline: automates releases", "X-Ray: traces requests"] },
+              { name: "End-user computing", color: "#f87171", items: ["WorkSpaces: virtual desktops", "AppStream 2.0: apps streamed to a browser", "WorkSpaces Secure Browser"] },
+              { name: "Web, mobile, IoT", color: "#34d399", items: ["AWS Amplify: build web and mobile apps", "AWS IoT Core: connect devices"] },
             ]}
           />
         </div>
       ),
       points: [
-        "Pre-built AI services need no ML expertise. SageMaker AI is for building your own models. Amazon Q is a generative AI assistant for work and for building on AWS.",
-        "SQS stores messages until a consumer processes them; SNS pushes one message to many subscribers (email, SMS, Lambda, SQS).",
-        "AWS Support also belongs here: it's AWS's customer enablement service.",
+        "The ready-made AI services, like Rekognition and Translate, need no machine learning (ML) skills. **SageMaker AI** is for building your own models. **Amazon Q** is a generative AI assistant for work and for building on AWS.",
+        "**SQS** holds messages in a queue until a program picks them up. **SNS** pushes one message out to many subscribers at once, such as email, SMS, Lambda or SQS.",
+        "AWS Support belongs in this group too. AWS calls it its customer enablement service.",
       ],
-      tip: "\"Decouple components\" → SQS. \"Send alerts to many subscribers\" → SNS. \"React to events with rules\" → EventBridge.",
+      tip: "To decouple parts of an app, use SQS. To send an alert to many subscribers, use SNS. To react to events using rules, use EventBridge.",
     },
   ],
 
   questions: [
+    // ── Start here ──
+    {
+      id: "clf-b3-01",
+      domain: "d3",
+      lesson: "d3-start-building-blocks",
+      level: "beginner",
+      prompt: "In a restaurant kitchen, the cooks do the work. Which cloud building block is like the cooks?",
+      options: ["Compute", "Storage", "Networking", "Billing"],
+      answer: [0],
+      explanation: "Compute is the part that does the work, by running your code. Storage is the pantry, and networking is the doors and corridors that connect everything.",
+    },
+    {
+      id: "clf-b3-02",
+      domain: "d3",
+      lesson: "d3-start-building-blocks",
+      level: "beginner",
+      prompt: "An app needs to keep organized customer records that it can search by name. Which building block is that?",
+      options: ["A database", "Networking", "Compute", "A Region"],
+      answer: [0],
+      explanation: "A database keeps organized records you can search and update, like a restaurant's order book. On AWS, Amazon RDS and Amazon DynamoDB are databases.",
+    },
+    {
+      id: "clf-b3-03",
+      domain: "d3",
+      lesson: "d3-start-first-server-and-bucket",
+      level: "beginner",
+      prompt: "Which AWS service gives you a virtual server you can run programs on?",
+      options: ["Amazon EC2", "Amazon S3", "AWS IAM", "Amazon Route 53"],
+      answer: [0],
+      explanation: "Amazon EC2 rents you virtual servers, called instances. You pick the size, start one in minutes, and pay while it runs.",
+    },
+    {
+      id: "clf-b3-04",
+      domain: "d3",
+      lesson: "d3-start-first-server-and-bucket",
+      level: "beginner",
+      prompt: "A photographer wants somewhere online to keep thousands of photos. Which AWS service fits best?",
+      options: ["Amazon S3", "Amazon EC2", "AWS Lambda", "Amazon VPC"],
+      answer: [0],
+      explanation: "Amazon S3 stores files, which it calls objects, in buckets. It has practically no size limit, so it suits photos, videos and backups.",
+    },
+    {
+      id: "clf-b3-05",
+      domain: "d3",
+      lesson: "d3-start-talking-to-aws",
+      level: "beginner",
+      prompt: "What is the AWS Management Console?",
+      options: ["A website where you manage AWS by clicking", "A games console sold by Amazon", "A physical keyboard for data centers", "A type of database"],
+      answer: [0],
+      explanation: "The console is AWS's website for managing your account. You sign in and click through menus, which makes it the easiest place to start.",
+    },
+    {
+      id: "clf-b3-06",
+      domain: "d3",
+      lesson: "d3-start-talking-to-aws",
+      level: "beginner",
+      prompt: "A developer wants their own app to upload files to S3 automatically. What should the app use?",
+      options: ["An AWS SDK", "The AWS Management Console", "A printed manual", "AWS Artifact"],
+      answer: [0],
+      explanation: "An SDK is a code library that lets your program talk to AWS directly. The console is for people clicking, not for apps working on their own.",
+    },
     // ── Access and deployment models ──
     {
       id: "d3-01",
@@ -340,7 +473,7 @@ export default defineDomain({
       prompt: "A new employee wants to explore Amazon S3 for the first time and create one test bucket. What is the SIMPLEST way?",
       options: ["The AWS Management Console", "An AWS CloudFormation stack set", "A custom SDK application", "AWS Direct Connect"],
       answer: [0],
-      explanation: "The console is ideal for learning and one-time tasks. Repeatable processes belong in scripts or IaC.",
+      explanation: "The console is the easiest way to learn and to do a one-off job. Anything you'll repeat belongs in scripts or infrastructure as code.",
     },
     {
       id: "d3-03",
@@ -373,7 +506,7 @@ export default defineDomain({
         "It only works in one Region",
       ],
       answer: [0, 1],
-      explanation: "IaC makes infrastructure repeatable and reviewable like application code. Testing is still needed.",
+      explanation: "With infrastructure as code, your setup lives in files you can review and track, just like app code, so every environment comes out the same. You still need to test changes.",
     },
     {
       id: "d3-06",
@@ -458,7 +591,7 @@ export default defineDomain({
       type: "order",
       prompt: "Order these from the LARGEST to the SMALLEST.",
       items: ["AWS Region", "Availability Zone", "Data center"],
-      explanation: "A Region contains multiple AZs, and each AZ is one or more data centers.",
+      explanation: "Biggest to smallest: a Region holds several Availability Zones, and each Availability Zone is one or more data centers.",
     },
     // ── Compute ──
     {
@@ -495,7 +628,7 @@ export default defineDomain({
       prompt: "A company already runs Kubernetes on premises and wants a managed Kubernetes control plane on AWS. Which service should it choose?",
       options: ["Amazon EKS", "Amazon ECS", "AWS Lambda", "AWS Batch"],
       answer: [0],
-      explanation: "Amazon EKS is managed Kubernetes. Amazon ECS is AWS's own container orchestrator.",
+      explanation: "Amazon EKS runs Kubernetes for you, so a team already using Kubernetes can keep its tools. Amazon ECS is AWS's own way of running containers.",
     },
     {
       id: "d3-17",
@@ -504,7 +637,7 @@ export default defineDomain({
       prompt: "A shopping site wants EC2 capacity to grow during a sale and shrink afterwards, automatically. What provides this elasticity?",
       options: ["Amazon EC2 Auto Scaling", "AWS Artifact", "Amazon Route 53 domain registration", "An EBS snapshot"],
       answer: [0],
-      explanation: "Auto Scaling adds and removes instances based on demand or a schedule.",
+      explanation: "Auto Scaling adds instances when demand rises and removes them when it falls. It can also follow a schedule you set.",
     },
     {
       id: "d3-18",
@@ -527,7 +660,7 @@ export default defineDomain({
       prompt: "Which are serverless compute options on AWS? (Choose two.)",
       options: ["AWS Lambda", "AWS Fargate", "Amazon EC2 Dedicated Hosts", "Amazon Lightsail instances", "AWS Outposts"],
       answer: [0, 1],
-      explanation: "Lambda runs functions and Fargate runs containers, both without servers to manage.",
+      explanation: "Lambda runs small pieces of code and Fargate runs containers. With both, there are no servers for you to manage.",
     },
     {
       id: "d3-20",
@@ -542,7 +675,7 @@ export default defineDomain({
         ["Amazon ECR", "Store and manage container images"],
         ["AWS Outposts", "AWS infrastructure in your own data center"],
       ],
-      explanation: "Each compute option trades control for convenience differently.",
+      explanation: "Each compute option strikes a different balance. The more AWS handles for you, the less you control, and the less you have to manage.",
     },
     // ── Databases ──
     {
@@ -602,7 +735,7 @@ export default defineDomain({
       prompt: "Which are NoSQL database services? (Choose two.)",
       options: ["Amazon DynamoDB", "Amazon DocumentDB", "Amazon Aurora", "Amazon RDS for PostgreSQL", "Amazon Redshift"],
       answer: [0, 1],
-      explanation: "DynamoDB (key-value) and DocumentDB (document) are NoSQL. Aurora and RDS are relational; Redshift is a data warehouse.",
+      explanation: "DynamoDB stores key-value data and DocumentDB stores documents, so both are NoSQL. Aurora and RDS are relational, and Redshift is a data warehouse.",
     },
     {
       id: "d3-27",
@@ -616,7 +749,7 @@ export default defineDomain({
         ["Analytics across petabytes of data", "Amazon Redshift"],
         ["Cache frequent queries in memory", "Amazon ElastiCache"],
       ],
-      explanation: "Choose a purpose-built database for the data model: graph, document, warehouse, or cache.",
+      explanation: "AWS has a database built for each shape of data. Connections suit a graph database, JSON suits a document database, big analysis suits a warehouse, and repeated reads suit a cache.",
     },
     // ── Networking ──
     {
@@ -737,7 +870,7 @@ export default defineDomain({
       prompt: "Which are block storage options for Amazon EC2? (Choose two.)",
       options: ["Amazon EBS", "EC2 instance store", "Amazon S3", "Amazon EFS", "Amazon S3 Glacier"],
       answer: [0, 1],
-      explanation: "EBS volumes persist independently of the instance; instance store is temporary block storage on the host. S3 is object storage and EFS is file storage.",
+      explanation: "An EBS volume keeps its data even when the instance stops. Instance store is temporary disk on the host, and its data is lost. S3 is object storage and EFS is file storage.",
     },
     {
       id: "d3-40",
@@ -752,7 +885,7 @@ export default defineDomain({
         ["On-premises access to cloud storage with a local cache", "AWS Storage Gateway"],
         ["Objects such as images, backups, and logs", "Amazon S3"],
       ],
-      explanation: "Block, file, hybrid cached, and object storage each serve different access patterns.",
+      explanation: "Each kind of storage fits a different job. EBS is a disk for one server, EFS and FSx are shared file systems, Storage Gateway links your building to the cloud, and S3 holds objects.",
     },
     {
       id: "d3-41",
@@ -779,7 +912,7 @@ export default defineDomain({
       type: "order",
       prompt: "Order these S3 storage classes from the HIGHEST storage price per GB to the LOWEST.",
       items: ["S3 Standard", "S3 Standard-IA", "S3 Glacier Flexible Retrieval", "S3 Glacier Deep Archive"],
-      explanation: "Colder classes cost less to store but more, and take longer, to retrieve.",
+      explanation: "The colder the class, the less it costs to keep data there. The catch is that getting it back costs more and takes longer.",
     },
     // ── AI/ML, analytics, and other services ──
     {
@@ -814,7 +947,7 @@ export default defineDomain({
         ["Amazon Comprehend", "Find sentiment and key phrases in text"],
         ["Amazon Textract", "Extract text and tables from scanned documents"],
       ],
-      explanation: "Pre-built AI services are called through an API and need no ML expertise.",
+      explanation: "The ready-made AI services work through a simple API call. You don't need to know how to build or train a model.",
     },
     {
       id: "d3-47",
@@ -832,7 +965,7 @@ export default defineDomain({
       prompt: "A company needs to collect and process clickstream data from its website in real time. Which service should it use?",
       options: ["Amazon Kinesis", "Amazon S3 Glacier", "AWS Glue DataBrew", "Amazon Lightsail"],
       answer: [0],
-      explanation: "Kinesis ingests and processes streaming data in real time.",
+      explanation: "Kinesis takes in data that never stops arriving, such as clicks or sensor readings, and lets you process it straight away.",
     },
     {
       id: "d3-49",
@@ -901,81 +1034,81 @@ export default defineDomain({
         ["Amazon WorkSpaces", "Managed virtual desktops for employees"],
         ["Amazon AppStream 2.0", "Stream desktop applications to a browser"],
       ],
-      explanation: "These cover application integration, frontend, IoT, and end-user computing.",
+      explanation: "EventBridge connects parts of an app, Amplify builds web and mobile front ends, IoT Core connects devices, and WorkSpaces and AppStream 2.0 give staff desktops and apps from the cloud.",
     },
   ],
 
   cards: [
-    { id: "c3-region", domain: "d3", kind: "concept", term: "Region", definition: "Separate geographic area with multiple Availability Zones" },
-    { id: "c3-az", domain: "d3", kind: "concept", term: "Availability Zone", definition: "One or more isolated data centers in a Region" },
-    { id: "c3-edge", domain: "d3", kind: "concept", term: "Edge location", definition: "Site that caches content close to users (CloudFront)" },
-    { id: "c3-hybrid", domain: "d3", kind: "concept", term: "Hybrid deployment", definition: "On-premises connected to the cloud" },
-    { id: "c3-iac", domain: "d3", kind: "concept", term: "Infrastructure as code", definition: "Define resources in templates: repeatable, versioned" },
-    { id: "c3-sgnacl", domain: "d3", kind: "concept", term: "Security group vs NACL", definition: "Stateful instance allow-only vs stateless subnet allow and deny" },
-    { id: "c3-nat", domain: "d3", kind: "concept", term: "NAT gateway", definition: "Outbound-only internet access for private subnets" },
-    { id: "c3-lifecycle", domain: "d3", kind: "concept", term: "S3 Lifecycle", definition: "Transition objects to cheaper classes and expire them" },
-    { id: "c3-instancestore", domain: "d3", kind: "concept", term: "Instance store", definition: "Temporary block storage; lost when the instance stops" },
-    { id: "s-ec2", domain: "d3", kind: "service", term: "Amazon EC2", definition: "Resizable virtual servers" },
-    { id: "s-lambda", domain: "d3", kind: "service", term: "AWS Lambda", definition: "Run code on events without managing servers" },
-    { id: "s-fargate", domain: "d3", kind: "service", term: "AWS Fargate", definition: "Serverless compute for containers" },
-    { id: "s-ecs", domain: "d3", kind: "service", term: "Amazon ECS", definition: "AWS's container orchestration service" },
-    { id: "s-eks", domain: "d3", kind: "service", term: "Amazon EKS", definition: "Managed Kubernetes" },
-    { id: "s-ecr", domain: "d3", kind: "service", term: "Amazon ECR", definition: "Container image registry" },
-    { id: "s-beanstalk", domain: "d3", kind: "service", term: "AWS Elastic Beanstalk", definition: "Deploy web apps; AWS handles capacity and scaling" },
-    { id: "s-lightsail", domain: "d3", kind: "service", term: "Amazon Lightsail", definition: "Simple servers with bundled monthly pricing" },
-    { id: "s-batch", domain: "d3", kind: "service", term: "AWS Batch", definition: "Run batch computing jobs at any scale" },
-    { id: "s-outposts", domain: "d3", kind: "service", term: "AWS Outposts", definition: "AWS infrastructure in your data center" },
-    { id: "s-elb", domain: "d3", kind: "service", term: "Elastic Load Balancing", definition: "Distribute traffic across healthy targets" },
-    { id: "s-autoscaling", domain: "d3", kind: "service", term: "AWS Auto Scaling", definition: "Scale capacity with demand" },
-    { id: "s-cloudformation", domain: "d3", kind: "service", term: "AWS CloudFormation", definition: "Infrastructure as code with templates" },
-    { id: "s-rds", domain: "d3", kind: "service", term: "Amazon RDS", definition: "Managed relational databases" },
-    { id: "s-aurora", domain: "d3", kind: "service", term: "Amazon Aurora", definition: "Cloud-native MySQL/PostgreSQL-compatible database" },
-    { id: "s-dynamodb", domain: "d3", kind: "service", term: "Amazon DynamoDB", definition: "Serverless key-value NoSQL database" },
-    { id: "s-elasticache", domain: "d3", kind: "service", term: "Amazon ElastiCache", definition: "In-memory caching" },
-    { id: "s-documentdb", domain: "d3", kind: "service", term: "Amazon DocumentDB", definition: "MongoDB-compatible document database" },
-    { id: "s-neptune", domain: "d3", kind: "service", term: "Amazon Neptune", definition: "Graph database" },
-    { id: "s-vpc", domain: "d3", kind: "service", term: "Amazon VPC", definition: "Logically isolated virtual network" },
-    { id: "s-route53", domain: "d3", kind: "service", term: "Amazon Route 53", definition: "DNS, domain registration, health checks" },
-    { id: "s-cloudfront", domain: "d3", kind: "service", term: "Amazon CloudFront", definition: "Content delivery network at edge locations" },
-    { id: "s-directconnect", domain: "d3", kind: "service", term: "AWS Direct Connect", definition: "Dedicated private connection to AWS" },
-    { id: "s-vpn", domain: "d3", kind: "service", term: "AWS Site-to-Site VPN", definition: "Encrypted tunnels to AWS over the internet" },
-    { id: "s-tgw", domain: "d3", kind: "service", term: "AWS Transit Gateway", definition: "Hub connecting many VPCs and on-premises networks" },
-    { id: "s-apigw", domain: "d3", kind: "service", term: "Amazon API Gateway", definition: "Create, publish, and secure APIs" },
-    { id: "s-globalacc", domain: "d3", kind: "service", term: "AWS Global Accelerator", definition: "Route users over the AWS global network" },
-    { id: "s-s3", domain: "d3", kind: "service", term: "Amazon S3", definition: "Object storage" },
-    { id: "s-glacier", domain: "d3", kind: "service", term: "Amazon S3 Glacier", definition: "Low-cost archive storage classes" },
-    { id: "s-ebs", domain: "d3", kind: "service", term: "Amazon EBS", definition: "Block volumes for EC2" },
-    { id: "s-efs", domain: "d3", kind: "service", term: "Amazon EFS", definition: "Shared elastic file system for Linux" },
-    { id: "s-fsx", domain: "d3", kind: "service", term: "Amazon FSx", definition: "Managed file systems (Windows File Server, Lustre, and more)" },
-    { id: "s-storagegw", domain: "d3", kind: "service", term: "AWS Storage Gateway", definition: "On-premises access to cloud storage" },
-    { id: "s-backup", domain: "d3", kind: "service", term: "AWS Backup", definition: "Central backup policies across services" },
-    { id: "s-sagemaker", domain: "d3", kind: "service", term: "Amazon SageMaker AI", definition: "Build, train, and deploy ML models" },
-    { id: "s-lex", domain: "d3", kind: "service", term: "Amazon Lex", definition: "Conversational chatbots" },
-    { id: "s-rekognition", domain: "d3", kind: "service", term: "Amazon Rekognition", definition: "Image and video analysis" },
-    { id: "s-polly", domain: "d3", kind: "service", term: "Amazon Polly", definition: "Text to speech" },
-    { id: "s-transcribe", domain: "d3", kind: "service", term: "Amazon Transcribe", definition: "Speech to text" },
-    { id: "s-translate", domain: "d3", kind: "service", term: "Amazon Translate", definition: "Language translation" },
-    { id: "s-comprehend", domain: "d3", kind: "service", term: "Amazon Comprehend", definition: "Sentiment and key phrases in text" },
-    { id: "s-textract", domain: "d3", kind: "service", term: "Amazon Textract", definition: "Extract text and data from documents" },
-    { id: "s-q", domain: "d3", kind: "service", term: "Amazon Q", definition: "Generative AI assistant for work and building on AWS" },
-    { id: "s-athena", domain: "d3", kind: "service", term: "Amazon Athena", definition: "Serverless SQL queries on S3" },
-    { id: "s-kinesis", domain: "d3", kind: "service", term: "Amazon Kinesis", definition: "Real-time streaming data" },
-    { id: "s-glue", domain: "d3", kind: "service", term: "AWS Glue", definition: "Serverless ETL and data catalog" },
-    { id: "s-quick", domain: "d3", kind: "service", term: "Amazon Quick", definition: "AI-powered BI dashboards and insights" },
-    { id: "s-redshift", domain: "d3", kind: "service", term: "Amazon Redshift", definition: "Data warehouse" },
-    { id: "s-emr", domain: "d3", kind: "service", term: "Amazon EMR", definition: "Big data frameworks such as Spark" },
-    { id: "s-sqs", domain: "d3", kind: "service", term: "Amazon SQS", definition: "Message queues to decouple components" },
-    { id: "s-sns", domain: "d3", kind: "service", term: "Amazon SNS", definition: "Pub/sub notifications to many subscribers" },
-    { id: "s-eventbridge", domain: "d3", kind: "service", term: "Amazon EventBridge", definition: "Event bus that routes events with rules" },
-    { id: "s-connect", domain: "d3", kind: "service", term: "Amazon Connect", definition: "Cloud contact center" },
-    { id: "s-ses", domain: "d3", kind: "service", term: "Amazon SES", definition: "Send transactional and marketing email" },
-    { id: "s-codepipeline", domain: "d3", kind: "service", term: "AWS CodePipeline", definition: "Automate release pipelines" },
-    { id: "s-codebuild", domain: "d3", kind: "service", term: "AWS CodeBuild", definition: "Compile and test code" },
-    { id: "s-xray", domain: "d3", kind: "service", term: "AWS X-Ray", definition: "Trace and debug requests" },
-    { id: "s-workspaces", domain: "d3", kind: "service", term: "Amazon WorkSpaces", definition: "Managed virtual desktops" },
-    { id: "s-appstream", domain: "d3", kind: "service", term: "Amazon AppStream 2.0", definition: "Stream desktop apps to a browser" },
-    { id: "s-amplify", domain: "d3", kind: "service", term: "AWS Amplify", definition: "Build and host web and mobile apps" },
-    { id: "s-iotcore", domain: "d3", kind: "service", term: "AWS IoT Core", definition: "Connect and manage IoT devices" },
+    { id: "c3-region", domain: "d3", kind: "concept", term: "Region", definition: "A separate part of the world, such as Ireland or Tokyo, with several Availability Zones." },
+    { id: "c3-az", domain: "d3", kind: "concept", term: "Availability Zone", definition: "One or more data centers in a Region, kept apart from the others so one failure doesn't hit them all." },
+    { id: "c3-edge", domain: "d3", kind: "concept", term: "Edge location", definition: "A small site near users that keeps copies of content, so CloudFront can serve it quickly." },
+    { id: "c3-hybrid", domain: "d3", kind: "concept", term: "Hybrid deployment", definition: "Your own data center connected to the cloud, with work running in both." },
+    { id: "c3-iac", domain: "d3", kind: "concept", term: "Infrastructure as code", definition: "Describing your setup in files, so it can be built the same way every time and tracked in version control." },
+    { id: "c3-sgnacl", domain: "d3", kind: "concept", term: "Security group and NACL", definition: "A security group guards one instance, only allows, and remembers replies. A NACL guards a subnet, can allow or deny, and checks traffic both ways." },
+    { id: "c3-nat", domain: "d3", kind: "concept", term: "NAT gateway", definition: "Lets servers in a private subnet reach the internet, while nothing outside can start a connection to them." },
+    { id: "c3-lifecycle", domain: "d3", kind: "concept", term: "S3 Lifecycle", definition: "Rules that move objects to cheaper storage classes as they age, and delete them later." },
+    { id: "c3-instancestore", domain: "d3", kind: "concept", term: "Instance store", definition: "Temporary disk on the host machine. Its data is lost when the instance stops." },
+    { id: "s-ec2", domain: "d3", kind: "service", term: "Amazon EC2", definition: "Virtual servers you can start in minutes and resize when you need to." },
+    { id: "s-lambda", domain: "d3", kind: "service", term: "AWS Lambda", definition: "Runs your code when an event happens, with no servers to manage." },
+    { id: "s-fargate", domain: "d3", kind: "service", term: "AWS Fargate", definition: "Runs containers without you managing any servers." },
+    { id: "s-ecs", domain: "d3", kind: "service", term: "Amazon ECS", definition: "AWS's own service for running and managing containers." },
+    { id: "s-eks", domain: "d3", kind: "service", term: "Amazon EKS", definition: "Kubernetes, run and managed by AWS." },
+    { id: "s-ecr", domain: "d3", kind: "service", term: "Amazon ECR", definition: "A place to store and share your container images." },
+    { id: "s-beanstalk", domain: "d3", kind: "service", term: "AWS Elastic Beanstalk", definition: "Upload your web app's code and AWS handles the servers, load balancing and scaling." },
+    { id: "s-lightsail", domain: "d3", kind: "service", term: "Amazon Lightsail", definition: "Simple servers with one fixed monthly price that covers the extras." },
+    { id: "s-batch", domain: "d3", kind: "service", term: "AWS Batch", definition: "Runs large batches of computing jobs, at any scale." },
+    { id: "s-outposts", domain: "d3", kind: "service", term: "AWS Outposts", definition: "Real AWS hardware and services installed in your own data center." },
+    { id: "s-elb", domain: "d3", kind: "service", term: "Elastic Load Balancing", definition: "Shares incoming traffic across servers and skips any that are unhealthy." },
+    { id: "s-autoscaling", domain: "d3", kind: "service", term: "AWS Auto Scaling", definition: "Adds and removes capacity as demand goes up and down." },
+    { id: "s-cloudformation", domain: "d3", kind: "service", term: "AWS CloudFormation", definition: "Builds your AWS setup from template files. This is AWS's infrastructure as code service." },
+    { id: "s-rds", domain: "d3", kind: "service", term: "Amazon RDS", definition: "Relational databases, such as MySQL and PostgreSQL, that AWS runs for you." },
+    { id: "s-aurora", domain: "d3", kind: "service", term: "Amazon Aurora", definition: "A relational database built for the cloud that works with MySQL and PostgreSQL." },
+    { id: "s-dynamodb", domain: "d3", kind: "service", term: "Amazon DynamoDB", definition: "A serverless NoSQL database for key-value data, fast at any scale." },
+    { id: "s-elasticache", domain: "d3", kind: "service", term: "Amazon ElastiCache", definition: "An in-memory cache that answers repeated reads very quickly." },
+    { id: "s-documentdb", domain: "d3", kind: "service", term: "Amazon DocumentDB", definition: "A document database that works with MongoDB." },
+    { id: "s-neptune", domain: "d3", kind: "service", term: "Amazon Neptune", definition: "A graph database, for data full of connections, like who knows whom." },
+    { id: "s-vpc", domain: "d3", kind: "service", term: "Amazon VPC", definition: "Your own private network inside AWS, kept apart from everyone else's." },
+    { id: "s-route53", domain: "d3", kind: "service", term: "Amazon Route 53", definition: "AWS's DNS service. It turns names into addresses, registers domains and checks health." },
+    { id: "s-cloudfront", domain: "d3", kind: "service", term: "Amazon CloudFront", definition: "A content delivery network that serves copies of your content from edge locations near users." },
+    { id: "s-directconnect", domain: "d3", kind: "service", term: "AWS Direct Connect", definition: "A private, dedicated network line from your building to AWS." },
+    { id: "s-vpn", domain: "d3", kind: "service", term: "AWS Site-to-Site VPN", definition: "Encrypted tunnels between your network and AWS, across the internet." },
+    { id: "s-tgw", domain: "d3", kind: "service", term: "AWS Transit Gateway", definition: "A central hub that links many VPCs and your own networks." },
+    { id: "s-apigw", domain: "d3", kind: "service", term: "Amazon API Gateway", definition: "Creates, publishes and secures APIs for your apps." },
+    { id: "s-globalacc", domain: "d3", kind: "service", term: "AWS Global Accelerator", definition: "Carries your users' traffic over AWS's own global network for speed." },
+    { id: "s-s3", domain: "d3", kind: "service", term: "Amazon S3", definition: "Object storage for files of any kind, with practically no size limit." },
+    { id: "s-glacier", domain: "d3", kind: "service", term: "Amazon S3 Glacier", definition: "Low-cost S3 storage classes for archives you rarely open." },
+    { id: "s-ebs", domain: "d3", kind: "service", term: "Amazon EBS", definition: "Virtual hard drives for EC2 instances." },
+    { id: "s-efs", domain: "d3", kind: "service", term: "Amazon EFS", definition: "A shared file system that many Linux servers use at once, and that grows as you add files." },
+    { id: "s-fsx", domain: "d3", kind: "service", term: "Amazon FSx", definition: "File systems AWS runs for you, such as Windows File Server and Lustre." },
+    { id: "s-storagegw", domain: "d3", kind: "service", term: "AWS Storage Gateway", definition: "Lets your own building use cloud storage as if it were local." },
+    { id: "s-backup", domain: "d3", kind: "service", term: "AWS Backup", definition: "Sets backup rules in one place for many AWS services." },
+    { id: "s-sagemaker", domain: "d3", kind: "service", term: "Amazon SageMaker AI", definition: "Builds, trains and runs your own machine learning models." },
+    { id: "s-lex", domain: "d3", kind: "service", term: "Amazon Lex", definition: "Builds chatbots that understand speech and text." },
+    { id: "s-rekognition", domain: "d3", kind: "service", term: "Amazon Rekognition", definition: "Finds objects, faces and unsafe content in images and video." },
+    { id: "s-polly", domain: "d3", kind: "service", term: "Amazon Polly", definition: "Turns text into natural-sounding speech." },
+    { id: "s-transcribe", domain: "d3", kind: "service", term: "Amazon Transcribe", definition: "Turns speech into written text." },
+    { id: "s-translate", domain: "d3", kind: "service", term: "Amazon Translate", definition: "Translates text from one language to another." },
+    { id: "s-comprehend", domain: "d3", kind: "service", term: "Amazon Comprehend", definition: "Reads text and finds its mood, key phrases and names." },
+    { id: "s-textract", domain: "d3", kind: "service", term: "Amazon Textract", definition: "Pulls text, forms and tables out of scanned documents." },
+    { id: "s-q", domain: "d3", kind: "service", term: "Amazon Q", definition: "A generative AI assistant for everyday work and for building on AWS." },
+    { id: "s-athena", domain: "d3", kind: "service", term: "Amazon Athena", definition: "Runs SQL queries on files in S3, with no servers to manage." },
+    { id: "s-kinesis", domain: "d3", kind: "service", term: "Amazon Kinesis", definition: "Collects and processes streaming data as it arrives." },
+    { id: "s-glue", domain: "d3", kind: "service", term: "AWS Glue", definition: "Serverless tool for moving and cleaning data (ETL), with a catalog of your data." },
+    { id: "s-quick", domain: "d3", kind: "service", term: "Amazon Quick", definition: "Business dashboards and insights, with AI built in." },
+    { id: "s-redshift", domain: "d3", kind: "service", term: "Amazon Redshift", definition: "A data warehouse for analyzing large amounts of data." },
+    { id: "s-emr", domain: "d3", kind: "service", term: "Amazon EMR", definition: "Runs big data tools such as Apache Spark." },
+    { id: "s-sqs", domain: "d3", kind: "service", term: "Amazon SQS", definition: "Message queues, so one part of an app can hand work to another without waiting." },
+    { id: "s-sns", domain: "d3", kind: "service", term: "Amazon SNS", definition: "Sends one message out to many subscribers at once (publish and subscribe)." },
+    { id: "s-eventbridge", domain: "d3", kind: "service", term: "Amazon EventBridge", definition: "Receives events and sends each one where it should go, using rules." },
+    { id: "s-connect", domain: "d3", kind: "service", term: "Amazon Connect", definition: "A contact center for customer calls and chats, run in the cloud." },
+    { id: "s-ses", domain: "d3", kind: "service", term: "Amazon SES", definition: "Sends email, such as receipts and newsletters." },
+    { id: "s-codepipeline", domain: "d3", kind: "service", term: "AWS CodePipeline", definition: "Automates the steps that take code from a commit to a release." },
+    { id: "s-codebuild", domain: "d3", kind: "service", term: "AWS CodeBuild", definition: "Builds and tests your code." },
+    { id: "s-xray", domain: "d3", kind: "service", term: "AWS X-Ray", definition: "Follows a request through your app so you can see where it slowed down or failed." },
+    { id: "s-workspaces", domain: "d3", kind: "service", term: "Amazon WorkSpaces", definition: "Virtual desktops for staff, run by AWS." },
+    { id: "s-appstream", domain: "d3", kind: "service", term: "Amazon AppStream 2.0", definition: "Streams desktop apps to a web browser." },
+    { id: "s-amplify", domain: "d3", kind: "service", term: "AWS Amplify", definition: "Builds and hosts web and mobile apps." },
+    { id: "s-iotcore", domain: "d3", kind: "service", term: "AWS IoT Core", definition: "Connects and manages internet-connected devices, such as sensors." },
   ],
 
   challenges: [
@@ -986,7 +1119,7 @@ export default defineDomain({
       title: "Survive the outage",
       goal: "Run the app in at least two Availability Zones, then fail one of the zones it runs in and keep the app up.",
       hint: "Place servers in two zones first, then press 💥 on one of them.",
-      takeaway: "Availability Zones don't share single points of failure, so a multi-AZ design rides out the loss of one.",
+      takeaway: "Availability Zones don't share power or networks, so an app spread across two of them keeps running when one goes down.",
       render: (onSolved) => <MultiAzLab goal="survive" onSolved={onSolved} />,
     },
   ],

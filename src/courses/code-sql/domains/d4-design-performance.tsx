@@ -14,7 +14,7 @@ export default defineDomain({
     weight: 25,
     emoji: "⚒️",
     color: "#f59e0b",
-    summary: "Keys, constraints and normalization; B-tree indexes and EXPLAIN; transactions, isolation levels and lost updates; zero-downtime migrations, multi-tenant schemas and OLTP vs OLAP.",
+    summary: "Keys, constraints and normalization; B-tree indexes and EXPLAIN; transactions, isolation levels and lost updates; zero-downtime migrations, multi-tenant schemas, and everyday traffic compared with reporting (OLTP and OLAP).",
   },
 
   tasks: [
@@ -36,11 +36,77 @@ export default defineDomain({
     {
       id: "4.4",
       title: "SQL at team scale",
-      covers: ["Expand / contract migrations", "Safe constraint changes on big tables", "Multi-tenant schemas and row-level security", "OLTP vs OLAP"],
+      covers: ["Expand and contract migrations", "Safe constraint changes on big tables", "Multi-tenant schemas and row-level security", "OLTP and OLAP"],
     },
   ],
 
   lessons: [
+    {
+      id: "d4-start-create",
+      level: "beginner",
+      task: "4.1",
+      title: "Making your own table",
+      check: ["sql-b4-01", "sql-b4-02"],
+      visual: (
+        <div className="grid gap-4">
+          <CodeBlock
+            lang="sql"
+            caption="A name, then each column with its type and any rules."
+            code={sql`
+              CREATE TABLE pets (
+                id       integer PRIMARY KEY,  -- a unique number for each pet
+                name     text    NOT NULL,     -- every pet needs a name
+                born_on  date                  -- may be left empty
+              );
+
+              INSERT INTO pets (id, name, born_on)
+              VALUES (1, 'Rex', '2021-04-02');
+            `}
+          />
+        </div>
+      ),
+      points: [
+        "Before you can store anything, you describe the table with CREATE TABLE. You give it a name, list its columns, and say what type each column holds.",
+        "A type says what kind of value fits: integer for whole numbers, text for words, date for dates. PostgreSQL refuses a value that doesn't fit, like 'ten' in an integer column.",
+        "Rules stop bad data getting in, like a form that won't submit without your email. NOT NULL means the column must be filled in, and PRIMARY KEY gives each row a unique id.",
+        "Once the table exists, INSERT adds rows to it and SELECT reads them back.",
+      ],
+      tip: "Give every table an id column as its primary key. It's the simplest way to point at exactly one row later.",
+    },
+    {
+      id: "d4-start-transactions",
+      level: "beginner",
+      task: "4.3",
+      title: "All or nothing: transactions",
+      check: ["sql-b4-03", "sql-b4-05"],
+      visual: (
+        <div className="grid gap-4">
+          <Flow
+            steps={[
+              { icon: "🟢", label: "BEGIN", sub: "Start a transaction" },
+              { icon: "💸", label: "Take 30 from Ana", sub: "First change" },
+              { icon: "💰", label: "Give 30 to Bo", sub: "Second change" },
+              { icon: "✅", label: "COMMIT", sub: "Both changes are kept" },
+            ]}
+          />
+          <CodeBlock
+            lang="sql"
+            code={sql`
+              BEGIN;
+              UPDATE accounts SET balance = balance - 30 WHERE name = 'Ana';
+              UPDATE accounts SET balance = balance + 30 WHERE name = 'Bo';
+              COMMIT;   -- or ROLLBACK; to throw both changes away
+            `}
+          />
+        </div>
+      ),
+      points: [
+        "Moving money between two bank accounts takes two changes: take it out of one, then add it to the other. If something fails halfway, the money would just vanish.",
+        "A transaction wraps several changes so they all happen or none do. You start one with BEGIN and finish with COMMIT, which makes the changes permanent.",
+        "If something looks wrong before you commit, ROLLBACK throws the changes away, as if you never made them.",
+      ],
+      tip: "Before a big UPDATE or DELETE, type BEGIN first. You can check what changed and still ROLLBACK if it isn't what you meant.",
+    },
     {
       id: "d4-schema",
       level: "intermediate",
@@ -83,10 +149,10 @@ export default defineDomain({
       ),
       points: [
         "Normalization stores each fact once, so an update can't leave copies disagreeing (an \"update anomaly\").",
-        "A foreign key (REFERENCES) guarantees each child row points at a real parent. ON DELETE CASCADE / RESTRICT / SET NULL decides what happens when the parent goes.",
+        "A foreign key (REFERENCES) guarantees each child row points at a real parent. ON DELETE (CASCADE, RESTRICT or SET NULL) decides what happens to the children when the parent is deleted.",
         "Constraints are rules the database enforces for every client: NOT NULL, UNIQUE, CHECK, foreign keys. A CHECK passes when its result is TRUE or NULL.",
         "Use numeric (or integer cents) for money, never real or double precision, which can't represent 0.1 exactly.",
-        "Denormalize (copy data) deliberately, for read speed, and only with a plan to keep copies in sync.",
+        "Denormalizing means copying data on purpose to make reads faster. Do it deliberately, and only with a plan to keep the copies in sync.",
       ],
       tip: "Put rules in constraints, not just in app code. Constraints protect you from every other script, job and teammate that touches the table.",
     },
@@ -117,7 +183,7 @@ export default defineDomain({
         "A composite index (a, b) is sorted by a, then b. It serves filters on a, or on a and b, but not efficiently on b alone.",
         "Wrapping the column in a function (lower(email)), casting it, or a leading-% LIKE prevents a plain index from seeking. Create an expression index instead.",
         "When a condition matches a large share of rows, a sequential scan is cheaper, so the planner skips the index. That's selectivity at work, not a bug.",
-        "Indexes aren't free: every INSERT, UPDATE and DELETE maintains every index. EXPLAIN shows the plan; EXPLAIN ANALYZE runs the query and shows what actually happened.",
+        "Indexes aren't free: every INSERT, UPDATE and DELETE maintains every index. EXPLAIN shows the plan, and EXPLAIN ANALYZE runs the query and shows what actually happened.",
       ],
       tip: "Design indexes from your real queries: equality columns first, then the range or sort column. Then confirm with EXPLAIN ANALYZE.",
     },
@@ -142,11 +208,11 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "A transaction groups statements into one all-or-nothing unit: ACID means atomic, consistent, isolated and durable.",
+        "A transaction groups statements into one all-or-nothing unit. Its guarantees are called ACID: atomic, consistent, isolated and durable.",
         "PostgreSQL's default is READ COMMITTED: each statement sees data committed before it started, so two reads in one transaction can differ.",
         "REPEATABLE READ gives the whole transaction one snapshot. SERIALIZABLE also detects dangerous interleavings. Both can abort with a serialization failure (SQLSTATE 40001) that the app must retry.",
-        "Read-modify-write in application code loses updates under concurrency. Use an atomic UPDATE (balance = balance - 30), SELECT … FOR UPDATE, or a stricter level with retries.",
-        "Deadlocks happen when transactions lock the same rows in different orders. PostgreSQL detects them and aborts one; lock in a consistent order to avoid them.",
+        "Reading a value in your app, changing it, then writing it back loses updates when two requests overlap. Use an atomic UPDATE (`balance = balance - 30`), SELECT … FOR UPDATE, or a stricter level with retries.",
+        "Deadlocks happen when transactions lock the same rows in different orders. PostgreSQL detects them and aborts one. Lock rows in a consistent order to avoid them.",
       ],
       tip: "Keep transactions short. Never wait on a user or a slow external API while holding row locks.",
     },
@@ -171,7 +237,7 @@ export default defineDomain({
           <Tiles
             cols={3}
             tiles={[
-              { icon: "🏢", title: "Shared tables + tenant_id", text: "Cheapest and densest. Every query must filter by tenant; row-level security can enforce it.", color: "#38bdf8" },
+              { icon: "🏢", title: "Shared tables + tenant_id", text: "Cheapest and densest. Every query must filter by tenant, and row-level security can enforce it.", color: "#38bdf8" },
               { icon: "🗂️", title: "Schema per tenant", text: "Better separation and per-tenant restores, but migrations run N times and object counts explode.", color: "#a78bfa" },
               { icon: "🏰", title: "Database per tenant", text: "Strongest isolation and no noisy neighbours. Highest operational cost.", color: "#f59e0b" },
             ]}
@@ -181,14 +247,85 @@ export default defineDomain({
       points: [
         "During a rolling deploy, old and new code run at the same time, so every schema change must work with both. Expand first, contract last.",
         "On big PostgreSQL tables, prefer changes that don't rewrite the table or hold long locks: CREATE INDEX CONCURRENTLY, constraints added NOT VALID then validated, backfills in batches.",
-        "Multi-tenant designs trade isolation for cost. Shared tables need tenant_id on every row (and in every index's leading columns); row-level security adds a database-enforced safety net.",
-        "OLTP (checkout, logins) is many small transactions by key; OLAP (reports) scans and aggregates millions of rows. Separate them with replicas or a warehouse as you grow.",
+        "Multi-tenant designs trade isolation for cost. Shared tables need tenant_id on every row and as the first column of every index. Row-level security adds a safety net the database enforces.",
+        "OLTP, like checkout and logins, is many small transactions that look rows up by key. OLAP, like reports, scans and aggregates millions of rows. Separate them with replicas or a warehouse as you grow.",
       ],
       tip: "Review migrations like code: will it lock a hot table, can it be rolled back, and does the currently deployed version still work after it runs?",
     },
   ],
 
   questions: [
+    {
+      id: "sql-b4-01",
+      domain: "d4",
+      level: "beginner",
+      lesson: "d4-start-create",
+      prompt: "What does CREATE TABLE do?",
+      options: [
+        "Describes a new, empty table: its name, its columns and their types",
+        "Adds one row to an existing table",
+        "Shows every row in a table",
+        "Makes a copy of a table from another database",
+      ],
+      answer: [0],
+      explanation:
+        "CREATE TABLE sets up the shape of a new table, which starts out empty. INSERT is what adds rows, and SELECT is what reads them.",
+    },
+    {
+      id: "sql-b4-02",
+      type: "fill",
+      domain: "d4",
+      level: "beginner",
+      lesson: "d4-start-create",
+      prompt: "Fill the gap so every pet must have a name.",
+      code: "CREATE TABLE pets (\n  id   integer PRIMARY KEY,\n  name text {{1}}\n);",
+      codeLang: "sql",
+      blanks: [{ options: ["NOT NULL", "REQUIRED", "MUST EXIST", "FILLED"], answer: 0 }],
+      explanation:
+        "NOT NULL tells the database to refuse any row where that column is empty. The other words look reasonable, but they aren't SQL, so the statement would fail.",
+    },
+    {
+      id: "sql-b4-03",
+      type: "output",
+      domain: "d4",
+      level: "beginner",
+      lesson: "d4-start-transactions",
+      prompt: "Type the balance the final SELECT returns.",
+      code: "-- acct(id, bal): (1, 100)\nBEGIN;\nUPDATE acct SET bal = bal - 40 WHERE id = 1;\nROLLBACK;\nSELECT bal FROM acct WHERE id = 1;",
+      codeLang: "sql",
+      answers: ["100"],
+      explanation:
+        "ROLLBACK throws away every change since BEGIN, so the withdrawal of 40 never happened. The balance is still 100.",
+    },
+    {
+      id: "sql-b4-04",
+      type: "output",
+      domain: "d4",
+      level: "beginner",
+      lesson: "d4-start-transactions",
+      prompt: "Type the balance the final SELECT returns.",
+      code: "-- acct(id, bal): (1, 100)\nBEGIN;\nUPDATE acct SET bal = bal - 40 WHERE id = 1;\nCOMMIT;\nSELECT bal FROM acct WHERE id = 1;",
+      codeLang: "sql",
+      answers: ["60"],
+      explanation:
+        "COMMIT keeps the changes made since BEGIN, so the withdrawal sticks. 100 minus 40 leaves 60.",
+    },
+    {
+      id: "sql-b4-05",
+      domain: "d4",
+      level: "beginner",
+      lesson: "d4-start-transactions",
+      prompt: "Why move money between two accounts inside a transaction?",
+      options: [
+        "So both changes happen together, or neither does if something fails halfway",
+        "Because UPDATE only works inside a transaction",
+        "To make the UPDATE statements run faster",
+        "So other people can see the change before it's finished",
+      ],
+      answer: [0],
+      explanation:
+        "A transaction is all or nothing. If the second change fails, the first is undone too, so money can't vanish. UPDATE works fine on its own, it just isn't protected that way.",
+    },
     {
       id: "d4-01",
       domain: "d4",
@@ -234,7 +371,7 @@ export default defineDomain({
         ["Denormalization", "Deliberately duplicating data to speed up reads"],
       ],
       explanation:
-        "Each normal form removes a kind of redundancy. 3NF is the usual target for transactional systems; analytics schemas often denormalize on purpose.",
+        "Each normal form removes a kind of redundancy. 3NF is the usual target for transactional systems, while analytics schemas often denormalize on purpose.",
     },
     {
       id: "d4-04",
@@ -471,7 +608,7 @@ export default defineDomain({
       ],
       answer: [0, 1],
       explanation:
-        "The atomic UPDATE does the read and write under one row lock; FOR UPDATE makes the second request wait and then read the fresh value. An index and re-reading don't serialize anything, and PostgreSQL treats READ UNCOMMITTED as READ COMMITTED.",
+        "The atomic UPDATE does the read and write under one row lock. FOR UPDATE makes the second request wait and then read the fresh value. An index and re-reading don't serialize anything, and PostgreSQL treats READ UNCOMMITTED as READ COMMITTED.",
     },
     {
       id: "d4-18",
@@ -620,7 +757,7 @@ export default defineDomain({
       ],
       answer: [0],
       explanation:
-        "The moment the rename runs, the old version's queries fail. Additive changes are backward-compatible; destructive ones (rename, drop, tighten) wait until no running code depends on the old shape.",
+        "The moment the rename runs, the old version's queries fail. Additive changes are backward-compatible. Destructive ones (rename, drop, tighten) wait until no running code depends on the old shape.",
     },
     {
       id: "d4-27",
@@ -641,24 +778,24 @@ export default defineDomain({
   ],
 
   cards: [
-    { id: "c4-fk", domain: "d4", kind: "service", term: "REFERENCES (foreign key)", definition: "Makes each child value match an existing parent row; ON DELETE sets what happens to children." },
-    { id: "c4-check", domain: "d4", kind: "service", term: "CHECK", definition: "A row-level rule like CHECK (price > 0). Passes when the result is TRUE or NULL." },
+    { id: "c4-fk", domain: "d4", kind: "service", term: "REFERENCES (foreign key)", definition: "Makes each child value match an existing parent row. ON DELETE sets what happens to the children when the parent goes." },
+    { id: "c4-check", domain: "d4", kind: "service", term: "CHECK", definition: "A rule every row must pass, like CHECK (price > 0). It passes when the result is TRUE or NULL." },
     { id: "c4-unique", domain: "d4", kind: "service", term: "UNIQUE", definition: "No two rows share the value. Multiple NULLs are allowed unless NULLS NOT DISTINCT (PostgreSQL 15+)." },
     { id: "c4-index", domain: "d4", kind: "service", term: "CREATE INDEX", definition: "Builds a sorted lookup structure (B-tree by default) for faster reads at a write cost." },
-    { id: "c4-concurrently", domain: "d4", kind: "service", term: "CREATE INDEX CONCURRENTLY", definition: "Builds an index without blocking writes; slower, and not allowed inside a transaction block." },
+    { id: "c4-concurrently", domain: "d4", kind: "service", term: "CREATE INDEX CONCURRENTLY", definition: "Builds an index without blocking writes. It's slower, and it isn't allowed inside a transaction block." },
     { id: "c4-explain", domain: "d4", kind: "service", term: "EXPLAIN ANALYZE", definition: "Runs a statement and shows the real plan with row counts and timings." },
     { id: "c4-begin", domain: "d4", kind: "service", term: "BEGIN / COMMIT / ROLLBACK", definition: "Start a transaction, make its changes permanent, or undo them all." },
     { id: "c4-forupdate", domain: "d4", kind: "service", term: "SELECT … FOR UPDATE", definition: "Reads rows and locks them, so concurrent writers wait until this transaction ends." },
-    { id: "c4-identity", domain: "d4", kind: "service", term: "GENERATED AS IDENTITY", definition: "Standard SQL auto-incrementing column; preferred over PostgreSQL's older serial." },
+    { id: "c4-identity", domain: "d4", kind: "service", term: "GENERATED AS IDENTITY", definition: "The standard SQL way to make a column count up by itself. Prefer it over PostgreSQL's older serial." },
     { id: "c4-normal", domain: "d4", kind: "concept", term: "Normalization", definition: "Structuring tables so each fact is stored once, avoiding update anomalies." },
-    { id: "c4-acid", domain: "d4", kind: "concept", term: "ACID", definition: "Atomicity, consistency, isolation, durability: the guarantees of a transaction." },
+    { id: "c4-acid", domain: "d4", kind: "concept", term: "ACID", definition: "Atomicity, consistency, isolation and durability: the four guarantees a transaction gives you." },
     { id: "c4-readcommitted", domain: "d4", kind: "concept", term: "READ COMMITTED", definition: "PostgreSQL's default isolation: each statement sees data committed before it began." },
-    { id: "c4-mvcc", domain: "d4", kind: "concept", term: "MVCC", definition: "Multi-version concurrency control: readers see a snapshot and don't block writers." },
+    { id: "c4-mvcc", domain: "d4", kind: "concept", term: "MVCC", definition: "Multi-version concurrency control. Readers see a snapshot of the data, so they don't block writers." },
     { id: "c4-selectivity", domain: "d4", kind: "concept", term: "Selectivity", definition: "The share of rows a condition matches. Indexes pay off when it's small." },
     { id: "c4-keyset", domain: "d4", kind: "concept", term: "Keyset pagination", definition: "Page with WHERE (sort_key, id) < last seen values instead of OFFSET, so every page is equally fast." },
-    { id: "c4-expand", domain: "d4", kind: "concept", term: "Expand / contract", definition: "Zero-downtime migration: add the new shape, dual-write, backfill, switch reads, then remove the old." },
+    { id: "c4-expand", domain: "d4", kind: "concept", term: "Expand and contract", definition: "A migration with no downtime. Add the new shape, write to both, backfill old rows, switch reads over, then remove the old shape." },
     { id: "c4-rls", domain: "d4", kind: "concept", term: "Row-level security", definition: "PostgreSQL policies that filter which rows each role can see or change." },
-    { id: "c4-olap", domain: "d4", kind: "concept", term: "OLTP vs OLAP", definition: "Many small keyed transactions vs large scans and aggregates for analytics." },
+    { id: "c4-olap", domain: "d4", kind: "concept", term: "OLTP and OLAP", definition: "OLTP is many small transactions that look rows up by key. OLAP is large scans and aggregates for analytics." },
   ],
 
   challenges: [

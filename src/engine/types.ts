@@ -31,7 +31,7 @@ export interface Domain {
 // ───────────── Questions ─────────────
 
 /** Interview seniority a question or lesson targets. */
-export type SkillLevel = "junior" | "intermediate" | "senior" | "staff";
+export type SkillLevel = "beginner" | "junior" | "intermediate" | "senior" | "staff";
 
 interface BaseQuestion {
   id: string;
@@ -358,6 +358,8 @@ export interface GameConfig {
   quest: {
     length: number;
     hearts: number;
+    /** Hearts on the Beginner level, where mistakes should cost less. */
+    beginnerHearts: number;
     /** Minimum share correct for 3, 2, and 1 stars. */
     starThresholds: [number, number, number];
   };

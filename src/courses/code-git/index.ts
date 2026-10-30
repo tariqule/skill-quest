@@ -52,7 +52,7 @@ export default defineCourse({
       { icon: "🌱", value: "Zero", label: "experience needed", detail: "World 1 starts with what version control is. Each world builds on the last." },
       { icon: "🧪", value: "3", label: "playground labs", detail: "Stage files between the three areas, grow and rebase a commit graph, and resolve a real-looking merge conflict." },
       { icon: "💻", value: "Real", label: "command output", detail: "Snippets show what Git actually prints. Try them in a scratch repository: `git init` in an empty folder costs nothing." },
-      { icon: "🐙", value: "Git + GitHub", label: "both covered", detail: "Git itself works offline; the remote worlds add the GitHub side: pull requests, forks, protection rules and releases." },
+      { icon: "🐙", value: "Git + GitHub", label: "both covered", detail: "Git itself works offline. The later worlds add the GitHub side: pull requests, forks, protection rules and releases." },
       { icon: "🛟", value: "Undo", label: "without fear", detail: "Most Git panic comes from not knowing how to undo. World 4 is all about getting back safely." },
     ],
     candidate: {
@@ -86,7 +86,7 @@ export default defineCourse({
       { icon: "🌳", tip: "`git log --oneline --graph --all` shows the commit graph. Most confusion disappears once you can see it." },
       { icon: "🛟", tip: "Committed work is very hard to lose (the reflog remembers it). Uncommitted work is easy to lose, so commit or stash before risky commands." },
       { icon: "📏", tip: "Keep branches short-lived and pull requests small. Small changes merge cleanly and get reviewed properly." },
-      { icon: "🚫", tip: "Never rewrite (rebase, amend, reset + force-push) commits that teammates already have." },
+      { icon: "🚫", tip: "Never rewrite commits that teammates already have. That means no rebase, amend, or reset and force-push on shared work." },
     ],
     officialPractice: { label: "Pro Git book (git-scm.com/book)", url: "https://git-scm.com/book/en/v2" },
   },
@@ -117,9 +117,9 @@ export default defineCourse({
     {
       title: "Remotes",
       items: [
-        ["git fetch", "Download; update origin/*; never touches your work"],
-        ["git pull", "fetch + merge (or --rebase) into current branch"],
-        ["git push -u origin <branch>", "First push of a new branch; sets upstream"],
+        ["git fetch", "Download and update origin/*, never touching your work"],
+        ["git pull", "Fetch, then merge (or --rebase) into the current branch"],
+        ["git push -u origin <branch>", "First push of a new branch, setting its upstream"],
         ["git push --force-with-lease", "Safe force push after rebasing your own branch"],
         ["git push origin <tag>", "Tags aren't pushed by default"],
       ],
@@ -142,7 +142,7 @@ export default defineCourse({
         ["git stash -u", "Also stash untracked files"],
         ["git cherry-pick <commit>", "Copy one commit onto the current branch"],
         ["git bisect start <bad> <good>", "Binary-search for the first bad commit"],
-        ["git bisect run <cmd>", "Automate it: exit 0 good, 1–127 bad, 125 skip"],
+        ["git bisect run <cmd>", "Automate it: exit 0 is good, 1 to 127 bad, 125 skip"],
       ],
     },
     {

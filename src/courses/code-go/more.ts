@@ -35,7 +35,7 @@ export const moreQuestions: Question[] = [
       { options: ["Done", "Close", "Stop", "Release"], answer: 0 },
     ],
     explanation:
-      "`wg.Add(1)` raises the counter before the goroutine starts, `wg.Done()` lowers it when the goroutine returns (deferred, so it runs even on panic), and `wg.Wait()` blocks until the counter reaches zero. Call `Add` before `go`, never inside the goroutine, or `Wait` may return too early.",
+      "`wg.Add(1)` raises the counter before the goroutine starts. `wg.Done()` lowers it when the goroutine returns, and deferring it means it runs even after a panic. `wg.Wait()` pauses until the counter is back to zero. Call `Add` before `go`, never inside the goroutine, or `Wait` may return too early.",
   },
   {
     id: "go-fx-03",
@@ -52,7 +52,7 @@ export const moreQuestions: Question[] = [
       { options: ["Is", "As", "Unwrap", "New"], answer: 0 },
     ],
     explanation:
-      "The `%w` verb wraps the error so it can be unwrapped later, and `errors.Is` walks the chain comparing against the target. `%v` only formats the text, which would break the chain and make `Is` return false. `errors.As` extracts a typed error into a variable, and `Unwrap` takes a single argument.",
+      "The `%w` verb wraps the error so it can be unwrapped later, and `errors.Is` walks back through the chain comparing each one with the target. `%v` only copies the text, which would break the chain and make `Is` return false. `errors.As` pulls out an error of a particular type, and `Unwrap` takes just one argument.",
   },
   {
     id: "go-fx-04",
@@ -68,7 +68,7 @@ export const moreQuestions: Question[] = [
       { options: ["...", "[:]", "*", ".."], answer: 0 },
     ],
     explanation:
-      "`append(s[:i], s[i+1:]...)` glues the part before `i` to the part after it; the `...` spreads the second slice into individual arguments. `delete` only works on maps, `copy` returns a count rather than a slice, and Go has no `remove`. On Go 1.21+, `slices.Delete(s, i, i+1)` does the same job.",
+      "`append(s[:i], s[i+1:]...)` glues the part before `i` to the part after it, and the `...` spreads the second slice out into separate arguments. `delete` only works on maps, `copy` returns a count rather than a slice, and Go has no `remove`. On Go 1.21 and later, `slices.Delete(s, i, i+1)` does the same job.",
   },
   {
     id: "go-fx-05",
@@ -86,7 +86,7 @@ export const moreQuestions: Question[] = [
       { options: ["After", "Sleep", "Wait", "Timeout"], answer: 0 },
     ],
     explanation:
-      "`ctx.Done()` returns a channel that is closed when the context ends, which makes it a perfect `select` case. `time.After(d)` returns a channel that delivers one value after `d`. `time.Sleep` returns nothing, so you cannot receive from it, and `Err()` returns an error value, not a channel.",
+      "`ctx.Done()` returns a channel that's closed when the context ends, which makes it a perfect `select` case. `time.After(d)` returns a channel that delivers one value after `d`. `time.Sleep` returns nothing, so you can't receive from it, and `Err()` returns an error, not a channel.",
   },
   {
     id: "go-fx-06",
@@ -104,7 +104,7 @@ export const moreQuestions: Question[] = [
       { options: ["Shutdown", "Close", "Stop", "Halt"], answer: 0 },
     ],
     explanation:
-      "`signal.NotifyContext` returns a context that is cancelled when one of the listed signals arrives, so `<-ctx.Done()` becomes the trigger. `srv.Shutdown(ctx)` closes the listeners and waits for active requests to finish (up to the deadline). `srv.Close()` drops connections immediately, and `Stop` and `Halt` do not exist on `http.Server`.",
+      "`signal.NotifyContext` returns a context that's cancelled when one of the listed signals arrives, so `<-ctx.Done()` becomes the trigger. `srv.Shutdown(ctx)` stops listening and waits for active requests to finish, up to the deadline. `srv.Close()` drops connections straight away, and `http.Server` has no `Stop` or `Halt`.",
   },
 
   // ───────────── output ─────────────
@@ -120,7 +120,7 @@ export const moreQuestions: Question[] = [
     codeLang: "go",
     answers: ["0 9"],
     explanation:
-      "Arrays are values: `b := a` copies all three elements, so changing `b[0]` never touches `a`. With a slice (`[]int`) both names would share one backing array and the output would be `9 9`.",
+      "Arrays are values, so `b := a` copies all three elements, and changing `b[0]` never touches `a`. With a slice (`[]int`), both names would share one backing array and the output would be `9 9`.",
   },
   {
     id: "go-ox-02",
@@ -134,7 +134,7 @@ export const moreQuestions: Question[] = [
     codeLang: "go",
     answers: ["[1 2 3 99] 3 3"],
     explanation:
-      "`t` starts as `[2 3]` with length 2 and capacity 3 (it can grow up to the end of `s`'s array). Appending one element fits inside that capacity, so no new array is allocated: the 99 overwrites `s[3]`. That makes `s` equal `[1 2 3 99]`, and `t` has length 3 and capacity 3.",
+      "`t` starts as `[2 3]` with length 2 and capacity 3, because it can grow up to the end of `s`'s array. Appending one element fits inside that capacity, so no new array is made, and the 99 overwrites `s[3]`. That makes `s` equal `[1 2 3 99]`, and `t` ends with length 3 and capacity 3.",
   },
   {
     id: "go-ox-03",
@@ -147,7 +147,7 @@ export const moreQuestions: Question[] = [
     codeLang: "go",
     answers: ["2\n1\n0"],
     explanation:
-      "Deferred calls run last-in, first-out when the function returns, so the output is 2, 1, 0. The arguments to a deferred call are evaluated when the `defer` statement runs, so each call remembers the value `i` had at that moment (0, 1, 2).",
+      "Deferred calls run last in, first out when the function returns, so the output is 2, 1, 0. A deferred call's arguments are worked out when the `defer` line runs, so each call remembers the value `i` had at that moment (0, 1, 2).",
   },
   {
     id: "go-ox-04",
@@ -161,7 +161,7 @@ export const moreQuestions: Question[] = [
     codeLang: "go",
     answers: ["false"],
     explanation:
-      "An interface value holds a (type, value) pair. `run` returns the pair (`*MyErr`, nil), which is not the nil interface, so `run() == nil` is false even though the pointer inside is nil. This is the classic nil-interface trap: return a literal `nil` on the success path instead.",
+      "An interface value holds two things, a type and a value. `run` returns the type `*MyErr` with a nil value, which isn't the nil interface, so `run() == nil` is false even though the pointer inside is nil. This is the classic nil-interface trap: return a plain `nil` on success instead.",
   },
   {
     id: "go-ox-05",
@@ -175,7 +175,7 @@ export const moreQuestions: Question[] = [
     codeLang: "go",
     answers: ["1 true\n2"],
     explanation:
-      "Closing a channel does not discard what is buffered. The first receive returns `1` with `ok` true. The `range` loop then drains the remaining `2` and stops once the channel is both closed and empty. Only after that would a receive return the zero value with `ok == false`.",
+      "Closing a channel doesn't throw away what's buffered. The first receive returns `1` with `ok` true. The `range` loop then reads the remaining `2` and stops once the channel is both closed and empty. Only after that would a receive return the zero value with `ok` false.",
   },
   {
     id: "go-ox-06",
@@ -190,6 +190,6 @@ export const moreQuestions: Question[] = [
     codeLang: "go",
     answers: ["24"],
     explanation:
-      "Fields are aligned to their own size: `a` takes 1 byte plus 7 bytes of padding so `b` starts on an 8-byte boundary, `b` takes 8, and `c` takes 1 plus 7 of trailing padding so arrays of `T` stay aligned. That is 24 bytes. Ordering the fields `b, a, c` packs them into 16, which matters when you hold millions of these.",
+      "Each field lines up on a multiple of its own size. `a` takes 1 byte plus 7 bytes of padding so `b` starts on an 8-byte boundary, `b` takes 8, and `c` takes 1 plus 7 more padding at the end so arrays of `T` stay lined up. That's 24 bytes. Ordering the fields `b, a, c` packs them into 16, which matters when you hold millions of these.",
   },
 ];

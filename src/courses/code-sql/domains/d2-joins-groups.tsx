@@ -37,6 +37,68 @@ export default defineDomain({
 
   lessons: [
     {
+      id: "d2-start-join",
+      level: "beginner",
+      task: "2.1",
+      title: "Why data lives in several tables",
+      check: ["sql-b2-01", "sql-b2-02"],
+      visual: (
+        <div className="grid gap-4">
+          <Tiles
+            cols={2}
+            tiles={[
+              { icon: "👤", title: "customers", text: "One row per customer: id, name, city. Each customer is written down once.", color: "#34d399" },
+              { icon: "🧾", title: "orders", text: "One row per order: id, total, and the customer_id of whoever placed it.", color: "#38bdf8" },
+            ]}
+          />
+          <CodeBlock
+            lang="sql"
+            caption="Each order, next to the name of the customer who placed it."
+            code={sql`
+              SELECT customers.name, orders.total
+              FROM orders
+              JOIN customers ON orders.customer_id = customers.id;
+            `}
+          />
+        </div>
+      ),
+      points: [
+        "Real apps split data across tables. A shop keeps one table of customers and another of orders, so each customer's details are written down once, not on every order.",
+        "Each order stores the customer's id instead. It's like a restaurant ticket that says \"table 4\" rather than describing the people sitting there.",
+        "A join follows those ids and puts matching rows side by side. That's how you see each order next to the name of the customer who placed it.",
+        "You write it as JOIN … ON. The ON part says which columns must match, here `orders.customer_id` and `customers.id`.",
+      ],
+      tip: "A column whose name ends in _id usually points at a row in another table. That's your clue for what to join.",
+    },
+    {
+      id: "d2-start-count",
+      level: "beginner",
+      task: "2.2",
+      title: "Counting and adding up",
+      check: ["sql-b2-03", "sql-b2-05"],
+      visual: (
+        <div className="grid gap-4">
+          <CodeBlock
+            lang="sql"
+            code={sql`
+              SELECT COUNT(*) FROM orders;      -- how many orders?
+              SELECT SUM(total) FROM orders;    -- how much in total?
+
+              SELECT customer_id, COUNT(*)      -- how many orders each?
+              FROM orders
+              GROUP BY customer_id;
+            `}
+          />
+        </div>
+      ),
+      points: [
+        "Often you don't want the rows themselves. You want a summary, like how many orders came in today or how much was spent.",
+        "COUNT(*) counts rows and SUM(total) adds up a column. AVG, MIN and MAX give the average, the smallest and the largest value.",
+        "GROUP BY splits the rows into piles before counting, like sorting receipts into one pile per customer. You get one result row for each pile.",
+      ],
+      tip: "Start with a plain `SELECT COUNT(*) FROM orders;` before grouping. Knowing how many rows you have makes every later result easier to check.",
+    },
+    {
       id: "d2-inner",
       level: "junior",
       task: "2.1",
@@ -60,8 +122,8 @@ export default defineDomain({
         "Data is split across tables (customers, orders) so each fact is stored once. A join puts it back together for one query.",
         "The ON condition decides which pairs of rows belong together, usually a foreign key matching a primary key.",
         "INNER JOIN (or just JOIN) keeps only pairs that match. A customer with three orders appears three times; one with none disappears.",
-        "Give tables short aliases (c, o) and prefix columns with them. When two tables share a column name like id, the prefix is required.",
-        "CROSS JOIN pairs every row with every row: 3 × 4 rows gives 12. Forgetting a join condition does the same by accident.",
+        "Give tables short nicknames, called aliases (c, o), and put them in front of column names. When two tables share a column name like id, the prefix is required.",
+        "CROSS JOIN pairs every row with every row, so 3 rows and 4 rows give 12. Forgetting a join condition does the same by accident.",
       ],
       tip: "Before writing a join, say out loud how many rows you expect back. If the real count is much larger, a join is multiplying rows.",
     },
@@ -104,7 +166,7 @@ export default defineDomain({
       points: [
         "Outer joins keep unmatched rows and fill the other side's columns with NULL.",
         "A WHERE condition on the optional (right) side of a LEFT JOIN throws away the NULL rows, quietly turning it back into an inner join. Put such conditions in ON.",
-        "Anti-join: LEFT JOIN, then WHERE right.key IS NULL, finds rows with no match (customers who never ordered). NOT EXISTS does the same.",
+        "An anti-join finds rows with no match, such as customers who never ordered. Write a LEFT JOIN, then WHERE right.key IS NULL. NOT EXISTS does the same.",
         "A self join joins a table to itself with two aliases, for example employees e and their managers m.",
       ],
       tip: "When a LEFT JOIN result is missing rows, look at the WHERE clause first. It's almost always a filter on the right-hand table.",
@@ -133,11 +195,11 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "Aggregate functions squash many rows into one value: COUNT(*), COUNT(col), SUM, AVG, MIN, MAX.",
+        "Aggregate functions squash many rows into one value. The common ones are COUNT(*), COUNT(col), SUM, AVG, MIN and MAX.",
         "GROUP BY puts rows with equal key values into buckets and returns one row per bucket. Every selected column must be grouped or aggregated.",
-        "WHERE filters rows before grouping; HAVING filters groups after. Aggregates are allowed in HAVING but not in WHERE.",
+        "WHERE filters rows before grouping, and HAVING filters groups after. Aggregates are allowed in HAVING but not in WHERE.",
         "The database runs a query in a logical order (FROM, WHERE, GROUP BY, HAVING, SELECT, ORDER BY, LIMIT), which explains most \"why can't I use that here?\" errors.",
-        "Joining a parent to many children before summing parent columns multiplies them (fan-out). Aggregate the children first.",
+        "If you join an order to its three items and then sum the order's total, the total is counted three times. This is called fan-out. Aggregate the children first.",
       ],
       tip: "Ask \"what is one row of my result?\" (one customer, one day). That's your GROUP BY.",
     },
@@ -162,17 +224,101 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "SQL logic has three values: TRUE, FALSE and UNKNOWN (NULL). Comparing anything with NULL gives UNKNOWN, even NULL = NULL.",
-        "WHERE, ON and HAVING keep rows only when the condition is TRUE, so UNKNOWN rows are dropped. Test for NULL with IS NULL / IS NOT NULL.",
+        "SQL logic has three values: TRUE, FALSE and UNKNOWN (NULL). Comparing anything with NULL gives UNKNOWN, even `NULL = NULL`.",
+        "WHERE, ON and HAVING keep rows only when the condition is TRUE, so UNKNOWN rows are dropped. Test for NULL with IS NULL or IS NOT NULL.",
         "Arithmetic and || with NULL give NULL. COALESCE(a, b, …) returns the first non-NULL argument.",
         "Aggregates skip NULLs (COUNT(col), SUM, AVG), but COUNT(*) counts every row. SUM over no rows is NULL, not 0.",
-        "x <> 'Oslo' is UNKNOWN when x is NULL, so rows with a NULL city are left out of both city = 'Oslo' and city <> 'Oslo'.",
+        "`x <> 'Oslo'` is UNKNOWN when x is NULL. So rows with a NULL city are left out of both `city = 'Oslo'` and `city <> 'Oslo'`.",
       ],
       tip: "Make columns NOT NULL unless \"unknown\" is a real state. Every nullable column is a question every query has to answer.",
     },
   ],
 
   questions: [
+    {
+      id: "sql-b2-01",
+      domain: "d2",
+      level: "beginner",
+      lesson: "d2-start-join",
+      prompt: "Why does an `orders` table store a `customer_id` instead of the customer's name and address?",
+      options: [
+        "So each customer's details are stored once, and every order points to them",
+        "Because a table can't hold text",
+        "To make the orders table as large as possible",
+        "Because SQL can't read names",
+      ],
+      answer: [0],
+      explanation:
+        "Storing the details once means a change of address only has to be made in one place. Every order just points at the customer by id. Tables can hold text perfectly well, so that's not the reason.",
+    },
+    {
+      id: "sql-b2-02",
+      domain: "d2",
+      level: "beginner",
+      lesson: "d2-start-join",
+      prompt: "What does a join do?",
+      options: [
+        "Puts matching rows from two tables side by side in one result",
+        "Copies every row of one table into another table",
+        "Deletes the rows that appear in both tables",
+        "Turns two tables into one new permanent table",
+      ],
+      answer: [0],
+      explanation:
+        "A join combines rows from two tables in the result of a query, using a condition to decide which rows match. It doesn't change or copy the tables themselves.",
+    },
+    {
+      id: "sql-b2-03",
+      type: "output",
+      domain: "d2",
+      level: "beginner",
+      lesson: "d2-start-count",
+      prompt: "Type the number this query returns.",
+      code: "-- orders(id, customer_id, total)\n-- (10, 1, 20)  (11, 1, 5)  (12, 2, 15)  (13, 3, 40)\nSELECT COUNT(*) FROM orders;",
+      codeLang: "sql",
+      answers: ["4"],
+      explanation:
+        "COUNT(*) counts rows, and the table has four orders. It doesn't matter that customer 1 placed two of them: each order is its own row.",
+    },
+    {
+      id: "sql-b2-04",
+      type: "output",
+      domain: "d2",
+      level: "beginner",
+      lesson: "d2-start-count",
+      prompt: "Type the number this query returns.",
+      code: "-- orders(id, customer_id, total)\n-- (10, 1, 20)  (11, 1, 5)  (12, 2, 15)  (13, 3, 40)\nSELECT SUM(total) FROM orders;",
+      codeLang: "sql",
+      answers: ["80"],
+      explanation:
+        "SUM adds up the values in a column. Here that's 20 plus 5 plus 15 plus 40, which is 80. COUNT(*) would give 4 instead, the number of rows.",
+    },
+    {
+      id: "sql-b2-05",
+      type: "fill",
+      domain: "d2",
+      level: "beginner",
+      lesson: "d2-start-count",
+      prompt: "Fill the gap to get one row per customer, with how many orders each placed.",
+      code: "SELECT customer_id, COUNT(*)\nFROM orders\n{{1}} customer_id;",
+      codeLang: "sql",
+      blanks: [{ options: ["GROUP BY", "ORDER BY", "WHERE", "JOIN"], answer: 0 }],
+      explanation:
+        "GROUP BY makes one pile of rows per customer_id, and COUNT(*) counts each pile. ORDER BY only sorts, so PostgreSQL would complain that customer_id isn't grouped.",
+    },
+    {
+      id: "sql-b2-06",
+      type: "fill",
+      domain: "d2",
+      level: "beginner",
+      lesson: "d2-start-join",
+      prompt: "Fill the gap so each order is shown next to the name of the customer who placed it.",
+      code: "SELECT customers.name, orders.total\nFROM orders\nJOIN customers {{1}} orders.customer_id = customers.id;",
+      codeLang: "sql",
+      blanks: [{ options: ["ON", "IF", "TO", "AS"], answer: 0 }],
+      explanation:
+        "ON comes right after the joined table and says which columns must match. Here an order belongs to the customer whose id matches the order's customer_id.",
+    },
     {
       id: "d2-01",
       domain: "d2",
@@ -237,7 +383,7 @@ export default defineDomain({
       codeLang: "sql",
       options: ["12", "7", "4", "3"],
       answer: [0],
-      explanation: "A CROSS JOIN pairs every row with every row (a Cartesian product): 3 × 4 = 12. Useful for generating combinations; dangerous when it happens by accident.",
+      explanation: "A CROSS JOIN pairs every row with every row (a Cartesian product), so 3 times 4 gives 12. It's useful for generating combinations and dangerous when it happens by accident.",
     },
     {
       id: "d2-05",
@@ -307,7 +453,7 @@ export default defineDomain({
       options: ["Only `Ana | 10`", "`Ana | 10` and `Bo | NULL`", "`Ana | 10` and `Bo | 11`", "No rows"],
       answer: [0],
       explanation:
-        "The join produces Ana–10 and Bo–11; then WHERE drops Bo's row because its status is 'refunded'. Moving the filter into the ON clause (`… AND o.status = 'paid'`) keeps Bo with a NULL order.",
+        "The join produces Ana–10 and Bo–11. Then WHERE drops Bo's row because its status is 'refunded'. Moving the filter into the ON clause (`… AND o.status = 'paid'`) keeps Bo with a NULL order.",
     },
     {
       id: "d2-09",
@@ -360,7 +506,7 @@ export default defineDomain({
         ["`FULL JOIN`", "All rows from both sides"],
         ["`CROSS JOIN`", "Every left row paired with every right row"],
       ],
-      explanation: "Inner keeps the intersection; the outer joins add unmatched rows from one side or both, padded with NULLs; cross is the Cartesian product with no condition.",
+      explanation: "An inner join keeps only matching pairs. Outer joins add unmatched rows from one side or both, padded with NULLs. A cross join pairs everything with everything, with no condition.",
     },
     {
       id: "d2-12",
@@ -430,7 +576,7 @@ export default defineDomain({
       prompt: "Which clause filters groups after they've been aggregated?",
       options: ["`HAVING`", "`WHERE`", "`ORDER BY`", "`DISTINCT`"],
       answer: [0],
-      explanation: "WHERE filters individual rows before grouping; HAVING filters whole groups after GROUP BY, so it can use aggregates like `HAVING SUM(total) > 100`.",
+      explanation: "WHERE filters individual rows before grouping. HAVING filters whole groups after GROUP BY, so it can use aggregates like `HAVING SUM(total) > 100`.",
     },
     {
       id: "d2-16",
@@ -560,7 +706,7 @@ export default defineDomain({
       codeLang: "sql",
       options: ["`Bob` and `Alice`", "`Bob` and NULL", "`Robert` and `Alice`", "`Bob` and an empty string"],
       answer: [0],
-      explanation: "COALESCE returns its first non-NULL argument: Robert's nickname is 'Bob'; Alice has none, so her name is used.",
+      explanation: "COALESCE returns its first non-NULL argument. Robert's nickname is 'Bob'. Alice has none, so her name is used.",
     },
     {
       id: "d2-24",
@@ -593,7 +739,7 @@ export default defineDomain({
       options: ["`a` = 4, `b` = 3", "`a` = 3, `b` = 3", "`a` = 4, `b` = 4", "`a` = 3, `b` = 4"],
       answer: [0],
       explanation:
-        "AVG skips the NULL: (5 + 3 + 4) / 3 = 4. SUM also skips it (12), but COUNT(*) counts all 4 rows, and integer division gives 12 / 4 = 3. Decide whether a missing review should count before choosing.",
+        "AVG skips the NULL, so it's (5 + 3 + 4) divided by 3, which is 4. SUM also skips it (12), but COUNT(*) counts all 4 rows, and integer division gives 12 divided by 4, which is 3. Decide whether a missing review should count before choosing.",
     },
     {
       id: "d2-26",
@@ -653,19 +799,19 @@ export default defineDomain({
 
   cards: [
     { id: "c2-join", domain: "d2", kind: "service", term: "INNER JOIN", definition: "Combines rows from two tables, keeping only the pairs that satisfy ON." },
-    { id: "c2-left", domain: "d2", kind: "service", term: "LEFT JOIN", definition: "Keeps every left row; right-side columns are NULL where nothing matches." },
+    { id: "c2-left", domain: "d2", kind: "service", term: "LEFT JOIN", definition: "Keeps every row from the left table. The right table's columns are NULL where nothing matches." },
     { id: "c2-full", domain: "d2", kind: "service", term: "FULL OUTER JOIN", definition: "Keeps all rows from both tables, padding the missing side with NULLs." },
-    { id: "c2-cross", domain: "d2", kind: "service", term: "CROSS JOIN", definition: "Every row paired with every row: the Cartesian product." },
+    { id: "c2-cross", domain: "d2", kind: "service", term: "CROSS JOIN", definition: "Pairs every row with every row, also called the Cartesian product." },
     { id: "c2-groupby", domain: "d2", kind: "service", term: "GROUP BY", definition: "Collapses rows with equal key values into one row per group." },
-    { id: "c2-having", domain: "d2", kind: "service", term: "HAVING", definition: "Filters groups after aggregation; can use aggregate functions." },
-    { id: "c2-count", domain: "d2", kind: "service", term: "COUNT", definition: "COUNT(*) counts rows; COUNT(col) counts non-NULL values; COUNT(DISTINCT col) counts distinct ones." },
-    { id: "c2-coalesce", domain: "d2", kind: "service", term: "COALESCE", definition: "Returns the first non-NULL argument, e.g. COALESCE(nickname, name)." },
-    { id: "c2-nullif", domain: "d2", kind: "service", term: "NULLIF", definition: "NULLIF(a, b) is NULL when a = b, otherwise a. Handy to avoid division by zero." },
-    { id: "c2-isdistinct", domain: "d2", kind: "service", term: "IS DISTINCT FROM", definition: "NULL-safe inequality: treats two NULLs as equal and never returns NULL." },
+    { id: "c2-having", domain: "d2", kind: "service", term: "HAVING", definition: "Filters groups after they've been aggregated, so it can use functions like SUM and COUNT." },
+    { id: "c2-count", domain: "d2", kind: "service", term: "COUNT", definition: "COUNT(*) counts rows. COUNT(col) counts non-NULL values, and COUNT(DISTINCT col) counts the different ones." },
+    { id: "c2-coalesce", domain: "d2", kind: "service", term: "COALESCE", definition: "Returns the first non-NULL argument. For example, COALESCE(nickname, name) uses the name when there's no nickname." },
+    { id: "c2-nullif", domain: "d2", kind: "service", term: "NULLIF", definition: "NULLIF(a, b) gives NULL when a equals b, and a otherwise. It's handy for avoiding division by zero." },
+    { id: "c2-isdistinct", domain: "d2", kind: "service", term: "IS DISTINCT FROM", definition: "A NULL-safe \"not equal\". It treats two NULLs as the same and never returns NULL." },
     { id: "c2-tvl", domain: "d2", kind: "concept", term: "Three-valued logic", definition: "SQL conditions are TRUE, FALSE or UNKNOWN. WHERE keeps only TRUE." },
-    { id: "c2-antijoin", domain: "d2", kind: "concept", term: "Anti-join", definition: "Rows with no match on the other side: LEFT JOIN … WHERE right.key IS NULL, or NOT EXISTS." },
-    { id: "c2-fanout", domain: "d2", kind: "concept", term: "Join fan-out", definition: "A one-to-many join repeats the parent row per child, inflating SUMs of parent columns." },
-    { id: "c2-order", domain: "d2", kind: "concept", term: "Logical query order", definition: "FROM, WHERE, GROUP BY, HAVING, SELECT, ORDER BY, LIMIT." },
+    { id: "c2-antijoin", domain: "d2", kind: "concept", term: "Anti-join", definition: "Finds rows with no match on the other side, using LEFT JOIN … WHERE right.key IS NULL, or NOT EXISTS." },
+    { id: "c2-fanout", domain: "d2", kind: "concept", term: "Join fan-out", definition: "A one-to-many join repeats the parent row once per child, so sums of the parent's columns come out too big." },
+    { id: "c2-order", domain: "d2", kind: "concept", term: "Logical query order", definition: "The order the database works through a query: FROM, WHERE, GROUP BY, HAVING, SELECT, ORDER BY, LIMIT." },
   ],
 
   challenges: [

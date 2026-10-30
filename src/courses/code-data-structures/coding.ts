@@ -80,9 +80,9 @@ function moveZeroes(nums) {
       t("2000 alternating", [Array.from({ length: 2000 }, (_, i) => (i % 2 ? i : 0))], [...Array.from({ length: 1000 }, (_, i) => 2 * i + 1), ...Array(1000).fill(0)], true),
     ],
     hints: [
-      "You only need one pass. What do you know about the numbers you have already looked at?",
-      "Keep a write index. Every non-zero number goes to `nums[write]`, then `write` moves forward.",
-      "After the loop, everything from `write` to the end must be a zero: fill it.",
+      "You only need one pass. What do you already know about the numbers you've looked at so far?",
+      "Keep a write index. Every non-zero number goes to `nums[write]`, and then `write` moves forward one.",
+      "After the loop, every slot from `write` to the end should be a zero, so fill those in.",
     ],
     solution: src`
 function moveZeroes(nums) {
@@ -92,7 +92,7 @@ function moveZeroes(nums) {
   return nums;
 }`,
     explanation:
-      "A write pointer trails the read loop: each non-zero value is copied to the next free slot, so the order is preserved and nothing is overwritten before it is read. The rest of the array is then zero-filled. That is O(n) time and O(1) extra space. Follow-up: how would you minimize the number of writes when zeroes are rare? (Swap only when `w !== i`.)",
+      "A write pointer follows behind the reading loop. Each non-zero value is copied into the next free slot, so the order is kept and nothing is overwritten before it's read. Then the rest of the array is filled with zeroes. That's O(n) time and O(1) extra space. Follow-up: how would you cut down the number of writes when zeroes are rare? (Only swap when `w !== i`.)",
   },
   {
     id: "ds-cc-02",
@@ -102,7 +102,7 @@ function moveZeroes(nums) {
     title: "Balanced brackets",
     idea: "stack, O(n)",
     prompt:
-      "Write `isValid(s)` for a string made only of `()[]{}`. Return `true` if every bracket is closed by the right type in the right order, e.g. `\"{[]}\"` is `true` but `\"([)]\"` is `false`. The empty string is valid. Strings can be thousands of characters long.",
+      "Write `isValid(s)` for a string made only of `()[]{}`. Return `true` if every bracket is closed by the right type in the right order. For example, `\"{[]}\"` is `true` but `\"([)]\"` is `false`. The empty string is valid. Strings can be thousands of characters long.",
     fn: "isValid",
     starter: src`
 function isValid(s) {
@@ -122,9 +122,9 @@ function isValid(s) {
       t("leftover opener", ["([{}])("], false, true),
     ],
     hints: [
-      "The most recent unclosed opener must be closed first. Which structure gives you the most recent item?",
-      "Use a stack. Push every opener; on a closer, pop and compare with the matching opener.",
-      "Return false if the stack is empty when a closer arrives. At the end the stack must be empty.",
+      "The most recent opener that's still unclosed has to be closed first. Which structure hands you the most recent item?",
+      "Use a stack. Push every opener. When you meet a closer, pop and compare it with the matching opener.",
+      "Return false if the stack is empty when a closer arrives. At the end, the stack must be empty.",
     ],
     solution: src`
 function isValid(s) {
@@ -140,7 +140,7 @@ function isValid(s) {
   return stack.length === 0;
 }`,
     explanation:
-      "The last opener seen must be the first one closed, which is exactly last-in-first-out. A closer that finds an empty stack or the wrong opener fails immediately, and leftover openers fail at the end. O(n) time, O(n) space in the worst case. Follow-up: what if you also need the index of the first mismatch?",
+      "The last opener you saw has to be the first one closed, which is exactly last in, first out. A closer that finds an empty stack or the wrong opener fails straight away, and any openers left over fail at the end. It's O(n) time and, in the worst case, O(n) space. Follow-up: what if you also need the index of the first mismatch?",
   },
   {
     id: "ds-cc-03",
@@ -168,9 +168,9 @@ function rotate(nums, k) {
       t("huge k", [[1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 1000000007], [4, 5, 6, 7, 8, 9, 10, 1, 2, 3], true),
     ],
     hints: [
-      "Rotating by the length gives the same array back. What does that say about big values of `k`?",
-      "Reduce `k` with `k % nums.length` (guard the empty array first).",
-      "The last `k` items move to the front: combine `nums.slice(n - k)` and `nums.slice(0, n - k)`.",
+      "Rotating by the array's length gives you the same array back. What does that tell you about big values of `k`?",
+      "Shrink `k` with `k % nums.length`. Check for an empty array first, so you don't divide by zero.",
+      "The last `k` items move to the front: join `nums.slice(n - k)` and `nums.slice(0, n - k)`.",
     ],
     solution: src`
 function rotate(nums, k) {
@@ -180,7 +180,7 @@ function rotate(nums, k) {
   return [...nums.slice(n - k), ...nums.slice(0, n - k)];
 }`,
     explanation:
-      "Rotation is periodic in the array length, so only `k % n` matters. The result is the last `k` items followed by the first `n - k`. O(n) time and space. Follow-up: do it in place with O(1) space by reversing the whole array, then the first k and the last n - k items.",
+      "Rotating repeats every n steps, where n is the array's length, so only `k % n` matters. The answer is the last `k` items followed by the first `n - k`. That's O(n) time and space. Follow-up: can you do it in place with O(1) space? (Reverse the whole array, then reverse the first k items and the last n - k items.)",
   },
   {
     id: "ds-cc-04",
@@ -207,9 +207,9 @@ function groupAnagrams(words) {
       t("three groups", [["listen", "silent", "enlist", "google", "gogole", "cat", "act"]], [["act", "cat"], ["enlist", "listen", "silent"], ["gogole", "google"]], true),
     ],
     hints: [
-      "Two words are anagrams exactly when their letters match once sorted.",
+      "Two words are anagrams exactly when their letters match after sorting.",
       "Use a `Map` from that sorted-letters key to the list of words that share it.",
-      "At the end sort each group, then sort the groups by their first word.",
+      "At the end, sort each group, then sort the groups by their first word.",
     ],
     solution: src`
 function groupAnagrams(words) {
@@ -224,7 +224,7 @@ function groupAnagrams(words) {
     .sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
 }`,
     explanation:
-      "A canonical key (the sorted letters) turns \"is this an anagram of that\" into a hash lookup, so grouping is O(n * k log k) for n words of length k. A faster key is a 26-slot letter count, giving O(n * k). Follow-up: what key would you use for Unicode text? (Count in a Map, or normalize first.)",
+      "A shared key, the word's letters in sorted order, turns \"is this an anagram of that?\" into a hash lookup. Grouping n words of length k then takes O(n * k log k). Counting letters in a 26-slot array makes a faster key, giving O(n * k). Follow-up: what key would you use for Unicode text? (Count letters in a Map, or normalise the text first.)",
   },
   {
     id: "ds-cc-05",
@@ -251,9 +251,9 @@ function levelOrder(root) {
       t("100 nodes", [heapTree(1, 100)], heapLevels(100), true),
     ],
     hints: [
-      "Breadth-first search visits nodes in level order. What do you need to know to separate one level from the next?",
+      "Breadth-first search visits nodes in level order. What do you need to know to tell one level from the next?",
       "Keep the current level as an array. Record its values, then build the next level from its children.",
-      "`level = level.flatMap((n) => [n.left, n.right]).filter(Boolean)` builds the next level; stop when it is empty.",
+      "`level = level.flatMap((n) => [n.left, n.right]).filter(Boolean)` builds the next level. Stop when it's empty.",
     ],
     solution: src`
 function levelOrder(root) {
@@ -267,7 +267,7 @@ function levelOrder(root) {
   return out;
 }`,
     explanation:
-      "Holding the whole current level in an array makes the level boundaries explicit, so no sentinel or size counter is needed. Each node is handled once: O(n) time, and O(w) space for the widest level. Follow-up: how do you produce a zig-zag order, or the right-side view? (Reverse alternate levels; take the last item of each.)",
+      "Keeping the whole current level in an array makes it obvious where each level ends, so you don't need a marker or a size counter. Each node is handled once, so it's O(n) time and O(w) space, where w is the widest level. Follow-up: how would you return a zig-zag order, or the view from the right side? (Reverse every other level, or take the last item of each.)",
   },
   {
     id: "ds-cc-06",
@@ -296,8 +296,8 @@ function runLRU(capacity, ops) {
       t("5000 puts, capacity 1000", [1000, lruBigOps], [-1, 9998, 8000, -1], true),
     ],
     hints: [
-      "You need O(1) lookup and O(1) 'which key is oldest'. One structure gives lookup, another gives order, or one JavaScript structure gives both.",
-      "A `Map` iterates in insertion order. Deleting a key and setting it again moves it to the end (most recent).",
+      "You need O(1) lookup and an O(1) answer to \"which key is oldest?\". One structure can give lookup and another order, or one JavaScript structure can give you both.",
+      "A `Map` lists keys in insertion order. Deleting a key and setting it again moves it to the end, marking it most recent.",
       "The oldest key is `map.keys().next().value`. After a `put`, if `map.size > capacity`, delete that key.",
     ],
     solution: src`
@@ -323,7 +323,7 @@ function runLRU(capacity, ops) {
   return results;
 }`,
     explanation:
-      "A JavaScript Map is a hash table that also remembers insertion order, so \"delete then set\" is an O(1) move-to-back and the first key is always the least recently used. Classic interviews build the same thing from a hash map plus a doubly linked list. Follow-up: how would you make it thread-safe, or add a time-to-live per entry?",
+      "A JavaScript Map is a hash table that also remembers insertion order. So \"delete, then set\" moves a key to the back in O(1), and the first key is always the least recently used. In classic interviews you build the same thing from a hash map plus a doubly linked list. Follow-up: how would you make it safe to use from several threads, or give each entry a time to live?",
   },
   {
     id: "ds-cc-07",
@@ -352,9 +352,9 @@ function runMinHeap(ops) {
       t("descending pushes", [[...[9, 8, 7, 6, 5, 4, 3, 2, 1].map((v) => ["push", v]), ...Array.from({ length: 9 }, () => ["pop"])]], [1, 2, 3, 4, 5, 6, 7, 8, 9], true),
     ],
     hints: [
-      "A heap is a complete binary tree stored in an array: the children of index `i` are `2i + 1` and `2i + 2`.",
-      "push: append the value, then swap it up while it is smaller than its parent. pop: save the root, move the last item to the root, then swap it down with the smaller child.",
-      "In sift-down, stop when both children are missing or neither is smaller than the moving item.",
+      "A heap is a complete binary tree stored in an array. The children of index `i` are at `2i + 1` and `2i + 2`.",
+      "For push, add the value at the end, then swap it upwards while it's smaller than its parent. For pop, save the root, move the last item to the root, then swap it down with its smaller child.",
+      "In sift-down, stop when there are no children left, or when neither child is smaller than the item you're moving.",
     ],
     solution: src`
 function runMinHeap(ops) {
@@ -399,7 +399,7 @@ function runMinHeap(ops) {
   return out;
 }`,
     explanation:
-      "The array layout makes parent and child lookups pure index arithmetic, and the heap property (parent <= children) is repaired along a single root-to-leaf path, so push and pop are O(log n). Building a heap from n items can be O(n) with bottom-up heapify. Follow-up: how would you get the k largest of a stream? (Keep a min-heap of size k.)",
+      "Storing the heap in an array means finding a parent or child is just index arithmetic. The heap rule, that each parent is no bigger than its children, is repaired along a single path from root to leaf, so push and pop are O(log n). Building a heap from n items can take O(n) with bottom-up heapify. Follow-up: how would you track the k largest values in a stream? (Keep a min-heap of size k.)",
   },
   {
     id: "ds-cc-08",
@@ -430,9 +430,9 @@ function topoSort(n, edges) {
       t("chain of 2000", [2000, Array.from({ length: 1999 }, (_, i) => [i + 1, i])], Array.from({ length: 2000 }, (_, i) => 1999 - i), true),
     ],
     hints: [
-      "A node can go first only when nothing is waiting on it. How can you track that cheaply for every node?",
-      "Compute each node's in-degree. Start with all in-degree-0 nodes; taking one decrements its neighbours' in-degrees.",
-      "If you output fewer than `n` nodes, some nodes never reached in-degree 0, so there is a cycle: return `[]`. For the smallest-first rule, pick the minimum of the ready set each time.",
+      "A node can go first only when nothing it depends on is still waiting. How can you track that cheaply for every node?",
+      "Work out each node's in-degree, the number of edges pointing into it. Start with every node whose in-degree is 0. Taking one out lowers its neighbours' in-degrees.",
+      "If you output fewer than `n` nodes, some never reached in-degree 0, which means there's a cycle, so return `[]`. For the smallest-first rule, pick the smallest ready node each time.",
     ],
     solution: src`
 function topoSort(n, edges) {
@@ -455,7 +455,7 @@ function topoSort(n, edges) {
   return order.length === n ? order : [];
 }`,
     explanation:
-      "Kahn's algorithm repeatedly removes a node with no remaining prerequisites; if the graph is acyclic every node is eventually removed, otherwise the cycle's nodes never reach in-degree 0 and the output is short. It runs in O(V + E) with a plain queue; the smallest-first rule here needs a min-heap for O((V + E) log V) (the scan above is fine for small ready sets). Follow-up: how would you report which nodes form the cycle?",
+      "Kahn's algorithm keeps removing a node that has no prerequisites left. If the graph has no cycle, every node is removed eventually. If it does, the nodes in the cycle never reach in-degree 0, and the output comes up short. With a plain queue it runs in O(V + E). The smallest-first rule here needs a min-heap for O((V + E) log V), though scanning is fine when only a few nodes are ready at once. Follow-up: how would you report which nodes form the cycle?",
   },
   {
     id: "ds-cc-09",
@@ -484,9 +484,9 @@ function runTrie(ops) {
       t("300 words, then delete all", [trieBigOps], trieBigExpected, true),
     ],
     hints: [
-      "A trie node maps a letter to the next node and can be flagged as the end of a word. Counting words under a prefix needs one more piece of data per node.",
-      "Store `n` on every node: the number of stored words whose path goes through it. `count(p)` is then the `n` of the node you reach by walking `p`.",
-      "Insert only if the word is not already stored, incrementing `n` along the path. Delete walks the path again, decrements `n`, and clears the end flag; remove a child whose `n` reaches 0.",
+      "A trie node maps each letter to the next node and can be marked as the end of a word. Counting the words under a prefix needs one more number on each node.",
+      "Store `n` on every node: how many stored words pass through it. Then `count(p)` is the `n` of the node you reach by walking `p`.",
+      "Only insert a word if it isn't stored yet, adding 1 to `n` along its path. Delete walks the path again, takes 1 off `n` and clears the end flag. Remove any child whose `n` drops to 0.",
     ],
     solution: src`
 function runTrie(ops) {
@@ -538,7 +538,7 @@ function runTrie(ops) {
   return out;
 }`,
     explanation:
-      "Storing a pass-through counter on every node makes count-by-prefix O(length of the prefix), independent of how many words exist; delete reverses the insert and prunes dead branches so memory does not leak. All operations are O(L) for a word of length L. Follow-up: how would you return the top 3 most frequent completions? (Cache the best few per node, or walk the subtree with a heap.)",
+      "Keeping a pass-through counter on each node makes counting by prefix cost O(length of the prefix), however many words are stored. Delete undoes the insert and prunes dead branches, so memory doesn't leak. Every operation is O(L) for a word of length L. Follow-up: how would you return the 3 most frequent completions? (Cache the best few on each node, or walk the subtree with a heap.)",
   },
   {
     id: "ds-cc-10",
@@ -568,8 +568,8 @@ function runMedian(ops) {
     ],
     hints: [
       "The median only needs the middle of the sorted data, not the whole sorted order.",
-      "Keep a max-heap for the smaller half and a min-heap for the larger half, sized so the lower half has equal or one more item.",
-      "Add: push into the lower half, move its top to the upper half, then rebalance if the upper half is bigger. Median is a heap top or the average of both tops. JavaScript has no heap built in: write a small one with a comparator.",
+      "Keep a max-heap for the smaller half and a min-heap for the larger half. Size them so the lower half has the same number of items, or one more.",
+      "To add, push into the lower half, move its top to the upper half, then rebalance if the upper half is bigger. The median is one heap's top or the average of both tops. JavaScript has no built-in heap, so write a small one that takes a comparator.",
     ],
     solution: src`
 function runMedian(ops) {
@@ -625,7 +625,7 @@ function runMedian(ops) {
   return out;
 }`,
     explanation:
-      "Splitting the data into a lower half (max-heap) and an upper half (min-heap) keeps the two middle elements at the heap tops, so a query is O(1) and each add touches a constant number of heap operations, O(log n). The invariant is that every lower value is at most every upper value and the sizes differ by at most one. Follow-up: how would you support a sliding window of the last k numbers? (Lazy deletion, or an order-statistic tree.)",
+      "Splitting the data into a lower half in a max-heap and an upper half in a min-heap keeps the two middle values at the heap tops. So a median query is O(1), and each add does a fixed number of heap operations, O(log n). The rule to keep is that every lower value is at most every upper value, and the sizes differ by at most one. Follow-up: how would you handle a sliding window of the last k numbers? (Lazy deletion, or an order-statistic tree.)",
   },
   {
     id: "ds-cc-11",
@@ -655,9 +655,9 @@ function cycleStart(next) {
       t("long list, no cycle", [longList], -1, true),
     ],
     hints: [
-      "If you walk two pointers, one twice as fast, what happens if there is a cycle? What if there is not?",
-      "Phase 1: move `slow` one step and `fast` two steps. If `fast` hits `-1` there is no cycle; if they meet, there is one.",
-      "Phase 2: reset `slow` to the head and move both one step at a time. They meet at the cycle's first node.",
+      "If you walk two pointers and one moves twice as fast, what happens when there's a cycle? What happens when there isn't?",
+      "Phase 1: move `slow` one step and `fast` two steps. If `fast` hits `-1`, there's no cycle. If they meet, there is one.",
+      "Phase 2: put `slow` back at the head and move both pointers one step at a time. They meet at the first node of the cycle.",
     ],
     solution: src`
 function cycleStart(next) {
@@ -679,6 +679,6 @@ function cycleStart(next) {
   return slow;
 }`,
     explanation:
-      "Floyd's algorithm: inside a cycle the fast pointer gains one node per step on the slow one, so they must meet. If the head is a distance a from the cycle start, then walking one pointer from the head and one from the meeting point, both one step at a time, makes them meet exactly at the cycle start. O(n) time and O(1) space, versus O(n) space for a visited set. Follow-up: how would you also compute the cycle length?",
+      "This is Floyd's algorithm. Inside a cycle, the fast pointer gains one node per step on the slow one, so they have to meet. Then, if you walk one pointer from the head and one from the meeting point, one step at a time, they meet exactly where the cycle starts. It's O(n) time and O(1) space, compared with O(n) space for a visited set. Follow-up: how would you also work out the cycle's length?",
   },
 ];

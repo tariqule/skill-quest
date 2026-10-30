@@ -226,7 +226,7 @@ export function SqsLab({ goal, onSolved }: GoalProps<"once" | "dlq">) {
 
   const banner: Record<SqsOutcome, { cls: string; text: string }> = {
     once: { cls: "border-emerald-400/40 bg-emerald-400/10 text-emerald-100", text: "✓ Processed exactly once, then deleted." },
-    dup: { cls: "border-rose-400/40 bg-rose-400/10 text-rose-100", text: `✗ Processed ${run?.processed ?? 0}+ times: duplicate side effects (double emails, double charges).` },
+    dup: { cls: "border-rose-400/40 bg-rose-400/10 text-rose-100", text: `✗ Processed ${run?.processed ?? 0}+ times, so its side effects happen more than once (double emails, double charges).` },
     dlq: poison
       ? { cls: "border-sky-400/40 bg-sky-400/10 text-sky-100", text: "✓ The poison message is parked in the DLQ for inspection. The main queue keeps flowing." }
       : {
@@ -267,7 +267,7 @@ export function SqsLab({ goal, onSolved }: GoalProps<"once" | "dlq">) {
           <div className={`rounded-xl border p-3 text-sm ${banner[run.outcome].cls}`}>{banner[run.outcome].text}</div>
         </div>
       )}
-      <p className="mt-2 text-xs text-slate-500">With Lambda polling the queue, AWS recommends a visibility timeout of at least 6× the function timeout.</p>
+      <p className="mt-2 text-xs text-slate-500">With Lambda polling the queue, AWS recommends a visibility timeout of at least 6 times the function timeout.</p>
     </div>
   );
 }

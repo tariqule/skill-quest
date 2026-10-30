@@ -13,7 +13,7 @@ export default defineDomain({
     weight: 24,
     emoji: "⚡",
     color: "#38bdf8",
-    summary: "Block, file, and object storage performance; EC2 families and elastic compute; purpose-built databases and caching; edge and hybrid networking; streaming and data lakes.",
+    summary: "How to design systems that stay fast as they grow. You'll cover storage types, server families, databases and caching, fast networks, and moving and analyzing large amounts of data.",
   },
 
   tasks: [
@@ -78,6 +78,77 @@ export default defineDomain({
 
   lessons: [
     {
+      id: "d3-start-latency-throughput",
+      level: "beginner",
+      task: "3.4",
+      title: "What fast means: latency and throughput",
+      check: ["saa-b3-01", "saa-b3-02"],
+      visual: (
+        <Tiles
+          cols={2}
+          tiles={[
+            { icon: "⏱️", title: "Latency", text: "How long one request takes to get an answer. Lower is better.", color: "#38bdf8" },
+            { icon: "🚚", title: "Throughput", text: "How much work gets done per second. Higher is better.", color: "#34d399" },
+          ]}
+        />
+      ),
+      points: [
+        "\"Fast\" can mean two different things, and AWS questions care which one you mean.",
+        "Think of a motorway. **Latency** is how long one car takes to reach the city. **Throughput** is how many cars arrive per hour.",
+        "Distance adds latency. A user in Sydney waits longer for a server in Virginia than for one in Sydney, so putting things near users helps.",
+        "More lanes add throughput. On AWS, that usually means more servers, bigger instances or faster disks.",
+      ],
+      tip: "If users are far away, think about latency and moving content closer. If the system can't keep up with the volume, think about throughput.",
+    },
+    {
+      id: "d3-start-caching",
+      level: "beginner",
+      task: "3.3",
+      title: "Keep it close: what caching does",
+      check: ["saa-b3-03", "saa-b3-04"],
+      visual: (
+        <Flow
+          color="#f59e0b"
+          steps={[
+            { icon: "🙋", label: "Someone asks for data" },
+            { icon: "⚡", label: "Check the cache first", sub: "A quick copy kept nearby" },
+            { icon: "🗄️", label: "Only if it's missing, ask the database", sub: "Then save a copy in the cache" },
+          ]}
+        />
+      ),
+      points: [
+        "A **cache** is a small, quick store that keeps copies of things people ask for often.",
+        "It's like keeping salt and pepper on the counter instead of in the basement. You still have the full store, but the things you use most are right at hand.",
+        "On AWS, **Amazon ElastiCache** keeps hot data in memory in front of a database. **Amazon CloudFront** keeps copies of web content in cities close to your users.",
+        "A cache makes answers faster and takes load off the database behind it.",
+      ],
+      tip: "When the same data is read over and over, and it doesn't change every second, a cache is usually the answer.",
+    },
+    {
+      id: "d3-start-storage-kinds",
+      level: "beginner",
+      task: "3.1",
+      title: "Three kinds of storage",
+      check: ["saa-b3-05", "saa-b3-06"],
+      visual: (
+        <Tiles
+          cols={3}
+          tiles={[
+            { icon: "🧱", title: "Block: Amazon EBS", text: "Like the hard drive inside one computer.", color: "#38bdf8" },
+            { icon: "📁", title: "File: Amazon EFS", text: "Like a shared drive the whole office can open.", color: "#a78bfa" },
+            { icon: "🪣", title: "Object: Amazon S3", text: "Like a coat check: hand in an item, get a ticket to fetch it later.", color: "#f59e0b" },
+          ]}
+        />
+      ),
+      points: [
+        "AWS has three main kinds of storage, and each suits a different job.",
+        "**Block storage** works like the hard drive inside your laptop. One server uses it. On AWS, that's **Amazon EBS**.",
+        "**File storage** works like a shared office drive with folders that many computers open at once. On AWS, that's **Amazon EFS** (and FSx).",
+        "**Object storage** works like a coat check: you hand in a file and get a name to fetch it with later. On AWS, that's **Amazon S3**, and it holds practically unlimited data.",
+      ],
+      tip: "One server needs a disk: EBS. Many servers share files: EFS. Lots of files reached over the web: S3.",
+    },
+    {
       id: "d3-storage",
       task: "3.1",
       title: "Block, file, and object storage performance",
@@ -87,37 +158,37 @@ export default defineDomain({
           <Tiles
             cols={3}
             tiles={[
-              { icon: "🧱", title: "Block: Amazon EBS", text: "Network volumes for one instance in one AZ (io1/io2 can multi-attach). gp3 · io2 Block Express · st1 · sc1.", color: "#38bdf8" },
-              { icon: "📁", title: "File: EFS and FSx", text: "Shared file systems for many instances: EFS (NFS, Linux, elastic) and FSx for Windows, Lustre, NetApp ONTAP, OpenZFS.", color: "#38bdf8" },
-              { icon: "🪣", title: "Object: Amazon S3", text: "Virtually unlimited objects over HTTP APIs. Scales request rates per prefix.", color: "#38bdf8" },
+              { icon: "🧱", title: "Block: Amazon EBS", text: "Network disks for one instance in one AZ (io1 and io2 can attach to several). Types: gp3, io2 Block Express, st1, sc1.", color: "#38bdf8" },
+              { icon: "📁", title: "File: EFS and FSx", text: "File systems that many instances share. EFS is NFS for Linux and grows by itself. FSx covers Windows, Lustre, NetApp ONTAP and OpenZFS.", color: "#38bdf8" },
+              { icon: "🪣", title: "Object: Amazon S3", text: "Practically unlimited objects, reached over HTTP APIs. Request rates scale per prefix.", color: "#38bdf8" },
             ]}
           />
           <Layers
             layers={[
-              { name: "EBS SSD", color: "#34d399", items: ["gp3: 3,000 IOPS + 125 MiB/s baseline, raise IOPS/throughput separately", "io2 Block Express: highest IOPS, sub-millisecond, critical databases"] },
-              { name: "EBS HDD (not bootable)", color: "#f59e0b", items: ["st1: throughput-optimized, big sequential reads (logs, big data)", "sc1: cold, lowest cost, infrequent access"] },
-              { name: "Instance store", color: "#f87171", items: ["Physically attached, very fast", "Lost on stop, hibernate, or terminate", "Caches, buffers, scratch data"] },
+              { name: "EBS SSD", color: "#34d399", items: ["gp3: 3,000 IOPS and 125 MiB/s to start, and you can raise IOPS and throughput separately", "io2 Block Express: the highest IOPS, under a millisecond, for critical databases"] },
+              { name: "EBS HDD (can't be a boot disk)", color: "#f59e0b", items: ["st1: built for throughput, big sequential reads such as logs and big data", "sc1: cold data, lowest cost, rarely read"] },
+              { name: "Instance store", color: "#f87171", items: ["Physically attached and very fast", "Lost when the instance stops, hibernates or terminates", "For caches, buffers and scratch data"] },
             ]}
           />
           <Tiles
             cols={4}
             tiles={[
-              { icon: "🪟", title: "FSx for Windows File Server", text: "SMB shares with Active Directory integration for Windows apps.", color: "#a78bfa" },
-              { icon: "🏎️", title: "FSx for Lustre", text: "HPC and ML file system with sub-millisecond latency; can link to an S3 bucket.", color: "#a78bfa" },
-              { icon: "🗄️", title: "FSx for NetApp ONTAP", text: "NFS, SMB, and iSCSI from one file system, snapshots, cloning, and replication.", color: "#a78bfa" },
-              { icon: "🌉", title: "Storage Gateway", text: "Hybrid: S3 File Gateway (NFS/SMB to S3), Volume Gateway (iSCSI), Tape Gateway (virtual tapes).", color: "#a78bfa" },
+              { icon: "🪟", title: "FSx for Windows File Server", text: "SMB file shares that work with Active Directory, for Windows apps.", color: "#a78bfa" },
+              { icon: "🏎️", title: "FSx for Lustre", text: "A file system for HPC and ML with under-a-millisecond latency. It can link to an S3 bucket.", color: "#a78bfa" },
+              { icon: "🗄️", title: "FSx for NetApp ONTAP", text: "NFS, SMB and iSCSI from one file system, with snapshots, cloning and replication.", color: "#a78bfa" },
+              { icon: "🌉", title: "Storage Gateway", text: "For hybrid setups. S3 File Gateway (NFS or SMB into S3), Volume Gateway (iSCSI) and Tape Gateway (virtual tapes).", color: "#a78bfa" },
             ]}
           />
         </div>
       ),
       points: [
-        "Choose by access model first: one instance needs a block device (EBS), many instances need shared files (EFS/FSx), apps over HTTP or massive scale need objects (S3).",
-        "S3 supports at least 3,500 writes and 5,500 reads per second per prefix: spread keys across prefixes for more parallelism.",
-        "Use multipart upload for large objects (recommended above about 100 MB) and S3 Transfer Acceleration for long-distance uploads.",
-        "gp3 lets you buy IOPS and throughput independently of size; gp2 ties performance to volume size.",
-        "Storage Gateway gives on-premises apps local-speed access to cloud storage with a local cache.",
+        "Start with how the data is reached. One instance needs a block device (EBS). Many instances need shared files (EFS or FSx). Apps working over HTTP, or at massive scale, need objects (S3).",
+        "S3 handles at least 3,500 writes and 5,500 reads per second for each **prefix**, the folder-like start of a key. Spread keys across prefixes to go faster in parallel.",
+        "Use **multipart upload** for large objects, recommended above about 100 MB. Use **S3 Transfer Acceleration** for uploads from far away.",
+        "With gp3 you buy IOPS and throughput separately from size. With gp2, performance is tied to how big the volume is.",
+        "Storage Gateway gives apps in your own building local-speed access to cloud storage, thanks to a local cache.",
       ],
-      tip: "\"Highest possible IOPS, temporary data, loss is acceptable\" → instance store. \"Shared POSIX storage for Linux instances in many AZs\" → EFS. \"Windows SMB with AD\" → FSx for Windows File Server.",
+      tip: "Highest possible IOPS for temporary data you can afford to lose means instance store. Shared POSIX storage for Linux instances in many AZs means EFS. Windows SMB shares with Active Directory mean FSx for Windows File Server.",
     },
     {
       id: "d3-compute",
@@ -129,25 +200,25 @@ export default defineDomain({
           <Tiles
             cols={4}
             tiles={[
-              { icon: "⚖️", title: "General purpose (M, T)", text: "Balanced CPU and memory. T instances are burstable with CPU credits.", color: "#38bdf8" },
-              { icon: "🧮", title: "Compute optimized (C)", text: "High CPU per GB: batch processing, gaming servers, encoding, HPC.", color: "#38bdf8" },
-              { icon: "🧠", title: "Memory optimized (R, X)", text: "Large in-memory databases, caches, real-time analytics.", color: "#38bdf8" },
-              { icon: "🎮", title: "Accelerated (P, G, Inf, Trn)", text: "GPUs and ML accelerators for training, inference, and graphics.", color: "#38bdf8" },
+              { icon: "⚖️", title: "General purpose (M, T)", text: "Balanced CPU and memory. T instances can burst above their baseline using CPU credits.", color: "#38bdf8" },
+              { icon: "🧮", title: "Compute optimized (C)", text: "Lots of CPU per GB of memory, for batch jobs, game servers, video encoding and HPC.", color: "#38bdf8" },
+              { icon: "🧠", title: "Memory optimized (R, X)", text: "For large in-memory databases, caches and real-time analytics.", color: "#38bdf8" },
+              { icon: "🎮", title: "Accelerated (P, G, Inf, Trn)", text: "GPUs and ML chips for training, inference and graphics.", color: "#38bdf8" },
             ]}
           />
           <Tiles
             cols={3}
             tiles={[
               { icon: "🧲", title: "Cluster placement group", text: "Packs instances close together in one AZ for the lowest latency and highest throughput (HPC).", color: "#a78bfa" },
-              { icon: "🪐", title: "Spread placement group", text: "Each instance on distinct hardware: a few critical instances that must not fail together.", color: "#a78bfa" },
-              { icon: "🧩", title: "Partition placement group", text: "Groups of instances on separate racks: large distributed systems like HDFS, Cassandra, Kafka.", color: "#a78bfa" },
+              { icon: "🪐", title: "Spread placement group", text: "Puts each instance on different hardware, for a few critical instances that must not fail together.", color: "#a78bfa" },
+              { icon: "🧩", title: "Partition placement group", text: "Puts groups of instances on separate racks, for large distributed systems like HDFS, Cassandra and Kafka.", color: "#a78bfa" },
             ]}
           />
           <Flow
             color="#38bdf8"
             steps={[
               { icon: "📥", label: "Jobs submitted", sub: "To an AWS Batch job queue" },
-              { icon: "🧮", label: "Batch picks capacity", sub: "EC2, Spot, or Fargate" },
+              { icon: "🧮", label: "Batch picks capacity", sub: "EC2, Spot or Fargate" },
               { icon: "📈", label: "Scales out", sub: "Runs jobs in parallel" },
               { icon: "📉", label: "Scales to zero", sub: "When the queue is empty" },
             ]}
@@ -155,13 +226,13 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "Match the instance family to the bottleneck: CPU-bound → C, memory-bound → R/X, GPU → P/G, local storage I/O → I/D.",
-        "Lambda CPU scales with configured memory (128 MB–10,240 MB): a CPU-bound function often gets faster and cheaper with more memory.",
-        "AWS Batch runs large numbers of batch jobs on managed compute; Amazon EMR runs Spark, Hadoop, and other big data frameworks.",
-        "Decouple with queues so each tier scales on its own metric: requests per target for the web tier, backlog per instance for workers.",
-        "Elastic Fabric Adapter (EFA) gives tightly coupled HPC and MPI workloads very low-latency networking.",
+        "Pick the instance family that fixes your bottleneck. Short of CPU, pick C. Short of memory, pick R or X. Need GPUs, pick P or G. Need fast local disks, pick I or D.",
+        "Lambda gives a function more CPU as you give it more memory, from 128 MB to 10,240 MB. A CPU-bound function often gets faster, and cheaper overall, with more memory.",
+        "**AWS Batch** runs large numbers of batch jobs on compute it manages. **Amazon EMR** runs Spark, Hadoop and other big data tools.",
+        "Put queues between tiers so each one scales on its own metric: requests per target for the web tier, backlog per instance for workers.",
+        "**Elastic Fabric Adapter** (EFA) gives tightly coupled HPC and MPI jobs very low-latency networking between instances.",
       ],
-      tip: "\"Lowest network latency between nodes\" → cluster placement group. \"Prevent simultaneous hardware failure of a few critical instances\" → spread placement group.",
+      tip: "For the lowest network latency between nodes, use a cluster placement group. To stop a few critical instances failing together on the same hardware, use a spread placement group.",
     },
     {
       id: "d3-databases",
@@ -173,25 +244,25 @@ export default defineDomain({
           <Tiles
             cols={4}
             tiles={[
-              { icon: "🐬", title: "Amazon RDS", text: "Managed MySQL, PostgreSQL, MariaDB, Oracle, SQL Server, Db2. Provisioned IOPS storage for heavy I/O.", color: "#38bdf8" },
-              { icon: "🌌", title: "Amazon Aurora", text: "MySQL/PostgreSQL-compatible, up to 15 replicas, auto-growing storage. Serverless v2 scales capacity in fine steps.", color: "#38bdf8" },
-              { icon: "⚡", title: "Amazon DynamoDB", text: "Serverless key-value and document DB, single-digit millisecond latency at any scale. On-demand or provisioned capacity.", color: "#38bdf8" },
-              { icon: "🏭", title: "Amazon Redshift", text: "Columnar data warehouse for complex analytic SQL over large data sets.", color: "#38bdf8" },
-              { icon: "🕸️", title: "Amazon Neptune", text: "Graph database: relationships such as social networks, fraud rings, recommendations.", color: "#a78bfa" },
+              { icon: "🐬", title: "Amazon RDS", text: "MySQL, PostgreSQL, MariaDB, Oracle, SQL Server and Db2, run for you. Provisioned IOPS storage handles heavy I/O.", color: "#38bdf8" },
+              { icon: "🌌", title: "Amazon Aurora", text: "Works with MySQL and PostgreSQL, with up to 15 replicas and storage that grows by itself. Serverless v2 adjusts capacity in small steps.", color: "#38bdf8" },
+              { icon: "⚡", title: "Amazon DynamoDB", text: "A serverless key-value and document database that answers in a few milliseconds at any scale. On-demand or provisioned capacity.", color: "#38bdf8" },
+              { icon: "🏭", title: "Amazon Redshift", text: "A columnar data warehouse for complex analytic SQL over big data sets.", color: "#38bdf8" },
+              { icon: "🕸️", title: "Amazon Neptune", text: "A graph database for relationships, such as social networks, fraud rings and recommendations.", color: "#a78bfa" },
               { icon: "📄", title: "Amazon DocumentDB", text: "MongoDB-compatible JSON document database.", color: "#a78bfa" },
-              { icon: "🗝️", title: "Amazon Keyspaces", text: "Apache Cassandra-compatible wide-column database, serverless.", color: "#a78bfa" },
-              { icon: "🚚", title: "AWS DMS", text: "Migrates databases with minimal downtime; DMS Schema Conversion handles heterogeneous engine changes.", color: "#a78bfa" },
+              { icon: "🗝️", title: "Amazon Keyspaces", text: "A serverless wide-column database that works with Apache Cassandra.", color: "#a78bfa" },
+              { icon: "🚚", title: "AWS DMS", text: "Moves databases with very little downtime. DMS Schema Conversion handles a switch to a different engine.", color: "#a78bfa" },
             ]}
           />
         </div>
       ),
       points: [
-        "Relational with joins and transactions → RDS or Aurora. Massive scale with known key-based access patterns → DynamoDB. Analytics over terabytes → Redshift.",
-        "Read-heavy → read replicas and caching. Write-heavy relational → scale up, Provisioned IOPS, or Aurora; write-heavy key-value → DynamoDB with a well-distributed partition key.",
-        "DynamoDB capacity: 1 RCU = one strongly consistent 4 KB read per second (two if eventually consistent); 1 WCU = one 1 KB write per second.",
-        "Homogeneous migration (MySQL → Aurora MySQL): DMS or native tools. Heterogeneous (Oracle → PostgreSQL): convert the schema first, then migrate data with DMS.",
+        "Relational data with joins and transactions belongs in RDS or Aurora. Massive scale where you look things up by key suits DynamoDB. Analytics over terabytes suits Redshift.",
+        "For lots of reads, add read replicas and caching. For lots of relational writes, scale up, use Provisioned IOPS or move to Aurora. For lots of key-value writes, use DynamoDB with a well-spread partition key.",
+        "In DynamoDB, one **RCU** (read capacity unit) covers one strongly consistent 4 KB read per second, or two eventually consistent ones. One **WCU** covers one 1 KB write per second.",
+        "Moving to the same engine, such as MySQL to Aurora MySQL, is easy with DMS or native tools. Moving to a different engine, such as Oracle to PostgreSQL, means converting the schema first, then moving the data with DMS.",
       ],
-      tip: "Match the data model to the database: graph → Neptune, MongoDB → DocumentDB, Cassandra → Keyspaces, warehouse → Redshift.",
+      tip: "Match the data model to the database. Graphs go to Neptune, MongoDB to DocumentDB, Cassandra to Keyspaces and warehouses to Redshift.",
     },
     {
       id: "d3-caching",
@@ -203,27 +274,27 @@ export default defineDomain({
           <Tiles
             cols={2}
             tiles={[
-              { icon: "💤", title: "Lazy loading (cache-aside)", text: "Read the cache; on a miss read the DB and fill the cache. Only requested data is cached, but it can be stale: add a TTL.", color: "#f59e0b" },
-              { icon: "✍️", title: "Write-through", text: "Update the cache on every DB write. Always fresh; costs more writes and may cache unread data.", color: "#f59e0b" },
+              { icon: "💤", title: "Lazy loading (cache-aside)", text: "Check the cache first. On a miss, read the database and fill the cache. Only requested data gets cached, but it can go stale, so add a TTL.", color: "#f59e0b" },
+              { icon: "✍️", title: "Write-through", text: "Update the cache on every database write. Always fresh, but it costs extra writes and may cache data nobody reads.", color: "#f59e0b" },
             ]}
           />
           <Tiles
             cols={3}
             tiles={[
-              { icon: "🧠", title: "ElastiCache (Redis OSS / Valkey)", text: "Replication, Multi-AZ failover, persistence, sorted sets for leaderboards, pub/sub.", color: "#38bdf8" },
-              { icon: "🧵", title: "ElastiCache (Memcached)", text: "Simple, multithreaded cache. No replication or persistence.", color: "#38bdf8" },
-              { icon: "🚀", title: "DynamoDB Accelerator (DAX)", text: "In-memory cache for DynamoDB with microsecond reads and few code changes.", color: "#38bdf8" },
+              { icon: "🧠", title: "ElastiCache (Redis OSS or Valkey)", text: "Replication, Multi-AZ failover, persistence, sorted sets for leaderboards, and pub/sub.", color: "#38bdf8" },
+              { icon: "🧵", title: "ElastiCache (Memcached)", text: "A simple, multithreaded cache with no replication or persistence.", color: "#38bdf8" },
+              { icon: "🚀", title: "DynamoDB Accelerator (DAX)", text: "An in-memory cache for DynamoDB with microsecond reads and few code changes.", color: "#38bdf8" },
             ]}
           />
         </div>
       ),
       points: [
-        "Caching moves repeated reads off the database: lower latency for users and lower load (and often cost) for the database.",
-        "Pick the cache that fits the store: DAX for DynamoDB, ElastiCache for RDS query results and sessions, CloudFront for content at the edge.",
-        "Use Redis OSS or Valkey when you need high availability, persistence, or rich data structures; Memcached for a simple, horizontally scaled cache.",
-        "API Gateway REST APIs can cache responses too, reducing calls to the back end.",
+        "A cache takes repeated reads off the database. Users get faster answers, and the database carries less load, which often saves money too.",
+        "Pick the cache that fits the data store. DAX goes with DynamoDB, ElastiCache with RDS query results and sessions, and CloudFront with content at the edge.",
+        "Use Redis OSS or Valkey when you need high availability, persistence or rich data structures. Use Memcached for a simple cache you scale by adding nodes.",
+        "API Gateway REST APIs can cache responses too, which cuts calls to the back end.",
       ],
-      tip: "\"Microsecond latency for DynamoDB with minimal code changes\" → DAX. \"Real-time leaderboard\" → ElastiCache sorted sets.",
+      tip: "Microsecond latency for DynamoDB with few code changes means DAX. A real-time leaderboard means ElastiCache sorted sets.",
     },
     {
       id: "d3-network",
@@ -235,26 +306,26 @@ export default defineDomain({
           <Tiles
             cols={2}
             tiles={[
-              { icon: "🌐", title: "Amazon CloudFront", text: "CDN that caches content at edge locations. HTTP(S) and WebSocket. Origins: S3 (with origin access control), ALB, custom servers.", color: "#38bdf8" },
-              { icon: "🚀", title: "AWS Global Accelerator", text: "Static anycast IPs; TCP/UDP over the AWS backbone to the nearest healthy Regional endpoint. No caching.", color: "#38bdf8" },
+              { icon: "🌐", title: "Amazon CloudFront", text: "A CDN that caches content at edge locations, for HTTP, HTTPS and WebSocket. Origins can be S3 (with origin access control), an ALB or your own servers.", color: "#38bdf8" },
+              { icon: "🚀", title: "AWS Global Accelerator", text: "Fixed anycast IPs that carry TCP and UDP over the AWS backbone to the nearest healthy Regional endpoint. It doesn't cache.", color: "#38bdf8" },
             ]}
           />
           <Layers
             layers={[
-              { name: "Connect VPCs", color: "#34d399", items: ["VPC peering: one-to-one, non-transitive, no overlapping CIDRs", "Transit Gateway: hub-and-spoke for many VPCs and on-premises, transitive routing", "PrivateLink: expose one service, not whole networks"] },
-              { name: "Connect on premises", color: "#f59e0b", items: ["Site-to-Site VPN: quick, encrypted, over the internet", "Direct Connect: dedicated bandwidth, consistent latency", "Direct Connect gateway: reach VPCs in many Regions"] },
-              { name: "IP planning", color: "#a78bfa", items: ["VPC CIDR /16 to /28", "5 IPs reserved per subnet", "Add secondary CIDRs later", "Avoid overlaps with networks you'll connect"] },
+              { name: "Connect VPCs", color: "#34d399", items: ["VPC peering: one-to-one, not transitive, no overlapping CIDRs", "Transit Gateway: a hub for many VPCs and on-premises networks, with transitive routing", "PrivateLink: share one service, not whole networks"] },
+              { name: "Connect on premises", color: "#f59e0b", items: ["Site-to-Site VPN: quick and encrypted, over the internet", "Direct Connect: dedicated bandwidth and steady latency", "Direct Connect gateway: reach VPCs in many Regions"] },
+              { name: "IP planning", color: "#a78bfa", items: ["A VPC CIDR can be /16 to /28", "5 IPs are reserved in every subnet", "You can add secondary CIDRs later", "Avoid overlaps with networks you'll connect"] },
             ]}
           />
         </div>
       ),
       points: [
-        "CloudFront lowers latency for cacheable content and offloads origins; Global Accelerator improves latency and failover for any TCP/UDP app, including non-HTTP.",
-        "Transit Gateway replaces a mesh of peering connections once you have more than a handful of VPCs, and attaches VPNs and Direct Connect too.",
-        "Place resources close to users (Regions, edge locations, AWS Local Zones, Wavelength for 5G edge) when latency is the requirement.",
-        "Plan IP space generously: a subnet that's too small limits Auto Scaling, and overlapping CIDRs block peering.",
+        "CloudFront cuts latency for content that can be cached and takes load off your origins. Global Accelerator improves latency and failover for any TCP or UDP app, even ones that aren't HTTP.",
+        "Once you have more than a handful of VPCs, Transit Gateway replaces a tangle of peering connections. It can attach VPNs and Direct Connect too.",
+        "When latency matters, put resources near users. That can mean picking a nearby Region, using edge locations, AWS Local Zones, or Wavelength at the 5G edge.",
+        "Plan IP space generously. A subnet that's too small limits Auto Scaling, and overlapping CIDRs block peering.",
       ],
-      tip: "\"Hundreds of VPCs and on-premises networks need to talk to each other\" → Transit Gateway. \"Two VPCs, simplest and cheapest\" → VPC peering.",
+      tip: "If hundreds of VPCs and on-premises networks need to talk to each other, use Transit Gateway. For just two VPCs, the simplest and cheapest link is VPC peering.",
     },
     {
       id: "d3-ingestion",
@@ -266,9 +337,9 @@ export default defineDomain({
           <Flow
             color="#38bdf8"
             steps={[
-              { icon: "📡", label: "Ingest", sub: "Kinesis Data Streams, Data Firehose, MSK, DataSync, Transfer Family" },
-              { icon: "🪣", label: "Store in S3", sub: "The data lake" },
-              { icon: "🧪", label: "Catalog and transform", sub: "Glue crawlers, Glue ETL, EMR: CSV → Parquet" },
+              { icon: "📡", label: "Bring the data in", sub: "Kinesis Data Streams, Data Firehose, MSK, DataSync, Transfer Family" },
+              { icon: "🪣", label: "Store it in S3", sub: "This is the data lake" },
+              { icon: "🧪", label: "Catalog and transform", sub: "Glue crawlers, Glue ETL or EMR, for example turning CSV into Parquet" },
               { icon: "🔐", label: "Govern", sub: "Lake Formation permissions" },
               { icon: "📊", label: "Query and visualize", sub: "Athena, Redshift, Amazon Quick" },
             ]}
@@ -276,26 +347,87 @@ export default defineDomain({
           <Tiles
             cols={4}
             tiles={[
-              { icon: "🌊", title: "Kinesis Data Streams", text: "Real-time streams with ordering per shard and replay; you write the consumers.", color: "#34d399" },
-              { icon: "🚿", title: "Amazon Data Firehose", text: "Fully managed delivery to S3, Redshift, OpenSearch, and more; buffers, transforms, converts to Parquet.", color: "#34d399" },
-              { icon: "🔁", title: "AWS DataSync", text: "Online transfer from NFS, SMB, HDFS, or object stores to S3, EFS, or FSx, with scheduling and verification.", color: "#34d399" },
+              { icon: "🌊", title: "Kinesis Data Streams", text: "Real-time streams, ordered within each shard and replayable. You write the consumers.", color: "#34d399" },
+              { icon: "🚿", title: "Amazon Data Firehose", text: "Delivers streaming data to S3, Redshift, OpenSearch and more, fully managed. It buffers, transforms and converts to Parquet.", color: "#34d399" },
+              { icon: "🔁", title: "AWS DataSync", text: "Copies data online from NFS, SMB, HDFS or object stores to S3, EFS or FSx, with scheduling and checks.", color: "#34d399" },
               { icon: "📦", title: "AWS Snow Family", text: "Physical devices for offline transfer when the network would take too long.", color: "#34d399" },
             ]}
           />
         </div>
       ),
       points: [
-        "Real-time with custom processing and replay → Kinesis Data Streams (or MSK for Kafka). Load streaming data into storage with no code → Data Firehose.",
-        "Columnar formats (Parquet, ORC), compression, and partitioning make Athena and Redshift queries faster and cheaper because less data is scanned.",
-        "Lake Formation centralizes fine-grained permissions (database, table, column, row) on data lake data in S3.",
-        "AppFlow moves data from SaaS apps such as Salesforce into AWS on a schedule or event, with no code.",
-        "Secure ingestion: VPC endpoints, encryption in transit, and least-privilege roles for producers.",
+        "For real-time data with your own processing and replay, use Kinesis Data Streams, or MSK if you use Kafka. To load streaming data into storage with no code, use Data Firehose.",
+        "**Columnar formats** such as Parquet and ORC, plus compression and partitioning, make Athena and Redshift queries faster and cheaper, because less data gets scanned.",
+        "**Lake Formation** manages detailed permissions on data lake data in S3, right down to the database, table, column and row.",
+        "**AppFlow** moves data from SaaS apps such as Salesforce into AWS on a schedule or when an event happens, with no code.",
+        "Keep ingestion secure with VPC endpoints, encryption in transit, and least-privilege roles for whatever sends the data.",
       ],
-      tip: "\"Near real-time delivery to S3 with no servers or code\" → Data Firehose. \"Ad hoc SQL on S3\" → Athena. \"Spark cluster\" → EMR.",
+      tip: "Near real-time delivery to S3 with no servers or code means Data Firehose. Ad hoc SQL on S3 means Athena. A Spark cluster means EMR.",
     },
   ],
 
   questions: [
+    // ── Start here ──
+    {
+      id: "saa-b3-01",
+      domain: "d3",
+      lesson: "d3-start-latency-throughput",
+      level: "beginner",
+      prompt: "What does latency measure?",
+      options: ["How long one request takes to get an answer", "How much a server costs per month", "How many users have accounts", "How much storage is left"],
+      answer: [0],
+      explanation: "Latency is the waiting time for a single request, like how long one car takes to reach the city. Lower latency feels snappier to users.",
+    },
+    {
+      id: "saa-b3-02",
+      domain: "d3",
+      lesson: "d3-start-latency-throughput",
+      level: "beginner",
+      prompt: "Users in Australia say a website hosted in the United States feels slow. What usually helps the most?",
+      options: ["Serving the content from a location closer to Australia", "Making the website's logo smaller", "Adding more passwords", "Moving the database to a bigger disk in the United States"],
+      answer: [0],
+      explanation: "Distance adds latency, because data takes time to travel. Serving content from somewhere near the users cuts that travel time.",
+    },
+    {
+      id: "saa-b3-03",
+      domain: "d3",
+      lesson: "d3-start-caching",
+      level: "beginner",
+      prompt: "What is a cache?",
+      options: ["A quick store that keeps copies of data people ask for often", "A backup kept for seven years", "A firewall rule", "A bill for unused servers"],
+      answer: [0],
+      explanation: "A cache keeps popular data close at hand, like salt and pepper on the counter. Requests are answered faster, and the main database does less work.",
+    },
+    {
+      id: "saa-b3-04",
+      domain: "d3",
+      lesson: "d3-start-caching",
+      level: "beginner",
+      prompt: "Which AWS service keeps copies of web content in locations close to users around the world?",
+      options: ["Amazon CloudFront", "AWS IAM", "Amazon SQS", "AWS Budgets"],
+      answer: [0],
+      explanation: "CloudFront is a content delivery network. It stores copies of your images, videos and pages in edge locations near users, so they load faster.",
+    },
+    {
+      id: "saa-b3-05",
+      domain: "d3",
+      lesson: "d3-start-storage-kinds",
+      level: "beginner",
+      prompt: "Which kind of storage works like the hard drive inside one computer?",
+      options: ["Block storage, such as Amazon EBS", "Object storage, such as Amazon S3", "A message queue", "A content delivery network"],
+      answer: [0],
+      explanation: "Block storage is a disk attached to one server, just like your laptop's drive. On AWS, that's an Amazon EBS volume attached to an EC2 instance.",
+    },
+    {
+      id: "saa-b3-06",
+      domain: "d3",
+      lesson: "d3-start-storage-kinds",
+      level: "beginner",
+      prompt: "Several servers need to open the same folders of files at the same time. Which kind of storage fits?",
+      options: ["File storage, such as Amazon EFS", "A single EBS volume", "An encryption key", "A load balancer"],
+      answer: [0],
+      explanation: "File storage is like a shared office drive that many computers can open at once. Amazon EFS gives Linux servers exactly that.",
+    },
     // ── Storage ──
     {
       id: "d3-01",
@@ -331,7 +463,7 @@ export default defineDomain({
         "gp2 performance is independent of volume size",
       ],
       answer: [0, 1],
-      explanation: "st1 is built for frequently accessed, throughput-heavy sequential workloads; HDD volumes can't boot. sc1 is the coldest, lowest-cost HDD; gp2 IOPS scale with size; instance store is ephemeral.",
+      explanation: "st1 is built for frequently read, throughput-heavy sequential work, though HDD volumes can't be boot disks. sc1 is the coldest, cheapest HDD. gp2 IOPS grow with volume size, and instance store is temporary.",
     },
     {
       id: "d3-04",
@@ -504,7 +636,7 @@ export default defineDomain({
         ["Deep learning model training", "Accelerated computing (P)"],
         ["Low-traffic website with occasional spikes", "Burstable general purpose (T)"],
       ],
-      explanation: "Size and family follow the bottleneck: CPU, memory, GPU, or modest baseline with bursts.",
+      explanation: "Pick the family that fixes the bottleneck: CPU, memory, GPU, or a modest baseline that bursts now and then.",
     },
 
     // ── Databases ──
@@ -577,7 +709,7 @@ export default defineDomain({
         "A DynamoDB table must handle 100 strongly consistent reads per second of 6 KB items. How many read capacity units are needed?",
       options: ["200 RCU", "100 RCU", "150 RCU", "50 RCU"],
       answer: [0],
-      explanation: "6 KB rounds up to 8 KB, which is 2 read units per strongly consistent read. 2 × 100 = 200 RCU (eventually consistent reads would need half).",
+      explanation: "6 KB rounds up to 8 KB, which is 2 read units per strongly consistent read. So 100 reads per second need 2 × 100, which is 200 RCU. Eventually consistent reads would need half that.",
     },
     {
       id: "d3-24",
@@ -602,7 +734,7 @@ export default defineDomain({
         ["Petabyte-scale analytic SQL", "Amazon Redshift"],
         ["Key-value at any scale with millisecond latency", "Amazon DynamoDB"],
       ],
-      explanation: "AWS offers a purpose-built database per data model; the exam expects you to match the model to the service.",
+      explanation: "AWS has a database built for each data model, and the exam expects you to match the model to the service.",
     },
 
     // ── Caching ──
@@ -624,7 +756,7 @@ export default defineDomain({
         "A game needs a real-time leaderboard ranking millions of players by score, with high availability and automatic failover. Which solution fits best?",
       options: ["Amazon ElastiCache (Redis OSS or Valkey) sorted sets with Multi-AZ", "ElastiCache for Memcached", "Amazon S3 with S3 Select", "Amazon RDS with an ORDER BY query on every request"],
       answer: [0],
-      explanation: "Sorted sets keep members ordered by score in memory; Redis OSS/Valkey clusters support replicas and Multi-AZ failover. Memcached has no rich data structures or replication.",
+      explanation: "Sorted sets keep members ordered by score, in memory. Redis OSS and Valkey clusters support replicas and Multi-AZ failover. Memcached has no rich data structures or replication.",
     },
     {
       id: "d3-28",
@@ -655,7 +787,7 @@ export default defineDomain({
         "Increase the DB backup retention",
       ],
       answer: [0],
-      explanation: "Repeated reads of slowly changing data are ideal for caching; the database only sees cache misses.",
+      explanation: "Data that's read again and again but rarely changes is perfect for a cache. The database only sees the cache misses.",
     },
     {
       id: "d3-30",
@@ -860,36 +992,36 @@ export default defineDomain({
         "Grant access with Lake Formation",
         "Query with Athena and build dashboards in Amazon Quick",
       ],
-      explanation: "Ingest, catalog, transform, govern, then analyze and visualize.",
+      explanation: "First you bring the data in, then catalog and transform it, then control who can see it. Only then do you analyze and chart it.",
     },
   ],
 
   cards: [
-    { id: "s-ebs", domain: "d3", kind: "service", term: "Amazon EBS", definition: "Block storage volumes for EC2 in one AZ" },
-    { id: "s-efs", domain: "d3", kind: "service", term: "Amazon EFS", definition: "Elastic, shared NFS file system across AZs for Linux" },
-    { id: "s-fsxw", domain: "d3", kind: "service", term: "Amazon FSx for Windows File Server", definition: "Managed SMB file shares with Active Directory" },
-    { id: "s-fsxl", domain: "d3", kind: "service", term: "Amazon FSx for Lustre", definition: "High-performance file system for HPC and ML, linkable to S3" },
-    { id: "s-fsxn", domain: "d3", kind: "service", term: "Amazon FSx for NetApp ONTAP", definition: "Multi-protocol (NFS, SMB, iSCSI) file storage with ONTAP features" },
-    { id: "s-storagegateway", domain: "d3", kind: "service", term: "AWS Storage Gateway", definition: "Hybrid access to cloud storage: file, volume, and tape gateways" },
-    { id: "s-batch", domain: "d3", kind: "service", term: "AWS Batch", definition: "Managed job queues and compute for batch workloads" },
-    { id: "s-emr", domain: "d3", kind: "service", term: "Amazon EMR", definition: "Managed Spark, Hadoop, and other big data frameworks" },
-    { id: "s-ec2", domain: "d3", kind: "service", term: "Amazon EC2", definition: "Resizable virtual servers in many instance families" },
-    { id: "s-rds", domain: "d3", kind: "service", term: "Amazon RDS", definition: "Managed relational databases: MySQL, PostgreSQL, MariaDB, Oracle, SQL Server, Db2" },
+    { id: "s-ebs", domain: "d3", kind: "service", term: "Amazon EBS", definition: "Virtual disks for EC2 instances. Each volume lives in one AZ." },
+    { id: "s-efs", domain: "d3", kind: "service", term: "Amazon EFS", definition: "A shared NFS file system for Linux that spans AZs and grows as you add files." },
+    { id: "s-fsxw", domain: "d3", kind: "service", term: "Amazon FSx for Windows File Server", definition: "Windows SMB file shares, run by AWS, that work with Active Directory." },
+    { id: "s-fsxl", domain: "d3", kind: "service", term: "Amazon FSx for Lustre", definition: "A very fast file system for HPC and ML that can link to an S3 bucket." },
+    { id: "s-fsxn", domain: "d3", kind: "service", term: "Amazon FSx for NetApp ONTAP", definition: "File storage that speaks NFS, SMB and iSCSI at once, with NetApp ONTAP features." },
+    { id: "s-storagegateway", domain: "d3", kind: "service", term: "AWS Storage Gateway", definition: "Lets your own building use cloud storage, through file, volume or tape gateways." },
+    { id: "s-batch", domain: "d3", kind: "service", term: "AWS Batch", definition: "Runs batch jobs for you, managing the job queues and the compute." },
+    { id: "s-emr", domain: "d3", kind: "service", term: "Amazon EMR", definition: "Runs Spark, Hadoop and other big data tools for you." },
+    { id: "s-ec2", domain: "d3", kind: "service", term: "Amazon EC2", definition: "Virtual servers you can resize, in many instance families." },
+    { id: "s-rds", domain: "d3", kind: "service", term: "Amazon RDS", definition: "Relational databases run for you: MySQL, PostgreSQL, MariaDB, Oracle, SQL Server and Db2." },
     { id: "s-dynamodb", domain: "d3", kind: "service", term: "Amazon DynamoDB", definition: "Serverless key-value and document database" },
-    { id: "s-redshift", domain: "d3", kind: "service", term: "Amazon Redshift", definition: "Columnar data warehouse for analytic SQL" },
+    { id: "s-redshift", domain: "d3", kind: "service", term: "Amazon Redshift", definition: "A columnar data warehouse for analytic SQL over big data sets." },
     { id: "s-neptune", domain: "d3", kind: "service", term: "Amazon Neptune", definition: "Graph database for highly connected data" },
     { id: "s-documentdb", domain: "d3", kind: "service", term: "Amazon DocumentDB", definition: "MongoDB-compatible document database" },
     { id: "s-keyspaces", domain: "d3", kind: "service", term: "Amazon Keyspaces", definition: "Serverless Apache Cassandra-compatible database" },
-    { id: "s-elasticache", domain: "d3", kind: "service", term: "Amazon ElastiCache", definition: "Managed in-memory cache: Redis OSS, Valkey, Memcached" },
+    { id: "s-elasticache", domain: "d3", kind: "service", term: "Amazon ElastiCache", definition: "An in-memory cache run for you, using Redis OSS, Valkey or Memcached." },
     { id: "s-dax", domain: "d3", kind: "service", term: "DynamoDB Accelerator (DAX)", definition: "Microsecond in-memory cache for DynamoDB" },
     { id: "s-dms", domain: "d3", kind: "service", term: "AWS DMS", definition: "Migrates and replicates databases with minimal downtime" },
     { id: "s-cloudfront", domain: "d3", kind: "service", term: "Amazon CloudFront", definition: "CDN that caches content at edge locations" },
     { id: "s-tgw", domain: "d3", kind: "service", term: "AWS Transit Gateway", definition: "Regional hub connecting many VPCs and on-premises networks" },
     { id: "s-dx", domain: "d3", kind: "service", term: "AWS Direct Connect", definition: "Dedicated private network connection to AWS" },
-    { id: "s-kds", domain: "d3", kind: "service", term: "Amazon Kinesis Data Streams", definition: "Real-time, ordered, replayable data streams" },
+    { id: "s-kds", domain: "d3", kind: "service", term: "Amazon Kinesis Data Streams", definition: "Real-time data streams that keep order and can be replayed." },
     { id: "s-firehose", domain: "d3", kind: "service", term: "Amazon Data Firehose", definition: "Managed delivery of streaming data to S3, Redshift, OpenSearch, and more" },
-    { id: "s-msk", domain: "d3", kind: "service", term: "Amazon MSK", definition: "Managed Apache Kafka" },
-    { id: "s-glue", domain: "d3", kind: "service", term: "AWS Glue", definition: "Serverless ETL, crawlers, and the Data Catalog" },
+    { id: "s-msk", domain: "d3", kind: "service", term: "Amazon MSK", definition: "Apache Kafka, run and managed by AWS." },
+    { id: "s-glue", domain: "d3", kind: "service", term: "AWS Glue", definition: "Serverless ETL jobs, crawlers that discover your data, and the Data Catalog." },
     { id: "s-athena", domain: "d3", kind: "service", term: "Amazon Athena", definition: "Serverless SQL over data in S3, billed per data scanned" },
     { id: "s-lakeformation", domain: "d3", kind: "service", term: "AWS Lake Formation", definition: "Builds data lakes and manages fine-grained permissions on them" },
     { id: "s-quick", domain: "d3", kind: "service", term: "Amazon Quick", definition: "Dashboards, visualizations, and AI-powered business insights" },
@@ -897,13 +1029,13 @@ export default defineDomain({
     { id: "s-snow", domain: "d3", kind: "service", term: "AWS Snow Family", definition: "Physical devices for offline data transfer and edge computing" },
     { id: "s-appflow", domain: "d3", kind: "service", term: "Amazon AppFlow", definition: "No-code data flows between SaaS apps and AWS" },
     { id: "s-opensearch", domain: "d3", kind: "service", term: "Amazon OpenSearch Service", definition: "Search and log analytics" },
-    { id: "c-gp3", domain: "d3", kind: "concept", term: "gp3", definition: "General purpose SSD; 3,000 IOPS and 125 MiB/s baseline, scalable independently of size" },
-    { id: "c-instancestore", domain: "d3", kind: "concept", term: "Instance store", definition: "Very fast, ephemeral host-attached storage" },
-    { id: "c-cluster", domain: "d3", kind: "concept", term: "Cluster placement group", definition: "Instances packed close in one AZ for lowest latency" },
-    { id: "c-spread", domain: "d3", kind: "concept", term: "Spread placement group", definition: "Each instance on distinct hardware" },
-    { id: "c-partition", domain: "d3", kind: "concept", term: "Partition placement group", definition: "Groups of instances on separate racks for distributed systems" },
-    { id: "c-lazy", domain: "d3", kind: "concept", term: "Lazy loading", definition: "Fill the cache on a miss; only requested data, may be stale" },
-    { id: "c-writethrough", domain: "d3", kind: "concept", term: "Write-through", definition: "Update the cache on every write; always fresh" },
+    { id: "c-gp3", domain: "d3", kind: "concept", term: "gp3", definition: "The general purpose SSD. It starts at 3,000 IOPS and 125 MiB/s, and you can raise either one without changing size." },
+    { id: "c-instancestore", domain: "d3", kind: "concept", term: "Instance store", definition: "Very fast disk attached to the host. Its data doesn't survive a stop." },
+    { id: "c-cluster", domain: "d3", kind: "concept", term: "Cluster placement group", definition: "Instances packed close together in one AZ for the lowest latency between them." },
+    { id: "c-spread", domain: "d3", kind: "concept", term: "Spread placement group", definition: "Each instance sits on different hardware, so they don't fail together." },
+    { id: "c-partition", domain: "d3", kind: "concept", term: "Partition placement group", definition: "Groups of instances on separate racks, for large distributed systems." },
+    { id: "c-lazy", domain: "d3", kind: "concept", term: "Lazy loading", definition: "Fill the cache only when a read misses. Only requested data is cached, but it can go stale." },
+    { id: "c-writethrough", domain: "d3", kind: "concept", term: "Write-through", definition: "Update the cache on every write, so it's always fresh." },
     { id: "c-parquet", domain: "d3", kind: "concept", term: "Columnar formats", definition: "Parquet and ORC cut the data scanned by analytic queries" },
     { id: "c-reserved5", domain: "d3", kind: "concept", term: "Reserved subnet IPs", definition: "AWS reserves 5 addresses in every subnet" },
     { id: "c-oac", domain: "d3", kind: "concept", term: "Origin access control", definition: "Lets only a CloudFront distribution read a private S3 origin" },

@@ -373,7 +373,7 @@ export function AgentBuilderLab({ goal, onSolved }: GoalProps<"allPass" | "lean"
 
   return (
     <div>
-      <LabHeader title="Agent builder" hint="An agent = model + instructions + tools. Pick the instructions, switch tools on, then run the test prompts." />
+      <LabHeader title="Agent builder" hint="An agent is a model plus instructions plus tools. Pick the instructions, switch on the tools you need, then run the test prompts." />
       <div className="grid gap-3 md:grid-cols-2">
         <div className="grid gap-3">
           <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">

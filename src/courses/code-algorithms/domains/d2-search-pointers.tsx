@@ -1,4 +1,4 @@
-import { CodeBlock, CodeCompare, Tiles } from "@/components/learn/blocks";
+import { CodeBlock, CodeCompare, Flow, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { BinarySearchLab, SlidingWindowLab } from "../labs";
 import { js } from "../snippet";
@@ -13,7 +13,7 @@ export default defineDomain({
     weight: 25,
     emoji: "🌊",
     color: "#38bdf8",
-    summary: "Halving a sorted range, lower bounds and searching on the answer, two-pointer scans, and fixed and variable sliding windows.",
+    summary: "Finding things fast by halving a sorted range, scanning with two pointers, and sliding a window along a list.",
   },
 
   tasks: [
@@ -32,6 +32,53 @@ export default defineDomain({
 
   lessons: [
     {
+      id: "algo-b-guess",
+      level: "beginner",
+      check: ["algo-b2-01", "algo-b2-02"],
+      task: "2.1",
+      title: "The guessing game: binary search",
+      visual: (
+        <Flow
+          color="#38bdf8"
+          steps={[
+            { icon: "🤔", label: "Guess 50", sub: "\"Too low\": the number is 51 to 100" },
+            { icon: "🎯", label: "Guess 75", sub: "\"Too high\": now it's 51 to 74" },
+            { icon: "✂️", label: "Keep halving", sub: "About 7 guesses always find it" },
+          ]}
+        />
+      ),
+      points: [
+        "Think of the game where a friend picks a number from 1 to 100 and says \"higher\" or \"lower\" after each guess.",
+        "The smart move is to guess the middle every time. Each answer throws away half of what's left.",
+        "That trick is called **binary search**. It finds an item in a sorted list of a million things in about 20 checks.",
+        "It only works when the list is in order. In a shuffled list, \"too low\" tells you nothing about where to look next.",
+      ],
+      tip: "Whenever you see the word \"sorted\" in a problem, ask yourself whether you can throw away half the list at each step.",
+    },
+    {
+      id: "algo-b-pointers",
+      level: "beginner",
+      check: ["algo-b2-03", "algo-b2-04"],
+      task: "2.2",
+      title: "Two fingers and a window",
+      visual: (
+        <Tiles
+          cols={2}
+          tiles={[
+            { icon: "👉", title: "Two pointers", text: "Two positions in the list, like one finger at each end of a row of books, moving toward each other.", color: "#38bdf8" },
+            { icon: "🪟", title: "Sliding window", text: "A stretch of neighbouring items, like the view from a train window, that slides along one step at a time.", color: "#38bdf8" },
+          ]}
+        />
+      ),
+      points: [
+        "A **pointer** here is just a number that marks a position in a list, like your finger resting on one item.",
+        "With **two pointers**, you keep two positions and move them based on what you see. To check if \"level\" reads the same backwards, compare the two ends and step inward.",
+        "A **sliding window** looks at a run of neighbouring items. As it slides, one item enters on the right and one leaves on the left.",
+        "Both tricks visit each item only a few times, so they stay fast even on long lists.",
+      ],
+      tip: "If a problem talks about pairs in a sorted list, or about a run of neighbouring items, reach for pointers first.",
+    },
+    {
       id: "algo-binary-search",
       level: "junior",
       check: ["algo2-01", "algo2-02"],
@@ -39,12 +86,12 @@ export default defineDomain({
       title: "Binary search: halve the haystack",
       visual: <BinarySearchLab />,
       points: [
-        "Works on sorted data (or any yes/no test that flips once). Each probe discards half the range: O(log n).",
-        "Invariant: if the target exists, it's inside [lo, hi]. Keep it true on every update.",
-        "With `while (lo <= hi)`, update with `lo = mid + 1` and `hi = mid - 1`. Leaving out the ±1 can loop forever.",
-        "In Java or C++, `lo + (hi - lo) / 2` avoids integer overflow; JavaScript numbers don't overflow at array sizes, but the habit shows care.",
+        "Binary search works on sorted data, or on any yes/no test that flips only once. Each check throws away half the range, so it's O(log n).",
+        "The rule to protect: if the target exists, it's somewhere between lo and hi. Every update must keep that true.",
+        "With `while (lo <= hi)`, move with `lo = mid + 1` and `hi = mid - 1`. If you leave out the ±1, the loop can run forever.",
+        "In Java or C++, `lo + (hi - lo) / 2` avoids integer overflow. JavaScript numbers don't overflow at array sizes, but the habit shows care.",
       ],
-      tip: "Write the invariant as a comment before the loop. It makes the ±1 decisions mechanical.",
+      tip: "Write that rule as a comment before the loop. It makes the ±1 decisions mechanical.",
     },
     {
       id: "algo-bs-variants",
@@ -68,24 +115,24 @@ export default defineDomain({
               "  return lo;",
               "}",
             )}
-            caption="Half-open range [lo, hi): returns arr.length if every item is smaller"
+            caption="The range is half-open, [lo, hi). If every item is smaller than x, it returns arr.length."
           />
           <Tiles
             tiles={[
-              { icon: "🎯", title: "First / last occurrence", text: "Keep searching left (or right) after a match. Lower bound and upper bound.", color: "#38bdf8" },
-              { icon: "🔄", title: "Rotated array", text: "One half around mid is always sorted: check whether the target lies in it.", color: "#38bdf8" },
-              { icon: "📦", title: "Search on the answer", text: "\"Smallest capacity that works\": binary search the answer range with a `canDo(x)` test.", color: "#38bdf8" },
-              { icon: "🧪", title: "Bisect", text: "Find the first bad commit, or the first config that passes: the same idea outside arrays.", color: "#38bdf8" },
+              { icon: "🎯", title: "First / last occurrence", text: "After a match, keep searching left (or right). These are lower bound and upper bound.", color: "#38bdf8" },
+              { icon: "🔄", title: "Rotated array", text: "One half around mid is always sorted. Check whether the target falls inside it.", color: "#38bdf8" },
+              { icon: "📦", title: "Search on the answer", text: "For \"smallest capacity that works\", binary search the range of answers with a `canDo(x)` test.", color: "#38bdf8" },
+              { icon: "🧪", title: "Bisect", text: "Find the first bad commit, or the first config that passes. Same idea, no array needed.", color: "#38bdf8" },
             ]}
           />
         </div>
       ),
       points: [
-        "Binary search needs a monotonic predicate: false, false, …, true, true. You're looking for the boundary.",
-        "Count of x in a sorted integer array: `lowerBound(x + 1) - lowerBound(x)`.",
-        "Search on the answer turns optimisation problems (minimum speed, maximum distance) into O(log range × check).",
+        "Binary search needs a **monotonic** test: one that answers false, false, then true, true, and never flips back. You're hunting for the boundary.",
+        "To count copies of x in a sorted integer array, use `lowerBound(x + 1) - lowerBound(x)`.",
+        "Searching on the answer turns \"find the minimum speed\" or \"find the maximum distance\" into O(log range) checks, each costing whatever your test costs.",
       ],
-      tip: "When a problem asks for the minimum or maximum value that satisfies a condition, ask yourself: if x works, does x + 1 also work?",
+      tip: "When a problem asks for the smallest or largest value that meets a condition, ask: if x works, does x + 1 also work?",
     },
     {
       id: "algo-two-pointers",
@@ -106,19 +153,19 @@ export default defineDomain({
           <Tiles
             cols={3}
             tiles={[
-              { icon: "↔️", title: "Opposite ends", text: "Pair sums, palindromes, container with most water, 3-sum (sort + fix one + two pointers).", color: "#38bdf8" },
-              { icon: "✍️", title: "Read / write", text: "One pointer scans, one writes: remove duplicates or move zeros in place, O(1) space.", color: "#38bdf8" },
-              { icon: "🐇", title: "Fast / slow", text: "Different speeds: linked list middle and cycle detection.", color: "#38bdf8" },
+              { icon: "↔️", title: "Opposite ends", text: "Pair sums, palindromes, container with most water, and 3-sum (sort, fix one item, then two pointers).", color: "#38bdf8" },
+              { icon: "✍️", title: "Read / write", text: "One pointer reads, one writes. Removes duplicates or moves zeros in place with O(1) space.", color: "#38bdf8" },
+              { icon: "🐇", title: "Fast / slow", text: "Pointers at different speeds find a linked list's middle or detect a cycle.", color: "#38bdf8" },
             ]}
           />
         </div>
       ),
       points: [
-        "Two pointers replace a nested loop when each comparison lets you rule out a whole row of pairs.",
-        "Sorted pair sum: too small → move left up (nothing left of r can help a[l]); too big → move right down.",
-        "Usually O(n) time and O(1) space, plus O(n log n) if you have to sort first.",
+        "Two pointers replace a nested loop when each comparison lets you rule out a whole group of pairs at once.",
+        "For a pair sum in a sorted array: if the sum is too small, move the left pointer up, because nothing paired with a[l] can reach the target. If it's too big, move the right pointer down.",
+        "It's usually O(n) time and O(1) space, plus O(n log n) if you need to sort first.",
       ],
-      tip: "Explain why moving a pointer can't skip the answer. That proof is what interviewers are listening for.",
+      tip: "Explain why moving a pointer can't skip the answer. That reasoning is what interviewers are listening for.",
     },
     {
       id: "algo-sliding-window",
@@ -128,16 +175,63 @@ export default defineDomain({
       title: "Sliding windows",
       visual: <SlidingWindowLab />,
       points: [
-        "Fixed size k: add the item entering on the right, subtract the one leaving on the left. O(n) instead of O(n·k).",
-        "Variable size: expand `right` every step; shrink `left` while the window breaks (or still satisfies) the rule.",
-        "Each pointer only moves forward, so the total work is O(n) even with a nested `while`.",
-        "It needs a monotonic rule: shrinking must make the window \"less\". With negative numbers, sums don't behave, so use prefix sums with a hash map.",
+        "For a fixed size k, add the item entering on the right and subtract the one leaving on the left. That's O(n) instead of O(n·k).",
+        "For a variable size, move `right` forward every step. Then shrink from `left` while the window breaks the rule (or, for shortest-window problems, while it still meets it).",
+        "Each pointer only moves forward, so the total work is O(n), even with a `while` inside the `for`.",
+        "It needs a rule where shrinking always makes the window \"less\". Negative numbers break that for sums, so use prefix sums with a hash map instead.",
       ],
-      tip: "Cues: \"contiguous\", \"substring\", \"subarray\", \"longest/shortest\", \"at most k distinct\".",
+      tip: "Watch for words like \"contiguous\", \"substring\", \"subarray\", \"longest\", \"shortest\" or \"at most k distinct\".",
     },
   ],
 
   questions: [
+    {
+      id: "algo-b2-01",
+      domain: "d2",
+      level: "beginner",
+      lesson: "algo-b-guess",
+      prompt: "A friend picks a number from 1 to 100. After each guess they say \"higher\" or \"lower\". What's the smartest first guess?",
+      options: ["50", "1", "100", "A random number"],
+      answer: [0],
+      explanation: "Guessing the middle means that whatever the answer, you throw away half the numbers. Starting at 1 only rules out one number at a time.",
+    },
+    {
+      id: "algo-b2-02",
+      domain: "d2",
+      level: "beginner",
+      lesson: "algo-b-guess",
+      prompt: "Why does binary search need the list to be sorted?",
+      options: [
+        "So that \"too small\" tells you the target must be in the later half",
+        "Because unsorted lists can't be stored in memory",
+        "Because sorting makes the list shorter",
+        "It doesn't; it works on any list",
+      ],
+      answer: [0],
+      explanation: "Binary search throws away half the list based on one comparison. That's only safe when the items are in order, so everything after a too-small item is bigger.",
+    },
+    {
+      id: "algo-b2-03",
+      domain: "d2",
+      level: "beginner",
+      lesson: "algo-b-pointers",
+      type: "output",
+      prompt: "Type what this prints. `l` starts at the left end and `r` at the right end.",
+      code: js("const word = 'level';", "let l = 0, r = word.length - 1;", "console.log(word[l], word[r]);"),
+      codeLang: "js",
+      answers: ["l l"],
+      explanation: "`word[0]` is the first letter and `word[4]` is the last. Both are `l`. A palindrome check compares the two ends like this, then steps both pointers inward.",
+    },
+    {
+      id: "algo-b2-04",
+      domain: "d2",
+      level: "beginner",
+      lesson: "algo-b-pointers",
+      prompt: "A window of size 3 sits over `[4, 1, 6]` in the list `[4, 1, 6, 2]`. It slides one step right. Which numbers are in the window now?",
+      options: ["`[1, 6, 2]`", "`[4, 1, 6]`", "`[6, 2]`", "`[4, 2]`"],
+      answer: [0],
+      explanation: "Sliding one step means the 4 leaves on the left and the 2 enters on the right. The window always holds neighbouring items, like the view from a moving train.",
+    },
     {
       id: "algo2-01",
       domain: "d2",
@@ -146,7 +240,7 @@ export default defineDomain({
       prompt: "At most how many probes does binary search need on a sorted array of 1,000,000 items?",
       options: ["About 20", "About 1,000", "About 500,000", "About 100"],
       answer: [0],
-      explanation: "2²⁰ is about 1.05 million, so about 20 halvings shrink the range to one item.",
+      explanation: "2²⁰ is about 1.05 million. So about 20 halvings shrink a million items down to one.",
     },
     {
       id: "algo2-02",
@@ -171,7 +265,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["2", "3", "1", "6"],
       answer: [0],
-      explanation: "Step 1: mid = 3 (value 7) < 11, so lo = 4. Step 2: mid = 5 (value 11): found.",
+      explanation: "Step 1: mid is index 3, value 7. That's less than 11, so lo moves to 4. Step 2: mid is index 5, value 11. Found it in two steps.",
     },
     {
       id: "algo2-03",
@@ -194,7 +288,7 @@ export default defineDomain({
       ),
       codeLang: "js",
       answer: [6],
-      explanation: "With lo = 0 and hi = 1, mid is 0. `lo = mid` leaves lo at 0, so the range never shrinks. mid was already checked: use `lo = mid + 1`.",
+      explanation: "With lo at 0 and hi at 1, mid is 0. `lo = mid` leaves lo at 0, so the range never shrinks. You've already checked mid, so use `lo = mid + 1`.",
     },
     {
       id: "algo2-04",
@@ -210,7 +304,7 @@ export default defineDomain({
         "All values are positive",
       ],
       answer: [0, 1],
-      explanation: "Monotonic order lets you discard half; random access makes each probe O(1). That's why binary search on a linked list isn't O(log n). Duplicates are fine, and any length works.",
+      explanation: "Order lets you throw away half, and jumping straight to the middle keeps each check O(1). That's why binary search on a linked list isn't O(log n). Duplicates are fine, and any length works.",
     },
     {
       id: "algo2-05",
@@ -234,7 +328,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["`1 4`", "`1 3`", "`3 4`", "`1 -1`"],
       answer: [0],
-      explanation: "The first index holding a value ≥ 2 is 1. Nothing equals 4; the first value ≥ 4 is 5 at index 4, which is also where 4 would be inserted.",
+      explanation: "The first index holding a value of at least 2 is 1. Nothing equals 4. The first value of at least 4 is 5, at index 4, which is also where 4 would be inserted.",
     },
     {
       id: "algo2-06",
@@ -249,7 +343,7 @@ export default defineDomain({
         "You can't; only dynamic programming works",
       ],
       answer: [0],
-      explanation: "The test \"can we ship with capacity C in D days?\" is false then true as C grows. Search between the heaviest package and the total weight, with an O(n) greedy check per probe.",
+      explanation: "The question \"can we ship everything with capacity C in D days?\" answers false and then true as C grows. Search between the heaviest package and the total weight, with a quick O(n) greedy check for each guess.",
     },
     {
       id: "algo2-07",
@@ -257,14 +351,14 @@ export default defineDomain({
       level: "intermediate",
       lesson: "algo-bs-variants",
       type: "order",
-      prompt: "Order the steps of binary search on the answer (find the smallest value that works).",
+      prompt: "Put the steps of binary search on the answer in order (finding the smallest value that works).",
       items: [
         "Set the range of possible answers [lo, hi]",
         "Pick mid and run the check `canDo(mid)`",
         "If it works, keep mid and search lower; otherwise search higher",
         "Stop when lo meets hi: that's the smallest answer that works",
       ],
-      explanation: "This is lower bound applied to a predicate instead of an array. Total cost: O(log(range) × cost of the check).",
+      explanation: "This is lower bound applied to a test instead of an array. The total cost is O(log of the range) times the cost of one check.",
     },
     {
       id: "algo2-08",
@@ -279,7 +373,7 @@ export default defineDomain({
         "The middle element is always the minimum",
       ],
       answer: [0],
-      explanation: "Compare `arr[lo]` with `arr[mid]` to find the sorted half. If the target falls within that half's range go there, otherwise go to the other half.",
+      explanation: "Compare `arr[lo]` with `arr[mid]` to find which half is sorted. If the target falls inside that half's range, go there. Otherwise, go to the other half.",
     },
     {
       id: "algo2-09",
@@ -303,7 +397,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["`[2, 4]`", "`[0, 5]`", "`[1, 4]`", "`null`"],
       answer: [0],
-      explanation: "1 + 15 = 16 is too big (r--); 1 + 11 = 12 is too small (l++); 2 + 11 = 13 (l++); 4 + 11 = 15 at indexes 2 and 4.",
+      explanation: "1 + 15 is 16, too big, so r moves left. 1 + 11 is 12, too small, so l moves right. 2 + 11 is 13, still small. Then 4 + 11 is 15, at indexes 2 and 4.",
     },
     {
       id: "algo2-10",
@@ -318,7 +412,7 @@ export default defineDomain({
         "To keep the window size fixed",
       ],
       answer: [0],
-      explanation: "`sorted[r]` is the largest value still available. If even that is too small with `sorted[l]`, every remaining pair with `l` fails, so discarding `l` loses nothing.",
+      explanation: "`sorted[r]` is the largest value still in play. If even that is too small next to `sorted[l]`, every remaining pair with `l` fails too, so dropping `l` loses nothing.",
     },
     {
       id: "algo2-11",
@@ -340,7 +434,7 @@ export default defineDomain({
       ),
       codeLang: "js",
       answer: [2],
-      explanation: "`s[s.length]` is `undefined`, so the first comparison always fails. The right pointer must start at `s.length - 1`.",
+      explanation: "`s[s.length]` is `undefined`, one past the last character, so the first comparison always fails. The right pointer must start at `s.length - 1`.",
     },
     {
       id: "algo2-12",
@@ -363,7 +457,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["`4 [1, 2, 3, 4]`", "`7 [1, 1, 2, 3, 3, 3, 4]`", "`3 [1, 2, 3]`", "`4 [1, 1, 2, 3]`"],
       answer: [0],
-      explanation: "`r` reads every item; `w` writes only values different from the last one kept. Four distinct values end up at the front, in place, in O(n) time and O(1) space.",
+      explanation: "`r` reads every item, and `w` only writes values that differ from the last one kept. The four distinct values end up at the front, in place, in O(n) time and O(1) space.",
     },
     {
       id: "algo2-13",
@@ -387,7 +481,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["9", "8", "11", "6"],
       answer: [0],
-      explanation: "The windows sum to 8 (2+1+5), 7 (1+5+1), 9 (5+1+3), and 6 (1+3+2). Each slide costs O(1), so the whole scan is O(n).",
+      explanation: "The windows add up to 8 (2, 1, 5), 7 (1, 5, 1), 9 (5, 1, 3) and 6 (1, 3, 2). The best is 9. Each slide costs O(1), so the whole scan is O(n).",
     },
     {
       id: "algo2-14",
@@ -402,7 +496,7 @@ export default defineDomain({
         "It isn't; it's O(n²)",
       ],
       answer: [0],
-      explanation: "Count total pointer moves, not loop nesting: `right` moves n times and `left` at most n times across the whole run, so the work is O(2n) = O(n).",
+      explanation: "Count the total pointer moves, not the loop nesting. `right` moves n times and `left` at most n times over the whole run. That's at most 2n moves, which is O(n).",
     },
     {
       id: "algo2-15",
@@ -428,7 +522,7 @@ export default defineDomain({
       ),
       codeLang: "js",
       answer: [6],
-      explanation: "Shrinking must remove the character leaving on the left: `seen.delete(s[left])`. Deleting `s[right]` ends the loop after one step even if the duplicate is further right, leaving an invalid window like \"bcb\".",
+      explanation: "Shrinking must remove the character leaving on the left: `seen.delete(s[left])`. Deleting `s[right]` ends the loop after one step, even when the duplicate sits further right, which leaves an invalid window like \"bcb\".",
     },
     {
       id: "algo2-16",
@@ -436,13 +530,13 @@ export default defineDomain({
       level: "intermediate",
       lesson: "algo-sliding-window",
       type: "order",
-      prompt: "Order one iteration of a \"longest valid window\" sliding window loop.",
+      prompt: "Put one pass of a \"longest valid window\" loop in order.",
       items: [
         "Move `right` forward and add `nums[right]` to the window",
         "While the window breaks the rule, remove `nums[left]` and move `left` forward",
         "Record the window length if it's the best so far",
       ],
-      explanation: "Expand, repair, record. For \"shortest window that satisfies the rule\" you record inside the shrinking loop instead.",
+      explanation: "Grow, repair, record. For \"shortest window that meets the rule\", you record inside the shrinking loop instead.",
     },
     {
       id: "algo2-17",
@@ -458,7 +552,7 @@ export default defineDomain({
         ["Fixed-size sliding window", "Maximum sum of any k consecutive items"],
         ["Variable-size sliding window", "Shortest subarray with sum ≥ S (positive numbers)"],
       ],
-      explanation: "All of these replace a nested loop with pointers that only move forward (or inward), giving O(n).",
+      explanation: "Each of these swaps a nested loop for pointers that only move forward or inward, which gives O(n).",
     },
     {
       id: "algo2-18",
@@ -473,7 +567,7 @@ export default defineDomain({
         "A Set can't store negative numbers",
       ],
       answer: [0],
-      explanation: "Windows rely on monotonic behaviour. With prefix sums, a subarray (i, j] sums to k when `pre[j] - pre[i] === k`, so count earlier prefixes equal to `pre[j] - k` in a Map: O(n).",
+      explanation: "Windows rely on shrinking always lowering the sum. With prefix sums, the stretch after i up to j adds up to k when `pre[j] - pre[i] === k`. So count earlier prefixes equal to `pre[j] - k` in a Map, which is O(n).",
     },
     {
       id: "algo2-19",
@@ -483,7 +577,7 @@ export default defineDomain({
       prompt: "Why do Java and C++ solutions often write `mid = lo + (hi - lo) / 2`?",
       options: ["`lo + hi` can overflow a 32-bit integer for large indexes", "It rounds up instead of down", "Subtraction is faster than addition", "It avoids negative indexes"],
       answer: [0],
-      explanation: "Two indexes near 2³¹ add up past the int limit and wrap negative. JavaScript numbers are doubles, so this isn't an issue at array sizes, but the habit is worth mentioning.",
+      explanation: "Two indexes near 2³¹ add up past the integer limit and wrap around to a negative number. JavaScript numbers are doubles, so it isn't a problem at array sizes, but the habit is worth mentioning.",
     },
     {
       id: "algo2-20",
@@ -499,7 +593,7 @@ export default defineDomain({
         "The median of an unsorted array",
       ],
       answer: [0, 1],
-      explanation: "Everything before the lower bound is smaller than x, and the range between the bounds of x and x + 1 holds exactly the copies of x. Both are O(log n).",
+      explanation: "Everything before the lower bound is smaller than x. The stretch between the bounds for x and x + 1 holds exactly the copies of x. Both take O(log n).",
     },
     {
       id: "algo2-21",
@@ -514,7 +608,7 @@ export default defineDomain({
         "Ask each author whether their change could be responsible",
       ],
       answer: [0],
-      explanation: "\"Good before, bad after\" is a monotonic predicate over history, so binary search applies: ⌈log₂ 1000⌉ = 10 builds instead of up to 1,000.",
+      explanation: "\"Good before, bad after\" is a yes/no test that flips once across history, so binary search works. log₂ of 1,000 rounds up to 10, so it takes 10 builds instead of up to 1,000.",
     },
     {
       id: "algo2-22",
@@ -529,7 +623,7 @@ export default defineDomain({
         "Binary search over user ids",
       ],
       answer: [0],
-      explanation: "The limit is global and rolling. Per-server counters miss traffic on other servers, and fixed windows allow up to 200 requests across a minute boundary. Bucketed counters approximate the window with bounded memory.",
+      explanation: "The limit is global and rolling. Per-server counters miss traffic on other servers, and fixed windows let through up to 200 requests around a minute boundary. Bucketed counters approximate the window with limited memory.",
     },
     {
       id: "algo2-23",
@@ -544,23 +638,23 @@ export default defineDomain({
         "Use two pointers over the list of instance types",
       ],
       answer: [0],
-      explanation: "\"Meets the SLO with x instances\" is monotonic in x, so binary search on the answer needs O(log range) load tests. Add a safety margin, since real measurements are noisy.",
+      explanation: "\"Meets the latency target with x instances\" only goes from no to yes as x grows, so binary search on the answer needs just O(log range) load tests. Add a safety margin, because real measurements are noisy.",
     },
   ],
 
   cards: [
-    { id: "algo-c-binsearch", domain: "d2", kind: "service", term: "Binary search", definition: "Halve a sorted range each step: O(log n)" },
-    { id: "algo-c-lower", domain: "d2", kind: "service", term: "Lower bound", definition: "First index with value ≥ x" },
-    { id: "algo-c-upper", domain: "d2", kind: "service", term: "Upper bound", definition: "First index with value > x" },
-    { id: "algo-c-twoptr", domain: "d2", kind: "service", term: "Two pointers", definition: "Indexes moving inward or together to replace a nested loop" },
-    { id: "algo-c-window", domain: "d2", kind: "service", term: "Sliding window", definition: "Contiguous range that grows right and shrinks left: O(n)" },
-    { id: "algo-c-prefix", domain: "d2", kind: "service", term: "Prefix sums", definition: "`pre[i]` = sum of the first i items; any range sum in O(1)" },
-    { id: "algo-c-bisect", domain: "d2", kind: "service", term: "`git bisect`", definition: "Binary search through commit history for the first bad commit" },
-    { id: "algo-c-answer", domain: "d2", kind: "concept", term: "Search on the answer", definition: "Binary search a range of answers with a monotonic yes/no test" },
-    { id: "algo-c-invariant", domain: "d2", kind: "concept", term: "Loop invariant", definition: "A fact true on every iteration, e.g. \"the target is in [lo, hi]\"" },
-    { id: "algo-c-monotonic", domain: "d2", kind: "concept", term: "Monotonic predicate", definition: "A test that flips from false to true once across a range" },
-    { id: "algo-c-offbyone", domain: "d2", kind: "concept", term: "Off-by-one", definition: "`<` vs `<=`, `mid` vs `mid ± 1`: the classic binary search bug" },
-    { id: "algo-c-rotated", domain: "d2", kind: "concept", term: "Rotated sorted array", definition: "One half around mid is always sorted" },
+    { id: "algo-c-binsearch", domain: "d2", kind: "service", term: "Binary search", definition: "Halve a sorted range at each step. O(log n)." },
+    { id: "algo-c-lower", domain: "d2", kind: "service", term: "Lower bound", definition: "The first index whose value is at least x." },
+    { id: "algo-c-upper", domain: "d2", kind: "service", term: "Upper bound", definition: "The first index whose value is greater than x." },
+    { id: "algo-c-twoptr", domain: "d2", kind: "service", term: "Two pointers", definition: "Two indexes moving inward or side by side, used in place of a nested loop." },
+    { id: "algo-c-window", domain: "d2", kind: "service", term: "Sliding window", definition: "A run of neighbouring items that grows on the right and shrinks on the left. O(n)." },
+    { id: "algo-c-prefix", domain: "d2", kind: "service", term: "Prefix sums", definition: "`pre[i]` holds the sum of the first i items, so any range sum takes O(1)." },
+    { id: "algo-c-bisect", domain: "d2", kind: "service", term: "`git bisect`", definition: "Binary search through commit history to find the first bad commit." },
+    { id: "algo-c-answer", domain: "d2", kind: "concept", term: "Search on the answer", definition: "Binary search a range of possible answers using a yes/no test that flips once." },
+    { id: "algo-c-invariant", domain: "d2", kind: "concept", term: "Loop invariant", definition: "A fact that stays true on every pass of a loop, for example \"the target is between lo and hi\"." },
+    { id: "algo-c-monotonic", domain: "d2", kind: "concept", term: "Monotonic predicate", definition: "A yes/no test that flips from false to true once across a range, and never back." },
+    { id: "algo-c-offbyone", domain: "d2", kind: "concept", term: "Off-by-one", definition: "Using `<` instead of `<=`, or `mid` instead of `mid ± 1`: the classic binary search bug." },
+    { id: "algo-c-rotated", domain: "d2", kind: "concept", term: "Rotated sorted array", definition: "A sorted array shifted around a point. One half around mid is always sorted." },
   ],
 
   challenges: [
@@ -570,8 +664,8 @@ export default defineDomain({
       lesson: "algo-binary-search",
       title: "Four probes or bust",
       goal: "Find the target among 15 sorted numbers in 4 probes or fewer.",
-      hint: "Always probe the middle of the live range. \"Show mid\" highlights it.",
-      takeaway: "Halving 15 items takes at most ⌊log₂ 15⌋ + 1 = 4 probes. That's O(log n).",
+      hint: "Always probe the middle of the range that's still live. \"Show mid\" highlights it for you.",
+      takeaway: "Halving 15 items takes at most 4 probes, because 15 fits under 2⁴. That's what O(log n) feels like.",
       render: (onSolved) => <BinarySearchLab goal="fourSteps" onSolved={onSolved} />,
     },
     {
@@ -579,9 +673,9 @@ export default defineDomain({
       domain: "d2",
       lesson: "algo-sliding-window",
       title: "Tune the window",
-      goal: "Find and record the shortest run of neighbours that sums to at least 15.",
-      hint: "Expand right until the sum reaches 15, then shrink from the left as far as you can while it stays ≥ 15.",
-      takeaway: "Both pointers only move forward, so the shortest window is found in O(n).",
+      goal: "Find and record the shortest run of neighbours that adds up to at least 15.",
+      hint: "Grow the right edge until the sum reaches 15. Then shrink from the left as far as you can while it stays at 15 or more.",
+      takeaway: "Both edges only move forward, so you find the shortest window in O(n).",
       render: (onSolved) => <SlidingWindowLab goal="shortest" onSolved={onSolved} />,
     },
   ],

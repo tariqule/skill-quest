@@ -1,4 +1,4 @@
-import { CodeBlock, Tiles } from "@/components/learn/blocks";
+import { CodeBlock, Flow, Ladder, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { BstLab } from "../labs";
 import { js } from "../snippet";
@@ -14,7 +14,7 @@ export default defineDomain({
     weight: 30,
     emoji: "🌳",
     color: "#34d399",
-    summary: "Tree vocabulary and height, the four traversals, BST insert/search/delete and balance, binary heaps, and priority queues.",
+    summary: "The words for parts of a tree and its height, the four ways to walk a tree, how binary search trees insert, search, delete and stay balanced, and how heaps power priority queues.",
   },
 
   tasks: [
@@ -37,6 +37,53 @@ export default defineDomain({
 
   lessons: [
     {
+      id: "ds-b-tree",
+      level: "beginner",
+      check: ["ds-b3-01", "ds-b3-02"],
+      task: "3.1",
+      title: "Start here: trees, like a family tree",
+      visual: (
+        <Ladder
+          rungs={[
+            { icon: "👑", name: "Root", text: "The one node at the top. Everything else hangs below it." },
+            { icon: "🌿", name: "Children", text: "The nodes directly below a node. In a binary tree, each node has at most two: left and right." },
+            { icon: "🍃", name: "Leaves", text: "Nodes with no children. They're at the bottom edges of the tree." },
+          ]}
+        />
+      ),
+      points: [
+        "A **tree** stores data in levels, like a family tree or a company org chart. Each item is a **node**.",
+        "The top node is the **root**. The nodes directly below a node are its **children**, and the node above is its **parent**.",
+        "In a **binary tree**, each node has at most two children, called left and right.",
+        "A node with no children is a **leaf**. Your computer's folders form a tree too: folders inside folders, with files as the leaves.",
+      ],
+      tip: "Computer science trees grow downwards. The root is drawn at the top and the leaves at the bottom.",
+    },
+    {
+      id: "ds-b-heap",
+      level: "beginner",
+      check: ["ds-b3-03", "ds-b3-04"],
+      task: "3.3",
+      title: "Start here: serving the most urgent first",
+      visual: (
+        <Flow
+          color="#34d399"
+          steps={[
+            { icon: "🚑", label: "Patients arrive", sub: "Each one gets a priority number" },
+            { icon: "⛰️", label: "Priority queue", sub: "Keeps the most urgent one ready at the top" },
+            { icon: "🩺", label: "Next patient", sub: "The most urgent is seen first, not the earliest" },
+          ]}
+        />
+      ),
+      points: [
+        "A **priority queue** always gives you the most important item next, not the one that arrived first. Think of a hospital emergency room.",
+        "Each item has a priority. A patient with a broken arm waits while a heart attack patient is seen first, even if they came in later.",
+        "The usual way to build one is a **heap**: a tree where every parent is more urgent than its children, so the most urgent item sits at the top.",
+        "Grabbing the top item is instant. Adding or removing items only takes a few steps, even with millions of them.",
+      ],
+      tip: "A plain queue asks \"who came first?\". A priority queue asks \"who matters most right now?\".",
+    },
+    {
       id: "ds-trees",
       level: "junior",
       check: ["ds3-01", "ds3-02"],
@@ -47,9 +94,9 @@ export default defineDomain({
           <Tiles
             tiles={[
               { icon: "🌱", title: "Root & leaves", text: "The root has no parent. Leaves have no children.", color: "#34d399" },
-              { icon: "📏", title: "Depth & height", text: "Depth: edges from the root to a node. Height: the longest root-to-leaf path.", color: "#34d399" },
-              { icon: "⚖️", title: "Balanced", text: "At every node, the left and right subtree heights differ by at most 1.", color: "#34d399" },
-              { icon: "🧱", title: "Complete / perfect", text: "Complete: every level full except the last, filled left to right. Perfect: every level full.", color: "#34d399" },
+              { icon: "📏", title: "Depth & height", text: "A node's depth is how many edges it is from the root. The tree's height is its longest path from root to leaf.", color: "#34d399" },
+              { icon: "⚖️", title: "Balanced", text: "At every node, the heights of the left and right subtrees differ by at most 1.", color: "#34d399" },
+              { icon: "🧱", title: "Complete / perfect", text: "A complete tree has every level full except maybe the last, which fills from the left. A perfect tree has every level full.", color: "#34d399" },
             ]}
           />
           <CodeBlock
@@ -73,11 +120,11 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "A perfect tree of height h (in edges) holds 2^(h+1) − 1 nodes, so a balanced tree with n nodes has height about log₂ n.",
-        "Recursion fits trees naturally: solve the left subtree, solve the right, combine.",
-        "Always handle the empty tree (`null`) as your base case.",
+        "A perfect tree of height h, counted in edges, holds 2^(h+1) − 1 nodes. So a balanced tree with n nodes is only about log₂ n levels tall.",
+        "Recursion fits trees well. You solve the left subtree, solve the right subtree, then combine the two answers.",
+        "Always treat the empty tree (`null`) as your base case, the point where the recursion stops.",
       ],
-      tip: "Clarify whether height counts edges or nodes. Interviewers use both conventions.",
+      tip: "Ask whether height counts edges or nodes. Interviewers use both, and the answers differ by one.",
     },
     {
       id: "ds-traversal",
@@ -87,11 +134,13 @@ export default defineDomain({
       title: "Traversals: pre, in, post, and level",
       visual: <TraversalPlayer />,
       points: [
-        "Preorder (root, left, right) copies or serializes a tree. Inorder (left, root, right) gives a BST's keys in sorted order. Postorder (left, right, root) handles children before parents: deleting, sizes, heights.",
-        "Level order is BFS with a queue, one level at a time.",
-        "Every traversal is O(n) time. Recursive DFS uses O(h) stack space; BFS uses O(width) queue space.",
+        "**Preorder** visits the root, then left, then right. You use it to copy or save a tree.",
+        "**Inorder** visits left, then the root, then right. For a binary search tree, that gives the keys in sorted order.",
+        "**Postorder** visits left, then right, then the root, so children come before parents. That's what you want for deleting a tree or adding up subtree sizes and heights.",
+        "**Level order** is breadth-first search: you use a queue and finish one level before starting the next.",
+        "Every traversal takes O(n) time. Recursive depth-first versions use O(h) stack space, and breadth-first uses space for the widest level.",
       ],
-      tip: "Asked to serialize a tree? Preorder with explicit null markers rebuilds it exactly.",
+      tip: "Asked to save a tree so you can rebuild it? Preorder with a marker for every missing child rebuilds it exactly.",
     },
     {
       id: "ds-bst",
@@ -101,12 +150,12 @@ export default defineDomain({
       title: "Binary search trees",
       visual: <BstLab />,
       points: [
-        "BST property: every key in the left subtree is smaller than the node, and every key in the right subtree is larger.",
-        "Search and insert walk one root-to-leaf path: O(h). Balanced, that's O(log n); inserting sorted keys builds a chain: O(n).",
-        "Deleting a node with two children: copy in its in-order successor (or predecessor), then delete that node.",
-        "Self-balancing trees (AVL, red-black) keep h = O(log n). Databases use B-trees: many keys per node, so very shallow trees.",
+        "The **BST property**: every key in a node's left subtree is smaller than the node, and every key in its right subtree is larger.",
+        "Search and insert follow one path from the root down, so they take O(h). In a balanced tree that's O(log n). Inserting keys in sorted order builds a chain, and then it's O(n).",
+        "To delete a node with two children, copy in its in-order successor or predecessor, then delete that node instead.",
+        "Self-balancing trees, like AVL and red-black trees, keep the height at O(log n). Databases use **B-trees**, which store many keys per node so the tree stays very shallow.",
       ],
-      tip: "Validating a BST? Pass down a (min, max) range. Checking only each node's direct children is a classic wrong answer.",
+      tip: "To validate a BST, pass a (min, max) range down the tree. Checking each node only against its direct children is a classic wrong answer.",
     },
     {
       id: "ds-heap",
@@ -116,17 +165,59 @@ export default defineDomain({
       title: "Heaps and priority queues",
       visual: <HeapPlayground />,
       points: [
-        "Min-heap: every parent ≤ its children, so the minimum is at index 0. The tree is complete, so it fits in an array.",
-        "Index math (0-based): children of i at 2i + 1 and 2i + 2; parent at ⌊(i − 1) / 2⌋.",
-        "Peek O(1); push (sift up) and pop (sift down) O(log n); building a heap from n items O(n).",
-        "Top-k: keep a min-heap of size k and pop whenever it grows past k: O(n log k).",
-        "JavaScript has no built-in priority queue; write a small heap class or say which library you'd use.",
+        "In a **min-heap**, every parent is less than or equal to its children, so the smallest item is at index 0. The tree is complete, so it fits neatly in an array.",
+        "With 0-based indexes, the children of i are at 2i + 1 and 2i + 2, and its parent is at ⌊(i − 1) / 2⌋.",
+        "Peeking at the top is O(1). Pushing (sift up) and popping (sift down) are O(log n). Building a heap from n items takes O(n).",
+        "For the top k items, keep a min-heap of size k and pop whenever it grows past k. That's O(n log k).",
+        "JavaScript has no built-in priority queue. Write a small heap class, or say which library you'd use.",
       ],
-      tip: "\"k-th largest\", \"merge k sorted lists\", \"next meeting room to free up\": all heap problems.",
+      tip: "\"k-th largest\", \"merge k sorted lists\" and \"which meeting room frees up next\" are all heap problems.",
     },
   ],
 
   questions: [
+    {
+      id: "ds-b3-01",
+      domain: "d3",
+      level: "beginner",
+      lesson: "ds-b-tree",
+      prompt: "In a tree, what do we call the single node at the very top?",
+      options: ["The root", "A leaf", "The tail", "A child"],
+      answer: [0],
+      explanation: "The top node is the root, and every other node hangs below it. Leaves are at the opposite end: they're the nodes with no children.",
+    },
+    {
+      id: "ds-b3-02",
+      domain: "d3",
+      level: "beginner",
+      lesson: "ds-b-tree",
+      type: "output",
+      prompt: "Type what this prints. Each node object has a `val` and its `left` and `right` children.",
+      code: js("const root = {", "  val: 'A',", "  left: { val: 'B', left: null, right: null },", "  right: { val: 'C', left: null, right: null },", "};", "console.log(root.right.val);"),
+      codeLang: "js",
+      answers: ["C"],
+      explanation: "`root.right` is the root's right child, and that child's `val` is `'C'`. B and C are both leaves here, because their children are `null`.",
+    },
+    {
+      id: "ds-b3-03",
+      domain: "d3",
+      level: "beginner",
+      lesson: "ds-b-heap",
+      prompt: "An emergency room uses a priority queue. Who is seen next?",
+      options: ["The patient with the most urgent priority", "The patient who arrived first", "The patient who arrived last", "A patient picked at random"],
+      answer: [0],
+      explanation: "A priority queue ignores arrival order and always hands out the most important item. That's the difference from a normal queue, where the first to arrive goes first.",
+    },
+    {
+      id: "ds-b3-04",
+      domain: "d3",
+      level: "beginner",
+      lesson: "ds-b-heap",
+      prompt: "In a min-heap, where is the smallest value kept?",
+      options: ["At the top, so you can grab it straight away", "At the bottom, in the last leaf", "In the middle of the tree", "Nowhere in particular, so you have to search for it"],
+      answer: [0],
+      explanation: "Every parent in a min-heap is smaller than or equal to its children, so the smallest value always rises to the top. That's why reading it is instant.",
+    },
     {
       id: "ds3-01",
       domain: "d3",
@@ -135,7 +226,7 @@ export default defineDomain({
       prompt: "What is the minimum possible height (counted in edges) of a binary tree with 15 nodes?",
       options: ["3", "4", "7", "14"],
       answer: [0],
-      explanation: "A perfect tree with levels of 1, 2, 4, and 8 nodes holds 15 nodes in 4 levels, which is 3 edges from root to leaf.",
+      explanation: "A perfect tree with levels of 1, 2, 4 and 8 nodes holds 15 nodes in 4 levels. That's 3 edges from the root down to a leaf.",
     },
     {
       id: "ds3-02",
@@ -159,7 +250,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["4", "3", "5", "2"],
       answer: [0],
-      explanation: "This version counts nodes on the longest root-to-leaf path: 1 → 2 → 4 → 5, so 4. (Counting edges would give 3.)",
+      explanation: "This version counts nodes on the longest path from the root to a leaf. That path is 1, 2, 4, 5, so the answer is 4. Counting edges instead would give 3.",
     },
     {
       id: "ds3-03",
@@ -177,7 +268,7 @@ export default defineDomain({
       ),
       codeLang: "js",
       answer: [3],
-      explanation: "A node with one child isn't a leaf, but `||` returns 1 for it and stops counting below. The condition must be `!node.left && !node.right`.",
+      explanation: "A node with one child isn't a leaf, but `||` returns 1 for it and stops counting further down. The condition should be `!node.left && !node.right`.",
     },
     {
       id: "ds3-04",
@@ -192,7 +283,7 @@ export default defineDomain({
         "all leaves hold the same value",
       ],
       answer: [0],
-      explanation: "The condition must hold at every node, not just the root. \"Every level full\" describes a perfect tree, which is balanced but much stricter.",
+      explanation: "The rule has to hold at every node, not just the root. \"Every level full\" describes a perfect tree, which is balanced but a much stricter shape.",
     },
     {
       id: "ds3-05",
@@ -217,7 +308,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["`1 2 3 4 6 7`", "`4 2 1 3 6 7`", "`1 3 2 7 6 4`", "`4 2 6 1 3 7`"],
       answer: [0],
-      explanation: "Inorder visits left, root, right, which for a BST is sorted order. The other options are preorder, postorder, and level order.",
+      explanation: "Inorder visits left, then root, then right, and for a binary search tree that's sorted order. The other options are the preorder, postorder and level order of the same tree.",
     },
     {
       id: "ds3-06",
@@ -232,7 +323,7 @@ export default defineDomain({
         ["Postorder", "Delete a tree or compute subtree sizes (children first)"],
         ["Level order", "Print the tree level by level with a queue"],
       ],
-      explanation: "The name says where the root goes: before (pre), between (in), or after (post) its subtrees. Level order is breadth-first.",
+      explanation: "The name tells you where the root goes: before its subtrees (pre), between them (in) or after them (post). Level order is breadth-first.",
     },
     {
       id: "ds3-07",
@@ -240,9 +331,9 @@ export default defineDomain({
       level: "junior",
       lesson: "ds-traversal",
       type: "order",
-      prompt: "Order the steps of a level-order (BFS) traversal of a binary tree.",
+      prompt: "Put the steps of a level-order (BFS) traversal of a binary tree in order.",
       items: ["Put the root in a queue", "Dequeue a node and visit it", "Enqueue its left child, then its right child, if present", "Repeat until the queue is empty"],
-      explanation: "A queue processes nodes in the order they were discovered, so each level is finished before the next begins.",
+      explanation: "A queue hands back nodes in the order you found them, so each level is finished before the next one starts.",
     },
     {
       id: "ds3-08",
@@ -267,7 +358,7 @@ export default defineDomain({
       ),
       codeLang: "js",
       answer: [6],
-      explanation: "`pop()` takes the newest item, turning the queue into a stack and the traversal into a depth-first one. Use `queue.shift()` (or a head index).",
+      explanation: "`pop()` takes the newest item, which turns the queue into a stack and the walk into a depth-first one. Use `queue.shift()` or a head index.",
     },
     {
       id: "ds3-09",
@@ -279,7 +370,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["`5 3 1 4 8`", "`1 3 4 5 8`", "`5 3 8 1 4`", "`1 4 3 8 5`"],
       answer: [0],
-      explanation: "5 is the root; 3 goes left and 8 right; 1 goes left of 3 and 4 right of 3. Preorder is root, left subtree, right subtree: 5 3 1 4 8.",
+      explanation: "5 becomes the root. 3 goes to its left and 8 to its right. Then 1 goes left of 3 and 4 goes right of 3. Preorder is root, left subtree, right subtree, so you get 5 3 1 4 8.",
     },
     {
       id: "ds3-10",
@@ -289,7 +380,7 @@ export default defineDomain({
       prompt: "You insert 1, 2, 3, 4, 5, 6 in that order into a plain (non-balancing) BST. What is the cost of searching for 6?",
       options: ["O(n): the tree is a chain", "O(log n)", "O(1)", "O(n log n)"],
       answer: [0],
-      explanation: "Every key goes to the right of the previous one, so the tree is effectively a linked list. Self-balancing trees prevent this.",
+      explanation: "Every key is bigger than the last, so each one goes to the right. The tree ends up shaped like a linked list. Self-balancing trees exist to stop this.",
     },
     {
       id: "ds3-11",
@@ -309,7 +400,7 @@ export default defineDomain({
       ),
       codeLang: "js",
       answer: [4],
-      explanation: "The branches are swapped: larger targets must go right, smaller ones left. Going the wrong way leads into a subtree that can't contain the target.",
+      explanation: "The two branches are swapped. Larger targets should go right and smaller ones left. Going the wrong way leads into a subtree that can't contain the target.",
     },
     {
       id: "ds3-12",
@@ -325,7 +416,7 @@ export default defineDomain({
         "Swap it with the root",
       ],
       answer: [0, 1],
-      explanation: "Both successor and predecessor keep the BST property, and each has at most one child, so deleting it is easy.",
+      explanation: "Using either the successor or the predecessor keeps the BST property. Each of them has at most one child, so deleting it afterwards is easy.",
     },
     {
       id: "ds3-13",
@@ -335,7 +426,7 @@ export default defineDomain({
       prompt: "In a 0-indexed array-backed binary heap, where are the children of index `i`?",
       options: ["`2i + 1` and `2i + 2`", "`i + 1` and `i + 2`", "`2i` and `2i + 1`", "`i / 2` and `i / 2 + 1`"],
       answer: [0],
-      explanation: "With 0-based indexes, children are at 2i + 1 and 2i + 2, and the parent is at ⌊(i − 1) / 2⌋. `2i` and `2i + 1` is the 1-based version.",
+      explanation: "With 0-based indexes, the children are at 2i + 1 and 2i + 2, and the parent is at ⌊(i − 1) / 2⌋. `2i` and `2i + 1` is the version for arrays that start at 1.",
     },
     {
       id: "ds3-14",
@@ -351,7 +442,7 @@ export default defineDomain({
         ["Build a heap from n items", "O(n): bottom-up heapify"],
         ["Find an arbitrary value", "O(n): scan the array"],
       ],
-      explanation: "A heap only orders parents relative to children, so the min is instant and updates follow one path, but arbitrary searches must scan.",
+      explanation: "A heap only keeps parents in order with their children. So the minimum is instant and updates follow one path, but finding any other value means scanning.",
     },
     {
       id: "ds3-15",
@@ -363,7 +454,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["`[1, 3, 2, 7, 9, 5]`", "`[1, 2, 3, 5, 7, 9]`", "`[1, 2, 5, 7, 9, 3]`", "`[2, 1, 3, 5, 7, 9]`"],
       answer: [0],
-      explanation: "2 is appended at index 5. Its parent is index 2 (value 5), so they swap. The new parent is index 0 (value 1), which is smaller, so it stops. A heap is not a sorted array.",
+      explanation: "2 is added at index 5. Its parent is index 2, which holds 5, so they swap. The next parent is index 0, which holds 1, and that's smaller, so it stops. A heap isn't a sorted array.",
     },
     {
       id: "ds3-16",
@@ -384,7 +475,7 @@ export default defineDomain({
       ),
       codeLang: "js",
       answer: [3],
-      explanation: "`i / 2` is the 1-based formula. For 0-based arrays the parent is `Math.floor((i - 1) / 2)`; index 2's parent is 0, not 1.",
+      explanation: "`i / 2` is the formula for arrays that start at 1. For 0-based arrays the parent is `Math.floor((i - 1) / 2)`. For example, index 2's parent is 0, not 1.",
     },
     {
       id: "ds3-17",
@@ -399,7 +490,7 @@ export default defineDomain({
         "Insert everything into a hash set",
       ],
       answer: [0],
-      explanation: "The size-k min-heap always holds the k largest seen so far, with the smallest of them on top to evict. The array tail of a max-heap isn't sorted, and a set has no order.",
+      explanation: "The size-k min-heap always holds the k largest numbers seen so far, with the smallest of them on top, ready to be thrown out. The end of a max-heap's array isn't sorted, and a set has no order at all.",
     },
     {
       id: "ds3-18",
@@ -407,9 +498,9 @@ export default defineDomain({
       level: "junior",
       lesson: "ds-bst",
       type: "order",
-      prompt: "Order the steps to insert a key into a BST.",
+      prompt: "Put the steps to insert a key into a BST in order.",
       items: ["Start at the root", "Compare the key with the current node", "Go left if it's smaller, right if it's larger", "When you reach an empty child spot, attach the new node there"],
-      explanation: "Insertion follows the same path a search would, then attaches a leaf. Cost is O(h).",
+      explanation: "Inserting follows the same path a search would, then attaches a new leaf at the end. It costs O(h), where h is the tree's height.",
     },
     {
       id: "ds3-19",
@@ -421,7 +512,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["O(n) time, O(h) space", "O(h) time, O(n) space", "O(n log n) time, O(1) space", "O(n) time, O(1) space"],
       answer: [0],
-      explanation: "Every node is visited once, and the deepest chain of pending calls is the height. h is O(log n) when balanced and O(n) for a chain.",
+      explanation: "Every node is visited once, and the most calls waiting at any moment equals the height. h is O(log n) when the tree is balanced and O(n) when it's a chain.",
     },
     {
       id: "ds3-20",
@@ -436,7 +527,7 @@ export default defineDomain({
         "Heaps use less memory than arrays",
       ],
       answer: [0],
-      explanation: "A sorted array gives O(1) access to the min but must shift elements on insert. The heap balances both operations. It's stored in an array too.",
+      explanation: "A sorted array gives you the minimum in O(1), but every insert has to shift items over. A heap keeps both operations cheap, and it's stored in an array too.",
     },
     {
       id: "ds3-21",
@@ -465,7 +556,7 @@ export default defineDomain({
         "It throws a TypeError",
       ],
       answer: [0],
-      explanation: "Every parent-child pair looks fine, but the BST rule applies to whole subtrees. Pass down bounds: `isBST(node, min, max)` would see that 6 exceeds the max of 5.",
+      explanation: "Every parent and child pair looks fine, but the BST rule covers whole subtrees. Passing bounds down, as in `isBST(node, min, max)`, would catch that 6 is above the limit of 5.",
     },
     {
       id: "ds3-22",
@@ -481,7 +572,7 @@ export default defineDomain({
         "Postorder visits the root first",
       ],
       answer: [0, 1],
-      explanation: "Level order uses a queue; inorder is sorted only for a BST; postorder visits the root last.",
+      explanation: "Level order uses a queue, not a stack. Inorder is only sorted for a binary search tree. Postorder visits the root last.",
     },
     {
       id: "ds3-23",
@@ -496,7 +587,7 @@ export default defineDomain({
         "A hash map would answer ordered range queries faster",
       ],
       answer: [0],
-      explanation: "Each new timestamp is the largest so far, so it always goes right. Balanced ordered structures keep O(log n) inserts and support range scans; a hash map has no order.",
+      explanation: "Each new timestamp is the largest so far, so it always goes right. Balanced ordered structures keep inserts at O(log n) and still support range scans. A hash map has no order, so it can't answer range queries.",
     },
     {
       id: "ds3-24",
@@ -511,7 +602,7 @@ export default defineDomain({
         "B-trees keep keys unsorted for faster writes",
       ],
       answer: [0],
-      explanation: "Storage reads whole pages. Packing hundreds of keys per node means a few levels cover millions of rows, so a lookup is a handful of page reads instead of dozens.",
+      explanation: "Storage reads data a whole page at a time. If each node packs hundreds of keys, a few levels cover millions of rows, so a lookup takes a handful of page reads instead of dozens.",
     },
     {
       id: "ds3-25",
@@ -526,7 +617,7 @@ export default defineDomain({
         "Rebuild the heap from scratch on every cancel",
       ],
       answer: [0],
-      explanation: "An index map lets you jump to the node, swap it with the last item, and sift. Lazy deletion is simpler and works well if cancelled timers are purged occasionally so memory stays bounded.",
+      explanation: "An index map lets you jump straight to the node, swap it with the last item and sift it into place. Lazy deletion is simpler, and works well if you clear out cancelled timers now and then so memory doesn't keep growing.",
     },
     {
       id: "ds3-26",
@@ -541,25 +632,25 @@ export default defineDomain({
         "The node count and the root value",
       ],
       answer: [0],
-      explanation: "Different shapes can share the same inorder or postorder sequence. Null markers make a single preorder or level-order sequence unambiguous, and it decodes in O(n).",
+      explanation: "Different tree shapes can produce the same inorder or postorder sequence. Writing a marker for every missing child makes a single preorder or level-order list unambiguous, and it decodes in O(n).",
     },
   ],
 
   cards: [
-    { id: "ds-c-bintree", domain: "d3", kind: "service", term: "Binary tree", definition: "Each node has at most two children" },
-    { id: "ds-c-bst", domain: "d3", kind: "service", term: "Binary search tree", definition: "Left < node < right; search and insert in O(h)" },
-    { id: "ds-c-avl", domain: "d3", kind: "service", term: "AVL tree", definition: "Self-balancing BST; subtree heights differ by at most 1" },
-    { id: "ds-c-rb", domain: "d3", kind: "service", term: "Red-black tree", definition: "Self-balancing BST using node colours; O(log n) operations" },
-    { id: "ds-c-btree", domain: "d3", kind: "service", term: "B-tree", definition: "Many keys per node; shallow trees for disk-based indexes" },
-    { id: "ds-c-heap", domain: "d3", kind: "service", term: "Binary heap", definition: "Complete tree in an array; parent ≤ children in a min-heap" },
-    { id: "ds-c-pq", domain: "d3", kind: "service", term: "Priority queue", definition: "Always serves the highest-priority item next; usually a heap" },
-    { id: "ds-c-height", domain: "d3", kind: "concept", term: "Tree height", definition: "Length of the longest root-to-leaf path" },
-    { id: "ds-c-inorder", domain: "d3", kind: "concept", term: "Inorder traversal", definition: "Left, root, right: sorted order for a BST" },
-    { id: "ds-c-preorder", domain: "d3", kind: "concept", term: "Preorder traversal", definition: "Root, left, right: good for copying and serializing" },
-    { id: "ds-c-postorder", domain: "d3", kind: "concept", term: "Postorder traversal", definition: "Left, right, root: children before parents" },
-    { id: "ds-c-levelorder", domain: "d3", kind: "concept", term: "Level-order traversal", definition: "Breadth-first, level by level, using a queue" },
-    { id: "ds-c-successor", domain: "d3", kind: "concept", term: "In-order successor", definition: "Smallest key in a node's right subtree" },
-    { id: "ds-c-heapify", domain: "d3", kind: "concept", term: "Heapify", definition: "Build a heap from an unsorted array in O(n)" },
+    { id: "ds-c-bintree", domain: "d3", kind: "service", term: "Binary tree", definition: "A tree where each node has at most two children." },
+    { id: "ds-c-bst", domain: "d3", kind: "service", term: "Binary search tree", definition: "A binary tree where left keys are smaller and right keys are larger. Search and insert take O(h)." },
+    { id: "ds-c-avl", domain: "d3", kind: "service", term: "AVL tree", definition: "A self-balancing BST where subtree heights differ by at most 1." },
+    { id: "ds-c-rb", domain: "d3", kind: "service", term: "Red-black tree", definition: "A self-balancing BST that uses node colours to keep operations O(log n)." },
+    { id: "ds-c-btree", domain: "d3", kind: "service", term: "B-tree", definition: "A tree with many keys per node. It stays shallow, which suits indexes stored on disk." },
+    { id: "ds-c-heap", domain: "d3", kind: "service", term: "Binary heap", definition: "A complete tree stored in an array. In a min-heap, every parent is less than or equal to its children." },
+    { id: "ds-c-pq", domain: "d3", kind: "service", term: "Priority queue", definition: "Always serves the highest-priority item next. It's usually built on a heap." },
+    { id: "ds-c-height", domain: "d3", kind: "concept", term: "Tree height", definition: "The length of the longest path from the root down to a leaf." },
+    { id: "ds-c-inorder", domain: "d3", kind: "concept", term: "Inorder traversal", definition: "Visits left, then root, then right. For a BST that's sorted order." },
+    { id: "ds-c-preorder", domain: "d3", kind: "concept", term: "Preorder traversal", definition: "Visits root, then left, then right. Good for copying and saving a tree." },
+    { id: "ds-c-postorder", domain: "d3", kind: "concept", term: "Postorder traversal", definition: "Visits left, then right, then root, so children come before parents." },
+    { id: "ds-c-levelorder", domain: "d3", kind: "concept", term: "Level-order traversal", definition: "Breadth-first, one level at a time, using a queue." },
+    { id: "ds-c-successor", domain: "d3", kind: "concept", term: "In-order successor", definition: "The smallest key in a node's right subtree." },
+    { id: "ds-c-heapify", domain: "d3", kind: "concept", term: "Heapify", definition: "Building a heap from an unsorted array in O(n)." },
   ],
 
   challenges: [
@@ -569,8 +660,8 @@ export default defineDomain({
       lesson: "ds-bst",
       title: "Grow a bushy BST",
       goal: "Insert all seven keys so the tree is only 3 levels deep.",
-      hint: "The root should be the median. Then insert the medians of each half.",
-      takeaway: "Insert order decides a BST's shape. Balanced means O(log n) searches.",
+      hint: "Make the middle value the root. Then insert the middle value of each half.",
+      takeaway: "The order you insert keys decides a BST's shape. A balanced tree means O(log n) searches.",
       render: (onSolved) => <BstLab goal="balanced" onSolved={onSolved} />,
     },
     {
@@ -578,9 +669,9 @@ export default defineDomain({
       domain: "d3",
       lesson: "ds-bst",
       title: "Break the BST",
-      goal: "Insert all seven keys so the tree becomes a 7-level chain.",
-      hint: "What happens if every new key is bigger than all the others?",
-      takeaway: "Sorted inserts turn a plain BST into a linked list with O(n) searches. That's why self-balancing trees exist.",
+      goal: "Insert all seven keys so the tree becomes a chain 7 levels deep.",
+      hint: "What happens if every new key is bigger than all the ones before it?",
+      takeaway: "Inserting sorted keys turns a plain BST into a linked list with O(n) searches. That's why self-balancing trees exist.",
       render: (onSolved) => <BstLab goal="chain" onSolved={onSolved} />,
     },
   ],

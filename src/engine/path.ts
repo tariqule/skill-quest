@@ -1,7 +1,9 @@
+import { effectiveLevel, splitLessons } from "./levels";
 import type { Progress } from "./store";
 import type { Course } from "./types";
 
-export type NodeState = "done" | "current" | "open" | "locked";
+/** "later": a lesson past the Beginner basics, shown dimmed until the player levels up (still openable). */
+export type NodeState = "done" | "current" | "open" | "locked" | "later";
 
 export interface PathNode {
   key: string;
@@ -11,6 +13,10 @@ export interface PathNode {
   /** Path relative to the course root, e.g. "/lesson/d1-rings". */
   to: string;
   state: NodeState;
+  /** Beginner basics on a higher level: open any time, never block the path. */
+  optional?: boolean;
+  /** A "Start here" beginner lesson. */
+  basics?: boolean;
 }
 
 export interface PathWorld {
@@ -27,33 +33,56 @@ export function worldUnlocked(course: Course, p: Progress, index: number) {
   return (p.questStars[course.domains[index - 1].id] ?? 0) > 0;
 }
 
-/** Build the mission map. Exactly one node (the first unfinished one) is "current". */
+/**
+ * Build the mission map. Exactly one required node (the first unfinished one) is "current".
+ * On the Beginner level a world's path is its "Start here" lessons; the other lessons show as
+ * "later". On every other level the basics become optional extras and the rest is the path.
+ */
 export function buildPath(course: Course, p: Progress): { worlds: PathWorld[]; current: PathNode | null; examUnlocked: boolean } {
+  const beginner = effectiveLevel(course, p.level) === "beginner";
   let current: PathNode | null = null;
   const worlds = course.domains.map((d, wi) => {
     const unlocked = worldUnlocked(course, p, wi);
-    const lessons = course.lessons[d.id] ?? [];
+    const { basics, rest } = splitLessons(course.lessons[d.id] ?? []);
+    // Courses without beginner lessons yet fall back to the full path at every level.
+    const required = beginner ? (basics.length ? basics : rest) : rest.length ? rest : basics;
+    const extras = beginner ? (basics.length ? rest : []) : rest.length ? basics : [];
     let prevDone = true;
-    const nodes: PathNode[] = lessons.map((l) => {
+    const toNode = (l: (typeof required)[number], state: NodeState, extra: Partial<PathNode> = {}): PathNode => ({
+      key: l.id,
+      type: "lesson",
+      domain: d.id,
+      title: l.title,
+      to: `/lesson/${l.id}`,
+      state,
+      basics: l.level === "beginner",
+      ...extra,
+    });
+    const requiredNodes = required.map((l) => {
       const done = p.lessonsDone.includes(l.id);
       const state: NodeState = done ? "done" : unlocked && prevDone ? "open" : "locked";
       prevDone = done;
-      return { key: l.id, type: "lesson", domain: d.id, title: l.title, to: `/lesson/${l.id}`, state };
+      return toNode(l, state);
     });
-    const lessonsDone = nodes.filter((n) => n.state === "done").length;
+    const extraNodes = extras.map((l) =>
+      toNode(l, p.lessonsDone.includes(l.id) ? "done" : beginner ? "later" : unlocked ? "open" : "locked", { optional: true }),
+    );
+    const lessonsDone = requiredNodes.filter((n) => n.state === "done").length;
     const questDone = (p.questStars[d.id] ?? 0) > 0;
-    nodes.push({
+    const quest: PathNode = {
       key: `quest-${d.id}`,
       type: "quest",
       domain: d.id,
       title: `${d.world} trial`,
       to: `/quest/${d.id}`,
-      state: questDone ? "done" : unlocked && lessonsDone === lessons.length ? "open" : "locked",
-    });
-    return { domain: d.id, unlocked, lessonsDone, lessonsTotal: lessons.length, nodes };
+      state: questDone ? "done" : unlocked && lessonsDone === required.length ? "open" : "locked",
+    };
+    // Basics come first on higher levels; "later" lessons come after the trial on Beginner.
+    const nodes = beginner ? [...requiredNodes, quest, ...extraNodes] : [...extraNodes, ...requiredNodes, quest];
+    return { domain: d.id, unlocked, lessonsDone, lessonsTotal: required.length, nodes };
   });
   for (const w of worlds) {
-    const n = w.nodes.find((x) => x.state === "open");
+    const n = w.nodes.find((x) => x.state === "open" && !x.optional);
     if (n) {
       n.state = "current";
       current = n;

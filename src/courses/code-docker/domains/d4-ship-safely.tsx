@@ -12,14 +12,14 @@ export default defineDomain({
     weight: 25,
     emoji: "🛡️",
     color: "#f59e0b",
-    summary: "Registries, tags and digests; non-root users, minimal images and build secrets; SBOMs, signing and multi-platform builds; and what changes on Kubernetes.",
+    summary: "Sharing images through registries with tags and digests, keeping containers safe, proving where an image came from, and what changes when you move to Kubernetes.",
   },
 
   tasks: [
     {
       id: "4.1",
       title: "Registries, tags and digests",
-      covers: ["Registries", "Image references", "Mutable tags vs immutable digests", "The latest tag", "tag and push"],
+      covers: ["Registries", "Image references", "Mutable tags versus immutable digests", "The latest tag", "tag and push"],
     },
     {
       id: "4.2",
@@ -34,11 +34,60 @@ export default defineDomain({
     {
       id: "4.4",
       title: "From Docker to Kubernetes",
-      covers: ["Deployments and Services", "OCI images and container runtimes", "Probes vs HEALTHCHECK", "Resources", "Rollouts and image tags"],
+      covers: ["Deployments and Services", "OCI images and container runtimes", "Probes versus HEALTHCHECK", "Resources", "Rollouts and image tags"],
     },
   ],
 
   lessons: [
+    {
+      id: "d4-start-share",
+      level: "beginner",
+      task: "4.1",
+      title: "Sharing images through a registry",
+      check: ["dkr-b4-01", "dkr-b4-02"],
+      visual: (
+        <Flow
+          color="#f59e0b"
+          steps={[
+            { icon: "💻", label: "Your laptop", sub: "docker build makes the image" },
+            { icon: "⬆️", label: "docker push", sub: "uploads it to the registry" },
+            { icon: "🏛️", label: "Registry", sub: "Docker Hub, GitHub, your cloud" },
+            { icon: "⬇️", label: "docker pull", sub: "any server or teammate downloads it" },
+          ]}
+        />
+      ),
+      points: [
+        "An image on your laptop is only useful to you. To run it on a server or share it with your team, you put it in a **registry**.",
+        "A registry is like a library for images. You hand in a copy with `docker push`, and anyone allowed in borrows it with `docker pull`.",
+        "Docker Hub is the default public registry. Companies often use a private one, such as GitHub Container Registry or their cloud provider's.",
+        "The image's name says where it lives. `ghcr.io/acme/api:1.0` means the `acme/api` image, version `1.0`, on GitHub's registry at `ghcr.io`.",
+      ],
+      tip: "Private registries ask who you are first. Run `docker login` with the registry's address once, and push and pull will work after that.",
+    },
+    {
+      id: "d4-start-safe",
+      level: "beginner",
+      task: "4.2",
+      title: "Keeping containers safe",
+      check: ["dkr-b4-03", "dkr-b4-04"],
+      visual: (
+        <Tiles
+          cols={3}
+          tiles={[
+            { icon: "🔑", title: "Don't hand out the master key", text: "Run the app as an ordinary user, not root, so a break-in can do less.", color: "#34d399" },
+            { icon: "🙊", title: "Keep secrets out", text: "Passwords written into an image can be read by anyone who gets the image.", color: "#fb7185" },
+            { icon: "🪶", title: "Pack light", text: "Fewer programs in the image means fewer things that can have security holes.", color: "#38bdf8" },
+          ]}
+        />
+      ),
+      points: [
+        "Unless you say otherwise, the program in a container runs as **root**, the all-powerful admin user. If an attacker takes over the app, they get that power too.",
+        "Think of a house guest. You'd give them a key to the front door, not the master key to every room. The `USER` instruction switches to an ordinary user.",
+        "Never put passwords or API keys in a Dockerfile or in files you copy into the image. Anyone who pulls the image can dig them out.",
+        "Smaller images are safer. Every extra program is one more thing that might have a security hole and need updating.",
+      ],
+      tip: "Pass secrets in when the container starts, for example as environment variables from your hosting platform, instead of building them into the image.",
+    },
     {
       id: "d4-registries",
       level: "intermediate",
@@ -73,7 +122,7 @@ export default defineDomain({
         "A registry stores images: Docker Hub, GitHub Container Registry, Amazon ECR, Google Artifact Registry, Azure Container Registry, or your own.",
         "Tags are labels someone can move. `latest` is only the default tag name, not a promise of \"newest\".",
         "A digest (`@sha256:…`) identifies exact content and never changes. Pin by digest when you need reproducibility.",
-        "`docker tag` adds another name to an existing image; `docker push` uploads it under that name.",
+        "`docker tag` adds another name to an existing image. `docker push` uploads it under that name.",
       ],
       tip: "Tag releases with immutable versions (or the git commit SHA) and never overwrite them. \"Which build is in production?\" should have one answer.",
     },
@@ -109,7 +158,7 @@ export default defineDomain({
             tiles={[
               { icon: "👤", title: "Run as non-root", text: "`USER` in the Dockerfile (official Node images ship a `node` user). Limits what a compromised app can do.", color: "#34d399" },
               { icon: "🪶", title: "Ship less", text: "slim, distroless or multi-stage images: fewer packages, fewer CVEs, nothing extra for an attacker to use.", color: "#38bdf8" },
-              { icon: "🚫", title: "Avoid", text: "`--privileged`, mounting `/var/run/docker.sock`, secrets in ENV/ARG or files in layers.", color: "#fb7185" },
+              { icon: "🚫", title: "Avoid", text: "Skip `--privileged`, don't mount `/var/run/docker.sock`, and keep secrets out of ENV, ARG and image layers.", color: "#fb7185" },
             ]}
           />
         </div>
@@ -119,7 +168,7 @@ export default defineDomain({
         "Anything written to a layer, or passed as a build ARG, can be read by anyone with the image. Use BuildKit secret mounts at build time.",
         "Runtime secrets come from the environment or mounted files provided by your orchestrator, never from the image.",
         "Harden at run time too: `--read-only`, `--cap-drop ALL` (add back only what's needed), and never `--privileged` for ordinary apps.",
-        "Scan images and rebuild on patched bases regularly; most CVEs come from the base image, not your code.",
+        "Scan images and rebuild on patched base images regularly. Most CVEs (publicly listed security flaws) come from the base image, not your code.",
       ],
       tip: "Run `docker history --no-trunc <image>` on your own images once. If you can read a token there, so can everyone who pulls it.",
     },
@@ -136,8 +185,8 @@ export default defineDomain({
             steps={[
               { icon: "📌", label: "Pinned base", sub: "FROM …@sha256, bumped by automated PRs" },
               { icon: "🏗️", label: "CI build", sub: "Multi-platform, from a clean checkout" },
-              { icon: "🧾", label: "Attest", sub: "SBOM + provenance attached to the image" },
-              { icon: "✍️", label: "Sign", sub: "e.g. Sigstore Cosign or Notation" },
+              { icon: "🧾", label: "Attest", sub: "SBOM and provenance attached to the image" },
+              { icon: "✍️", label: "Sign", sub: "with Sigstore Cosign or Notation" },
               { icon: "🚦", label: "Admit", sub: "Cluster policy only runs verified images" },
             ]}
           />
@@ -154,9 +203,9 @@ export default defineDomain({
       ),
       points: [
         "An SBOM (software bill of materials) lists every package in an image, so \"are we affected by this CVE?\" is a query, not an investigation.",
-        "Provenance records how, where and from what source an image was built. Signatures prove it came from your pipeline.",
-        "Admission policies in the cluster can refuse images that aren't signed by your CI.",
-        "Images are CPU-architecture specific. Build multi-platform images (an image index) when you deploy to both amd64 and arm64.",
+        "Provenance records how, where and from what source an image was built. A signature proves it came from your pipeline.",
+        "Admission policies are rules the cluster checks before it runs anything. They can refuse images that your CI didn't sign.",
+        "Each image is built for one kind of CPU. When you deploy to both amd64 and arm64 machines, build a multi-platform image (an image index).",
       ],
       tip: "Supply-chain work pays off on the worst day: when a big CVE drops, teams with SBOMs know their exposure in minutes.",
     },
@@ -170,17 +219,17 @@ export default defineDomain({
         <Tiles
           cols={2}
           tiles={[
-            { icon: "🔁", title: "docker run -d --restart → Deployment", text: "Desired replica count, automatic restarts and rescheduling, rolling updates and rollbacks.", color: "#38bdf8" },
-            { icon: "🔌", title: "-p and DNS → Service (+ Ingress)", text: "A stable name and load balancing across pods; Ingress or Gateway for HTTP from outside.", color: "#f472b6" },
-            { icon: "🗄️", title: "Volumes → PersistentVolumeClaims", text: "Storage requested from the cluster, attached wherever the pod lands.", color: "#34d399" },
-            { icon: "❤️", title: "HEALTHCHECK → probes", text: "Liveness, readiness and startup probes in the pod spec. Kubernetes ignores the Dockerfile HEALTHCHECK.", color: "#f59e0b" },
-            { icon: "📏", title: "--memory / --cpus → resources", text: "Requests (for scheduling) and limits (enforced) on each container.", color: "#a78bfa" },
-            { icon: "🔐", title: "-e and files → ConfigMaps & Secrets", text: "Config and credentials injected at run time, so the same image runs in every environment.", color: "#fb7185" },
+            { icon: "🔁", title: "docker run -d --restart becomes a Deployment", text: "You set how many copies to run. Kubernetes restarts and reschedules them, and rolls updates out and back.", color: "#38bdf8" },
+            { icon: "🔌", title: "-p and DNS become a Service (plus Ingress)", text: "A stable name and load balancing across pods. An Ingress or Gateway brings in HTTP from outside.", color: "#f472b6" },
+            { icon: "🗄️", title: "Volumes become PersistentVolumeClaims", text: "Storage you request from the cluster, attached wherever the pod lands.", color: "#34d399" },
+            { icon: "❤️", title: "HEALTHCHECK becomes probes", text: "Liveness, readiness and startup probes in the pod spec. Kubernetes ignores the Dockerfile HEALTHCHECK.", color: "#f59e0b" },
+            { icon: "📏", title: "--memory and --cpus become resources", text: "Requests (used for scheduling) and limits (enforced) on each container.", color: "#a78bfa" },
+            { icon: "🔐", title: "-e and files become ConfigMaps and Secrets", text: "Config and credentials are injected at run time, so the same image runs in every environment.", color: "#fb7185" },
           ]}
         />
       ),
       points: [
-        "Docker builds standard OCI images. Kubernetes nodes run them with a CRI runtime such as containerd or CRI-O; Docker Engine isn't required.",
+        "Docker builds standard OCI images. Kubernetes nodes run them with a CRI runtime such as containerd or CRI-O, so Docker Engine isn't required there.",
         "Everything you learned still applies: small images, non-root users, SIGTERM handling, logging to stdout, config from the environment.",
         "Kubernetes sends SIGTERM and waits a grace period (30 seconds by default) before SIGKILL, so graceful shutdown matters even more.",
         "Deploy immutable tags or digests. A mutable tag makes rollbacks and \"what's running?\" unreliable.",
@@ -190,6 +239,70 @@ export default defineDomain({
   ],
 
   questions: [
+    {
+      id: "dkr-b4-01",
+      domain: "d4",
+      level: "beginner",
+      lesson: "d4-start-share",
+      prompt: "Which command uploads your image to a registry so others can download it?",
+      options: ["`docker push`", "`docker pull`", "`docker run`", "`docker ps`"],
+      answer: [0],
+      explanation: "`docker push` sends an image up to a registry, and `docker pull` brings one down. `docker run` starts a container and `docker ps` lists containers.",
+    },
+    {
+      id: "dkr-b4-02",
+      domain: "d4",
+      level: "beginner",
+      lesson: "d4-start-share",
+      prompt: "A teammate pushed the image `ghcr.io/acme/api:1.0`. Which command downloads it to your machine?",
+      options: [
+        "`docker pull ghcr.io/acme/api:1.0`",
+        "`docker push ghcr.io/acme/api:1.0`",
+        "`docker build ghcr.io/acme/api:1.0`",
+        "`docker get ghcr.io/acme/api:1.0`",
+      ],
+      answer: [0],
+      explanation: "`docker pull` downloads an image by its full name, which includes the registry `ghcr.io`. If the registry is private, you'd run `docker login ghcr.io` first.",
+    },
+    {
+      id: "dkr-b4-03",
+      domain: "d4",
+      level: "beginner",
+      lesson: "d4-start-safe",
+      type: "output",
+      prompt: "`whoami` prints the name of the user running it. Type what this command prints.",
+      code: "docker run --rm alpine:3.20 whoami",
+      codeLang: "bash",
+      answers: ["root"],
+      explanation: "Unless the image or the command says otherwise, containers run as root, the admin user. That's why images meant for production switch to an ordinary user with `USER`.",
+    },
+    {
+      id: "dkr-b4-04",
+      domain: "d4",
+      level: "beginner",
+      lesson: "d4-start-safe",
+      prompt: "Why shouldn't you write a database password into your Dockerfile?",
+      options: [
+        "Anyone who gets a copy of the image can dig the password out of it",
+        "Docker refuses to build a Dockerfile that contains a password",
+        "It makes the image build much more slowly",
+        "Docker deletes passwords from images automatically",
+      ],
+      answer: [0],
+      explanation: "Everything in a Dockerfile ends up stored in the image, and images get shared and copied. Pass secrets in when the container starts instead.",
+    },
+    {
+      id: "dkr-b4-05",
+      domain: "d4",
+      level: "beginner",
+      lesson: "d4-start-safe",
+      type: "fill",
+      prompt: "The official Node image comes with an ordinary user called `node`. Fill the gap so the app runs as that user instead of root.",
+      code: "FROM node:22-slim\nWORKDIR /app\nCOPY . .\n{{1}} node\nCMD [\"node\", \"server.js\"]",
+      codeLang: "dockerfile",
+      blanks: [{ options: ["USER", "RUN", "AS", "LOGIN"], answer: 0 }],
+      explanation: "`USER` switches which user runs the steps after it and the container's main program. `RUN node` would try to run a program instead. `AS` only names a build stage inside `FROM`, and there's no `LOGIN` instruction.",
+    },
     {
       id: "d4-01",
       domain: "d4",
@@ -245,7 +358,7 @@ export default defineDomain({
         "A smaller image",
       ],
       answer: [0],
-      explanation: "Reproducible builds, at the cost of having to update the digest yourself. Automated dependency PRs make that painless.",
+      explanation: "You get reproducible builds, at the cost of updating the digest yourself. Automated dependency PRs make that painless.",
     },
     {
       id: "d4-05",
@@ -405,13 +518,13 @@ export default defineDomain({
       lesson: "d4-supply",
       prompt: "How do you ensure your clusters only run images that your CI built?",
       options: [
-        "Sign images in CI (e.g. with Sigstore Cosign or Notation) and enforce signature verification with an admission policy in the cluster",
+        "Sign images in CI (for example with Sigstore Cosign or Notation) and enforce signature verification with an admission policy in the cluster",
         "Always deploy the `latest` tag",
         "Make the registry public",
         "Reference images by name only",
       ],
       answer: [0],
-      explanation: "Signing proves origin; admission control enforces it. Either alone leaves a gap.",
+      explanation: "Signing proves where an image came from, and admission control enforces it. Either one alone leaves a gap.",
     },
     {
       id: "d4-16",
@@ -474,7 +587,7 @@ export default defineDomain({
         "A CronJob",
       ],
       answer: [0],
-      explanation: "The image doesn't change. The Deployment keeps it running; the Service gives it a stable address; an Ingress or Gateway exposes HTTP outside the cluster.",
+      explanation: "The image doesn't change. The Deployment keeps it running, the Service gives it a stable address, and an Ingress or Gateway exposes HTTP outside the cluster.",
     },
     {
       id: "d4-20",
@@ -504,7 +617,7 @@ export default defineDomain({
         "The image registry",
       ],
       answer: [0],
-      explanation: "Readiness controls whether a pod gets traffic; liveness whether it gets restarted. Define both deliberately; they mean different things.",
+      explanation: "Readiness controls whether a pod gets traffic. Liveness controls whether it gets restarted. They mean different things, so define both on purpose.",
     },
     {
       id: "d4-22",
@@ -552,7 +665,7 @@ export default defineDomain({
         "An Ingress rule",
       ],
       answer: [0],
-      explanation: "Requests tell the scheduler what to reserve; limits are enforced like Docker's flags. Exceeding the memory limit gets the container OOM-killed.",
+      explanation: "Requests tell the scheduler what to reserve. Limits are enforced, like Docker's flags. A container that goes over its memory limit is killed for running out of memory (OOM-killed).",
     },
     {
       id: "d4-25",
@@ -569,17 +682,17 @@ export default defineDomain({
   ],
 
   cards: [
-    { id: "c4-tag", domain: "d4", kind: "service", term: "docker tag", definition: "Give an existing image another name, e.g. one that includes a registry host." },
-    { id: "c4-push", domain: "d4", kind: "service", term: "docker push", definition: "Upload an image to the registry named in its reference." },
-    { id: "c4-buildx", domain: "d4", kind: "service", term: "docker buildx build", definition: "BuildKit builds with extras: --platform for multi-arch, --sbom/--provenance, remote caches." },
-    { id: "c4-secret-mount", domain: "d4", kind: "service", term: "RUN --mount=type=secret", definition: "Expose a build secret to one RUN step without storing it in any layer." },
-    { id: "c4-user", domain: "d4", kind: "service", term: "USER", definition: "Dockerfile instruction setting the user for later steps and for the container's process." },
-    { id: "c4-cosign", domain: "d4", kind: "service", term: "Cosign", definition: "Sigstore tool for signing and verifying container images and attestations." },
-    { id: "c4-deployment", domain: "d4", kind: "service", term: "Kubernetes Deployment", definition: "Keeps N replicas of a pod running and rolls out new image versions gradually." },
-    { id: "c4-digest", domain: "d4", kind: "concept", term: "Image digest", definition: "sha256 hash identifying exact image content. Unlike a tag, it can never point elsewhere." },
-    { id: "c4-latest", domain: "d4", kind: "concept", term: "latest tag", definition: "Just the default tag name. Not necessarily the newest image, and a poor choice for deploys." },
-    { id: "c4-sbom", domain: "d4", kind: "concept", term: "SBOM", definition: "Software bill of materials: a list of every package and version in an image." },
-    { id: "c4-multiplatform", domain: "d4", kind: "concept", term: "Multi-platform image", definition: "One tag backed by an index of per-architecture images (e.g. amd64 and arm64)." },
-    { id: "c4-oci", domain: "d4", kind: "concept", term: "OCI image", definition: "The open standard image format Docker builds and every major runtime and registry understands." },
+    { id: "c4-tag", domain: "d4", kind: "service", term: "docker tag", definition: "Gives an existing image another name, for example one that includes a registry host." },
+    { id: "c4-push", domain: "d4", kind: "service", term: "docker push", definition: "Uploads an image to the registry named in its reference." },
+    { id: "c4-buildx", domain: "d4", kind: "service", term: "docker buildx build", definition: "Builds with BuildKit and its extras: --platform for several CPU types, --sbom and --provenance, and remote caches." },
+    { id: "c4-secret-mount", domain: "d4", kind: "service", term: "RUN --mount=type=secret", definition: "Gives one RUN step access to a build secret without storing it in any layer." },
+    { id: "c4-user", domain: "d4", kind: "service", term: "USER", definition: "A Dockerfile instruction that sets the user for later steps and for the container's process." },
+    { id: "c4-cosign", domain: "d4", kind: "service", term: "Cosign", definition: "A Sigstore tool for signing and verifying container images and attestations." },
+    { id: "c4-deployment", domain: "d4", kind: "service", term: "Kubernetes Deployment", definition: "Keeps a set number of copies (replicas) of a pod running and rolls out new image versions gradually." },
+    { id: "c4-digest", domain: "d4", kind: "concept", term: "Image digest", definition: "A sha256 hash of the exact image content. Unlike a tag, it can never point at anything else." },
+    { id: "c4-latest", domain: "d4", kind: "concept", term: "latest tag", definition: "Just the default tag name. It isn't necessarily the newest image, and it's a poor choice for deploys." },
+    { id: "c4-sbom", domain: "d4", kind: "concept", term: "SBOM", definition: "A software bill of materials: a list of every package and version in an image." },
+    { id: "c4-multiplatform", domain: "d4", kind: "concept", term: "Multi-platform image", definition: "One tag backed by an index of images, one per CPU type, such as amd64 and arm64." },
+    { id: "c4-oci", domain: "d4", kind: "concept", term: "OCI image", definition: "The open standard image format. Docker builds it, and every major runtime and registry understands it." },
   ],
 });

@@ -13,7 +13,7 @@ export default defineDomain({
     weight: 25,
     emoji: "🏜️",
     color: "#f472b6",
-    summary: "Queues and streams, CAP and PACELC, retries that are safe because operations are idempotent, and rate limiters that keep everyone honest.",
+    summary: "Queues and streams, the CAP and PACELC trade-offs, retries that are safe because repeating them changes nothing, and rate limiters that keep usage fair.",
   },
 
   tasks: [
@@ -25,6 +25,56 @@ export default defineDomain({
 
   lessons: [
     {
+      id: "d3-start-queues",
+      level: "beginner",
+      task: "3.1",
+      title: "Queues: a line for work",
+      check: ["sd-b3-01", "sd-b3-02"],
+      visual: (
+        <Flow
+          color="#f472b6"
+          steps={[
+            { icon: "🧾", label: "Order taken", sub: "The waiter writes a ticket and moves on" },
+            { icon: "📌", label: "Ticket rail", sub: "Tickets wait in line, in order" },
+            { icon: "👩‍🍳", label: "Cooks", sub: "Each cook takes the next ticket when ready" },
+            { icon: "🍽️", label: "Done", sub: "The ticket comes off the rail" },
+          ]}
+        />
+      ),
+      points: [
+        "A **queue** is a waiting line for work. One part of a system drops a job in, and another part picks it up later.",
+        "Picture a restaurant ticket rail. The waiter pins an order and goes back to the tables. The cooks take tickets when they're free.",
+        "The waiter never waits for the food, and a sudden rush just makes the rail longer. Nothing gets lost.",
+        "In software, the part adding jobs is the **producer** and the part doing them is the **consumer**. You can add more consumers when the line gets long.",
+      ],
+      tip: "Reach for a queue whenever work is slow and the user doesn't need the result right away, like sending an email or resizing a photo.",
+    },
+    {
+      id: "d3-start-retries",
+      level: "beginner",
+      task: "3.3",
+      title: "Trying again safely",
+      check: ["sd-b3-03", "sd-b3-04"],
+      visual: (
+        <Tiles
+          cols={2}
+          tiles={[
+            { icon: "💡", title: "Safe to repeat", text: "Pressing a light switch to \"on\" twice still leaves the light on. Doing it again changes nothing.", color: "#2dd4bf" },
+            { icon: "💳", title: "Not safe to repeat", text: "Pressing \"pay £10\" twice could charge you £20. Repeating it changes the result.", color: "#f472b6" },
+            { icon: "🔁", title: "Retry", text: "When a request times out, the client sends it again. That's only safe if repeating it does no harm.", color: "#60a5fa" },
+            { icon: "🚦", title: "Rate limit", text: "A cap on how many requests one user can send, like a turnstile that lets one person through at a time.", color: "#fbbf24" },
+          ]}
+        />
+      ),
+      points: [
+        "Networks drop messages. When a request times out, you often can't tell whether it worked, so apps try again. That's a **retry**.",
+        "An action is **idempotent** if doing it twice gives the same result as doing it once. Setting your name to \"Sam\" twice is fine. Adding £10 twice is not.",
+        "To make risky actions safe, the client sends a unique ticket number with the request. If the server has seen that number before, it doesn't do the work again.",
+        "A **rate limit** caps how many requests each user can send in a period, so one busy client can't crowd everyone else out.",
+      ],
+      tip: "Whenever you say \"we'll retry\" in a design, add why repeating it is safe.",
+    },
+    {
       id: "d3-queues",
       level: "intermediate",
       task: "3.1",
@@ -35,27 +85,27 @@ export default defineDomain({
           <Flow
             color="#f472b6"
             steps={[
-              { icon: "📤", label: "Producer", sub: "Upload API enqueues a job and returns 202" },
-              { icon: "📬", label: "Queue / topic", sub: "Buffers bursts durably" },
-              { icon: "⚙️", label: "Consumers", sub: "Process at their own pace, ack when done" },
+              { icon: "📤", label: "Producer", sub: "The upload API adds a job and returns 202" },
+              { icon: "📬", label: "Queue / topic", sub: "Holds bursts safely on disk" },
+              { icon: "⚙️", label: "Consumers", sub: "Work at their own pace and confirm when done" },
               { icon: "🪦", label: "Dead-letter queue", sub: "Messages that failed too many times" },
             ]}
           />
           <Tiles
             tiles={[
-              { icon: "📬", title: "Work queue (SQS, RabbitMQ)", text: "Each message goes to one consumer and is deleted once acknowledged. Great for background jobs.", color: "#f472b6" },
-              { icon: "📜", title: "Log / stream (Kafka, Kinesis)", text: "Append-only, retained, split into ordered partitions. Many consumer groups each read at their own offset; replayable.", color: "#a78bfa" },
+              { icon: "📬", title: "Work queue (SQS, RabbitMQ)", text: "Each message goes to one consumer and is deleted once it's confirmed. Great for background jobs.", color: "#f472b6" },
+              { icon: "📜", title: "Log or stream (Kafka, Kinesis)", text: "An append-only record that's kept and split into ordered partitions. Many consumer groups each read at their own position, and you can replay it.", color: "#a78bfa" },
             ]}
           />
         </div>
       ),
       points: [
-        "Queues decouple producers from consumers: absorb bursts, retry failures, and let each side scale and fail independently.",
-        "Most brokers give at-least-once delivery: a message can arrive twice, so consumers must be idempotent.",
-        "Kafka orders messages only within a partition. Use a message key (e.g. order_id) so related events land in the same partition.",
-        "Parallelism within one consumer group is capped by the partition count. Watch consumer lag and apply backpressure when it grows.",
+        "Queues separate producers from consumers. They soak up bursts, retry failures, and let each side grow or fail on its own.",
+        "Most brokers deliver **at least once**: a message can arrive twice. So consumers must be idempotent, meaning a repeat does no harm.",
+        "Kafka keeps messages in order only inside one partition. Give related events the same key, such as order_id, so they land in the same partition.",
+        "Within one consumer group, you can't have more busy consumers than partitions. Watch how far behind consumers are, and push back on producers when the gap grows.",
       ],
-      tip: "When you add a queue, say what happens on failure: retries with backoff, a visibility timeout or ack deadline longer than processing time, and a DLQ.",
+      tip: "When you add a queue, say what happens on failure: retries with backoff, a visibility timeout longer than the work takes, and a dead-letter queue.",
     },
     {
       id: "d3-cap",
@@ -69,20 +119,20 @@ export default defineDomain({
           <Tiles
             cols={3}
             tiles={[
-              { icon: "🔒", title: "Strong / linearizable", text: "Every read sees the latest write, as if there were one copy.", color: "#60a5fa" },
-              { icon: "🪞", title: "Read-your-writes", text: "You always see your own writes; others may lag.", color: "#2dd4bf" },
-              { icon: "🌊", title: "Eventual", text: "If writes stop, replicas converge. Reads may be stale meanwhile.", color: "#f472b6" },
+              { icon: "🔒", title: "Strong (linearizable)", text: "Every read sees the latest write, as if there were only one copy.", color: "#60a5fa" },
+              { icon: "🪞", title: "Read-your-writes", text: "You always see your own changes. Other people may see them a bit later.", color: "#2dd4bf" },
+              { icon: "🌊", title: "Eventual", text: "Once writes stop, all copies end up the same. Until then, reads may be stale.", color: "#f472b6" },
             ]}
           />
         </div>
       ),
       points: [
-        "CAP: when a network partition happens, a replicated system must choose between consistency (refuse or block) and availability (answer, possibly stale).",
-        "Partitions are not optional in real networks, so the real choice is CP vs AP behaviour during one.",
-        "PACELC adds: Else (no partition), choose Latency or Consistency. Waiting for more replicas is slower but more consistent.",
-        "Consensus protocols (Raft, Paxos) need a majority, which is why clusters have odd sizes: 3 tolerate 1 failure, 5 tolerate 2.",
+        "**CAP**: when the network splits the copies apart, a system must choose. It can stay consistent by refusing to answer, or stay available by answering with possibly stale data.",
+        "Network splits do happen in real networks, so the real question is how you behave during one: consistent or available.",
+        "**PACELC** adds the everyday case. Else, when there's no split, you still choose between low latency and consistency. Waiting for more copies to agree is slower but safer.",
+        "**Consensus** protocols like Raft and Paxos need a majority to agree. That's why clusters have odd sizes: 3 nodes survive 1 failure, and 5 survive 2.",
       ],
-      tip: "Pick consistency per feature, not per system: \"balances are CP, like counts are AP\" shows judgement.",
+      tip: "Choose consistency feature by feature. \"Balances must be consistent, like counts can be slightly stale\" shows good judgement.",
     },
     {
       id: "d3-idempotency",
@@ -94,7 +144,7 @@ export default defineDomain({
         <div className="grid gap-3">
           <CodeBlock
             lang="text"
-            caption="The client generates one key per logical operation and resends it on every retry."
+            caption="The client makes one key per action and sends the same key on every retry."
             code={`POST /payments
 Idempotency-Key: 6f1c2e8a-91b4-4c1e-9d0a-2b7f3c5e8d11
 { "amount": 4200, "currency": "EUR" }
@@ -104,7 +154,7 @@ Idempotency-Key: 6f1c2e8a-91b4-4c1e-9d0a-2b7f3c5e8d11
           />
           <CodeCompare
             lang="text"
-            left={{ title: "Dual write: can diverge", code: `db.commit(order)
+            left={{ title: "Dual write: the two can disagree", code: `db.commit(order)
 broker.publish(OrderPlaced)  // crash here →
                              // event lost` }}
             right={{ title: "Transactional outbox", code: `BEGIN
@@ -116,12 +166,12 @@ relay: outbox → broker (at-least-once)` }}
         </div>
       ),
       points: [
-        "An operation is idempotent if doing it twice has the same effect as doing it once. GET, PUT and DELETE are idempotent by HTTP's definition; POST is not.",
-        "Idempotency keys make non-idempotent operations safe to retry: check and record the key atomically before doing the work.",
-        "Writing to a database and a broker separately (dual write) can leave them inconsistent. The outbox pattern writes the event in the same transaction and relays it later.",
-        "\"Exactly-once\" in practice means at-least-once delivery plus idempotent (deduplicating) processing.",
+        "An operation is **idempotent** if doing it twice has the same effect as doing it once. In HTTP, GET, PUT and DELETE are idempotent. POST isn't.",
+        "An **idempotency key** makes a risky action safe to retry. The server checks and records the key in one atomic step before doing the work.",
+        "Writing to a database and then to a message broker separately is a **dual write**, and a crash in between leaves them disagreeing. The **outbox pattern** saves the event in the same transaction and sends it later.",
+        "When people say \"exactly once\", in practice they mean at-least-once delivery plus processing that ignores duplicates.",
       ],
-      tip: "Whenever you say \"retry\", say \"and it's safe because…\". Retries without idempotency are how people get charged twice.",
+      tip: "Whenever you say \"retry\", finish the sentence with \"and that's safe because…\". Retries without idempotency are how people get charged twice.",
     },
     {
       id: "d3-rate-limit",
@@ -134,37 +184,92 @@ relay: outbox → broker (at-least-once)` }}
           <TokenBucketLab />
           <CodeBlock
             lang="text"
-            caption="Tell clients when to come back."
+            caption="Tell clients when they can come back."
             code={`HTTP/1.1 429 Too Many Requests
 Retry-After: 30`}
           />
         </div>
       ),
       points: [
-        "Rate limits protect services from overload and abuse and enforce fair use per user, API key or IP.",
-        "Token bucket: capacity sets the allowed burst, refill rate sets the sustained rate. Leaky bucket smooths output to a constant rate.",
-        "Fixed windows are cheap but allow double bursts at window edges; sliding windows (log or weighted counters) are smoother.",
-        "In a distributed limiter the counter must be shared and updated atomically, e.g. Redis INCR or a Lua script.",
+        "Rate limits protect services from overload and abuse, and keep usage fair for each user, API key or IP address.",
+        "A **token bucket** has a capacity, which sets the biggest burst allowed, and a refill rate, which sets the steady rate. A **leaky bucket** lets requests out at a constant pace.",
+        "Fixed time windows are cheap, but a client can squeeze in two bursts around a window edge. Sliding windows are smoother.",
+        "When many servers share one limit, the counter must live in one shared place and update atomically, for example with Redis INCR or a Lua script.",
       ],
-      tip: "Clarify the key (user, API key, IP), the limit, what happens when exceeded (429 + Retry-After), and whether to fail open or closed if the limiter's store is down.",
+      tip: "Pin down the details: what you limit by (user, API key or IP), the limit itself, what happens when it's hit (429 with Retry-After), and what happens if the limiter's store is down.",
     },
   ],
 
   questions: [
+    // ───────────── beginner ─────────────
+    {
+      id: "sd-b3-01",
+      domain: "d3",
+      lesson: "d3-start-queues",
+      level: "beginner",
+      prompt: "A photo app resizes every upload, which takes a few seconds. Why put the resize jobs in a queue?",
+      options: [
+        "The app can say \"got it\" straight away, and workers resize photos when they're free",
+        "A queue makes each resize take less time",
+        "A queue deletes photos nobody looks at",
+        "A queue stops people uploading photos",
+      ],
+      answer: [0],
+      explanation: "The queue is like a restaurant's ticket rail: the upload is pinned up and the user can carry on. Workers pick jobs off the line at their own pace, so a rush just makes the line longer for a while.",
+    },
+    {
+      id: "sd-b3-02",
+      domain: "d3",
+      lesson: "d3-start-queues",
+      level: "beginner",
+      prompt: "In a queue, what do we call the part that takes jobs off the line and does them?",
+      options: ["The consumer", "The producer", "The database", "The browser"],
+      answer: [0],
+      explanation: "The producer puts jobs in and the consumer takes them out and does the work. If the line keeps growing, you add more consumers.",
+    },
+    {
+      id: "sd-b3-03",
+      domain: "d3",
+      lesson: "d3-start-retries",
+      level: "beginner",
+      prompt: "Which action is safe to repeat, because doing it twice gives the same result as doing it once?",
+      options: [
+        "Set my display name to \"Sam\"",
+        "Add £10 to my balance",
+        "Send a new message to my friend",
+        "Place a new order for a pizza",
+      ],
+      answer: [0],
+      explanation: "Setting your name to \"Sam\" twice still leaves it as \"Sam\". The others each create something new, so repeating them doubles the effect. Actions that are safe to repeat are called idempotent.",
+    },
+    {
+      id: "sd-b3-04",
+      domain: "d3",
+      lesson: "d3-start-retries",
+      level: "beginner",
+      type: "output",
+      prompt: "An API allows each user 100 requests per minute. A user has already sent 60 this minute. Type how many more they can send before hitting the limit (number only).",
+      code: "limit_per_minute = 100\nsent_so_far      = 60\nremaining = limit_per_minute - sent_so_far",
+      codeLang: "python",
+      answers: ["40"],
+      explanation: "100 minus 60 leaves 40 more requests this minute. After that the server replies \"too many requests\" until the next minute starts. Limits like this stop one busy user from slowing things down for everyone.",
+    },
+
+    // ───────────── junior and up ─────────────
     {
       id: "d3-01",
       domain: "d3",
       lesson: "d3-queues",
       level: "junior",
-      prompt: "Users upload videos that take minutes to transcode. Why put a queue between the upload API and the transcoders?",
+      prompt: "Users upload videos that take minutes to convert. Why put a queue between the upload API and the converters?",
       options: [
-        "The API can respond immediately while workers process jobs at their own pace, absorbing bursts and retrying failures",
-        "Queues make transcoding itself faster",
+        "The API can reply immediately while workers process jobs at their own pace, soaking up bursts and retrying failures",
+        "Queues make the conversion itself faster",
         "Queues guarantee each video is processed exactly once with no extra work",
         "It removes the need to store the uploaded file",
       ],
       answer: [0],
-      explanation: "The queue decouples the fast request path from slow work. Workers scale independently and failed jobs can be retried; duplicates are still possible, so jobs should be idempotent.",
+      explanation: "The queue separates the fast request from the slow work. Workers scale on their own and failed jobs can be retried. A job can still run twice, so each job should be safe to repeat.",
     },
     {
       id: "d3-02",
@@ -174,12 +279,12 @@ Retry-After: 30`}
       type: "match",
       prompt: "Match each messaging term to its meaning.",
       pairs: [
-        ["At-most-once", "Never redelivered, so a crash can lose the message"],
-        ["At-least-once", "Redelivered until acknowledged, so duplicates are possible"],
-        ["Effectively-once", "At-least-once delivery plus idempotent processing"],
+        ["At-most-once", "Never sent again, so a crash can lose the message"],
+        ["At-least-once", "Sent again until confirmed, so duplicates are possible"],
+        ["Effectively-once", "At-least-once delivery plus processing that ignores duplicates"],
         ["Dead-letter queue", "Where messages go after failing too many times"],
       ],
-      explanation: "Brokers trade loss against duplication. Most systems choose at-least-once and make consumers idempotent, parking poison messages in a DLQ for inspection.",
+      explanation: "Brokers trade the risk of losing messages against the risk of duplicates. Most systems pick at-least-once and make consumers idempotent, and park messages that keep failing in a dead-letter queue for someone to look at.",
     },
     {
       id: "d3-03",
@@ -187,7 +292,7 @@ Retry-After: 30`}
       lesson: "d3-queues",
       level: "intermediate",
       type: "lines",
-      prompt: "Every transcode job runs several times and many end up in the dead-letter queue. Tap the misconfigured line.",
+      prompt: "Every conversion job runs several times, and many end up in the dead-letter queue. Tap the line that's set wrong.",
       code: `queue: video-transcode
 visibility_timeout_seconds: 30
 max_receive_count: 5
@@ -197,7 +302,7 @@ worker:
   typical_job_seconds: 240`,
       codeLang: "yaml",
       answer: [2],
-      explanation: "A job takes ~4 minutes but becomes visible again after 30 s, so other workers pick it up while it's still running; after 5 receives it's dead-lettered. Make the timeout longer than the processing time (or extend it with heartbeats).",
+      explanation: "A job takes about 4 minutes, but the message becomes visible again after 30 seconds. Other workers pick it up while it's still running, and after 5 pickups it's sent to the dead-letter queue. Make the timeout longer than the work, or extend it while the job runs.",
     },
     {
       id: "d3-04",
@@ -212,44 +317,44 @@ consumers_in_group: 8`,
       codeLang: "yaml",
       options: ["6, and 2 sit idle", "8, sharing partitions evenly", "1, the group leader", "4, because consumers pair up"],
       answer: [0],
-      explanation: "In Kafka each partition is assigned to exactly one consumer in a group, so at most 6 consumers can be busy. To scale further, add partitions.",
+      explanation: "In Kafka, each partition goes to exactly one consumer in a group, so at most 6 consumers can be busy. To go further, add partitions.",
     },
     {
       id: "d3-05",
       domain: "d3",
       lesson: "d3-queues",
       level: "senior",
-      prompt: "OrderCreated, OrderPaid and OrderShipped events for the same order must be processed in order, at high throughput. What do you do with Kafka?",
+      prompt: "OrderCreated, OrderPaid and OrderShipped events for the same order must be handled in order, at high volume. What do you do with Kafka?",
       options: [
-        "Use order_id as the message key so all events of one order go to the same partition",
+        "Use order_id as the message key so all events for one order go to the same partition",
         "Use a single partition for the whole topic",
         "Use a random key so load spreads evenly",
         "Sort events by timestamp in every consumer",
       ],
       answer: [0],
-      explanation: "Kafka guarantees order within a partition, and the key decides the partition. Keying by order_id keeps each order ordered while different orders spread across partitions. One partition would serialise everything.",
+      explanation: "Kafka keeps order within a partition, and the key decides the partition. Keying by order_id keeps each order's events in sequence while different orders spread across partitions. A single partition would force everything through one line.",
     },
     {
       id: "d3-06",
       domain: "d3",
       lesson: "d3-queues",
       level: "senior",
-      prompt: "Consumer lag keeps growing during peaks: producers are faster than consumers. Which two responses are sound? (Choose two.)",
+      prompt: "During peaks, consumers fall further and further behind because producers are faster. Which two responses are sound? (Choose two.)",
       options: [
-        "Scale out consumers, up to the partition count (and add partitions if needed)",
-        "Alert on lag and apply backpressure: slow or shed producers, or degrade non-critical work",
-        "Acknowledge messages before processing them so consumers go faster",
+        "Add consumers, up to the partition count, and add partitions if needed",
+        "Alert on lag and push back: slow down or shed producers, or pause non-essential work",
+        "Confirm messages before processing them so consumers go faster",
         "Delete the oldest messages whenever lag is high",
       ],
       answer: [0, 1],
-      explanation: "Either raise consumer throughput or reduce inflow. Acking early turns failures into silent data loss, and deleting messages loses work.",
+      explanation: "Either speed up the consumers or slow down what's coming in. Confirming early turns every failure into silently lost data, and deleting messages throws work away.",
     },
     {
       id: "d3-07",
       domain: "d3",
       lesson: "d3-cap",
       level: "junior",
-      prompt: "According to the CAP theorem, what must a replicated system choose between when a network partition happens?",
+      prompt: "According to the CAP theorem, what must a replicated system choose between when the network splits?",
       options: [
         "Consistency and availability",
         "Consistency and partition tolerance, while availability is always kept",
@@ -257,7 +362,7 @@ consumers_in_group: 8`,
         "SQL and NoSQL",
       ],
       answer: [0],
-      explanation: "During a partition a node can either refuse requests it can't serve consistently (CP) or answer with possibly stale data (AP). Without a partition, both are achievable.",
+      explanation: "During a split, a node can refuse requests it can't answer correctly, which keeps it consistent. Or it can answer with possibly stale data, which keeps it available. When the network is healthy, you can have both.",
     },
     {
       id: "d3-08",
@@ -272,7 +377,7 @@ consumers_in_group: 8`,
         "Consensus is impossible in asynchronous networks",
       ],
       answer: [0],
-      explanation: "If Partition: Availability vs Consistency; Else: Latency vs Consistency. Waiting for more replicas to confirm makes every request slower, even on a healthy day.",
+      explanation: "If there's a partition, choose availability or consistency. Else, choose latency or consistency. Waiting for more copies to confirm makes every request slower, even on a good day.",
     },
     {
       id: "d3-09",
@@ -282,19 +387,19 @@ consumers_in_group: 8`,
       type: "match",
       prompt: "Match each consistency model to its promise.",
       pairs: [
-        ["Linearizable", "Every read returns the most recent completed write, as if there were one copy"],
+        ["Linearizable", "Every read returns the latest finished write, as if there were one copy"],
         ["Read-your-writes", "A user always sees their own earlier writes"],
         ["Monotonic reads", "A user never sees data go back in time between reads"],
-        ["Eventual", "Replicas converge once writes stop; reads may be stale meanwhile"],
+        ["Eventual", "Copies end up the same once writes stop; reads may be stale until then"],
       ],
-      explanation: "These sit on a spectrum from strongest (linearizable) to weakest (eventual). The session guarantees in the middle often give users what they need at lower cost.",
+      explanation: "These run from strongest, linearizable, to weakest, eventual. The ones in the middle are promises about one user's session, and they often give people what they need for less cost.",
     },
     {
       id: "d3-10",
       domain: "d3",
       lesson: "d3-cap",
       level: "junior",
-      prompt: "Which two features should favour consistency over availability during a partition? (Choose two.)",
+      prompt: "Which two features should choose consistency over availability during a network split? (Choose two.)",
       options: [
         "Transferring money between accounts",
         "Booking the last seat on a flight",
@@ -302,22 +407,22 @@ consumers_in_group: 8`,
         "Showing who is online",
       ],
       answer: [0, 1],
-      explanation: "A wrong answer for balances or the last seat (double spend, double booking) is worse than a brief error. Like counts and presence can be a little stale.",
+      explanation: "A wrong answer about a balance or the last seat means money spent twice or a seat sold twice, which is worse than a short error. Like counts and online status can be a little out of date.",
     },
     {
       id: "d3-11",
       domain: "d3",
       lesson: "d3-cap",
       level: "staff",
-      prompt: "Someone proposes a 4-node Raft cluster \"for extra safety\" instead of 3. What is the best response?",
+      prompt: "Someone proposes a 4-node Raft cluster \"for extra safety\" instead of 3. What's the best response?",
       options: [
-        "It needs a majority of 3, so it still tolerates only 1 failure, like a 3-node cluster, while adding cost and write latency; use 3 or 5",
-        "4 nodes tolerate 2 failures, so it's strictly better",
+        "It needs a majority of 3, so it still survives only 1 failure, just like 3 nodes, while adding cost and write latency; use 3 or 5",
+        "4 nodes survive 2 failures, so it's strictly better",
         "Raft requires an even number of nodes",
-        "Any cluster size tolerates the same failures, so it doesn't matter",
+        "Any cluster size survives the same failures, so it doesn't matter",
       ],
       answer: [0],
-      explanation: "Majority of 4 is 3, so 1 failure is tolerated, the same as 3 nodes (majority 2). 5 nodes (majority 3) tolerate 2. Even sizes add cost without adding fault tolerance.",
+      explanation: "A majority of 4 is 3, so losing 1 node is fine and losing 2 is not. That's the same as 3 nodes, whose majority is 2. Five nodes, with a majority of 3, survive 2 failures. Even sizes add cost without adding safety.",
     },
     {
       id: "d3-12",
@@ -326,13 +431,13 @@ consumers_in_group: 8`,
       level: "intermediate",
       prompt: "How does an idempotency key make `POST /payments` safe to retry?",
       options: [
-        "The client sends a unique key per operation; the server records the key with the result and returns the stored result for any repeat",
+        "The client sends a unique key per action; the server records the key with the result and returns the stored result for any repeat",
         "The server encrypts the request with the key",
-        "The load balancer routes requests with the same key to the same server, which ignores duplicates in memory",
+        "The load balancer sends requests with the same key to the same server, which ignores duplicates in memory",
         "The key sets the HTTP cache TTL for the response",
       ],
       answer: [0],
-      explanation: "The server must persist key → outcome (with a uniqueness constraint) before or atomically with the side effect, so a retry after a timeout returns the first result instead of charging again.",
+      explanation: "The server must save the key and its outcome, protected by a uniqueness rule, before or together with the charge. Then a retry after a timeout gets the first result back instead of paying again.",
     },
     {
       id: "d3-13",
@@ -340,7 +445,7 @@ consumers_in_group: 8`,
       lesson: "d3-idempotency",
       level: "senior",
       type: "lines",
-      prompt: "Clients retry after timeouts, and some customers are charged twice. Tap the line that is in the wrong place.",
+      prompt: "Clients retry after timeouts, and some customers are charged twice. Tap the line that's in the wrong place.",
       code: `function pay(req):
   key = req.header("Idempotency-Key")
   charge = gateway.charge(req.card, req.amount)
@@ -350,7 +455,7 @@ consumers_in_group: 8`,
   return charge`,
       codeLang: "text",
       answer: [3],
-      explanation: "The card is charged before the key is checked, so every retry charges again. Reserve the key first (an insert that fails on duplicates), then charge, then store the result under the key.",
+      explanation: "The card is charged before the key is checked, so every retry charges again. Reserve the key first, with an insert that fails on duplicates. Then charge, then save the result under the key.",
     },
     {
       id: "d3-14",
@@ -360,14 +465,14 @@ consumers_in_group: 8`,
       prompt: "Which two HTTP methods are idempotent by definition? (Choose two.)",
       options: ["PUT", "DELETE", "POST", "PATCH"],
       answer: [0, 1],
-      explanation: "PUT replaces a resource with the same representation every time, and deleting twice leaves it deleted. POST creates or triggers something each call; PATCH isn't guaranteed idempotent (e.g. \"increment by 1\").",
+      explanation: "PUT replaces a resource with the same thing each time, and deleting something twice still leaves it deleted. POST creates or triggers something on every call. PATCH isn't guaranteed to be idempotent: \"add 1\" twice adds 2.",
     },
     {
       id: "d3-15",
       domain: "d3",
       lesson: "d3-idempotency",
       level: "senior",
-      prompt: "A service commits an order to its database and then publishes OrderPlaced to Kafka. Occasionally the process dies in between and downstream services never hear about the order. What is the standard fix?",
+      prompt: "A service saves an order to its database and then publishes OrderPlaced to Kafka. Sometimes the process dies in between, and other services never hear about the order. What's the standard fix?",
       options: [
         "Transactional outbox: insert the event into an outbox table in the same transaction and have a relay publish it",
         "Publish to Kafka first, then commit the order",
@@ -375,7 +480,7 @@ consumers_in_group: 8`,
         "Use a distributed lock around both writes",
       ],
       answer: [0],
-      explanation: "Two separate writes can't be atomic. The outbox makes the event part of the database transaction; the relay publishes at least once and consumers deduplicate by event id. Publishing first just flips the failure.",
+      explanation: "Two separate writes can't be made atomic. The outbox puts the event inside the database transaction. A relay then publishes it at least once, and consumers skip duplicates by event id. Publishing first just swaps which side goes missing.",
     },
     {
       id: "d3-16",
@@ -383,15 +488,15 @@ consumers_in_group: 8`,
       lesson: "d3-idempotency",
       level: "staff",
       type: "order",
-      prompt: "Order the steps of the transactional outbox pattern.",
+      prompt: "Put the steps of the transactional outbox pattern in order.",
       items: [
         "Begin a database transaction",
         "Insert the order row and an outbox row describing the event",
         "Commit the transaction",
         "A relay reads unpublished outbox rows and publishes them to the broker",
-        "Mark the outbox rows as published; consumers deduplicate by event id",
+        "Mark the outbox rows as published; consumers skip duplicates by event id",
       ],
-      explanation: "The business change and the event commit atomically. Publishing happens afterwards (by polling or change data capture) and may repeat, so consumers must be idempotent.",
+      explanation: "The business change and the event are saved together, atomically. Publishing happens afterwards, by polling or by reading the database's change log, and may happen more than once, so consumers must be idempotent.",
     },
     {
       id: "d3-17",
@@ -400,20 +505,20 @@ consumers_in_group: 8`,
       level: "staff",
       prompt: "A vendor's broker advertises \"exactly-once delivery\". Your consumer sends emails. What should your design still include?",
       options: [
-        "An idempotent consumer that records processed message ids, because the email side effect is outside the broker's transaction and can repeat after a crash",
+        "An idempotent consumer that records processed message ids, because sending the email happens outside the broker's transaction and can repeat after a crash",
         "Nothing extra: the broker guarantees it",
         "A second broker for redundancy",
         "Disabling retries in the consumer",
       ],
       answer: [0],
-      explanation: "Broker exactly-once features cover reads and writes within the broker. If the consumer crashes after sending the email but before committing its offset, the message is processed again. Dedup on a message id.",
+      explanation: "A broker's exactly-once feature only covers reads and writes inside the broker. If the consumer crashes after sending the email but before saving its position, it handles the message again. Track message ids and skip repeats.",
     },
     {
       id: "d3-18",
       domain: "d3",
       lesson: "d3-rate-limit",
       level: "junior",
-      prompt: "What should an API return when a client exceeds its rate limit?",
+      prompt: "What should an API return when a client goes over its rate limit?",
       options: [
         "`429 Too Many Requests`, ideally with a `Retry-After` header",
         "`500 Internal Server Error`",
@@ -421,7 +526,7 @@ consumers_in_group: 8`,
         "`200 OK` with an empty body",
       ],
       answer: [0],
-      explanation: "429 tells the client it's being limited (not that the server broke), and Retry-After tells it when to try again.",
+      explanation: "429 tells the client it's being limited, not that the server broke. Retry-After tells it when to try again.",
     },
     {
       id: "d3-19",
@@ -435,17 +540,17 @@ t = 1.0 s    8 requests arrive at once`,
       codeLang: "text",
       options: ["3", "5", "8", "13"],
       answer: [2],
-      explanation: "At t = 0 the 10 tokens allow 10 and reject 5, leaving 0. One second later 5 tokens have refilled: 5 allowed, 3 rejected. 5 + 3 = 8 rejected.",
+      explanation: "At the start, the 10 tokens let 10 requests through and 5 are rejected, leaving the bucket empty. One second later 5 tokens have refilled, so 5 get through and 3 are rejected. That's 8 rejected in total.",
     },
     {
       id: "d3-20",
       domain: "d3",
       lesson: "d3-rate-limit",
       level: "intermediate",
-      prompt: "A limiter allows 100 requests per calendar minute (fixed windows). What is the most a client can send in a two-second span?",
+      prompt: "A limiter allows 100 requests per calendar minute, using fixed windows. What's the most a client can send in a two-second span?",
       options: ["100", "200", "50", "Unlimited"],
       answer: [1],
-      explanation: "100 in the last second of one window plus 100 in the first second of the next. Sliding windows or a token bucket avoid this edge burst.",
+      explanation: "The client can send 100 in the last second of one minute and another 100 in the first second of the next. Sliding windows or a token bucket stop this burst at the edge.",
     },
     {
       id: "d3-21",
@@ -453,7 +558,7 @@ t = 1.0 s    8 requests arrive at once`,
       lesson: "d3-rate-limit",
       level: "senior",
       type: "lines",
-      prompt: "Under concurrent requests, users get well over 100 requests a minute. Tap the two lines that together cause the race.",
+      prompt: "With many requests at once, users get well over 100 requests a minute. Tap the two lines that together cause the race.",
       code: `function allow(userId):
   key = "rl:" + userId + ":" + currentMinute()
   count = redis.get(key) or 0
@@ -463,22 +568,22 @@ t = 1.0 s    8 requests arrive at once`,
   return true`,
       codeLang: "text",
       answer: [3, 6],
-      explanation: "Read-then-write is not atomic: many requests read the same count and all write count + 1. Use an atomic `INCR` (then `EXPIRE` on the first increment) or a Lua script, and compare the returned value.",
+      explanation: "Reading and then writing isn't atomic. Many requests read the same count, and each writes that count plus one. Use an atomic `INCR`, setting `EXPIRE` on the first increment, or a Lua script, and check the value it returns.",
     },
     {
       id: "d3-22",
       domain: "d3",
       lesson: "d3-rate-limit",
       level: "staff",
-      prompt: "An API gateway runs on 20 nodes and must enforce 1,000 requests/minute per API key accurately, adding little latency. Which design fits best?",
+      prompt: "An API gateway runs on 20 nodes and must enforce 1,000 requests a minute per API key accurately, without adding much latency. Which design fits best?",
       options: [
-        "A shared counter store (e.g. a Redis cluster sharded by key) updated atomically per request, with a defined fail-open or fail-closed fallback if it's unreachable",
-        "Each node enforces 1,000/minute on its own",
-        "Each node enforces 50/minute on its own, regardless of how traffic is spread",
+        "A shared counter store, such as a Redis cluster sharded by key, updated atomically per request, with a clear rule for allowing or blocking traffic if it's unreachable",
+        "Each node enforces 1,000 a minute on its own",
+        "Each node enforces 50 a minute on its own, however traffic is spread",
         "Log every request and count them in a nightly batch job",
       ],
       answer: [0],
-      explanation: "Per-node limits are wrong when traffic isn't evenly spread (20 × 1,000, or far too strict). A central atomic counter is accurate at a cost of ~1 ms; deciding the fallback behaviour is part of the design.",
+      explanation: "Limits per node go wrong when traffic isn't spread evenly: a client could get 20 times 1,000, or be blocked far too early. One shared atomic counter is accurate and costs about a millisecond. Deciding what happens when it's down is part of the design.",
     },
     {
       id: "d3-23",
@@ -486,30 +591,30 @@ t = 1.0 s    8 requests arrive at once`,
       lesson: "d3-rate-limit",
       level: "intermediate",
       type: "match",
-      prompt: "Match each rate-limiting algorithm to its defining behaviour.",
+      prompt: "Match each rate-limiting method to how it behaves.",
       pairs: [
-        ["Token bucket", "Allows bursts up to its capacity, refills at a steady rate"],
-        ["Leaky bucket", "Queues requests and releases them at a constant rate"],
-        ["Fixed window counter", "Cheap counter per period, but bursts at window edges"],
+        ["Token bucket", "Allows bursts up to its capacity and refills at a steady rate"],
+        ["Leaky bucket", "Queues requests and lets them out at a constant rate"],
+        ["Fixed window counter", "A cheap counter per period, but bursts slip through at window edges"],
         ["Sliding window log", "Exact, but stores a timestamp for every request"],
       ],
-      explanation: "Token bucket is the common default for APIs. Leaky bucket smooths traffic, fixed windows are simplest, and sliding logs are most accurate but memory-hungry.",
+      explanation: "The token bucket is the usual default for APIs. The leaky bucket smooths traffic, fixed windows are the simplest, and sliding logs are the most accurate but use the most memory.",
     },
   ],
 
   cards: [
-    { id: "c-d3-kafka", domain: "d3", kind: "service", term: "Kafka", definition: "Distributed append-only log split into ordered partitions; consumer groups read at their own offsets; retained and replayable." },
-    { id: "c-d3-sqs", domain: "d3", kind: "service", term: "SQS-style work queue", definition: "Each message goes to one consumer; it's hidden for a visibility timeout and redelivered unless deleted (acked)." },
-    { id: "c-d3-dlq", domain: "d3", kind: "service", term: "Dead-letter queue", definition: "Holds messages that failed processing too many times, so poison messages don't block or loop forever." },
-    { id: "c-d3-consumer-group", domain: "d3", kind: "concept", term: "Consumer group", definition: "Consumers sharing a subscription; each partition goes to one member, so parallelism ≤ partition count." },
-    { id: "c-d3-alo", domain: "d3", kind: "concept", term: "At-least-once delivery", definition: "Messages are redelivered until acknowledged; duplicates happen, so processing must be idempotent." },
-    { id: "c-d3-backpressure", domain: "d3", kind: "concept", term: "Backpressure", definition: "Signalling upstream to slow down (bounded queues, rejects, throttling) when downstream can't keep up." },
-    { id: "c-d3-cap", domain: "d3", kind: "concept", term: "CAP theorem", definition: "During a network partition, a replicated system must give up either consistency or availability." },
-    { id: "c-d3-pacelc", domain: "d3", kind: "concept", term: "PACELC", definition: "If Partition: Availability vs Consistency; Else: Latency vs Consistency." },
-    { id: "c-d3-raft", domain: "d3", kind: "service", term: "Raft", definition: "Consensus protocol: an elected leader replicates a log; entries commit once a majority stores them. 2f + 1 nodes tolerate f failures." },
-    { id: "c-d3-idem-key", domain: "d3", kind: "service", term: "Idempotency key", definition: "Client-chosen unique id per operation; the server stores key → result and replays it for retries." },
-    { id: "c-d3-outbox", domain: "d3", kind: "service", term: "Transactional outbox", definition: "Write the event to an outbox table in the same DB transaction; a relay publishes it. Fixes the dual-write problem." },
-    { id: "c-d3-token-bucket", domain: "d3", kind: "service", term: "Token bucket", definition: "Each request spends a token; tokens refill at a fixed rate up to a capacity. Capacity = burst, refill = sustained rate." },
+    { id: "c-d3-kafka", domain: "d3", kind: "service", term: "Kafka", definition: "A distributed append-only log split into ordered partitions. Consumer groups each read at their own position, and the data is kept so you can replay it." },
+    { id: "c-d3-sqs", domain: "d3", kind: "service", term: "SQS-style work queue", definition: "Each message goes to one consumer. It's hidden for a visibility timeout and delivered again unless the consumer deletes it to confirm." },
+    { id: "c-d3-dlq", domain: "d3", kind: "service", term: "Dead-letter queue", definition: "Holds messages that failed too many times, so a bad message doesn't block the queue or loop forever." },
+    { id: "c-d3-consumer-group", domain: "d3", kind: "concept", term: "Consumer group", definition: "Consumers sharing one subscription. Each partition goes to one member, so you can't have more busy consumers than partitions." },
+    { id: "c-d3-alo", domain: "d3", kind: "concept", term: "At-least-once delivery", definition: "Messages are sent again until confirmed. Duplicates happen, so processing must be safe to repeat." },
+    { id: "c-d3-backpressure", domain: "d3", kind: "concept", term: "Backpressure", definition: "Telling the sender to slow down, with bounded queues, rejections or throttling, when the receiver can't keep up." },
+    { id: "c-d3-cap", domain: "d3", kind: "concept", term: "CAP theorem", definition: "When the network splits, a replicated system must give up either consistency or availability." },
+    { id: "c-d3-pacelc", domain: "d3", kind: "concept", term: "PACELC", definition: "If there's a partition, choose availability or consistency. Else, choose latency or consistency." },
+    { id: "c-d3-raft", domain: "d3", kind: "service", term: "Raft", definition: "A consensus protocol. An elected leader copies a log to the others, and an entry counts once a majority has it. 2f + 1 nodes survive f failures." },
+    { id: "c-d3-idem-key", domain: "d3", kind: "service", term: "Idempotency key", definition: "A unique id the client picks for each action. The server saves the key with the result and returns that same result for retries." },
+    { id: "c-d3-outbox", domain: "d3", kind: "service", term: "Transactional outbox", definition: "Save the event to an outbox table in the same database transaction, and let a relay publish it. This solves the dual-write problem." },
+    { id: "c-d3-token-bucket", domain: "d3", kind: "service", term: "Token bucket", definition: "Each request spends a token, and tokens refill at a fixed rate up to a capacity. The capacity sets the burst size and the refill sets the steady rate." },
   ],
 
   challenges: [
@@ -518,9 +623,9 @@ t = 1.0 s    8 requests arrive at once`,
       domain: "d3",
       lesson: "d3-rate-limit",
       title: "Burst once, not twice",
-      goal: "Configure the bucket so a burst of 10 passes completely, then fire a second burst of 10 immediately and have at least 7 of them rejected.",
-      hint: "The burst you allow is the capacity. What's left after the first burst is capacity − 10.",
-      takeaway: "Capacity controls burst size and refill controls sustained throughput: size them separately.",
+      goal: "Set up the bucket so a burst of 10 gets through completely. Then fire a second burst of 10 straight away and have at least 7 of them rejected.",
+      hint: "The burst you allow is the capacity. What's left after the first burst is the capacity minus 10.",
+      takeaway: "Capacity controls the burst size and refill controls the steady throughput, so size them separately.",
       render: (onSolved) => <TokenBucketLab goal="burst" onSolved={onSolved} />,
     },
   ],

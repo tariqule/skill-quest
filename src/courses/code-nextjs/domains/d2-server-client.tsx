@@ -12,7 +12,7 @@ export default defineDomain({
     weight: 25,
     emoji: "🌉",
     color: "#a78bfa",
-    summary: "Server by default, \"use client\" for interactivity, composing the two with children, serializable props, and keeping secrets on the server.",
+    summary: "Where your code runs: on the server by default, in the browser with \"use client\", how to mix the two, and how to keep secrets away from visitors.",
   },
 
   tasks: [
@@ -35,6 +35,56 @@ export default defineDomain({
 
   lessons: [
     {
+      id: "d2-b-where",
+      level: "beginner",
+      task: "2.1",
+      title: "Two places your code can run",
+      check: ["next-b2-01", "next-b2-02"],
+      visual: (
+        <Tiles
+          tiles={[
+            { icon: "🍳", title: "Server (the kitchen)", text: "Prepares the page. It can read databases and keep secrets, because visitors never see its code.", color: "#34d399" },
+            { icon: "🍽️", title: "Browser (the table)", text: "Shows the page and reacts to clicks and typing.", color: "#61dafb" },
+          ]}
+        />
+      ),
+      points: [
+        "Your code can run in two places. The **server** is the computer that hosts your site. The **browser** is the app your visitor uses, like Chrome or Safari.",
+        "Think of a restaurant. The kitchen is the server: the food is prepared there and the storeroom keys stay there. The table is the browser, where the guest eats and asks for things.",
+        "In Next.js, components run on the server unless you say otherwise. These are called **Server Components**.",
+        "Server Components can read a database or use a secret key safely, because their code is never sent to the visitor.",
+      ],
+      tip: "Not sure where something should run? Ask whether it needs clicks, typing or the browser window. If it doesn't, it can stay on the server.",
+    },
+    {
+      id: "d2-b-client",
+      level: "beginner",
+      task: "2.2",
+      title: "Making things clickable with \"use client\"",
+      check: ["next-b2-03", "next-b2-04"],
+      visual: (
+        <CodeBlock
+          lang="tsx"
+          caption="The first line turns this file into a Client Component, so the button can count clicks."
+          code={`"use client";
+
+import { useState } from "react";
+
+export default function LikeButton() {
+  const [likes, setLikes] = useState(0);
+  return <button onClick={() => setLikes(likes + 1)}>👍 {likes}</button>;
+}`}
+        />
+      ),
+      points: [
+        "Anything interactive, like a button that counts clicks, needs code running in the browser. That's a **Client Component**.",
+        "You make one by writing `\"use client\"` as the very first line of the file.",
+        "You need it for state (`useState`), event handlers like `onClick`, and browser features like `window`.",
+        "Keep these components small. A page can stay on the server and include just one small clickable button from a client file.",
+      ],
+      tip: "If you see an error saying a hook only works in a Client Component, you've probably forgotten `\"use client\"` at the top of the file.",
+    },
+    {
       id: "d2-default-server",
       level: "junior",
       task: "2.1",
@@ -56,11 +106,11 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "Pages and layouts are Server Components unless a file says `\"use client\"`.",
-        "Use Client Components for state, event handlers, effects, browser APIs, and custom hooks that use them.",
-        "Use Server Components to fetch data near the source, keep secrets off the client, and ship less JavaScript.",
+        "Pages and layouts are **Server Components** unless the file starts with `\"use client\"`. They run on the server and send the finished result to the browser.",
+        "Use **Client Components** for state, event handlers, effects, browser features like `window`, and custom hooks that rely on any of those.",
+        "Use Server Components to fetch data close to where it lives, keep secrets away from the browser, and send less JavaScript to visitors.",
       ],
-      tip: "A crisp answer: \"Server Components render once on the server and send results, not code. Client Components are the interactive islands, still prerendered to HTML, then hydrated.\"",
+      tip: "A clear answer: \"Server Components render on the server and send results, not code. Client Components are the interactive bits. They're still turned into HTML first, then made interactive in the browser.\"",
     },
     {
       id: "d2-use-client",
@@ -93,11 +143,11 @@ export default Carousel`}
         </div>
       ),
       points: [
-        "`\"use client\"` declares the entry to the client module graph: its imports and directly rendered components become client code.",
-        "You only need it on files rendered directly by Server Components, not on every client file.",
-        "Push the directive down to small interactive leaves to keep bundles small.",
+        "`\"use client\"` marks the point where code starts going to the browser. Everything that file imports, and every component it renders directly, becomes client code too.",
+        "So you only need it on files that a Server Component renders directly, not on every client file.",
+        "Put the directive on small interactive pieces near the bottom of the tree, like a single button. That keeps the JavaScript sent to the browser small.",
       ],
-      tip: "Say \"boundary\" out loud. Interviewers want to hear that the directive marks where the server tree hands off to the client graph.",
+      tip: "Use the word \"boundary\" out loud. Interviewers want to hear that the directive marks where the server part of the tree hands over to the browser part.",
     },
     {
       id: "d2-interleave",
@@ -138,11 +188,11 @@ export default function Page() {
         </div>
       ),
       points: [
-        "Server Components passed as `children` or other props render on the server; the Client Component gets their output.",
-        "Props crossing into a Client Component must be serializable by React.",
-        "You can pass an un-awaited promise to a Client Component and unwrap it with React's `use` inside `<Suspense>`.",
+        "A Server Component passed into a Client Component as `children`, or another prop, still renders on the server. The Client Component just receives the result.",
+        "Props going into a Client Component must be **serializable**, which means React can turn them into text to send. Strings, numbers, plain objects and arrays work. Ordinary functions don't.",
+        "You can pass a promise you haven't awaited to a Client Component, and unwrap it there with React's `use` inside `<Suspense>`.",
       ],
-      tip: "If asked \"can a Client Component render a Server Component?\", answer: not by importing it, but yes through `children` or props from a Server parent.",
+      tip: "Asked whether a Client Component can render a Server Component? Not by importing it. But yes, if a Server parent passes it in through `children` or another prop.",
     },
     {
       id: "d2-env",
@@ -176,15 +226,64 @@ export async function getData() {
         />
       ),
       points: [
-        "Only env vars prefixed `NEXT_PUBLIC_` are inlined into the browser bundle; others become empty strings there.",
-        "`import \"server-only\"` turns an accidental client import into a build error.",
-        "Render context providers as deep as possible and wrap only `{children}`, so more of the tree stays static server UI.",
+        "**Environment variables** hold settings like API keys. Only ones starting with `NEXT_PUBLIC_` are copied into browser code. In the browser, the rest are empty strings.",
+        "Adding `import \"server-only\"` to a file means that if client code ever imports it by mistake, the build fails.",
+        "Place context providers as deep in the tree as you can, wrapping only `{children}`. More of the page then stays as server UI.",
       ],
-      tip: "Bring up `server-only` unprompted when discussing data access layers: it shows you think about accidental leaks, not just happy paths.",
+      tip: "Bring up `server-only` without being asked when you talk about data access code. It shows you think about accidental leaks, not just the case where everything goes right.",
     },
   ],
 
   questions: [
+    {
+      id: "next-b2-01",
+      domain: "d2",
+      lesson: "d2-b-where",
+      level: "beginner",
+      prompt: "In the Next.js `app` folder, where does a component run if you don't add anything special?",
+      options: ["On the server", "Only in the browser", "Inside the database"],
+      answer: [0],
+      explanation: "Components in the `app` folder are Server Components by default. They run on the server, and the visitor receives the finished result.",
+    },
+    {
+      id: "next-b2-02",
+      domain: "d2",
+      lesson: "d2-b-where",
+      level: "beginner",
+      prompt: "Why is a Server Component a safe place to use a secret API key?",
+      options: ["Its code isn't sent to the visitor's browser, so they can't see the key", "The server scrambles every word on the page", "Browsers delete secret keys automatically", "It isn't safe: keys are always visible to visitors"],
+      answer: [0],
+      explanation: "A Server Component runs on your server and only sends its result to the browser. The code, and any key inside it, stays behind, like the storeroom keys staying in the kitchen.",
+    },
+    {
+      id: "next-b2-03",
+      type: "fill",
+      domain: "d2",
+      lesson: "d2-b-client",
+      level: "beginner",
+      prompt: "Fill the gap so this file becomes a Client Component.",
+      code: `{{1}}
+
+import { useState } from "react";
+
+export default function Toggle() {
+  const [on, setOn] = useState(false);
+  return <button onClick={() => setOn(!on)}>{on ? "On" : "Off"}</button>;
+}`,
+      codeLang: "tsx",
+      blanks: [{ options: ["\"use client\";", "\"use server\";", "import client;", "\"client only\";"], answer: 0 }],
+      explanation: "`\"use client\"` on the first line tells Next.js this file runs in the browser too. This component uses `useState` and `onClick`, so it needs to.",
+    },
+    {
+      id: "next-b2-04",
+      domain: "d2",
+      lesson: "d2-b-client",
+      level: "beginner",
+      prompt: "Which of these components needs `\"use client\"`?",
+      options: ["A button that counts clicks with `useState`", "A page that shows a heading and some text", "A component that reads a list of posts from a database"],
+      answer: [0],
+      explanation: "State and click handlers only work in the browser, so the counting button needs `\"use client\"`. Showing text and reading a database work fine on the server.",
+    },
     {
       id: "d2-01",
       level: "junior",
@@ -193,7 +292,7 @@ export async function getData() {
       prompt: "`app/page.tsx` has no directive at the top. What kind of component is its default export?",
       options: ["A Server Component", "A Client Component", "A hybrid that runs on both sides", "A Route Handler"],
       answer: [0],
-      explanation: "In the App Router, layouts and pages are Server Components by default. You opt into the client with `\"use client\"`.",
+      explanation: "In the App Router, layouts and pages are Server Components unless you say otherwise. You switch a file to the client with `\"use client\"`.",
     },
     {
       id: "d2-02",
@@ -364,7 +463,7 @@ export default function Page() {
         "Downloading the RSC Payload for the next route",
       ],
       answer: [0],
-      explanation: "The HTML arrives first for a fast preview; hydration wires up React and event handlers so Client Components work.",
+      explanation: "The HTML arrives first, so visitors see the page quickly. Then **hydration** connects React and the event handlers, which makes Client Components respond to clicks.",
     },
     {
       id: "d2-12",
@@ -474,7 +573,7 @@ export default function Page() {
         ["`server-only`", "Build error if a module is imported into client code"],
         ["`NEXT_PUBLIC_`", "Prefix that inlines an env var into the browser bundle"],
       ],
-      explanation: "These five ideas are the vocabulary of the server/client split. Using them precisely is a quick signal of real App Router experience.",
+      explanation: "These five ideas are the words people use for the server and client split. Using them accurately is a quick sign you've really worked with the App Router.",
     },
     {
       id: "d2-18",
@@ -578,10 +677,10 @@ export default function Posts({ posts }: { posts: Promise<Post[]> }) {
     { id: "c2-use", domain: "d2", kind: "service", term: "use (React)", definition: "Unwraps a promise (or context) during render, suspending until it resolves. Pairs with a server-passed promise." },
     { id: "c2-server", domain: "d2", kind: "concept", term: "Server Component", definition: "The App Router default. Renders on the server, can be async, fetches data, and ships no component JavaScript." },
     { id: "c2-client", domain: "d2", kind: "concept", term: "Client Component", definition: "Prerendered to HTML, then hydrated. Needed for state, event handlers, effects, and browser APIs." },
-    { id: "c2-rsc", domain: "d2", kind: "concept", term: "RSC Payload", definition: "Compact serialized tree: Server Component output, placeholders for Client Components, and their props." },
+    { id: "c2-rsc", domain: "d2", kind: "concept", term: "RSC Payload", definition: "A compact text version of the rendered tree that the server sends: Server Component output, placeholders for Client Components, and their props." },
     { id: "c2-hydration", domain: "d2", kind: "concept", term: "Hydration", definition: "React attaching event handlers to server-rendered HTML so Client Components become interactive." },
-    { id: "c2-serializable", domain: "d2", kind: "concept", term: "Serializable props", definition: "Server-to-client props must be serializable: primitives, plain objects, arrays, Dates, promises, Server Actions, JSX." },
-    { id: "c2-interleave", domain: "d2", kind: "concept", term: "Interleaving", definition: "Pass Server Components to Client Components as `children` or props; they still render on the server." },
+    { id: "c2-serializable", domain: "d2", kind: "concept", term: "Serializable props", definition: "Props sent from server to client must be turnable into text: strings, numbers, plain objects, arrays, Dates, promises, Server Actions and JSX." },
+    { id: "c2-interleave", domain: "d2", kind: "concept", term: "Interleaving", definition: "Passing Server Components into Client Components as `children` or other props. They still render on the server." },
     { id: "c2-graph", domain: "d2", kind: "concept", term: "Client module graph", definition: "Everything a \"use client\" file imports or directly renders becomes client code, without repeating the directive." },
   ],
 

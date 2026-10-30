@@ -100,7 +100,7 @@ function fizzBuzz(n) {
   return out;
 }`,
     explanation:
-      "One pass with the most specific condition first: O(n) time. A multiple of 15 is a multiple of both 3 and 5, so testing it first avoids the classic ordering bug. Follow-up: how would you make the rules configurable, such as a list of `[divisor, word]` pairs? (Concatenate the words for every divisor that matches.)",
+      "It's one pass, checking the most specific rule first, so it runs in O(n) time. A multiple of 15 is also a multiple of 3 and of 5, so testing 15 first avoids the classic ordering bug. Follow-up: how would you make the rules configurable, like a list of `[divisor, word]` pairs? (Join the words for every divisor that matches.)",
   },
   {
     id: "algo-cc-02",
@@ -132,7 +132,7 @@ function binarySearch(nums, target) {
     hints: [
       "Because the array is sorted, comparing with the middle element tells you which half can contain the target.",
       "Keep `lo` and `hi` as inclusive bounds. Compute `mid`, compare, then move `lo = mid + 1` or `hi = mid - 1`.",
-      "Loop `while (lo <= hi)`; if the loop ends, the target is absent: return `-1`.",
+      "Loop `while (lo <= hi)`. If the loop ends without a match, the target isn't there, so return `-1`.",
     ],
     solution: src`
 function binarySearch(nums, target) {
@@ -146,7 +146,7 @@ function binarySearch(nums, target) {
   return -1;
 }`,
     explanation:
-      "Each comparison discards half of the remaining range, so it takes at most about log2(n) steps. Off-by-one errors live in the loop condition (`<=` for inclusive bounds) and in `mid +/- 1`. Follow-up: how do you find the first or last position of a duplicate value? (Do not stop on a match: keep searching left or right.)",
+      "Each comparison throws away half of what's left, so it takes at most about log2(n) steps. Off-by-one bugs hide in two places: the loop condition (`<=` when both ends count) and the `mid +/- 1` updates. Follow-up: how would you find the first or last copy of a repeated value? (Don't stop on a match. Keep searching left or right.)",
   },
   {
     id: "algo-cc-03",
@@ -176,7 +176,7 @@ function mergeIntervals(intervals) {
     hints: [
       "If the intervals were sorted by start, which neighbours could overlap?",
       "Sort by start. Keep the last merged interval; if the next one starts at or before its end, extend the end with `Math.max`.",
-      "Otherwise push the next interval as a new one. Remember that one interval can contain the next, so use max, not just assign the end.",
+      "Otherwise, push the next interval as a new one. One interval can contain the next, so use max instead of just copying the end.",
     ],
     solution: src`
 function mergeIntervals(intervals) {
@@ -190,7 +190,7 @@ function mergeIntervals(intervals) {
   return out;
 }`,
     explanation:
-      "After sorting by start, every overlap is with the most recently merged interval, so one sweep suffices: O(n log n) for the sort plus O(n) for the sweep. Using `Math.max` handles an interval fully inside the previous one. Follow-up: how would you insert a new interval into an already merged list in O(n)?",
+      "Once the intervals are sorted by start, any overlap must be with the interval you merged most recently, so one pass is enough. That's O(n log n) for the sort plus O(n) for the pass. `Math.max` handles an interval that sits completely inside the previous one. Follow-up: how would you insert a new interval into an already merged list in O(n)?",
   },
   {
     id: "algo-cc-04",
@@ -237,7 +237,7 @@ function lengthOfLongestSubstring(s) {
   return best;
 }`,
     explanation:
-      "The window only ever moves right, and a last-seen map lets `start` jump directly past a duplicate instead of shrinking one step at a time: O(n) time, O(k) space for k distinct characters. The `Math.max` guards against a stale index from before the window, as in `abba`. Follow-up: return the substring itself, or allow at most two distinct characters.",
+      "The window only ever moves right. A map of where each character was last seen lets `start` jump straight past a repeat instead of shrinking one step at a time. That's O(n) time and O(k) space for k different characters. `Math.max` protects against an old index from before the window, as in `abba`. Follow-up: return the substring itself, or allow at most two different characters.",
   },
   {
     id: "algo-cc-05",
@@ -264,8 +264,8 @@ function generateParentheses(n) {
       t("n = 8 (1430 strings)", [8], parens(8), true),
     ],
     hints: [
-      "Try building the string left to right. At each position you choose `(` or `)`. Which choices can never lead to a valid string?",
-      "You may add `(` while fewer than `n` openers are used, and `)` only while it would not close more than were opened.",
+      "Build the string left to right. At each position you choose `(` or `)`. Which choices can never lead to a valid string?",
+      "You can add `(` while you've used fewer than `n` of them. You can add `)` only if it wouldn't close more than you've opened.",
       "Recurse with counts `open` and `close`; when the string length is `2n`, record it. Trying `(` before `)` yields alphabetical order for free.",
     ],
     solution: src`
@@ -282,7 +282,7 @@ function generateParentheses(n) {
   return out;
 }`,
     explanation:
-      "Pruning during construction means only valid prefixes are ever explored: the answer count is the Catalan number C(n), and the work is proportional to that count times n. Because `(` is tried before `)`, results come out in alphabetical order. Follow-up: how many strings for n = 10, and how would you count them without generating them? (DP over the Catalan recurrence.)",
+      "Because you only ever make valid choices, the search never wastes time on a prefix that can't work. The number of answers is the Catalan number C(n), and the work is that count times n. Trying `(` before `)` makes the results come out in alphabetical order. Follow-up: how many strings are there when n is 10, and how would you count them without building them? (DP over the Catalan recurrence.)",
   },
   {
     id: "algo-cc-06",
@@ -328,7 +328,7 @@ function coinChange(coins, amount) {
   return dp[amount] === Infinity ? -1 : dp[amount];
 }`,
     explanation:
-      "The best way to make `a` ends with some coin `c`, preceded by the best way to make `a - c`: optimal substructure with overlapping subproblems, so a table fills it in O(amount * coins) time and O(amount) space. Greedy fails for systems like [1, 3, 4]. Follow-up: count the number of ways to make the amount instead. (Loop coins on the outside.)",
+      "The best way to make `a` ends with some coin `c`, after the best way to make `a - c`. Small answers build big ones, and the same small amounts come up again and again, so a table solves it in O(amount * coins) time and O(amount) space. Grabbing the biggest coin first fails for coin sets like [1, 3, 4]. Follow-up: count the number of ways to make the amount instead. (Put the coin loop on the outside.)",
   },
   {
     id: "algo-cc-07",
@@ -384,7 +384,7 @@ function shortestPath(grid) {
   return -1;
 }`,
     explanation:
-      "BFS visits cells in order of distance, so the first time it reaches the goal it has used the fewest moves. Marking cells when they are queued (not when dequeued) keeps each cell in the queue at most once: O(R * C) time and space. Follow-up: what changes if moves have different costs? (Dijkstra with a priority queue, or 0-1 BFS with a deque.)",
+      "BFS visits cells in order of distance, so the first time it reaches the goal, it has used the fewest moves. Marking a cell when you queue it, not when you take it out, means each cell enters the queue at most once. That's O(R * C) time and space. Follow-up: what changes if moves have different costs? (Dijkstra with a priority queue, or 0-1 BFS with a deque.)",
   },
   {
     id: "algo-cc-08",
@@ -441,7 +441,7 @@ function numIslands(grid) {
   return count;
 }`,
     explanation:
-      "Each land cell is visited once and then sunk (set to 0), so the island count equals the number of times the scan finds fresh land: O(R * C) time. The explicit stack avoids recursion-depth limits on large islands. Follow-up: how would you do it without mutating the input, or count islands as land cells are added one at a time? (A visited set; union-find.)",
+      "Each land cell is visited once and then sunk by setting it to 0. So the number of islands is the number of times the scan finds land it hasn't seen yet, in O(R * C) time. Using your own stack instead of recursion avoids depth limits on big islands. Follow-up: how would you do it without changing the input, or count islands as land cells are added one at a time? (A visited set; union-find.)",
   },
   {
     id: "algo-cc-09",
@@ -471,7 +471,7 @@ function countInversions(nums) {
       t("1500 pseudo-random values", [inversionInput], inversionExpected, true),
     ],
     hints: [
-      "Counting every pair is O(n^2). Think about what merge sort learns when it merges two sorted halves.",
+      "Checking every pair is O(n^2). Think about what merge sort learns when it merges two sorted halves.",
       "While merging `left` and `right`, whenever you take an item from `right` before the remaining left items, it is smaller than all of them: add the number of remaining left items.",
       "Take from the left when `left[i] <= right[j]` so equal values are not counted. Sum the counts from both recursive calls and the merge.",
     ],
@@ -499,7 +499,7 @@ function countInversions(nums) {
   return count;
 }`,
     explanation:
-      "Merge sort already compares elements across the two halves in order; when a right item jumps ahead of the remaining left items, each of those left items forms an inversion with it, so a whole group is counted in O(1). Total O(n log n) time, O(n) space. Follow-up: how would a Fenwick tree solve it? (Process left to right, counting earlier items greater than the current one.)",
+      "Merge sort already compares items across the two halves in order. When an item from the right half jumps ahead of the items still waiting on the left, it forms an inversion with every one of them, so you count that whole group in O(1). The total is O(n log n) time and O(n) space. Follow-up: how would a Fenwick tree solve it? (Go left to right, counting earlier items bigger than the current one.)",
   },
   {
     id: "algo-cc-10",
@@ -549,7 +549,7 @@ function editDistance(a, b) {
   return prev[n];
 }`,
     explanation:
-      "The last characters either match (no cost) or the last operation is one of delete, insert or replace, each leaving a smaller prefix problem; a table of prefix pairs solves every subproblem once: O(m * n) time. Keeping only the previous row cuts space to O(n). Follow-up: how would you recover the actual sequence of edits? (Keep the full table and walk back from the corner.)",
+      "Either the last characters match, which costs nothing, or the last step was a delete, insert or replace. Each case leaves a smaller problem on shorter prefixes. A table over every pair of prefixes solves each one once, in O(m * n) time. Keeping only the previous row cuts space to O(n). Follow-up: how would you get the actual list of edits? (Keep the full table and walk back from the corner.)",
   },
   {
     id: "algo-cc-11",
@@ -606,7 +606,7 @@ function minShipCapacity(weights, days) {
   return lo;
 }`,
     explanation:
-      "The predicate \"can ship within `days` at capacity `c`\" is monotonic in `c`, so binary search finds the boundary: O(n log(sum)) time and O(1) space. The lower bound is the heaviest package (it must fit) and the upper bound is the total weight (one day). Follow-up: what if packages may be reordered? (A harder partition problem.)",
+      "The question \"can we ship within `days` at capacity `c`?\" only ever flips from no to yes as `c` grows, so binary search can find where it flips. That's O(n log(sum)) time and O(1) space. The lowest possible answer is the heaviest package, since it has to fit. The highest is the total weight, which ships everything in one day. Follow-up: what if packages could be reordered? (A harder partition problem.)",
   },
   {
     id: "algo-cc-12",
@@ -653,7 +653,7 @@ function rateLimiter(limit, windowMs, times) {
   });
 }`,
     explanation:
-      "Timestamps arrive in order, so the allowed ones form a queue whose expired entries are always at the front: each timestamp is added once and removed once, giving O(n) total. Rejected requests are not stored, matching the \"allowed requests in the window\" rule. Follow-up: how would you scale it across servers? (A shared store like Redis with a fixed-window or token-bucket approximation, trading exactness for speed.)",
+      "Timestamps arrive in order, so the allowed ones form a queue, and the expired ones are always at the front. Each timestamp is added once and removed once, which gives O(n) in total. Rejected requests aren't stored, because only allowed requests count toward the limit. Follow-up: how would you scale it across many servers? (A shared store like Redis with a fixed-window or token-bucket approximation, giving up exactness for speed.)",
   },
   {
     id: "algo-cc-13",
@@ -681,9 +681,9 @@ function canJump(nums) {
       t("a zero in a long chain of ones", [Array.from({ length: 10000 }, (_, i) => (i === 5000 ? 0 : 1))], false, true),
     ],
     hints: [
-      "You do not need to try every path. What single number summarizes how far you could possibly get so far?",
+      "You don't need to try every path. What single number sums up how far you could possibly get so far?",
       "Keep `far`, the furthest reachable index. For each `i`, if `i > far` you are stuck; otherwise update `far = max(far, i + nums[i])`.",
-      "Return `true` as soon as `far >= nums.length - 1`, or after the loop if you were never stuck.",
+      "Return `true` as soon as `far >= nums.length - 1`, or after the loop if you never got stuck.",
     ],
     solution: src`
 function canJump(nums) {
@@ -696,6 +696,6 @@ function canJump(nums) {
   return true;
 }`,
     explanation:
-      "If you can reach index `i`, you can reach everything before it, so reachability is a single frontier: `far`. If the scan ever passes the frontier, nothing beyond is reachable. O(n) time, O(1) space, versus exponential brute force or O(n^2) DP. Follow-up: what is the minimum number of jumps? (Greedy BFS levels over the reach frontier.)",
+      "If you can reach index `i`, you can reach everything before it too. So one number, `far`, sums up everything you can reach. If the scan ever moves past `far`, nothing beyond it is reachable. That's O(n) time and O(1) space, compared with exponential brute force or O(n^2) DP. Follow-up: what's the fewest number of jumps? (Greedy BFS levels over the reach frontier.)",
   },
 ];

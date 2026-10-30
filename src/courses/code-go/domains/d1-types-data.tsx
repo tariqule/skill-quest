@@ -1,4 +1,4 @@
-import { CodeBlock, CodeCompare, Tiles } from "@/components/learn/blocks";
+import { CodeBlock, CodeCompare, Flow, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { go } from "../go";
 import { SliceLab } from "../labs";
@@ -14,33 +14,136 @@ export default defineDomain({
     weight: 25,
     emoji: "🦫",
     color: "#00add8",
-    summary: "Declarations and zero values, arrays vs slices, append and capacity aliasing, maps and their traps, strings, bytes, and runes.",
+    summary:
+      "Declaring variables and their zero values, arrays and slices, how append can share memory, maps and their traps, and how strings, bytes and runes fit together.",
   },
 
   tasks: [
     {
       id: "1.1",
       title: "Declarations, zero values, and constants",
-      covers: ["var vs :=", "Zero values of every type", "Block scope and shadowing", "Untyped constants", "for and range (including range over an int)"],
+      covers: ["var and :=", "The zero value of every type", "Block scope and shadowing", "Untyped constants", "for and range (including range over an int)"],
     },
     {
       id: "1.2",
       title: "Arrays and slices",
-      covers: ["Arrays are values; slices are views", "len, cap, and the backing array", "append aliasing and reallocation", "The full slice expression a[low:high:max]"],
+      covers: ["Arrays are values; slices are views onto an array", "len, cap, and the backing array", "When append shares memory and when it copies", "The full slice expression a[low:high:max]"],
     },
     {
       id: "1.3",
       title: "Maps",
-      covers: ["nil maps", "The comma-ok idiom", "Unspecified iteration order", "Map elements aren't addressable", "Concurrent access"],
+      covers: ["nil maps", "The comma-ok idiom", "Iteration order isn't fixed", "You can't take the address of a map element", "Using maps from several goroutines"],
     },
     {
       id: "1.4",
       title: "Strings, bytes, and runes",
-      covers: ["Strings are immutable byte sequences", "UTF-8 and rune decoding in range", "Building strings efficiently"],
+      covers: ["Strings are byte sequences that can't change", "UTF-8 and how range decodes runes", "Building strings efficiently"],
     },
   ],
 
   lessons: [
+    {
+      id: "d1-start-hello",
+      level: "beginner",
+      task: "1.1",
+      title: "What Go is and your first program",
+      check: ["go-b1-01", "go-b1-02"],
+      visual: (
+        <div className="grid gap-4">
+          <CodeBlock
+            lang="go"
+            code={go`
+              package main
+
+              import "fmt"
+
+              func main() {
+                  fmt.Println("Hello, Go!")
+              }
+            `}
+          />
+          <Flow
+            color="#00add8"
+            steps={[
+              { icon: "✍️", label: "Write main.go", sub: "Plain text you can read" },
+              { icon: "🔧", label: "go run main.go", sub: "Go compiles it and runs it in one step" },
+              { icon: "🖥️", label: "See the output", sub: "Hello, Go!" },
+            ]}
+          />
+        </div>
+      ),
+      points: [
+        "**Go** is a programming language from Google, popular for web servers, cloud tools and command-line programs. It's known for being simple and fast.",
+        "Every Go program starts in `package main`, at a function called `main`. That's where the computer begins reading your instructions.",
+        "`import \"fmt\"` brings in the formatting package, and `fmt.Println(...)` prints a line of text.",
+        "To run a file, type `go run main.go` in a terminal. Go checks your code, builds it and runs it.",
+      ],
+      tip: "Go is strict in a helpful way. If you import a package or create a variable and never use it, the program won't compile until you tidy it up.",
+    },
+    {
+      id: "d1-start-vars",
+      level: "beginner",
+      task: "1.1",
+      title: "Variables and their starting values",
+      check: ["go-b1-03", "go-b1-04"],
+      visual: (
+        <div className="grid gap-4">
+          <CodeBlock
+            lang="go"
+            code={go`
+              name := "Gopher"   // a string; Go works out the type
+              age := 13          // an int
+              var score int      // declared with no value: starts at 0
+              var ready bool     // starts at false
+              fmt.Println(name, age, score, ready)  // Gopher 13 0 false
+            `}
+          />
+          <Tiles
+            cols={3}
+            tiles={[
+              { icon: "🔢", title: "int", text: "Whole numbers. Starts at 0.", color: "#00add8" },
+              { icon: "🔤", title: "string", text: "Text in double quotes. Starts as \"\" (empty).", color: "#34d399" },
+              { icon: "✅", title: "bool", text: "true or false. Starts at false.", color: "#a78bfa" },
+            ]}
+          />
+        </div>
+      ),
+      points: [
+        "A **variable** is a named box that holds a value. Each box has a **type**, such as `int` for whole numbers or `string` for text.",
+        "`x := 5` is the quick way to make a new variable. Go looks at the value and picks the type for you.",
+        "`var score int` makes a variable without giving it a value. It isn't empty junk: it starts at the type's **zero value**, which is 0 for numbers.",
+        "To change a variable that already exists, use plain `=`, as in `score = 10`.",
+      ],
+      tip: "Think of `:=` as \"create\" and `=` as \"update\". You can only create a name once in the same block.",
+    },
+    {
+      id: "d1-start-slices",
+      level: "beginner",
+      task: "1.2",
+      title: "Slices: lists that can grow",
+      check: ["go-b1-05", "go-b1-06"],
+      visual: (
+        <CodeBlock
+          lang="go"
+          code={go`
+            fruits := []string{"apple", "banana"}
+            fmt.Println(fruits[0])      // apple  (counting starts at 0)
+            fruits = append(fruits, "cherry")
+            fmt.Println(len(fruits))    // 3
+            for i, f := range fruits {
+                fmt.Println(i, f)       // 0 apple, 1 banana, 2 cherry
+            }
+          `}
+        />
+      ),
+      points: [
+        "A **slice** holds a list of values of one type, in order, like a numbered shopping list. `[]string` is a slice of strings.",
+        "Positions start at 0, so `fruits[0]` is the first item. `len(fruits)` tells you how many there are.",
+        "`append` adds items to the end and gives you back the updated slice. Always store the result: `fruits = append(fruits, \"cherry\")`.",
+        "`for i, f := range fruits` visits every item, giving you its position `i` and the value `f`.",
+      ],
+      tip: "Don't need the position in a `range` loop? Write `_` in its place, as in `for _, f := range fruits`. Go would otherwise complain about an unused variable.",
+    },
     {
       id: "d1-zero",
       level: "junior",
@@ -52,12 +155,12 @@ export default defineDomain({
           <Tiles
             cols={3}
             tiles={[
-              { icon: "0️⃣", title: "Numbers", text: "`int`, `float64`, … start at `0`", color: "#00add8" },
+              { icon: "0️⃣", title: "Numbers", text: "`int`, `float64` and the rest start at `0`", color: "#00add8" },
               { icon: "🔤", title: "Strings", text: "`\"\"` (the empty string), never nil", color: "#34d399" },
               { icon: "⚪", title: "Booleans", text: "`false`", color: "#a78bfa" },
-              { icon: "🕳️", title: "nil", text: "pointers, slices, maps, channels, funcs, interfaces", color: "#f59e0b" },
-              { icon: "🧱", title: "Structs", text: "every field set to its own zero value", color: "#f472b6" },
-              { icon: "📦", title: "Arrays", text: "every element set to its zero value", color: "#fb7185" },
+              { icon: "🕳️", title: "nil", text: "Pointers, slices, maps, channels, funcs and interfaces", color: "#f59e0b" },
+              { icon: "🧱", title: "Structs", text: "Every field set to its own zero value", color: "#f472b6" },
+              { icon: "📦", title: "Arrays", text: "Every element set to its zero value", color: "#fb7185" },
             ]}
           />
           <CodeBlock
@@ -74,13 +177,13 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "`var x T` gives x the zero value of T. There is no \"uninitialized\" memory in Go.",
-        "`:=` declares and assigns, and works only inside functions. At package level use `var`.",
-        "Unused local variables and unused imports are compile errors, not warnings.",
-        "`:=` in an inner block (like `if x := …;`) declares a NEW variable that shadows the outer one.",
-        "Constants are untyped until used, and constant arithmetic is exact (no overflow until conversion).",
+        "`var x T` gives `x` the **zero value** of type T. Go never hands you memory with random leftovers in it.",
+        "`:=` declares and assigns in one go, but it only works inside functions. At package level, use `var`.",
+        "Unused local variables and unused imports are compile errors in Go, not just warnings.",
+        "`:=` inside an inner block, like `if x := …;`, creates a brand new variable that hides the outer one. This is called **shadowing**.",
+        "Constants have no fixed type until you use them, and maths on constants is exact. Nothing overflows until the value is converted to a real type.",
       ],
-      tip: "Interviewers like \"make the zero value useful\": a `sync.Mutex`, `bytes.Buffer`, or nil slice works without any constructor.",
+      tip: "Interviewers like the phrase \"make the zero value useful\". A `sync.Mutex`, a `bytes.Buffer` or a nil slice all work straight away, with no constructor.",
     },
     {
       id: "d1-slices",
@@ -90,13 +193,13 @@ export default defineDomain({
       check: ["d1-09", "d1-11"],
       visual: <SliceLab />,
       points: [
-        "An array (`[4]int`) is a value: assigning or passing it copies every element.",
-        "A slice is a small header (pointer, len, cap) viewing a backing array. Copying a slice copies the header, not the data.",
-        "`append` writes in place when len < cap, so other slices over that array see it. Past cap it allocates a new array.",
-        "Always use the result: `s = append(s, x)`. The old header may point at the old array.",
-        "`a[low:high:max]` limits capacity so a later append must copy instead of overwriting a's elements.",
+        "An array like `[4]int` is a value. Assigning it or passing it to a function copies every element.",
+        "A slice is a small **header** (a pointer, a length and a capacity) that looks onto a **backing array**. Copying a slice copies the header, not the data.",
+        "If there's spare capacity (len < cap), `append` writes into the shared array, so other slices over it see the change. Past the capacity, it allocates a new array.",
+        "Always use the result: `s = append(s, x)`. The old header may still point at the old array.",
+        "`a[low:high:max]` limits the capacity, so a later append has to copy instead of overwriting `a`'s elements.",
       ],
-      tip: "Draw the backing array and two brackets for the slices. Saying \"len < cap, so append overwrites the shared slot\" is exactly what they want to hear.",
+      tip: "Draw the backing array, then two brackets for the two slices. Saying \"len is less than cap, so append overwrites the shared slot\" is exactly what interviewers want to hear.",
     },
     {
       id: "d1-maps",
@@ -109,7 +212,7 @@ export default defineDomain({
           <CodeCompare
             lang="go"
             left={{
-              title: "Trap: nil map write",
+              title: "Trap: writing to a nil map",
               code: go`
                 var m map[string]int
                 fmt.Println(m["x"]) // 0: reads are fine
@@ -131,14 +234,14 @@ export default defineDomain({
           <CodeCompare
             lang="go"
             left={{
-              title: "Trap: struct values aren't addressable",
+              title: "Trap: you can't change a struct inside a map",
               code: go`
                 users := map[string]User{"ann": {}}
                 users["ann"].Visits++ // compile error
               `,
             }}
             right={{
-              title: "Fix: copy back, or store pointers",
+              title: "Fix: copy it out and back, or store pointers",
               code: go`
                 u := users["ann"]
                 u.Visits++
@@ -149,32 +252,139 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "A nil map reads like an empty map, but writing to it panics. Create maps with `make` or a literal.",
-        "`v, ok := m[k]` tells \"missing\" apart from \"present with the zero value\".",
-        "Iteration order is unspecified and deliberately varies between runs. Sort the keys if order matters.",
-        "Map elements aren't addressable: you can't do `&m[k]` or `m[k].Field = x`.",
-        "Maps aren't safe for concurrent writes. Unsynchronized concurrent access can crash the program with a fatal error.",
+        "A nil map reads like an empty map, but writing to it panics. Create maps with `make` or a literal like `map[string]int{}`.",
+        "`v, ok := m[k]` tells you whether the key is really there, so you can tell \"missing\" apart from \"present with the value 0\".",
+        "The order you get when looping over a map isn't fixed, and Go changes it on purpose between runs. Sort the keys if order matters.",
+        "You can't take the address of a map element. Both `&m[k]` and `m[k].Field = x` are compile errors.",
+        "Maps aren't safe for writes from several goroutines at once. Doing that without a lock can crash the whole program.",
       ],
-      tip: "If asked for deterministic output from a map, collect the keys, call `slices.Sort(keys)`, then range over the keys.",
+      tip: "If you're asked for output in a fixed order from a map, collect the keys, call `slices.Sort(keys)`, then loop over the sorted keys.",
     },
     {
       id: "d1-strings",
       level: "intermediate",
       task: "1.4",
-      title: "Strings are bytes, runes are code points",
+      title: "Strings are bytes, runes are characters",
       check: ["d1-22", "d1-23"],
       visual: <RuneExplorer />,
       points: [
-        "A string is an immutable sequence of bytes, conventionally UTF-8. `len(s)` counts bytes.",
-        "`s[i]` is a byte. `for i, r := range s` decodes runes (int32 code points) and i is the byte offset.",
-        "`[]rune(s)` converts to code points; `utf8.RuneCountInString(s)` counts them without allocating.",
-        "Strings can't be changed in place. Repeated `+=` in a loop copies every time; use `strings.Builder`.",
+        "A string is a sequence of bytes that can't be changed, usually holding UTF-8 text. `len(s)` counts bytes, not characters.",
+        "`s[i]` gives you a single byte. `for i, r := range s` decodes **runes** (Unicode code points, stored as int32), and `i` is the byte position where each starts.",
+        "`[]rune(s)` converts the string to code points. `utf8.RuneCountInString(s)` counts them without making a new slice.",
+        "Because strings can't change in place, `+=` in a loop copies the whole string every time. Use `strings.Builder` instead.",
       ],
-      tip: "For \"reverse a string\", say whether you reverse bytes or runes. Reversing bytes breaks multi-byte characters like é.",
+      tip: "For \"reverse a string\", say whether you're reversing bytes or runes. Reversing bytes breaks characters that take several bytes, like é.",
     },
   ],
 
   questions: [
+    // ───────────── Start here ─────────────
+    {
+      id: "go-b1-01",
+      domain: "d1",
+      level: "beginner",
+      lesson: "d1-start-hello",
+      type: "output",
+      prompt: "What does this program print?",
+      code: go`
+        package main
+
+        import "fmt"
+
+        func main() {
+            fmt.Println("Hello, Go!")
+        }
+      `,
+      codeLang: "go",
+      answers: ["Hello, Go!"],
+      explanation:
+        "The program starts in `main`, and its one line calls `fmt.Println`, which prints the text and moves to a new line. The double quotes mark the text as a string but aren't printed.",
+    },
+    {
+      id: "go-b1-02",
+      domain: "d1",
+      level: "beginner",
+      lesson: "d1-start-hello",
+      prompt: "Where does a Go program start running?",
+      options: [
+        "At the `main` function in `package main`",
+        "At the first line of the file, whatever it is",
+        "At whichever function has the shortest name",
+        "At the `import` line",
+      ],
+      answer: [0],
+      explanation:
+        "Go always begins at `func main()` inside `package main`. The `package` and `import` lines just set things up; the real work starts in `main`.",
+    },
+    {
+      id: "go-b1-03",
+      domain: "d1",
+      level: "beginner",
+      lesson: "d1-start-vars",
+      type: "output",
+      prompt: "What does this print?",
+      code: go`
+        x := 5
+        x = x + 3
+        fmt.Println(x)
+      `,
+      codeLang: "go",
+      answers: ["8"],
+      explanation:
+        "`x := 5` creates `x` and puts 5 in it. `x = x + 3` updates the same variable to 8, using plain `=` because `x` already exists.",
+    },
+    {
+      id: "go-b1-04",
+      domain: "d1",
+      level: "beginner",
+      lesson: "d1-start-vars",
+      type: "output",
+      prompt: "What does this print?",
+      code: go`
+        var count int
+        var ready bool
+        fmt.Println(count, ready)
+      `,
+      codeLang: "go",
+      answers: ["0 false"],
+      explanation:
+        "Neither variable was given a value, so each starts at its type's zero value: 0 for an `int` and `false` for a `bool`. `fmt.Println` puts a space between the two.",
+    },
+    {
+      id: "go-b1-05",
+      domain: "d1",
+      level: "beginner",
+      lesson: "d1-start-slices",
+      type: "output",
+      prompt: "What does this print?",
+      code: go`
+        fruits := []string{"apple", "banana"}
+        fruits = append(fruits, "cherry")
+        fmt.Println(len(fruits), fruits[0])
+      `,
+      codeLang: "go",
+      answers: ["3 apple"],
+      explanation:
+        "`append` adds \"cherry\" to the end, so the slice now has 3 items. Positions start at 0, so `fruits[0]` is still \"apple\".",
+    },
+    {
+      id: "go-b1-06",
+      domain: "d1",
+      level: "beginner",
+      lesson: "d1-start-slices",
+      type: "fill",
+      prompt: "Fill the gap so \"kiwi\" is added to the end of the slice.",
+      code: go`
+        fruits := []string{"apple"}
+        fruits = {{1}}(fruits, "kiwi")
+        fmt.Println(fruits)  // [apple kiwi]
+      `,
+      codeLang: "go",
+      blanks: [{ options: ["append", "add", "push", "insert"], answer: 0 }],
+      explanation:
+        "Go's built-in `append` adds items to a slice and returns the updated slice, which you store back in `fruits`. `add`, `push` and `insert` aren't Go built-ins.",
+    },
+    // ───────────── Interview questions ─────────────
     {
       id: "d1-01",
       domain: "d1",
@@ -190,7 +400,7 @@ export default defineDomain({
       codeLang: "go",
       options: ["`true true true 0`", "`false false true 0`", "`true true true nil`", "It panics: `len` of a nil slice"],
       answer: [0],
-      explanation: "Slices, maps, and pointers all have the zero value `nil`. `len` of a nil slice (or nil map) is simply 0.",
+      explanation: "Slices, maps and pointers all start as `nil`. Asking for the `len` of a nil slice (or a nil map) is fine and gives 0.",
     },
     {
       id: "d1-02",
@@ -210,7 +420,8 @@ export default defineDomain({
       codeLang: "go",
       options: ["`0 0 \"\"`", "`<nil>`", "It panics with a nil pointer dereference", "`0 0 <nil>`"],
       answer: [0],
-      explanation: "A struct's zero value has every field at its own zero value: 0 for the ints and the empty string for `Name` (`%q` shows it as `\"\"`). A struct value is never nil.",
+      explanation:
+        "A struct's zero value has every field at its own zero value: 0 for the ints and the empty string for `Name`, which `%q` shows as `\"\"`. A struct value is never nil.",
     },
     {
       id: "d1-03",
@@ -233,7 +444,7 @@ export default defineDomain({
       `,
       codeLang: "go",
       answer: [5],
-      explanation: "`:=` is only allowed inside function bodies. At package level, write `var x = 10` (or `var x int = 10`).",
+      explanation: "`:=` is only allowed inside a function. At package level, write `var x = 10` (or `var x int = 10`).",
     },
     {
       id: "d1-04",
@@ -249,7 +460,8 @@ export default defineDomain({
         "Shadowing an outer variable inside an `if` block",
       ],
       answer: [0, 1],
-      explanation: "Go rejects unused local variables and unused imports to keep code clean. Unused parameters and package-level variables are allowed, and shadowing is legal (linters may warn).",
+      explanation:
+        "Go rejects unused local variables and unused imports to keep code tidy. Unused parameters and package-level variables are allowed, and shadowing is legal too, though linters may warn about it.",
     },
     {
       id: "d1-05",
@@ -268,7 +480,8 @@ export default defineDomain({
       codeLang: "go",
       options: ["`3` then `1`", "`3` then `3`", "`2` then `1`", "Compile error: `x` redeclared"],
       answer: [0],
-      explanation: "The `x := 2` in the if statement declares a new `x` scoped to the if block, shadowing the outer one. It becomes 3 and is printed; the outer `x` is still 1.",
+      explanation:
+        "The `x := 2` in the `if` line creates a new `x` that only lives inside the `if` block and hides the outer one. That inner `x` becomes 3 and is printed. The outer `x` is still 1.",
     },
     {
       id: "d1-06",
@@ -285,7 +498,8 @@ export default defineDomain({
       codeLang: "go",
       options: ["`3 1 -3`", "`3.5 1 -3`", "`3 1 -4`", "`3.5 1 -4`"],
       answer: [0],
-      explanation: "`a / b` is integer division (3) before the conversion, so f is 3.0, which `Println` shows as `3`. Integer division truncates toward zero, so `-7/2` is `-3`.",
+      explanation:
+        "`a / b` is integer division, which gives 3 before the conversion happens. So `f` is 3.0, and `Println` shows it as `3`. Integer division rounds toward zero, so `-7/2` is `-3`.",
     },
     {
       id: "d1-07",
@@ -302,7 +516,7 @@ export default defineDomain({
       options: ["It prints `1024`", "Compile error: constant overflows `int32`", "It prints `0`", "It panics at run time with an overflow"],
       answer: [0],
       explanation:
-        "`big` is an untyped constant, and constant expressions are evaluated exactly at compile time. `big >> 30` is 1024, which fits in an int32. Only `var x int32 = big` would overflow.",
+        "`big` is an untyped constant, and maths on constants is done exactly, at compile time. `big >> 30` is 1024, which fits in an int32. Only `var x int32 = big` would overflow.",
     },
     {
       id: "d1-27",
@@ -318,7 +532,7 @@ export default defineDomain({
       codeLang: "go",
       options: ["`012`", "`123`", "`0123`", "Compile error: cannot range over 3"],
       answer: [0],
-      explanation: "Since Go 1.22 you can range over an integer n, which yields 0 through n-1.",
+      explanation: "Since Go 1.22 you can range over a whole number n, which gives you 0 up to n minus 1.",
     },
     {
       id: "d1-08",
@@ -337,7 +551,8 @@ export default defineDomain({
       codeLang: "go",
       options: ["`[1 8 3] [9 2 3]`", "`[9 8 3] [9 8 3]`", "`[1 2 3] [9 2 3]`", "`[9 8 3] [9 2 3]`"],
       answer: [0],
-      explanation: "Arrays are values, so `b := a` copies all three elements and `b[0] = 9` changes only b. `a[:]` is a slice viewing a's own array, so `s[1] = 8` changes a.",
+      explanation:
+        "Arrays are values, so `b := a` copies all three elements, and `b[0] = 9` only changes `b`. `a[:]` is a slice looking at `a`'s own array, so `s[1] = 8` changes `a`.",
     },
     {
       id: "d1-09",
@@ -354,7 +569,8 @@ export default defineDomain({
       codeLang: "go",
       options: ["`[1 2 99 4] 3 4`", "`[1 2 3 4] 3 4`", "`[1 2 3 4] 3 8`", "`[1 2 99 4] 3 3`"],
       answer: [0],
-      explanation: "`b` has len 2 but cap 4 (it runs to the end of a's array). Since len < cap, `append` stores 99 in the shared array at index 2, which is `a[2]`.",
+      explanation:
+        "`b` has length 2 but capacity 4, because it reaches to the end of `a`'s array. Since there's spare room, `append` puts 99 into the shared array at index 2, which is `a[2]`.",
     },
     {
       id: "d1-10",
@@ -371,7 +587,8 @@ export default defineDomain({
       codeLang: "go",
       options: ["`0 7`", "`7 7`", "`0 0`", "It panics: index out of range"],
       answer: [0],
-      explanation: "`a` is full (len 3, cap 3), so `append` allocates a new, larger array and copies into it. After that, `b` and `a` don't share memory.",
+      explanation:
+        "`a` is full (length 3, capacity 3), so `append` allocates a new, bigger array and copies into it. After that, `b` and `a` don't share memory, so changing `b[0]` leaves `a[0]` alone.",
     },
     {
       id: "d1-11",
@@ -388,7 +605,8 @@ export default defineDomain({
       codeLang: "go",
       options: ["`[1 2 3 4] true`", "`[1 2 99 4] true`", "`[1 2 99 4] false`", "Compile error: invalid slice index"],
       answer: [0],
-      explanation: "The full slice expression `a[:2:2]` sets cap(b) to 2, so the append can't write into a's array. It allocates a new array (capacity at least 3) and a is untouched.",
+      explanation:
+        "The full slice expression `a[:2:2]` sets `b`'s capacity to 2, so the append can't write into `a`'s array. It allocates a new array with room for at least 3, and `a` isn't touched.",
     },
     {
       id: "d1-12",
@@ -411,7 +629,7 @@ export default defineDomain({
       codeLang: "go",
       answer: [2],
       explanation:
-        "The slice header is passed by value. `append` on a nil slice allocates a new array and the result is stored only in the local `items`. Return it instead: `func addItem(...) []string`, then `cart = addItem(cart, \"apple\")`.",
+        "The slice header is passed by value, so the function gets its own copy. `append` on a nil slice allocates a new array, and the result only lands in the local `items`. Return it instead, with `func addItem(...) []string`, then write `cart = addItem(cart, \"apple\")`.",
     },
     {
       id: "d1-13",
@@ -433,7 +651,7 @@ export default defineDomain({
       options: ["`1 2 3`", "`1 20 3`", "`1 20 3 4`", "`1 2 3 4`"],
       answer: [0],
       explanation:
-        "The range expression is evaluated once, so the loop walks the original 3-element array. The literal has cap 3, so `append` moves `nums` to a new array, and `nums[1] = 20` writes there, not into the array being ranged over.",
+        "The thing being ranged over is worked out once, so the loop walks the original 3-item array. That literal has capacity 3, so `append` moves `nums` to a new array, and `nums[1] = 20` writes there, not into the array the loop is reading.",
     },
     {
       id: "d1-14",
@@ -449,7 +667,7 @@ export default defineDomain({
         ["`copy(dst, src)`", "Copy min(len(dst), len(src)) elements and return that count"],
         ["`append(s, xs...)`", "Add elements, allocating a new array if capacity runs out"],
       ],
-      explanation: "These five built-ins cover almost all slice work. `copy` never grows dst, which is why you size it with `make` first.",
+      explanation: "These five built-ins cover almost all slice work. `copy` never makes `dst` bigger, which is why you size it with `make` first.",
     },
     {
       id: "d1-15",
@@ -457,7 +675,7 @@ export default defineDomain({
       level: "staff",
       lesson: "d1-slices",
       prompt:
-        "A service reads a 10 MB file into `data`, then keeps `header := data[:64]` in a long-lived cache. Memory grows with every file. What is the best fix?",
+        "A service reads a 10 MB file into `data`, then keeps `header := data[:64]` in a long-lived cache. Memory grows with every file. What's the best fix?",
       options: [
         "Copy the 64 bytes into their own slice (`bytes.Clone(data[:64])`) so the 10 MB array can be collected",
         "Call `runtime.GC()` after each request",
@@ -466,7 +684,7 @@ export default defineDomain({
       ],
       answer: [0],
       explanation:
-        "Any slice keeps its whole backing array reachable. Capping with `[:64:64]` still points into the same 10 MB array, and `data = nil` doesn't help because `header` still references it. Copying breaks the link.",
+        "Any slice keeps its whole backing array alive. Capping with `[:64:64]` still points into the same 10 MB array, and `data = nil` doesn't help because `header` still refers to it. Copying the bytes breaks the link.",
     },
     {
       id: "d1-26",
@@ -474,7 +692,7 @@ export default defineDomain({
       level: "staff",
       lesson: "d1-slices",
       prompt:
-        "A shared library exports `func (r *Registry) Plugins() []Plugin { r.mu.RLock(); defer r.mu.RUnlock(); return r.plugins }`. Other teams edit and append to the result, and the race detector fires. What is the best fix that keeps the signature?",
+        "A shared library exports `func (r *Registry) Plugins() []Plugin { r.mu.RLock(); defer r.mu.RUnlock(); return r.plugins }`. Other teams edit and append to the result, and the race detector fires. What's the best fix that keeps the signature?",
       options: [
         "Return `slices.Clone(r.plugins)` while holding the read lock",
         "Return `r.plugins[:len(r.plugins):len(r.plugins)]`",
@@ -483,7 +701,7 @@ export default defineDomain({
       ],
       answer: [0],
       explanation:
-        "The lock protects only the moment the header is read; callers then touch the shared array with no lock at all. Returning a copy gives each caller its own array. Capping the capacity stops appends from overwriting but index writes still race.",
+        "The lock only protects the moment the header is read. After that, callers touch the shared array with no lock at all. Returning a copy gives each caller its own array. Capping the capacity stops appends from overwriting, but writes by index still race.",
     },
     {
       id: "d1-16",
@@ -505,7 +723,8 @@ export default defineDomain({
         "Compile error: `m` is not initialized",
       ],
       answer: [0],
-      explanation: "Reading from a nil map returns the zero value and `len` is 0, but writing to it panics. Use `m := make(map[string]int)` or a map literal.",
+      explanation:
+        "Reading from a nil map gives the zero value and `len` is 0, but writing to it panics. Create it first with `m := make(map[string]int)` or a map literal.",
     },
     {
       id: "d1-17",
@@ -522,7 +741,8 @@ export default defineDomain({
       codeLang: "go",
       options: ["`0 true 0 false`", "`0 true <nil> false`", "`0 false 0 false`", "It panics: key \"b\" not found"],
       answer: [0],
-      explanation: "The comma-ok form separates \"present with value 0\" (`ok` true) from \"missing\" (`ok` false, value is the zero value). Missing keys never panic.",
+      explanation:
+        "The comma-ok form tells \"present with value 0\" (`ok` is true) apart from \"missing\" (`ok` is false, and the value is the zero value). Looking up a missing key never panics.",
     },
     {
       id: "d1-18",
@@ -539,7 +759,7 @@ export default defineDomain({
       ],
       answer: [0, 1],
       explanation:
-        "Never rely on range order over a map (fmt prints maps with sorted keys, which can hide this). Map keys must be comparable, which rules out slices, maps, and funcs. The runtime detects many concurrent map writes and aborts with \"concurrent map writes\".",
+        "Never rely on the order of a `range` over a map. (`fmt` prints maps with sorted keys, which can hide this.) Keys must be comparable, which rules out slices, maps and funcs. The runtime spots many concurrent map writes and stops with \"concurrent map writes\".",
     },
     {
       id: "d1-19",
@@ -560,7 +780,7 @@ export default defineDomain({
       codeLang: "go",
       answer: [5],
       explanation:
-        "Map elements aren't addressable, so you can't assign to a field of a struct stored in a map. Copy it out, change it, and store it back, or use `map[string]*User`.",
+        "You can't take the address of a map element, so you can't assign to a field of a struct stored in a map. Copy it out, change it and store it back, or use `map[string]*User`.",
     },
     {
       id: "d1-20",
@@ -575,7 +795,8 @@ export default defineDomain({
         "Taking addresses is only allowed for package-level variables",
       ],
       answer: [0],
-      explanation: "A map may rehash and move its entries as it grows. If you could hold `&m[k]`, the pointer would silently go stale, so the language makes map elements non-addressable.",
+      explanation:
+        "As a map grows, it can move its entries around. If you could hold `&m[k]`, the pointer would quietly go out of date, so the language doesn't let you take it.",
     },
     {
       id: "d1-21",
@@ -590,7 +811,8 @@ export default defineDomain({
         "The loop restarts from the beginning",
       ],
       answer: [0],
-      explanation: "The spec explicitly allows deleting during range: removed entries that haven't been reached are skipped. (Entries added during the loop may or may not be produced.)",
+      explanation:
+        "The Go spec says deleting during `range` is fine: entries you remove before the loop reaches them are skipped. Entries you add during the loop may or may not show up.",
     },
     {
       id: "d1-22",
@@ -605,7 +827,7 @@ export default defineDomain({
       codeLang: "go",
       options: ["`6 5`", "`5 5`", "`5 6`", "`6 6`"],
       answer: [0],
-      explanation: "`len` counts bytes. In UTF-8, é takes two bytes, so the string is 6 bytes long but contains 5 runes.",
+      explanation: "`len` counts bytes. In UTF-8, é takes two bytes, so the string is 6 bytes long but holds 5 characters (runes).",
     },
     {
       id: "d1-23",
@@ -621,7 +843,8 @@ export default defineDomain({
       codeLang: "go",
       options: ["`0:a 1:é 3:!`", "`0:a 1:é 2:!`", "`0:a 1:Ã 2:© 3:!`", "`0:a 1:é 2:é 3:!`"],
       answer: [0],
-      explanation: "Ranging over a string decodes UTF-8 runes, and `i` is each rune's starting byte offset. é occupies bytes 1 and 2, so `!` starts at byte 3.",
+      explanation:
+        "Ranging over a string decodes UTF-8 runes, and `i` is the byte where each rune starts. é takes up bytes 1 and 2, so `!` starts at byte 3.",
     },
     {
       id: "d1-24",
@@ -637,7 +860,8 @@ export default defineDomain({
       codeLang: "go",
       options: ["`111 o`", "`o o`", "`111 111`", "Compile error: cannot index a string"],
       answer: [0],
-      explanation: "Indexing a string gives a byte (`uint8`), which `Println` shows as the number 111. Converting a byte to a string gives the character `o`.",
+      explanation:
+        "Indexing a string gives you a byte (a `uint8`), which `Println` shows as the number 111. Converting that byte to a string gives the character `o`.",
     },
     {
       id: "d1-25",
@@ -658,24 +882,24 @@ export default defineDomain({
       codeLang: "go",
       answer: [4],
       explanation:
-        "Strings are immutable, so each `+=` allocates a new string and copies everything so far: O(n²) in total. Use a `strings.Builder` (optionally `Grow` it first) or `strings.Join(rows, \"\\n\")`.",
+        "Strings can't change, so each `+=` makes a new string and copies everything so far. Over the whole loop that's O(n²). Use a `strings.Builder` (calling `Grow` first if you know the size) or `strings.Join(rows, \"\\n\")`.",
     },
   ],
 
   cards: [
-    { id: "c1-append", domain: "d1", kind: "service", term: "append", definition: "Adds elements to a slice, writing in place if len < cap, otherwise allocating a bigger array. Always use the result." },
-    { id: "c1-copy", domain: "d1", kind: "service", term: "copy", definition: "copy(dst, src) copies min(len(dst), len(src)) elements and returns the count. Never grows dst." },
-    { id: "c1-make", domain: "d1", kind: "service", term: "make", definition: "Creates and initializes slices, maps, and channels: make([]T, len, cap), make(map[K]V), make(chan T, n)." },
-    { id: "c1-lencap", domain: "d1", kind: "service", term: "len and cap", definition: "len is how many elements a slice holds; cap is how many fit before append must reallocate." },
-    { id: "c1-clear", domain: "d1", kind: "service", term: "clear", definition: "Built-in since Go 1.21: deletes every map entry, or zeroes every element of a slice." },
-    { id: "c1-slices", domain: "d1", kind: "service", term: "slices package", definition: "Generic helpers (Go 1.21+): slices.Sort, slices.Contains, slices.Index, slices.Clone, and more." },
-    { id: "c1-builder", domain: "d1", kind: "service", term: "strings.Builder", definition: "Builds a string with amortized appends instead of copying on every +=." },
-    { id: "c1-runecount", domain: "d1", kind: "service", term: "utf8.RuneCountInString", definition: "Counts the runes (code points) in a string without allocating. len(s) counts bytes." },
-    { id: "c1-zero", domain: "d1", kind: "concept", term: "Zero value", definition: "The value a variable has before assignment: 0, \"\", false, nil, or a struct of zero fields." },
-    { id: "c1-header", domain: "d1", kind: "concept", term: "Slice header", definition: "The pointer, length, and capacity that make up a slice value. Copying a slice copies only this." },
-    { id: "c1-fullslice", domain: "d1", kind: "concept", term: "Full slice expression", definition: "a[low:high:max] sets the result's capacity to max-low, so appends can't overwrite a's later elements." },
-    { id: "c1-rune", domain: "d1", kind: "concept", term: "Rune", definition: "An alias for int32 holding one Unicode code point. range over a string yields runes." },
-    { id: "c1-commaok", domain: "d1", kind: "concept", term: "Comma-ok idiom", definition: "v, ok := m[k] (also for type assertions and channel receives) reports whether the value really exists." },
+    { id: "c1-append", domain: "d1", kind: "service", term: "append", definition: "Adds elements to a slice. It writes in place if there's spare capacity, and otherwise allocates a bigger array. Always use the result." },
+    { id: "c1-copy", domain: "d1", kind: "service", term: "copy", definition: "copy(dst, src) copies as many elements as fit in the shorter of the two, and returns how many. It never makes dst bigger." },
+    { id: "c1-make", domain: "d1", kind: "service", term: "make", definition: "Creates slices, maps and channels ready to use: make([]T, len, cap), make(map[K]V), make(chan T, n)." },
+    { id: "c1-lencap", domain: "d1", kind: "service", term: "len and cap", definition: "len is how many elements a slice holds. cap is how many fit before append has to allocate a new array." },
+    { id: "c1-clear", domain: "d1", kind: "service", term: "clear", definition: "A built-in since Go 1.21. It deletes every entry in a map, or sets every element of a slice back to its zero value." },
+    { id: "c1-slices", domain: "d1", kind: "service", term: "slices package", definition: "Generic helpers from Go 1.21, such as slices.Sort, slices.Contains, slices.Index and slices.Clone." },
+    { id: "c1-builder", domain: "d1", kind: "service", term: "strings.Builder", definition: "Builds up a string piece by piece without copying the whole thing on every +=." },
+    { id: "c1-runecount", domain: "d1", kind: "service", term: "utf8.RuneCountInString", definition: "Counts the characters (runes) in a string without allocating. len(s) counts bytes instead." },
+    { id: "c1-zero", domain: "d1", kind: "concept", term: "Zero value", definition: "The value a variable has before you assign one: 0, \"\", false, nil, or a struct whose fields are all zero values." },
+    { id: "c1-header", domain: "d1", kind: "concept", term: "Slice header", definition: "The pointer, length and capacity that make up a slice value. Copying a slice copies only these three, not the data." },
+    { id: "c1-fullslice", domain: "d1", kind: "concept", term: "Full slice expression", definition: "a[low:high:max] sets the new slice's capacity to max minus low, so appending to it can't overwrite a's later elements." },
+    { id: "c1-rune", domain: "d1", kind: "concept", term: "Rune", definition: "Another name for int32, holding one Unicode character (code point). Ranging over a string gives you runes." },
+    { id: "c1-commaok", domain: "d1", kind: "concept", term: "Comma-ok idiom", definition: "v, ok := m[k] tells you whether the value really exists. The same form works for type assertions and channel receives." },
   ],
 
   challenges: [
@@ -685,8 +909,8 @@ export default defineDomain({
       lesson: "d1-slices",
       title: "Append without clobbering a",
       goal: "Create b, then run b = append(b, 9) while a still prints [1 2 3 4].",
-      hint: "If b has spare capacity inside a's array, append writes into it. Take away that spare capacity, or give b its own array.",
-      takeaway: "append only allocates when len == cap. a[:2:2] or make + copy forces a fresh array, so the shared one stays intact.",
+      hint: "If b has spare capacity inside a's array, append writes into it. Take away that spare room, or give b its own array.",
+      takeaway: "append only allocates when len equals cap. a[:2:2], or make plus copy, forces a fresh array, so the shared one stays as it was.",
       render: (onSolved) => <SliceLab goal="isolate" onSolved={onSolved} />,
     },
     {
@@ -695,7 +919,7 @@ export default defineDomain({
       lesson: "d1-slices",
       title: "See the aliasing bug",
       goal: "Make b = append(b, 9) change one of a's elements.",
-      hint: "Slice a so that b ends before a does but its capacity reaches into a's elements.",
+      hint: "Slice a so that b ends before a does, but b's capacity still reaches into a's elements.",
       takeaway: "b := a[:2] or a[1:3] leaves spare capacity in the shared array, so append overwrites whatever a has there.",
       render: (onSolved) => <SliceLab goal="overwrite" onSolved={onSolved} />,
     },

@@ -7,10 +7,10 @@ import { useState } from "react";
 // ───────────── AI ⊃ ML ⊃ deep learning ⊃ gen AI ─────────────
 
 const NEST = [
-  { name: "Artificial intelligence", color: "#4285f4", text: "Building machines that perform tasks that normally need human intelligence: learning, problem-solving, decision-making." },
-  { name: "Machine learning", color: "#a78bfa", text: "A subfield of AI where machines learn from data to perform specific tasks, instead of following hand-written rules." },
-  { name: "Deep learning", color: "#fbbc04", text: "ML with many-layered neural networks that pull complex patterns out of data such as images, audio, and text." },
-  { name: "Generative AI", color: "#34a853", text: "An application of ML that creates new content: text, images, code, audio, and video. Foundation models and LLMs live here." },
+  { name: "Artificial intelligence", color: "#4285f4", text: "Machines doing jobs that normally need a person's intelligence, like learning, solving problems and making decisions." },
+  { name: "Machine learning", color: "#a78bfa", text: "The part of AI where machines learn from data to do a task, instead of following rules someone wrote by hand." },
+  { name: "Deep learning", color: "#fbbc04", text: "ML that uses neural networks with many layers to find complex patterns in data like images, audio and text." },
+  { name: "Generative AI", color: "#34a853", text: "A use of ML that creates new content: text, images, code, audio and video. Foundation models and LLMs belong here." },
 ];
 
 export function GenAiNesting() {
@@ -68,23 +68,23 @@ const LAYERS = [
     name: "Applications",
     icon: "📱",
     color: "#34a853",
-    what: "The user-facing layer where people interact with AI.",
+    what: "The layer people actually see and use.",
     google: "Gemini app, Gemini for Google Workspace, Gemini Enterprise",
-    business: "Fastest time to value; least customisation.",
+    business: "Quickest to get value from, but the least room to customise.",
   },
   {
     name: "Agents",
     icon: "🤖",
     color: "#fbbc04",
-    what: "Software that pursues a goal by reasoning over inputs and using the tools available to it.",
+    what: "Software that works toward a goal by thinking about what it's given and using the tools it has.",
     google: "Agents in Gemini Enterprise, Customer Engagement Suite agents, custom agents on Agent Platform",
-    business: "Automates multi-step work, not just single answers.",
+    business: "Handles work with several steps, not just one answer.",
   },
   {
     name: "Platforms",
     icon: "🧰",
     color: "#ea4335",
-    what: "APIs, data management, and deployment tools that bridge models and agents and hide infrastructure complexity.",
+    what: "APIs, data management and deployment tools that connect models to agents and hide the hardware details.",
     google: "Gemini Enterprise Agent Platform: Model Garden, Agent Studio, Agent Search",
     business: "Build and govern your own solutions without running hardware.",
   },
@@ -92,17 +92,17 @@ const LAYERS = [
     name: "Models",
     icon: "🧠",
     color: "#a78bfa",
-    what: "Algorithms trained on vast data that learn patterns and generate content, translate, and answer questions.",
+    what: "Programs trained on huge amounts of data. They learn patterns, then create content, translate and answer questions.",
     google: "Gemini, Gemma, Imagen, Veo",
-    business: "Pick by modality, context window, performance, and cost.",
+    business: "Choose one by modality, context window, performance and cost.",
   },
   {
     name: "Infrastructure",
     icon: "🏗️",
     color: "#4285f4",
-    what: "Core compute: servers, GPUs, TPUs, plus the software to store and run models and training data.",
+    what: "The computing power underneath: servers, GPUs and TPUs, plus the software that stores and runs models and data.",
     google: "AI Hypercomputer, Google-designed TPUs, GPUs, global data centers",
-    business: "Most control and effort; you rarely start here.",
+    business: "The most control and the most effort. You rarely start here.",
   },
 ];
 
@@ -161,15 +161,15 @@ export function AgentAnatomy() {
       <div className="grid gap-2">
         <div className="rounded-xl border border-violet-400/40 bg-violet-400/10 p-3">
           <div className="font-semibold text-violet-200">🧠 Model</div>
-          <div className="text-sm text-slate-300">The brain: understands, plans, and generates.</div>
+          <div className="text-sm text-slate-300">The brain: it understands, plans and writes.</div>
         </div>
         <div className="rounded-xl border border-amber-400/40 bg-amber-400/10 p-3">
           <div className="font-semibold text-amber-200">🛠️ Tools</div>
-          <div className="text-sm text-slate-300">How the agent touches the world: APIs, data, actions.</div>
+          <div className="text-sm text-slate-300">How the agent reaches the outside world: APIs, data and actions.</div>
         </div>
         <div className="rounded-xl border border-sky-400/40 bg-sky-400/10 p-3">
           <div className="font-semibold text-sky-200">🔁 Reasoning loop</div>
-          <div className="text-sm text-slate-300">Observe → interpret → reason → act, repeated until the goal is met.</div>
+          <div className="text-sm text-slate-300">Observe, interpret, reason, act, and repeat until the goal is met.</div>
         </div>
       </div>
       <div>

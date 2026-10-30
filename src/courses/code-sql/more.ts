@@ -139,7 +139,7 @@ export const moreQuestions: Question[] = [
     codeLang: "sql",
     answers: ["4"],
     explanation:
-      "The salary test sits in the ON clause, so it only decides which employees match. eng matches Ann and Bo (2 rows); ops matches nobody (60 and NULL fail) but a LEFT JOIN still keeps it with NULLs (1 row); hr keeps its own row too (1 row): 4 in total. Moving the test into WHERE would drop the NULL rows and return 2.",
+      "The salary test sits in the ON clause, so it only decides which employees match. eng matches Ann and Bo (2 rows). ops matches nobody, because 60 and NULL fail, but a LEFT JOIN still keeps it with NULLs (1 row). hr keeps its own row too (1 row), so that's 4 in total. Moving the test into WHERE would drop the NULL rows and return 2.",
   },
   {
     id: "sql-ox-04",
@@ -181,6 +181,6 @@ export const moreQuestions: Question[] = [
     codeLang: "sql",
     answers: ["70"],
     explanation:
-      "`ROLLBACK TO s` undoes only the work after the savepoint (the 50 withdrawal), not the whole transaction. The first update (30) was made before the savepoint and is committed, so the balance is 100 - 30 = 70.",
+      "`ROLLBACK TO s` undoes only the work after the savepoint (the 50 withdrawal), not the whole transaction. The first update (30) was made before the savepoint and is committed, so the balance is 100 minus 30, which is 70.",
   },
 ];

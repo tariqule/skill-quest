@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Cert Quest",
+  title: "SkillQuest",
   description: "Learn by playing: gamified, visual prep for cloud and AI certification exams.",
 };
 

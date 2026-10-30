@@ -71,7 +71,7 @@ export function CapacityLab({ goal, onSolved }: GoalProps<CapacityGoal>) {
 
   return (
     <div>
-      <LabHeader title="Capacity and latency" hint="Every database node handles about 5,000 queries/s. 10% of traffic is writes. Drag the sliders and watch load and p99." />
+      <LabHeader title="Capacity and latency" hint="Each database node handles about 5,000 queries a second, and 10% of traffic is writes. Drag the sliders and watch the load and p99 latency." />
       <div className="grid gap-4 md:grid-cols-[1fr_1.2fr]">
         <div className="grid content-start gap-3 rounded-xl border border-white/10 bg-slate-950/60 p-3 text-sm text-slate-200">
           <label className="grid gap-1">
@@ -98,7 +98,7 @@ export function CapacityLab({ goal, onSolved }: GoalProps<CapacityGoal>) {
             <div className="text-xs uppercase tracking-wider text-slate-400">p99 latency</div>
             <div className="font-mono text-3xl font-black text-white">{c.saturated ? "∞ (timeouts)" : `${Math.round(c.p99)} ms`}</div>
             <div className="mt-1 text-xs text-slate-300">
-              {c.saturated ? "A node is past 100%: its queue grows without bound." : "Writes always hit the database, so the slowest 1% are DB requests; latency explodes as a node nears 100%."}
+              {c.saturated ? "A node is past 100%, so its queue keeps growing with no limit." : "Writes always reach the database, so the slowest 1% are database requests. Latency shoots up as a node nears 100%."}
             </div>
           </div>
           <div className="grid gap-1.5">
@@ -120,9 +120,9 @@ export function CapacityLab({ goal, onSolved }: GoalProps<CapacityGoal>) {
           </div>
           <p className="text-xs text-slate-400" aria-live="polite">
             {c.saturated && replicas > 0 && c.primaryLoad >= NODE_CAP
-              ? "The primary is drowning in writes. Replicas and caches only scale reads: next stop is sharding or batching writes."
+              ? "The primary is drowning in writes. Replicas and caches only help reads, so the next step is sharding or batching writes."
               : c.utilisation > 0.75
-                ? "Above ~75% utilisation, queueing makes tail latency climb steeply."
+                ? "Above about 75% busy, queueing makes the slowest requests much slower."
                 : "Healthy headroom."}
           </p>
         </div>
@@ -225,7 +225,7 @@ export function HashRingLab({ goal, onSolved }: GoalProps<RingGoal>) {
 
   return (
     <div>
-      <LabHeader title="Consistent hashing ring" hint="Keys (dots) belong to the next node clockwise. Add or remove nodes, toggle virtual nodes, and compare with hash % N." />
+      <LabHeader title="Consistent hashing ring" hint="Each key (a dot) belongs to the next node clockwise. Add or remove nodes, switch virtual nodes on or off, and compare with hash % N." />
       <div className="grid gap-4 md:grid-cols-[1.1fr_1fr]">
         <svg viewBox="0 0 300 300" className="mx-auto w-full max-w-sm" role="img" aria-label="Hash ring with nodes and keys">
           <circle cx="150" cy="150" r={R} fill="none" stroke="rgb(255 255 255 / 0.15)" strokeWidth="2" />
@@ -350,7 +350,7 @@ export function TokenBucketLab({ goal, onSolved }: GoalProps<"burst">) {
 
   return (
     <div>
-      <LabHeader title="Token bucket" hint="Each request takes a token; the bucket refills at a steady rate up to its capacity. Capacity = allowed burst, refill = sustained rate." />
+      <LabHeader title="Token bucket" hint="Each request takes a token, and the bucket refills at a steady rate up to its capacity. The capacity is the biggest burst allowed, and the refill is the steady rate." />
       <div className="grid gap-4 md:grid-cols-[1fr_1.1fr]">
         <div className="grid content-start gap-3 rounded-xl border border-white/10 bg-slate-950/60 p-3 text-sm text-slate-200">
           <label className="grid gap-1">

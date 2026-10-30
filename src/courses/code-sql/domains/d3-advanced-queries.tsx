@@ -13,7 +13,7 @@ export default defineDomain({
     weight: 25,
     emoji: "🗼",
     color: "#a78bfa",
-    summary: "Scalar, IN and EXISTS subqueries, the NOT IN trap, CTEs and recursive CTEs, window functions for ranking and running totals, CASE, and UNION / INTERSECT / EXCEPT.",
+    summary: "Scalar, IN and EXISTS subqueries, the NOT IN trap, CTEs and recursive CTEs, window functions for ranking and running totals, CASE, and UNION, INTERSECT and EXCEPT.",
   },
 
   tasks: [
@@ -35,6 +35,67 @@ export default defineDomain({
   ],
 
   lessons: [
+    {
+      id: "d3-start-steps",
+      level: "beginner",
+      task: "3.1",
+      title: "A query inside a query",
+      check: ["sql-b3-01", "sql-b3-02"],
+      visual: (
+        <div className="grid gap-4">
+          <Flow
+            steps={[
+              { icon: "🧮", label: "Inner query", sub: "Works out the average price" },
+              { icon: "🤝", label: "Hands over its answer", sub: "One number, like 10" },
+              { icon: "🔎", label: "Outer query", sub: "Keeps products above it" },
+            ]}
+          />
+          <CodeBlock
+            lang="sql"
+            code={sql`
+              SELECT name
+              FROM products
+              WHERE price > (SELECT AVG(price) FROM products);
+            `}
+          />
+        </div>
+      ),
+      points: [
+        "Some questions take two steps. To find products that cost more than average, you first need the average, then the products above it.",
+        "SQL lets you put one query inside another, in brackets. The inner query works out its answer, and the outer query uses it like a normal value.",
+        "The inner query is called a subquery. It's like asking a colleague to look up one number for you before you finish your own sum.",
+      ],
+      tip: "Run the inner query on its own first. If it returns the number you expect, the whole query is much easier to trust.",
+    },
+    {
+      id: "d3-start-case",
+      level: "beginner",
+      task: "3.3",
+      title: "Labelling rows with CASE",
+      check: ["sql-b3-03", "sql-b3-04"],
+      visual: (
+        <div className="grid gap-4">
+          <CodeBlock
+            lang="sql"
+            caption="Each product gets a label. The first rule that fits wins."
+            code={sql`
+              SELECT name,
+                CASE WHEN price < 10 THEN 'cheap'
+                     WHEN price < 50 THEN 'mid'
+                     ELSE 'pricey'
+                END AS label
+              FROM products;
+            `}
+          />
+        </div>
+      ),
+      points: [
+        "Sometimes you want to sort rows into labels, like marking each product as \"cheap\" or \"pricey\". CASE does that inside a query.",
+        "CASE reads like a list of rules: WHEN this is true, THEN use this label. ELSE gives the label for everything else, and END closes the list.",
+        "The rules are checked from top to bottom, and the first one that fits wins. Think of a post office sorter dropping each letter into the first slot it fits.",
+      ],
+      tip: "Write an ELSE, even when you think every row is covered. Without one, a row that fits no rule gets NULL, meaning no value at all.",
+    },
     {
       id: "d3-subqueries",
       level: "intermediate",
@@ -71,10 +132,10 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "A subquery is a SELECT inside another statement. A scalar subquery must return at most one row and one column, or PostgreSQL raises an error.",
+        "A subquery is a SELECT inside another statement. A scalar subquery (one used as a single value) must return at most one row and one column, or PostgreSQL raises an error.",
         "IN and EXISTS test membership without duplicating outer rows the way a join can.",
-        "A correlated subquery mentions the outer query's columns (o.customer_id = c.id), so it's logically evaluated once per outer row.",
-        "x NOT IN (…) is never TRUE if the list contains a NULL (x <> NULL is UNKNOWN). Prefer NOT EXISTS or an anti-join.",
+        "A correlated subquery mentions the outer query's columns, as in `o.customer_id = c.id`, so it's logically evaluated once per outer row.",
+        "`x NOT IN (…)` is never TRUE if the list contains a NULL, because `x <> NULL` is UNKNOWN. Prefer NOT EXISTS or an anti-join.",
       ],
       tip: "Reach for NOT EXISTS whenever you'd write NOT IN with a subquery. It's NULL-safe, and PostgreSQL plans it as an efficient anti-join.",
     },
@@ -110,9 +171,9 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "WITH name AS (…) defines a named result that exists only for that one statement. Chain several to build a query in readable steps.",
-        "WITH RECURSIVE has an anchor part and a recursive part joined by UNION ALL. Each round feeds on the rows from the round before; it stops when a round adds nothing.",
-        "Recursive CTEs walk hierarchies: org charts, category trees, bill-of-materials, graph reachability.",
+        "A CTE (common table expression) is written WITH name AS (…). It defines a named result that exists only for that one statement. Chain several to build a query in readable steps.",
+        "WITH RECURSIVE has an anchor part and a recursive part joined by UNION ALL. Each round feeds on the rows from the round before, and it stops when a round adds nothing.",
+        "Recursive CTEs walk hierarchies, such as org charts, category trees, the parts list of a product, or which nodes in a graph you can reach.",
         "Since PostgreSQL 12, a side-effect-free CTE used once is inlined into the main query like a subquery. Write AS MATERIALIZED to force it to be computed once separately.",
       ],
       tip: "Always give a recursive CTE a guaranteed stop (a WHERE on depth or value). An accidental cycle in the data will otherwise loop until it runs out of resources.",
@@ -141,9 +202,9 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "fn() OVER (…) computes a value for each row from a window of related rows, without collapsing them like GROUP BY.",
-        "PARTITION BY splits rows into independent windows; ORDER BY orders rows inside each one.",
-        "ROW_NUMBER gives 1, 2, 3 even for ties; RANK gives 1, 1, 3; DENSE_RANK gives 1, 1, 2.",
+        "A window function, written fn() OVER (…), computes a value for each row from a window of related rows. Unlike GROUP BY, it keeps every row.",
+        "PARTITION BY splits the rows into separate windows, and ORDER BY sorts the rows inside each one.",
+        "For two tied rows and one more, ROW_NUMBER gives 1, 2, 3. RANK gives 1, 1, 3, and DENSE_RANK gives 1, 1, 2.",
         "With ORDER BY, aggregates like SUM become running totals. The default frame (RANGE … CURRENT ROW) includes all rows tied with the current one.",
         "Window functions run after WHERE, GROUP BY and HAVING, so to filter on one, compute it in a subquery or CTE first.",
       ],
@@ -171,7 +232,7 @@ export default defineDomain({
             cols={4}
             tiles={[
               { icon: "➕", title: "UNION", text: "Rows from both queries, duplicates removed.", color: "#38bdf8" },
-              { icon: "⏩", title: "UNION ALL", text: "Rows from both, duplicates kept. No dedupe work, so faster.", color: "#34d399" },
+              { icon: "⏩", title: "UNION ALL", text: "Rows from both, duplicates kept. There's no duplicate check, so it's faster.", color: "#34d399" },
               { icon: "🎯", title: "INTERSECT", text: "Rows that appear in both results.", color: "#f59e0b" },
               { icon: "➖", title: "EXCEPT", text: "Rows in the first result but not the second.", color: "#fb7185" },
             ]}
@@ -180,15 +241,81 @@ export default defineDomain({
       ),
       points: [
         "CASE WHEN … THEN … ELSE … END is SQL's if/else expression. Branches are checked in order, and without ELSE the result is NULL.",
-        "Conditional aggregation (SUM(CASE …) or the standard FILTER clause) counts several categories in one pass.",
-        "Set operations stack the rows of two queries. Both sides need the same number of columns with compatible types; names come from the first query.",
-        "Set operations compare rows as \"not distinct\", so two NULLs count as the same row, unlike =.",
+        "Conditional aggregation, using SUM(CASE …) or the standard FILTER clause, counts several categories in one pass over the rows.",
+        "Set operations stack the rows of two queries. Both sides need the same number of columns with compatible types, and the column names come from the first query.",
+        "Set operations compare rows as \"not distinct\", so two NULLs count as the same row. That's different from `=`, where NULL never equals NULL.",
       ],
       tip: "Default to UNION ALL. Use UNION only when you really need duplicates removed, because that costs a sort or hash over the whole result.",
     },
   ],
 
   questions: [
+    {
+      id: "sql-b3-01",
+      type: "output",
+      domain: "d3",
+      level: "beginner",
+      lesson: "d3-start-steps",
+      prompt: "The average price here is 10. Type the name the query returns.",
+      code: "-- products(name, price)\n-- (pen, 2)  (mug, 8)  (lamp, 20)\nSELECT name\nFROM products\nWHERE price > (SELECT AVG(price) FROM products);",
+      codeLang: "sql",
+      answers: ["lamp"],
+      explanation:
+        "The inner query works out the average: 2 plus 8 plus 20 is 30, and 30 divided by 3 is 10. The outer query then keeps the products that cost more than 10, which is only the lamp.",
+    },
+    {
+      id: "sql-b3-02",
+      domain: "d3",
+      level: "beginner",
+      lesson: "d3-start-steps",
+      prompt: "In `WHERE price > (SELECT AVG(price) FROM products)`, what does the part in brackets do?",
+      options: [
+        "Works out the average price, which the outer query then compares each product against",
+        "Sorts the products from cheapest to most expensive",
+        "Deletes every product below the average price",
+        "Creates a new table called AVG",
+      ],
+      answer: [0],
+      explanation:
+        "The part in brackets is a subquery. It produces one value, the average price, and the outer WHERE compares each product's price with it. Subqueries like this only read data, they never delete it.",
+    },
+    {
+      id: "sql-b3-03",
+      type: "output",
+      domain: "d3",
+      level: "beginner",
+      lesson: "d3-start-case",
+      prompt: "Type the label this query returns.",
+      code: "SELECT CASE WHEN 5 >= 10 THEN 'large'\n            ELSE 'small'\n       END;",
+      codeLang: "sql",
+      answers: ["small"],
+      explanation:
+        "5 isn't 10 or more, so the WHEN rule doesn't fit. Nothing else fits either, so CASE uses the ELSE label, 'small'.",
+    },
+    {
+      id: "sql-b3-04",
+      type: "fill",
+      domain: "d3",
+      level: "beginner",
+      lesson: "d3-start-case",
+      prompt: "Fill the gap so any product that isn't cheap is labelled 'pricey'.",
+      code: "SELECT name,\n  CASE WHEN price < 10 THEN 'cheap'\n       {{1}} 'pricey'\n  END AS label\nFROM products;",
+      codeLang: "sql",
+      blanks: [{ options: ["ELSE", "OTHERWISE", "DEFAULT", "THEN"], answer: 0 }],
+      explanation:
+        "ELSE gives the label for every row that no WHEN rule matched. OTHERWISE and DEFAULT aren't part of CASE, and THEN only comes after a WHEN.",
+    },
+    {
+      id: "sql-b3-05",
+      domain: "d3",
+      level: "beginner",
+      lesson: "d3-start-case",
+      prompt: "A CASE has no ELSE, and a row fits none of its WHEN rules. What does that row get?",
+      options: ["NULL, meaning no value", "The label from the first WHEN", "An error that stops the query", "An empty piece of text, ''"],
+      answer: [0],
+      explanation:
+        "When nothing fits and there's no ELSE, CASE gives NULL. The query still runs. NULL isn't the same as empty text: it means there's no value at all.",
+    },
     {
       id: "d3-01",
       domain: "d3",
@@ -237,7 +364,7 @@ export default defineDomain({
       options: ["No rows", "`2` and `3`", "`2`, `3` and NULL", "`1`"],
       answer: [0],
       explanation:
-        "`2 NOT IN (1, NULL)` means `2 <> 1 AND 2 <> NULL`, which is TRUE AND UNKNOWN = UNKNOWN. Every row is UNKNOWN or FALSE, so none are returned. NOT EXISTS returns 2 and 3.",
+        "`2 NOT IN (1, NULL)` means `2 <> 1 AND 2 <> NULL`. That's TRUE AND UNKNOWN, which gives UNKNOWN. Every row is UNKNOWN or FALSE, so none are returned. NOT EXISTS returns 2 and 3.",
     },
     {
       id: "d3-04",
@@ -380,7 +507,7 @@ export default defineDomain({
       ],
       answer: [0],
       explanation:
-        "Before PostgreSQL 12, every CTE was materialized, which blocked filter push-down. Now such a CTE is inlined unless you write `AS MATERIALIZED`; `AS NOT MATERIALIZED` forces inlining even when it's referenced more than once.",
+        "Before PostgreSQL 12, every CTE was materialized, which blocked filter push-down. Now such a CTE is inlined unless you write `AS MATERIALIZED`. `AS NOT MATERIALIZED` forces inlining even when it's referenced more than once.",
     },
     {
       id: "d3-12",
@@ -431,7 +558,7 @@ export default defineDomain({
       codeLang: "sql",
       answer: [4],
       explanation:
-        "WHERE runs before window functions (and before SELECT aliases exist). Compute rn in a CTE or subquery, then filter it outside. Some warehouses offer QUALIFY for this; PostgreSQL doesn't.",
+        "WHERE runs before window functions (and before SELECT aliases exist). Compute rn in a CTE or subquery, then filter it outside. Some warehouses offer QUALIFY for this, but PostgreSQL doesn't.",
     },
     {
       id: "d3-15",
@@ -515,7 +642,7 @@ export default defineDomain({
       ],
       answer: [0],
       explanation:
-        "ROW_NUMBER picks exactly one survivor per key; batching keeps locks and WAL bursts small on a big table; the constraint prevents a repeat. DISTINCT * keeps the rows because their ids differ, the COUNT approach deletes the originals too, and creating the constraint fails while duplicates exist.",
+        "ROW_NUMBER picks exactly one survivor per key. Batching keeps locks and bursts of WAL (the write-ahead log) small on a big table, and the constraint prevents a repeat. DISTINCT * keeps the rows because their ids differ, the COUNT approach deletes the originals too, and creating the constraint fails while duplicates exist.",
     },
     {
       id: "d3-20",
@@ -656,17 +783,17 @@ export default defineDomain({
     { id: "c3-exists", domain: "d3", kind: "service", term: "EXISTS", definition: "True if the subquery returns at least one row. NOT EXISTS is the NULL-safe anti-join." },
     { id: "c3-in", domain: "d3", kind: "service", term: "IN (subquery)", definition: "True if the value equals any value the subquery returns. NOT IN breaks if the list holds a NULL." },
     { id: "c3-with", domain: "d3", kind: "service", term: "WITH (CTE)", definition: "Names a result for the rest of one statement, so a query can be built in readable steps." },
-    { id: "c3-recursive", domain: "d3", kind: "service", term: "WITH RECURSIVE", definition: "Anchor query UNION ALL a step that reads the CTE itself; walks trees and graphs." },
-    { id: "c3-rownumber", domain: "d3", kind: "service", term: "ROW_NUMBER", definition: "Window function: 1, 2, 3 … within each partition, even for ties." },
+    { id: "c3-recursive", domain: "d3", kind: "service", term: "WITH RECURSIVE", definition: "A starting query, then UNION ALL, then a step that reads the CTE itself. It walks trees and graphs." },
+    { id: "c3-rownumber", domain: "d3", kind: "service", term: "ROW_NUMBER", definition: "A window function that numbers rows 1, 2, 3 … within each partition, even when they tie." },
     { id: "c3-rank", domain: "d3", kind: "service", term: "RANK / DENSE_RANK", definition: "Ties share a rank. RANK leaves gaps after ties (1, 1, 3); DENSE_RANK doesn't (1, 1, 2)." },
-    { id: "c3-lag", domain: "d3", kind: "service", term: "LAG / LEAD", definition: "The value from the previous / next row in the window's order (NULL at the edges by default)." },
+    { id: "c3-lag", domain: "d3", kind: "service", term: "LAG / LEAD", definition: "The value from the previous row (LAG) or the next row (LEAD) in the window's order. At the edges you get NULL by default." },
     { id: "c3-over", domain: "d3", kind: "service", term: "OVER (PARTITION BY …)", definition: "Turns a function into a window function over related rows, without collapsing them." },
-    { id: "c3-case", domain: "d3", kind: "service", term: "CASE", definition: "If/else expression: first matching WHEN wins; no match and no ELSE gives NULL." },
-    { id: "c3-union", domain: "d3", kind: "service", term: "UNION / UNION ALL", definition: "Stack two results. UNION removes duplicates; UNION ALL keeps them and is cheaper." },
-    { id: "c3-except", domain: "d3", kind: "service", term: "EXCEPT / INTERSECT", definition: "Rows in the first result but not the second / rows in both." },
-    { id: "c3-filter", domain: "d3", kind: "service", term: "FILTER (WHERE …)", definition: "Restricts which rows an aggregate sees: COUNT(*) FILTER (WHERE status = 'paid')." },
+    { id: "c3-case", domain: "d3", kind: "service", term: "CASE", definition: "SQL's if/else. The first matching WHEN wins, and with no match and no ELSE you get NULL." },
+    { id: "c3-union", domain: "d3", kind: "service", term: "UNION / UNION ALL", definition: "Stack two results. UNION removes duplicates, and UNION ALL keeps them and is cheaper." },
+    { id: "c3-except", domain: "d3", kind: "service", term: "EXCEPT / INTERSECT", definition: "EXCEPT gives rows in the first result but not the second. INTERSECT gives rows that are in both." },
+    { id: "c3-filter", domain: "d3", kind: "service", term: "FILTER (WHERE …)", definition: "Limits which rows an aggregate sees. For example, COUNT(*) FILTER (WHERE …) can count just the paid orders, next to a plain COUNT(*) of all of them." },
     { id: "c3-correlated", domain: "d3", kind: "concept", term: "Correlated subquery", definition: "A subquery that refers to the outer row, so it's logically evaluated once per outer row." },
-    { id: "c3-frame", domain: "d3", kind: "concept", term: "Window frame", definition: "Which rows around the current one an aggregate sees. Default with ORDER BY: start to current row, including ties." },
-    { id: "c3-topn", domain: "d3", kind: "concept", term: "Top-N per group", definition: "ROW_NUMBER() OVER (PARTITION BY g ORDER BY x DESC) in a CTE, then WHERE rn <= N." },
+    { id: "c3-frame", domain: "d3", kind: "concept", term: "Window frame", definition: "Which rows around the current one an aggregate sees. With ORDER BY, the default is from the first row to the current one, including ties." },
+    { id: "c3-topn", domain: "d3", kind: "concept", term: "Top-N per group", definition: "Number rows with ROW_NUMBER() OVER (PARTITION BY g ORDER BY x DESC) in a CTE, then keep WHERE rn <= N." },
   ],
 });

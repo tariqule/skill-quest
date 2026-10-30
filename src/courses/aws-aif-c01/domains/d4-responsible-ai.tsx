@@ -1,4 +1,4 @@
-import { Tiles } from "@/components/learn/blocks";
+import { Flow, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { GuardrailsLab } from "../labs";
 import { BiasVariance, GuardrailsPipeline, TradeoffSlider } from "../visuals";
@@ -18,7 +18,7 @@ export default defineDomain({
     emoji: "⚖️",
     color: "#34d399",
     summary:
-      "Bias, fairness, explainability, transparency, Guardrails, Clarify, model cards, and human review.",
+      "Making AI fair, safe and honest: spotting bias, explaining decisions, being open with users, and the AWS tools that help, like Guardrails, Clarify, model cards and human review.",
   },
 
   tasks: [
@@ -48,6 +48,57 @@ export default defineDomain({
   ],
 
   lessons: [
+    // ── Start here ──
+    {
+      id: "d4-start-fair",
+      level: "beginner",
+      check: ["aif-b4-01", "aif-b4-02"],
+      task: "4.1",
+      title: "Why AI can be unfair",
+      visual: (
+        <Flow
+          color="#34d399"
+          steps={[
+            { icon: "📸", label: "Lopsided examples", sub: "Most training photos show one group of people" },
+            { icon: "🧠", label: "The model learns", sub: "It gets very good at that group" },
+            { icon: "😟", label: "Unfair results", sub: "It makes more mistakes for everyone else" },
+          ]}
+        />
+      ),
+      points: [
+        "A model learns only from the examples you give it. If those examples are lopsided, its answers will be too.",
+        "Imagine a chef who has only ever cooked for one friend. The food suits that friend perfectly and might not suit anyone else.",
+        "When a model treats some groups of people worse than others, we call it **bias**. Making it work well for everyone is **fairness**.",
+        "**Responsible AI** is the habit of checking for problems like this, and fixing them before they hurt real people.",
+      ],
+      tip: "If a question describes a model that works well for one group and badly for others, the usual cause is training data that doesn't represent everyone.",
+    },
+    {
+      id: "d4-start-open",
+      level: "beginner",
+      check: ["aif-b4-03", "aif-b4-04"],
+      task: "4.2",
+      title: "Showing how the AI decided",
+      visual: (
+        <Tiles
+          cols={3}
+          tiles={[
+            { icon: "🔍", title: "Explain", text: "Show why the AI gave this answer, like a teacher showing the working.", color: "#34d399" },
+            { icon: "📢", title: "Be open", text: "Tell people when they're talking to AI and what it can't do.", color: "#38bdf8" },
+            { icon: "🙋", title: "Keep a human", text: "Let a person check the tricky or important cases.", color: "#a78bfa" },
+          ]}
+        />
+      ),
+      points: [
+        "People trust a decision more when they can see the reasons behind it. That's true for AI as much as for a bank manager.",
+        "**Explainability** means being able to say why the model gave a particular answer, like a maths teacher asking you to show your working.",
+        "**Transparency** means being open: telling people they're dealing with AI and being honest about what it can't do.",
+        "For important or uncertain cases, a person can review the AI's answer. This is called **human in the loop**.",
+      ],
+      tip: "When a regulator wants every decision explained, look for answers about explainability, simpler models or human review.",
+    },
+
+    // ── Exam lessons ──
     {
       id: "d4-dimensions",
       check: ["d4-04", "d4-13"],
@@ -57,18 +108,20 @@ export default defineDomain({
         <Tiles
           cols={4}
           tiles={[
-            { icon: "⚖️", title: "Fairness", text: "Works equally well for all groups", color: "#34d399" },
+            { icon: "⚖️", title: "Fairness", text: "Works equally well for every group", color: "#34d399" },
             { icon: "🌈", title: "Inclusivity", text: "Represents everyone it serves", color: "#34d399" },
             { icon: "🛡️", title: "Safety", text: "Avoids harmful output", color: "#34d399" },
             { icon: "✅", title: "Veracity", text: "Truthful and accurate", color: "#34d399" },
-            { icon: "🧱", title: "Robustness", text: "Holds up under odd inputs", color: "#34d399" },
+            { icon: "🧱", title: "Robustness", text: "Copes with odd or messy input", color: "#34d399" },
             { icon: "🔍", title: "Explainability", text: "You can see why it decided", color: "#34d399" },
-            { icon: "🔒", title: "Privacy & security", text: "Protects personal data", color: "#34d399" },
+            { icon: "🔒", title: "Privacy and security", text: "Protects personal data", color: "#34d399" },
             { icon: "📋", title: "Governance", text: "Clear ownership and oversight", color: "#34d399" },
           ]}
         />
       ),
-      points: ["Responsible model choice also weighs environmental impact: right-size the model to save energy."],
+      points: [
+        "Choosing a model responsibly also means thinking about the environment. A right-sized model does the same job with less energy.",
+      ],
     },
     {
       id: "d4-bias",
@@ -77,10 +130,10 @@ export default defineDomain({
       title: "Bias and variance on a dartboard",
       visual: <BiasVariance />,
       points: [
-        "Overfitting (high variance): great on training data, poor on new data.",
-        "Underfitting (high bias): poor everywhere.",
-        "Unbalanced or unrepresentative data can harm specific demographic groups.",
-        "Detect with subgroup analysis, label-quality checks, human audits, and SageMaker Clarify.",
+        "**Overfitting**, also called high variance, means the model is great on training data and poor on new data.",
+        "**Underfitting**, also called high bias, means the model is poor everywhere because it's too simple.",
+        "Data that's unbalanced or doesn't represent everyone can harm particular groups of people.",
+        "You find bias by comparing results across groups, checking label quality, having people audit outputs, and using SageMaker Clarify.",
       ],
     },
     {
@@ -95,8 +148,8 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "Filters: harmful content, denied topics, banned words, PII, prompt attacks.",
-        "Contextual grounding check flags answers not supported by the source documents.",
+        "Guardrails check both what goes into the model and what comes out. They can block harmful content, topics you've banned, specific words, personal data and prompt attacks.",
+        "The **contextual grounding check** flags answers that your source documents don't back up.",
       ],
     },
     {
@@ -108,10 +161,10 @@ export default defineDomain({
         <div className="grid gap-3 sm:grid-cols-2">
           <Tiles
             tiles={[
-              { icon: "©️", title: "IP infringement", text: "Generated content may copy protected work", color: "#f87171" },
+              { icon: "©️", title: "IP infringement", text: "Generated content might copy someone's protected work", color: "#f87171" },
               { icon: "🫥", title: "Biased output", text: "Unfair results for some users", color: "#f87171" },
               { icon: "💔", title: "Loss of trust", text: "Customers stop believing you", color: "#f87171" },
-              { icon: "🌀", title: "Hallucinations", text: "False claims reach end users", color: "#f87171" },
+              { icon: "🌀", title: "Hallucinations", text: "False claims reach the people using it", color: "#f87171" },
             ]}
           />
           <div className="rounded-xl border border-emerald-400/30 bg-emerald-400/5 p-3">
@@ -119,24 +172,26 @@ export default defineDomain({
             <ul className="mt-2 grid gap-1.5 text-sm text-slate-200">
               <li>🌍 Inclusive and diverse</li>
               <li>⚖️ Balanced across groups</li>
-              <li>🧹 Curated from trusted sources</li>
+              <li>🧹 Carefully chosen from trusted sources</li>
               <li>🤝 Collected with consent</li>
             </ul>
           </div>
         </div>
       ),
-      points: ["Most of the fixes start with the data."],
+      points: [
+        "Most of these problems are fixed at the source: the data the model learns from.",
+      ],
     },
     {
       id: "d4-explain",
       check: ["d4-07", "d4-05"],
       task: "4.2",
-      title: "Transparency vs performance",
+      title: "Transparency and performance",
       visual: <TradeoffSlider />,
       points: [
-        "Tools: SageMaker Model Cards (document a model), SageMaker Clarify (explain with SHAP), Bedrock Model Evaluations.",
-        "Open-source models, open data, and clear licences increase transparency.",
-        "Human-centred design: show users why, let them give feedback. Amazon A2I adds human review.",
+        "Your tools here are **SageMaker Model Cards** to document a model, **SageMaker Clarify** to explain predictions with SHAP, and **Bedrock Model Evaluations**.",
+        "Open-source models, open data and clear licences all make a system more transparent.",
+        "Design for people: show users why a decision was made and let them give feedback. **Amazon A2I** adds a human reviewer when you need one.",
       ],
     },
     {
@@ -149,106 +204,168 @@ export default defineDomain({
           <Tiles
             cols={4}
             tiles={[
-              { icon: "🎯", title: "Sampling bias", text: "Training data doesn't represent the real population.", color: "#f87171" },
-              { icon: "📏", title: "Measurement bias", text: "The tools or methods used to collect data are skewed.", color: "#f87171" },
-              { icon: "👀", title: "Observer bias", text: "The person collecting or labeling data lets their views shape it.", color: "#f87171" },
-              { icon: "🪞", title: "Confirmation bias", text: "Favouring information that confirms what you already believe.", color: "#f87171" },
+              { icon: "🎯", title: "Sampling bias", text: "The training data doesn't match the real population.", color: "#f87171" },
+              { icon: "📏", title: "Measurement bias", text: "The tools or methods used to collect data are off.", color: "#f87171" },
+              { icon: "👀", title: "Observer bias", text: "The person collecting or labeling data lets their own views shape it.", color: "#f87171" },
+              { icon: "🪞", title: "Confirmation bias", text: "Favouring information that backs up what you already believe.", color: "#f87171" },
             ]}
           />
           <Tiles
             cols={3}
             tiles={[
-              { icon: "📈", title: "Partial dependence plot", text: "Shows how one feature moves the prediction while others stay fixed. Useful for black-box models.", color: "#34d399" },
-              { icon: "🏦", title: "Regulated workloads", text: "Finance, healthcare, aerospace: extra audit, archival, and reporting rules.", color: "#38bdf8" },
-              { icon: "🧩", title: "Why AI compliance is hard", text: "Opaque decisions, models that change over time, emergent capabilities, and new risks like bias and misinformation.", color: "#a78bfa" },
+              { icon: "📈", title: "Partial dependence plot", text: "Shows how changing one input moves the prediction while the others stay fixed. Handy for black-box models.", color: "#34d399" },
+              { icon: "🏦", title: "Regulated workloads", text: "Finance, healthcare, aerospace: extra rules for audits, record keeping and reporting.", color: "#38bdf8" },
+              { icon: "🧩", title: "Why AI compliance is hard", text: "Decisions are hard to see inside, models change over time, new abilities appear, and there are new risks like bias and misinformation.", color: "#a78bfa" },
             ]}
           />
         </div>
       ),
       points: [
-        "GenAI-specific challenges: toxicity, hallucinations, plagiarism and cheating, and prompt misuse.",
-        "Fight toxicity by curating training data and filtering output with guardrails.",
-        "Governance starts with people: an AI governance board (legal, compliance, privacy, AI experts) with clear roles, policies, and review processes.",
-        "Regulations such as the EU AI Act push for transparent, explainable, accountable algorithms.",
+        "Generative AI brings its own problems: toxic content, hallucinations, plagiarism and cheating, and people misusing prompts.",
+        "To fight toxic output, clean up the training data and filter answers with guardrails.",
+        "Good governance starts with people. An **AI governance board** brings together legal, compliance, privacy and AI experts, with clear roles, policies and reviews.",
+        "Laws like the EU AI Act push for algorithms that are transparent, explainable and accountable.",
       ],
     },
   ],
 
   questions: [
+    // ── Start here ──
+    {
+      id: "aif-b4-01",
+      domain: "d4",
+      level: "beginner",
+      lesson: "d4-start-fair",
+      prompt: "A face-recognition model was trained mostly on photos of one group of people. What's likely to happen?",
+      options: [
+        "It makes more mistakes for people outside that group",
+        "It works equally well for everyone",
+        "It stops working completely",
+        "It becomes faster for everyone",
+      ],
+      answer: [0],
+      explanation:
+        "A model only learns from what it's shown. If the photos are lopsided, it gets good at one group and worse at others. That unfairness is called bias.",
+    },
+    {
+      id: "aif-b4-02",
+      domain: "d4",
+      level: "beginner",
+      lesson: "d4-start-fair",
+      prompt: "What does fairness mean for an AI system?",
+      options: [
+        "It works well for all the different groups of people who use it",
+        "It is free for everyone to use",
+        "It gives every user exactly the same answer",
+        "It always answers within one second",
+      ],
+      answer: [0],
+      explanation:
+        "Fairness means the model's quality doesn't drop for some groups of people. It isn't about price or speed, and different questions can still get different answers.",
+    },
+    {
+      id: "aif-b4-03",
+      domain: "d4",
+      level: "beginner",
+      lesson: "d4-start-open",
+      prompt: "A bank's AI turns down a loan, and the customer asks why. Which idea is about being able to answer that question?",
+      options: ["Explainability", "Latency", "Storage", "Temperature"],
+      answer: [0],
+      explanation:
+        "Explainability means you can say why the model reached its decision, like showing your working in maths. It builds trust, and in some industries the law requires it.",
+    },
+    {
+      id: "aif-b4-04",
+      domain: "d4",
+      level: "beginner",
+      lesson: "d4-start-open",
+      prompt: "An AI isn't sure about a medical insurance claim. What's the responsible next step?",
+      options: [
+        "Send the claim to a person to review",
+        "Approve it anyway to save time",
+        "Reject it without telling anyone",
+        "Ask the AI the same question until it's sure",
+      ],
+      answer: [0],
+      explanation:
+        "When the AI is unsure and the decision matters, a person should check it. Keeping a human in the loop catches mistakes before they affect someone.",
+    },
+
+    // ── Exam questions ──
     {
       id: "d4-01",
       domain: "d4",
       lesson: "d4-explain",
-      prompt: "Which SageMaker feature detects bias in data and models and explains predictions with feature importance?",
+      prompt: "Which SageMaker feature finds bias in data and models, and explains predictions by showing which features mattered most?",
       options: ["SageMaker Clarify", "SageMaker Ground Truth", "SageMaker Pipelines", "SageMaker Neo"],
       answer: [0],
       explanation:
-        "SageMaker Clarify detects pre-training and post-training bias and provides explainability using SHAP values.",
+        "SageMaker Clarify checks for bias both before and after training. It explains predictions using SHAP values, which show how much each feature contributed.",
     },
     {
       id: "d4-02",
       domain: "d4",
       lesson: "d4-guardrails",
-      prompt: "A GenAI app must block hate speech, filter specific denied topics, and redact PII in responses. Which feature?",
+      prompt: "A GenAI app must block hate speech, refuse certain topics and hide personal data in its replies. Which feature does this?",
       options: ["Amazon Bedrock Guardrails", "AWS WAF", "Amazon Macie", "AWS Shield"],
       answer: [0],
       explanation:
-        "Guardrails provide content filters, denied topics, word filters, sensitive information (PII) filters, contextual grounding checks, and automated reasoning checks.",
+        "Bedrock Guardrails gives you content filters, denied topics, word filters, filters for sensitive information like PII, contextual grounding checks and automated reasoning checks.",
     },
     {
       id: "d4-03",
       domain: "d4",
       lesson: "d4-bias",
-      prompt: "A loan approval model was trained mostly on data from one demographic group and performs poorly for others. What is this?",
+      prompt: "A loan approval model was trained mostly on data from one demographic group and does badly for others. What is this?",
       options: ["Sampling bias", "Overfitting to hyperparameters", "Latency", "Data encryption failure"],
       answer: [0],
       explanation:
-        "When training data doesn't represent the population, the model can be unfair to under-represented groups. Fix with more representative, balanced data.",
+        "When the training data doesn't represent the people the model will serve, it can be unfair to the groups that were left out. The fix is more representative, balanced data.",
     },
     {
       id: "d4-04",
       domain: "d4",
       lesson: "d4-dimensions",
-      prompt: "Which are core dimensions of responsible AI? (Choose two.)",
+      prompt: "Which of these are core dimensions of responsible AI? (Choose two.)",
       options: ["Fairness", "Explainability", "Maximum parameter count", "Lowest latency"],
       answer: [0, 1],
       explanation:
-        "AWS responsible AI dimensions: fairness, explainability, privacy and security, safety, controllability, veracity and robustness, governance, and transparency.",
+        "AWS lists these dimensions: fairness, explainability, privacy and security, safety, controllability, veracity and robustness, governance, and transparency. Size and speed aren't on the list.",
     },
     {
       id: "d4-05",
       domain: "d4",
       lesson: "d4-explain",
-      prompt: "A team needs a standard document describing a model's intended use, training data, evaluation results, and risks. Which feature?",
+      prompt: "A team needs a standard document that records a model's intended use, training data, test results and risks. Which feature fits?",
       options: ["SageMaker Model Cards", "AWS Artifact", "Amazon Inspector", "AWS Config rules"],
       answer: [0],
-      explanation: "SageMaker Model Cards document model details for governance and audits. AWS AI Service Cards cover AWS's own AI services.",
+      explanation: "SageMaker Model Cards record the details of your model for governance and audits. AWS AI Service Cards are the equivalent for AWS's own AI services.",
     },
     {
       id: "d4-06",
       domain: "d4",
       lesson: "d4-explain",
-      prompt: "Which service adds human review to ML predictions, for example when model confidence is low?",
+      prompt: "Which service adds human review to ML predictions, for example when the model isn't confident?",
       options: ["Amazon Augmented AI (A2I)", "Amazon Polly", "AWS Glue", "Amazon Athena"],
       answer: [0],
       explanation:
-        "Amazon A2I routes low-confidence or random-sample predictions to human reviewers (human-in-the-loop).",
+        "Amazon A2I sends low-confidence predictions, or a random sample of them, to human reviewers. This is known as human in the loop.",
     },
     {
       id: "d4-07",
       domain: "d4",
       lesson: "d4-explain",
-      prompt: "A regulator requires a bank to explain why a loan was denied. What characteristic should the model have?",
+      prompt: "A regulator requires a bank to explain why a loan was turned down. What does the model need?",
       options: ["Explainability / interpretability", "High temperature", "Multimodality", "Large context window"],
       answer: [0],
       explanation:
-        "There is a trade-off: simpler models (linear regression, decision trees) are more interpretable, while deep neural networks are more accurate but harder to explain.",
+        "There's a trade-off here. Simpler models, like linear regression or decision trees, are easy to explain. Deep neural networks can be more accurate, but they're much harder to explain.",
     },
     {
       id: "d4-08",
       domain: "d4",
       lesson: "d3-ladder",
-      prompt: "Which technique helps improve a model's alignment with human preferences, for example helpfulness and harmlessness?",
+      prompt: "Which technique helps a model line up with what people want, such as being helpful and harmless?",
       options: [
         "Reinforcement learning from human feedback (RLHF)",
         "K-means clustering",
@@ -256,13 +373,13 @@ export default defineDomain({
         "Batch transform",
       ],
       answer: [0],
-      explanation: "RLHF trains a reward model from human rankings and uses it to steer the FM toward preferred responses.",
+      explanation: "In RLHF, people rank the model's answers. Those rankings train a reward model, which then steers the foundation model toward the answers people prefer.",
     },
     {
       id: "d4-09",
       domain: "d4",
       lesson: "d4-legal",
-      prompt: "What legal risk is specific to generative AI outputs?",
+      prompt: "Which legal risk comes specifically from generative AI output?",
       options: [
         "Intellectual property infringement from generated content",
         "Slow network speeds",
@@ -271,13 +388,13 @@ export default defineDomain({
       ],
       answer: [0],
       explanation:
-        "GenAI legal risks include IP and copyright claims, biased outputs, loss of customer trust, end-user risk, and hallucinations.",
+        "Generated content can copy someone else's protected work. Other GenAI legal risks are biased output, losing customer trust, harm to the people using it, and hallucinations.",
     },
     {
       id: "d4-10",
       domain: "d4",
       lesson: "d4-guardrails",
-      prompt: "What is the purpose of the contextual grounding check in Bedrock Guardrails?",
+      prompt: "What is the contextual grounding check in Bedrock Guardrails for?",
       options: [
         "To detect responses that are not grounded in the source documents or not relevant to the query",
         "To encrypt prompts",
@@ -285,7 +402,7 @@ export default defineDomain({
         "To choose the AWS Region",
       ],
       answer: [0],
-      explanation: "Contextual grounding checks flag hallucinations in RAG apps by scoring grounding and relevance.",
+      explanation: "In RAG apps, the grounding check scores each answer on two things: is it backed by the source documents, and is it relevant to the question? That catches hallucinations.",
     },
     {
       id: "d4-11",
@@ -299,31 +416,31 @@ export default defineDomain({
         "Using the largest model available",
       ],
       answer: [0],
-      explanation: "Transparency means clearly communicating how the system works, its limitations, and when users are talking to AI.",
+      explanation: "Transparency means being clear about how the system works, what it can't do, and when people are talking to AI.",
     },
     {
       id: "d4-12",
       domain: "d4",
       lesson: "d4-legal",
-      prompt: "Which are characteristics of a good training dataset for responsible AI? (Choose two.)",
+      prompt: "Which are signs of a good training dataset for responsible AI? (Choose two.)",
       options: ["Inclusive and diverse", "Balanced and curated", "As small as possible", "Collected without consent"],
       answer: [0, 1],
-      explanation: "Responsible datasets are inclusive, diverse, balanced, curated, and collected with proper consent and privacy controls.",
+      explanation: "A responsible dataset is inclusive, diverse, balanced and carefully chosen. It's also collected with proper consent and privacy controls.",
     },
     {
       id: "d4-13",
       domain: "d4",
       lesson: "d4-dimensions",
-      prompt: "Two models meet the accuracy target. One is much smaller and uses far less energy. What responsible AI consideration favours the smaller one?",
+      prompt: "Two models both hit the accuracy target. One is much smaller and uses far less energy. Which responsible AI consideration favours the smaller one?",
       options: ["Sustainability and environmental impact", "Higher hallucination rate", "Larger context window", "More parameters"],
       answer: [0],
-      explanation: "Responsible model selection includes environmental impact. A right-sized model uses less compute and energy for the same outcome.",
+      explanation: "Choosing a model responsibly includes its effect on the environment. A right-sized model gets the same result with less computing power and energy.",
     },
     {
       id: "d4-14",
       domain: "d4",
       lesson: "d4-bias",
-      prompt: "Which methods help detect bias in a model's predictions? (Choose two.)",
+      prompt: "Which methods help find bias in a model's predictions? (Choose two.)",
       options: [
         "Subgroup analysis: compare performance across demographic groups",
         "Human audits of labels and outputs",
@@ -332,13 +449,13 @@ export default defineDomain({
         "Using a larger context window",
       ],
       answer: [0, 1],
-      explanation: "Bias shows up as different performance for different groups. Subgroup analysis, label-quality checks, and human audits surface it. SageMaker Clarify automates bias metrics.",
+      explanation: "Bias shows up as a model doing better for some groups than others. Comparing groups, checking labels and human audits bring it to light. SageMaker Clarify calculates bias metrics for you.",
     },
     {
       id: "d4-15",
       domain: "d4",
       lesson: "d4-explain",
-      prompt: "Which human-centred design practice improves explainable AI?",
+      prompt: "Which human-centred design practice makes AI easier to explain and trust?",
       options: [
         "Show users why a decision was made and let them give feedback",
         "Hide that AI is involved",
@@ -346,7 +463,7 @@ export default defineDomain({
         "Always use the most complex model",
       ],
       answer: [0],
-      explanation: "Human-centred explainable AI makes decisions transparent and includes feedback mechanisms so people can question or correct the system.",
+      explanation: "Designing for people means showing how decisions were reached and giving them a way to push back, so they can question or correct the system.",
     },
     // ── Practice set 2 ──
     {
@@ -361,25 +478,25 @@ export default defineDomain({
         "Every user gets identical output",
       ],
       answer: [0],
-      explanation: "Fairness means outcomes and error rates don't unjustly differ across demographic groups.",
+      explanation: "Fairness means the results and error rates don't differ unjustly between groups of people.",
     },
     {
       id: "d4-17",
       domain: "d4",
       lesson: "d4-dimensions",
-      prompt: "Which responsible AI dimension is about outputs being truthful and accurate?",
+      prompt: "Which responsible AI dimension is about answers being truthful and accurate?",
       options: ["Veracity", "Controllability", "Latency", "Modality"],
       answer: [0],
-      explanation: "Veracity covers truthfulness. Grounding with RAG and grounding checks support it.",
+      explanation: "Veracity means truthfulness. Grounding answers with RAG and using grounding checks both support it.",
     },
     {
       id: "d4-18",
       domain: "d4",
       lesson: "d4-dimensions",
-      prompt: "A model should keep working well when users make typos or send unusual inputs. Which property is this?",
+      prompt: "A model should keep working well when users make typos or send strange inputs. Which property is this?",
       options: ["Robustness", "Transparency", "Data residency", "Explainability"],
       answer: [0],
-      explanation: "Robustness means reliable behaviour under noisy, unexpected, or adversarial inputs.",
+      explanation: "Robustness means the model behaves reliably even when the input is messy, unexpected or deliberately tricky.",
     },
     {
       id: "d4-19",
@@ -393,13 +510,13 @@ export default defineDomain({
         "Explainability, enforced with Amazon Translate",
       ],
       answer: [0],
-      explanation: "Safety is about avoiding harm. Guardrails content filters and denied topics block harmful requests and responses.",
+      explanation: "Safety is about avoiding harm. Guardrails content filters and denied topics block harmful requests and harmful replies.",
     },
     {
       id: "d4-20",
       domain: "d4",
       lesson: "d4-bias",
-      prompt: "Human labelers consistently mislabel photos of one demographic group. What should the team do first?",
+      prompt: "Human labelers keep mislabeling photos of one demographic group. What should the team do first?",
       options: [
         "Audit label quality and fix the labels, ideally with diverse reviewers",
         "Train longer on the same labels",
@@ -407,7 +524,7 @@ export default defineDomain({
         "Delete the test set",
       ],
       answer: [0],
-      explanation: "Biased labels teach biased models. Checking label quality and running human audits are key bias-detection steps.",
+      explanation: "A model trained on biased labels learns the bias. Checking label quality and having people audit them are key steps in finding bias.",
     },
     {
       id: "d4-21",
@@ -416,22 +533,22 @@ export default defineDomain({
       prompt: "Which technique shows how much each input feature contributed to a single prediction?",
       options: ["SHAP values from SageMaker Clarify", "BLEU score", "Prompt caching", "Batch transform"],
       answer: [0],
-      explanation: "SageMaker Clarify uses SHAP to explain feature contributions, both for one prediction and across the model.",
+      explanation: "SageMaker Clarify uses SHAP to show how much each feature pushed the prediction, for one prediction or across the whole model.",
     },
     {
       id: "d4-22",
       domain: "d4",
       lesson: "d4-explain",
-      prompt: "AWS publishes documents describing the intended uses, limitations, and design choices of its own AI services. What are they called?",
+      prompt: "AWS publishes documents describing the intended uses, limits and design choices of its own AI services. What are they called?",
       options: ["AWS AI Service Cards", "AWS Artifact reports", "SageMaker Ground Truth jobs", "CloudTrail trails"],
       answer: [0],
-      explanation: "AI Service Cards cover AWS's own AI services. SageMaker Model Cards are what you write for your own models.",
+      explanation: "AI Service Cards cover AWS's own AI services. SageMaker Model Cards are the ones you write for your own models.",
     },
     {
       id: "d4-23",
       domain: "d4",
       lesson: "d4-legal",
-      prompt: "Why should a team review a foundation model's licence and training-data documentation before using it?",
+      prompt: "Why should a team read a foundation model's licence and training-data documentation before using it?",
       options: [
         "To understand permitted uses, IP risk, and how transparent the model is",
         "To make inference faster",
@@ -439,14 +556,14 @@ export default defineDomain({
         "Licences have no effect on AI use",
       ],
       answer: [0],
-      explanation: "Open models, documented data, and clear licences increase transparency and reduce legal risk.",
+      explanation: "The licence tells you what you're allowed to do with the model. Open models, documented data and clear licences make things more transparent and lower your legal risk.",
     },
     {
       id: "d4-24",
       domain: "d4",
       lesson: "d4-explain",
       prompt:
-        "A bank must explain every loan decision. A deep neural network is slightly more accurate than a decision tree. What is the responsible choice?",
+        "A bank must explain every loan decision. A deep neural network is slightly more accurate than a decision tree. What's the responsible choice?",
       options: [
         "Prefer the interpretable model, or add explainability tools, because explanations are required",
         "Always choose the most accurate model regardless of explainability",
@@ -454,21 +571,21 @@ export default defineDomain({
         "Use a high temperature to vary decisions",
       ],
       answer: [0],
-      explanation: "There is a trade-off between performance and interpretability. Regulatory explainability requirements can outweigh a small accuracy gain.",
+      explanation: "You're trading a little accuracy for a lot of explainability. When the rules require explanations, that usually beats a small gain in accuracy.",
     },
     {
       id: "d4-25",
       domain: "d4",
       lesson: "d4-legal",
       type: "match",
-      prompt: "Match each responsible AI risk to a mitigation.",
+      prompt: "Match each responsible AI risk to a way of reducing it.",
       pairs: [
         ["Biased outputs", "Balance the training data and run subgroup analysis"],
         ["Hallucinations", "Ground answers with RAG and grounding checks"],
         ["Toxic content", "Bedrock Guardrails content filters"],
         ["Low-confidence predictions", "Human review with Amazon A2I"],
       ],
-      explanation: "Each risk has a matching control: data fixes for bias, grounding for hallucinations, filters for toxicity, humans for uncertain cases.",
+      explanation: "Each risk has a matching control. Fix the data for bias, ground the answers for hallucinations, filter toxic content, and bring in people for uncertain cases.",
     },
     {
       id: "d4-26",
@@ -483,7 +600,7 @@ export default defineDomain({
         "Always pick the biggest model available",
       ],
       answer: [0, 1],
-      explanation: "Right-sizing models and using efficient hardware cut energy use, part of responsible model selection.",
+      explanation: "Using a right-sized model and efficient hardware both cut energy use. That's part of choosing a model responsibly.",
     },
     // ── Practice set 3 ──
     {
@@ -493,57 +610,57 @@ export default defineDomain({
       prompt: "A hiring model was trained only on résumés from one city, so it treats applicants from elsewhere unfairly. Which bias is this?",
       options: ["Sampling bias", "Measurement bias", "Observer bias", "Confirmation bias"],
       answer: [0],
-      explanation: "Sampling bias means the training data doesn't represent the population the model will serve.",
+      explanation: "Sampling bias means the training data doesn't represent the people the model will actually serve. Here, everyone outside that one city was missing.",
     },
     {
       id: "d4-28",
       domain: "d4",
       lesson: "d4-compliance",
-      prompt: "A miscalibrated sensor records temperatures 3 degrees too high for every training example. Which bias does this introduce?",
+      prompt: "A faulty sensor records every temperature 3 degrees too high in the training data. Which bias does this cause?",
       options: ["Measurement bias", "Sampling bias", "Confirmation bias", "Observer bias"],
       answer: [0],
-      explanation: "Measurement bias comes from flawed tools or methods of collecting data.",
+      explanation: "Measurement bias comes from faulty tools or methods for collecting data. The data is consistently off, so the model learns the error too.",
     },
     {
       id: "d4-29",
       domain: "d4",
       lesson: "d4-compliance",
       type: "match",
-      prompt: "Match each type of bias to its example.",
+      prompt: "Match each type of bias to an example of it.",
       pairs: [
         ["Sampling bias", "Survey sent only to existing premium customers"],
         ["Measurement bias", "A scale that always reads 2 kg heavy"],
         ["Observer bias", "A labeler marks ambiguous photos to match their own expectation"],
         ["Confirmation bias", "An analyst keeps only results that support their hypothesis"],
       ],
-      explanation: "Knowing where bias enters (sampling, measuring, labeling, interpreting) tells you where to fix it.",
+      explanation: "Knowing where bias creeps in, whether in sampling, measuring, labeling or interpreting, tells you where to fix it.",
     },
     {
       id: "d4-30",
       domain: "d4",
       lesson: "d4-compliance",
-      prompt: "A team needs to show how changing one feature, such as income, shifts a black-box model's predictions while other features stay fixed. Which technique fits?",
+      prompt: "A team needs to show how changing one input, such as income, shifts a black-box model's predictions while the other inputs stay fixed. Which technique fits?",
       options: ["Partial dependence plots (PDP)", "ROUGE score", "Prompt caching", "Batch transform"],
       answer: [0],
-      explanation: "PDPs improve interpretability for complex models such as neural networks.",
+      explanation: "A partial dependence plot shows the effect of one input on its own. That makes complex models, like neural networks, easier to understand.",
     },
     {
       id: "d4-31",
       domain: "d4",
       lesson: "d4-compliance",
-      prompt: "Which describes a regulated workload?",
+      prompt: "Which of these is a regulated workload?",
       options: ["A mortgage-approval model that must meet audit, archival, and reporting rules", "A personal photo filter app", "An internal brainstorming chatbot", "A game that suggests team names"],
       answer: [0],
-      explanation: "Financial services, healthcare, and aerospace often carry extra compliance requirements.",
+      explanation: "Industries like finance, healthcare and aerospace often come with extra compliance rules for audits, record keeping and reporting.",
     },
     {
       id: "d4-32",
       domain: "d4",
       lesson: "d4-compliance",
-      prompt: "Why is auditing AI systems for compliance harder than auditing traditional software? (Choose two.)",
+      prompt: "Why is checking AI systems for compliance harder than checking normal software? (Choose two.)",
       options: ["Their decisions can be complex and opaque", "They can change over time and show unexpected capabilities", "They never use data", "They always run on-premises", "They can't be logged"],
       answer: [0, 1],
-      explanation: "Complexity and opacity, dynamism, emergent capabilities, and unique risks such as algorithmic bias make AI compliance challenging.",
+      explanation: "AI decisions can be hard to see inside, models change over time, new abilities can appear, and there are new risks like algorithmic bias. All of that makes compliance tricky.",
     },
     {
       id: "d4-33",
@@ -552,16 +669,16 @@ export default defineDomain({
       prompt: "Which actions reduce toxic output from a generative model? (Choose two.)",
       options: ["Curate the training data to remove offensive content", "Filter outputs with guardrails", "Raise the temperature", "Use a larger context window", "Disable logging"],
       answer: [0, 1],
-      explanation: "Clean training data plus output filtering (for example Bedrock Guardrails) are the main defences.",
+      explanation: "The two main defences are clean training data and filtering the output, for example with Bedrock Guardrails.",
     },
     {
       id: "d4-34",
       domain: "d4",
       lesson: "d4-compliance",
-      prompt: "A school worries students will submit AI-written essays. Which GenAI challenge is this?",
+      prompt: "A school worries students will hand in essays written by AI. Which GenAI challenge is this?",
       options: ["Plagiarism and cheating", "Model drift", "Data residency", "Underfitting"],
       answer: [0],
-      explanation: "It's hard to trace the source of generated content, which has driven tools that detect AI-generated text and images.",
+      explanation: "It's hard to tell where generated content came from. That's why tools for detecting AI-written text and images have appeared.",
     },
     {
       id: "d4-35",
@@ -570,20 +687,20 @@ export default defineDomain({
       prompt: "Who should sit on an AI governance board?",
       options: ["Representatives from legal, compliance, data privacy, and AI subject-matter experts", "Only the data science team", "Only external vendors", "Only the CEO"],
       answer: [0],
-      explanation: "A cross-functional board defines roles, policies, and review processes across the AI lifecycle.",
+      explanation: "A board drawn from several teams sets the roles, policies and review steps for the whole life of an AI system. No single team sees every risk.",
     },
   ],
 
   cards: [
-    { id: "s-clarify", domain: "d4", kind: "service", term: "SageMaker Clarify", definition: "Detect bias and explain predictions (SHAP)" },
-    { id: "s-modelcards", domain: "d4", kind: "service", term: "SageMaker Model Cards", definition: "Document a model's intended use, data, and risks" },
-    { id: "s-a2i", domain: "d4", kind: "service", term: "Amazon Augmented AI (A2I)", definition: "Human review of low-confidence ML predictions" },
-    { id: "c-guardrails", domain: "d4", kind: "concept", term: "Bedrock Guardrails", definition: "Filter harmful content, denied topics, PII, and ungrounded answers" },
-    { id: "c-rlhf", domain: "d4", kind: "concept", term: "RLHF", definition: "Align a model to human preferences using human rankings" },
-    { id: "c-sampling", domain: "d4", kind: "concept", term: "Sampling bias", definition: "Training data doesn't represent the real population" },
-    { id: "c-measurement", domain: "d4", kind: "concept", term: "Measurement bias", definition: "Flawed tools or methods skew the data" },
-    { id: "c-pdp", domain: "d4", kind: "concept", term: "Partial dependence plot", definition: "One feature's effect on predictions, others held fixed" },
-    { id: "c-regulated", domain: "d4", kind: "concept", term: "Regulated workload", definition: "Extra audit, archival, and reporting rules (finance, health)" },
+    { id: "s-clarify", domain: "d4", kind: "service", term: "SageMaker Clarify", definition: "Finds bias and explains predictions using SHAP" },
+    { id: "s-modelcards", domain: "d4", kind: "service", term: "SageMaker Model Cards", definition: "Documents a model's intended use, data and risks" },
+    { id: "s-a2i", domain: "d4", kind: "service", term: "Amazon Augmented AI (A2I)", definition: "Sends low-confidence ML predictions to a person for review" },
+    { id: "c-guardrails", domain: "d4", kind: "concept", term: "Bedrock Guardrails", definition: "Filters harmful content, banned topics, personal data and unsupported answers" },
+    { id: "c-rlhf", domain: "d4", kind: "concept", term: "RLHF", definition: "Uses people's rankings of answers to steer a model toward what they prefer" },
+    { id: "c-sampling", domain: "d4", kind: "concept", term: "Sampling bias", definition: "The training data doesn't match the real population" },
+    { id: "c-measurement", domain: "d4", kind: "concept", term: "Measurement bias", definition: "Faulty tools or methods skew the data" },
+    { id: "c-pdp", domain: "d4", kind: "concept", term: "Partial dependence plot", definition: "Shows one input's effect on predictions while the others stay fixed" },
+    { id: "c-regulated", domain: "d4", kind: "concept", term: "Regulated workload", definition: "Work with extra audit, record-keeping and reporting rules, like finance or health" },
   ],
 
   challenges: [
@@ -592,9 +709,9 @@ export default defineDomain({
       domain: "d4",
       lesson: "d4-guardrails",
       title: "Lock down the assistant",
-      goal: "Every filter starts off. Turn on the right ones and send all three risky prompts so each is blocked or masked.",
-      hint: "Each risky prompt needs a different filter: denied topic, prompt attack, or PII.",
-      takeaway: "Bedrock Guardrails combine several filters. Each one targets a different risk.",
+      goal: "Every filter starts off. Turn on the right ones, then send all three risky prompts so each one gets blocked or masked.",
+      hint: "Each risky prompt needs a different filter: a denied topic, the prompt attack filter, or the personal data filter.",
+      takeaway: "Bedrock Guardrails combines several filters, and each one targets a different risk.",
       render: (onSolved) => <GuardrailsLab goal="protect" onSolved={onSolved} />,
     },
   ],

@@ -13,14 +13,14 @@ export default defineDomain({
     weight: 30,
     emoji: "🧱",
     color: "#a3e635",
-    summary: "Dockerfile instructions, how layers and the build cache work, multi-stage builds for small images, and how CMD and ENTRYPOINT start your app.",
+    summary: "How to write a Dockerfile, how layers and the build cache work, multi-stage builds for small images, and how CMD and ENTRYPOINT start your app.",
   },
 
   tasks: [
     {
       id: "2.1",
       title: "Writing a Dockerfile",
-      covers: ["FROM, WORKDIR, COPY, RUN, CMD, EXPOSE, ENV, ARG", "The build context", "COPY vs ADD", "Shared base images at scale"],
+      covers: ["FROM, WORKDIR, COPY, RUN, CMD, EXPOSE, ENV, ARG", "The build context", "COPY versus ADD", "Shared base images at scale"],
     },
     {
       id: "2.2",
@@ -30,16 +30,71 @@ export default defineDomain({
     {
       id: "2.3",
       title: "Multi-stage builds and image size",
-      covers: ["Build stage vs runtime stage", "COPY --from", "scratch, distroless, slim and alpine", "Why deleting files in a later layer doesn't shrink an image"],
+      covers: ["Build stage and runtime stage", "COPY --from", "scratch, distroless, slim and alpine", "Why deleting files in a later layer doesn't shrink an image"],
     },
     {
       id: "2.4",
       title: "Starting the app",
-      covers: ["RUN vs CMD", "CMD vs ENTRYPOINT", "Exec form vs shell form", "Signals and PID 1"],
+      covers: ["RUN versus CMD", "CMD versus ENTRYPOINT", "Exec form versus shell form", "Signals and PID 1"],
     },
   ],
 
   lessons: [
+    {
+      id: "d2-start-image",
+      level: "beginner",
+      task: "2.1",
+      title: "What an image is",
+      check: ["dkr-b2-01", "dkr-b2-02"],
+      visual: (
+        <Tiles
+          cols={3}
+          tiles={[
+            { icon: "🌐", title: "nginx", text: "A ready-made web server. `docker run nginx` and you have one.", color: "#38bdf8" },
+            { icon: "🐍", title: "python:3.13", text: "Python 3.13, ready to run your scripts. The part after the colon picks the version.", color: "#a3e635" },
+            { icon: "🐘", title: "postgres:17", text: "A PostgreSQL database, version 17, with nothing to install by hand.", color: "#f472b6" },
+          ]}
+        />
+      ),
+      points: [
+        "An **image** is a saved package of files: an operating system's basics, a language or tool, and maybe your app. It also notes which command to run at start-up.",
+        "Think of a meal kit. Everything you need is in the box, already measured out. Running the image is cooking the meal.",
+        "Thousands of ready-made images live on **Docker Hub**, a free online library of images. Docker downloads from it automatically.",
+        "The part after the colon is the **tag**, which picks a version. `python:3.13` is Python 3.13, and `postgres:17` is PostgreSQL 17.",
+      ],
+      tip: "Before installing a database or language on your computer, check whether there's an official image. Often one `docker run` gets you a working copy in seconds.",
+    },
+    {
+      id: "d2-start-dockerfile",
+      level: "beginner",
+      task: "2.1",
+      title: "A recipe called a Dockerfile",
+      check: ["dkr-b2-03", "dkr-b2-04"],
+      visual: (
+        <div className="grid gap-4">
+          <CodeBlock
+            lang="dockerfile"
+            caption="A whole Dockerfile for a tiny Python script"
+            code={snip(
+              "# Start from an image that already has Python",
+              "FROM python:3.13-slim",
+              "# Put your script inside the image",
+              "COPY app.py .",
+              "# The command to run when a container starts",
+              'CMD ["python", "app.py"]',
+            )}
+          />
+          <CodeBlock lang="bash" code={snip("docker build -t myapp .   # read the Dockerfile here, make an image called myapp", "docker run --rm myapp     # run it")} />
+        </div>
+      ),
+      points: [
+        "To package your own app, you write a **Dockerfile**: a plain text file with one instruction per line. Docker reads it from top to bottom.",
+        "`FROM` picks the image you start from, so you don't begin from nothing. `COPY` puts your files inside. `CMD` says what to run when a container starts.",
+        "`docker build -t myapp .` follows the recipe and saves the result as an image called `myapp`. The dot means \"use the files in this folder\".",
+        "Once it's built, you run it like any other image: `docker run myapp`.",
+      ],
+      tip: "The file is literally named `Dockerfile`, with a capital D and no extension. Keep it in the top folder of your project.",
+    },
     {
       id: "d2-dockerfile",
       level: "junior",
@@ -73,8 +128,8 @@ export default defineDomain({
       points: [
         "A Dockerfile is a recipe. `docker build` runs it top to bottom and produces an image.",
         "The build context (the `.` in `docker build .`) is the folder sent to the builder. `COPY` can only read files from it.",
-        "`RUN` happens while building; `CMD` is what a container runs when it starts.",
-        "`ENV` values exist at build time and in containers; `ARG` values exist only during the build.",
+        "`RUN` happens while the image is being built. `CMD` is what a container runs when it starts.",
+        "`ENV` values exist during the build and in every container. `ARG` values exist only during the build.",
         "Prefer `COPY`. `ADD` also downloads URLs and auto-extracts local tar archives, which can surprise you.",
       ],
       tip: "Start from an official image with a specific version tag (`node:22-slim`, `python:3.13-slim`), never a bare name that silently means `latest`.",
@@ -87,10 +142,10 @@ export default defineDomain({
       check: ["d2-07", "d2-09"],
       visual: <LayerCacheLab />,
       points: [
-        "`RUN`, `COPY` and `ADD` create filesystem layers. Instructions like `ENV`, `CMD`, `EXPOSE` and `LABEL` only change image metadata.",
-        "Each step is cached. A `COPY` step misses the cache when the copied files' contents change; a `RUN` step when its command text (or anything before it) changes.",
+        "Each `RUN`, `COPY` and `ADD` creates a **layer**, a saved snapshot of the files that step changed. `ENV`, `CMD`, `EXPOSE` and `LABEL` only change the image's settings.",
+        "Docker caches each step. A `COPY` step misses the cache when the copied files change. A `RUN` step misses when its command text, or anything before it, changes.",
         "Once one step misses, every step after it rebuilds. So put things that change rarely (dependencies) before things that change often (your code).",
-        "`.dockerignore` keeps `node_modules`, `.git`, secrets and docs out of the build context, so they can't bust the cache or leak into the image.",
+        "A `.dockerignore` file keeps `node_modules`, `.git`, secrets and docs out of the build context. Then they can't bust the cache or leak into the image.",
       ],
       tip: "Copy the dependency manifest, install, then copy the source. That one ordering trick turns a 60-second rebuild into a 2-second one.",
     },
@@ -125,9 +180,9 @@ export default defineDomain({
           <Tiles
             cols={4}
             tiles={[
-              { icon: "🗑️", title: "scratch", text: "Completely empty. Only for static binaries; no shell, no CA certificates unless you copy them in.", color: "#64748b" },
-              { icon: "🔒", title: "distroless", text: "Runtime libraries only: no shell or package manager. Small attack surface, harder to debug.", color: "#34d399" },
-              { icon: "🍃", title: "slim", text: "Debian with most extras removed. Familiar glibc userland, a good default.", color: "#38bdf8" },
+              { icon: "🗑️", title: "scratch", text: "Completely empty. Use it only for static binaries. There's no shell, and no CA certificates unless you copy them in.", color: "#64748b" },
+              { icon: "🔒", title: "distroless", text: "Only the runtime libraries, with no shell or package manager. Little to attack, but harder to debug.", color: "#34d399" },
+              { icon: "🍃", title: "slim", text: "Debian with most extras removed. A familiar glibc system and a good default.", color: "#38bdf8" },
               { icon: "🏔️", title: "alpine", text: "Tiny, but uses musl libc instead of glibc, which some binaries and wheels don't support.", color: "#a78bfa" },
             ]}
           />
@@ -135,7 +190,7 @@ export default defineDomain({
       ),
       points: [
         "Each `FROM` starts a new stage. Only the last stage (or the one you pick with `--target`) becomes the image.",
-        "`COPY --from=build` pulls just the build output into the runtime stage; compilers and source stay behind.",
+        "`COPY --from=build` brings just the build output into the runtime stage. Compilers and source code stay behind.",
         "Deleting a file in a later layer doesn't shrink the image: the earlier layer still contains it. Don't add it in the first place.",
         "Smaller images pull faster, start faster, and have fewer packages for scanners to flag.",
       ],
@@ -163,16 +218,80 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "`CMD` is the default command; arguments after the image name in `docker run` replace it.",
-        "`ENTRYPOINT` is the fixed program; `docker run` arguments are appended to it, replacing `CMD`. `--entrypoint` overrides it.",
+        "`CMD` is the default command. Any arguments after the image name in `docker run` replace it.",
+        "`ENTRYPOINT` is the fixed program. `docker run` arguments are added after it, in place of `CMD`. Only `--entrypoint` replaces the program itself.",
         "Use the exec form (a JSON array). The shell form wraps your command in `/bin/sh -c`, which can stop signals reaching your app.",
-        "The process you start is PID 1. It must handle SIGTERM itself, or run behind a tiny init (`docker run --init`, tini).",
+        "The process you start is PID 1. It must handle SIGTERM itself, or run behind a tiny init process such as `docker run --init` or tini.",
       ],
       tip: "A common pattern: `ENTRYPOINT` for the binary, `CMD` for default flags. `docker run img --help` then just works.",
     },
   ],
 
   questions: [
+    {
+      id: "dkr-b2-01",
+      domain: "d2",
+      level: "beginner",
+      lesson: "d2-start-image",
+      prompt: "In the image name `python:3.13`, what does `3.13` choose?",
+      options: [
+        "Which version of the image you get, called the tag",
+        "How many containers to start",
+        "How much memory the container gets",
+        "The port the app listens on",
+      ],
+      answer: [0],
+      explanation: "The part after the colon is the tag, and it usually names a version. `python:3.13` gives you Python 3.13, while `python:3.12` would give you the older one.",
+    },
+    {
+      id: "dkr-b2-02",
+      domain: "d2",
+      level: "beginner",
+      lesson: "d2-start-image",
+      prompt: "Where do ready-made images like `nginx` and `postgres` usually come from?",
+      options: [
+        "A registry such as Docker Hub, which Docker downloads from when you run or pull them",
+        "They come pre-installed on every computer",
+        "You always have to write them yourself from scratch",
+        "The app store on your phone",
+      ],
+      answer: [0],
+      explanation: "A registry is an online library of images, and Docker Hub is the default one. When you ask for an image you don't have yet, Docker fetches it from there for you.",
+    },
+    {
+      id: "dkr-b2-03",
+      domain: "d2",
+      level: "beginner",
+      lesson: "d2-start-dockerfile",
+      type: "fill",
+      prompt: "Fill the gap so the image starts from the official Python image.",
+      code: "{{1}} python:3.13-slim\nCOPY app.py .\nCMD [\"python\", \"app.py\"]",
+      codeLang: "dockerfile",
+      blanks: [{ options: ["FROM", "START", "BASE", "USE"], answer: 0 }],
+      explanation: "`FROM` picks the image you build on top of, and it's almost always the first line of a Dockerfile. Here it means your image starts with Python already installed.",
+    },
+    {
+      id: "dkr-b2-04",
+      domain: "d2",
+      level: "beginner",
+      lesson: "d2-start-dockerfile",
+      type: "output",
+      prompt: "You build this Dockerfile with `docker build -t greet .`, then run `docker run --rm greet`. Type what it prints.",
+      code: "FROM alpine:3.20\nCMD [\"echo\", \"Hello from my image\"]",
+      codeLang: "dockerfile",
+      answers: ["Hello from my image"],
+      explanation: "`CMD` is the command a container runs when it starts. This one runs `echo`, which prints the text it was given.",
+    },
+    {
+      id: "dkr-b2-05",
+      domain: "d2",
+      level: "beginner",
+      lesson: "d2-start-dockerfile",
+      prompt: "Which command turns the Dockerfile in your current folder into an image called `myapp`?",
+      options: ["`docker build -t myapp .`", "`docker run myapp`", "`docker make myapp`", "`docker ps myapp`"],
+      answer: [0],
+      explanation: "`docker build` follows the Dockerfile and saves the result as an image. `-t myapp` names it, and the dot says to use the files in this folder. `docker run` only runs an image that already exists.",
+    },
     {
       id: "d2-01",
       domain: "d2",
@@ -202,7 +321,7 @@ export default defineDomain({
         ["`WORKDIR`", "Set the working directory for the instructions after it"],
         ["`CMD`", "Set the default command a container runs"],
       ],
-      explanation: "RUN vs CMD is the classic confusion: RUN shapes the image, CMD is what happens later when a container starts.",
+      explanation: "Mixing up RUN and CMD is the classic mistake. RUN shapes the image, and CMD is what happens later, when a container starts.",
     },
     {
       id: "d2-03",
@@ -234,7 +353,7 @@ export default defineDomain({
         "Makes the app listen on port 3000",
       ],
       answer: [0],
-      explanation: "EXPOSE is metadata. `-p 3000:3000` publishes a port; `-P` publishes every exposed port on random host ports.",
+      explanation: "EXPOSE is only a note in the image's settings. `-p 3000:3000` actually publishes a port, and `-P` publishes every exposed port on random host ports.",
     },
     {
       id: "d2-05",
@@ -249,7 +368,7 @@ export default defineDomain({
         "`COPY` compresses files",
       ],
       answer: [0],
-      explanation: "Use ADD only when you actually want its extra behaviour. Explicit is easier to review.",
+      explanation: "Use ADD only when you actually want its extra behaviour. Plain, explicit steps are easier to review.",
     },
     {
       id: "d2-06",
@@ -281,7 +400,7 @@ export default defineDomain({
       type: "order",
       prompt: "`FROM` and `WORKDIR` are in place. Order the rest of this Node.js Dockerfile for the best cache use.",
       items: ["`COPY package.json package-lock.json ./`", "`RUN npm ci`", "`COPY . .`", '`CMD ["node", "server.js"]`'],
-      explanation: "Code changes now only invalidate `COPY . .`; the slow `npm ci` layer is reused until the dependency files change.",
+      explanation: "Now a code change only invalidates `COPY . .`. The slow `npm ci` layer is reused until the dependency files change.",
     },
     {
       id: "d2-09",
@@ -339,7 +458,7 @@ export default defineDomain({
         "`tar` duplicated the archive",
       ],
       answer: [0],
-      explanation: "Layers are additive. Fetch-extract-delete in a single RUN, use a bind or cache mount, or extract in a build stage and copy only the result.",
+      explanation: "Layers only ever add on top of each other. Download, extract and delete in a single RUN, use a bind or cache mount, or extract in a build stage and copy only the result.",
     },
     {
       id: "d2-13",
@@ -356,7 +475,7 @@ export default defineDomain({
         "It mounts your host's node_modules into the build",
       ],
       answer: [0],
-      explanation: "Layer caching is all-or-nothing; a cache mount keeps the package manager's own cache warm for the times the layer does rebuild.",
+      explanation: "Layer caching is all or nothing. A cache mount keeps the package manager's own cache warm for the times the layer does rebuild.",
     },
     {
       id: "d2-14",
@@ -541,13 +660,13 @@ export default defineDomain({
       lesson: "d2-cache",
       prompt: "CI image builds are slow because every job starts with an empty build cache. What's the standard fix?",
       options: [
-        "Export and import the build cache (e.g. `docker buildx build --cache-to` / `--cache-from` with a registry or CI cache backend)",
+        "Export and import the build cache, for example `docker buildx build --cache-to` and `--cache-from` with a registry or CI cache backend",
         "Add `--no-cache` to every build",
         "Give the CI machine more RAM",
         "Build without a Dockerfile",
       ],
       answer: [0],
-      explanation: "Ephemeral CI runners lose local cache between jobs. A remote cache lets each build reuse layers from the last one, as on a laptop.",
+      explanation: "Short-lived CI runners lose their local cache between jobs. A remote cache lets each build reuse layers from the last one, just as your laptop does.",
     },
     {
       id: "d2-26",
@@ -567,19 +686,19 @@ export default defineDomain({
   ],
 
   cards: [
-    { id: "c2-build", domain: "d2", kind: "service", term: "docker build", definition: "Build an image from a Dockerfile and a build context; -t names and tags it." },
-    { id: "c2-from", domain: "d2", kind: "service", term: "FROM", definition: "Start a build stage from a base image. Each FROM starts a new stage." },
-    { id: "c2-run", domain: "d2", kind: "service", term: "RUN", definition: "Execute a command at build time and save the result as a layer." },
-    { id: "c2-copy", domain: "d2", kind: "service", term: "COPY", definition: "Copy files from the build context (or another stage with --from) into the image." },
-    { id: "c2-cmd", domain: "d2", kind: "service", term: "CMD", definition: "Default command (or default ENTRYPOINT arguments) for containers; replaced by docker run arguments." },
-    { id: "c2-entrypoint", domain: "d2", kind: "service", term: "ENTRYPOINT", definition: "The fixed program a container runs; docker run arguments are appended to it." },
-    { id: "c2-arg-env", domain: "d2", kind: "service", term: "ARG vs ENV", definition: "ARG: build-time only. ENV: set during the build and in every container." },
-    { id: "c2-dockerignore", domain: "d2", kind: "service", term: ".dockerignore", definition: "Patterns excluded from the build context, like node_modules, .git and .env." },
-    { id: "c2-distroless", domain: "d2", kind: "service", term: "distroless", definition: "Base images with only runtime libraries: no shell or package manager." },
-    { id: "c2-layer", domain: "d2", kind: "concept", term: "Layer", definition: "A read-only filesystem diff created by RUN, COPY or ADD. Images are stacks of layers." },
-    { id: "c2-cache", domain: "d2", kind: "concept", term: "Build cache", definition: "Reuses a step's layer when its inputs haven't changed; one miss rebuilds every later step." },
-    { id: "c2-multistage", domain: "d2", kind: "concept", term: "Multi-stage build", definition: "Several FROM stages in one Dockerfile; only the final stage's contents ship." },
-    { id: "c2-exec-form", domain: "d2", kind: "concept", term: "Exec form", definition: "JSON-array CMD/ENTRYPOINT that runs the program directly as PID 1, so it receives signals." },
+    { id: "c2-build", domain: "d2", kind: "service", term: "docker build", definition: "Builds an image from a Dockerfile and a build context. -t gives it a name and tag." },
+    { id: "c2-from", domain: "d2", kind: "service", term: "FROM", definition: "Starts a build stage from a base image. Each FROM starts a new stage." },
+    { id: "c2-run", domain: "d2", kind: "service", term: "RUN", definition: "Runs a command while the image is built and saves the result as a layer." },
+    { id: "c2-copy", domain: "d2", kind: "service", term: "COPY", definition: "Copies files into the image from the build context, or from another stage with --from." },
+    { id: "c2-cmd", domain: "d2", kind: "service", term: "CMD", definition: "The default command for containers, or the default arguments for ENTRYPOINT. Arguments to docker run replace it." },
+    { id: "c2-entrypoint", domain: "d2", kind: "service", term: "ENTRYPOINT", definition: "The fixed program a container runs. Arguments to docker run are added after it." },
+    { id: "c2-arg-env", domain: "d2", kind: "service", term: "ARG and ENV", definition: "ARG values exist only during the build. ENV values are set during the build and in every container." },
+    { id: "c2-dockerignore", domain: "d2", kind: "service", term: ".dockerignore", definition: "A list of patterns left out of the build context, such as node_modules, .git and .env." },
+    { id: "c2-distroless", domain: "d2", kind: "service", term: "distroless", definition: "Base images that hold only runtime libraries, with no shell or package manager." },
+    { id: "c2-layer", domain: "d2", kind: "concept", term: "Layer", definition: "A read-only set of file changes made by RUN, COPY or ADD. An image is a stack of layers." },
+    { id: "c2-cache", domain: "d2", kind: "concept", term: "Build cache", definition: "Reuses a step's layer when its inputs haven't changed. One miss rebuilds every step after it." },
+    { id: "c2-multistage", domain: "d2", kind: "concept", term: "Multi-stage build", definition: "Several FROM stages in one Dockerfile. Only the final stage's contents ship." },
+    { id: "c2-exec-form", domain: "d2", kind: "concept", term: "Exec form", definition: "CMD or ENTRYPOINT written as a JSON array. The program runs directly as PID 1, so it receives signals." },
   ],
 
   challenges: [

@@ -16,7 +16,7 @@ export default defineCourse({
   code: "CLF-C02",
   title: "AWS Certified Cloud Practitioner",
   shortTitle: "Cloud Practitioner",
-  tagline: "The AWS Cloud from the ground up: value and economics, shared responsibility and security, core services, and billing and support.",
+  tagline: "Learn the AWS Cloud from scratch: why companies use it, how security is shared, the main services, and how billing and support work.",
   level: "Foundational",
   storageKey: "course:aws-clf-c02:v1",
 
@@ -44,9 +44,9 @@ export default defineCourse({
     },
     facts: [
       { icon: "📝", value: "65", label: "questions", detail: "50 count toward your score. 15 are unscored trial questions, and you can't tell which. Multiple choice and multiple response only." },
-      { icon: "⏱️", value: "90", label: "minutes", detail: "About 80 seconds per question. Most questions are short scenarios." },
+      { icon: "⏱️", value: "90", label: "minutes", detail: "That's about 80 seconds per question. Most questions are short scenarios." },
       { icon: "🎯", value: "700", label: "to pass", detail: "Scaled score from 100 to 1,000. Scoring is compensatory: you pass on the overall score, not per domain." },
-      { icon: "🎲", value: "0", label: "guess penalty", detail: "Unanswered questions count as wrong. Always pick something." },
+      { icon: "🎲", value: "0", label: "guess penalty", detail: "A blank answer counts as wrong, so always pick something." },
       { icon: "💵", value: "$100", label: "USD", detail: "Take it at a Pearson VUE test center or online with a proctor. See AWS exam pricing for other currencies." },
       { icon: "📅", value: "3", label: "years valid", detail: "Recertify by passing the latest Cloud Practitioner exam, or an Associate or Professional exam." },
       { icon: "🛟", value: "New", label: "Support plans", detail: "Guide v1.3 covers Basic, Business Support+, Enterprise Support, and Unified Operations. Developer and classic Business Support end January 1, 2027." },
@@ -165,8 +165,8 @@ export default defineCourse({
     {
       title: "Cloud concepts",
       items: [
-        ["Six benefits", "Variable expense · economies of scale · stop guessing capacity · speed and agility · no data centers to run · go global in minutes"],
-        ["Elasticity vs high availability", "Capacity follows demand · keeps running when parts fail (multiple AZs)"],
+        ["Six benefits", "Pay as you go · lower prices from AWS's scale · no more guessing capacity · speed and agility · no data centers to run · go global in minutes"],
+        ["Elasticity and high availability", "Elasticity: capacity follows demand · high availability: keeps running when parts fail (multiple AZs)"],
         ["Well-Architected pillars", "Operational excellence, security, reliability, performance efficiency, cost optimization, sustainability"],
         ["AWS CAF perspectives", "Business, People, Governance (business) · Platform, Security, Operations (technical)"],
         ["7 Rs", "Retire, retain, rehost, relocate, repurchase, replatform, refactor"],
@@ -176,10 +176,10 @@ export default defineCourse({
     {
       title: "Security and compliance",
       items: [
-        ["Shared responsibility", "AWS: security OF the cloud · You: security IN the cloud"],
+        ["Shared responsibility", "AWS secures the cloud itself · you secure what you put in it"],
         ["Shifts by service", "EC2: you patch the OS · RDS: AWS patches OS and engine · Lambda: AWS runs OS and runtime"],
-        ["Root user", "MFA on, no access keys, only for root tasks (close account, change account settings)"],
-        ["IAM", "Users, groups, roles (temporary), policies. Least privilege. Explicit deny wins."],
+        ["Root user", "MFA on, no access keys, use only for root-only jobs (closing the account, changing account settings)"],
+        ["IAM", "Users, groups, roles (temporary credentials) and policies. Least privilege. A deny always wins."],
         ["Sign-in", "Identity Center: workforce SSO · Cognito: app customers · federation: existing IdP"],
         ["Watchers", "CloudWatch: metrics and alarms · CloudTrail: API calls · Config: configuration compliance"],
         ["Threat services", "GuardDuty: threats · Inspector: vulnerabilities · Macie: PII in S3 · Detective: investigate · Security Hub: one view"],
@@ -190,14 +190,14 @@ export default defineCourse({
     {
       title: "Technology and services",
       items: [
-        ["Global infrastructure", "Region > Availability Zone > data center · edge locations for CloudFront"],
+        ["Global infrastructure", "A Region holds Availability Zones, which hold data centers · edge locations serve CloudFront"],
         ["Compute", "EC2 · Lambda (functions) · Fargate (serverless containers) · ECS · EKS (Kubernetes) · Beanstalk · Lightsail"],
         ["Databases", "RDS / Aurora relational · DynamoDB key-value · ElastiCache in-memory · DocumentDB · Neptune graph · Redshift warehouse"],
-        ["Networking", "VPC, subnets, IGW, NAT · security group (stateful) vs NACL (stateless) · Route 53 DNS · Direct Connect vs VPN"],
+        ["Networking", "VPC, subnets, internet gateway, NAT · security group (stateful) and NACL (stateless) · Route 53 DNS · Direct Connect or VPN"],
         ["Storage", "S3 objects · EBS blocks · instance store (temporary) · EFS Linux files · FSx · Storage Gateway hybrid · AWS Backup"],
-        ["S3 classes", "Standard → Intelligent-Tiering → Standard-IA → Glacier Instant → Glacier Flexible → Glacier Deep Archive"],
+        ["S3 classes, warm to cold", "Standard, Intelligent-Tiering, Standard-IA, Glacier Instant, Glacier Flexible, Glacier Deep Archive"],
         ["Analytics", "Athena SQL on S3 · Kinesis streaming · Glue ETL · Quick BI · Redshift · EMR"],
-        ["Messaging", "SQS queue (decouple) · SNS pub/sub (notify) · EventBridge (events and rules)"],
+        ["Messaging", "SQS: a queue to decouple · SNS: notify many subscribers · EventBridge: events and rules"],
       ],
     },
     {
@@ -205,12 +205,12 @@ export default defineCourse({
       items: [
         ["On-Demand", "No commitment. Short, spiky, or unpredictable workloads."],
         ["Savings Plans / RIs", "1 or 3 years for steady usage. Savings Plans commit to $/hour; RIs to a configuration."],
-        ["Spot", "Up to 90% off. Interruptible with a 2-minute warning."],
+        ["Spot", "Up to 90% off. AWS can interrupt it with a 2-minute warning."],
         ["Dedicated Hosts", "Whole physical server, for per-core or per-socket licenses (BYOL)"],
-        ["Data transfer", "In from the internet: free · out to the internet and between Regions: charged"],
+        ["Data transfer", "Coming in from the internet is free · going out to the internet or between Regions is charged"],
         ["Cost tools", "Pricing Calculator (estimate) · Budgets (alert) · Cost Explorer (analyze) · CUR (line items)"],
         ["Organizations", "Consolidated billing, volume discounts, shared RI and Savings Plans discounts, SCPs"],
-        ["Support plans", "Basic → Business Support+ (24/7 engineers) → Enterprise (TAM, 15 min) → Unified Operations (team, ~5 min)"],
+        ["Support plans, cheapest first", "Basic · Business Support+ (24/7 engineers) · Enterprise (TAM, 15 min) · Unified Operations (a team, about 5 min)"],
         ["Help", "re:Post, Knowledge Center, Prescriptive Guidance, Health Dashboard, Trusted Advisor, Trust and Safety, Partners, Marketplace"],
       ],
     },

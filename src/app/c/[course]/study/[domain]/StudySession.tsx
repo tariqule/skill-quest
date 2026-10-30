@@ -6,6 +6,7 @@ import { notFound, useParams } from "next/navigation";
 import { useEffect, useState, type CSSProperties } from "react";
 import { ChallengeCard } from "@/components/ChallengeCard";
 import { MascotSays } from "@/components/fx";
+import { SectionGame } from "@/components/three/games/SectionGame";
 import { QuestionCard } from "@/components/QuestionCard";
 import { Bar } from "@/components/ui";
 import { courseCopy } from "@/engine/copy";
@@ -292,6 +293,7 @@ export function StudySession() {
           <div className="min-w-0">
             {phase === "ready" ? (
               <ReadyScreen
+                domainId={domain.id}
                 lessons={lessons}
                 viewed={viewed}
                 seconds={elapsed}
@@ -315,6 +317,7 @@ export function StudySession() {
                 terms={termsFor(lesson, cards)}
               />
             ) : null}
+            {lesson && (current + 1) % 3 === 0 && current < lessons.length - 1 && <GameBreak key={`break-${current}`} domainId={domain.id} />}
 
             {phase === "study" && (
               <div className="mt-6 hidden gap-3 lg:flex">
@@ -714,7 +717,32 @@ function TermsRecap({ cards, color }: { cards: Card[]; color: string }) {
   );
 }
 
+/** An optional one-minute game after every third concept. */
+function GameBreak({ domainId }: { domainId: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="mt-6">
+      {open ? (
+        <SectionGame domainId={domainId} compact />
+      ) : (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="flex w-full items-center gap-3 rounded-2xl border border-dashed border-amber-300/40 bg-amber-400/[0.06] p-4 text-left transition hover:bg-amber-400/10"
+        >
+          <span className="text-3xl">🎮</span>
+          <span>
+            <span className="block font-black text-white">Quick break: play a 1-minute game</span>
+            <span className="block text-sm text-slate-400">Practise the words from this section. Totally optional.</span>
+          </span>
+        </button>
+      )}
+    </div>
+  );
+}
+
 function ReadyScreen({
+  domainId,
   lessons,
   viewed,
   seconds,
@@ -724,6 +752,7 @@ function ReadyScreen({
   onPlay,
   onReview,
 }: {
+  domainId: string;
   lessons: Lesson[];
   viewed: string[];
   seconds: number;
@@ -758,6 +787,10 @@ function ReadyScreen({
             ))}
           </div>
         )}
+      </div>
+
+      <div className="mx-auto mt-6 max-w-xl text-left">
+        <SectionGame domainId={domainId} compact />
       </div>
 
       <button

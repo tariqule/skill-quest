@@ -219,7 +219,7 @@ export function SchedulingLab({ goal, onSolved }: GoalProps<"place">) {
       <button type="button" onClick={run} className="btn-3d mt-3 rounded-xl bg-sky-400 px-4 py-2 font-bold text-slate-950" style={{ "--edge": "#0369a1" } as CSSProperties}>
         ☸️ Schedule all Pods
       </button>
-      {allGood && <div className="pop-in mt-2 text-sm font-semibold text-emerald-300">Every Pod landed where it should. Taint repels, toleration permits, selector attracts.</div>}
+      {allGood && <div className="pop-in mt-2 text-sm font-semibold text-emerald-300">Every Pod landed where it should. Taints push Pods away, tolerations let them in, and selectors pull them toward a node.</div>}
     </div>
   );
 }
@@ -265,7 +265,7 @@ const EXPOSE: { id: Expose; icon: string; note: string; path: FlowStep[] }[] = [
   {
     id: "Ingress",
     icon: "🛣️",
-    note: "Not a Service type: an HTTP(S) routing object served by an Ingress controller. Gateway API (HTTPRoute) is the newer, more expressive option.",
+    note: "Not a Service type. It's an HTTP(S) routing object that an Ingress controller serves. Gateway API (HTTPRoute) is the newer option with more features.",
     path: [
       { icon: "🌍", label: "https://shop.example.com" },
       { icon: "🛣️", label: "Ingress controller", sub: "TLS, host and path rules" },
@@ -276,7 +276,7 @@ const EXPOSE: { id: Expose; icon: string; note: string; path: FlowStep[] }[] = [
   {
     id: "ExternalName",
     icon: "🔗",
-    note: "No proxying and no selector: cluster DNS returns a CNAME to an outside hostname.",
+    note: "No proxying and no selector. Cluster DNS just returns a CNAME pointing to an outside hostname.",
     path: [
       { icon: "📦", label: "Client Pod" },
       { icon: "🧭", label: "CoreDNS", sub: "orders-db → CNAME" },
@@ -459,7 +459,7 @@ export function ScaleLab({ goal, onSolved }: GoalProps<"peak" | "ha">) {
   const [load, setLoad] = useState<LoadId>(goal === "ha" ? "night" : "peak");
   const [ran, setRan] = useState<{ load: LoadId; s: ScaleSettings } | null>(null);
 
-  const invalid = s.limit < s.request ? "The API server rejects this Pod template: the CPU limit must be greater than or equal to the request." : s.min > s.max ? "minReplicas can't be larger than maxReplicas." : null;
+  const invalid = s.limit < s.request ? "The API server rejects this Pod template. The CPU limit has to be at least as big as the request." : s.min > s.max ? "minReplicas can't be larger than maxReplicas." : null;
 
   function set<K extends keyof ScaleSettings>(k: K, v: number) {
     setS({ ...s, [k]: v });

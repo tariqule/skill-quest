@@ -14,18 +14,18 @@ const STRATEGIES = [
     name: "All at once",
     steps: [["1", "1", "1", "1"], ["-", "-", "-", "-"], ["2", "2", "2", "2"]],
     facts: { Downtime: "Yes, briefly", Capacity: "Drops to 0", Rollback: "Redeploy the old version", Cost: "No extra instances" },
-    where: "Elastic Beanstalk · CodeDeploy AllAtOnce · Lambda AllAtOnce",
+    where: "Elastic Beanstalk, CodeDeploy AllAtOnce, Lambda AllAtOnce",
   },
   {
     id: "rolling",
     name: "Rolling",
     steps: [["1", "1", "1", "1"], ["-", "-", "1", "1"], ["2", "2", "1", "1"], ["2", "2", "-", "-"], ["2", "2", "2", "2"]],
     facts: { Downtime: "No", Capacity: "Reduced by one batch", Rollback: "Redeploy the old version", Cost: "No extra instances" },
-    where: "Elastic Beanstalk · CodeDeploy HalfAtATime / OneAtATime",
+    where: "Elastic Beanstalk, CodeDeploy HalfAtATime or OneAtATime",
   },
   {
     id: "rolling-batch",
-    name: "Rolling + additional batch",
+    name: "Rolling with an additional batch",
     steps: [["1", "1", "1", "1"], ["1", "1", "1", "1", "2", "2"], ["2", "2", "1", "1", "2", "2"], ["2", "2", "2", "2"]],
     facts: { Downtime: "No", Capacity: "Full the whole time", Rollback: "Redeploy the old version", Cost: "One extra batch while deploying" },
     where: "Elastic Beanstalk",
@@ -42,14 +42,14 @@ const STRATEGIES = [
     name: "Blue/green",
     steps: [["1", "1", "1", "1"], ["1", "1", "1", "1", "2", "2", "2", "2"], ["2", "2", "2", "2"]],
     facts: { Downtime: "No", Capacity: "Two full environments", Rollback: "Fast: switch traffic back", Cost: "Double while both run" },
-    where: "Beanstalk URL swap · CodeDeploy blue/green (EC2, ECS)",
+    where: "Beanstalk URL swap, CodeDeploy blue/green (EC2, ECS)",
   },
   {
     id: "canary",
-    name: "Canary / linear",
+    name: "Canary or linear",
     steps: [["1", "1", "1", "1", "1", "1", "1", "1", "1", "1"], ["2", "1", "1", "1", "1", "1", "1", "1", "1", "1"], ["2", "2", "2", "2", "2", "2", "2", "2", "2", "2"]],
     facts: { Downtime: "No", Capacity: "Full", Rollback: "Automatic on a CloudWatch alarm", Cost: "No extra instances" },
-    where: "Lambda aliases via CodeDeploy · API Gateway canary · ECS blue/green",
+    where: "Lambda aliases through CodeDeploy, API Gateway canary, ECS blue/green",
   },
 ] as const;
 
@@ -88,8 +88,8 @@ export function DeployStrategies() {
         </div>
         <div className="mt-2 text-xs text-slate-400">
           {isTraffic ? "Each block is 10% of traffic. " : "Each block is an instance. "}
-          <span className="text-sky-300">Blue = old version</span> · <span className="text-emerald-300">green = new version</span>
-          {!isTraffic && <span className="text-rose-300"> · ⏸ = out of service</span>}
+          <span className="text-sky-300">Blue is the old version</span>, <span className="text-emerald-300">green is the new one</span>
+          {!isTraffic && <span className="text-rose-300">, ⏸ is out of service</span>}
         </div>
         <div className="mt-3 flex items-center gap-2">
           <button type="button" disabled={step === 0} onClick={() => setStep(step - 1)} className="rounded-lg bg-slate-800 px-3 py-1 text-sm text-slate-200 disabled:opacity-40">
@@ -193,14 +193,14 @@ export function TraceWaterfall() {
       <div className="mt-2 grid gap-2 text-sm sm:grid-cols-2">
         <div className="rounded-xl bg-white/5 p-2 text-slate-300">
           <b className="text-white">{SEGMENTS[sel].name}</b>: {SEGMENTS[sel].dur * 10} ms.{" "}
-          {sel === 4 ? "The third-party call is the bottleneck." : sel === 2 ? "A cold start: provisioned concurrency would remove it." : sel === 0 ? "The segment for the whole request." : "Small share of the total."}
+          {sel === 4 ? "The third-party call is the bottleneck." : sel === 2 ? "A cold start. Provisioned concurrency would remove it." : sel === 0 ? "This segment covers the whole request." : "Only a small part of the total."}
         </div>
         <div className="rounded-xl bg-white/5 p-2 text-xs text-slate-400">
           <div>
-            <span className="text-amber-300">Annotation</span> customerTier = &quot;gold&quot; → indexed, usable in filter expressions
+            <span className="text-amber-300">Annotation</span> customerTier: &quot;gold&quot;. Indexed, so you can search traces by it
           </div>
           <div className="mt-1">
-            <span className="text-sky-300">Metadata</span> cartJson = {"{…}"} → stored with the trace, not searchable
+            <span className="text-sky-300">Metadata</span> cartJson: {"{…}"}. Stored with the trace, but you can&apos;t search by it
           </div>
         </div>
       </div>

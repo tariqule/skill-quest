@@ -132,7 +132,7 @@ export function MethodSetTable() {
 
 const IFACE_CASES = [
   { code: "var err error", type: "nil", value: "nil", note: "A zero interface: no type, no value. err == nil is true." },
-  { code: "var p *MyErr; err = p", type: "*MyErr", value: "nil", note: "The interface now holds a type (*MyErr) with a nil pointer inside. err == nil is FALSE." },
+  { code: "var p *MyErr; err = p", type: "*MyErr", value: "nil", note: "The interface now holds a type (*MyErr) with a nil pointer inside. err == nil is false." },
   { code: "err = &MyErr{}", type: "*MyErr", value: "0xc000012080", note: "A real error: type and pointer both set." },
   { code: "err = nil", type: "nil", value: "nil", note: "Assigning the untyped nil clears both halves. err == nil is true again." },
 ];

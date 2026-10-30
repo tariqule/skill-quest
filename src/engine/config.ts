@@ -23,7 +23,7 @@ export const DEFAULT_CONFIG: GameConfig = {
     matchMin: 10,
     matchMistakePenalty: 5,
   },
-  quest: { length: 10, hearts: 3, starThresholds: [0.9, 0.7, 0.5] },
+  quest: { length: 10, hearts: 3, beginnerHearts: 5, starThresholds: [0.9, 0.7, 0.5] },
   lesson: {
     retryMissed: true,
     timedChallenge: { enabled: true, questions: 4, secondsPerQuestion: 25, passShare: 0.75 },

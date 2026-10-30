@@ -1,4 +1,4 @@
-import { CodeBlock } from "@/components/learn/blocks";
+import { CodeBlock, Flow, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { LifecycleLab } from "../labs";
 import { snip } from "../snippet";
@@ -14,14 +14,14 @@ export default defineDomain({
     weight: 20,
     emoji: "🐳",
     color: "#38bdf8",
-    summary: "What a container is and how it differs from a VM, images vs containers, docker run and friends, and the container lifecycle.",
+    summary: "What a container is and how it differs from a virtual machine, how images and containers relate, the everyday docker commands, and a container's life from start to cleanup.",
   },
 
   tasks: [
     {
       id: "1.1",
       title: "Containers and why they exist",
-      covers: ["Containers vs virtual machines", "Namespaces and cgroups", "Docker Desktop's Linux VM", "Where container isolation stops"],
+      covers: ["Containers versus virtual machines", "Namespaces and cgroups", "Docker Desktop's Linux VM", "Where container isolation stops"],
     },
     {
       id: "1.2",
@@ -37,6 +37,65 @@ export default defineDomain({
 
   lessons: [
     {
+      id: "d1-start-what",
+      level: "beginner",
+      task: "1.1",
+      title: "What Docker is, in plain words",
+      check: ["dkr-b1-01", "dkr-b1-02"],
+      visual: (
+        <Flow
+          color="#38bdf8"
+          steps={[
+            { icon: "🧑‍💻", label: "Your app", sub: "plus the exact tools and libraries it needs" },
+            { icon: "📦", label: "Packed into an image", sub: "one sealed box with everything inside" },
+            { icon: "🚚", label: "Runs as a container", sub: "the same way on any computer with Docker" },
+          ]}
+        />
+      ),
+      points: [
+        "An app rarely runs on its own. It needs the right language version, some libraries and a few settings, and every computer has slightly different ones.",
+        "Docker packs your app and everything it needs into one box. Think of a shipping container: whatever's inside, every ship and crane handles it the same way.",
+        "A running box is called a **container**. It works the same on your laptop, a teammate's laptop and a server in the cloud.",
+        "That ends the classic excuse \"but it works on my machine\". If it works in the container, it works everywhere the container runs.",
+      ],
+      tip: "You don't need to understand how Docker works inside to start using it. Learn to run a container first; the details make more sense afterwards.",
+    },
+    {
+      id: "d1-start-run",
+      level: "beginner",
+      task: "1.3",
+      title: "Your first container",
+      check: ["dkr-b1-03", "dkr-b1-04"],
+      visual: (
+        <div className="grid gap-4">
+          <CodeBlock
+            lang="bash"
+            caption="Type these in a terminal once Docker is installed"
+            code={snip(
+              "docker --version                    # check Docker is installed",
+              "docker run hello-world              # download a tiny image and run it",
+              "docker run --rm alpine echo hello   # run one command in a small Linux box",
+              "docker ps -a                        # list the containers you've made",
+            )}
+          />
+          <Tiles
+            cols={2}
+            tiles={[
+              { icon: "📜", title: "Image: the recipe", text: "A saved package you can download or build. It never changes once it's made.", color: "#a3e635" },
+              { icon: "🍰", title: "Container: the cake", text: "What you get when you run an image. You can bake many cakes from one recipe.", color: "#38bdf8" },
+            ]}
+          />
+        </div>
+      ),
+      points: [
+        "You talk to Docker by typing commands in a terminal. They all start with `docker`, followed by what you want it to do.",
+        "`docker run hello-world` downloads a tiny image called `hello-world`, starts a container from it, prints a welcome message and stops.",
+        "An **image** is the recipe and a **container** is the cake. You can run many containers from one image, and each one gets its own copy to work in.",
+        "`--rm` tells Docker to delete the container as soon as it finishes, so test runs don't pile up.",
+      ],
+      tip: "`docker run --rm -it alpine sh` gives you a throwaway Linux prompt. Try commands there freely: type `exit` and it's gone.",
+    },
+    {
       id: "d1-what",
       level: "junior",
       task: "1.1",
@@ -44,18 +103,18 @@ export default defineDomain({
       check: ["d1-01", "d1-02"],
       visual: <ContainerVsVm />,
       points: [
-        "A container is an isolated process with its own filesystem, network and process list, running on the host's kernel.",
-        "Linux namespaces give it its own view of the system; cgroups limit how much CPU and memory it can use.",
-        "No guest OS to boot means containers start fast and are small. The trade-off: they share one kernel, so isolation is weaker than a VM's.",
-        "The big win is consistency: the image carries the app and everything it needs, so \"works on my machine\" means works everywhere.",
+        "A container is an ordinary process, walled off so it gets its own files, network and process list. It still runs on the host's **kernel**, the core of the operating system.",
+        "Linux **namespaces** give the container its own private view of the system, like its own list of processes. **cgroups** cap how much CPU and memory it can use.",
+        "There's no separate operating system to boot, so containers start fast and stay small. The trade-off is that they share one kernel, so they're less isolated than a virtual machine (VM).",
+        "The big win is consistency. The image carries the app and everything it needs, so if it works on your machine, it works everywhere else too.",
       ],
-      tip: "When someone calls containers \"lightweight VMs\", the correction interviewers and senior engineers look for is: no, they're processes sharing the host kernel.",
+      tip: "If someone calls containers \"lightweight VMs\", the correction interviewers and senior engineers look for is: no, they're processes sharing the host's kernel.",
     },
     {
       id: "d1-images",
       level: "junior",
       task: "1.2",
-      title: "Images vs containers",
+      title: "Images and containers",
       check: ["d1-06", "d1-07"],
       visual: (
         <div className="grid gap-4">
@@ -72,12 +131,12 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "An image is a read-only template: stacked filesystem layers plus settings like the default command.",
-        "A container is an instance of an image, with its own thin writable layer on top. One image can run many containers.",
+        "An **image** is a read-only template. It's a stack of filesystem layers plus settings, such as which command to run by default.",
+        "A container is one running copy of an image, with its own thin writable layer on top for any changes. One image can run many containers.",
         "`docker run` pulls the image if it isn't on your machine yet, then creates and starts a container.",
-        "A short name like `nginx` expands to `docker.io/library/nginx:latest`: Docker Hub, the official-images namespace, the `latest` tag.",
+        "A short name like `nginx` expands to `docker.io/library/nginx:latest`. That's Docker Hub, the folder for official images, and the tag `latest`.",
       ],
-      tip: "Think class vs object: the image is the class, each container is an object created from it.",
+      tip: "If you know a little programming, think of a class and its objects: the image is the class, and each container is an object made from it.",
     },
     {
       id: "d1-run",
@@ -103,12 +162,12 @@ export default defineDomain({
         />
       ),
       points: [
-        "`-d` runs in the background; `-it` gives you an interactive terminal; `--rm` deletes the container when it exits.",
-        "Docker options go before the image name. Anything after the image is passed to the container's command.",
-        "`docker logs` shows what the main process wrote to stdout and stderr, so containerized apps should log there.",
-        "`docker exec` runs an extra command inside a running container: perfect for poking around while debugging.",
+        "`-d` runs the container in the background. `-it` gives you an interactive terminal. `--rm` deletes the container when it exits.",
+        "Docker's own options go before the image name. Anything after the image name is passed to the container's command instead.",
+        "`docker logs` shows what the main process printed to its normal output and error output (stdout and stderr). That's why apps in containers should log there.",
+        "`docker exec` runs an extra command inside a container that's already running. It's the easiest way to poke around while you debug.",
       ],
-      tip: "Always `--name` your containers. `docker logs api` beats copying `3f1d9a0c2b7e` around.",
+      tip: "Give your containers a `--name`. Typing `docker logs api` is much nicer than copying `3f1d9a0c2b7e` around.",
     },
     {
       id: "d1-lifecycle",
@@ -118,17 +177,86 @@ export default defineDomain({
       check: ["d1-16", "d1-18"],
       visual: <LifecycleLab />,
       points: [
-        "States: created → running ⇄ paused → exited. Stopped containers still exist (`docker ps -a`) until you remove them.",
-        "`docker stop` sends SIGTERM, waits 10 seconds by default, then SIGKILL. `docker kill` sends SIGKILL straight away.",
-        "Exit code 137 = 128 + 9: killed by SIGKILL (a kill, a timed-out stop, or the out-of-memory killer).",
+        "A container moves through states: created, running, sometimes paused, then exited. A stopped container still exists, and `docker ps -a` shows it, until you remove it.",
+        "`docker stop` sends SIGTERM, a polite \"please shut down\" signal. It waits 10 seconds by default, then sends SIGKILL. `docker kill` sends SIGKILL straight away.",
+        "Exit code 137 is 128 plus 9, which means SIGKILL ended the process. That happens on a kill, a stop that timed out, or the out-of-memory killer.",
         "The writable layer survives stop and start, but `docker rm` deletes it. Data you care about belongs in a volume.",
-        "Your app runs as PID 1. Make it handle SIGTERM (or use `docker run --init`) so it shuts down cleanly.",
+        "Your app runs as PID 1, the first process in the container. Make it handle SIGTERM (or use `docker run --init`) so it shuts down cleanly.",
       ],
-      tip: "Treat containers as disposable: you should be able to `docker rm -f` one and start a fresh one at any moment without losing anything important.",
+      tip: "Treat containers as disposable. You should be able to `docker rm -f` one and start a fresh one at any moment without losing anything important.",
     },
   ],
 
   questions: [
+    {
+      id: "dkr-b1-01",
+      domain: "d1",
+      level: "beginner",
+      lesson: "d1-start-what",
+      prompt: "What does Docker do for your app?",
+      options: [
+        "Packs the app and everything it needs into a container that runs the same on any computer",
+        "Writes the app's code for you",
+        "Makes your internet connection faster",
+        "Backs up your files to the cloud",
+      ],
+      answer: [0],
+      explanation: "Docker is a packaging and running tool. It bundles your app with the exact tools and libraries it needs, so the box behaves the same wherever you run it.",
+    },
+    {
+      id: "dkr-b1-02",
+      domain: "d1",
+      level: "beginner",
+      lesson: "d1-start-what",
+      prompt: "Your app works on your laptop but breaks on the server because the server has a different version of a library. How does Docker help?",
+      options: [
+        "The app ships in a container that carries its own copy of the library, so the server runs exactly what your laptop ran",
+        "Docker finds and fixes the bug in your code",
+        "Docker copies your laptop's whole hard drive to the server",
+        "Docker upgrades every library on the server to the newest version",
+      ],
+      answer: [0],
+      explanation: "The container brings its own libraries and settings with it. The server only needs Docker, so differences between machines stop mattering.",
+    },
+    {
+      id: "dkr-b1-03",
+      domain: "d1",
+      level: "beginner",
+      lesson: "d1-start-run",
+      type: "output",
+      prompt: "Type what this command prints in your terminal.",
+      code: "docker run --rm alpine echo hello",
+      codeLang: "bash",
+      answers: ["hello"],
+      explanation: "Docker starts a container from the small `alpine` Linux image and runs `echo hello` inside it, which prints `hello`. Then the container stops, and `--rm` deletes it.",
+    },
+    {
+      id: "dkr-b1-04",
+      domain: "d1",
+      level: "beginner",
+      lesson: "d1-start-run",
+      prompt: "Which sentence about images and containers is right?",
+      options: [
+        "An image is the recipe, a container is what you get when you run it, and one image can make many containers",
+        "A container is the recipe, and an image is what runs",
+        "Each image can only ever run one container",
+        "Image and container are two words for the same thing",
+      ],
+      answer: [0],
+      explanation: "You download or build an image once, then run it as many times as you like. Each run is a separate container with its own space to work in.",
+    },
+    {
+      id: "dkr-b1-05",
+      domain: "d1",
+      level: "beginner",
+      lesson: "d1-start-run",
+      type: "fill",
+      prompt: "Fill the gap to download the `hello-world` image and run it as a container.",
+      code: "docker {{1}} hello-world",
+      codeLang: "bash",
+      blanks: [{ options: ["run", "open", "launch", "play"], answer: 0 }],
+      explanation: "`docker run` downloads the image if you don't have it yet, then creates and starts a container from it. Docker has no `open`, `launch` or `play` command.",
+    },
     {
       id: "d1-01",
       domain: "d1",
@@ -142,7 +270,7 @@ export default defineDomain({
         "A rented cloud server",
       ],
       answer: [0],
-      explanation: "Containers are ordinary processes with isolation applied (namespaces, cgroups, a layered filesystem). There's no separate kernel inside.",
+      explanation: "Containers are ordinary processes with isolation applied: namespaces, cgroups and a layered filesystem. There's no separate kernel inside.",
     },
     {
       id: "d1-02",
@@ -230,7 +358,7 @@ export default defineDomain({
       codeLang: "bash",
       options: ["One image, two containers", "Two images, two containers", "One image, one container", "Two images, one container"],
       answer: [0],
-      explanation: "The first run pulls `nginx` once; both containers are created from that same image.",
+      explanation: "The first run pulls `nginx` once. Both containers are then created from that same image.",
     },
     {
       id: "d1-08",
@@ -240,7 +368,7 @@ export default defineDomain({
       prompt: "What does `docker pull nginx` actually fetch?",
       options: ["`docker.io/library/nginx:latest`", "The newest nginx source code from GitHub", "`nginx:stable` from your company registry", "Whatever nginx image you pulled last time"],
       answer: [0],
-      explanation: "No registry means Docker Hub; no namespace means `library` (official images); no tag means `latest`.",
+      explanation: "With no registry, Docker uses Docker Hub. With no namespace, it uses `library`, where official images live. With no tag, it uses `latest`.",
     },
     {
       id: "d1-09",
@@ -257,7 +385,7 @@ export default defineDomain({
         "Asks you to create an account first",
       ],
       answer: [0],
-      explanation: "`docker run` is pull (if needed) + create + start. The container prints a message and exits.",
+      explanation: "`docker run` pulls the image if it's missing, creates a container and starts it. This one prints a welcome message and exits.",
     },
     {
       id: "d1-10",
@@ -290,7 +418,7 @@ export default defineDomain({
         "Skips TLS verification",
       ],
       answer: [0],
-      explanation: "`-i` keeps STDIN open; `-t` allocates a pseudo-terminal. Exit the shell and the container stops, because bash was its main process.",
+      explanation: "`-i` keeps the container's input open and `-t` gives it a terminal. When you exit the shell the container stops, because bash was its main process.",
     },
     {
       id: "d1-12",
@@ -300,7 +428,7 @@ export default defineDomain({
       prompt: "Which command lists only the running containers?",
       options: ["`docker ps`", "`docker ps -a`", "`docker image ls`", "`docker logs`"],
       answer: [0],
-      explanation: "Add `-a` to include stopped (exited) and created containers too.",
+      explanation: "Plain `docker ps` shows only running containers. Add `-a` to see stopped and created ones too.",
     },
     {
       id: "d1-13",
@@ -327,7 +455,7 @@ export default defineDomain({
       prompt: "Your app logs to stdout. How do you follow its logs live?",
       options: ["`docker logs -f api`", "`docker ps -f api`", "`docker image ls api`", "`docker stop -f api`"],
       answer: [0],
-      explanation: "`docker logs` reads the container's stdout and stderr; `-f` follows new lines, like `tail -f`.",
+      explanation: "`docker logs` reads what the container printed to stdout and stderr. `-f` keeps following new lines as they arrive, like `tail -f`.",
     },
     {
       id: "d1-15",
@@ -371,7 +499,7 @@ export default defineDomain({
         "The port was already in use",
       ],
       answer: [0],
-      explanation: "Exit codes above 128 mean \"killed by signal (code − 128)\". 143 would be SIGTERM (15). `docker inspect` shows whether OOMKilled was true.",
+      explanation: "An exit code above 128 means a signal killed the process. Subtract 128 to get the signal number. 143 would be SIGTERM (15), and `docker inspect` shows whether OOMKilled was true.",
     },
     {
       id: "d1-18",
@@ -470,19 +598,19 @@ export default defineDomain({
   ],
 
   cards: [
-    { id: "c1-run", domain: "d1", kind: "service", term: "docker run", definition: "Pull the image if needed, create a container from it, and start it." },
-    { id: "c1-ps", domain: "d1", kind: "service", term: "docker ps", definition: "List running containers; -a includes stopped ones." },
-    { id: "c1-logs", domain: "d1", kind: "service", term: "docker logs", definition: "Show a container's stdout and stderr; -f follows new output." },
-    { id: "c1-exec", domain: "d1", kind: "service", term: "docker exec", definition: "Run an extra command, such as a shell, inside a running container." },
-    { id: "c1-stop", domain: "d1", kind: "service", term: "docker stop", definition: "SIGTERM, wait the grace period (10 s by default), then SIGKILL." },
-    { id: "c1-rm", domain: "d1", kind: "service", term: "docker rm", definition: "Delete a stopped container and its writable layer; -f also stops it first." },
-    { id: "c1-pull", domain: "d1", kind: "service", term: "docker pull", definition: "Download an image from a registry (Docker Hub by default)." },
-    { id: "c1-prune", domain: "d1", kind: "service", term: "docker system prune", definition: "Remove stopped containers, unused networks, dangling images and unused build cache." },
-    { id: "c1-container", domain: "d1", kind: "concept", term: "Container", definition: "An isolated process running from an image, sharing the host kernel, with its own writable layer." },
-    { id: "c1-image", domain: "d1", kind: "concept", term: "Image", definition: "A read-only template of filesystem layers plus settings (command, env, ports)." },
-    { id: "c1-namespaces", domain: "d1", kind: "concept", term: "Namespaces", definition: "Kernel feature giving a process its own view of PIDs, network, mounts and hostname." },
-    { id: "c1-cgroups", domain: "d1", kind: "concept", term: "cgroups", definition: "Kernel feature that limits and accounts for a process group's CPU, memory and I/O." },
-    { id: "c1-137", domain: "d1", kind: "concept", term: "Exit code 137", definition: "128 + 9: the process was killed by SIGKILL (kill, stop timeout, or out of memory)." },
+    { id: "c1-run", domain: "d1", kind: "service", term: "docker run", definition: "Pulls the image if needed, creates a container from it, and starts it." },
+    { id: "c1-ps", domain: "d1", kind: "service", term: "docker ps", definition: "Lists running containers. Add -a to include stopped ones." },
+    { id: "c1-logs", domain: "d1", kind: "service", term: "docker logs", definition: "Shows what a container printed to stdout and stderr. Add -f to keep following new output." },
+    { id: "c1-exec", domain: "d1", kind: "service", term: "docker exec", definition: "Runs an extra command, such as a shell, inside a container that's already running." },
+    { id: "c1-stop", domain: "d1", kind: "service", term: "docker stop", definition: "Sends SIGTERM, waits a grace period (10 seconds by default), then sends SIGKILL." },
+    { id: "c1-rm", domain: "d1", kind: "service", term: "docker rm", definition: "Deletes a stopped container and its writable layer. Add -f to stop it first." },
+    { id: "c1-pull", domain: "d1", kind: "service", term: "docker pull", definition: "Downloads an image from a registry, which is Docker Hub unless you say otherwise." },
+    { id: "c1-prune", domain: "d1", kind: "service", term: "docker system prune", definition: "Removes stopped containers, unused networks, dangling images and unused build cache in one go." },
+    { id: "c1-container", domain: "d1", kind: "concept", term: "Container", definition: "An isolated process started from an image. It shares the host's kernel and has its own writable layer." },
+    { id: "c1-image", domain: "d1", kind: "concept", term: "Image", definition: "A read-only template: filesystem layers plus settings such as the start command, environment variables and ports." },
+    { id: "c1-namespaces", domain: "d1", kind: "concept", term: "Namespaces", definition: "A Linux kernel feature that gives a process its own private view of processes, network, mounts and hostname." },
+    { id: "c1-cgroups", domain: "d1", kind: "concept", term: "cgroups", definition: "A Linux kernel feature that limits and measures how much CPU, memory and disk I/O a group of processes uses." },
+    { id: "c1-137", domain: "d1", kind: "concept", term: "Exit code 137", definition: "128 plus 9: SIGKILL ended the process, from a kill, a stop that timed out, or running out of memory." },
   ],
 
   challenges: [
@@ -493,7 +621,7 @@ export default defineDomain({
       title: "Stop isn't delete",
       goal: "Write a file inside a container, stop it, start it again, and keep the file.",
       hint: "Run without --rm, docker exec a touch, then stop and start (not rm).",
-      takeaway: "The writable layer belongs to the container, not the run. It survives stop/start and dies with docker rm.",
+      takeaway: "The writable layer belongs to the container, not to one run of it. It survives stop and start, and only docker rm deletes it.",
       render: (onSolved) => <LifecycleLab goal="survive" onSolved={onSolved} />,
     },
     {
@@ -503,7 +631,7 @@ export default defineDomain({
       title: "Clean up after yourself",
       goal: "Start a container that removes itself as soon as it stops.",
       hint: "There's a docker run flag for that. Turn it on, run, then stop.",
-      takeaway: "--rm is perfect for one-off tasks: the container (and its writable layer) is deleted the moment it exits.",
+      takeaway: "--rm is perfect for one-off tasks. The container and its writable layer are deleted the moment it exits.",
       render: (onSolved) => <LifecycleLab goal="autoremove" onSolved={onSolved} />,
     },
   ],

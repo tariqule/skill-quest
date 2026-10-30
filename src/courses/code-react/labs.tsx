@@ -9,7 +9,7 @@ type Comp = "App" | "Header" | "Counter" | "Sidebar";
 const TREE: { name: Comp; depth: number; note: string }[] = [
   { name: "App", depth: 0, note: "page root" },
   { name: "Header", depth: 1, note: "static title" },
-  { name: "Counter", depth: 1, note: "shows count + button" },
+  { name: "Counter", depth: 1, note: "shows the count and a button" },
   { name: "Sidebar", depth: 1, note: "receives a style prop" },
 ];
 

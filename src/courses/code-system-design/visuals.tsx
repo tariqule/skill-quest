@@ -10,12 +10,12 @@ const btn = (on: boolean) =>
 // ───────────── Latency ladder ─────────────
 
 const LATENCIES: { op: string; ns: number; label: string; note: string }[] = [
-  { op: "L1 cache reference", ns: 1, label: "~1 ns", note: "Data already on the CPU core. Effectively free." },
-  { op: "Main memory reference", ns: 100, label: "~100 ns", note: "RAM is ~100× slower than L1, still tiny. In-memory caches (Redis, Memcached) live here, plus network time." },
-  { op: "SSD random read", ns: 100_000, label: "~100 µs", note: "Order of magnitude for a random read from flash. Databases try hard to serve hot pages from memory instead." },
-  { op: "Round trip in one data centre", ns: 500_000, label: "~0.5 ms", note: "Every network hop between services costs about this. Ten sequential calls ≈ 5 ms before any work is done." },
-  { op: "Disk seek (spinning HDD)", ns: 10_000_000, label: "~10 ms", note: "Why random I/O on HDDs is avoided and why logs are written sequentially." },
-  { op: "Round trip across an ocean", ns: 100_000_000, label: "~100 ms+", note: "Physics: light in fibre needs tens of ms per direction. Only CDNs and regional replicas beat it." },
+  { op: "L1 cache reference", ns: 1, label: "~1 ns", note: "The data is already on the CPU core. It's practically free." },
+  { op: "Main memory reference", ns: 100, label: "~100 ns", note: "RAM is about 100 times slower than L1, but still tiny. In-memory caches like Redis and Memcached live here, plus the network trip." },
+  { op: "SSD random read", ns: 100_000, label: "~100 µs", note: "A rough figure for one random read from flash storage. Databases try hard to serve popular data from memory instead." },
+  { op: "Round trip in one data centre", ns: 500_000, label: "~0.5 ms", note: "Every network hop between services costs about this. Ten calls in a row add about 5 ms before any real work happens." },
+  { op: "Disk seek (spinning HDD)", ns: 10_000_000, label: "~10 ms", note: "This is why designs avoid random reads on spinning disks, and why logs are written in order." },
+  { op: "Round trip across an ocean", ns: 100_000_000, label: "~100 ms+", note: "It's physics: light in fibre needs tens of milliseconds each way. Only CDNs and copies in nearby regions get around it." },
 ];
 
 /** "Numbers to know": a log-scale ladder of rough latencies. Tap a row for what it means in a design. */
@@ -44,7 +44,7 @@ export function LatencyLadder() {
         </button>
       ))}
       <p className="rounded-lg bg-black/30 p-3 text-sm text-slate-300">{LATENCIES[sel].note}</p>
-      <p className="text-[11px] text-slate-500">Log scale. Rough orders of magnitude; exact numbers vary by hardware.</p>
+      <p className="text-[11px] text-slate-500">Log scale. These are rough sizes, and exact numbers vary by hardware.</p>
     </div>
   );
 }
@@ -53,22 +53,22 @@ export function LatencyLadder() {
 
 const STRATEGIES = {
   "cache-aside": {
-    read: ["App asks the cache", "Miss → app reads the DB", "App writes the value into the cache (with a TTL)"],
+    read: ["App asks the cache", "On a miss, the app reads the DB", "App writes the value into the cache (with a TTL)"],
     write: ["App writes the DB", "App deletes the cache key", "Next read repopulates it"],
-    good: "Simple, cache holds only what's read, a cache outage only slows things down.",
-    bad: "First read after a write or expiry is a miss; stampedes on hot keys.",
+    good: "Simple. The cache only holds what's read, and if the cache goes down things just get slower.",
+    bad: "The first read after a write or expiry is a miss, and popular keys can cause stampedes.",
   },
   "write-through": {
-    read: ["App asks the cache", "Hits are the norm: writes already filled it"],
+    read: ["App asks the cache", "Hits are normal, because writes already filled it"],
     write: ["App writes the cache", "Cache synchronously writes the DB", "Ack only after both succeed"],
-    good: "Cache never stale for data written through it; reads after writes hit.",
-    bad: "Every write pays two writes of latency; cold data fills the cache.",
+    good: "Data written through the cache is never stale there, and reads after a write hit the cache.",
+    bad: "Every write waits for two writes, and rarely read data fills up the cache.",
   },
   "write-back": {
     read: ["App asks the cache", "Hits are the norm"],
     write: ["App writes the cache and gets an ack", "Cache flushes to the DB later, in batches"],
-    good: "Lowest write latency, absorbs write bursts, coalesces repeated writes.",
-    bad: "Data loss if the cache dies before flushing; harder to reason about.",
+    good: "The fastest writes. It soaks up bursts and combines repeated writes to the same key.",
+    bad: "Data is lost if the cache dies before saving to the DB, and it's harder to reason about.",
   },
 } as const;
 type Strategy = keyof typeof STRATEGIES;
@@ -158,7 +158,7 @@ export function ReplicationVisual() {
         </button>
       </div>
       <p className="min-h-5 text-sm text-slate-300" aria-live="polite">
-        {read ?? (sync ? "Sync: the write isn't acknowledged until the replica has it. Slower writes, no stale reads." : "Async: the primary acks immediately; the replica applies the change a little later.")}
+        {read ?? (sync ? "Sync: the write isn't confirmed until the replica has it. Writes are slower, but reads are never stale." : "Async: the primary confirms straight away, and the replica applies the change a little later.")}
       </p>
     </div>
   );
@@ -171,7 +171,7 @@ export function CapVisual() {
   const [partition, setPartition] = useState(true);
   const [choice, setChoice] = useState<"CP" | "AP">("CP");
   const left = "Node 1 (has the latest write x = 2)";
-  const rightAnswer = !partition ? "x = 2 ✅ (replicated normally)" : choice === "CP" ? "Error / timeout ⛔ — refuses rather than risk a stale answer" : "x = 1 ⚠️ — answers, but it's stale until the partition heals";
+  const rightAnswer = !partition ? "x = 2 ✅ (replicated normally)" : choice === "CP" ? "Error or timeout ⛔: it refuses rather than risk a stale answer" : "x = 1 ⚠️: it answers, but stays stale until the network heals";
   return (
     <div className="grid gap-3">
       <div className="flex flex-wrap gap-2">
@@ -196,7 +196,7 @@ export function CapVisual() {
         <div className="rounded-lg bg-slate-950/60 p-2 text-slate-200">Client → {left}: x = 2 ✅</div>
         <div className="rounded-lg bg-slate-950/60 p-2 text-slate-200">Client → Node 2: {rightAnswer}</div>
       </div>
-      <p className="text-xs text-slate-400">CAP only bites during a partition. PACELC adds the everyday trade-off: Else, Latency vs Consistency.</p>
+      <p className="text-xs text-slate-400">CAP only matters while the network is split. PACELC adds the everyday trade-off: the rest of the time, you still choose between speed and consistency.</p>
     </div>
   );
 }
@@ -237,8 +237,8 @@ export function FanoutVisual() {
         </div>
       </div>
       <p className="text-sm text-slate-300">
-        {mode === "write" && "Push: each post is copied into every follower's cached timeline. Reads are one lookup, but a celebrity post means millions of writes."}
-        {mode === "read" && "Pull: nothing happens at post time; every feed load queries everyone you follow and merges. Cheap writes, expensive reads."}
+        {mode === "write" && "Push: each post is copied into every follower's cached timeline. Reading is one lookup, but a celebrity post means millions of writes."}
+        {mode === "read" && "Pull: nothing happens when you post. Every feed load asks everyone you follow and merges the results. Writes are cheap and reads are expensive."}
         {mode === "hybrid" && `Hybrid: push for normal authors, pull for accounts above ${fmt(CELEB)} followers and merge their posts at read time.`}
       </p>
     </div>
@@ -251,7 +251,7 @@ export function FanoutVisual() {
 export function CircuitBreakerVisual() {
   const [state, setState] = useState<"closed" | "open" | "half-open">("closed");
   const [fails, setFails] = useState(0);
-  const [log, setLog] = useState<string>("Closed: calls flow through; failures are counted.");
+  const [log, setLog] = useState<string>("Closed: calls go through, and failures are counted.");
   const THRESHOLD = 3;
 
   function call(ok: boolean) {
@@ -260,14 +260,14 @@ export function CircuitBreakerVisual() {
       if (ok) {
         setState("closed");
         setFails(0);
-        return setLog("Trial call succeeded → closed again.");
+        return setLog("The trial call worked, so the breaker closes again.");
       }
       setState("open");
-      return setLog("Trial call failed → back to open for another cool-down.");
+      return setLog("The trial call failed, so it's open again for another cool-down.");
     }
     if (ok) {
       setFails(0);
-      return setLog("Success: failure count resets.");
+      return setLog("Success: the failure count resets.");
     }
     const f = fails + 1;
     setFails(f);
@@ -299,8 +299,8 @@ export function CircuitBreakerVisual() {
           onClick={() => {
             if (state === "open") {
               setState("half-open");
-              setLog("Cool-down elapsed → half-open: let one trial call through.");
-            } else setLog("The cool-down timer only matters while open.");
+              setLog("The cool-down is over, so it's half-open: one trial call may go through.");
+            } else setLog("The cool-down timer only matters while the breaker is open.");
           }}
           className="rounded-lg bg-white/10 px-3 py-1.5 text-sm text-slate-100"
         >

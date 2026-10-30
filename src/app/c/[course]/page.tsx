@@ -11,7 +11,9 @@ import { BADGES } from "@/engine/badges";
 import { courseCopy } from "@/engine/copy";
 import { useCourse, useProgress } from "@/engine/course-context";
 import { domainMastery, overallReadiness } from "@/engine/game";
-import { MODE_BY_ID } from "@/engine/modes";
+import { effectiveLevel } from "@/engine/levels";
+import { MODE_BY_ID, modesFor } from "@/engine/modes";
+import { CourseLevel, LevelUpBanner } from "@/components/LevelControls";
 import { buildPath, type PathNode, type PathWorld } from "@/engine/path";
 import { levelInfo } from "@/engine/store";
 import type { Domain } from "@/engine/types";
@@ -34,6 +36,7 @@ function MissionMap() {
   const lvl = levelInfo(p.xp, course.levelTitles);
   const { worlds, current, examUnlocked } = buildPath(course, p);
   const readiness = Math.round(overallReadiness(course, p));
+  const level = effectiveLevel(course, p.level);
 
   // First visit: start with the intro briefing.
   useEffect(() => {
@@ -49,7 +52,7 @@ function MissionMap() {
       {/* Hero: where you are and what's next */}
       <section className="grid items-center gap-6 rounded-3xl border border-white/10 bg-slate-900/50 p-5 sm:p-8 md:grid-cols-[1fr_auto]">
         <div>
-          <div className="text-xs font-bold uppercase tracking-[0.2em] text-sky-300">Mission control · {course.code}</div>
+          <div className="text-xs font-bold uppercase tracking-[0.2em] text-sky-300">Your course · {course.code}</div>
           <h1 className="mt-2 text-3xl sm:text-4xl font-black text-white">
             Level {lvl.level} <span className="text-slate-400">·</span> {lvl.title}
           </h1>
@@ -105,14 +108,16 @@ function MissionMap() {
         </div>
       </section>
       <LifecycleBanner course={course} />
+      <LevelUpBanner />
+      <CourseLevel />
 
       {/* How the expedition works */}
       <section className="mt-6 grid gap-3 sm:grid-cols-4">
         {[
-          { icon: "📖", t: "1. Learn", d: "Each mission teaches one concept with a visual." },
-          { icon: "✅", t: "2. Check", d: "Two quick questions. Misses come back until they stick." },
-          { icon: "⚔️", t: "3. Trial", d: `Prove the world: ${course.config.quest.length} questions, ${course.config.quest.hearts} hearts.` },
-          { icon: copy.gateIcon, t: `4. ${copy.gateStep}`, d: `Full ${copy.simulator}. ${course.exam.scale.pass}+ means you're ready.` },
+          { icon: "📖", t: "1. Learn", d: "Each lesson explains one idea with a picture." },
+          { icon: "✅", t: "2. Check", d: "Two quick questions. Anything you miss comes back until it sticks." },
+          { icon: "⚔️", t: "3. Trial", d: `A short test for the world: ${course.config.quest.length} questions, ${level === "beginner" ? course.config.quest.beginnerHearts : course.config.quest.hearts} hearts.` },
+          { icon: copy.gateIcon, t: `4. ${copy.gateStep}`, d: `A full practice ${copy.noun}. Score ${course.exam.scale.pass} or more and you're ready.` },
         ].map((s) => (
           <div key={s.t} className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
             <div className="text-2xl">{s.icon}</div>
@@ -125,7 +130,7 @@ function MissionMap() {
       {/* The map */}
       <section className="mt-10">
         <div className="flex items-end justify-between gap-3">
-          <h2 className="text-2xl font-black text-white">🗺️ Mission map</h2>
+          <h2 className="text-2xl font-black text-white">🗺️ Your map</h2>
           <div className="text-sm text-slate-400">
             {copy.readiness} <span className="font-bold text-white">{readiness}%</span>
           </div>
@@ -146,7 +151,7 @@ function MissionMap() {
                 Full {copy.simulator}: {course.exam.questions} questions, {course.exam.minutes} minutes, scored {course.exam.scale.min}–{course.exam.scale.max}.
               </div>
               <div className="mt-3 text-xs font-semibold text-amber-300">
-                {examUnlocked ? "Open. You're ready to attempt it." : "Recommended after all five trials, but you can enter anytime."}
+                {examUnlocked ? "Open. You're ready to attempt it." : "Best after you finish every world's trial, but you can go in any time."}
               </div>
             </Link>
           </Tilt>
@@ -155,10 +160,10 @@ function MissionMap() {
 
       {/* Practice deck */}
       <section className="mt-12">
-        <h2 className="text-xl font-black text-white">🎮 Training deck</h2>
-        <p className="mt-1 text-sm text-slate-400">Replay anytime to sharpen what you&apos;ve learned.</p>
+        <h2 className="text-xl font-black text-white">🎮 Practice games</h2>
+        <p className="mt-1 text-sm text-slate-400">Practice games you can replay any time.</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {course.modes
+          {modesFor(course, level)
             .map((id) => MODE_BY_ID[id])
             .map((m) => ({ href: href(m.to), icon: m.icon, name: m.name, meta: m.status(p, course) }))
             .map((m) => (
@@ -226,8 +231,11 @@ function WorldSection({ world, domain, mastery, stars }: { world: PathWorld; dom
               <Link href={href(`/study/${domain.id}`)} className="rounded-full border border-violet-300/40 bg-violet-400/15 px-2.5 py-1 font-bold text-violet-100 hover:bg-violet-400/25">
                 📚 Study
               </Link>
+              <Link href={href(`/game/${domain.id}`)} className="rounded-full border border-amber-300/40 bg-amber-400/15 px-2.5 py-1 font-bold text-amber-100 hover:bg-amber-400/25">
+                🎮 Mini game
+              </Link>
               <span>
-                📖 {world.lessonsDone}/{world.lessonsTotal} missions
+                📖 {world.lessonsDone}/{world.lessonsTotal} lessons
               </span>
               <Stars count={stars} size="text-sm" />
               <span>{Math.round(mastery * 100)}% mastered</span>
@@ -264,12 +272,13 @@ function PathNodeButton({ node, color, offset }: { node: PathNode; color: string
   const lesson = node.type === "lesson" ? lessonById[node.key] : null;
   const locked = node.state === "locked";
   const size = node.type === "quest" ? 84 : 68;
-  const icon = node.state === "done" ? "✓" : locked ? "🔒" : node.type === "quest" ? "⚔️" : "📖";
-  const label = node.type === "quest" ? "World trial" : lesson?.title;
+  const later = node.state === "later";
+  const icon = node.state === "done" ? "✓" : locked ? "🔒" : node.type === "quest" ? "⚔️" : node.basics ? "🐣" : later ? "⏭" : "📖";
+  const label = node.type === "quest" ? "World trial" : `${lesson?.title ?? ""}${later ? " (after the basics)" : node.optional ? " (basics, optional)" : ""}`;
 
   const inner = (
     <span
-      className={`node-3d relative flex items-center justify-center rounded-full text-2xl font-black text-slate-950 ${locked ? "node-locked" : ""} ${node.state === "current" ? "node-current" : ""}`}
+      className={`node-3d relative flex items-center justify-center rounded-full text-2xl font-black text-slate-950 ${locked || later ? "node-locked" : ""} ${later ? "opacity-60" : ""} ${node.state === "current" ? "node-current" : ""}`}
       style={{ width: size, height: size, "--c": node.state === "done" ? "#facc15" : color, "--edge": node.state === "done" ? "#a16207" : "#0f172a" } as CSSProperties}
     >
       {node.state === "current" && <span className="ring-pulse absolute inset-0 rounded-full border-4" style={{ borderColor: color }} />}

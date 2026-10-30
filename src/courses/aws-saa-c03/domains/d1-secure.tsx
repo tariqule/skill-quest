@@ -17,7 +17,7 @@ export default defineDomain({
     weight: 30,
     emoji: "🛡️",
     color: "#f87171",
-    summary: "IAM and least privilege, multi-account governance, VPC security layers, edge and threat protection, private connectivity, encryption, and data protection.",
+    summary: "How to design AWS systems that keep the wrong people out. You'll cover permissions, managing many accounts, private networks, threat protection, private links, encryption and keeping data safe.",
   },
 
   tasks: [
@@ -63,6 +63,77 @@ export default defineDomain({
 
   lessons: [
     {
+      id: "d1-start-keycards",
+      level: "beginner",
+      task: "1.1",
+      title: "Who can do what: users, roles and permissions",
+      check: ["saa-b1-01", "saa-b1-02"],
+      visual: (
+        <Tiles
+          cols={3}
+          tiles={[
+            { icon: "🙋", title: "User", text: "A person with their own long-term sign-in. Like an employee badge.", color: "#f87171" },
+            { icon: "🎭", title: "Role", text: "Permissions you borrow for a short time. Like a hotel key card that stops working at checkout.", color: "#f87171" },
+            { icon: "📜", title: "Policy", text: "The written rules that say which doors a badge or card opens.", color: "#f87171" },
+          ]}
+        />
+      ),
+      points: [
+        "A **solutions architect** designs how a system is put together on AWS. Security comes first, because a design that leaks data isn't a good design.",
+        "Think of a hotel. The front desk gives you a key card that opens your room and the gym, but not other guests' rooms. AWS works the same way with **IAM** (Identity and Access Management).",
+        "An IAM **user** is a person with a long-term sign-in. An IAM **role** is a set of permissions that a person or a program borrows for a short time.",
+        "A **policy** is a document that lists what's allowed. If nothing allows an action, AWS blocks it.",
+      ],
+      tip: "Programs running on AWS, such as an app on a server, should use a role. Roles hand out short-lived credentials, so there's no password to leak.",
+    },
+    {
+      id: "d1-start-private-network",
+      level: "beginner",
+      task: "1.2",
+      title: "Your own private network: the VPC",
+      check: ["saa-b1-03", "saa-b1-04"],
+      visual: (
+        <Layers
+          layers={[
+            { name: "Public subnet (the reception)", color: "#38bdf8", items: ["🚪 Faces the internet", "⚖️ Load balancer that greets visitors"] },
+            { name: "Private subnet (the back offices)", color: "#34d399", items: ["🖥️ App servers", "🗄️ Databases", "🚫 No direct path in from the internet"] },
+          ]}
+        />
+      ),
+      points: [
+        "A **VPC** (virtual private cloud) is your own private network inside AWS. Nobody else's servers share it.",
+        "Picture an office building. Visitors can walk into reception, but the back offices need a badge. In a VPC, the reception is a **public subnet** and the back offices are **private subnets**.",
+        "A **subnet** is a section of the VPC. You put things the internet must reach in public subnets, and everything else, like databases, in private ones.",
+        "A **security group** is a guard at each server's door. It lets in only the traffic you list.",
+      ],
+      tip: "When in doubt, keep it private. Only the parts that really must face the internet belong in a public subnet.",
+    },
+    {
+      id: "d1-start-locking-data",
+      level: "beginner",
+      task: "1.3",
+      title: "Keeping data safe: encryption and backups",
+      check: ["saa-b1-05", "saa-b1-06"],
+      visual: (
+        <Flow
+          color="#a78bfa"
+          steps={[
+            { icon: "📄", label: "Your data", sub: "Readable by anyone who gets it" },
+            { icon: "🔑", label: "Encrypt with a key", sub: "AWS KMS looks after the key" },
+            { icon: "🔒", label: "Scrambled data", sub: "Useless without the key" },
+            { icon: "🧳", label: "Back it up", sub: "A copy you can restore if something goes wrong" },
+          ]}
+        />
+      ),
+      points: [
+        "**Encryption** scrambles data so only someone with the right key can read it. It's like locking papers in a safe: stealing the safe doesn't give you the papers.",
+        "On AWS, **AWS KMS** (Key Management Service) creates and guards encryption keys. Most storage services can encrypt with it at the flick of a setting.",
+        "A **backup** is a spare copy of your data. If someone deletes or damages the original, you restore the copy.",
+        "Good designs do both: encrypt data so it can't be read, and back it up so it can't be lost.",
+      ],
+      tip: "Encryption protects against people reading your data. Backups protect against losing it. They solve different problems.",
+    },
+    {
       id: "d1-iam",
       task: "1.1",
       title: "IAM, least privilege, and the shared responsibility model",
@@ -72,36 +143,36 @@ export default defineDomain({
           <Tiles
             cols={4}
             tiles={[
-              { icon: "👑", title: "Root user", text: "Turn on MFA, delete its access keys, and lock it away. Use it only for the few tasks that need it.", color: "#f87171" },
-              { icon: "👥", title: "Users and groups", text: "Attach policies to groups, not to individual users. Prefer federation over long-lived users.", color: "#f87171" },
-              { icon: "🎭", title: "Roles", text: "Temporary credentials from STS. For EC2 (instance profile), Lambda, other accounts, and federated users.", color: "#f87171" },
-              { icon: "📜", title: "Policies", text: "Identity-based (attached to a principal) or resource-based (attached to a bucket, key, queue…).", color: "#f87171" },
+              { icon: "👑", title: "Root user", text: "Turn on MFA, delete its access keys and lock it away. Use it only for the few jobs that need it.", color: "#f87171" },
+              { icon: "👥", title: "Users and groups", text: "Attach policies to groups, not to single users. Federation usually beats long-lived users.", color: "#f87171" },
+              { icon: "🎭", title: "Roles", text: "Temporary credentials from STS. Used by EC2 (through an instance profile), Lambda, other accounts and federated users.", color: "#f87171" },
+              { icon: "📜", title: "Policies", text: "Identity-based ones attach to a user or role. Resource-based ones attach to a bucket, key, queue and so on.", color: "#f87171" },
             ]}
           />
           <Flow
             color="#f87171"
             steps={[
-              { icon: "⛔", label: "Any explicit Deny?", sub: "Deny wins, always" },
-              { icon: "🚧", label: "Inside SCPs and boundaries?", sub: "Guardrails cap what can be allowed" },
-              { icon: "✅", label: "Any Allow?", sub: "Identity or resource policy" },
-              { icon: "🔒", label: "Otherwise: implicit deny", sub: "Nothing is allowed by default" },
+              { icon: "⛔", label: "Is there a Deny?", sub: "A deny always wins" },
+              { icon: "🚧", label: "Within SCPs and boundaries?", sub: "These guardrails cap what can be allowed" },
+              { icon: "✅", label: "Is there an Allow?", sub: "In an identity or resource policy" },
+              { icon: "🔒", label: "If not, it's denied", sub: "Nothing is allowed by default" },
             ]}
           />
           <Layers
             layers={[
-              { name: "Customer: security IN the cloud", color: "#38bdf8", items: ["Data and encryption choices", "IAM", "OS patching on EC2", "Security groups and NACLs", "Application code"] },
+              { name: "You: security IN the cloud", color: "#38bdf8", items: ["Data and encryption choices", "IAM", "Patching the OS on EC2", "Security groups and NACLs", "Application code"] },
               { name: "AWS: security OF the cloud", color: "#f59e0b", items: ["Data centers", "Hardware", "Hypervisor", "Global network", "Managed-service infrastructure"] },
             ]}
           />
         </div>
       ),
       points: [
-        "Least privilege: grant only the actions and resources a job needs, then tighten with conditions (source IP, MFA, tags, VPC endpoint).",
-        "Give workloads roles, never access keys: an EC2 instance profile or a Lambda execution role delivers short-lived credentials automatically.",
-        "Permissions boundaries cap what an identity-based policy can grant, so you can let developers create roles without letting them escalate.",
-        "The more managed the service, the more AWS handles: you patch the OS on EC2, but not on Lambda or RDS.",
+        "**Least privilege** means granting only the actions and resources a job needs. You can tighten it further with conditions, such as the caller's IP address, MFA, tags or a VPC endpoint.",
+        "Give workloads roles, never access keys. An EC2 instance profile or a Lambda execution role hands out short-lived credentials automatically.",
+        "A **permissions boundary** caps what an identity-based policy can grant. That lets developers create roles without giving themselves more power than you intended.",
+        "The more managed the service, the more AWS handles. You patch the operating system on EC2, but not on Lambda or RDS.",
       ],
-      tip: "\"Application on EC2 needs to read S3\" → an IAM role attached through an instance profile. Any answer that stores access keys on the instance is wrong.",
+      tip: "If an app on EC2 needs to read S3, the answer is an IAM role attached through an instance profile. Any answer that stores access keys on the instance is wrong.",
     },
     {
       id: "d1-multiaccount",
@@ -112,7 +183,7 @@ export default defineDomain({
         <div className="grid gap-4">
           <Layers
             layers={[
-              { name: "Management account", color: "#f59e0b", items: ["AWS Organizations", "Consolidated billing", "No workloads"] },
+              { name: "Management account", color: "#f59e0b", items: ["AWS Organizations", "Consolidated billing", "No workloads run here"] },
               { name: "Security OU", color: "#f87171", items: ["Log archive account", "Security tooling account"] },
               { name: "Workloads OU (SCPs apply)", color: "#34d399", items: ["Prod account", "Dev account", "Sandbox account"] },
             ]}
@@ -123,19 +194,19 @@ export default defineDomain({
               { icon: "🏗️", title: "AWS Control Tower", text: "Sets up a governed landing zone: Organizations, account factory, centralized logging, and preventive and detective controls.", color: "#a78bfa" },
               { icon: "🚧", title: "Service control policies", text: "Cap the maximum permissions in member accounts, including their root users. They grant nothing by themselves.", color: "#a78bfa" },
               { icon: "🔑", title: "IAM Identity Center", text: "One sign-in for the workforce across all accounts, with permission sets, using its own directory, AD, or an external IdP.", color: "#a78bfa" },
-              { icon: "🔁", title: "Cross-account role", text: "A role in the target account trusts the source account; users call sts:AssumeRole to get temporary credentials.", color: "#a78bfa" },
+              { icon: "🔁", title: "Cross-account role", text: "A role in the target account trusts the source account. Users call sts:AssumeRole to get temporary credentials.", color: "#a78bfa" },
             ]}
           />
         </div>
       ),
       points: [
-        "Separate accounts are the strongest isolation boundary: per environment, per team, or per workload, grouped into OUs.",
-        "SCPs don't affect the management account, and an SCP Allow doesn't grant permissions: the identity still needs an IAM Allow.",
-        "Federate workforce users with IAM Identity Center (or SAML 2.0 to IAM roles) instead of creating IAM users in every account.",
-        "Resource-based policies (S3 bucket, KMS key, SQS queue, Lambda) can grant another account access directly, without it assuming a role.",
-        "AWS RAM shares resources such as subnets and Transit Gateways with other accounts in the organization.",
+        "Separate accounts are the strongest wall you can put between workloads. Companies split them by environment, team or workload, and group them into **organizational units** (OUs).",
+        "**Service control policies** (SCPs) don't apply to the management account. An Allow in an SCP doesn't grant anything by itself: the user or role still needs an IAM Allow.",
+        "Sign staff in through **IAM Identity Center**, or SAML 2.0 into IAM roles, instead of creating IAM users in every account. This is called **federation**.",
+        "A resource-based policy on an S3 bucket, KMS key, SQS queue or Lambda function can give another account access directly, with no role to assume.",
+        "**AWS RAM** (Resource Access Manager) shares resources such as subnets and Transit Gateways with other accounts in the organization.",
       ],
-      tip: "\"Prevent any account in the organization from doing X, even its administrators\" → an SCP. \"Grant\" questions are never solved by an SCP alone.",
+      tip: "If the question says no account in the organization may do something, not even its administrators, use an SCP. An SCP on its own never answers a question about granting access.",
     },
     {
       id: "d1-vpc-security",
@@ -149,13 +220,13 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "A subnet is public when its route table sends 0.0.0.0/0 to an internet gateway. Put load balancers and NAT gateways there; put app servers and databases in private subnets.",
-        "A NAT gateway lets private instances start outbound connections (patches, APIs) while blocking connections from the internet. It's zonal: use one per AZ for resilience.",
-        "Security groups are stateful allow-lists on each ENI. Chain them by referencing groups: the DB group allows port 3306 only from the app tier's group.",
-        "Network ACLs are stateless subnet filters with numbered allow and deny rules. Use them to block specific IP ranges, and remember the ephemeral return ports.",
-        "Lay out at least two AZs with a public and private subnet in each, and plan CIDR ranges that don't overlap networks you'll connect later.",
+        "A subnet is **public** when its route table sends internet traffic (0.0.0.0/0) to an internet gateway. Load balancers and NAT gateways go there. App servers and databases go in private subnets.",
+        "A **NAT gateway** lets private instances reach out, for patches or APIs, while nothing on the internet can connect in. Each one lives in one AZ, so use one per AZ for resilience.",
+        "A **security group** is a stateful allow-list on each network interface. You can chain them: the database group allows port 3306 only from the app tier's group.",
+        "A **network ACL** is a stateless filter on a subnet, with numbered allow and deny rules. Use it to block specific IP ranges, and remember to allow the ephemeral ports that replies come back on.",
+        "Use at least two AZs, with a public and a private subnet in each. Pick IP ranges (CIDR blocks) that won't clash with networks you'll connect later.",
       ],
-      tip: "\"Block one malicious IP address\" → a network ACL deny rule (security groups can't deny). \"Allow only the web tier to reach the database\" → security group referencing a security group.",
+      tip: "To block one malicious IP address, use a network ACL deny rule, because security groups can't deny. To let only the web tier reach the database, have one security group reference the other.",
     },
     {
       id: "d1-edge-protection",
@@ -168,21 +239,21 @@ export default defineDomain({
             color="#f87171"
             steps={[
               { icon: "🌍", label: "Internet traffic" },
-              { icon: "🛡️", label: "Shield", sub: "DDoS protection at layers 3/4 (Standard is automatic)" },
-              { icon: "🧱", label: "WAF web ACL", sub: "Layer 7 rules: SQLi, XSS, rate limits, geo" },
-              { icon: "🌐", label: "CloudFront / ALB / API Gateway", sub: "Where WAF attaches" },
+              { icon: "🛡️", label: "Shield", sub: "DDoS protection at the network layers. Standard is on automatically" },
+              { icon: "🧱", label: "WAF web ACL", sub: "Web request rules: SQL injection, cross-site scripting, rate limits, countries" },
+              { icon: "🌐", label: "CloudFront, ALB or API Gateway", sub: "Where WAF attaches" },
               { icon: "🖥️", label: "Application" },
             ]}
           />
           <Tiles
             cols={4}
             tiles={[
-              { icon: "🕵️", title: "GuardDuty", text: "Threat detection from CloudTrail events, VPC Flow Logs, DNS logs, and more. Finds crypto-mining and credential misuse.", color: "#38bdf8" },
+              { icon: "🕵️", title: "GuardDuty", text: "Spots threats in CloudTrail events, VPC Flow Logs, DNS logs and more, such as crypto-mining or stolen credentials.", color: "#38bdf8" },
               { icon: "🔍", title: "Macie", text: "Discovers and classifies sensitive data such as PII in S3 buckets.", color: "#38bdf8" },
               { icon: "🩺", title: "Inspector", text: "Scans EC2 instances, container images in ECR, and Lambda functions for software vulnerabilities.", color: "#38bdf8" },
               { icon: "📊", title: "Security Hub", text: "Aggregates findings and runs posture checks across accounts in one place.", color: "#38bdf8" },
               { icon: "🔐", title: "Secrets Manager", text: "Stores database credentials and API keys, with automatic rotation.", color: "#34d399" },
-              { icon: "🪪", title: "Cognito", text: "Sign-up and sign-in for your app's customers (user pools); temporary AWS credentials (identity pools).", color: "#34d399" },
+              { icon: "🪪", title: "Cognito", text: "User pools handle sign-up and sign-in for your app's customers. Identity pools give them temporary AWS credentials.", color: "#34d399" },
               { icon: "🔥", title: "Network Firewall", text: "Managed stateful firewall and intrusion prevention for VPC traffic, including domain filtering.", color: "#34d399" },
               { icon: "🗂️", title: "Firewall Manager", text: "Centrally applies WAF, Shield Advanced, security group, and Network Firewall policies across an organization.", color: "#34d399" },
             ]}
@@ -190,12 +261,12 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "Shield Standard protects every AWS customer at no cost. Shield Advanced adds tailored detection, the Shield Response Team, and protection against DDoS-related scaling charges.",
-        "AWS WAF filters HTTP(S) requests with managed or custom rules, rate-based rules, IP sets, and geo match. It attaches to CloudFront, ALB, API Gateway, AppSync, and Cognito user pools.",
-        "Detect with GuardDuty, investigate with Detective, classify data with Macie, scan for vulnerabilities with Inspector, and view everything in Security Hub.",
-        "Keep credentials out of code and AMIs: Secrets Manager rotates them; Parameter Store SecureString is a cheaper option without built-in rotation.",
+        "**Shield Standard** protects every AWS customer from DDoS floods at no cost. **Shield Advanced** adds tailored detection, the Shield Response Team, and refunds for scaling charges caused by an attack.",
+        "**AWS WAF** filters web requests using managed or custom rules, rate limits, IP lists and country matching. It attaches to CloudFront, ALB, API Gateway, AppSync and Cognito user pools.",
+        "Each tool has one job. GuardDuty detects threats, Detective investigates them, Macie finds sensitive data, Inspector finds software weaknesses, and Security Hub shows it all in one place.",
+        "Keep credentials out of code and machine images. Secrets Manager stores and rotates them. Parameter Store SecureString is cheaper but has no built-in rotation.",
       ],
-      tip: "SQL injection or cross-site scripting → AWS WAF. A large DDoS with cost protection and a response team → Shield Advanced. \"Find PII in S3\" → Macie.",
+      tip: "SQL injection or cross-site scripting points to AWS WAF. A large DDoS where you want cost protection and a response team points to Shield Advanced. Finding personal data in S3 points to Macie.",
     },
     {
       id: "d1-connectivity",
@@ -207,14 +278,14 @@ export default defineDomain({
           <Tiles
             cols={2}
             tiles={[
-              { icon: "🚪", title: "Gateway endpoint", text: "S3 and DynamoDB only. A route-table entry, no extra charge. Restrict it with an endpoint policy.", color: "#34d399" },
-              { icon: "🔌", title: "Interface endpoint (PrivateLink)", text: "An ENI with a private IP in your subnet for many AWS services and partner or your own services. Hourly and per-GB charges.", color: "#34d399" },
+              { icon: "🚪", title: "Gateway endpoint", text: "For S3 and DynamoDB only. It's a route-table entry with no extra charge. Limit it with an endpoint policy.", color: "#34d399" },
+              { icon: "🔌", title: "Interface endpoint (PrivateLink)", text: "A network interface with a private IP in your subnet. Works for many AWS services, partner services and your own. Charged per hour and per GB.", color: "#34d399" },
             ]}
           />
           <Tiles
             cols={3}
             tiles={[
-              { icon: "🔒", title: "Site-to-Site VPN", text: "IPsec tunnels over the internet to a virtual private gateway or Transit Gateway. Up in minutes, encrypted.", color: "#38bdf8" },
+              { icon: "🔒", title: "Site-to-Site VPN", text: "Encrypted IPsec tunnels over the internet to a virtual private gateway or Transit Gateway. Ready in minutes.", color: "#38bdf8" },
               { icon: "🧵", title: "Direct Connect", text: "A dedicated private line into AWS: consistent latency and high bandwidth. Takes time to provision and isn't encrypted by default.", color: "#38bdf8" },
               { icon: "💻", title: "Client VPN", text: "Managed remote access for individual users' devices into a VPC.", color: "#38bdf8" },
             ]}
@@ -222,13 +293,13 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "Endpoints keep traffic to AWS services off the internet, so private subnets don't need a NAT gateway for S3 or DynamoDB.",
-        "Bucket policies can require access through a specific VPC endpoint with the aws:SourceVpce condition key.",
-        "To encrypt Direct Connect traffic, run a Site-to-Site VPN over it (or use MACsec on supported connections).",
-        "A common hybrid design pairs Direct Connect as the primary path with a Site-to-Site VPN as a lower-cost backup.",
-        "PrivateLink exposes a service behind a Network Load Balancer to other VPCs without peering or overlapping-CIDR problems.",
+        "A **VPC endpoint** keeps traffic to AWS services off the internet. Private subnets then don't need a NAT gateway to reach S3 or DynamoDB.",
+        "A bucket policy can insist that requests come through one particular VPC endpoint, using the aws:SourceVpce condition key.",
+        "Direct Connect isn't encrypted by default. To encrypt it, run a Site-to-Site VPN over it, or use MACsec on connections that support it.",
+        "A common hybrid design uses Direct Connect as the main path and a Site-to-Site VPN as a cheaper backup.",
+        "**PrivateLink** shares a service that sits behind a Network Load Balancer with other VPCs. You don't need peering, and overlapping IP ranges aren't a problem.",
       ],
-      tip: "\"Needed by tomorrow\" or \"over the internet but encrypted\" → Site-to-Site VPN. \"Consistent, dedicated bandwidth\" → Direct Connect.",
+      tip: "If it's needed by tomorrow, or must be encrypted over the internet, choose Site-to-Site VPN. If it needs steady, dedicated bandwidth, choose Direct Connect.",
     },
     {
       id: "d1-encryption",
@@ -241,30 +312,30 @@ export default defineDomain({
             color="#a78bfa"
             steps={[
               { icon: "🗝️", label: "KMS key", sub: "Never leaves KMS unencrypted" },
-              { icon: "📦", label: "GenerateDataKey", sub: "Plaintext + encrypted data key" },
-              { icon: "🔐", label: "Encrypt data locally", sub: "Then discard the plaintext key" },
-              { icon: "💾", label: "Store ciphertext + encrypted key", sub: "Envelope encryption" },
+              { icon: "📦", label: "GenerateDataKey", sub: "Returns a plain data key and an encrypted copy" },
+              { icon: "🔐", label: "Encrypt the data locally", sub: "Then throw away the plain key" },
+              { icon: "💾", label: "Store the data and the encrypted key together", sub: "This is envelope encryption" },
             ]}
           />
           <Tiles
             cols={4}
             tiles={[
-              { icon: "🪣", title: "SSE-S3", text: "Default for new S3 objects. Keys managed by S3. Simplest.", color: "#f59e0b" },
-              { icon: "🗝️", title: "SSE-KMS", text: "KMS keys: key policies, CloudTrail audit of every use. Turn on S3 Bucket Keys to cut KMS request costs.", color: "#f59e0b" },
-              { icon: "🧰", title: "CloudHSM", text: "Dedicated, single-tenant HSMs in your VPC. You manage the keys and users; AWS can't access them.", color: "#f59e0b" },
+              { icon: "🪣", title: "SSE-S3", text: "The default for new S3 objects. S3 manages the keys. The simplest choice.", color: "#f59e0b" },
+              { icon: "🗝️", title: "SSE-KMS", text: "Uses KMS keys, with key policies and a CloudTrail record of every use. S3 Bucket Keys cut the KMS request cost.", color: "#f59e0b" },
+              { icon: "🧰", title: "CloudHSM", text: "Hardware security modules in your VPC, used by you alone. You manage the keys and users, and AWS can't get to them.", color: "#f59e0b" },
               { icon: "📜", title: "ACM", text: "Free public TLS certificates that renew automatically for ELB, CloudFront, and API Gateway.", color: "#f59e0b" },
             ]}
           />
         </div>
       ),
       points: [
-        "Customer managed KMS keys give you the key policy, grants, rotation settings, and the ability to disable or schedule deletion. AWS managed keys are simpler but you can't change their policy.",
-        "A key policy must allow a principal to use the key; for cross-account use, both the key policy and the other account's IAM policy must allow it.",
-        "Turn on automatic rotation for customer managed keys (yearly by default). Old key material stays available, so existing data still decrypts.",
-        "Encrypt in transit with TLS: ACM certificates on the load balancer or CloudFront, and a bucket policy that denies requests where aws:SecureTransport is false.",
-        "For CloudFront, the ACM certificate must be requested in us-east-1 (N. Virginia). Imported certificates don't renew automatically.",
+        "A **customer managed KMS key** lets you control the key policy, grants and rotation, and lets you disable or schedule deletion. AWS managed keys are simpler, but you can't change their policy.",
+        "The key policy must allow someone to use the key. For use from another account, both the key policy and that account's IAM policy must allow it.",
+        "Turn on automatic rotation for customer managed keys. It's yearly by default, and the old key material is kept, so existing data still decrypts.",
+        "Encrypt data in transit with TLS. Put ACM certificates on the load balancer or CloudFront, and add a bucket policy that denies requests where aws:SecureTransport is false.",
+        "For CloudFront, request the ACM certificate in us-east-1 (N. Virginia). Certificates you import yourself don't renew automatically.",
       ],
-      tip: "\"Customer must have exclusive control of the HSM\" or strict single-tenant key storage → CloudHSM. \"Audit every key use\" and fine-grained key policies → SSE-KMS with a customer managed key.",
+      tip: "If the customer needs sole control of the HSM, or strict single-tenant key storage, choose CloudHSM. If they need to audit every key use and write detailed key policies, choose SSE-KMS with a customer managed key.",
     },
     {
       id: "d1-data-protection",
@@ -277,26 +348,92 @@ export default defineDomain({
             cols={3}
             tiles={[
               { icon: "🕰️", title: "S3 Versioning", text: "Keeps every version, so overwrites and deletes can be undone. Required for replication and Object Lock.", color: "#34d399" },
-              { icon: "🔏", title: "S3 Object Lock", text: "WORM retention. Compliance mode: nobody, not even root, can shorten it. Governance mode: special permission can. Legal holds have no end date.", color: "#34d399" },
+              { icon: "🔏", title: "S3 Object Lock", text: "Write once, read many. In compliance mode nobody, not even root, can shorten the hold. In governance mode, a special permission can. Legal holds have no end date.", color: "#34d399" },
               { icon: "🔁", title: "S3 Replication", text: "Cross-Region or same-Region copies, optionally to another account. Replication Time Control gives a 15-minute SLA.", color: "#34d399" },
               { icon: "🧳", title: "AWS Backup", text: "Central backup plans across EC2, EBS, RDS, DynamoDB, EFS, FSx, and more, with cross-Region and cross-account copies.", color: "#38bdf8" },
               { icon: "🏦", title: "Backup Vault Lock", text: "Makes backups in a vault immutable so they can't be deleted early, even by an administrator.", color: "#38bdf8" },
-              { icon: "📋", title: "Config and Artifact", text: "Config records resource changes and evaluates compliance rules. Artifact provides AWS compliance reports (SOC, PCI…).", color: "#38bdf8" },
+              { icon: "📋", title: "Config and Artifact", text: "Config records resource changes and checks them against rules. Artifact provides AWS compliance reports such as SOC and PCI.", color: "#38bdf8" },
             ]}
           />
         </div>
       ),
       points: [
-        "Classify data first (Macie helps find sensitive data), then choose controls: who can access it, how long to keep it, and how to recover it.",
-        "S3 Block Public Access at the account level stops accidental public buckets. Bucket policies and access points control everything else.",
-        "MFA Delete requires MFA to permanently delete object versions or change the versioning state.",
-        "CloudTrail records API calls; an organization trail delivered to a locked-down log-archive account protects the audit record.",
+        "Start by working out how sensitive each kind of data is. Macie helps find sensitive data. Then decide who can reach it, how long to keep it and how you'll recover it.",
+        "Turning on **S3 Block Public Access** for the whole account stops buckets from being made public by accident. Bucket policies and access points control everything else.",
+        "**MFA Delete** asks for MFA before anyone can permanently delete an object version or change the versioning setting.",
+        "CloudTrail records API calls. Sending an organization trail to a locked-down log-archive account keeps the audit record safe from tampering.",
       ],
-      tip: "\"Records must not be altered or deleted for 7 years, by anyone\" → S3 Object Lock in compliance mode (or Backup Vault Lock for backups).",
+      tip: "If records must not be changed or deleted for 7 years, by anyone, use S3 Object Lock in compliance mode. For backups, the matching tool is Backup Vault Lock.",
     },
   ],
 
   questions: [
+    // ── Start here ──
+    {
+      id: "saa-b1-01",
+      domain: "d1",
+      lesson: "d1-start-keycards",
+      level: "beginner",
+      prompt: "Which AWS service decides who can sign in and what they're allowed to do?",
+      options: ["AWS IAM", "Amazon S3", "Amazon CloudFront", "AWS Auto Scaling"],
+      answer: [0],
+      explanation: "IAM (Identity and Access Management) is AWS's permissions system. It's like the front desk of a hotel: it issues key cards and decides which doors each one opens.",
+    },
+    {
+      id: "saa-b1-02",
+      domain: "d1",
+      lesson: "d1-start-keycards",
+      level: "beginner",
+      prompt: "What makes an IAM role different from an IAM user?",
+      options: [
+        "A role's permissions are borrowed for a short time, using temporary credentials",
+        "A role has a permanent password",
+        "A role can only be used by the root user",
+        "A role has no permissions at all",
+      ],
+      answer: [0],
+      explanation: "A user has a long-term sign-in, like an employee badge. A role is borrowed for a short time, like a hotel key card that stops working at checkout, which is why apps should use roles.",
+    },
+    {
+      id: "saa-b1-03",
+      domain: "d1",
+      lesson: "d1-start-private-network",
+      level: "beginner",
+      prompt: "What is an Amazon VPC?",
+      options: ["Your own private network inside AWS", "A type of database", "A video streaming service", "A billing report"],
+      answer: [0],
+      explanation: "A VPC (virtual private cloud) is a private network that belongs to you. You decide which parts face the internet and which stay hidden.",
+    },
+    {
+      id: "saa-b1-04",
+      domain: "d1",
+      lesson: "d1-start-private-network",
+      level: "beginner",
+      prompt: "Where should a company's customer database usually go?",
+      options: ["In a private subnet, out of direct reach of the internet", "In a public subnet, so anyone can reach it", "On a laptop", "In an email attachment"],
+      answer: [0],
+      explanation: "A database holds valuable data, so keep it in a private subnet, like a back office that visitors can't walk into. Only the parts that must face the internet belong in public subnets.",
+    },
+    {
+      id: "saa-b1-05",
+      domain: "d1",
+      lesson: "d1-start-locking-data",
+      level: "beginner",
+      prompt: "Which AWS service creates and looks after encryption keys?",
+      options: ["AWS KMS", "Amazon EC2", "Amazon Route 53", "AWS Budgets"],
+      answer: [0],
+      explanation: "AWS KMS (Key Management Service) creates and guards the keys used to encrypt your data. Most AWS storage services can use it with a simple setting.",
+    },
+    {
+      id: "saa-b1-06",
+      domain: "d1",
+      lesson: "d1-start-locking-data",
+      level: "beginner",
+      prompt: "Someone deletes an important file by mistake. What would let you get it back?",
+      options: ["A backup", "Encryption", "A stronger password", "A bigger server"],
+      answer: [0],
+      explanation: "A backup is a spare copy you can restore. Encryption stops people reading data, but it doesn't help if the data is gone.",
+    },
     // ── IAM ──
     {
       id: "d1-01",
@@ -446,7 +583,7 @@ export default defineDomain({
       ],
       answer: [0],
       explanation:
-        "SCPs restrict every principal in member accounts, including their root users, and administrators in those accounts can't remove them. IAM policies can be edited by account admins; Config only detects.",
+        "SCPs restrict every principal in member accounts, including their root users, and administrators in those accounts can't remove them. Account admins can edit IAM policies, and Config only detects problems.",
     },
     {
       id: "d1-11",
@@ -513,7 +650,7 @@ export default defineDomain({
         "A networking account owns a VPC. Application teams in other accounts in the same organization must launch EC2 instances into its subnets without managing their own VPCs. What should the architect use?",
       options: ["AWS Resource Access Manager to share the subnets", "VPC peering from every account", "A Site-to-Site VPN per account", "Copy the VPC with CloudFormation into each account"],
       answer: [0],
-      explanation: "With AWS RAM, a VPC owner shares subnets; participants launch resources into them while the owner keeps control of the network.",
+      explanation: "With AWS RAM, the VPC owner shares subnets. Other accounts launch resources into them, while the owner keeps control of the network.",
     },
     {
       id: "d1-16",
@@ -530,7 +667,7 @@ export default defineDomain({
       ],
       answer: [0, 1],
       explanation:
-        "Federation lets people keep one directory identity and receive temporary role credentials in AWS. Syncing passwords into IAM users creates duplicate long-term credentials; Cognito is for application users.",
+        "Federation lets people keep one directory identity and receive temporary role credentials in AWS. Syncing passwords into IAM users creates duplicate long-term credentials, and Cognito is for application users.",
     },
     {
       id: "d1-17",
@@ -560,7 +697,7 @@ export default defineDomain({
         "STS returns temporary credentials for the role",
         "The user acts in the target account with the role's permissions",
       ],
-      explanation: "Trust (target side) and permission (source side) come first; STS then issues short-lived credentials limited to the role's policies.",
+      explanation: "First the target account trusts the source, and the source grants permission to assume the role. Then STS issues short-lived credentials limited to the role's policies.",
     },
 
     // ── VPC security ──
@@ -622,7 +759,7 @@ export default defineDomain({
         "Move the load balancer to a private subnet",
       ],
       answer: [0],
-      explanation: "Security groups can't deny; network ACLs can. (AWS WAF IP sets on the ALB are another way to block at layer 7.)",
+      explanation: "Security groups can't deny traffic, but network ACLs can. An AWS WAF IP set on the ALB is another way to block it, at layer 7.",
     },
     {
       id: "d1-23",
@@ -692,7 +829,7 @@ export default defineDomain({
         ["Network ACL", "Stateless allow and deny rules at the subnet boundary"],
         ["Security group", "Stateful allow rules on each network interface"],
       ],
-      explanation: "Routing (route tables, gateways) decides where traffic can go; filtering (NACLs, security groups) decides what is allowed.",
+      explanation: "Routing, done by route tables and gateways, decides where traffic can go. Filtering, done by NACLs and security groups, decides what's allowed.",
     },
 
     // ── Edge and threat protection ──
@@ -754,7 +891,7 @@ export default defineDomain({
         "An API key embedded in the app",
       ],
       answer: [0],
-      explanation: "Cognito user pools handle customer identity (including social IdPs); identity pools issue scoped, temporary AWS credentials. IAM Identity Center is for the workforce.",
+      explanation: "Cognito user pools handle customer sign-in, including social logins. Identity pools hand out limited, temporary AWS credentials. IAM Identity Center is for the workforce.",
     },
     {
       id: "d1-33",
@@ -797,7 +934,7 @@ export default defineDomain({
         ["Rotate database credentials automatically", "AWS Secrets Manager"],
         ["One view of security findings across accounts", "AWS Security Hub"],
       ],
-      explanation: "Each security service has one main job; exam questions usually hinge on that job.",
+      explanation: "Each security service has one main job, and exam questions usually turn on knowing it.",
     },
 
     // ── Connectivity ──
@@ -840,7 +977,7 @@ export default defineDomain({
         "Use an S3 gateway endpoint",
       ],
       answer: [0, 1],
-      explanation: "Direct Connect isn't encrypted by default; IPsec VPN over it (or MACsec where supported) adds encryption. An internet VPN is a common low-cost backup to Direct Connect.",
+      explanation: "Direct Connect isn't encrypted by default. An IPsec VPN over it, or MACsec where supported, adds encryption. An internet VPN is a common low-cost backup to Direct Connect.",
     },
     {
       id: "d1-40",
@@ -922,7 +1059,7 @@ export default defineDomain({
         "Enable VPC Flow Logs",
       ],
       answer: [0, 1],
-      explanation: "TLS with an ACM certificate protects traffic to the site; the aws:SecureTransport condition forces HTTPS for S3. SSE-S3 is encryption at rest, not in transit.",
+      explanation: "TLS with an ACM certificate protects traffic to the site, and the aws:SecureTransport condition forces HTTPS for S3. SSE-S3 is encryption at rest, not in transit.",
     },
     {
       id: "d1-47",
@@ -991,7 +1128,7 @@ export default defineDomain({
         "Store the encrypted data key alongside the ciphertext",
         "To read, call KMS Decrypt on the encrypted data key, then decrypt the data locally",
       ],
-      explanation: "The KMS key never leaves KMS; only the small data key travels. This is how AWS services encrypt large data with KMS keys.",
+      explanation: "The KMS key never leaves KMS. Only the small data key travels. This is how AWS services encrypt large data with KMS keys.",
     },
 
     // ── Data protection ──
@@ -1081,8 +1218,8 @@ export default defineDomain({
     { id: "s-ram", domain: "d1", kind: "service", term: "AWS Resource Access Manager", definition: "Shares resources such as subnets and Transit Gateways across accounts" },
     { id: "s-directory", domain: "d1", kind: "service", term: "AWS Directory Service", definition: "Managed Microsoft AD or AD Connector to use Active Directory with AWS" },
     { id: "s-cognito", domain: "d1", kind: "service", term: "Amazon Cognito", definition: "Sign-up and sign-in for app users, plus temporary AWS credentials for them" },
-    { id: "s-waf", domain: "d1", kind: "service", term: "AWS WAF", definition: "Layer 7 web firewall: SQL injection, XSS, rate limits, IP and geo rules" },
-    { id: "s-shield", domain: "d1", kind: "service", term: "AWS Shield", definition: "DDoS protection: Standard is free and automatic; Advanced adds a response team and cost protection" },
+    { id: "s-waf", domain: "d1", kind: "service", term: "AWS WAF", definition: "A web firewall that inspects each request. It blocks SQL injection and cross-site scripting, and can rate-limit or filter by IP or country." },
+    { id: "s-shield", domain: "d1", kind: "service", term: "AWS Shield", definition: "DDoS protection. Standard is free and automatic. Advanced adds a response team and protection against attack-driven costs." },
     { id: "s-guardduty", domain: "d1", kind: "service", term: "Amazon GuardDuty", definition: "Threat detection from CloudTrail, VPC Flow Logs, and DNS logs" },
     { id: "s-macie", domain: "d1", kind: "service", term: "Amazon Macie", definition: "Discovers and classifies sensitive data such as PII in S3" },
     { id: "s-inspector", domain: "d1", kind: "service", term: "Amazon Inspector", definition: "Vulnerability scanning for EC2, ECR images, and Lambda" },
@@ -1100,17 +1237,17 @@ export default defineDomain({
     { id: "s-clientvpn", domain: "d1", kind: "service", term: "AWS Client VPN", definition: "Managed remote-access VPN for individual users into a VPC" },
     { id: "s-sitevpn", domain: "d1", kind: "service", term: "AWS Site-to-Site VPN", definition: "IPsec tunnels over the internet between a network and AWS" },
     { id: "s-privatelink", domain: "d1", kind: "service", term: "AWS PrivateLink", definition: "Private access to services through interface endpoints, without peering" },
-    { id: "c-least", domain: "d1", kind: "concept", term: "Least privilege", definition: "Grant only the actions and resources a task needs" },
-    { id: "c-scp", domain: "d1", kind: "concept", term: "Service control policy", definition: "Organization guardrail that caps member-account permissions; grants nothing" },
+    { id: "c-least", domain: "d1", kind: "concept", term: "Least privilege", definition: "Granting only the actions and resources a task needs, and nothing more." },
+    { id: "c-scp", domain: "d1", kind: "concept", term: "Service control policy", definition: "A guardrail in AWS Organizations that caps what member accounts can do. It never grants anything by itself." },
     { id: "c-boundary", domain: "d1", kind: "concept", term: "Permissions boundary", definition: "Maximum permissions an identity-based policy can give a user or role" },
     { id: "c-explicitdeny", domain: "d1", kind: "concept", term: "Explicit deny", definition: "A Deny statement that overrides every Allow" },
     { id: "c-shared", domain: "d1", kind: "concept", term: "Shared responsibility model", definition: "AWS secures the cloud; you secure what you put in it" },
-    { id: "c-sg", domain: "d1", kind: "concept", term: "Security group", definition: "Stateful allow-only firewall on each network interface" },
-    { id: "c-nacl", domain: "d1", kind: "concept", term: "Network ACL", definition: "Stateless subnet filter with numbered allow and deny rules" },
-    { id: "c-gatewayendpoint", domain: "d1", kind: "concept", term: "Gateway endpoint", definition: "Free route-table endpoint for S3 and DynamoDB" },
-    { id: "c-envelope", domain: "d1", kind: "concept", term: "Envelope encryption", definition: "Encrypt data with a data key, and the data key with a KMS key" },
-    { id: "c-objectlock", domain: "d1", kind: "concept", term: "S3 Object Lock", definition: "WORM retention; compliance mode can't be shortened by anyone" },
-    { id: "c-bpa", domain: "d1", kind: "concept", term: "S3 Block Public Access", definition: "Account- or bucket-level switch that overrides public access settings" },
+    { id: "c-sg", domain: "d1", kind: "concept", term: "Security group", definition: "A firewall on each network interface. It only has allow rules and automatically lets replies back in." },
+    { id: "c-nacl", domain: "d1", kind: "concept", term: "Network ACL", definition: "A filter on a whole subnet, with numbered allow and deny rules. It checks traffic in both directions separately." },
+    { id: "c-gatewayendpoint", domain: "d1", kind: "concept", term: "Gateway endpoint", definition: "A free way to reach S3 and DynamoDB privately, added as an entry in a route table." },
+    { id: "c-envelope", domain: "d1", kind: "concept", term: "Envelope encryption", definition: "You encrypt the data with a data key, then encrypt that data key with a KMS key." },
+    { id: "c-objectlock", domain: "d1", kind: "concept", term: "S3 Object Lock", definition: "Keeps objects from being changed or deleted for a set time. In compliance mode, nobody can shorten that time." },
+    { id: "c-bpa", domain: "d1", kind: "concept", term: "S3 Block Public Access", definition: "A switch, for an account or a bucket, that blocks public access whatever other settings say." },
   ],
 
   challenges: [
@@ -1121,7 +1258,7 @@ export default defineDomain({
       title: "Private, but online",
       goal: "Fix the VPC so the app instance can download patches from the internet but can't be reached from it.",
       hint: "A NAT gateway only works from a subnet whose route table points 0.0.0.0/0 at an attached internet gateway. And a private instance shouldn't have a public IP or a route to the IGW.",
-      takeaway: "Private subnet → 0.0.0.0/0 to a NAT gateway in a public subnet → public route table 0.0.0.0/0 to the IGW. Outbound works; inbound has no path.",
+      takeaway: "The private subnet sends internet traffic to a NAT gateway in a public subnet, and the public route table sends it on to the internet gateway. Traffic can go out, but nothing has a path in.",
       render: (onSolved) => <VpcBuilderLab goal="egress" onSolved={onSolved} />,
     },
   ],

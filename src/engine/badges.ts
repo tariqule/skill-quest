@@ -4,6 +4,7 @@ export type BadgeId =
   | "certified"
   | "bookworm"
   | "tinkerer"
+  | "arcade"
   | "first-correct"
   | "combo-5"
   | "combo-10"
@@ -31,6 +32,7 @@ export const BADGES: Badge[] = [
   { id: "certified", name: "Gatekeeper", icon: "🏛️", description: "Pass the full exam simulation" },
   { id: "bookworm", name: "Bookworm", icon: "📚", description: "Study for 60 minutes in total" },
   { id: "tinkerer", name: "Tinkerer", icon: "🧪", description: "Solve 5 hands-on lab challenges" },
+  { id: "arcade", name: "Arcade Explorer", icon: "🕹️", description: "Play the mini game in every section" },
   { id: "first-correct", name: "Hello, World", icon: "🌱", description: "Answer your first question correctly" },
   { id: "combo-5", name: "On Fire", icon: "🔥", description: "Hit a 5-answer combo" },
   { id: "combo-10", name: "Unstoppable", icon: "☄️", description: "Hit a 10-answer combo" },

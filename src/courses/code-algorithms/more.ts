@@ -20,11 +20,11 @@ export const moreQuestions: Question[] = [
       { options: ["i", "1", "j", "0"], answer: 0 },
       { options: [">", "<", "!==", "==="], answer: 0 },
     ],
-    explanation: "Swap a neighbour pair when the left one is bigger (`>`). After pass `i`, the `i` largest values are already at the end, so the inner loop can stop `i` positions early.",
+    explanation: "Swap two neighbours when the left one is bigger (`>`). After pass `i`, the `i` largest values are already in place at the end, so the inner loop can stop `i` positions early.",
   },
   {
     id: "algo-fx-02", type: "fill", domain: "d1", level: "intermediate", lesson: "algo-merge-quick",
-    prompt: "Fill the gaps so `merge` combines two sorted arrays into one sorted array and is stable (equal items keep the order of `a` first).",
+    prompt: "Fill the gaps so `merge` combines two sorted arrays into one sorted array, and stays stable (when items are equal, the one from `a` goes first).",
     codeLang: "js",
     code: js(
       "function merge(a, b) {",
@@ -40,7 +40,7 @@ export const moreQuestions: Question[] = [
       { options: ["<=", "<", ">", "==="], answer: 0 },
       { options: ["b.slice(j)", "b.slice(i)", "b", "a.slice(j)"], answer: 0 },
     ],
-    explanation: "Taking from `a` when `a[i] <= b[j]` keeps equal items in their original order (stable). When one side runs out, the leftovers of both sides are appended: `a.slice(i)` and `b.slice(j)` (one is empty).",
+    explanation: "Taking from `a` when `a[i] <= b[j]` keeps equal items in their original order, which is what stable means. When one side runs out, add whatever is left of both: `a.slice(i)` and `b.slice(j)`. One of them will be empty.",
   },
   {
     id: "algo-fx-03", type: "fill", domain: "d2", level: "junior", lesson: "algo-binary-search",
@@ -62,7 +62,7 @@ export const moreQuestions: Question[] = [
       { options: ["<=", "<", "!==", ">="], answer: 0 },
       { options: ["Math.floor((hi - lo) / 2)", "(hi + lo) / 2", "Math.floor(hi / 2)", "(hi - lo)"], answer: 0 },
     ],
-    explanation: "With an inclusive range `[lo, hi]` the loop runs while `lo <= hi`; using `<` would skip the last remaining candidate. `lo + floor((hi - lo) / 2)` is the integer midpoint and avoids overflow in languages with fixed-width ints.",
+    explanation: "Both `lo` and `hi` are still candidates, so the loop runs while `lo <= hi`. Using `<` would skip the last one left. `lo + floor((hi - lo) / 2)` gives a whole-number middle and avoids overflow in languages with fixed-size integers.",
   },
   {
     id: "algo-fx-04", type: "fill", domain: "d2", level: "senior", lesson: "algo-sliding-window",
@@ -84,11 +84,11 @@ export const moreQuestions: Question[] = [
       { options: ["max", "min", "abs", "floor"], answer: 0 },
       { options: ["1", "0", "2", "-1"], answer: 0 },
     ],
-    explanation: "The window start may only move forward, so take the `max` of the current start and one past the previous occurrence (in `abba`, the last `a` is behind the window). The window `[start, i]` has `i - start + 1` characters.",
+    explanation: "The window's start may only move forward, so take the `max` of the current start and one past the earlier copy. In `abba`, the earlier `a` is already behind the window. A window from `start` to `i` holds `i - start + 1` characters.",
   },
   {
     id: "algo-fx-05", type: "fill", domain: "d3", level: "junior", lesson: "algo-recursion",
-    prompt: "Fill the gaps so `power(base, exp)` computes `base` to the power `exp` for `exp >= 0` using recursion.",
+    prompt: "Fill the gaps so `power(base, exp)` uses recursion to compute `base` to the power `exp`, for `exp >= 0`.",
     codeLang: "js",
     code: js(
       "function power(base, exp) {",
@@ -100,7 +100,7 @@ export const moreQuestions: Question[] = [
       { options: ["0", "1", "-1", "base"], answer: 0 },
       { options: ["-", "+", "/", "*"], answer: 0 },
     ],
-    explanation: "The base case is `exp === 0`, where the result is 1. Each call reduces the problem by one, `exp - 1`, so it reaches the base case. A base case of `1` would give `power(2, 1) === 1`, which is wrong.",
+    explanation: "The base case is `exp === 0`, where the answer is 1. Each call makes the problem one smaller with `exp - 1`, so it reaches the base case. A base case of `1` would make `power(2, 1)` return 1, which is wrong.",
   },
   {
     id: "algo-fx-06", type: "fill", domain: "d3", level: "senior", lesson: "algo-backtracking",
@@ -125,11 +125,11 @@ export const moreQuestions: Question[] = [
       { options: ["pop", "shift", "splice", "push"], answer: 0 },
       { options: ["delete", "clear", "remove", "add"], answer: 0 },
     ],
-    explanation: "Backtracking undoes the last choice in reverse order: `pop` removes the item just pushed, and `delete` removes it from the set. Forgetting to undo leaves stale state and loses permutations. Results are copied with `[...cur]` because `cur` keeps changing.",
+    explanation: "Backtracking undoes the last choice: `pop` removes the item just pushed, and `delete` takes it out of the set. Forget to undo and stale state hangs around, so permutations go missing. Results are copied with `[...cur]` because `cur` keeps changing.",
   },
   {
     id: "algo-fx-07", type: "fill", domain: "d4", level: "intermediate", lesson: "algo-dp-patterns",
-    prompt: "Fill the gaps so `minCoins` returns the fewest coins that make `amount`, or `-1` if impossible.",
+    prompt: "Fill the gaps so `minCoins` returns the fewest coins that make `amount`, or `-1` if it can't be done.",
     codeLang: "js",
     code: js(
       "function minCoins(coins, amount) {",
@@ -145,7 +145,7 @@ export const moreQuestions: Question[] = [
       { options: ["0", "1", "Infinity", "-1"], answer: 0 },
       { options: ["1", "c", "0", "a"], answer: 0 },
     ],
-    explanation: "Zero coins make amount 0, so `dp[0] = 0`. Using coin `c` adds exactly one coin to the best answer for `a - c`, hence `+ 1` (the coin's value is not its count).",
+    explanation: "It takes zero coins to make 0, so `dp[0]` starts at 0. Using coin `c` adds exactly one coin to the best answer for `a - c`, hence `+ 1`. We're counting coins, not adding up their values.",
   },
   {
     id: "algo-fx-08", type: "fill", domain: "d4", level: "staff", lesson: "algo-greedy",
@@ -165,11 +165,11 @@ export const moreQuestions: Question[] = [
       { options: ["a[1] - b[1]", "a[0] - b[0]", "b[1] - a[1]", "(a[1] - a[0]) - (b[1] - b[0])"], answer: 0 },
       { options: [">=", ">", "<=", "==="], answer: 0 },
     ],
-    explanation: "The greedy choice is the meeting that finishes earliest: sort by end time (`a[1] - b[1]`). Sorting by start or by shortest length has counterexamples. Touching meetings are allowed, so the next start must be `>=` the last end.",
+    explanation: "The greedy choice is the meeting that ends earliest, so sort by end time with `a[1] - b[1]`. Sorting by start time or by length both have counterexamples. Back-to-back meetings are allowed, so the next start only has to be `>=` the last end.",
   },
   {
     id: "algo-fx-09", type: "fill", domain: "d4", level: "staff", lesson: "algo-patterns",
-    prompt: "Fill the gaps so `nextGreater` finds, for each item, the next item to its right that is strictly larger (or `-1`) using a monotonic stack of indices.",
+    prompt: "Fill the gaps so `nextGreater` finds, for each item, the next item to its right that is strictly larger (or `-1`), using a monotonic stack of indices.",
     codeLang: "js",
     code: js(
       "function nextGreater(a) {",
@@ -185,7 +185,7 @@ export const moreQuestions: Question[] = [
       { options: ["<", ">", "<=", ">="], answer: 0 },
       { options: ["pop", "shift", "peek", "top"], answer: 0 },
     ],
-    explanation: "While the item on top of the stack is strictly smaller than `a[i]`, `a[i]` is its answer, so pop it. `<=` would wrongly accept an equal value as greater. Each index is pushed and popped once, so the whole thing is O(n).",
+    explanation: "While the item on top of the stack is strictly smaller than `a[i]`, `a[i]` is its answer, so pop it and record it. `<=` would wrongly count an equal value as greater. Each index is pushed once and popped once, so the whole thing is O(n).",
   },
 
   // ───────────── type the output ─────────────
@@ -199,7 +199,7 @@ export const moreQuestions: Question[] = [
       "console.log(c);",
     ),
     answers: ["5"],
-    explanation: "`i` takes the values 1, 2, 4, 8, 16: five iterations. Doubling each step is why this kind of loop is O(log n).",
+    explanation: "`i` takes the values 1, 2, 4, 8 and 16, so the loop runs five times. Doubling each step is why this kind of loop is O(log n).",
   },
   {
     id: "algo-ox-02", type: "output", domain: "d1", level: "intermediate", lesson: "algo-sort-choice",
@@ -207,7 +207,7 @@ export const moreQuestions: Question[] = [
     codeLang: "js",
     code: "console.log([10, 9, 1, 100].sort().join(\",\"));",
     answers: ["1,10,100,9"],
-    explanation: "Without a comparator `sort` compares items as strings: `\"1\" < \"10\" < \"100\" < \"9\"`. Use `sort((a, b) => a - b)` for numeric order.",
+    explanation: "Without a comparator, `sort` compares items as text, the way a dictionary orders words: \"1\", \"10\", \"100\", \"9\". Use `sort((a, b) => a - b)` to sort by number.",
   },
   {
     id: "algo-ox-03", type: "output", domain: "d2", level: "junior", lesson: "algo-binary-search",
@@ -225,7 +225,7 @@ export const moreQuestions: Question[] = [
       "console.log(steps);",
     ),
     answers: ["2"],
-    explanation: "First `mid` is 3 (value 8), which is smaller than 12, so `lo = 4`. Next `mid = (4 + 6) >> 1 = 5` (value 12): found on step 2.",
+    explanation: "The first `mid` is 3, holding 8. That's smaller than 12, so `lo` moves to 4. The next `mid` is `(4 + 6) >> 1`, which is 5, holding 12. Found on step 2.",
   },
   {
     id: "algo-ox-04", type: "output", domain: "d2", level: "intermediate", lesson: "algo-two-pointers",
@@ -242,7 +242,7 @@ export const moreQuestions: Question[] = [
       "console.log(i, j);",
     ),
     answers: ["1 3"],
-    explanation: "1 + 11 = 12 is too big, so `j` moves to 3. 1 + 7 = 8 is too small, so `i` moves to 1. 2 + 7 = 9 matches: indices 1 and 3.",
+    explanation: "1 + 11 is 12, too big, so `j` moves to 3. 1 + 7 is 8, too small, so `i` moves to 1. 2 + 7 is 9, a match at indexes 1 and 3.",
   },
   {
     id: "algo-ox-05", type: "output", domain: "d3", level: "intermediate", lesson: "algo-recursion",
@@ -256,7 +256,7 @@ export const moreQuestions: Question[] = [
       "console.log(f(3));",
     ),
     answers: ["1213121"],
-    explanation: "`f(1)` is `1`, `f(2)` is `1` + `2` + `1` = `121`, and `f(3)` is `121` + `3` + `121` = `1213121`. Two recursive calls per level means the output (and the work) doubles each time.",
+    explanation: "`f(1)` is `1`. `f(2)` is `1`, `2`, `1` joined: `121`. `f(3)` is `121`, `3`, `121` joined: `1213121`. Two recursive calls per level means the output, and the work, doubles each time.",
   },
   {
     id: "algo-ox-06", type: "output", domain: "d3", level: "senior", lesson: "algo-bfs",
@@ -272,7 +272,7 @@ export const moreQuestions: Question[] = [
       "console.log(dist.F, q.length);",
     ),
     answers: ["3 0"],
-    explanation: "BFS assigns distances level by level: B and C are 1 away, D and E are 2, and F is 3. The loop ends only when the queue is empty, so `q.length` is 0.",
+    explanation: "BFS hands out distances one level at a time: B and C are 1 away, D and E are 2, and F is 3. The loop only ends once the queue is empty, so `q.length` is 0.",
   },
   {
     id: "algo-ox-07", type: "output", domain: "d4", level: "senior", lesson: "algo-memo",
@@ -289,7 +289,7 @@ export const moreQuestions: Question[] = [
       "console.log(fib(6), calls);",
     ),
     answers: ["8 11"],
-    explanation: "fib(6) is 8. With memoization each `n >= 2` is computed once, but the call `fib(n - 2)` is still made (and counted) before a hit: 11 calls here instead of the 25 an unmemoized fib(6) makes. It is O(n) calls overall.",
+    explanation: "fib(6) is 8. With the cache, each `n` of 2 or more is worked out once, but the `fib(n - 2)` call still happens, and gets counted, before it hits the cache. That's 11 calls instead of the 25 an uncached fib(6) makes, so O(n) calls overall.",
   },
   {
     id: "algo-ox-08", type: "output", domain: "d4", level: "staff", lesson: "algo-greedy",
@@ -307,7 +307,7 @@ export const moreQuestions: Question[] = [
       "console.log(greedy([1, 3, 4], 6));",
     ),
     answers: ["3"],
-    explanation: "Greedy takes the biggest coin first: 4, then two 1s, which is 3 coins, while 3 + 3 uses only 2. For arbitrary coin systems greedy is not optimal, so use DP.",
+    explanation: "Greedy takes the biggest coin first: a 4, then two 1s, so 3 coins. But 3 + 3 uses only 2. For an arbitrary set of coins greedy isn't optimal, so use DP.",
   },
   {
     id: "algo-ox-09", type: "output", domain: "d4", level: "staff", lesson: "algo-dp-patterns",
@@ -322,6 +322,6 @@ export const moreQuestions: Question[] = [
       "console.log(best);",
     ),
     answers: ["6"],
-    explanation: "This is Kadane's algorithm for the maximum subarray sum. The best run is `4, -1, 2, 1`, which sums to 6.",
+    explanation: "This is Kadane's algorithm for the largest subarray sum. At each item it either extends the current run or starts fresh. The best run is `4, -1, 2, 1`, which adds up to 6.",
   },
 ];

@@ -1,4 +1,4 @@
-import { CodeBlock } from "@/components/learn/blocks";
+import { CodeBlock, Flow, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { CommitGraphLab, ConflictLab } from "../labs";
 import { sh } from "../snippet";
@@ -23,7 +23,7 @@ export default defineDomain({
     weight: 25,
     emoji: "🌳",
     color: "#a3e635",
-    summary: "Branches and HEAD as pointers, commits as a graph, merging vs rebasing, and resolving conflicts without panic.",
+    summary: "How branches and HEAD point at commits, how commits link up into a graph, when to merge and when to rebase, and how to resolve conflicts calmly.",
   },
 
   tasks: [
@@ -51,6 +51,60 @@ export default defineDomain({
 
   lessons: [
     {
+      id: "d2-start-branch",
+      level: "beginner",
+      task: "2.1",
+      title: "What a branch is",
+      check: ["git-b2-01", "git-b2-02"],
+      visual: (
+        <div className="grid gap-4">
+          <Tiles
+            cols={2}
+            tiles={[
+              { icon: "📗", title: "main", text: "The version everyone trusts. You keep it working.", color: "#34d399" },
+              { icon: "🧪", title: "A branch for an idea", text: "A separate line of commits where you can try things without touching main.", color: "#a3e635" },
+            ]}
+          />
+          <CodeBlock
+            lang="bash"
+            caption="Start a branch and see where you are"
+            code={sh("git switch -c new-title   # make a branch and move onto it", "git branch                # list branches; * marks yours")}
+          />
+        </div>
+      ),
+      points: [
+        "Imagine writing a recipe. You want to try adding chilli, but you don't want to ruin the version that works. A **branch** lets you experiment on a side copy.",
+        "Your project starts with one branch, usually called `main`. Making a new branch gives you a separate line of commits for your experiment.",
+        "Commits on your new branch don't change `main`. If the idea fails, you can simply walk away from the branch.",
+        "`git switch -c <name>` makes a branch and moves you onto it. `git branch` lists your branches and puts a `*` next to the one you're on.",
+      ],
+      tip: "Name branches after what you're doing, like `fix-login` or `new-title`. A week later you'll still know what each one was for.",
+    },
+    {
+      id: "d2-start-merge",
+      level: "beginner",
+      task: "2.3",
+      title: "Bringing work back with merge",
+      check: ["git-b2-03", "git-b2-04"],
+      visual: (
+        <Flow
+          color="#a3e635"
+          steps={[
+            { icon: "🌱", label: "Branch", sub: "git switch -c new-title" },
+            { icon: "📸", label: "Commit there", sub: "Try your idea safely" },
+            { icon: "↩️", label: "Go back", sub: "git switch main" },
+            { icon: "🤝", label: "Merge", sub: "git merge new-title" },
+          ]}
+        />
+      ),
+      points: [
+        "When your experiment works, you want it in `main`. **Merging** is how you bring a branch's commits back into another branch.",
+        "First switch to the branch you want to update, usually with `git switch main`. Then run `git merge <branch>` to pull the other branch's work in.",
+        "Most of the time Git combines the work on its own. It only stops and asks you when both branches changed the same lines. That's called a **conflict**.",
+      ],
+      tip: "Merge into the branch you're standing on. If you're unsure where you are, run `git status` first: its top line names your current branch.",
+    },
+    {
       id: "d2-branches",
       level: "junior",
       task: "2.1",
@@ -60,8 +114,8 @@ export default defineDomain({
       points: [
         "A branch is a tiny file holding one commit ID. Creating one is instant, whatever the project size.",
         "HEAD normally points at a branch. When you commit, that branch moves to the new commit and HEAD comes along.",
-        "`git branch x` creates a branch without switching; `git switch x` switches; `git switch -c x` does both.",
-        "If the target branch has no commits of its own, `git merge` just slides it forward: a fast-forward, with no merge commit.",
+        "`git branch x` creates a branch but leaves you where you are. `git switch x` moves you to it. `git switch -c x` does both at once.",
+        "If the branch you're merging into has no new commits of its own, `git merge` just slides it forward. That's a **fast-forward**, and it makes no merge commit.",
       ],
       tip: "Make a branch for every piece of work, even tiny ones. Branches cost nothing, and they keep main releasable.",
     },
@@ -89,7 +143,7 @@ export default defineDomain({
       ),
       points: [
         "Each commit points back at its parent(s). The result is a directed acyclic graph (DAG): arrows only point into the past.",
-        "A merge commit has two (or more) parents. `^2` picks the second parent; `~n` always follows first parents.",
+        "A merge commit has two (or more) parents. `^2` picks the second parent, while `~n` always steps back through first parents.",
         "`A..B` means \"reachable from B but not from A\": `main..feature` is what a merge of feature would bring in.",
         "Commits are never edited. \"Changing\" one creates a new commit with a new ID.",
       ],
@@ -99,13 +153,13 @@ export default defineDomain({
       id: "d2-merge-rebase",
       level: "intermediate",
       task: "2.3",
-      title: "Merge vs rebase",
+      title: "Merge or rebase?",
       check: ["d2-13", "d2-15"],
       visual: <MergeVsRebase />,
       points: [
         "Merge joins diverged histories with a merge commit. Nothing is rewritten, so it's always safe on shared branches.",
-        "Rebase replays your commits on top of another branch as new commits, giving a straight line, but with new IDs.",
-        "The golden rule: don't rebase commits other people already have. Rebase your own local or personal branches only.",
+        "Rebase replays your commits on top of another branch as brand-new commits. You get a straight line of history, but every replayed commit has a new ID.",
+        "The golden rule: don't rebase commits other people already have. Only rebase branches that are yours alone.",
         "A squash merge turns a whole branch into one new commit on the target branch.",
       ],
       tip: "A common team setup: rebase your own feature branch on main to stay current, then merge it through a pull request.",
@@ -118,17 +172,94 @@ export default defineDomain({
       check: ["d2-17", "d2-19"],
       visual: <ConflictLab />,
       points: [
-        "A conflict happens when both sides changed the same lines (or one edited a file the other deleted). Git can't guess the intent.",
-        "Markers: `<<<<<<< HEAD` (your current branch), `=======`, then the incoming branch up to `>>>>>>>`.",
+        "A conflict happens when both sides changed the same lines, or one side edited a file the other deleted. Git can't guess which you meant, so it asks.",
+        "Git marks the clash inside the file. Your current branch's version sits between `<<<<<<< HEAD` and `=======`. The incoming branch's version follows, up to `>>>>>>>`.",
         "Edit the file to the final content, delete every marker, `git add` it, then `git commit`.",
         "`git merge --abort` puts everything back the way it was before the merge.",
-        "During a rebase, \"ours\" and \"theirs\" are swapped: ours is the branch you're rebasing onto.",
+        "During a rebase, \"ours\" and \"theirs\" swap meaning. \"Ours\" is the branch you're rebasing onto, and \"theirs\" is your own commit being replayed.",
       ],
       tip: "Conflicts are normal, not a failure. Run the tests after resolving: a resolution that compiles can still drop one side's fix.",
     },
   ],
 
   questions: [
+    {
+      id: "git-b2-01",
+      domain: "d2",
+      level: "beginner",
+      lesson: "d2-start-branch",
+      prompt: "Why would you make a new branch before trying out an idea?",
+      options: [
+        "So you can commit your experiment without changing `main`",
+        "Because Git only allows one commit per branch",
+        "To make a backup copy of the project on GitHub",
+        "Because `main` is read-only",
+      ],
+      answer: [0],
+      explanation: "A branch is a separate line of commits. Your experiment lives there, and `main` stays exactly as it was. If the idea works you merge it in; if not, you leave the branch behind.",
+    },
+    {
+      id: "git-b2-02",
+      type: "output",
+      domain: "d2",
+      level: "beginner",
+      lesson: "d2-start-branch",
+      prompt: "Type the two lines `git branch` prints. (It lists branches in alphabetical order.)",
+      code: "git init -q -b main\ngit commit -q --allow-empty -m start\ngit switch -qc idea\ngit branch",
+      codeLang: "bash",
+      answers: ["* idea\n  main", "* idea\nmain"],
+      explanation: "`git switch -c idea` made the branch and moved you onto it, so `idea` gets the `*` that marks where you are. `main` is still there, just not checked out.",
+    },
+    {
+      id: "git-b2-03",
+      type: "fill",
+      domain: "d2",
+      level: "beginner",
+      lesson: "d2-start-merge",
+      prompt: "You're on `main`. Fill the gap to bring the commits from the `idea` branch into `main`.",
+      code: "git switch main\ngit {{1}} idea",
+      codeLang: "bash",
+      blanks: [{ options: ["merge", "branch", "add", "init"], answer: 0 }],
+      explanation: "`git merge idea` takes the commits from `idea` and brings them into the branch you're on. `git branch idea` would try to make a new branch, and `add` and `init` work with files and repositories.",
+    },
+    {
+      id: "git-b2-04",
+      type: "output",
+      domain: "d2",
+      level: "beginner",
+      lesson: "d2-start-merge",
+      prompt: "You try a new title on a branch and merge it back. Type the lines `git log --format=%s` prints on `main`, newest first.",
+      code:
+        "git init -q -b main\ngit commit -q --allow-empty -m \"Start\"\ngit switch -qc idea\ngit commit -q --allow-empty -m \"Try a new title\"\ngit switch -q main\ngit merge -q idea\ngit log --format=%s",
+      codeLang: "bash",
+      answers: ["Try a new title\nStart"],
+      explanation: "After the merge, `main` has the commit you made on `idea`. Because `main` had nothing new of its own, Git simply moved it forward, so there's no extra merge commit in the list.",
+    },
+    {
+      id: "git-b2-05",
+      domain: "d2",
+      level: "beginner",
+      lesson: "d2-start-merge",
+      prompt: "Git stops a merge and says there's a conflict. What does that mean?",
+      options: [
+        "Both branches changed the same lines, so Git needs you to choose the final version",
+        "Your repository is broken and must be cloned again",
+        "One of the branches has been deleted",
+        "You typed the branch name wrong",
+      ],
+      answer: [0],
+      explanation: "A conflict is Git asking for help, not an error. It can't guess which change you want, so it marks both in the file. You edit the file, then `git add` and `git commit` to finish.",
+    },
+    {
+      id: "git-b2-06",
+      domain: "d2",
+      level: "beginner",
+      lesson: "d2-start-branch",
+      prompt: "Which branch does a brand-new project usually start with today?",
+      options: ["`main`", "`origin`", "`HEAD`", "`feature`"],
+      answer: [0],
+      explanation: "Most projects call their first branch `main` (older ones often use `master`). `origin` is the usual name for a remote, and `HEAD` marks where you are, not a branch name.",
+    },
     {
       id: "d2-01",
       domain: "d2",
@@ -147,7 +278,7 @@ export default defineDomain({
       prompt: "What does `HEAD` usually point to?",
       options: ["The branch you have checked out (and, through it, that branch's latest commit)", "The very first commit", "The remote server", "The newest commit of any branch"],
       answer: [0],
-      explanation: "HEAD is \"where you are\". When it points at a commit directly instead of a branch, you're in detached HEAD state.",
+      explanation: "HEAD means \"where you are\". When it points straight at a commit instead of at a branch, you're in what Git calls detached HEAD state.",
     },
     {
       id: "d2-03",
@@ -316,7 +447,7 @@ export default defineDomain({
         ["Rebase", "Commits are replayed onto a new base as new commits"],
         ["Squash merge", "The whole branch lands as one new single-parent commit"],
       ],
-      explanation: "Only the merge commit preserves the branch's shape. Rebase and squash both produce linear history, with new commit IDs.",
+      explanation: "Only a merge commit keeps the branch's shape in history. Rebase and squash both give you a straight line, made of new commits with new IDs.",
     },
     {
       id: "d2-16",
@@ -395,7 +526,7 @@ export default defineDomain({
         "The version from before you started the rebase",
       ],
       answer: [0],
-      explanation: "During a rebase you're on main's line, re-applying your commits. So \"ours\" is the base being built (main) and \"theirs\" is your commit: the reverse of a merge.",
+      explanation: "During a rebase you're standing on main's line, re-applying your commits one by one. So \"ours\" is main, the base being built, and \"theirs\" is your commit. That's the reverse of a merge.",
     },
     {
       id: "d2-22",
@@ -446,7 +577,7 @@ export default defineDomain({
   ],
 
   cards: [
-    { id: "c2-branch", domain: "d2", kind: "service", term: "git branch", definition: "List, create (git branch x) or delete (-d, -D) branches. Creating doesn't switch." },
+    { id: "c2-branch", domain: "d2", kind: "service", term: "git branch", definition: "List, create (git branch x) or delete (-d, -D) branches. Creating a branch doesn't switch you to it." },
     { id: "c2-switch", domain: "d2", kind: "service", term: "git switch", definition: "Move HEAD to another branch; -c creates the branch first." },
     { id: "c2-merge", domain: "d2", kind: "service", term: "git merge", definition: "Integrate another branch: fast-forward if possible, otherwise a merge commit." },
     { id: "c2-rebase", domain: "d2", kind: "service", term: "git rebase", definition: "Replay the current branch's commits on top of another base as new commits." },
@@ -455,7 +586,7 @@ export default defineDomain({
     { id: "c2-detached", domain: "d2", kind: "concept", term: "Detached HEAD", definition: "HEAD points at a commit directly, not a branch. New commits there belong to no branch until you create one." },
     { id: "c2-ff", domain: "d2", kind: "concept", term: "Fast-forward", definition: "A merge where the branch just moves forward because it had no commits of its own." },
     { id: "c2-dag", domain: "d2", kind: "concept", term: "Commit graph (DAG)", definition: "Commits linked to their parents. Arrows only point back in time, so there are no cycles." },
-    { id: "c2-tilde-caret", domain: "d2", kind: "concept", term: "HEAD~n vs HEAD^n", definition: "~n walks n first-parents back; ^n picks a merge commit's nth parent." },
+    { id: "c2-tilde-caret", domain: "d2", kind: "concept", term: "HEAD~n and HEAD^n", definition: "~n steps back n commits, always taking the first parent. ^n picks a merge commit's nth parent." },
     { id: "c2-conflict", domain: "d2", kind: "concept", term: "Merge conflict", definition: "Both sides changed the same lines. Edit, remove markers, git add, then commit." },
     { id: "c2-golden-rule", domain: "d2", kind: "concept", term: "Golden rule of rebasing", definition: "Don't rebase commits others already have: rebasing replaces them with new IDs." },
   ],

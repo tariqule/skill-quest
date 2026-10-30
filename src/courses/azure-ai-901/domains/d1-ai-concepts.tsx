@@ -1,4 +1,4 @@
-import { Flow, ServiceRows, Tiles } from "@/components/learn/blocks";
+import { Flow, Ladder, ServiceRows, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { RaiMatcherLab, ToolSorterLab } from "../labs";
 import { CvTasks, DeploymentChooser, TokenEmbeddings } from "../visuals";
@@ -12,13 +12,14 @@ export default defineDomain({
   domain: {
     id: "d1",
     number: 1,
-    name: "Identify AI concepts and capabilities",
+    name: "AI concepts and capabilities",
     world: "The Concept Compass",
     // Official range is 40–45%; 42 keeps the two domains at 100.
     weight: 42,
     emoji: "🧭",
     color: "#a78bfa",
-    summary: "Responsible AI principles, how generative models work, choosing and deploying models, and the common AI workloads.",
+    summary:
+      "How to build AI that people can trust, how generative models produce text, how to pick and deploy a model, and the everyday jobs AI is good at.",
   },
 
   tasks: [
@@ -57,6 +58,83 @@ export default defineDomain({
   ],
 
   lessons: [
+    // ───── Start here (beginner) ─────
+    {
+      id: "d1-b-what-ai",
+      level: "beginner",
+      check: ["ai901-b1-01", "ai901-b1-02"],
+      task: "1.3",
+      title: "What AI actually is",
+      visual: (
+        <Tiles
+          cols={3}
+          tiles={[
+            { icon: "📝", title: "Read text", text: "Tell you if a review is happy or angry.", color: "#a78bfa" },
+            { icon: "🎙️", title: "Hear and speak", text: "Turn a voice note into text, or read text aloud.", color: "#a78bfa" },
+            { icon: "👁️", title: "See", text: "Spot which fruit is on the scale at a checkout.", color: "#a78bfa" },
+            { icon: "💬", title: "Write", text: "Draft an email or answer a question in plain words.", color: "#a78bfa" },
+            { icon: "🤖", title: "Act", text: "Book a meeting for you by using a calendar.", color: "#a78bfa" },
+            { icon: "🧾", title: "Pull out facts", text: "Read the total and date off a receipt.", color: "#a78bfa" },
+          ]}
+        />
+      ),
+      points: [
+        "Normal software follows rules a person wrote by hand. AI is software that learns patterns from lots of examples instead.",
+        "Think of a new shop assistant who has seen thousands of receipts. Nobody gave them a rulebook, but they can now spot the total on a receipt they've never seen.",
+        "The thing that does the learning is called a model. Once it's trained, you send it new input and it gives you an answer.",
+        "A workload is just a kind of job you give AI: reading text, hearing speech, seeing images, writing new content, or taking actions.",
+      ],
+      tip: "On the exam, start by asking what goes in (text, audio, an image, a document) and what should come out. That usually names the workload for you.",
+    },
+    {
+      id: "d1-b-genai",
+      level: "beginner",
+      check: ["ai901-b1-03", "ai901-b1-04"],
+      task: "1.2",
+      title: "Generative AI and prompts, from scratch",
+      visual: (
+        <Flow
+          color="#a78bfa"
+          steps={[
+            { icon: "⌨️", label: "Prompt", sub: "You type a question or instruction" },
+            { icon: "🧠", label: "Model", sub: "Guesses the next word, then the next" },
+            { icon: "💬", label: "Response", sub: "You read the finished reply" },
+          ]}
+        />
+      ),
+      points: [
+        "Generative AI creates new content, such as a reply, a summary, or a picture. It doesn't just label what's already there.",
+        "What you send it is called a prompt. What comes back is the response, sometimes called a completion.",
+        "It works a bit like the word suggestions on your phone keyboard, but trained on far more text. It picks a likely next word, adds it, and repeats.",
+        "A token is a chunk of text, roughly a short word or part of a word. Models read and write in tokens, and you're usually billed per token.",
+      ],
+      tip: "Ask the same thing twice and you may get different wording. That's expected, because the model picks from likely words rather than looking up a fixed answer.",
+    },
+    {
+      id: "d1-b-trust",
+      level: "beginner",
+      check: ["ai901-b1-05", "ai901-b1-06"],
+      task: "1.1",
+      title: "Why AI needs ground rules",
+      visual: (
+        <Ladder
+          rungs={[
+            { icon: "⚖️", name: "Treat people fairly", text: "Similar people should get similar results." },
+            { icon: "🛡️", name: "Plan for mistakes", text: "AI can be wrong, so check before acting on it." },
+            { icon: "🔒", name: "Protect personal data", text: "Keep only what you need, and keep it safe." },
+            { icon: "🔍", name: "Be open about it", text: "Tell people when AI is involved." },
+          ]}
+        />
+      ),
+      points: [
+        "AI learns from examples, so it can also learn the mistakes and unfair patterns hidden in those examples.",
+        "It's like a new driver: very capable, but you still want rules of the road before they're out in traffic.",
+        "Microsoft groups these rules into six responsible AI principles. You'll meet all six in the next lessons.",
+      ],
+      tip: "When a question describes a worry, such as unfair results, leaked data, or users not knowing AI is involved, it's asking about responsible AI.",
+    },
+
+    // ───── Exam lessons ─────
     {
       id: "d1-rai",
       check: ["d1-01", "d1-07"],
@@ -67,23 +145,23 @@ export default defineDomain({
           <Tiles
             cols={3}
             tiles={[
-              { icon: "⚖️", title: "Fairness", text: "Minimize bias in the data and test that outputs don't discriminate.", color: "#a78bfa" },
-              { icon: "🛡️", title: "Reliability and safety", text: "AI is probabilistic, not infallible. Plan for errors and mitigate risk.", color: "#a78bfa" },
-              { icon: "🔒", title: "Privacy and security", text: "Protect training data; stop models revealing personal details.", color: "#a78bfa" },
-              { icon: "🌈", title: "Inclusiveness", text: "Don't exclude any group of users from the benefits.", color: "#a78bfa" },
-              { icon: "🔍", title: "Transparency", text: "Tell users how the system works and what its limits are.", color: "#a78bfa" },
-              { icon: "📋", title: "Accountability", text: "People and organizations answer for their AI, through governance.", color: "#a78bfa" },
+              { icon: "⚖️", title: "Fairness", text: "Reduce bias in the data, and test that results don't treat any group worse.", color: "#a78bfa" },
+              { icon: "🛡️", title: "Reliability and safety", text: "AI works on probabilities, so it will sometimes be wrong. Plan for that.", color: "#a78bfa" },
+              { icon: "🔒", title: "Privacy and security", text: "Protect training data, and stop the model revealing personal details.", color: "#a78bfa" },
+              { icon: "🌈", title: "Inclusiveness", text: "Make sure no group of people is left out of the benefits.", color: "#a78bfa" },
+              { icon: "🔍", title: "Transparency", text: "Tell users how the system works and where its limits are.", color: "#a78bfa" },
+              { icon: "📋", title: "Accountability", text: "Named people and organizations answer for the AI, through governance.", color: "#a78bfa" },
             ]}
           />
           <RaiMatcherLab />
         </div>
       ),
       points: [
-        "Responsible AI runs from conception through design, implementation, and operation, not just at launch.",
-        "Content filters reduce harmful output, but filters alone don't make a solution responsible.",
-        "Practical moves: confidence thresholds before acting, deleting personal data you no longer need, captions for speech apps, disclosing AI use.",
+        "Responsible AI isn't a launch-day checklist. You think about it from the first idea, through design and building, and while the system runs.",
+        "Content filters block harmful output, which helps. On their own, though, they don't make a solution responsible.",
+        "Everyday examples: only act when the model is confident enough, delete personal data you no longer need, add captions to a voice app, and tell people when AI is used.",
       ],
-      tip: "Exam scenarios describe a practice and ask which principle it supports. Match the verb: test for bias → fairness, disclose → transparency, govern → accountability.",
+      tip: "Exam questions describe a practice and ask which principle it supports. Look at the verb. Testing for bias is fairness, telling users is transparency, and setting up owners and sign-off is accountability.",
     },
     {
       id: "d1-genai",
@@ -96,21 +174,21 @@ export default defineDomain({
           <Flow
             color="#a78bfa"
             steps={[
-              { icon: "✂️", label: "Tokens", sub: "Text split into words, sub-words, punctuation, each with an ID" },
-              { icon: "🧮", label: "Encoder + attention", sub: "Learns embeddings: vectors that capture meaning in context" },
-              { icon: "🔮", label: "Decoder", sub: "Predicts the most probable next token" },
-              { icon: "🔁", label: "Repeat", sub: "Append the token and predict again until the completion ends" },
+              { icon: "✂️", label: "Tokens", sub: "Text is split into words, word pieces, and punctuation, each with an ID number" },
+              { icon: "🧮", label: "Encoder and attention", sub: "Learns embeddings: lists of numbers that capture meaning in context" },
+              { icon: "🔮", label: "Decoder", sub: "Predicts the most likely next token" },
+              { icon: "🔁", label: "Repeat", sub: "Adds that token and predicts again until the reply is done" },
             ]}
           />
         </div>
       ),
       points: [
-        "Large language models (LLMs) generate completions from prompts by predicting the next token, again and again.",
-        "Attention weighs how much each nearby token influences the current one; multi-head attention does this in parallel.",
-        "LLMs generalize well but cost more to train and run. Small language models (SLMs) suit focused topics and on-device apps.",
-        "An agent = a language model + instructions (system prompt) + tools for knowledge and actions.",
+        "A large language model (LLM) writes a reply by predicting the next token, adding it, and predicting again, over and over.",
+        "Attention is how the model decides which nearby words matter most for the current one. Multi-head attention does several of these checks at once.",
+        "LLMs handle a wide range of topics but cost more to train and run. Small language models (SLMs) suit focused topics and apps that run on a device.",
+        "An agent is a language model plus instructions (its system prompt) plus tools it can use to look things up and take actions.",
       ],
-      tip: "Because generation samples probabilities, the same prompt can return different wording. That's normal, not a bug.",
+      tip: "Because the model picks from likely tokens, the same prompt can come back worded differently. That's normal behaviour, not a bug.",
     },
     {
       id: "d1-choose",
@@ -131,19 +209,19 @@ export default defineDomain({
           <Tiles
             cols={3}
             tiles={[
-              { icon: "📚", title: "Model catalog", text: "Thousands of models: sold directly by Azure, plus partner and community models. Filter by task and capability.", color: "#38bdf8" },
-              { icon: "🏆", title: "Leaderboards and benchmarks", text: "Rank and compare models on quality, safety, cost, and throughput. Try with your own data.", color: "#38bdf8" },
-              { icon: "🧪", title: "Evaluators", text: "Score quality (groundedness, relevance, coherence, fluency) and scan for safety risks. They detect; they don't fix.", color: "#38bdf8" },
+              { icon: "📚", title: "Model catalog", text: "Thousands of models, some sold directly by Azure and others from partners and the community. Filter by task and capability.", color: "#38bdf8" },
+              { icon: "🏆", title: "Leaderboards and benchmarks", text: "Rank and compare models on quality, safety, cost, and speed. Then try the best ones with your own data.", color: "#38bdf8" },
+              { icon: "🧪", title: "Evaluators", text: "Score quality (groundedness, relevance, coherence, fluency) and scan for safety risks. They find problems but don't fix them.", color: "#38bdf8" },
             ]}
           />
         </div>
       ),
       points: [
-        "Models sold directly by Azure are hosted by Microsoft under Microsoft Product Terms, with enterprise SLAs.",
-        "Each catalog entry shows capabilities, benchmarks, supported tasks, and responsible AI documentation such as model cards.",
-        "Classic NLP metrics: accuracy, precision, recall, F1. AI-assisted metrics: groundedness, relevance, coherence, fluency, GPT similarity.",
+        "Models sold directly by Azure are hosted by Microsoft under the Microsoft Product Terms, with enterprise service-level agreements.",
+        "Each catalog entry shows what the model can do, its benchmark scores, the tasks it supports, and responsible AI notes such as a model card.",
+        "Classic language metrics are accuracy, precision, recall, and F1. AI-assisted metrics are groundedness, relevance, coherence, fluency, and GPT similarity.",
       ],
-      tip: "If the task is narrow and you need the same structured answer every time, a Foundry Tool usually beats a general-purpose model.",
+      tip: "If the job is narrow and you need the same structured answer every time, a Foundry Tool usually beats a general-purpose model.",
     },
     {
       id: "d1-deploy",
@@ -156,21 +234,21 @@ export default defineDomain({
           <Tiles
             cols={4}
             tiles={[
-              { icon: "🌡️", title: "Temperature", text: "Low = focused and repeatable. High = creative and varied.", color: "#f97316" },
-              { icon: "✂️", title: "Max output tokens", text: "Caps the reply length and the tokens it consumes.", color: "#f97316" },
+              { icon: "🌡️", title: "Temperature", text: "Low gives focused, repeatable answers. High gives creative, varied ones.", color: "#f97316" },
+              { icon: "✂️", title: "Max output tokens", text: "Caps how long the reply can be, and so how many tokens it uses.", color: "#f97316" },
               { icon: "📜", title: "System instructions", text: "Set the model's role, tone, and rules.", color: "#f97316" },
-              { icon: "🚦", title: "Tokens per minute", text: "The deployment's rate limit. Go over it and requests are throttled.", color: "#f97316" },
+              { icon: "🚦", title: "Tokens per minute", text: "The deployment's speed limit. Go over it and requests get slowed down.", color: "#f97316" },
             ]}
           />
         </div>
       ),
       points: [
-        "Deploying a model gives you a stable, secure endpoint, allocates compute, and turns on monitoring.",
-        "Deployment settings: deployment type, model version, and a tokens-per-minute (TPM) allocation.",
-        "Categories: standard (pay per token), provisioned (reserved PTUs), and batch (50% cheaper, 24-hour target).",
-        "Throttled? Lower max output tokens or send fewer concurrent requests.",
+        "Deploying a model gives you a stable, secure address to call, sets aside computing power for it, and turns on monitoring.",
+        "When you deploy, you pick a deployment type, a model version, and a tokens-per-minute (TPM) limit.",
+        "There are three families. Standard means you pay per token. Provisioned means you reserve capacity in PTUs. Batch is 50% cheaper and aims to finish within 24 hours.",
+        "Getting throttled, meaning your requests are being slowed or refused? Lower the max output tokens or send fewer requests at the same time.",
       ],
-      tip: "No data-residency rule and normal traffic? Start with Global Standard.",
+      tip: "No rule about where data must stay, and normal traffic? Start with Global Standard.",
     },
     {
       id: "d1-workloads",
@@ -182,21 +260,21 @@ export default defineDomain({
           <Tiles
             cols={3}
             tiles={[
-              { icon: "💬", title: "Generative AI", text: "Create new content: chat answers, drafts, summaries, translations, code, images.", color: "#a78bfa" },
-              { icon: "🤖", title: "Agentic AI", text: "Reason and act: use tools to automate tasks like booking or emailing.", color: "#a78bfa" },
-              { icon: "📝", title: "Text analysis", text: "Key phrases, entities, sentiment, language, PII, summaries.", color: "#38bdf8" },
-              { icon: "🎙️", title: "Speech", text: "Speech to text (recognition) and text to speech (synthesis).", color: "#f472b6" },
-              { icon: "👁️", title: "Computer vision", text: "Classify, detect, and describe images; generate images and video.", color: "#fb923c" },
-              { icon: "🧾", title: "Information extraction", text: "Turn documents, images, audio, and video into structured fields.", color: "#34d399" },
+              { icon: "💬", title: "Generative AI", text: "Creates new content: chat answers, drafts, summaries, translations, code, and images.", color: "#a78bfa" },
+              { icon: "🤖", title: "Agentic AI", text: "Reasons and acts, using tools to do tasks such as booking or emailing.", color: "#a78bfa" },
+              { icon: "📝", title: "Text analysis", text: "Finds key phrases, names, mood, language, and personal details in text.", color: "#38bdf8" },
+              { icon: "🎙️", title: "Speech", text: "Turns speech into text (recognition) and text into speech (synthesis).", color: "#f472b6" },
+              { icon: "👁️", title: "Computer vision", text: "Labels, finds, and describes things in images, and can create images and video.", color: "#fb923c" },
+              { icon: "🧾", title: "Information extraction", text: "Turns documents, images, audio, and video into tidy named fields.", color: "#34d399" },
             ]}
           />
           <ToolSorterLab />
         </div>
       ),
       points: [
-        "Information extraction examples: expense receipts, recorded support calls, visitor counts from video.",
-        "Agents differ from plain chat: they decide on actions and call tools.",
-        "One solution often combines workloads, for example speech to text feeding an agent.",
+        "Information extraction covers jobs like reading expense receipts, pulling details from recorded support calls, or counting visitors in video.",
+        "Agents go further than a plain chat. They decide what to do next and call tools to do it.",
+        "One solution often mixes workloads. For example, speech to text can feed the user's words to an agent.",
       ],
     },
     {
@@ -209,8 +287,8 @@ export default defineDomain({
           rows={[
             { input: "\"Fantastic risotto at the Seattle diner\"", service: "Key phrase extraction", output: "risotto · Seattle · diner" },
             { input: "\"Priya flew to Lisbon on 2 May\"", service: "Named entity recognition", output: "Person · Location · DateTime" },
-            { input: "\"Seattle\" in a review", service: "Entity linking", output: "Known entity + Wikipedia link" },
-            { input: "A customer review", service: "Sentiment analysis and opinion mining", output: "Positive / negative / neutral" },
+            { input: "\"Seattle\" in a review", service: "Entity linking", output: "Known entity plus a Wikipedia link" },
+            { input: "A customer review", service: "Sentiment analysis and opinion mining", output: "Positive, negative, or neutral" },
             { input: "A 20-page report", service: "Summarization", output: "The most important points" },
             { input: "\"¡Hola! Me llamo Josefina\"", service: "Language detection", output: "Spanish · es · 1.00" },
             { input: "\"Call Maria on 020 7946 0958\"", service: "PII detection", output: "Person, phone number (redacted)" },
@@ -218,11 +296,11 @@ export default defineDomain({
         />
       ),
       points: [
-        "A general-purpose model can do all of these from a prompt, and the output follows how you phrase the request.",
-        "Azure Language in Foundry Tools gives structured, deterministic results: ideal for automated pipelines.",
-        "PII detection also covers personal health information (PHI) and can return redacted text.",
+        "A general-purpose model can do all of these if you ask in a prompt. The output depends on how you word the request.",
+        "Azure Language in Foundry Tools gives structured results that come out the same way every time, which is what an automated pipeline needs.",
+        "PII means personally identifiable information, like names and phone numbers. PII detection also covers health details (PHI) and can hand back the text with them blanked out.",
       ],
-      tip: "\"Same result every time\", \"confidence score\", or \"ISO code\" in the question points to Azure Language.",
+      tip: "If the question mentions the same result every time, a confidence score, or an ISO language code, the answer is probably Azure Language.",
     },
     {
       id: "d1-perceive",
@@ -235,8 +313,8 @@ export default defineDomain({
             color="#f472b6"
             steps={[
               { icon: "🎤", label: "Audio", sub: "Microphone, file, or stream" },
-              { icon: "🔊", label: "Acoustic model", sub: "Audio → phonemes (speech sounds)" },
-              { icon: "📖", label: "Language model", sub: "Phonemes → words" },
+              { icon: "🔊", label: "Acoustic model", sub: "Turns audio into phonemes (speech sounds)" },
+              { icon: "📖", label: "Language model", sub: "Turns phonemes into words" },
               { icon: "📝", label: "Text", sub: "Captions, transcripts, dictation" },
             ]}
           />
@@ -244,74 +322,214 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "Speech synthesis: tokenize the text, assign phonetic sounds, group into prosodic units, then generate audio in a chosen voice.",
-        "Neural voices sound more natural because they handle intonation better.",
-        "Image generation runs the vision process in reverse: from a text description to a new image.",
-        "OCR reads text from images. Schema-based extraction goes further and maps values to named fields.",
+        "Speech synthesis, or text to speech, happens in steps. It splits the text into words, works out their sounds, groups them into natural phrases, then produces audio in a chosen voice.",
+        "Neural voices sound more natural because they get the rise and fall of speech, called intonation, closer to a real person.",
+        "Image generation runs vision in reverse. Instead of describing a picture, it starts from a text description and creates a new picture.",
+        "OCR (optical character recognition) reads the text in an image. Schema-based extraction goes further and puts each value into a named field, such as InvoiceTotal.",
       ],
     },
   ],
 
   questions: [
+    // ───── Start here (beginner) ─────
+    {
+      id: "ai901-b1-01",
+      domain: "d1",
+      lesson: "d1-b-what-ai",
+      level: "beginner",
+      prompt: "What's the main difference between AI and ordinary software?",
+      options: [
+        "AI learns patterns from examples instead of only following rules a person wrote",
+        "AI always runs faster than ordinary software",
+        "AI only works on phones",
+        "AI never makes mistakes",
+      ],
+      answer: [0],
+      explanation:
+        "Ordinary software does exactly what its hand-written rules say. AI is trained on lots of examples and learns the patterns itself. That's also why it can sometimes be wrong.",
+    },
+    {
+      id: "ai901-b1-02",
+      domain: "d1",
+      lesson: "d1-b-what-ai",
+      level: "beginner",
+      prompt: "A shop wants software that looks at a photo and says which fruit is on the scale. Which kind of AI job is this?",
+      options: ["Computer vision", "Speech", "Text analysis", "Generative AI"],
+      answer: [0],
+      explanation:
+        "The input is an image, and the job is to understand what's in it. Understanding images is called computer vision.",
+    },
+    {
+      id: "ai901-b1-03",
+      domain: "d1",
+      lesson: "d1-b-genai",
+      level: "beginner",
+      prompt: "In generative AI, what is a prompt?",
+      options: [
+        "The question or instruction you send to the model",
+        "The bill you get at the end of the month",
+        "A picture the model creates",
+        "A password that protects the model",
+      ],
+      answer: [0],
+      explanation:
+        "A prompt is what you type or send to the model, like \"Write a thank-you note to my team\". The model's reply is called the response.",
+    },
+    {
+      id: "ai901-b1-04",
+      domain: "d1",
+      lesson: "d1-b-genai",
+      level: "beginner",
+      prompt: "Roughly what is a token?",
+      options: [
+        "A small chunk of text, about a short word or part of a word",
+        "A whole page of text",
+        "A coin you buy to use AI",
+        "A type of computer chip",
+      ],
+      answer: [0],
+      explanation:
+        "Models read and write text in small chunks called tokens. A word like \"unlikely\" might be split into \"un\" and \"likely\". Costs and limits are usually counted in tokens.",
+    },
+    {
+      id: "ai901-b1-05",
+      domain: "d1",
+      lesson: "d1-b-trust",
+      level: "beginner",
+      prompt: "Why can an AI system end up treating some groups of people unfairly?",
+      options: [
+        "It learns from examples, and those examples can contain unfair patterns",
+        "Computers dislike certain people",
+        "AI is always programmed to be unfair",
+        "It only happens when the internet is slow",
+      ],
+      answer: [0],
+      explanation:
+        "AI copies the patterns in the data it learned from. If past decisions in that data were unfair, the model can repeat them. That's why teams check data and results for bias.",
+    },
+    {
+      id: "ai901-b1-06",
+      domain: "d1",
+      lesson: "d1-b-trust",
+      level: "beginner",
+      prompt: "A website adds a note saying \"Answers on this page are written by AI.\" Which idea does this show?",
+      options: ["Being open that AI is involved", "Making the AI run faster", "Saving money on tokens", "Training a new model"],
+      answer: [0],
+      explanation:
+        "Telling people when AI is involved lets them decide how much to trust what they read. Microsoft calls this transparency.",
+    },
+    {
+      id: "ai901-b1-07",
+      domain: "d1",
+      lesson: "d1-b-what-ai",
+      level: "beginner",
+      prompt: "In AI, what is a model?",
+      options: [
+        "The trained part that takes new input and gives an answer",
+        "A person who poses for photos used in training",
+        "A drawing of how the app looks",
+        "The screen where users type",
+      ],
+      answer: [0],
+      explanation:
+        "A model is what you get after training on examples. You send it new input, such as a photo or a question, and it gives back an answer.",
+    },
+    {
+      id: "ai901-b1-08",
+      domain: "d1",
+      lesson: "d1-b-genai",
+      level: "beginner",
+      prompt: "You ask a chat model the same question twice and the wording of the answers is different. What does this mean?",
+      options: [
+        "This is normal, because the model picks from likely words each time",
+        "The model is broken and needs replacing",
+        "Someone changed your question",
+        "The model forgot everything it learned",
+      ],
+      answer: [0],
+      explanation:
+        "Generative models choose each next word from several likely options, so wording can change between tries. If you need more consistent answers, you can lower a setting called temperature.",
+    },
+    {
+      id: "ai901-b1-09",
+      domain: "d1",
+      lesson: "d1-b-trust",
+      level: "beginner",
+      prompt: "A robot only picks up a box when its camera model is very sure it's the right box. Why is this a good idea?",
+      options: [
+        "AI can be wrong, so waiting for high confidence avoids risky mistakes",
+        "It makes the robot look more human",
+        "It means the robot never needs electricity",
+        "It lets the robot skip training",
+      ],
+      answer: [0],
+      explanation:
+        "AI gives answers with a level of confidence, and sometimes it guesses wrong. Only acting when it's very sure is a simple way to keep people and things safe.",
+    },
+
     // ───── d1-rai ─────
     {
       id: "d1-01",
       domain: "d1",
       lesson: "d1-rai",
       prompt:
-        "A bank tests its loan-approval model and finds that applicants from some postcodes are declined more often than applicants with the same income and credit history from other postcodes. Which responsible AI principle is most at risk?",
+        "A bank tests its loan-approval model. Applicants from some postcodes get declined more often than applicants from other postcodes with the same income and credit history. Which responsible AI principle is most at risk?",
       options: ["Fairness", "Transparency", "Inclusiveness", "Reliability and safety"],
       answer: [0],
-      explanation: "Comparable people getting different outcomes suggests bias in the data or model. Fairness means minimizing bias and testing outputs for discrimination.",
+      explanation:
+        "People with the same finances are getting different results, which points to bias in the data or the model. Fairness is about reducing that bias and testing results for discrimination.",
     },
     {
       id: "d1-02",
       domain: "d1",
       lesson: "d1-rai",
       prompt:
-        "A robotic arm uses computer vision to pick parts. It only moves when the model's confidence that it has found the right part is above 0.9. Which principle does this design support?",
+        "A robotic arm uses computer vision to pick up parts. It only moves when the model is more than 0.9 confident it has found the right part. Which principle does this design support?",
       options: ["Reliability and safety", "Accountability", "Privacy and security", "Transparency"],
       answer: [0],
-      explanation: "AI is probabilistic, so a confidence threshold avoids acting on uncertain predictions and causing harm.",
+      explanation:
+        "AI works on probabilities, so it's sometimes unsure. A confidence threshold stops the arm acting on a shaky guess and causing harm.",
     },
     {
       id: "d1-03",
       domain: "d1",
       lesson: "d1-rai",
       prompt:
-        "A secure-entry system captures face images to grant temporary access. The images are deleted once access is granted, and operators can't view them. Which principle is being applied?",
+        "A secure-entry system takes face photos to grant temporary access. It deletes each photo once access is granted, and operators can't view them. Which principle is this?",
       options: ["Privacy and security", "Inclusiveness", "Fairness", "Accountability"],
       answer: [0],
-      explanation: "Keeping personal data only as long as it's needed and limiting who can see it protects privacy and security.",
+      explanation:
+        "The system keeps personal data only as long as it needs it and limits who can see it. That protects privacy and security.",
     },
     {
       id: "d1-04",
       domain: "d1",
       lesson: "d1-rai",
-      prompt: "A voice-based AI agent also displays text captions of everything it says. Which principle does this support most directly?",
+      prompt: "A voice-based AI agent also shows text captions of everything it says. Which principle does this support most directly?",
       options: ["Inclusiveness", "Transparency", "Reliability and safety", "Fairness"],
       answer: [0],
-      explanation: "Captions keep the agent usable for people with a hearing impairment, so no group is excluded.",
+      explanation: "Captions mean people who are deaf or hard of hearing can use the agent too, so no group is left out.",
     },
     {
       id: "d1-05",
       domain: "d1",
       lesson: "d1-rai",
       prompt:
-        "An insurer tells customers that an AI model helps assess claims and describes the kinds of data the model was trained on, without revealing confidential details. Which principle is this?",
+        "An insurer tells customers that an AI model helps assess claims. It also describes the kinds of data the model learned from, without giving away confidential details. Which principle is this?",
       options: ["Transparency", "Accountability", "Privacy and security", "Inclusiveness"],
       answer: [0],
-      explanation: "Transparency means users know AI is involved, roughly how it works, and its limitations.",
+      explanation: "Transparency means users know AI is involved, roughly how it works, and what it can't do.",
     },
     {
       id: "d1-06",
       domain: "d1",
       lesson: "d1-rai",
       prompt:
-        "Your organization creates a governance framework: named owners for each AI system, sign-off before release, and a process for handling harm reports. Which principle does this address?",
+        "Your organization sets up a governance framework. Each AI system gets a named owner, every release needs sign-off, and there's a process for handling reports of harm. Which principle does this address?",
       options: ["Accountability", "Fairness", "Transparency", "Reliability and safety"],
       answer: [0],
-      explanation: "The people and organizations that build and ship AI are accountable for it. A governance framework puts that into practice.",
+      explanation:
+        "The people and organizations that build and ship AI must answer for it. A governance framework is how you make that real day to day.",
     },
     {
       id: "d1-07",
@@ -326,13 +544,14 @@ export default defineDomain({
         "Deploy the model with a Global Batch deployment",
       ],
       answer: [0, 1],
-      explanation: "Fairness starts with checking the data for bias and continues with testing outputs across groups. The other options don't address bias.",
+      explanation:
+        "Fairness starts with checking the training data for bias, then carries on with testing the results across groups. None of the other options does anything about bias.",
     },
     {
       id: "d1-08",
       domain: "d1",
       lesson: "d1-rai",
-      prompt: "A public chat assistant must not help users with illegal or harmful activities. Which measures reduce this risk? (Choose two.)",
+      prompt: "A public chat assistant must not help people with illegal or harmful activities. Which measures reduce this risk? (Choose two.)",
       options: [
         "Apply content filters to prompts and responses",
         "Test the assistant with adversarial and harmful prompts before release",
@@ -341,22 +560,23 @@ export default defineDomain({
         "Publish all user prompts on a public page",
       ],
       answer: [0, 1],
-      explanation: "Content filters block harmful generations, and red-team style testing shows where the system fails before users find out.",
+      explanation:
+        "Content filters block harmful replies. Testing with deliberately nasty prompts, often called red-teaming, shows you where it fails before real users find out.",
     },
     {
       id: "d1-09",
       domain: "d1",
       lesson: "d1-rai",
       type: "match",
-      prompt: "Match each responsible AI principle to the consideration it describes.",
+      prompt: "Match each responsible AI principle to what it asks you to do.",
       pairs: [
-        ["Fairness", "Minimize bias in training data and test for discriminatory outputs"],
-        ["Privacy and security", "Keep training data secure and stop models revealing personal details"],
-        ["Transparency", "Make users aware of how the system works and its limitations"],
-        ["Accountability", "Apply a governance framework so people answer for the AI's actions"],
-        ["Inclusiveness", "Make sure the solution doesn't exclude some users"],
+        ["Fairness", "Reduce bias in training data and test for unfair results"],
+        ["Privacy and security", "Keep training data safe and stop models revealing personal details"],
+        ["Transparency", "Help users understand how the system works and its limits"],
+        ["Accountability", "Use a governance framework so people answer for the AI"],
+        ["Inclusiveness", "Make sure the solution doesn't leave some users out"],
       ],
-      explanation: "These five plus reliability and safety make up Microsoft's six responsible AI principles.",
+      explanation: "These five, plus reliability and safety, are Microsoft's six responsible AI principles.",
     },
     {
       id: "d1-10",
@@ -370,7 +590,8 @@ export default defineDomain({
         "It applies to generative AI but not to vision or speech solutions",
       ],
       answer: [0],
-      explanation: "Content filters are one tool. Responsible AI is a set of principles applied across the whole life of every kind of AI solution.",
+      explanation:
+        "Content filters are one useful tool, but they aren't the whole job. Responsible AI is a set of principles you apply for the whole life of every kind of AI solution.",
     },
 
     // ───── d1-genai ─────
@@ -378,7 +599,7 @@ export default defineDomain({
       id: "d1-11",
       domain: "d1",
       lesson: "d1-genai",
-      prompt: "At its core, what does a large language model do when it receives a prompt?",
+      prompt: "Put simply, what does a large language model do when it receives a prompt?",
       options: [
         "Repeatedly predicts the most probable next token to build a completion",
         "Looks up a stored answer in a database of questions",
@@ -386,7 +607,8 @@ export default defineDomain({
         "Copies the closest matching document from its training data",
       ],
       answer: [0],
-      explanation: "LLMs are like very powerful predictive text: they predict a token, add it to the sequence, and predict again.",
+      explanation:
+        "An LLM is like a very powerful version of your phone's word suggestions. It predicts a token, adds it to the text, and predicts again until the reply is finished.",
     },
     {
       id: "d1-12",
@@ -400,7 +622,8 @@ export default defineDomain({
         "A label that marks a training example as correct",
       ],
       answer: [0],
-      explanation: "Vocabularies contain hundreds of thousands of tokens, including sub-words such as \"un\" in \"unlikely\". (API keys are a different thing.)",
+      explanation:
+        "A vocabulary holds hundreds of thousands of tokens, including word pieces such as \"un\" in \"unlikely\". Don't mix this up with API keys, which are a separate thing.",
     },
     {
       id: "d1-13",
@@ -414,22 +637,24 @@ export default defineDomain({
         "Hidden system prompts the provider adds to every request",
       ],
       answer: [0],
-      explanation: "The encoder transforms initial token vectors into embeddings with semantic meaning, so \"dog\" and \"puppy\" end up close together.",
+      explanation:
+        "A vector is just a list of numbers. The encoder turns each token's starting vector into an embedding that carries meaning, so \"dog\" and \"puppy\" end up close together.",
     },
     {
       id: "d1-14",
       domain: "d1",
       lesson: "d1-genai",
-      prompt: "You want to measure how semantically similar two embedding vectors are. Which calculation is commonly used?",
+      prompt: "You want to measure how close in meaning two embedding vectors are. Which calculation is commonly used?",
       options: ["Cosine similarity", "Mean absolute error", "Tokens per minute", "F1 score"],
       answer: [0],
-      explanation: "Cosine similarity compares the direction of two vectors: the closer to 1, the more similar the meaning.",
+      explanation:
+        "Cosine similarity compares which way two vectors point. The closer the result is to 1, the closer their meanings are.",
     },
     {
       id: "d1-15",
       domain: "d1",
       lesson: "d1-genai",
-      prompt: "In the sentence \"I heard a dog bark\", which describes what an attention layer does when it processes the token \"bark\"?",
+      prompt: "In the sentence \"I heard a dog bark\", what does an attention layer do when it processes the token \"bark\"?",
       options: [
         "Gives more weight to \"heard\" and \"dog\" because they influence the meaning of \"bark\" most",
         "Removes \"I\" and \"a\" from the vocabulary",
@@ -437,14 +662,15 @@ export default defineDomain({
         "Assigns \"bark\" a new random integer ID",
       ],
       answer: [0],
-      explanation: "Attention weighs surrounding tokens by their influence and uses those weights to calculate the token's embedding.",
+      explanation:
+        "Attention weighs the surrounding tokens by how much they affect the meaning. Here \"dog\" tells the model this is the sound, not tree bark. Those weights shape the token's embedding.",
     },
     {
       id: "d1-16",
       domain: "d1",
       lesson: "d1-genai",
       type: "order",
-      prompt: "Put these steps in the order a transformer-based language model goes through, from training text to a generated completion.",
+      prompt: "Put these steps in the order a transformer-based language model goes through, from training text to a generated reply.",
       items: [
         "Break the text into tokens and give each a unique ID",
         "Assign each token an initial vector plus a positional encoding",
@@ -452,7 +678,8 @@ export default defineDomain({
         "Use the decoder to predict the next most probable token after a prompt",
         "Append the predicted token and repeat until the sequence ends",
       ],
-      explanation: "Tokenize → vectors with position → attention builds embeddings → decoder predicts → repeat.",
+      explanation:
+        "First the text is split into tokens. Each token gets a starting vector and a note of its position. Attention then builds embeddings, the decoder predicts the next token, and the loop repeats.",
     },
     {
       id: "d1-17",
@@ -467,13 +694,14 @@ export default defineDomain({
         "SLMs need more training data than LLMs",
       ],
       answer: [0, 1],
-      explanation: "The difference is the volume of data and number of variables. Smaller models trade breadth for lower cost and easy local deployment.",
+      explanation:
+        "The difference is how much data they learned from and how many internal settings they have. Smaller models cover less ground, but they're cheaper and easy to run on a device.",
     },
     {
       id: "d1-18",
       domain: "d1",
       lesson: "d1-genai",
-      prompt: "What are the three key elements of an AI agent?",
+      prompt: "What are the three key parts of an AI agent?",
       options: [
         "A language model, instructions, and tools",
         "A database, a web server, and a firewall",
@@ -481,7 +709,8 @@ export default defineDomain({
         "An endpoint, an API key, and a region",
       ],
       answer: [0],
-      explanation: "The model is the agent's brain, the instructions are its job description, and tools let it get knowledge and take actions.",
+      explanation:
+        "The model is the agent's brain. The instructions are its job description. Tools let it look things up and take actions.",
     },
     {
       id: "d1-19",
@@ -495,7 +724,8 @@ export default defineDomain({
         "The endpoint routes each request to a different language",
       ],
       answer: [0],
-      explanation: "Models generate text by sampling likely tokens. Lowering temperature makes output more consistent.",
+      explanation:
+        "Models write by picking from likely tokens, so the choice can differ each time. Lowering the temperature makes answers more consistent.",
     },
 
     // ───── d1-choose ─────
@@ -504,19 +734,21 @@ export default defineDomain({
       domain: "d1",
       lesson: "d1-choose",
       prompt:
-        "You need one place to discover, compare, and deploy models from Microsoft, OpenAI, partners such as Mistral and Meta, and open-source communities. What should you use?",
+        "You need one place to find, compare, and deploy models from Microsoft, OpenAI, partners such as Mistral and Meta, and open-source communities. What should you use?",
       options: ["The Microsoft Foundry model catalog", "Azure Key Vault", "Azure Speech in Foundry Tools", "Azure Content Understanding in Foundry Tools"],
       answer: [0],
-      explanation: "The model catalog is Foundry's central hub of models, with filters for source, capability, and inference task.",
+      explanation:
+        "The model catalog is Foundry's central shelf of models. You can filter it by who made the model, what it can do, and which task it handles.",
     },
     {
       id: "d1-21",
       domain: "d1",
       lesson: "d1-choose",
-      prompt: "Before choosing a model, your team wants to rank candidates by quality, safety, and throughput on standard datasets. Which Foundry feature helps most?",
+      prompt: "Before picking a model, your team wants to rank the candidates on quality, safety, and speed using standard test sets. Which Foundry feature helps most?",
       options: ["Model leaderboards and benchmark results", "Tokens-per-minute quotas", "The Azure Language MCP server", "Batch transcription"],
       answer: [0],
-      explanation: "Leaderboards and benchmarks use consistent evaluation criteria. You can then try promising models with your own data.",
+      explanation:
+        "Leaderboards and benchmarks score every model the same way, so the comparison is fair. Once you have a shortlist, try those models with your own data.",
     },
     {
       id: "d1-22",
@@ -525,7 +757,8 @@ export default defineDomain({
       prompt: "A search feature must turn product descriptions into vectors so that items can be matched by meaning. Which type of model should you deploy?",
       options: ["An embedding model such as text-embedding-3-small", "An image-generation model", "A video-generation model", "A speech synthesis voice"],
       answer: [0],
-      explanation: "Embedding models are built for semantic vector representations.",
+      explanation:
+        "Embedding models are built to turn text into vectors that capture meaning. That lets \"warm winter jacket\" match \"insulated coat\" even though the words differ.",
     },
     {
       id: "d1-23",
@@ -534,7 +767,8 @@ export default defineDomain({
       prompt: "An insurance app lets customers upload a photo of their damaged car and ask questions about it. Which kind of model fits best?",
       options: ["A multimodal (vision-enabled) model", "An embedding model", "A small text-only model", "A speech-to-text model"],
       answer: [0],
-      explanation: "Multimodal models accept images and text together and answer in natural language.",
+      explanation:
+        "Multimodal means the model accepts more than one kind of input. A vision-enabled model takes the photo and the question together and answers in plain language.",
     },
     {
       id: "d1-24",
@@ -549,16 +783,18 @@ export default defineDomain({
         "A video-generation model",
       ],
       answer: [0],
-      explanation: "For well-defined tasks, Foundry Tools use prebuilt models with predictable, structured output.",
+      explanation:
+        "For narrow, well-defined jobs, Foundry Tools use prebuilt models that return the same structured output every time. A general chat model might word its answer differently on each call.",
     },
     {
       id: "d1-25",
       domain: "d1",
       lesson: "d1-choose",
-      prompt: "You're evaluating a chat model in Foundry. Which of these are AI-assisted quality metrics rather than classic NLP metrics? (Choose two.)",
+      prompt: "You're evaluating a chat model in Foundry. Which of these are AI-assisted quality metrics rather than classic language metrics? (Choose two.)",
       options: ["Groundedness", "Coherence", "Recall", "F1 score", "Precision"],
       answer: [0, 1],
-      explanation: "AI-assisted metrics include groundedness, relevance, coherence, fluency, and GPT similarity. Precision, recall, and F1 are classic NLP metrics.",
+      explanation:
+        "AI-assisted metrics include groundedness, relevance, coherence, fluency, and GPT similarity. Precision, recall, and F1 are the classic metrics that come from older language processing work.",
     },
     {
       id: "d1-26",
@@ -572,16 +808,18 @@ export default defineDomain({
         "Encrypt prompts before they reach the model",
       ],
       answer: [0],
-      explanation: "Evaluators detect, scan, and score issues. Resolving them is up to you, for example with better prompts, filters, or a different model.",
+      explanation:
+        "Evaluators find and score problems, like a smoke alarm. Fixing them is your job, for example with better prompts, content filters, or a different model.",
     },
     {
       id: "d1-27",
       domain: "d1",
       lesson: "d1-choose",
-      prompt: "In the Foundry model catalog, which group of models is hosted by Microsoft under Microsoft Product Terms with enterprise-grade SLAs?",
+      prompt: "In the Foundry model catalog, which group of models is hosted by Microsoft under the Microsoft Product Terms with enterprise-grade SLAs?",
       options: ["Models sold directly by Azure", "Models from partners and the community", "Prebuilt Content Understanding analyzers", "Custom neural voices"],
       answer: [0],
-      explanation: "Models sold directly by Azure are tightly integrated with Azure, with SLAs and preconfigured security. Partner and community models support broader experimentation.",
+      explanation:
+        "Models sold directly by Azure are closely tied into Azure, with service-level agreements and security set up for you. Partner and community models give you a wider range to experiment with.",
     },
 
     // ───── d1-deploy ─────
@@ -589,10 +827,11 @@ export default defineDomain({
       id: "d1-28",
       domain: "d1",
       lesson: "d1-deploy",
-      prompt: "You're deploying a new chat model. There's no data-residency requirement and traffic is unpredictable. Which deployment type should you start with?",
+      prompt: "You're deploying a new chat model. There's no rule about where data must be processed, and traffic is unpredictable. Which deployment type should you start with?",
       options: ["Global Standard", "Regional Provisioned", "Data Zone Batch", "Developer"],
       answer: [0],
-      explanation: "Global Standard is the recommended default: pay per token, newest models first, lowest price, and the highest default quota.",
+      explanation:
+        "Global Standard is the recommended default. You pay per token, new models arrive there first, it's the cheapest, and it has the highest starting quota.",
     },
     {
       id: "d1-29",
@@ -601,31 +840,34 @@ export default defineDomain({
       prompt: "A company must make sure prompts and responses are only processed inside the EU data zone, and it wants to pay per token. Which deployment type fits?",
       options: ["Data Zone Standard", "Global Standard", "Global Batch", "Global Provisioned"],
       answer: [0],
-      explanation: "Data Zone types process data only within the Microsoft-defined data zone (US, EU, or APAC). Standard means pay per token.",
+      explanation:
+        "Data Zone types only process data inside a Microsoft-defined zone: the US, the EU, or APAC. Standard means you pay per token.",
     },
     {
       id: "d1-30",
       domain: "d1",
       lesson: "d1-deploy",
-      prompt: "A call-center assistant handles a steady, high volume of requests and needs consistently low latency. Which kind of deployment is most suitable?",
+      prompt: "A call-center assistant handles a steady, high volume of requests and needs consistently fast replies. Which kind of deployment is most suitable?",
       options: ["A provisioned deployment with reserved provisioned throughput units (PTUs)", "A Developer deployment", "A batch deployment", "No deployment: call the model from the playground"],
       answer: [0],
-      explanation: "Provisioned deployments reserve capacity, giving predictable throughput and lower latency variance than standard types.",
+      explanation:
+        "A provisioned deployment reserves capacity just for you, like booking a private lane. You get predictable throughput and response times that vary less than on standard types.",
     },
     {
       id: "d1-31",
       domain: "d1",
       lesson: "d1-deploy",
-      prompt: "You need to summarize two million archived product reviews as cheaply as possible. Results are needed within a day, not in real time. Which deployment type should you use?",
+      prompt: "You need to summarize two million archived product reviews as cheaply as possible. You need results within a day, not in real time. Which deployment type should you use?",
       options: ["Global Batch", "Global Provisioned", "Data Zone Standard", "Standard"],
       answer: [0],
-      explanation: "Batch types process large files of requests asynchronously at 50% less than Global Standard, with a 24-hour target turnaround.",
+      explanation:
+        "Batch types work through a big file of requests in the background. They cost 50% less than Global Standard and aim to finish within 24 hours.",
     },
     {
       id: "d1-32",
       domain: "d1",
       lesson: "d1-deploy",
-      prompt: "Your app starts receiving rate-limit errors from a model deployment during busy periods. Which changes in your app reduce the throttling? (Choose two.)",
+      prompt: "Your app starts getting rate-limit errors from a model deployment during busy periods. Which changes in your app reduce the throttling? (Choose two.)",
       options: [
         "Lower the max output tokens setting",
         "Send fewer requests at the same time",
@@ -634,7 +876,8 @@ export default defineDomain({
         "Add more long examples to every prompt",
       ],
       answer: [0, 1],
-      explanation: "Larger prompts and higher max output tokens consume more of the deployment's tokens-per-minute allowance. Fewer, smaller requests stay under it.",
+      explanation:
+        "Longer prompts and a higher max output tokens use up more of the deployment's tokens-per-minute allowance. Fewer, smaller requests keep you under the limit.",
     },
     {
       id: "d1-33",
@@ -643,7 +886,8 @@ export default defineDomain({
       prompt: "A help-desk bot gives creative but inconsistent answers to policy questions. You want focused, repeatable answers. Which parameter change helps most?",
       options: ["Lower the temperature", "Raise the temperature", "Increase the tokens-per-minute allocation", "Switch to a video-generation model"],
       answer: [0],
-      explanation: "Temperature controls creativity versus determinism. Lower values make the model pick the most likely tokens.",
+      explanation:
+        "Temperature sets how adventurous the model is. A lower value makes it stick to the most likely tokens, so answers stay focused and similar each time.",
     },
     {
       id: "d1-34",
@@ -652,12 +896,13 @@ export default defineDomain({
       type: "match",
       prompt: "Match each setting to what it controls.",
       pairs: [
-        ["Temperature", "How creative or deterministic the output is"],
+        ["Temperature", "How creative or predictable the output is"],
         ["Max output tokens", "How long a response can be, and the tokens it uses"],
         ["System instructions", "The model's role, tone, and rules"],
         ["Tokens per minute (TPM)", "The deployment's rate limit before throttling"],
       ],
-      explanation: "Temperature, max output tokens, and system instructions are playground and request settings. TPM is set on the deployment.",
+      explanation:
+        "You set temperature, max output tokens, and system instructions in the playground or on each request. TPM is set on the deployment itself.",
     },
     {
       id: "d1-35",
@@ -671,7 +916,7 @@ export default defineDomain({
         "Test prompts and parameters in the playground",
         "Use the same settings from your client application code",
       ],
-      explanation: "Pick a model, deploy it, prove it in the playground, then carry the working settings into code.",
+      explanation: "Pick a model, deploy it, prove it works in the playground, then copy the working settings into your code.",
     },
 
     // ───── d1-workloads ─────
@@ -682,7 +927,7 @@ export default defineDomain({
       prompt: "A museum website lets visitors type questions about the history of computing and get original, conversational answers. Which AI workload is this?",
       options: ["Generative AI", "Information extraction", "Speech synthesis", "Object detection"],
       answer: [0],
-      explanation: "Generating new natural-language responses to prompts is generative AI.",
+      explanation: "Writing new answers in natural language in response to a prompt is generative AI.",
     },
     {
       id: "d1-37",
@@ -691,7 +936,8 @@ export default defineDomain({
       prompt: "An assistant reads incoming requests, decides what to do, and then books meetings and sends confirmation emails by itself. Which workload does this describe best?",
       options: ["Agentic AI", "Sentiment analysis", "Image classification", "Optical character recognition"],
       answer: [0],
-      explanation: "Agents reason over input and use action tools, such as calendars and email, to automate tasks.",
+      explanation:
+        "Agents think about the request, then use tools such as a calendar and email to actually do the task. Taking action is what makes it agentic.",
     },
     {
       id: "d1-38",
@@ -700,7 +946,7 @@ export default defineDomain({
       prompt: "A retailer wants to know whether thousands of product reviews are positive, negative, or neutral. Which workload is this?",
       options: ["Text analysis", "Computer vision", "Speech recognition", "Image generation"],
       answer: [0],
-      explanation: "Sentiment analysis is a text analysis technique.",
+      explanation: "Working out the mood of a piece of text is called sentiment analysis, and it's one of the text analysis techniques.",
     },
     {
       id: "d1-39",
@@ -709,16 +955,16 @@ export default defineDomain({
       prompt: "A hands-free kiosk in a factory listens to spoken questions and answers out loud. Which workload is central to this solution?",
       options: ["Speech", "Information extraction", "Object detection", "Embeddings"],
       answer: [0],
-      explanation: "Speech recognition turns the question into text, and speech synthesis speaks the answer.",
+      explanation: "Speech recognition turns the spoken question into text, and speech synthesis reads the answer aloud.",
     },
     {
       id: "d1-40",
       domain: "d1",
       lesson: "d1-workloads",
-      prompt: "A grocery store wants a checkout camera that recognizes which fruit or vegetable a customer places on the scale. Which workload is this?",
+      prompt: "A grocery store wants a checkout camera that recognizes which fruit or vegetable a customer puts on the scale. Which workload is this?",
       options: ["Computer vision", "Text analysis", "Speech synthesis", "Agentic AI"],
       answer: [0],
-      explanation: "Identifying produce from camera images is computer vision (image classification).",
+      explanation: "Recognizing produce from a camera image is computer vision. This particular job is called image classification.",
     },
     {
       id: "d1-41",
@@ -727,7 +973,8 @@ export default defineDomain({
       prompt: "A finance team needs the merchant, date, and amount pulled out of scanned expense receipts and stored as data. Which workload is this?",
       options: ["Information extraction", "Generative AI", "Speech recognition", "Sentiment analysis"],
       answer: [0],
-      explanation: "Turning unstructured content such as receipts into structured, searchable fields is information extraction.",
+      explanation:
+        "Turning messy content like receipts into neat, searchable fields is information extraction.",
     },
     {
       id: "d1-42",
@@ -742,7 +989,8 @@ export default defineDomain({
         "Translating a live chat between two people",
       ],
       answer: [0, 1],
-      explanation: "Information extraction turns documents, images, audio, or video into machine-readable values. The others generate, speak, or translate content.",
+      explanation:
+        "Information extraction turns documents, images, audio, or video into values a computer can store and search. The other options create, speak, or translate content instead.",
     },
     {
       id: "d1-43",
@@ -757,7 +1005,8 @@ export default defineDomain({
         ["Counting cars in parking-lot camera images", "Computer vision"],
         ["Turning loan application forms into database fields", "Information extraction"],
       ],
-      explanation: "Look at the input and output: action taken, text insight, audio to text, image understanding, or structured fields.",
+      explanation:
+        "Look at what goes in and what comes out. An action taken is agentic, insight from text is text analysis, audio to text is speech, understanding images is vision, and tidy fields are extraction.",
     },
 
     // ───── d1-text ─────
@@ -769,7 +1018,7 @@ export default defineDomain({
         "From the review \"Our waiter Pete recommended the strawberry cheesecake after a fantastic meal in Seattle\", a technique returns \"waiter\", \"strawberry cheesecake\", \"fantastic meal\", and \"Seattle\". Which technique is this?",
       options: ["Key phrase extraction", "Language detection", "Speech synthesis", "Object detection"],
       answer: [0],
-      explanation: "Key phrase extraction lists the main concepts in text, which helps with indexing and search.",
+      explanation: "Key phrase extraction lists the main ideas in a piece of text. That makes the text easier to index and search.",
     },
     {
       id: "d1-45",
@@ -779,16 +1028,18 @@ export default defineDomain({
         "You need to find the person, organization, location, and date in: \"On 2 May, Priya Patel visited Lisbon for a Fabrikam conference.\" Which technique should you use?",
       options: ["Named entity recognition", "Sentiment analysis", "Summarization", "Language detection"],
       answer: [0],
-      explanation: "Entity recognition returns entities with a type (Person, Organization, Location, DateTime) and sometimes a subtype.",
+      explanation:
+        "An entity is a named thing, like a person or a place. Named entity recognition finds them and gives each a type such as Person, Organization, Location, or DateTime, sometimes with a subtype.",
     },
     {
       id: "d1-46",
       domain: "d1",
       lesson: "d1-text",
-      prompt: "Which technique identifies a known entity in text and returns a link to a Wikipedia article about it?",
+      prompt: "Which technique spots a well-known entity in text and returns a link to a Wikipedia article about it?",
       options: ["Entity linking", "Key phrase extraction", "PII detection", "Opinion mining"],
       answer: [0],
-      explanation: "Entity linking disambiguates known entities, for example which \"Paris\" the text means, and links to a reference.",
+      explanation:
+        "Entity linking works out which real-world thing the text means, for example which \"Paris\" it's talking about, and links to a reference page.",
     },
     {
       id: "d1-47",
@@ -797,7 +1048,7 @@ export default defineDomain({
       prompt: "A brand team wants each sentence of a long review labeled positive, negative, or neutral, plus an overall rating. Which technique does this?",
       options: ["Sentiment analysis and opinion mining", "Entity linking", "Language detection", "Optical character recognition"],
       answer: [0],
-      explanation: "Sentiment analysis classifies text, and can work at document or sentence level.",
+      explanation: "Sentiment analysis labels the mood of text. It can score the whole document or each sentence on its own.",
     },
     {
       id: "d1-48",
@@ -806,7 +1057,8 @@ export default defineDomain({
       prompt: "Executives want a short paragraph covering the most important points of each 30-page market report. Which technique is this?",
       options: ["Summarization", "Key phrase extraction", "PII detection", "Entity linking"],
       answer: [0],
-      explanation: "Summarization identifies the most important information and condenses it. Key phrases would only list topics.",
+      explanation:
+        "Summarization picks out the most important information and condenses it into a short text. Key phrase extraction would only give you a list of topics.",
     },
     {
       id: "d1-49",
@@ -820,13 +1072,14 @@ export default defineDomain({
         "A list of the key phrases in the text",
       ],
       answer: [0],
-      explanation: "For \"¡Hola! Me llamo Josefina\" it returns Spanish, es, and a confidence score such as 1.00. It doesn't translate.",
+      explanation:
+        "For \"¡Hola! Me llamo Josefina\" it returns Spanish, the two-letter code es, and a confidence score such as 1.00. It tells you the language but doesn't translate.",
     },
     {
       id: "d1-50",
       domain: "d1",
       lesson: "d1-text",
-      prompt: "A clinic must find names, phone numbers, addresses, and health details in notes and redact them before sharing. Which capability fits?",
+      prompt: "A clinic must find names, phone numbers, addresses, and health details in notes and blank them out before sharing. Which capability fits?",
       options: [
         "Personally identifiable information (PII) detection",
         "Key phrase extraction",
@@ -834,7 +1087,8 @@ export default defineDomain({
         "Image classification",
       ],
       answer: [0],
-      explanation: "PII detection identifies personal data, including personal health information (PHI), and can return redacted text.",
+      explanation:
+        "PII detection finds personal data, including personal health information (PHI). It can also return a copy of the text with those details redacted, meaning blanked out.",
     },
     {
       id: "d1-51",
@@ -849,7 +1103,8 @@ export default defineDomain({
         "When you need to generate images",
       ],
       answer: [0, 1],
-      explanation: "Azure Language uses purpose-built analyzers with predictable output. General-purpose models are more flexible but can vary between calls.",
+      explanation:
+        "Azure Language uses analyzers built for one job each, so the output is predictable. General-purpose models are more flexible, but their answers can change from call to call.",
     },
 
     // ───── d1-perceive ─────
@@ -857,10 +1112,10 @@ export default defineDomain({
       id: "d1-52",
       domain: "d1",
       lesson: "d1-perceive",
-      prompt: "In a speech-to-text system, which model converts the audio signal into phonemes (representations of specific sounds)?",
+      prompt: "In a speech-to-text system, which model turns the audio signal into phonemes, the individual speech sounds?",
       options: ["The acoustic model", "The language model", "The embedding model", "The image-generation model"],
       answer: [0],
-      explanation: "The acoustic model maps audio to phonemes. A language model then maps phonemes to words.",
+      explanation: "The acoustic model maps audio to phonemes. A language model then works out which words those sounds make.",
     },
     {
       id: "d1-53",
@@ -874,7 +1129,8 @@ export default defineDomain({
         "Group the phonetic transcription into prosodic units such as phrases",
         "Generate audio from the phonemes using the chosen voice",
       ],
-      explanation: "Text → words → phonetics → prosodic units → phonemes synthesized as audio, with a voice, rate, pitch, and volume.",
+      explanation:
+        "The text is split into words, each word gets its sounds, and the sounds are grouped into natural phrases. Finally the audio is produced in your chosen voice, rate, pitch, and volume.",
     },
     {
       id: "d1-54",
@@ -888,16 +1144,18 @@ export default defineDomain({
         "They only support one language",
       ],
       answer: [0],
-      explanation: "Neural voices overcome common synthesis problems such as flat or odd intonation.",
+      explanation:
+        "Older voices often sounded flat or put the stress in odd places. Neural voices get the rise and fall of speech much closer to how a person talks.",
     },
     {
       id: "d1-55",
       domain: "d1",
       lesson: "d1-perceive",
-      prompt: "A model classifies every pixel of an image according to the object it belongs to, producing a precise outline of each object. Which computer vision technique is this?",
+      prompt: "A model labels every pixel of an image with the object it belongs to, giving a precise outline of each object. Which computer vision technique is this?",
       options: ["Semantic segmentation", "Image classification", "Object detection", "Optical character recognition"],
       answer: [0],
-      explanation: "Segmentation works at pixel level. Object detection only draws rectangular bounding boxes.",
+      explanation:
+        "Segmentation works pixel by pixel, so it traces the exact shape. Object detection only draws a rectangle around each object.",
     },
     {
       id: "d1-56",
@@ -911,13 +1169,14 @@ export default defineDomain({
         "A new image generated from the input",
       ],
       answer: [0],
-      explanation: "Object detection finds multiple objects and their locations. Image classification gives a single label for the image.",
+      explanation:
+        "Object detection finds many objects and where each one is, using a box around it. Image classification only gives one label for the whole picture.",
     },
     {
       id: "d1-57",
       domain: "d1",
       lesson: "d1-perceive",
-      prompt: "Which tasks can a vision-enabled multimodal chat model perform when you include an image in the prompt? (Choose two.)",
+      prompt: "Which tasks can a vision-enabled multimodal chat model do when you include an image in the prompt? (Choose two.)",
       options: [
         "Describe what's in the image in natural language",
         "Answer a question about a chart in a screenshot",
@@ -926,7 +1185,8 @@ export default defineDomain({
         "Transcribe a phone call",
       ],
       answer: [0, 1],
-      explanation: "Vision-enabled models reason over images and text together and respond in text. Video comes from video-generation models such as Sora.",
+      explanation:
+        "Vision-enabled models look at the image and your text together and reply in text. Making video is a different job, done by video-generation models such as Sora.",
     },
     {
       id: "d1-58",
@@ -941,7 +1201,8 @@ export default defineDomain({
         "It only works on handwritten text",
       ],
       answer: [0, 1],
-      explanation: "OCR reads text but doesn't understand meaning. Schema-based extraction applies fields semantically, even when labels differ or are missing.",
+      explanation:
+        "OCR reads the words but doesn't know what they mean. Schema-based extraction understands meaning, so it fills the right field even when the label is worded differently or missing.",
     },
     {
       id: "d1-59",
@@ -955,39 +1216,40 @@ export default defineDomain({
         "It draws bounding boxes around faces",
       ],
       answer: [0],
-      explanation: "Vision models usually match images to text. Image-generation models work in reverse, from a description to a new image.",
+      explanation:
+        "Most vision models start with an image and describe it in words. Image-generation models go the other way: they start with your words and create a new picture.",
     },
   ],
 
   cards: [
-    { id: "c-fairness", domain: "d1", kind: "concept", term: "Fairness", definition: "Minimize bias in data and test outputs so no group is treated unfairly" },
-    { id: "c-reliability", domain: "d1", kind: "concept", term: "Reliability and safety", definition: "AI is probabilistic: plan for errors, test edge cases, use confidence thresholds" },
-    { id: "c-privacy", domain: "d1", kind: "concept", term: "Privacy and security", definition: "Protect training and personal data; models mustn't reveal private details" },
-    { id: "c-inclusiveness", domain: "d1", kind: "concept", term: "Inclusiveness", definition: "Design so no group of users is excluded, for example captions for speech apps" },
-    { id: "c-transparency", domain: "d1", kind: "concept", term: "Transparency", definition: "Tell users AI is used, how it works, and its limitations" },
-    { id: "c-accountability", domain: "d1", kind: "concept", term: "Accountability", definition: "People and organizations answer for their AI through a governance framework" },
-    { id: "c-token", domain: "d1", kind: "concept", term: "Token", definition: "A word, sub-word, or punctuation unit with an integer ID in a model's vocabulary" },
-    { id: "c-embedding", domain: "d1", kind: "concept", term: "Embedding", definition: "A vector that encodes meaning; similar meanings point in similar directions" },
-    { id: "c-attention", domain: "d1", kind: "concept", term: "Attention", definition: "Weighs how much each surrounding token influences the current token" },
-    { id: "c-transformer", domain: "d1", kind: "concept", term: "Transformer", definition: "Model architecture with an encoder (embeddings) and decoder (next-token prediction)" },
-    { id: "c-cosine", domain: "d1", kind: "concept", term: "Cosine similarity", definition: "Measures how closely two embedding vectors point the same way" },
-    { id: "c-slm", domain: "d1", kind: "concept", term: "Small language model (SLM)", definition: "Compact model for focused topics or on-device apps; cheaper than an LLM" },
-    { id: "c-agent", domain: "d1", kind: "concept", term: "AI agent", definition: "A language model + instructions + tools that can reason and take actions" },
-    { id: "s-catalog", domain: "d1", kind: "service", term: "Foundry model catalog", definition: "Discover, compare, and deploy models from Microsoft, partners, and open source" },
-    { id: "c-global-standard", domain: "d1", kind: "concept", term: "Global Standard", definition: "Default deployment type: pay per token, any region, newest models first" },
-    { id: "c-data-zone", domain: "d1", kind: "concept", term: "Data Zone deployment", definition: "Processes prompts only inside the US, EU, or APAC data zone" },
-    { id: "c-ptu", domain: "d1", kind: "concept", term: "Provisioned throughput (PTU)", definition: "Reserved capacity for predictable throughput and low latency variance" },
-    { id: "c-batch", domain: "d1", kind: "concept", term: "Global Batch", definition: "Async file of requests, 50% cheaper, 24-hour target turnaround" },
-    { id: "c-tpm", domain: "d1", kind: "concept", term: "Tokens per minute (TPM)", definition: "A deployment's rate limit; exceed it and requests are throttled" },
-    { id: "c-temperature", domain: "d1", kind: "concept", term: "Temperature", definition: "Low = focused and repeatable; high = creative and varied" },
-    { id: "c-keyphrase", domain: "d1", kind: "concept", term: "Key phrase extraction", definition: "Lists the main concepts in unstructured text" },
-    { id: "c-ner", domain: "d1", kind: "concept", term: "Named entity recognition", definition: "Finds people, places, organizations, dates, and quantities in text" },
-    { id: "c-entity-linking", domain: "d1", kind: "concept", term: "Entity linking", definition: "Identifies known entities and links them to Wikipedia" },
-    { id: "c-pii", domain: "d1", kind: "concept", term: "PII detection", definition: "Finds personal (and health) information in text and can redact it" },
-    { id: "c-acoustic", domain: "d1", kind: "concept", term: "Acoustic model", definition: "Converts audio into phonemes in speech recognition" },
-    { id: "c-segmentation", domain: "d1", kind: "concept", term: "Semantic segmentation", definition: "Classifies every pixel to outline objects precisely" },
-    { id: "c-object-detection", domain: "d1", kind: "concept", term: "Object detection", definition: "Labels each object and returns its bounding box" },
-    { id: "s-language", domain: "d1", kind: "service", term: "Azure Language in Foundry Tools", definition: "Deterministic text analysis: language detection, PII, entities, sentiment" },
+    { id: "c-fairness", domain: "d1", kind: "concept", term: "Fairness", definition: "Reduce bias in the data and test results so no group is treated worse than another." },
+    { id: "c-reliability", domain: "d1", kind: "concept", term: "Reliability and safety", definition: "AI works on probabilities, so plan for errors: test unusual cases and act only above a confidence threshold." },
+    { id: "c-privacy", domain: "d1", kind: "concept", term: "Privacy and security", definition: "Protect training and personal data, and make sure the model can't reveal private details." },
+    { id: "c-inclusiveness", domain: "d1", kind: "concept", term: "Inclusiveness", definition: "Design so no group of users is left out, for example by adding captions to a voice app." },
+    { id: "c-transparency", domain: "d1", kind: "concept", term: "Transparency", definition: "Tell users that AI is used, roughly how it works, and what its limits are." },
+    { id: "c-accountability", domain: "d1", kind: "concept", term: "Accountability", definition: "People and organizations answer for their AI, through a governance framework." },
+    { id: "c-token", domain: "d1", kind: "concept", term: "Token", definition: "A word, word piece, or punctuation mark with its own ID number in a model's vocabulary." },
+    { id: "c-embedding", domain: "d1", kind: "concept", term: "Embedding", definition: "A list of numbers that captures meaning. Words with similar meanings get similar lists." },
+    { id: "c-attention", domain: "d1", kind: "concept", term: "Attention", definition: "How the model weighs which surrounding tokens matter most for the current one." },
+    { id: "c-transformer", domain: "d1", kind: "concept", term: "Transformer", definition: "The model design behind LLMs: an encoder builds embeddings and a decoder predicts the next token." },
+    { id: "c-cosine", domain: "d1", kind: "concept", term: "Cosine similarity", definition: "Measures how closely two embedding vectors point the same way. Closer to 1 means closer in meaning." },
+    { id: "c-slm", domain: "d1", kind: "concept", term: "Small language model (SLM)", definition: "A compact model for focused topics or apps on a device. Cheaper to run than an LLM." },
+    { id: "c-agent", domain: "d1", kind: "concept", term: "AI agent", definition: "A language model plus instructions plus tools, so it can reason and take actions." },
+    { id: "s-catalog", domain: "d1", kind: "service", term: "Foundry model catalog", definition: "Where you find, compare, and deploy models from Microsoft, partners, and open source." },
+    { id: "c-global-standard", domain: "d1", kind: "concept", term: "Global Standard", definition: "The default deployment type. You pay per token, it can use any region, and new models land here first." },
+    { id: "c-data-zone", domain: "d1", kind: "concept", term: "Data Zone deployment", definition: "Processes prompts only inside the US, EU, or APAC data zone." },
+    { id: "c-ptu", domain: "d1", kind: "concept", term: "Provisioned throughput (PTU)", definition: "Capacity reserved just for you, for predictable throughput and steady response times." },
+    { id: "c-batch", domain: "d1", kind: "concept", term: "Global Batch", definition: "Send a file of requests to run in the background. It's 50% cheaper and aims to finish within 24 hours." },
+    { id: "c-tpm", domain: "d1", kind: "concept", term: "Tokens per minute (TPM)", definition: "A deployment's rate limit. Go over it and your requests get throttled." },
+    { id: "c-temperature", domain: "d1", kind: "concept", term: "Temperature", definition: "A low setting gives focused, repeatable answers. A high setting gives creative, varied ones." },
+    { id: "c-keyphrase", domain: "d1", kind: "concept", term: "Key phrase extraction", definition: "Lists the main ideas in a piece of text." },
+    { id: "c-ner", domain: "d1", kind: "concept", term: "Named entity recognition", definition: "Finds people, places, organizations, dates, and quantities in text." },
+    { id: "c-entity-linking", domain: "d1", kind: "concept", term: "Entity linking", definition: "Works out which well-known thing the text means and links it to Wikipedia." },
+    { id: "c-pii", domain: "d1", kind: "concept", term: "PII detection", definition: "Finds personal and health information in text and can blank it out." },
+    { id: "c-acoustic", domain: "d1", kind: "concept", term: "Acoustic model", definition: "In speech recognition, the part that turns audio into phonemes (speech sounds)." },
+    { id: "c-segmentation", domain: "d1", kind: "concept", term: "Semantic segmentation", definition: "Labels every pixel, so you get the exact outline of each object." },
+    { id: "c-object-detection", domain: "d1", kind: "concept", term: "Object detection", definition: "Labels each object in an image and draws a box around it." },
+    { id: "s-language", domain: "d1", kind: "service", term: "Azure Language in Foundry Tools", definition: "Text analysis with the same structured output every time: language detection, PII, entities, sentiment." },
   ],
 
   challenges: [
@@ -997,8 +1259,8 @@ export default defineDomain({
       lesson: "d1-rai",
       title: "Name that principle",
       goal: "Match all eight scenarios to the right responsible AI principle without a single miss.",
-      hint: "Ask what the practice protects: equal treatment, safe behaviour, personal data, access for everyone, understanding, or ownership.",
-      takeaway: "Microsoft's six principles: fairness, reliability and safety, privacy and security, inclusiveness, transparency, and accountability.",
+      hint: "Ask what each practice protects: equal treatment, safe behaviour, personal data, access for everyone, understanding, or ownership.",
+      takeaway: "Microsoft's six principles are fairness, reliability and safety, privacy and security, inclusiveness, transparency, and accountability.",
       render: (onSolved) => <RaiMatcherLab goal="allCorrect" onSolved={onSolved} />,
     },
     {
@@ -1007,8 +1269,8 @@ export default defineDomain({
       lesson: "d1-workloads",
       title: "Sort every job",
       goal: "Drop all ten jobs into the right bin: model or agent, Azure Language, Azure Speech, vision model, or Content Understanding.",
-      hint: "Deterministic text results → Azure Language. Structured fields from files or recordings → Content Understanding.",
-      takeaway: "Start from the input and the output you need, then pick the workload and the Foundry capability that delivers it.",
+      hint: "If a job needs the same text result every time, it's Azure Language. If it needs named fields from files or recordings, it's Content Understanding.",
+      takeaway: "Start from what goes in and what you need out. Then pick the workload and the Foundry capability that delivers it.",
       render: (onSolved) => <ToolSorterLab goal="allSorted" onSolved={onSolved} />,
     },
   ],

@@ -5,14 +5,14 @@ import { useState } from "react";
 /** Concept diagrams for the JavaScript track. */
 
 const PAIRS: { a: string; b: string; loose: boolean; strict: boolean; steps: string }[] = [
-  { a: "1", b: '"1"', loose: true, strict: false, steps: 'String "1" → number 1, then 1 === 1.' },
-  { a: "0", b: '""', loose: true, strict: false, steps: '"" → number 0, then 0 === 0.' },
+  { a: "1", b: '"1"', loose: true, strict: false, steps: 'The string "1" becomes the number 1, then 1 === 1.' },
+  { a: "0", b: '""', loose: true, strict: false, steps: 'The empty string becomes the number 0, then 0 === 0.' },
   { a: "null", b: "undefined", loose: true, strict: false, steps: "Special rule: null and undefined are loosely equal to each other and nothing else." },
-  { a: "null", b: "0", loose: false, strict: false, steps: "null is only == to null or undefined. No numeric conversion here." },
-  { a: "[]", b: "false", loose: true, strict: false, steps: 'false → 0; [] → "" → 0; then 0 === 0.' },
-  { a: "[1, 2]", b: '"1,2"', loose: true, strict: false, steps: '[1, 2] → ToPrimitive → "1,2", then string comparison.' },
-  { a: "NaN", b: "NaN", loose: false, strict: false, steps: "NaN is never equal to anything, itself included. Use Number.isNaN or Object.is." },
-  { a: "{}", b: "{}", loose: false, strict: false, steps: "Two different objects: both operators compare references, not contents." },
+  { a: "null", b: "0", loose: false, strict: false, steps: "null is only == to null or undefined. It isn't converted to a number here." },
+  { a: "[]", b: "false", loose: true, strict: false, steps: 'false becomes 0. [] becomes "" and then 0. Then 0 === 0.' },
+  { a: "[1, 2]", b: '"1,2"', loose: true, strict: false, steps: '[1, 2] is turned into the string "1,2", then the two strings are compared.' },
+  { a: "NaN", b: "NaN", loose: false, strict: false, steps: "NaN is never equal to anything, not even itself. Use Number.isNaN or Object.is to test for it." },
+  { a: "{}", b: "{}", loose: false, strict: false, steps: "These are two different objects. Both operators compare references, not contents, so neither is equal." },
 ];
 
 /** Tap a pair to see how `==` coerces it, compared with `===`. */
@@ -101,7 +101,7 @@ export function PrototypeChain() {
                   </span>
                 ))}
               </div>
-              {i < last && <div className="mt-1 text-[11px] text-slate-500">not here → follow [[Prototype]]</div>}
+              {i < last && <div className="mt-1 text-[11px] text-slate-500">not here, so follow the prototype link</div>}
             </div>
             <span className="text-center text-slate-500" aria-hidden>
               <span className="sm:hidden">↓</span>

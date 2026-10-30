@@ -19,7 +19,7 @@ function BracketMode({ solveOnBalanced, onSolved }: { solveOnBalanced: boolean; 
   const [pos, setPos] = useState(0);
   const [stack, setStack] = useState<string[]>([]);
   const [verdict, setVerdict] = useState<Verdict>("running");
-  const [msg, setMsg] = useState("Read each bracket left to right. Openers go on the stack; closers must match the top.");
+  const [msg, setMsg] = useState("Read each bracket from left to right. Opening brackets go on the stack, and each closing bracket must match the top.");
   const [mistakes, setMistakes] = useState(0);
   const [shake, setShake] = useState(0);
   const s = PUZZLES[pi];
@@ -31,7 +31,7 @@ function BracketMode({ solveOnBalanced, onSolved }: { solveOnBalanced: boolean; 
     setStack([]);
     setVerdict("running");
     setMistakes(0);
-    setMsg("Read each bracket left to right. Openers go on the stack; closers must match the top.");
+    setMsg("Read each bracket from left to right. Opening brackets go on the stack, and each closing bracket must match the top.");
   }
 
   function oops(text: string) {
@@ -185,7 +185,7 @@ function TwoStacksMode({ solveOnFifo, onSolved }: { solveOnFifo: boolean; onSolv
     setInbox(inbox.slice(0, -1));
     setOutbox([...outbox, v]);
     setMoves(moves + 1);
-    setMsg(outbox.length ? `Moved ${v} onto a non-empty outbox… careful: it now sits on top of older customers.` : `Moved ${v} from inbox to outbox. Moving reverses the order.`);
+    setMsg(outbox.length ? `Moved ${v} onto an outbox that wasn't empty. Careful: it now sits on top of customers who arrived earlier.` : `Moved ${v} from inbox to outbox. Moving reverses the order.`);
   }
 
   function dequeue() {
@@ -274,7 +274,7 @@ export function StackQueueLab({ goal, onSolved, mode }: GoalProps<"balanced" | "
     <div>
       <LabHeader
         title="Stack & queue simulator"
-        hint={tab === "brackets" ? "Bracket checker: push openers, pop to match closers. Decide whether each string is balanced." : "Build a FIFO queue out of two LIFO stacks."}
+        hint={tab === "brackets" ? "Bracket checker: push opening brackets, and pop to match closing ones. Decide whether each string is balanced." : "Build a first-in, first-out queue out of two last-in, first-out stacks."}
       />
       {!goal && (
         <div className="mb-3 flex gap-1.5">
@@ -363,7 +363,7 @@ export function BstLab({ goal, onSolved }: GoalProps<"balanced" | "chain">) {
         lv === 3
           ? "Perfectly balanced: 7 keys in 3 levels. Any search takes at most 3 comparisons: O(log n)."
           : lv === BST_KEYS.length
-            ? "A chain! The BST degenerated into a linked list: searches take up to 7 comparisons, O(n)."
+            ? "A chain! The BST has turned into a linked list, so a search can take 7 comparisons. That's O(n)."
             : `All keys in, ${lv} levels deep. Can you make it 3?`,
       );
     }

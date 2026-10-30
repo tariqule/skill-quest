@@ -8,7 +8,7 @@ import { setGuideOpen, useToasts } from "@/engine/ui-state";
 import { Bar } from "./ui";
 import { isCodeTrack } from "@/engine/tracks";
 
-export const APP_NAME = "Cert Quest";
+export const APP_NAME = "SkillQuest";
 
 /** Top bar for the app outside any course (the catalog). */
 export function AppBar() {

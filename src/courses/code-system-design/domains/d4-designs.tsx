@@ -1,4 +1,4 @@
-import { CodeBlock, CodeCompare, Flow, Layers, Tiles } from "@/components/learn/blocks";
+import { CodeBlock, CodeCompare, Flow, Ladder, Layers, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { CircuitBreakerVisual, FanoutVisual } from "../visuals";
 
@@ -12,7 +12,7 @@ export default defineDomain({
     weight: 25,
     emoji: "🏔️",
     color: "#fbbf24",
-    summary: "Clean APIs, SLOs and failure handling, then the classics: a URL shortener, a news feed and a chat system, at senior and staff depth.",
+    summary: "Clean APIs, reliability targets and handling failure, then the classic designs: a URL shortener, a news feed and a chat system, at senior and staff depth.",
   },
 
   tasks: [
@@ -23,6 +23,61 @@ export default defineDomain({
 
   lessons: [
     {
+      id: "d4-start-api",
+      level: "beginner",
+      task: "4.1",
+      title: "APIs: the menu for your app",
+      check: ["sd-b4-01", "sd-b4-02"],
+      visual: (
+        <div className="grid gap-3">
+          <Tiles
+            cols={2}
+            tiles={[
+              { icon: "📋", title: "The menu", text: "An API lists what you can ask for and how to ask. You don't need to know how the kitchen works.", color: "#fbbf24" },
+              { icon: "🔢", title: "Status codes", text: "Short numbers that say how it went. 200 means OK, 404 means \"not found\", 500 means the server broke.", color: "#2dd4bf" },
+            ]}
+          />
+          <CodeBlock
+            lang="text"
+            caption="A request names a method and an address. The response starts with a status code."
+            code={`GET /users/7          →  200 OK          (here's user 7)
+GET /users/999        →  404 Not Found   (no such user)
+POST /users           →  201 Created     (new user made)`}
+          />
+        </div>
+      ),
+      points: [
+        "An **API** (application programming interface) is the list of requests a service accepts and the answers it gives back. It's the menu for your app.",
+        "You order from a menu without seeing the kitchen. In the same way, an app can use a service's API without knowing how it works inside.",
+        "Web APIs use **HTTP methods** as verbs: GET to read something, POST to create something, DELETE to remove it.",
+        "Every response carries a **status code**. Codes in the 200s mean success, the 400s mean the request was wrong, and the 500s mean the server failed.",
+      ],
+      tip: "In a design interview, write down the three to five main API requests early. It makes clear what you're building.",
+    },
+    {
+      id: "d4-start-reliable",
+      level: "beginner",
+      task: "4.2",
+      title: "Keeping a system up",
+      check: ["sd-b4-03", "sd-b4-04"],
+      visual: (
+        <Ladder
+          rungs={[
+            { icon: "🙂", name: "99%", text: "Down about 7 hours a month. Fine for a hobby project." },
+            { icon: "😀", name: "99.9%", text: "Down about 43 minutes a month. A common target for business apps." },
+            { icon: "🤩", name: "99.99%", text: "Down about 4 minutes a month. Hard and expensive to reach." },
+          ]}
+        />
+      ),
+      points: [
+        "Every system breaks sometimes: a server crashes, a network cable fails, a service you depend on goes slow. Good designs expect this.",
+        "**Availability** is the share of time a system works. 99.9% sounds perfect, but it still allows about 43 minutes of downtime a month.",
+        "A **timeout** is how long you'll wait before giving up on a call. Without one, a slow service can leave your app waiting forever.",
+        "Like a shop with a spare till, systems keep backups ready so one broken part doesn't close the whole shop.",
+      ],
+      tip: "When you describe a design, ask \"what happens if this part breaks?\" for each box you draw.",
+    },
+    {
       id: "d4-api",
       level: "junior",
       task: "4.1",
@@ -32,7 +87,7 @@ export default defineDomain({
         <div className="grid gap-3">
           <CodeBlock
             lang="text"
-            caption="Nouns for resources, HTTP verbs for actions, status codes for outcomes."
+            caption="Nouns for resources, HTTP methods for actions, status codes for outcomes."
             code={`GET    /users/7/orders?limit=20&cursor=…   200 list (one page)
 POST   /users/7/orders                      201 created + Location
 GET    /users/7/orders/42                   200 one order · 404 if missing
@@ -41,7 +96,7 @@ DELETE /users/7/orders/42                   204 no content`}
           />
           <CodeBlock
             lang="json"
-            caption="Cursor pagination: the server returns an opaque token for the next page."
+            caption="Cursor pagination: the server returns a token that points to the next page."
             code={`{
   "items": [{ "id": 9821, "total": 4200 }],
   "next_cursor": "eyJpZCI6OTgyMX0"
@@ -50,12 +105,12 @@ DELETE /users/7/orders/42                   204 no content`}
         </div>
       ),
       points: [
-        "Model resources as nouns and use HTTP verbs for actions; return precise status codes (201, 400, 404, 409, 429, 503).",
-        "Paginate every list. Opaque cursors are stable under inserts and let the server change how pages are computed.",
-        "Evolve compatibly: add optional fields, never rename or remove without a deprecation period; bump the version only for breaking changes.",
-        "REST/JSON suits public APIs and browsers; gRPC (Protocol Buffers over HTTP/2) suits internal, typed, high-throughput or streaming calls.",
+        "Name resources with nouns and let the HTTP method say what to do. Return precise status codes, such as 201, 400, 404, 409, 429 and 503.",
+        "Split every list into pages. A **cursor** is a token that marks where the last page ended. It stays correct when new rows arrive, and the server can change how it works later.",
+        "Change APIs without breaking clients. Add optional fields freely. Never rename or remove a field without a warning period, and bump the version only for breaking changes.",
+        "REST with JSON suits public APIs and browsers. **gRPC**, which sends typed Protocol Buffer messages over HTTP/2, suits busy internal calls and streaming.",
       ],
-      tip: "Sketch the 3–5 core endpoints with request and response shapes early in the interview. It pins down scope and exposes the data model.",
+      tip: "Sketch the three to five main endpoints, with request and response shapes, early in the interview. It pins down scope and shows the data model.",
     },
     {
       id: "d4-reliability",
@@ -67,9 +122,9 @@ DELETE /users/7/orders/42                   204 no content`}
         <div className="grid gap-3">
           <Layers
             layers={[
-              { name: "SLI — what you measure", color: "#2dd4bf", items: ["% of requests < 300 ms", "% of requests without 5xx"] },
-              { name: "SLO — your target", color: "#60a5fa", items: ["99.9% good over 30 days", "error budget = 0.1% ≈ 43 min/month"] },
-              { name: "SLA — the contract", color: "#fbbf24", items: ["99.5% or service credits"] },
+              { name: "SLI: what you measure", color: "#2dd4bf", items: ["% of requests < 300 ms", "% of requests without 5xx"] },
+              { name: "SLO: your target", color: "#60a5fa", items: ["99.9% good over 30 days", "error budget: 0.1%, about 43 min/month"] },
+              { name: "SLA: the contract", color: "#fbbf24", items: ["99.5% or service credits"] },
             ]}
           />
           <CircuitBreakerVisual />
@@ -86,13 +141,13 @@ every client in lock-step
         </div>
       ),
       points: [
-        "An SLO turns \"reliable\" into a number; the error budget (1 − SLO) is how much failure you can spend on releases and experiments.",
-        "Every network call needs a timeout. Retry only idempotent operations and transient errors, with exponential backoff and jitter.",
-        "Retries multiply through layers; cap them with retry budgets, and use circuit breakers to fail fast when a dependency is down.",
-        "Bulkheads isolate resources (separate pools per dependency) so one slow dependency can't exhaust every thread.",
-        "Page on user-facing symptoms (error rate, latency, SLO burn rate), not on causes like CPU.",
+        "An **SLO** (service level objective) turns \"reliable\" into a number. The **error budget** is the failure the target allows, which you can spend on releases and experiments.",
+        "Every network call needs a timeout. Retry only actions that are safe to repeat, and only for temporary errors. Wait longer each time and add some randomness, called jitter.",
+        "Retries multiply through each layer of services. Cap them with retry budgets, and use a **circuit breaker** to fail fast while a dependency is down.",
+        "**Bulkheads** give each dependency its own pool of threads or connections, so one slow dependency can't use them all up.",
+        "Page the on-call person for what users feel, such as errors, slowness or a fast-burning error budget. Don't page for causes like high CPU.",
       ],
-      tip: "Saying \"timeouts, retries with backoff and jitter, circuit breaker, and an SLO with burn-rate alerts\" in one breath shows production experience.",
+      tip: "Saying \"timeouts, retries with backoff and jitter, a circuit breaker, and an SLO with burn-rate alerts\" in one breath shows you've run real systems.",
     },
     {
       id: "d4-shortener",
@@ -105,15 +160,15 @@ every client in lock-step
           <Flow
             color="#fbbf24"
             steps={[
-              { icon: "🔗", label: "POST /links", sub: "Get a unique id, base62-encode it" },
-              { icon: "🗄️", label: "Store code → URL", sub: "Key-value or SQL, replicated" },
-              { icon: "⚡", label: "GET /:code", sub: "Cache first (reads ≫ writes)" },
-              { icon: "↪️", label: "302 redirect", sub: "Log the click asynchronously" },
+              { icon: "🔗", label: "POST /links", sub: "Get a unique id and encode it in base62" },
+              { icon: "🗄️", label: "Store code and URL", sub: "Key-value or SQL, with copies" },
+              { icon: "⚡", label: "GET /:code", sub: "Check the cache first: reads far outnumber writes" },
+              { icon: "↪️", label: "302 redirect", sub: "Log the click in the background" },
             ]}
           />
           <CodeBlock
             lang="text"
-            caption="Base62 = [0-9a-zA-Z]. Length grows with log62 of how many links you'll ever create."
+            caption="Base62 uses 0 to 9, a to z and A to Z. The code length grows slowly with the number of links you'll ever create."
             code={`62^6 ≈ 56.8 billion codes
 62^7 ≈ 3.5 trillion codes
 id 125 → base62 "21"   (2 × 62 + 1)`}
@@ -121,12 +176,12 @@ id 125 → base62 "21"   (2 × 62 + 1)`}
         </div>
       ),
       points: [
-        "Clarify scale first: new links per second, redirects per second (often 100× more), retention, custom aliases, analytics.",
-        "Generate codes from unique ids (a counter with leased ranges or a Snowflake-style id) and base62-encode them; hashing long URLs needs collision handling.",
-        "The redirect path is a read-heavy key lookup: cache hot codes, replicate the store, serve from multiple regions.",
-        "Use 302 (or 307) if every click must reach you for analytics; 301 is cached by browsers, so repeat clicks may skip your servers.",
+        "Ask about scale first: new links per second, redirects per second (often 100 times more), how long links last, custom names and click stats.",
+        "Make codes from unique ids, such as a counter that hands out blocks or a Snowflake-style id, and encode them in **base62**. Hashing the long URL instead means handling collisions.",
+        "The redirect is a read-heavy lookup by key. Cache popular codes, keep copies of the store, and serve from several regions.",
+        "Return 302 (or 307) if every click must reach you for stats. Browsers cache a 301, so repeat clicks may skip your servers.",
       ],
-      tip: "Interviewers often push on \"what if two servers generate the same code?\" Have a concrete id strategy ready.",
+      tip: "Interviewers often ask \"what if two servers make the same code?\" Have a concrete id plan ready.",
     },
     {
       id: "d4-feed-chat",
@@ -140,39 +195,91 @@ id 125 → base62 "21"   (2 × 62 + 1)`}
           <Tiles
             cols={2}
             tiles={[
-              { icon: "🔌", title: "Chat gateways", text: "Hold long-lived WebSocket connections; a registry maps user → gateway so messages can be routed to the right box.", color: "#fbbf24" },
-              { icon: "🧾", title: "Message store", text: "Partitioned by conversation id, ordered by a per-conversation sequence number; clients sync from their last seen sequence.", color: "#a78bfa" },
+              { icon: "🔌", title: "Chat gateways", text: "Hold long-lived WebSocket connections. A registry records which gateway each user is on, so messages go to the right box.", color: "#fbbf24" },
+              { icon: "🧾", title: "Message store", text: "Split by conversation id and ordered by a sequence number per conversation. Clients catch up from the last number they saw.", color: "#a78bfa" },
             ]}
           />
         </div>
       ),
       points: [
-        "Fan-out on write precomputes each follower's timeline (fast reads, expensive celebrity posts); fan-out on read merges at read time (cheap writes, slow reads).",
-        "Hybrid is the usual answer: push for most authors, pull for very high-follower accounts, merge at read time.",
-        "Store timelines as lists of post ids (bounded, e.g. the latest few hundred) and hydrate posts from a separate cache.",
-        "Chat: persistent connections on gateway servers, a connection registry, durable per-conversation ordering, acknowledgements, and push notifications for offline users.",
+        "**Fan-out on write** builds each follower's timeline when a post is made, so reads are fast but celebrity posts are expensive. **Fan-out on read** merges posts when the feed loads, so writes are cheap but reads are slow.",
+        "The usual answer is a mix. Push posts for most authors, pull them for accounts with huge followings, and merge the two when the feed loads.",
+        "Store each timeline as a short list of post ids, such as the latest few hundred, and fill in the posts from a separate cache.",
+        "Chat needs long-lived connections on gateway servers, a registry of who is connected where, ordered storage per conversation, delivery confirmations, and push notifications for people who are offline.",
       ],
-      tip: "At staff level, drive the trade-off explicitly: state the read/write ratio and the follower distribution, then justify hybrid fan-out with numbers.",
+      tip: "At staff level, drive the trade-off yourself. State the read and write ratio and how followers are spread, then justify the mixed fan-out with numbers.",
     },
   ],
 
   questions: [
+    // ───────────── beginner ─────────────
+    {
+      id: "sd-b4-01",
+      domain: "d4",
+      lesson: "d4-start-api",
+      level: "beginner",
+      prompt: "Which HTTP method do you use to read something, such as fetching a user's profile?",
+      options: ["GET", "POST", "DELETE", "STOP"],
+      answer: [0],
+      explanation: "GET asks the server to send something back without changing it. POST creates something new and DELETE removes something. STOP isn't an HTTP method at all.",
+    },
+    {
+      id: "sd-b4-02",
+      domain: "d4",
+      lesson: "d4-start-api",
+      level: "beginner",
+      type: "fill",
+      prompt: "You asked for a user that doesn't exist. Fill the gap with the status code the server sends back.",
+      code: "GET /users/999\n\nHTTP/1.1 {{1}} Not Found",
+      codeLang: "text",
+      blanks: [{ options: ["404", "200", "201", "500"], answer: 0 }],
+      explanation: "404 means \"I couldn't find what you asked for\". 200 means it worked, 201 means something new was created, and 500 means the server itself broke. Codes in the 400s point at a problem with the request.",
+    },
+    {
+      id: "sd-b4-03",
+      domain: "d4",
+      lesson: "d4-start-reliable",
+      level: "beginner",
+      prompt: "What does a timeout do when your app calls another service?",
+      options: [
+        "It sets how long to wait for an answer before giving up",
+        "It makes the other service run faster",
+        "It turns the server off at night",
+        "It saves a copy of every answer",
+      ],
+      answer: [0],
+      explanation: "A timeout is a limit on waiting. If the other service doesn't answer in time, your app stops waiting and can try again or show a friendly error, instead of hanging forever.",
+    },
+    {
+      id: "sd-b4-04",
+      domain: "d4",
+      lesson: "d4-start-reliable",
+      level: "beginner",
+      type: "output",
+      prompt: "A system is working 99% of the time. Type what percentage of the time it is down (number only).",
+      code: "availability = 99   # percent\ndowntime = 100 - availability",
+      codeLang: "python",
+      answers: ["1"],
+      explanation: "100 minus 99 leaves 1% of the time down. That sounds small, but 1% of a month is about 7 hours. That's why serious services aim for 99.9% or better.",
+    },
+
+    // ───────────── junior and up ─────────────
     {
       id: "d4-01",
       domain: "d4",
       lesson: "d4-api",
       level: "junior",
-      prompt: "Which endpoint follows REST conventions for fetching order 42 belonging to user 7?",
+      prompt: "Which endpoint follows REST conventions for fetching order 42, which belongs to user 7?",
       options: ["`GET /users/7/orders/42`", "`POST /getOrder?user=7&order=42`", "`GET /fetchUserOrder/7/42/now`", "`PUT /orders/42/get`"],
       answer: [0],
-      explanation: "REST names resources with nouns in a hierarchy and lets the HTTP method express the action. GET reads; verbs in the path are a smell.",
+      explanation: "REST names resources with nouns in a hierarchy and lets the HTTP method say what to do. GET reads. Verbs inside the path are a warning sign.",
     },
     {
       id: "d4-02",
       domain: "d4",
       lesson: "d4-api",
       level: "junior",
-      prompt: "The API returned this page. How does the client request the next one?",
+      prompt: "The API returned this page. How does the client ask for the next one?",
       code: `{
   "items": [{ "id": 9821, "total": 4200 }],
   "next_cursor": "eyJpZCI6OTgyMX0"
@@ -185,7 +292,7 @@ id 125 → base62 "21"   (2 × 62 + 1)`}
         "Repeat the request; the server remembers the position per client",
       ],
       answer: [0],
-      explanation: "Cursors are opaque tokens: clients pass them back unchanged. The server encodes the last position (here the last id) and can change the encoding later without breaking clients.",
+      explanation: "A cursor is a token the client passes back without changing it. The server packs the last position inside, here the last id, and can change that format later without breaking any client.",
     },
     {
       id: "d4-03",
@@ -200,14 +307,14 @@ id 125 → base62 "21"   (2 × 62 + 1)`}
         "SOAP over SMTP",
       ],
       answer: [0],
-      explanation: "gRPC gives generated typed clients, compact binary encoding, and HTTP/2 multiplexing and streaming. REST/JSON remains the better default for public and browser-facing APIs.",
+      explanation: "gRPC gives you generated typed clients, a compact binary format, and many calls and streams sharing one HTTP/2 connection. REST with JSON is still the better default for public and browser-facing APIs.",
     },
     {
       id: "d4-04",
       domain: "d4",
       lesson: "d4-api",
       level: "intermediate",
-      prompt: "A public API field `user_name` should become `username`. Hundreds of integrations use it. What's the safest plan?",
+      prompt: "A public API field `user_name` should become `username`, and hundreds of integrations use it. What's the safest plan?",
       options: [
         "Add `username`, keep returning `user_name`, announce a deprecation window, and remove the old field only in a new major version",
         "Rename it in place; clients should update",
@@ -215,7 +322,7 @@ id 125 → base62 "21"   (2 × 62 + 1)`}
         "Create /v2 of every endpoint today",
       ],
       answer: [0],
-      explanation: "Additive changes are backward compatible; removals and renames are breaking. Expand, migrate with a deprecation period and usage tracking, then contract in a versioned release.",
+      explanation: "Adding things doesn't break clients, but renaming or removing does. Add the new field, give people time to move while you track who still uses the old one, then remove it in a new version.",
     },
     {
       id: "d4-05",
@@ -227,10 +334,10 @@ id 125 → base62 "21"   (2 × 62 + 1)`}
       pairs: [
         ["201 Created", "A POST created a new resource"],
         ["400 Bad Request", "The request body failed validation"],
-        ["409 Conflict", "The request conflicts with the current state, e.g. a version mismatch"],
+        ["409 Conflict", "The request clashes with the current state, such as a version mismatch"],
         ["503 Service Unavailable", "The server is overloaded or down for maintenance"],
       ],
-      explanation: "2xx means success, 4xx means the client must change something, 5xx means the server failed. 409 is common for optimistic-locking conflicts.",
+      explanation: "The 200s mean success, the 400s mean the client must change something, and the 500s mean the server failed. 409 often shows up when two people edit the same record at once.",
     },
     {
       id: "d4-06",
@@ -238,7 +345,7 @@ id 125 → base62 "21"   (2 × 62 + 1)`}
       lesson: "d4-reliability",
       level: "senior",
       type: "lines",
-      prompt: "During a brief dependency outage, this client policy makes things worse and wastes calls. Tap the two lines to fix.",
+      prompt: "During a short outage of a dependency, this retry policy makes things worse and wastes calls. Tap the two lines to fix.",
       code: `http_client:
   timeout_ms: 2000
   retry:
@@ -249,7 +356,7 @@ id 125 → base62 "21"   (2 × 62 + 1)`}
     retry_on: [502, 503, 504, 400]`,
       codeLang: "yaml",
       answer: [7, 8],
-      explanation: "Without jitter, every client retries at the same instants, producing synchronised waves of load. And 400 is a client error: retrying an invalid request can never succeed. Add full jitter and retry only transient errors.",
+      explanation: "With no jitter, every client retries at the same moments, sending waves of load all at once. And 400 is the client's own mistake, so retrying a bad request can never work. Add jitter and retry only temporary errors.",
     },
     {
       id: "d4-07",
@@ -259,42 +366,42 @@ id 125 → base62 "21"   (2 × 62 + 1)`}
       type: "match",
       prompt: "Match each reliability term to its meaning.",
       pairs: [
-        ["SLI", "A measured indicator, e.g. % of requests served in under 300 ms"],
-        ["SLO", "The internal target for an indicator, e.g. 99.9% over 30 days"],
-        ["SLA", "A contractual promise to customers, with penalties if missed"],
-        ["Error budget", "The amount of unreliability the target allows: 1 − SLO"],
+        ["SLI", "A measured indicator, such as the share of requests served in under 300 ms"],
+        ["SLO", "The internal target for an indicator, such as 99.9% over 30 days"],
+        ["SLA", "A contract with customers, with penalties if it's missed"],
+        ["Error budget", "How much failure the target allows: 100% minus the SLO"],
       ],
-      explanation: "You measure SLIs, aim for SLOs, and sign SLAs (looser than your SLOs). The error budget lets teams balance shipping speed against reliability.",
+      explanation: "You measure SLIs, aim for SLOs, and sign SLAs, which are set looser than your SLOs. The error budget helps teams balance shipping fast against staying reliable.",
     },
     {
       id: "d4-08",
       domain: "d4",
       lesson: "d4-reliability",
       level: "intermediate",
-      prompt: "An availability SLO of 99.9% over a 30-day window allows how much total downtime?",
+      prompt: "An availability SLO of 99.9% over 30 days allows how much total downtime?",
       options: ["About 4.3 minutes", "About 43 minutes", "About 7.2 hours", "About 3.6 days"],
       answer: [1],
-      explanation: "30 days × 24 h × 60 min = 43,200 minutes; 0.1% of that is 43.2 minutes. Each extra nine divides it by 10 (99.99% ≈ 4.3 minutes).",
+      explanation: "30 days times 24 hours times 60 minutes is 43,200 minutes, and 0.1% of that is 43.2 minutes. Each extra nine divides it by 10, so 99.99% allows about 4.3 minutes.",
     },
     {
       id: "d4-09",
       domain: "d4",
       lesson: "d4-reliability",
       level: "senior",
-      prompt: "A request passes through three service layers, and each layer makes up to 3 attempts to call the next. In the worst case, how many calls reach the bottom service for one user request?",
+      prompt: "A request passes through three layers of services, and each layer makes up to 3 attempts to call the next. In the worst case, how many calls reach the bottom service for one user request?",
       options: ["3", "9", "27", "81"],
       answer: [2],
-      explanation: "Attempts multiply: 3 × 3 × 3 = 27. Retry at one layer only (usually the closest to the user or the failing hop), and use retry budgets.",
+      explanation: "The attempts multiply: 3 times 3 times 3 is 27. Retry at one layer only, usually the one closest to the user or to the failing call, and use retry budgets.",
     },
     {
       id: "d4-10",
       domain: "d4",
       lesson: "d4-reliability",
       level: "senior",
-      prompt: "A search request fans out to 100 shards in parallel and waits for all of them. Each shard is slow on 1% of requests, independently. Roughly what share of user requests are slow?",
+      prompt: "A search request goes to 100 shards at once and waits for all of them. Each shard is slow on 1% of requests, independently. Roughly what share of user requests are slow?",
       options: ["1%", "About 10%", "About 63%", "100%"],
       answer: [2],
-      explanation: "P(no shard slow) = 0.99¹⁰⁰ ≈ 0.366, so about 63% of requests hit at least one slow shard. That's why fan-out systems obsess over p99 and use hedged requests or partial results.",
+      explanation: "The chance that no shard is slow is 0.99 to the power of 100, about 0.366. So about 63% of requests hit at least one slow shard. That's why systems like this care so much about p99 and send backup requests or return partial results.",
     },
     {
       id: "d4-11",
@@ -303,13 +410,13 @@ id 125 → base62 "21"   (2 × 62 + 1)`}
       level: "intermediate",
       prompt: "What is a circuit breaker for?",
       options: [
-        "After repeated failures, fail fast without calling the dependency for a while, then probe with a trial call before closing again",
+        "After repeated failures, fail fast without calling the dependency for a while, then try one trial call before closing again",
         "Retry every failed call until it succeeds",
         "Encrypt traffic between services",
         "Cut power to a server that runs too hot",
       ],
       answer: [0],
-      explanation: "Closed → open on too many failures → half-open after a cool-down → closed if the trial succeeds. It stops callers from wasting threads on a dead dependency and gives it room to recover.",
+      explanation: "It starts closed. Too many failures open it. After a cool-down it goes half-open, and one successful trial closes it again. This stops callers wasting threads on a dead dependency and gives it room to recover.",
     },
     {
       id: "d4-12",
@@ -317,7 +424,7 @@ id 125 → base62 "21"   (2 × 62 + 1)`}
       lesson: "d4-reliability",
       level: "senior",
       type: "lines",
-      prompt: "Good practice is to page on user-facing symptoms. Tap the line that will wake on-call even when users are fine.",
+      prompt: "Good practice is to page on what users feel. Tap the line that will wake on-call even when users are fine.",
       code: `slo:
   service: checkout
   objective: 99.9%
@@ -331,27 +438,27 @@ alerts:
     page: true`,
       codeLang: "yaml",
       answer: [7],
-      explanation: "High CPU is a cause, not a symptom: the service may be perfectly healthy at 70%. The burn-rate alert pages when the error budget is being spent fast (14.4× for an hour uses 2% of a 30-day budget). Send CPU to a dashboard or ticket instead.",
+      explanation: "High CPU is a cause, not a symptom. The service may be perfectly healthy at 70%. The burn-rate alert pages when the error budget is draining fast: 14.4 times the normal rate for an hour uses 2% of a 30-day budget. Put CPU on a dashboard or in a ticket instead.",
     },
     {
       id: "d4-13",
       domain: "d4",
       lesson: "d4-reliability",
       level: "senior",
-      prompt: "Checkout synchronously calls four services in sequence, each independently 99.9% available. What is checkout's availability at best?",
+      prompt: "Checkout calls four services one after another, and each is independently 99.9% available. At best, what is checkout's availability?",
       options: ["99.9%", "About 99.6%", "About 99.0%", "About 96%"],
       answer: [1],
-      explanation: "Serial dependencies multiply: 0.999⁴ ≈ 0.996. Every hard dependency on the critical path lowers your ceiling, which is why non-critical calls should be made optional or asynchronous.",
+      explanation: "Dependencies in a chain multiply: 0.999 to the power of 4 is about 0.996. Every hard dependency on the main path lowers your ceiling, so make the non-essential calls optional or move them to the background.",
     },
     {
       id: "d4-14",
       domain: "d4",
       lesson: "d4-shortener",
       level: "intermediate",
-      prompt: "A URL shortener must support up to 100 billion links using base62 codes ([0-9a-zA-Z]). What is the shortest fixed code length that fits?",
+      prompt: "A URL shortener must support up to 100 billion links using base62 codes (0 to 9, a to z, A to Z). What's the shortest fixed code length that fits?",
       options: ["6 characters", "7 characters", "8 characters", "10 characters"],
       answer: [1],
-      explanation: "62⁶ ≈ 56.8 billion, which is too few; 62⁷ ≈ 3.5 trillion is plenty. So 7 characters.",
+      explanation: "62 to the power of 6 is about 56.8 billion, which is too few. 62 to the power of 7 is about 3.5 trillion, which is plenty. So you need 7 characters.",
     },
     {
       id: "d4-15",
@@ -366,7 +473,7 @@ alerts:
         "404, then let the browser search for the URL",
       ],
       answer: [0],
-      explanation: "301 responses are cacheable by default, so a browser may skip your server on repeat clicks. 302 (or 307) keeps clicks flowing through you, at the cost of more traffic.",
+      explanation: "Browsers cache a 301 by default, so repeat clicks may never reach your server. A 302 or 307 keeps every click coming through you, at the cost of more traffic.",
     },
     {
       id: "d4-16",
@@ -374,61 +481,61 @@ alerts:
       lesson: "d4-shortener",
       level: "senior",
       type: "lines",
-      prompt: "Occasionally one customer's short link starts pointing at someone else's URL. Tap the two lines that together cause it.",
+      prompt: "Now and then, one customer's short link starts pointing at someone else's URL. Tap the two lines that together cause it.",
       code: `function shorten(longUrl):
   code = md5(longUrl).hex().substring(0, 7)
   db.upsert(code, longUrl)
   return "https://sho.rt/" + code`,
       codeLang: "text",
       answer: [2, 3],
-      explanation: "Seven hex characters give only 16⁷ ≈ 268 million codes, so with millions of links collisions are expected (birthday paradox). The upsert then silently overwrites the existing link. Use unique ids, or insert with a uniqueness constraint and retry on conflict.",
+      explanation: "Seven hex characters give only about 268 million codes, so with millions of links some will collide. That's the birthday paradox. The upsert then quietly overwrites the existing link. Use unique ids, or insert with a uniqueness rule and retry on a clash.",
     },
     {
       id: "d4-17",
       domain: "d4",
       lesson: "d4-shortener",
       level: "staff",
-      prompt: "The shortener must create 50,000 links per second across three regions without a per-request round trip to a central coordinator. Which two id strategies work? (Choose two.)",
+      prompt: "The shortener must create 50,000 links a second across three regions, without a round trip to a central coordinator for each one. Which two id strategies work? (Choose two.)",
       options: [
-        "Each server leases a block of ids (e.g. a million at a time) from a coordination service and hands them out locally",
-        "Snowflake-style ids: timestamp + machine id + per-machine sequence, generated locally",
+        "Each server reserves a block of ids, such as a million at a time, from a coordination service and hands them out locally",
+        "Snowflake-style ids built from a timestamp, a machine id and a per-machine sequence, generated locally",
         "A single database auto-increment column that every region calls",
         "A random 4-character code without checking for duplicates",
       ],
       answer: [0, 1],
-      explanation: "Both avoid per-request coordination: range leasing needs a coordinator only once per block, and Snowflake needs only unique machine ids. A single sequence is a cross-region bottleneck; 4 random characters collide almost immediately.",
+      explanation: "Both avoid asking a coordinator for every link. Reserving blocks only needs the coordinator once per block, and Snowflake ids only need each machine to have a unique id. A single counter is a bottleneck across regions, and 4 random characters collide almost at once.",
     },
     {
       id: "d4-18",
       domain: "d4",
       lesson: "d4-shortener",
       level: "senior",
-      prompt: "A Snowflake-style 64-bit id uses 41 bits of millisecond timestamp, 10 bits of machine id, and 12 bits of sequence. How many ids can one machine generate per millisecond?",
+      prompt: "A Snowflake-style 64-bit id uses 41 bits for a millisecond timestamp, 10 bits for the machine id and 12 bits for a sequence. How many ids can one machine make per millisecond?",
       options: ["1,024", "4,096", "65,536", "2 billion"],
       answer: [1],
-      explanation: "The sequence has 12 bits: 2¹² = 4,096 ids per millisecond per machine. 10 machine bits allow 1,024 generators; 41 bits of milliseconds last about 69 years.",
+      explanation: "The sequence has 12 bits, and 2 to the power of 12 is 4,096 ids per millisecond per machine. The 10 machine bits allow 1,024 machines, and 41 bits of milliseconds last about 69 years.",
     },
     {
       id: "d4-19",
       domain: "d4",
       lesson: "d4-feed-chat",
       level: "senior",
-      prompt: "A feed uses fan-out on write. An account with 30 million followers posts and the timeline workers fall hours behind. What's the standard fix?",
+      prompt: "A feed uses fan-out on write. An account with 30 million followers posts, and the timeline workers fall hours behind. What's the standard fix?",
       options: [
-        "Hybrid: don't fan out posts from very high-follower accounts; merge them into followers' feeds at read time",
-        "Fan out the celebrity's posts synchronously before acknowledging the post",
+        "A mix: don't fan out posts from very high-follower accounts; merge them into followers' feeds when the feed loads",
+        "Fan out the celebrity's posts synchronously before confirming the post",
         "Switch every user to fan-out on read",
         "Limit accounts to 1 million followers",
       ],
       answer: [0],
-      explanation: "Pushing to 30 M timelines per post is the celebrity problem. Pulling only those few accounts at read time keeps reads cheap for everyone else; going all-pull makes every feed load expensive.",
+      explanation: "Writing into 30 million timelines for each post is the celebrity problem. Pulling only those few accounts at read time keeps feeds cheap for everyone else. Switching everyone to pulling would make every feed load expensive.",
     },
     {
       id: "d4-20",
       domain: "d4",
       lesson: "d4-feed-chat",
       level: "staff",
-      prompt: "A chat system holds 10 million concurrent WebSocket connections, about 100,000 per gateway server. When Ana messages Bo, how does the message reach Bo's connection?",
+      prompt: "A chat system holds 10 million WebSocket connections at once, about 100,000 per gateway server. When Ana messages Bo, how does the message reach Bo's connection?",
       options: [
         "About 100 gateways; a connection registry maps each online user to their gateway, and the chat service routes (or publishes) the message to Bo's gateway",
         "About 1,000 gateways; the message is broadcast to all of them",
@@ -436,7 +543,7 @@ alerts:
         "A single gateway holds all connections, so no routing is needed",
       ],
       answer: [0],
-      explanation: "10 M / 100 k = 100 gateways. Broadcasting to all would multiply traffic by 100; polling adds latency and load. A user → gateway registry (in a fast store), updated on connect and disconnect, enables direct routing.",
+      explanation: "10 million divided by 100,000 is 100 gateways. Broadcasting to all of them would multiply traffic by 100, and polling adds delay and load. A registry of which gateway each user is on, kept in a fast store and updated as people connect and disconnect, lets you route straight there.",
     },
     {
       id: "d4-21",
@@ -444,22 +551,22 @@ alerts:
       lesson: "d4-feed-chat",
       level: "staff",
       type: "order",
-      prompt: "Order the steps of delivering a chat message to an online recipient.",
+      prompt: "Put the steps of delivering a chat message to an online recipient in order.",
       items: [
         "The sender's client sends the message over its WebSocket to a chat gateway",
-        "The chat service persists it with the next per-conversation sequence number",
+        "The chat service saves it with the next sequence number for that conversation",
         "The service looks up which gateway holds the recipient's connection",
         "That gateway pushes the message down the recipient's WebSocket",
-        "The recipient's client acknowledges, and the message is marked delivered",
+        "The recipient's client confirms, and the message is marked delivered",
       ],
-      explanation: "Persist before delivering so nothing is lost if delivery fails; the sequence number gives ordering and lets reconnecting clients sync from their last seen message.",
+      explanation: "Save the message before delivering it, so nothing is lost if delivery fails. The sequence number keeps messages in order and lets a reconnecting client catch up from the last one it saw.",
     },
     {
       id: "d4-22",
       domain: "d4",
       lesson: "d4-feed-chat",
       level: "staff",
-      prompt: "Why do feed systems usually cache each user's timeline as a bounded list of post ids rather than full post objects?",
+      prompt: "Why do feed systems usually cache each user's timeline as a short list of post ids rather than full posts?",
       options: [
         "Ids are tiny, so millions of timelines fit in memory, and edits or deletions update one post record instead of every timeline copy",
         "Post ids sort alphabetically, which is how feeds are ranked",
@@ -467,14 +574,14 @@ alerts:
         "It makes fan-out on write unnecessary",
       ],
       answer: [0],
-      explanation: "Timelines store references (e.g. the latest few hundred ids); a separate post cache hydrates them. That bounds memory and keeps one source of truth for post content.",
+      explanation: "Timelines hold references, such as the latest few hundred ids, and a separate post cache fills in the content. That caps memory use and keeps one source of truth for each post.",
     },
     {
       id: "d4-23",
       domain: "d4",
       lesson: "d4-reliability",
       level: "staff",
-      prompt: "A design review finds checkout calling six services synchronously: payments, inventory, recommendations, analytics, email and loyalty points. What is the highest-leverage change?",
+      prompt: "A design review finds checkout calling six services in a chain: payments, inventory, recommendations, analytics, email and loyalty points. Which change helps the most?",
       options: [
         "Keep only payments and inventory on the critical path; make the rest asynchronous (events) or optional with tight timeouts and fallbacks",
         "Add retries to all six calls",
@@ -482,23 +589,23 @@ alerts:
         "Raise every timeout to 30 seconds",
       ],
       answer: [0],
-      explanation: "Each synchronous dependency multiplies availability and adds latency. Checkout only truly needs payment and stock reservation; emails, analytics and points can follow from an OrderPlaced event, and recommendations can degrade gracefully.",
+      explanation: "Each dependency in the chain lowers availability and adds delay. Checkout only truly needs the payment and the stock reservation. Emails, analytics and points can follow from an OrderPlaced event, and recommendations can simply be left out when they're slow.",
     },
   ],
 
   cards: [
-    { id: "c-d4-rest", domain: "d4", kind: "concept", term: "REST", definition: "Resources as nouns (URLs), actions as HTTP methods, outcomes as status codes; stateless requests." },
-    { id: "c-d4-grpc", domain: "d4", kind: "service", term: "gRPC", definition: "RPC framework using Protocol Buffer contracts over HTTP/2: typed generated clients, compact encoding, streaming." },
-    { id: "c-d4-cursor", domain: "d4", kind: "concept", term: "Cursor pagination", definition: "The server returns an opaque next_cursor; clients pass it back. Stable under inserts and cheap at any depth." },
-    { id: "c-d4-slo", domain: "d4", kind: "concept", term: "SLO", definition: "A target for a service level indicator over a window, e.g. 99.9% of requests succeed over 30 days." },
-    { id: "c-d4-error-budget", domain: "d4", kind: "concept", term: "Error budget", definition: "1 − SLO: the failure you can afford. 99.9% over 30 days ≈ 43 minutes. Spend it on releases; freeze when it's gone." },
-    { id: "c-d4-backoff", domain: "d4", kind: "concept", term: "Exponential backoff with jitter", definition: "Wait base × 2ⁿ (capped) plus randomness between retries, so clients don't retry in synchronised waves." },
-    { id: "c-d4-circuit-breaker", domain: "d4", kind: "service", term: "Circuit breaker", definition: "Closed → open after repeated failures (fail fast) → half-open trial after a cool-down → closed on success." },
-    { id: "c-d4-bulkhead", domain: "d4", kind: "service", term: "Bulkhead", definition: "Separate resource pools per dependency or tenant so one slow dependency can't exhaust everything." },
-    { id: "c-d4-burn-rate", domain: "d4", kind: "concept", term: "Burn-rate alert", definition: "Pages when the error budget is being consumed much faster than sustainable, e.g. 14.4× over 1 hour." },
-    { id: "c-d4-base62", domain: "d4", kind: "service", term: "Base62 encoding", definition: "Encodes an integer id with [0-9a-zA-Z]. 7 characters ≈ 3.5 trillion codes." },
-    { id: "c-d4-snowflake", domain: "d4", kind: "service", term: "Snowflake id", definition: "64-bit id = 41-bit ms timestamp + 10-bit machine + 12-bit sequence: roughly time-ordered, generated without coordination." },
-    { id: "c-d4-fanout", domain: "d4", kind: "concept", term: "Fan-out on write vs read", definition: "Push posts into followers' timelines at write time (fast reads) or merge at read time (cheap writes). Hybrid for celebrities." },
-    { id: "c-d4-websocket", domain: "d4", kind: "service", term: "WebSocket", definition: "A long-lived, full-duplex connection over one TCP connection; the usual transport for chat and live updates." },
+    { id: "c-d4-rest", domain: "d4", kind: "concept", term: "REST", definition: "Resources named as nouns (URLs), actions as HTTP methods, outcomes as status codes. Each request stands on its own." },
+    { id: "c-d4-grpc", domain: "d4", kind: "service", term: "gRPC", definition: "A framework for calling other services using Protocol Buffer contracts over HTTP/2. It gives typed generated clients, a compact format and streaming." },
+    { id: "c-d4-cursor", domain: "d4", kind: "concept", term: "Cursor pagination", definition: "The server returns a next_cursor token and the client sends it back. It stays correct when rows are added and costs the same at any depth." },
+    { id: "c-d4-slo", domain: "d4", kind: "concept", term: "SLO", definition: "A target for a measured indicator over a period, for example 99.9% of requests succeeding over 30 days." },
+    { id: "c-d4-error-budget", domain: "d4", kind: "concept", term: "Error budget", definition: "100% minus the SLO: the failure you can afford. At 99.9% over 30 days it's about 43 minutes. Spend it on releases, and freeze risky changes when it runs out." },
+    { id: "c-d4-backoff", domain: "d4", kind: "concept", term: "Exponential backoff with jitter", definition: "Between retries, wait longer each time (doubling, up to a cap) and add some randomness, so clients don't all retry in the same instant." },
+    { id: "c-d4-circuit-breaker", domain: "d4", kind: "service", term: "Circuit breaker", definition: "Starts closed. Repeated failures open it, so calls fail fast. After a cool-down it lets one trial through, and closes again if that works." },
+    { id: "c-d4-bulkhead", domain: "d4", kind: "service", term: "Bulkhead", definition: "Separate pools of resources for each dependency or customer, so one slow dependency can't use up everything." },
+    { id: "c-d4-burn-rate", domain: "d4", kind: "concept", term: "Burn-rate alert", definition: "Pages when the error budget is being used up much faster than it can last, for example 14.4 times the normal rate over 1 hour." },
+    { id: "c-d4-base62", domain: "d4", kind: "service", term: "Base62 encoding", definition: "Writes a number using 0 to 9, a to z and A to Z. Seven characters give about 3.5 trillion codes." },
+    { id: "c-d4-snowflake", domain: "d4", kind: "service", term: "Snowflake id", definition: "A 64-bit id made of a 41-bit millisecond timestamp, a 10-bit machine id and a 12-bit sequence. Ids are roughly in time order and need no coordination." },
+    { id: "c-d4-fanout", domain: "d4", kind: "concept", term: "Fan-out on write or on read", definition: "Push posts into followers' timelines when they're written (fast reads), or merge them when the feed is read (cheap writes). Mix the two for celebrities." },
+    { id: "c-d4-websocket", domain: "d4", kind: "service", term: "WebSocket", definition: "A long-lived, two-way connection over one TCP connection. It's the usual way to carry chat and live updates." },
   ],
 });

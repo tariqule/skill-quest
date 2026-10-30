@@ -7,7 +7,7 @@ import { Core3D, Mascot, MascotSays, Tilt } from "@/components/fx";
 import { LevelPicker } from "@/components/code/ui";
 import { courseCopy } from "@/engine/copy";
 import { useCourse, useProgress } from "@/engine/course-context";
-import { LEVEL_BY_ID, LEVELS, type LevelChoice } from "@/engine/levels";
+import { effectiveLevel, LEVEL_BY_ID, levelOptions, questionsForLevel, type LevelChoice } from "@/engine/levels";
 import type { QuestionKind } from "@/engine/types";
 import { isCodeTrack } from "@/engine/tracks";
 
@@ -16,9 +16,9 @@ export default function StartPage() {
   const { course, store, href, allLessons } = useCourse();
   const copy = courseCopy(course);
   const progress = useProgress();
-  const levelCounts = Object.fromEntries(
-    LEVELS.map((l) => [l.id, l.id === "all" ? course.questions.length : course.questions.filter((q) => q.level === l.id).length]),
-  ) as Record<LevelChoice, number>;
+  const levelChoices = levelOptions(course);
+  const levelCounts = Object.fromEntries(levelChoices.map((l) => [l.id, questionsForLevel(course, l.id).length])) as Record<LevelChoice, number>;
+  const shownLevel = LEVEL_BY_ID[effectiveLevel(course, progress.level)];
   const GOALS = course.config.dailyGoals;
   const firstLesson = allLessons[0];
   const biggest = course.domains.reduce((a, b) => (b.weight > a.weight ? b : a));
@@ -37,26 +37,28 @@ export default function StartPage() {
 
   const slides: { title: string; body: ReactNode }[] = [
     {
-      title: "Welcome, explorer",
+      title: "Hi! Let's get you started",
       body: (
         <div className="flex flex-col items-center text-center">
           <Core3D size={100} domains={course.domains} icon={course.provider.icon} />
           <div className="mt-2 max-w-lg">
             <MascotSays mood="wow">
-              <b>Hi, I&apos;m Nimbus!</b> {course.kind === "interview" ? (
+              <b>I&apos;m Nimbus, your guide.</b>{" "}
+              {course.kind === "interview" ? (
                 <>
-                  I&apos;ll take you from zero to acing <b>{course.shortTitle}</b> interview questions. We
+                  We&apos;ll get you ready for <b>{course.shortTitle}</b> interview questions,
                 </>
               ) : course.kind === "learning" ? (
                 <>
-                  I&apos;ll take you from zero to confidently using <b>{course.shortTitle}</b>. We
+                  We&apos;ll learn <b>{course.shortTitle}</b> together,
                 </>
               ) : (
                 <>
-                  I&apos;ll guide you from zero to passing the <b>{course.title}</b> exam. We
+                  We&apos;ll get you ready for the <b>{course.title}</b> exam,
                 </>
-              )}{" "} learn each idea with pictures and
-              hands-on labs, then you prove it in games.
+              )}{" "}
+              one small idea at a time. First a picture or a little lab, then a couple of questions, then games. Go at your own speed: you can&apos;t break
+              anything here.
             </MascotSays>
           </div>
         </div>
@@ -118,7 +120,7 @@ export default function StartPage() {
             </div>
           ))}
           <p className="text-sm text-slate-400 sm:col-span-2">
-            You&apos;ll practise every type in this game. Practice-only formats help you learn but never appear in the {copy.simulator}.
+            You&apos;ll practise every type here. A few are just for practice and never show up in the {copy.simulator}.
           </p>
         </div>
       ),
@@ -151,21 +153,25 @@ export default function StartPage() {
             ))}
           </div>
           <p className="mt-3 text-sm text-slate-400">
-            World {biggest.number} is the biggest slice of your score ({biggest.weight}%), so give it the most practice.
+            World {biggest.number} counts the most toward your score ({biggest.weight}%), so it&apos;s worth extra practice.
           </p>
         </div>
       ),
     },
     {
-      title: "How the expedition works",
+      title: "How it works",
       body: (
         <div>
           <div className="grid gap-3 sm:grid-cols-4">
             {[
-              { icon: "📖", t: "Learn", d: "A mission teaches one concept with a picture or a lab you can play with." },
-              { icon: "✅", t: "Check", d: "Quick questions. Missed ones come back until they stick." },
-              { icon: "⚔️", t: "Trial", d: `${course.config.quest.length} questions, ${course.config.quest.hearts} hearts. Pass to unlock the next world.` },
-              { icon: copy.gateIcon, t: copy.gateStep, d: `A full ${copy.simulator}. Score ${course.exam.scale.pass}+ and you're ready.` },
+              { icon: "📖", t: "Learn", d: "Each lesson explains one idea with a picture or a little lab you can play with." },
+              { icon: "✅", t: "Check", d: "A couple of quick questions. Anything you miss comes back later until it sticks." },
+              {
+                icon: "⚔️",
+                t: "Trial",
+                d: `A short test for the whole world: ${course.config.quest.length} questions and ${progress.level === "beginner" ? course.config.quest.beginnerHearts : course.config.quest.hearts} hearts. Pass it to open the next world.`,
+              },
+              { icon: copy.gateIcon, t: copy.gateStep, d: `A full practice ${copy.noun}. Score ${course.exam.scale.pass} or more and you're ready for the real one.` },
             ].map((s, i) => (
               <div key={s.t} className="relative rounded-2xl border border-white/10 bg-slate-900/70 p-4">
                 <div className="text-3xl">{s.icon}</div>
@@ -192,25 +198,26 @@ export default function StartPage() {
         </div>
       ),
     },
-    ...(isCodeTrack(course)
-      ? [
-          {
-            title: "Choose your level",
-            body: (
-              <div>
-                <p className="mb-4 text-slate-300">
-                  {course.kind === "learning" ? "Pick how far you want to go." : "Pick the seniority you’re interviewing for."} Every game, trial, and {copy.simulator} will draw from that level. You can switch anytime
-                  from the track&apos;s home screen.
-                </p>
-                <LevelPicker value={progress.level} onChange={(l) => store.setLevel(l)} counts={levelCounts} />
-                <p className="mt-3 font-mono text-sm" style={{ color: LEVEL_BY_ID[progress.level].color }}>
-                  {LEVEL_BY_ID[progress.level].icon} {LEVEL_BY_ID[progress.level].name}: {LEVEL_BY_ID[progress.level].blurb}
-                </p>
-              </div>
-            ),
-          },
-        ]
-      : []),
+      {
+        title: "How much do you know?",
+        body: (
+          <div>
+            <p className="mb-4 text-slate-300">
+              {isCodeTrack(course)
+                ? course.kind === "learning"
+                  ? "New to this? Pick Beginner and we'll start from zero."
+                  : "Pick the level you're interviewing for, or Beginner if this is all new."
+                : "Never studied this before? Pick Beginner and we'll start with the basics."}{" "}
+              Lessons, practice and the {copy.simulator} follow your choice. You can change it any time from the map.
+            </p>
+            <LevelPicker value={shownLevel.id} onChange={(l) => store.setLevel(l)} counts={levelCounts} options={levelChoices} />
+            <p className="mt-3 text-sm" style={{ color: shownLevel.color }}>
+              {shownLevel.icon} {shownLevel.name}: {shownLevel.blurb}
+            </p>
+          </div>
+        ),
+      },
+
     {
       title: "Pick your pace",
       body: (
@@ -235,8 +242,8 @@ export default function StartPage() {
           <div className="mt-6 flex items-center gap-4 rounded-2xl border border-emerald-400/30 bg-emerald-400/5 p-4">
             <Mascot mood="happy" />
             <div className="text-slate-200">
-              Your first mission: <b className="text-white">&quot;{firstLesson?.title}&quot;</b>. About 3 minutes. Prefer to read through a whole world before
-              any questions? Pick <b className="text-violet-200">Study first</b>.
+              Your first lesson: <b className="text-white">&quot;{firstLesson?.title}&quot;</b>. It takes about 3 minutes. Rather read a whole world before any
+              questions? Pick <b className="text-violet-200">Study first</b>.
             </div>
           </div>
         </div>

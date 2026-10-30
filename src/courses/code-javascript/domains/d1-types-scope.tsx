@@ -1,4 +1,4 @@
-import { CodeBlock, CodeCompare, Tiles } from "@/components/learn/blocks";
+import { CodeBlock, CodeCompare, Flow, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { LoopClosureLab } from "../labs";
 import { EqualityExplorer } from "../visuals";
@@ -13,7 +13,7 @@ export default defineDomain({
     weight: 25,
     emoji: "🧪",
     color: "#facc15",
-    summary: "Primitive types, typeof, coercion, == vs ===, var/let/const, hoisting, the TDZ, lexical scope, and closures.",
+    summary: "The kinds of values JavaScript has, how it quietly converts between them, how == and === differ, where variables live, and how functions remember them.",
   },
 
   tasks: [
@@ -23,6 +23,100 @@ export default defineDomain({
   ],
 
   lessons: [
+    // ── Start here ──
+    {
+      id: "d1-b-first-line",
+      level: "beginner",
+      check: ["js-b1-01", "js-b1-02"],
+      task: "1.1",
+      title: "What JavaScript is and your first line",
+      visual: (
+        <div className="grid gap-4">
+          <Flow
+            color="#facc15"
+            steps={[
+              { icon: "✍️", label: "You write code", sub: "Plain text instructions" },
+              { icon: "⚙️", label: "An engine runs it", sub: "In a browser or in Node.js" },
+              { icon: "🖨️", label: "You see the result", sub: "console.log shows it" },
+            ]}
+          />
+          <CodeBlock lang="js" code={`console.log("Hello!"); // prints Hello!`} />
+        </div>
+      ),
+      points: [
+        "JavaScript is a programming language. It's what makes web pages react when you click, type or scroll.",
+        "Every web browser can run it. Node.js is a program that runs the same language outside the browser, on your computer or a server.",
+        "Think of it like a recipe: you write the steps, and the engine follows them one line at a time, top to bottom.",
+        "`console.log(...)` prints whatever you put in the brackets. It's how you see what your code is doing.",
+      ],
+      tip: "To try it now, open your browser, press F12 to open the developer tools, pick the Console tab, and type `console.log(\"hi\")`.",
+    },
+    {
+      id: "d1-b-values",
+      level: "beginner",
+      check: ["js-b1-03", "js-b1-04"],
+      task: "1.2",
+      title: "Values and the boxes that hold them",
+      visual: (
+        <div className="grid gap-4">
+          <Tiles
+            cols={3}
+            tiles={[
+              { icon: "🔤", title: "string", text: "Text in quotes, like \"Ada\"", color: "#facc15" },
+              { icon: "🔢", title: "number", text: "Any number, like 42 or 3.5", color: "#38bdf8" },
+              { icon: "✅", title: "boolean", text: "Just true or false", color: "#34d399" },
+            ]}
+          />
+          <CodeBlock
+            lang="js"
+            code={`const name = "Ada";   // a box you won't refill
+let score = 0;        // a box you can refill
+score = score + 10;   // now score holds 10`}
+          />
+        </div>
+      ),
+      points: [
+        "A value is a piece of data, like the text `\"Ada\"`, the number `42`, or `true`.",
+        "A variable is a labelled box that holds a value, so you can use it again by name.",
+        "Use `const` for a box you'll never refill, and `let` for one you will. Older code uses `var`, which you'll meet later.",
+        "Each value has a type. `typeof` tells you which one, so `typeof 42` gives `\"number\"`.",
+      ],
+      tip: "Start with `const` every time. Switch to `let` only when you find you need to change the value.",
+    },
+    {
+      id: "d1-b-functions",
+      level: "beginner",
+      check: ["js-b1-05", "js-b1-06"],
+      task: "1.3",
+      title: "Functions: steps you can reuse",
+      visual: (
+        <div className="grid gap-4">
+          <Flow
+            color="#a3e635"
+            steps={[
+              { icon: "📥", label: "Inputs go in", sub: "add(2, 3)" },
+              { icon: "🧑‍🍳", label: "The steps run", sub: "a + b" },
+              { icon: "📤", label: "A result comes out", sub: "return gives back 5" },
+            ]}
+          />
+          <CodeBlock
+            lang="js"
+            code={`function add(a, b) {
+  return a + b;
+}
+console.log(add(2, 3)); // 5`}
+          />
+        </div>
+      ),
+      points: [
+        "A function is a named set of steps you can run whenever you like, like a recipe card you reuse.",
+        "The names in brackets, like `a` and `b`, are parameters. They hold whatever values you pass in when you call it.",
+        "`return` hands a value back to whoever called the function, and stops the function there.",
+        "Variables made inside a function belong to it. Code outside can't see them.",
+      ],
+      tip: "Writing `add` on its own doesn't run anything. You need the brackets, `add(2, 3)`, to actually call it.",
+    },
+    // ── Junior and up ──
     {
       id: "d1-types",
       level: "junior",
@@ -34,47 +128,48 @@ export default defineDomain({
           <Tiles
             cols={4}
             tiles={[
-              { icon: "🔤", title: "string", text: "typeof \"hi\" → \"string\"" },
+              { icon: "🔤", title: "string", text: "typeof \"hi\" gives \"string\"" },
               { icon: "🔢", title: "number", text: "Includes NaN and Infinity" },
-              { icon: "🐘", title: "bigint", text: "10n, arbitrary-size integers" },
-              { icon: "✅", title: "boolean", text: "true / false" },
-              { icon: "🕳️", title: "undefined", text: "Declared but no value" },
-              { icon: "🚫", title: "null", text: "typeof null → \"object\" (a historic bug)" },
-              { icon: "🔑", title: "symbol", text: "Unique keys: Symbol(\"id\")" },
-              { icon: "📦", title: "object", text: "Arrays, functions, dates… everything else" },
+              { icon: "🐘", title: "bigint", text: "Whole numbers of any size, like 10n" },
+              { icon: "✅", title: "boolean", text: "true or false" },
+              { icon: "🕳️", title: "undefined", text: "Declared but given no value" },
+              { icon: "🚫", title: "null", text: "typeof null gives \"object\", an old bug" },
+              { icon: "🔑", title: "symbol", text: "Unique keys, like Symbol(\"id\")" },
+              { icon: "📦", title: "object", text: "Arrays, functions, dates and everything else" },
             ]}
           />
           <CodeBlock
             lang="js"
-            code={`1 + "2"      // "12"  string wins with +
+            code={`1 + "2"      // "12"  with +, a string wins
 "5" - 2      // 3     - * / always convert to number
 true + 1     // 2
 [] + {}      // "[object Object]"
-!!"0"        // true  non-empty string is truthy`}
+!!"0"        // true  a non-empty string is truthy`}
           />
         </div>
       ),
       points: [
-        "There are seven primitive types; everything else (arrays, functions, dates) is an object.",
-        "+ concatenates if either operand becomes a string; -, *, / always convert to numbers.",
-        "Falsy: false, 0, -0, 0n, \"\", null, undefined, NaN. Empty arrays and objects are truthy.",
+        "JavaScript has seven primitive types, the simple building-block values. Everything else, including arrays, functions and dates, is an object.",
+        "If either side of `+` turns into a string, `+` glues them together as text. The `-`, `*` and `/` operators always convert both sides to numbers.",
+        "A falsy value acts like false in an `if`. There are eight: `false`, `0`, `-0`, `0n`, `\"\"`, `null`, `undefined` and `NaN`.",
+        "Everything else is truthy, including an empty array `[]` and an empty object `{}`.",
       ],
-      tip: "When asked \"what does this print?\", say each conversion out loud: \"[] becomes an empty string, so…\"",
+      tip: "When you're asked what a snippet prints, say each conversion out loud: \"`[]` becomes an empty string, so…\". It slows you down in a good way.",
     },
     {
       id: "d1-equality",
       level: "junior",
       check: ["d1-05", "d1-08"],
       task: "1.1",
-      title: "== vs ===: the coercion explorer",
+      title: "== versus ===: the coercion explorer",
       visual: <EqualityExplorer />,
       points: [
-        "=== compares without converting types. == converts first, using rules few people remember.",
-        "null == undefined is true and neither is == to anything else, which is why x == null is a common idiom.",
-        "NaN is not equal to itself. Use Number.isNaN(x) or Object.is(x, NaN).",
-        "Objects (arrays too) are compared by reference with both operators.",
+        "`===` compares two values without changing their types. `==` converts them first, using rules few people remember.",
+        "`null == undefined` is true, and neither is loosely equal to anything else. That's why `x == null` is a common way to check for both.",
+        "`NaN` is the only value that isn't equal to itself. To test for it, use `Number.isNaN(x)` or `Object.is(x, NaN)`.",
+        "Objects, arrays included, are compared by reference: two separate objects are never equal, even with the same contents.",
       ],
-      tip: "Say \"I default to === and allow == null on purpose\": it shows you know both the rule and the exception.",
+      tip: "A good line for interviews: \"I use `===` by default and allow `== null` on purpose.\" It shows you know the rule and the one handy exception.",
     },
     {
       id: "d1-hoisting",
@@ -99,12 +194,13 @@ let b = 1;
         />
       ),
       points: [
-        "Declarations are processed before code runs. var is initialised to undefined; let/const/class are not initialised (the TDZ).",
-        "Function declarations are hoisted with their body; function expressions follow their variable's rules.",
-        "var is function scoped; let and const are block scoped.",
-        "Lookup walks outward: block → function → module → global. Scope is decided by where code is written (lexical).",
+        "Before any code runs, JavaScript registers every declaration in a scope. This is called hoisting.",
+        "A `var` starts out as `undefined`. A `let`, `const` or `class` isn't set up at all until its line runs. That gap is the temporal dead zone.",
+        "Function declarations are hoisted with their whole body, so you can call them early. Function expressions follow the rules of the variable that holds them.",
+        "A `var` belongs to the whole function. A `let` or `const` belongs only to the nearest pair of curly braces, its block.",
+        "To find a name, JavaScript looks in the current block, then the function, then the module, then the global scope. Where the code is written decides this, which is called lexical scope.",
       ],
-      tip: "Use the phrase \"temporal dead zone\" and explain it: the binding exists from the start of the block but can't be touched until its line runs.",
+      tip: "Say \"temporal dead zone\" and then explain it in plain words: the name exists from the top of the block, but you can't touch it until its line has run.",
     },
     {
       id: "d1-closures",
@@ -127,16 +223,73 @@ next(); next();            // 1, 2: count lives on after makeCounter returned`}
         </div>
       ),
       points: [
-        "A closure is a function plus a live reference to the variables of the scope it was created in.",
-        "Closures capture variables, not values: if the variable changes later, the closure sees the change.",
-        "let in a for loop creates a fresh binding per iteration; var shares one binding.",
-        "Anything a long-lived closure references stays in memory. Capture only what you need.",
+        "A closure is a function that keeps access to the variables around it when it was created, even after the outer function has finished.",
+        "It holds the variables themselves, not a snapshot of their values. If a variable changes later, the closure sees the new value.",
+        "In a `for` loop, `let` makes a fresh variable for each pass. `var` makes one variable that every pass shares.",
+        "Anything a long-lived closure can reach stays in memory. Keep only what you need inside it.",
       ],
-      tip: "Closures power once, memoize, debounce, and module privacy. Be ready to write one of those live.",
+      tip: "Closures are what make helpers like `once`, `memoize` and `debounce` work. Be ready to write one of them live.",
     },
   ],
 
   questions: [
+    // ── Beginner ──
+    {
+      id: "js-b1-01", domain: "d1", lesson: "d1-b-first-line", level: "beginner", type: "output",
+      prompt: "Type exactly what this prints.",
+      code: `console.log("Hello, " + "world");`, codeLang: "js",
+      answers: ["Hello, world"],
+      explanation: "`console.log` prints the value you give it. Here `+` joins the two pieces of text into one, so you see `Hello, world` without the quotes.",
+    },
+    {
+      id: "js-b1-02", domain: "d1", lesson: "d1-b-first-line", level: "beginner",
+      prompt: "Where can JavaScript code run?",
+      options: [
+        "In any web browser, and on a computer or server using Node.js",
+        "Only inside Microsoft Word",
+        "Only on phones",
+        "Nowhere until you buy a licence",
+      ],
+      answer: [0],
+      explanation: "Every modern browser has a JavaScript engine built in. Node.js takes that same kind of engine and lets you run JavaScript outside the browser, which is how a lot of servers work.",
+    },
+    {
+      id: "js-b1-03", domain: "d1", lesson: "d1-b-values", level: "beginner", type: "fill",
+      prompt: "Fill the gap so `score` can be changed on the next line.",
+      code: `{{1}} score = 0;
+score = score + 10;`, codeLang: "js",
+      blanks: [{ options: ["let", "const", "fixed", "value"], answer: 0 }],
+      explanation: "`let` makes a variable you're allowed to change later. `const` would throw an error on the second line, because a `const` can't be given a new value. `fixed` and `value` aren't JavaScript keywords.",
+    },
+    {
+      id: "js-b1-04", domain: "d1", lesson: "d1-b-values", level: "beginner", type: "output",
+      prompt: "Type what this prints.",
+      code: `console.log(typeof 42, typeof "42");`, codeLang: "js",
+      answers: ["number string"],
+      explanation: "`42` on its own is a number. Put quotes around it and it becomes text, which JavaScript calls a string. `console.log` prints both answers with a space between them.",
+    },
+    {
+      id: "js-b1-05", domain: "d1", lesson: "d1-b-functions", level: "beginner", type: "output",
+      prompt: "Type what this prints.",
+      code: `function add(a, b) {
+  return a + b;
+}
+console.log(add(2, 3));`, codeLang: "js",
+      answers: ["5"],
+      explanation: "Calling `add(2, 3)` puts 2 into `a` and 3 into `b`. The function returns `a + b`, which is 5, and `console.log` prints it.",
+    },
+    {
+      id: "js-b1-06", domain: "d1", lesson: "d1-b-functions", level: "beginner",
+      prompt: "What does `return` do inside a function?",
+      options: [
+        "It sends a value back to the code that called the function, and stops the function",
+        "It prints the value to the console",
+        "It restarts the function from the top",
+        "It deletes the function",
+      ],
+      answer: [0],
+      explanation: "`return` hands a result back to the caller, so you can store it or use it. It doesn't print anything: you still need `console.log` for that. Any lines after `return` in the same function don't run.",
+    },
     // ── Types and coercion ──
     {
       id: "d1-01", domain: "d1", lesson: "d1-types", level: "junior",
@@ -144,7 +297,7 @@ next(); next();            // 1, 2: count lives on after makeCounter returned`}
       code: `console.log(typeof null, typeof [], typeof function () {});`, codeLang: "js",
       options: ["`object object function`", "`null array function`", "`object array object`", "`null object function`"],
       answer: [0],
-      explanation: "`typeof null` is \"object\" (a bug kept for compatibility), arrays are objects, and functions get their own tag \"function\". Use `Array.isArray` to detect arrays.",
+      explanation: "`typeof null` gives \"object\". That's an old bug kept so existing sites don't break. Arrays are objects, so they also give \"object\", while functions get their own answer, \"function\". To check for an array, use `Array.isArray`.",
     },
     {
       id: "d1-02", domain: "d1", lesson: "d1-types", level: "junior",
@@ -152,7 +305,7 @@ next(); next();            // 1, 2: count lives on after makeCounter returned`}
       code: `console.log(1 + "2" + 3, 1 + 2 + "3");`, codeLang: "js",
       options: ["`123 33`", "`6 6`", "`123 123`", "`33 123`"],
       answer: [0],
-      explanation: "`+` is evaluated left to right. `1 + \"2\"` is \"12\", then \"123\". In the second, `1 + 2` is 3 first, then `3 + \"3\"` is \"33\".",
+      explanation: "`+` works left to right. In the first one, `1 + \"2\"` makes the string \"12\", and adding 3 gives \"123\". In the second, `1 + 2` is the number 3 first, and then `3 + \"3\"` gives \"33\".",
     },
     {
       id: "d1-03", domain: "d1", lesson: "d1-types", level: "intermediate",
@@ -160,14 +313,14 @@ next(); next();            // 1, 2: count lives on after makeCounter returned`}
       code: `console.log("5" - 2, "5" + 2, true + 1);`, codeLang: "js",
       options: ["`3 52 2`", "`3 7 2`", "`NaN 52 true1`", "`3 52 true1`"],
       answer: [0],
-      explanation: "`-` always converts to numbers (5 - 2 = 3). `+` with a string concatenates (\"52\"). `true + 1` has no string, so true becomes 1: 2.",
+      explanation: "`-` always converts to numbers, so `\"5\" - 2` is 3. `+` with a string joins text, so `\"5\" + 2` is \"52\". In `true + 1` there's no string, so `true` becomes 1 and the answer is 2.",
     },
     {
       id: "d1-04", domain: "d1", lesson: "d1-types", level: "junior",
       prompt: "Which of these values are falsy? (Choose three.)",
       options: ["`0`", "`\"\"`", "`null`", "`\"0\"`", "`[]`", "`{}`"],
       answer: [0, 1, 2],
-      explanation: "The falsy values are false, 0, -0, 0n, \"\", null, undefined, and NaN. A non-empty string like \"0\" is truthy, and every object, including empty arrays and objects, is truthy.",
+      explanation: "The falsy values are `false`, `0`, `-0`, `0n`, `\"\"`, `null`, `undefined` and `NaN`. The string \"0\" isn't empty, so it's truthy. Every object is truthy too, even an empty array or an empty object.",
     },
     {
       id: "d1-20", domain: "d1", lesson: "d1-types", level: "intermediate",
@@ -178,7 +331,7 @@ next(); next();            // 1, 2: count lives on after makeCounter returned`}
   return cart.count;
 }`, codeLang: "js",
       answer: [3],
-      explanation: "Input values are always strings, and `+` with a string concatenates: 3 + \"2\" is \"32\". Convert at the boundary: `current + Number(qtyText)`.",
+      explanation: "Values from form inputs are always strings, and `+` with a string joins text, so 3 and \"2\" become \"32\". Convert the input as soon as it arrives: `current + Number(qtyText)`.",
       type: "lines",
     },
     {
@@ -187,7 +340,7 @@ next(); next();            // 1, 2: count lives on after makeCounter returned`}
       code: `console.log(String([1, [2, 3]]), String({}), [] + 1);`, codeLang: "js",
       options: ["`1,2,3 [object Object] 1`", "`1,[2,3] {} 1`", "`[1,[2,3]] [object Object] 1`", "`1,2,3 {} NaN`"],
       answer: [0],
-      explanation: "Arrays convert to strings by joining their elements with commas, recursively, so `[1, [2, 3]]` is \"1,2,3\". Plain objects become \"[object Object]\". `[] + 1` turns `[]` into \"\", so the result is the string \"1\".",
+      explanation: "An array turns into a string by joining its items with commas, and nested arrays get the same treatment, so `[1, [2, 3]]` becomes \"1,2,3\". A plain object becomes \"[object Object]\". In `[] + 1`, the empty array becomes \"\", so the result is the string \"1\".",
     },
     // ── Equality ──
     {
@@ -196,7 +349,7 @@ next(); next();            // 1, 2: count lives on after makeCounter returned`}
       code: `console.log(null == undefined, null === undefined, null == 0);`, codeLang: "js",
       options: ["`true false false`", "`true true false`", "`false false true`", "`true false true`"],
       answer: [0],
-      explanation: "`null` and `undefined` are loosely equal to each other and to nothing else, so `null == 0` is false. With `===` their types differ, so it's false.",
+      explanation: "`null` and `undefined` are loosely equal to each other and to nothing else, so `null == 0` is false. With `===` their types are different, so that one is false too.",
     },
     {
       id: "d1-06", domain: "d1", lesson: "d1-equality", level: "junior", type: "match",
@@ -208,19 +361,19 @@ next(); next();            // 1, 2: count lives on after makeCounter returned`}
         ["`typeof null`", "\"object\""],
         ["`typeof (() => {})`", "\"function\""],
       ],
-      explanation: "typeof returns one of: \"undefined\", \"boolean\", \"number\", \"bigint\", \"string\", \"symbol\", \"function\", \"object\". `null` is the famous exception that reports \"object\".",
+      explanation: "`typeof` always gives one of eight answers: \"undefined\", \"boolean\", \"number\", \"bigint\", \"string\", \"symbol\", \"function\" or \"object\". `null` is the famous odd one out, because it reports \"object\".",
     },
     {
       id: "d1-07", domain: "d1", lesson: "d1-equality", level: "junior",
       prompt: "Why do most style guides prefer `===` over `==`?",
       options: [
-        "It never converts types before comparing, so results are predictable",
-        "It is noticeably faster in every engine",
+        "It never converts types before comparing, so the results are predictable",
+        "It's noticeably faster in every engine",
         "It compares objects by their contents",
         "It treats `NaN` as equal to itself",
       ],
       answer: [0],
-      explanation: "`===` checks type and value without coercion. Speed differences are negligible, objects are still compared by reference, and `NaN === NaN` is still false.",
+      explanation: "`===` checks the type and the value without converting anything, so there are no surprises. The speed difference is too small to matter, objects are still compared by reference, and `NaN === NaN` is still false.",
     },
     {
       id: "d1-08", domain: "d1", lesson: "d1-equality", level: "intermediate",
@@ -228,7 +381,7 @@ next(); next();            // 1, 2: count lives on after makeCounter returned`}
       code: `console.log(NaN === NaN, Object.is(NaN, NaN), [NaN].includes(NaN), [NaN].indexOf(NaN));`, codeLang: "js",
       options: ["`false true true -1`", "`false true false -1`", "`false false true 0`", "`true true true 0`"],
       answer: [0],
-      explanation: "`===` and `indexOf` use strict equality, where NaN never equals itself. `Object.is` and `includes` use SameValue(Zero), which treats NaN as equal to NaN.",
+      explanation: "`===` and `indexOf` use strict equality, and under strict equality `NaN` never equals itself, so `indexOf` can't find it and returns -1. `Object.is` and `includes` use a slightly different rule that does treat `NaN` as equal to `NaN`.",
     },
     {
       id: "d1-09", domain: "d1", lesson: "d1-equality", level: "intermediate",
@@ -236,7 +389,7 @@ next(); next();            // 1, 2: count lives on after makeCounter returned`}
       code: `console.log([] == false, !![]);`, codeLang: "js",
       options: ["`true true`", "`false true`", "`true false`", "`false false`"],
       answer: [0],
-      explanation: "For `==`, false becomes 0 and `[]` becomes \"\" and then 0, so they're loosely equal. But `[]` is an object, so it is truthy: `!![]` is true. A value can be `== false` and still truthy.",
+      explanation: "For `==`, `false` becomes 0, and `[]` becomes \"\" and then 0, so the two are loosely equal. But `[]` is an object, and every object is truthy, so `!![]` is true. A value can be `== false` and still be truthy.",
     },
     {
       id: "d1-24", domain: "d1", lesson: "d1-equality", level: "senior",
@@ -244,7 +397,7 @@ next(); next();            // 1, 2: count lives on after makeCounter returned`}
       code: `console.log(0 === -0, Object.is(0, -0), 1 / -0);`, codeLang: "js",
       options: ["`true false -Infinity`", "`false false -Infinity`", "`true true Infinity`", "`true false NaN`"],
       answer: [0],
-      explanation: "`===` treats +0 and -0 as equal, while `Object.is` tells them apart. Dividing by -0 gives -Infinity, which is one way the sign shows up.",
+      explanation: "`===` treats +0 and -0 as the same, but `Object.is` tells them apart. Dividing by -0 gives `-Infinity`, which is one of the few places the sign actually shows.",
     },
     // ── Scope and hoisting ──
     {
@@ -255,7 +408,7 @@ var a = 1;
 console.log(a);`, codeLang: "js",
       options: ["`undefined` then `1`", "A `ReferenceError`", "`1` then `1`", "`null` then `1`"],
       answer: [0],
-      explanation: "The `var a` declaration is hoisted and initialised to undefined; the assignment stays on line 2. So the first log prints undefined and the second prints 1.",
+      explanation: "The `var a` declaration is hoisted and starts out as `undefined`, but the assignment stays on line 2. So the first log prints `undefined` and the second prints 1.",
     },
     {
       id: "d1-11", domain: "d1", lesson: "d1-hoisting", level: "intermediate",
@@ -267,7 +420,7 @@ console.log(a);`, codeLang: "js",
 }`, codeLang: "js",
       options: ["A `ReferenceError` is thrown", "It prints `1`", "It prints `2`", "It prints `undefined`"],
       answer: [0],
-      explanation: "The inner `let x` is hoisted to the top of the block, so it shadows the outer x for the whole block. Reading it before its declaration runs is a temporal dead zone ReferenceError.",
+      explanation: "The inner `let x` is hoisted to the top of its block, so inside the braces it hides the outer `x` the whole time. Reading it before its own line runs is a temporal dead zone error, which is a `ReferenceError`.",
     },
     {
       id: "d1-12", domain: "d1", lesson: "d1-hoisting", level: "intermediate", type: "lines",
@@ -280,7 +433,7 @@ console.log(a);`, codeLang: "js",
 }
 setup();`, codeLang: "js",
       answer: [3],
-      explanation: "`greet` is a function declaration, hoisted with its body, so line 2 works. `sayBye` is a var holding a function expression: hoisted as undefined, so line 3 throws \"TypeError: sayBye is not a function\".",
+      explanation: "`greet` is a function declaration, hoisted with its body, so line 2 works. `sayBye` is a `var` holding a function expression, so it's hoisted as `undefined`. Calling `undefined` on line 3 throws \"TypeError: sayBye is not a function\".",
     },
     {
       id: "d1-13", domain: "d1", lesson: "d1-hoisting", level: "junior",
@@ -289,13 +442,13 @@ setup();`, codeLang: "js",
 console.log(notDeclared);`, codeLang: "js",
       options: ["Prints \"undefined\", then throws a `ReferenceError`", "Throws a `ReferenceError` on the first line", "Prints \"undefined\" twice", "Prints \"undefined\" then `null`"],
       answer: [0],
-      explanation: "`typeof` is safe on undeclared identifiers and returns \"undefined\". Reading the identifier directly throws a ReferenceError.",
+      explanation: "`typeof` is safe to use on a name that was never declared: it just gives \"undefined\". Reading the name directly is different, and throws a `ReferenceError`.",
     },
     {
       id: "d1-18", domain: "d1", lesson: "d1-hoisting", level: "intermediate", type: "order",
-      prompt: "A function reads a variable `x` it didn't declare. Order the places the engine looks, first to last.",
+      prompt: "A function reads a variable `x` it didn't declare. Put the places the engine looks in order, first to last.",
       items: ["The current block `{ }`", "The enclosing function's scope", "The module (or script) scope", "The global scope"],
-      explanation: "Identifier lookup walks the scope chain outward from where the code is written: block, function, module, then global. If it's not found anywhere, reading it throws a ReferenceError.",
+      explanation: "JavaScript looks outward from where the code is written: the block, then the function, then the module, then the global scope. This path is the scope chain. If the name isn't found anywhere, reading it throws a `ReferenceError`.",
     },
     {
       id: "d1-19", domain: "d1", lesson: "d1-hoisting", level: "intermediate",
@@ -309,7 +462,7 @@ function run() {
 run();`, codeLang: "js",
       options: ["`10`", "`20`", "`undefined`", "A `ReferenceError`"],
       answer: [0],
-      explanation: "JavaScript is lexically scoped: `show` sees the x where it was defined (the outer 10), not the x where it was called from.",
+      explanation: "JavaScript uses lexical scope: a function sees the variables from where it was written, not from where it was called. `show` was written next to the outer `x`, so it prints 10.",
     },
     {
       id: "d1-22", domain: "d1", lesson: "d1-hoisting", level: "senior",
@@ -322,7 +475,7 @@ run();`, codeLang: "js",
 test();`, codeLang: "js",
       options: ["`number`", "`function`", "`undefined`", "A `TypeError`"],
       answer: [0],
-      explanation: "Both declarations are hoisted (the function wins the hoisting), but the assignment `foo = 1` still runs on line 2 and overwrites the function. By line 4 foo is a number.",
+      explanation: "Both declarations are hoisted, and the function wins that step. But the assignment `foo = 1` still runs on line 2 and replaces the function. By line 4, `foo` holds a number.",
     },
     // ── Closures ──
     {
@@ -333,7 +486,7 @@ test();`, codeLang: "js",
 }`, codeLang: "js",
       options: ["`3 3 3`", "`0 1 2`", "`2 2 2`", "`undefined` three times"],
       answer: [0],
-      explanation: "`var` creates one function-scoped i shared by all three callbacks. They run after the loop, when i is 3. With `let`, each iteration gets its own i and you get 0 1 2.",
+      explanation: "`var` makes a single `i` for the whole function, and all three callbacks share it. They run after the loop has finished, when `i` is 3. With `let`, each pass gets its own `i` and you'd see 0 1 2.",
     },
     {
       id: "d1-15", domain: "d1", lesson: "d1-closures", level: "junior",
@@ -348,7 +501,7 @@ a(); a();
 console.log(a(), b());`, codeLang: "js",
       options: ["`3 1`", "`1 1`", "`3 4`", "`2 1`"],
       answer: [0],
-      explanation: "Each call to makeCounter creates a new `count`. `a` has been called twice, so its third call returns 3. `b` has its own count, so its first call returns 1.",
+      explanation: "Every call to `makeCounter` creates a brand-new `count`. `a` has already been called twice, so its third call returns 3. `b` has its own separate `count`, so its first call returns 1.",
     },
     {
       id: "d1-16", domain: "d1", lesson: "d1-closures", level: "intermediate", type: "lines",
@@ -359,7 +512,7 @@ for (var i = 0; i < 3; i++) {
 }
 console.log(fns.map((f) => f()));`, codeLang: "js",
       answer: [2],
-      explanation: "With `var`, all three arrows close over the same i, which is 3 after the loop. Changing line 2 to `let i` gives each iteration its own binding.",
+      explanation: "With `var`, all three arrow functions share the same `i`, which is 3 once the loop ends. Changing line 2 to `let i` gives every pass of the loop its own `i`.",
     },
     {
       id: "d1-17", domain: "d1", lesson: "d1-closures", level: "junior",
@@ -371,7 +524,7 @@ console.log(fns.map((f) => f()));`, codeLang: "js",
         "Any function declared inside a class",
       ],
       answer: [0],
-      explanation: "A closure keeps live references (not copies) to outer variables, so it can read and update them long after the outer function has returned.",
+      explanation: "A closure keeps live links to the outer variables, not copies. That's why it can still read and update them long after the outer function has returned.",
     },
     {
       id: "d1-25", domain: "d1", lesson: "d1-closures", level: "intermediate",
@@ -387,7 +540,7 @@ const init = once((x) => x * 2);
 console.log(init(5), init(10));`, codeLang: "js",
       options: ["`10 10`", "`10 20`", "`10 undefined`", "`undefined 20`"],
       answer: [0],
-      explanation: "The closure remembers `done` and `result`. The first call runs fn(5) and stores 10. Later calls skip fn and return the stored 10.",
+      explanation: "The closure remembers `done` and `result`. The first call runs `fn(5)` and stores 10. Every call after that skips `fn` and hands back the stored 10.",
     },
     {
       id: "d1-21", domain: "d1", lesson: "d1-closures", level: "senior",
@@ -399,7 +552,7 @@ console.log(init(5), init(10));`, codeLang: "js",
         "Arrays captured by closures are held weakly and freed under memory pressure",
       ],
       answer: [0],
-      explanation: "The closure holds a reference to the variable `data`, which keeps the whole array alive. Fix: compute `const n = data.length` outside and capture only `n`, or remove the listener when it's no longer needed.",
+      explanation: "The closure holds on to the variable `data`, and that keeps the whole array in memory. To fix it, work out `const n = data.length` outside the handler and capture only `n`, or remove the listener once you don't need it.",
     },
     // ── Staff ──
     {
@@ -412,19 +565,19 @@ console.log(init(5), init(10));`, codeLang: "js",
         "Wrap every primitive in a class so comparisons can be overridden",
       ],
       answer: [0],
-      explanation: "Automated rules scale and can't be forgotten, and parsing at the boundary removes the mixed types at their source. Checklists drift, and `Object.is` changes NaN/-0 semantics without fixing the string-vs-number problem.",
+      explanation: "A lint rule runs on every change and can't be forgotten. Parsing input as soon as it arrives removes the mixed types at the source. Checklists get skipped, and `Object.is` changes how `NaN` and -0 compare without fixing the string and number mix-up.",
     },
     {
       id: "d1-27", domain: "d1", lesson: "d1-closures", level: "staff",
       prompt: "A single-page app's memory grows on every route change. Heap snapshots show detached DOM nodes retained by closures in `resize` listeners added to `window` by each page. What's the right fix?",
       options: [
-        "Remove the listeners when the page unmounts, e.g. register them with an `AbortController` signal and abort it on cleanup",
+        "Remove the listeners when the page unmounts, for example by registering them with an `AbortController` signal and aborting it on cleanup",
         "Call the garbage collector manually after each navigation",
         "Change the listeners to arrow functions",
         "Store the DOM nodes in global variables so they can be reused",
       ],
       answer: [0],
-      explanation: "`window` outlives every page, so its listeners keep their closures, and everything those closures reference, alive. `addEventListener(type, fn, { signal })` lets one `abort()` remove them all.",
+      explanation: "`window` lives longer than any page, so its listeners keep their closures alive, along with everything those closures point to. With `addEventListener(type, fn, { signal })`, one call to `abort()` removes them all.",
     },
     {
       id: "d1-28", domain: "d1", lesson: "d1-closures", level: "staff",
@@ -436,7 +589,7 @@ console.log(init(5), init(10));`, codeLang: "js",
         "The garbage collector frees the variable between requests. Store it on `globalThis`",
       ],
       answer: [0],
-      explanation: "One process handles many requests concurrently, interleaved at every await. A module-level variable is shared state, so request B can overwrite it while request A is suspended. Request-scoped context must travel with the request.",
+      explanation: "One process handles many requests at once, switching between them at every `await`. A module-level variable is shared by all of them, so request B can overwrite it while request A is paused. Anything that belongs to one request has to travel with that request.",
     },
     {
       id: "d1-29", domain: "d1", lesson: "d1-hoisting", level: "staff",
@@ -448,23 +601,23 @@ console.log(init(5), init(10));`, codeLang: "js",
         "A loop counter only read synchronously inside the loop body",
       ],
       answer: [0, 1],
-      explanation: "`var` is hoisted as undefined and function scoped; `let` has a TDZ and is block scoped. Code relying on either behaviour breaks. Top-of-function declarations and loop counters used synchronously behave the same.",
+      explanation: "A `var` is hoisted as `undefined` and belongs to the whole function. A `let` has a temporal dead zone and belongs only to its block. Code that relied on either `var` behaviour will break. A declaration at the top of a function, or a loop counter used straight away, behaves the same either way.",
     },
   ],
 
   cards: [
-    { id: "c1-typeof", domain: "d1", kind: "service", term: "typeof", definition: "Operator returning a type tag string. Safe on undeclared names. typeof null is \"object\"." },
-    { id: "c1-objectis", domain: "d1", kind: "service", term: "Object.is", definition: "SameValue equality: like === but NaN equals NaN and +0 differs from -0." },
-    { id: "c1-isnan", domain: "d1", kind: "service", term: "Number.isNaN", definition: "True only for the value NaN, without coercing (unlike the global isNaN)." },
-    { id: "c1-let", domain: "d1", kind: "service", term: "let / const", definition: "Block-scoped declarations with a temporal dead zone. const can't be reassigned." },
-    { id: "c1-primitives", domain: "d1", kind: "concept", term: "Primitive types", definition: "string, number, bigint, boolean, undefined, null, symbol. Immutable and compared by value." },
-    { id: "c1-coercion", domain: "d1", kind: "concept", term: "Type coercion", definition: "Automatic conversion between types, e.g. by ==, +, or if (x). Explicit: Number(x), String(x)." },
-    { id: "c1-falsy", domain: "d1", kind: "concept", term: "Falsy values", definition: "false, 0, -0, 0n, \"\", null, undefined, NaN. Everything else is truthy." },
-    { id: "c1-hoisting", domain: "d1", kind: "concept", term: "Hoisting", definition: "Declarations are registered before code runs: var as undefined, functions with their body, let/const uninitialised." },
-    { id: "c1-tdz", domain: "d1", kind: "concept", term: "Temporal dead zone", definition: "From the start of a block until a let/const/class declaration runs, touching the name throws a ReferenceError." },
-    { id: "c1-lexical", domain: "d1", kind: "concept", term: "Lexical scope", definition: "A function sees variables from where it was written, not from where it is called." },
-    { id: "c1-closure", domain: "d1", kind: "concept", term: "Closure", definition: "A function plus live references to the variables of its defining scope." },
-    { id: "c1-toprimitive", domain: "d1", kind: "concept", term: "ToPrimitive", definition: "How objects become primitives for + and ==: valueOf/toString (or Symbol.toPrimitive). Arrays join with commas." },
+    { id: "c1-typeof", domain: "d1", kind: "service", term: "typeof", definition: "An operator that tells you a value's type as a string. It's safe on names that were never declared. `typeof null` gives \"object\"." },
+    { id: "c1-objectis", domain: "d1", kind: "service", term: "Object.is", definition: "Works like `===`, except `NaN` equals `NaN` and +0 is different from -0." },
+    { id: "c1-isnan", domain: "d1", kind: "service", term: "Number.isNaN", definition: "True only for the value `NaN` itself. Unlike the older global `isNaN`, it doesn't convert its argument first." },
+    { id: "c1-let", domain: "d1", kind: "service", term: "let / const", definition: "Declarations that belong to their block and have a temporal dead zone. A `const` can't be given a new value." },
+    { id: "c1-primitives", domain: "d1", kind: "concept", term: "Primitive types", definition: "string, number, bigint, boolean, undefined, null and symbol. They can't be changed in place and are compared by value." },
+    { id: "c1-coercion", domain: "d1", kind: "concept", term: "Type coercion", definition: "JavaScript converting a value to another type for you, for example in `==`, `+` or `if (x)`. You can convert on purpose with `Number(x)` or `String(x)`." },
+    { id: "c1-falsy", domain: "d1", kind: "concept", term: "Falsy values", definition: "`false`, `0`, `-0`, `0n`, `\"\"`, `null`, `undefined` and `NaN`. Every other value is truthy." },
+    { id: "c1-hoisting", domain: "d1", kind: "concept", term: "Hoisting", definition: "Declarations are registered before code runs. A `var` starts as `undefined`, a function comes with its body, and `let` or `const` stay unset until their line." },
+    { id: "c1-tdz", domain: "d1", kind: "concept", term: "Temporal dead zone", definition: "The stretch from the top of a block until a `let`, `const` or `class` line runs. Touching the name in that stretch throws a `ReferenceError`." },
+    { id: "c1-lexical", domain: "d1", kind: "concept", term: "Lexical scope", definition: "A function sees the variables from where it was written, not from where it's called." },
+    { id: "c1-closure", domain: "d1", kind: "concept", term: "Closure", definition: "A function together with live links to the variables of the scope it was created in." },
+    { id: "c1-toprimitive", domain: "d1", kind: "concept", term: "ToPrimitive", definition: "How an object becomes a plain value for `+` and `==`, using `valueOf`, `toString` or `Symbol.toPrimitive`. Arrays join their items with commas." },
   ],
 
   challenges: [
@@ -474,8 +627,8 @@ console.log(init(5), init(10));`, codeLang: "js",
       lesson: "d1-closures",
       title: "Fix the loop",
       goal: "Keep the setTimeout, but make the loop print 0 1 2.",
-      hint: "Which declaration gives every iteration its own i?",
-      takeaway: "let creates a fresh binding per loop iteration, so each callback closes over its own value.",
+      hint: "Which kind of declaration gives every pass of the loop its own i?",
+      takeaway: "let makes a fresh variable for each pass of the loop, so each callback remembers its own value.",
       render: (onSolved) => <LoopClosureLab goal="zero-one-two" onSolved={onSolved} />,
     },
   ],

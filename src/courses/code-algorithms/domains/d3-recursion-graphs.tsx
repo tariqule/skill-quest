@@ -13,7 +13,7 @@ export default defineDomain({
     weight: 25,
     emoji: "🕳️",
     color: "#a78bfa",
-    summary: "Base cases and the call stack, choose/explore/un-choose, BFS shortest paths, DFS, cycle detection, and topological sort.",
+    summary: "Functions that call themselves, trying every option and undoing bad ones, and exploring graphs wide (BFS) or deep (DFS).",
   },
 
   tasks: [
@@ -31,6 +31,53 @@ export default defineDomain({
 
   lessons: [
     {
+      id: "algo-b-dolls",
+      level: "beginner",
+      check: ["algo-b3-01", "algo-b3-02"],
+      task: "3.1",
+      title: "Recursion: dolls inside dolls",
+      visual: (
+        <Flow
+          color="#a78bfa"
+          steps={[
+            { icon: "🪆", label: "Open the doll", sub: "There's a smaller doll inside" },
+            { icon: "🪆", label: "Do the same again", sub: "Same job, smaller doll" },
+            { icon: "🛑", label: "Tiniest doll", sub: "It doesn't open: stop here" },
+          ]}
+        />
+      ),
+      points: [
+        "Picture a set of nesting dolls. To find the tiniest one, you open a doll and do the same thing to the doll inside.",
+        "**Recursion** is when a function solves a problem by calling itself on a smaller version of the same problem.",
+        "It needs a stopping point, called the **base case**: the tiniest doll that doesn't open. Without one, the function calls itself forever and crashes.",
+      ],
+      tip: "For any recursive function, find the base case first. Then check that every call gets closer to it.",
+    },
+    {
+      id: "algo-b-graphs",
+      level: "beginner",
+      check: ["algo-b3-03", "algo-b3-04"],
+      task: "3.2",
+      title: "Graphs: maps of things and links",
+      visual: (
+        <Tiles
+          cols={3}
+          tiles={[
+            { icon: "🔵", title: "Nodes", text: "The things: people, cities, web pages.", color: "#a78bfa" },
+            { icon: "➖", title: "Edges", text: "The links between them: friendships, roads, hyperlinks.", color: "#a78bfa" },
+            { icon: "🌊", title: "Wide or deep", text: "BFS spreads out like ripples. DFS follows one road to the end, then backs up.", color: "#a78bfa" },
+          ]}
+        />
+      ),
+      points: [
+        "A **graph** is a set of things, called **nodes**, joined by links, called **edges**. A subway map is a graph: stations are nodes and tracks are edges.",
+        "**BFS** (breadth-first search) explores in rings, like ripples in a pond: first every neighbour, then their neighbours, and so on.",
+        "**DFS** (depth-first search) follows one path as far as it goes, then backs up and tries the next one, like exploring a maze.",
+        "Both keep a list of places already visited, so they never go round in circles.",
+      ],
+      tip: "When a problem mentions friends, routes, links or a grid you can walk around, it's probably a graph problem.",
+    },
+    {
       id: "algo-recursion",
       level: "junior",
       check: ["algo3-01", "algo3-02"],
@@ -43,20 +90,20 @@ export default defineDomain({
             steps={[
               { icon: "📥", label: "fact(3)", sub: "waits for fact(2)" },
               { icon: "📥", label: "fact(2)", sub: "waits for fact(1)" },
-              { icon: "🛑", label: "fact(1) = 1", sub: "base case: no more calls" },
-              { icon: "📤", label: "2 × 1 = 2", sub: "fact(2) returns" },
-              { icon: "📤", label: "3 × 2 = 6", sub: "fact(3) returns" },
+              { icon: "🛑", label: "fact(1) is 1", sub: "base case: no more calls" },
+              { icon: "📤", label: "2 × 1 is 2", sub: "fact(2) returns" },
+              { icon: "📤", label: "3 × 2 is 6", sub: "fact(3) returns" },
             ]}
           />
           <CodeBlock lang="js" code={js("function fact(n) {", "  if (n <= 1) return 1;        // base case", "  return n * fact(n - 1);      // smaller problem", "}")} />
         </div>
       ),
       points: [
-        "Every recursive function needs a base case and must move toward it on every call.",
-        "Each pending call is a frame on the call stack, so recursion depth counts as space.",
-        "Engines limit stack depth. Very deep recursion throws `RangeError: Maximum call stack size exceeded`; an explicit stack avoids it.",
+        "Every recursive function needs a base case, and every call must move closer to it.",
+        "Each call that's still waiting sits as a frame on the **call stack**, so how deep the recursion goes counts as space.",
+        "Engines limit how deep the stack can grow. Very deep recursion throws `RangeError: Maximum call stack size exceeded`. Using your own stack in a loop avoids that.",
       ],
-      tip: "Define what the function returns in one sentence, then assume it works for smaller inputs. That's the \"leap of faith\".",
+      tip: "Say in one sentence what the function returns, then trust that it works for smaller inputs. People call this the \"leap of faith\".",
     },
     {
       id: "algo-backtracking",
@@ -87,11 +134,12 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "Subsets: 2ⁿ results. Permutations: n! results. The output size alone sets a lower bound on time.",
-        "Push a copy of the path (`[...path]`), never the path itself, or every result ends up as the same array.",
-        "Prune early: reject a partial solution as soon as it breaks a rule (N-Queens, Sudoku, combination sum).",
+        "**Backtracking** tries a choice, explores where it leads, then undoes it and tries the next one.",
+        "There are 2ⁿ subsets and n! permutations. Just writing out that many results sets a floor on the running time.",
+        "Push a copy of the path (`[...path]`), never the path itself. Otherwise every result ends up pointing at the same array.",
+        "**Prune** early: drop a partial answer as soon as it breaks a rule. That's what keeps N-Queens, Sudoku and combination sum fast enough.",
       ],
-      tip: "Draw the decision tree for a tiny input first. Its depth and branching give you the complexity.",
+      tip: "Draw the decision tree for a tiny input first. Its depth and how many branches each step has give you the complexity.",
     },
     {
       id: "algo-bfs",
@@ -101,12 +149,12 @@ export default defineDomain({
       title: "BFS: ripples in a pond",
       visual: <BfsGrid />,
       points: [
-        "BFS explores in order of distance using a queue, so the first time it reaches a node is along a shortest path (fewest edges).",
-        "Mark nodes visited when you enqueue them, not when you dequeue them, or nodes get queued many times.",
-        "O(V + E) time and O(V) space. On a grid, V = rows × cols and each cell has up to 4 edges.",
-        "Multi-source BFS: start with every source in the queue at distance 0 (rotting oranges, nearest exit).",
+        "BFS uses a queue to explore nodes in order of distance. So the first time it reaches a node, it got there by a shortest path, counted in edges.",
+        "Mark a node as visited when you add it to the queue, not when you take it out. Otherwise the same node can be queued many times.",
+        "It takes O(V + E) time and O(V) space, where V is the number of nodes and E the number of edges. On a grid, V is rows × cols, and each cell has up to 4 edges.",
+        "For **multi-source BFS**, put every starting point in the queue at distance 0. That solves problems like rotting oranges or nearest exit.",
       ],
-      tip: "\"Fewest steps\", \"minimum moves\", \"nearest\" in an unweighted setting means BFS.",
+      tip: "\"Fewest steps\", \"minimum moves\" or \"nearest\", when every step costs the same, means BFS.",
     },
     {
       id: "algo-dfs",
@@ -134,24 +182,71 @@ export default defineDomain({
           />
           <Tiles
             tiles={[
-              { icon: "🏝️", title: "Components & islands", text: "Start a DFS from every unvisited node; each start is a new component.", color: "#a78bfa" },
-              { icon: "🔁", title: "Cycle detection", text: "Directed: three states (unvisited, on path, done). An edge to an on-path node is a cycle.", color: "#a78bfa" },
-              { icon: "📋", title: "Topological sort", text: "DFS postorder reversed, or Kahn's algorithm: repeatedly remove nodes with indegree 0.", color: "#a78bfa" },
-              { icon: "⚖️", title: "Weighted paths?", text: "Neither BFS nor DFS. Use Dijkstra's algorithm (non-negative weights, min-heap).", color: "#a78bfa" },
+              { icon: "🏝️", title: "Components & islands", text: "Start a DFS from every node you haven't visited yet. Each new start is a new connected group.", color: "#a78bfa" },
+              { icon: "🔁", title: "Cycle detection", text: "In a directed graph, track three states: unvisited, on the current path, done. An edge back to an on-path node is a cycle.", color: "#a78bfa" },
+              { icon: "📋", title: "Topological sort", text: "Reverse the DFS finishing order, or use Kahn's algorithm: keep removing nodes with no incoming edges.", color: "#a78bfa" },
+              { icon: "⚖️", title: "Weighted paths?", text: "Neither BFS nor DFS. Use Dijkstra's algorithm, which needs non-negative weights and a min-heap.", color: "#a78bfa" },
             ]}
           />
         </div>
       ),
       points: [
-        "DFS uses recursion or an explicit stack; O(V + E) time.",
-        "DFS doesn't find shortest paths; it finds whether a path exists and explores every branch.",
-        "For grids, \"sink\" visited land cells (set them to 0) or keep a visited set.",
+        "DFS uses recursion or your own stack, and takes O(V + E) time.",
+        "DFS doesn't find shortest paths. It tells you whether a path exists, and it explores every branch.",
+        "On grids, either \"sink\" land cells you've visited by setting them to 0, or keep a visited set.",
       ],
-      tip: "Course schedules, build orders, and package installs are topological sort problems. Mention cycle detection: a cycle means no valid order.",
+      tip: "Course schedules, build orders and package installs are all topological sort problems. Mention cycle detection too: a cycle means there's no valid order.",
     },
   ],
 
   questions: [
+    {
+      id: "algo-b3-01",
+      domain: "d3",
+      level: "beginner",
+      lesson: "algo-b-dolls",
+      prompt: "What is the base case in a recursive function?",
+      options: [
+        "The simplest input, where the function stops calling itself and just returns an answer",
+        "The first line of every program",
+        "The biggest input the function can handle",
+        "A variable that stores the result",
+      ],
+      answer: [0],
+      explanation: "The base case is the tiniest doll that doesn't open. When the input gets that small, the function returns straight away instead of calling itself again.",
+    },
+    {
+      id: "algo-b3-02",
+      domain: "d3",
+      level: "beginner",
+      lesson: "algo-b-dolls",
+      type: "output",
+      prompt: "Type what this prints. `countdown` calls itself with a smaller number until it reaches 0.",
+      code: js("function countdown(n) {", "  if (n === 0) return 'Liftoff';", "  return countdown(n - 1);", "}", "console.log(countdown(3));"),
+      codeLang: "js",
+      answers: ["Liftoff"],
+      explanation: "`countdown(3)` calls `countdown(2)`, then 1, then 0. At 0 the base case returns `'Liftoff'`, and each call passes that answer back up.",
+    },
+    {
+      id: "algo-b3-03",
+      domain: "d3",
+      level: "beginner",
+      lesson: "algo-b-graphs",
+      prompt: "In a graph of a social network, what would the edges usually be?",
+      options: ["The friendships between people", "The people themselves", "The profile photos", "The number of users"],
+      answer: [0],
+      explanation: "People are the nodes, and the links between them are the edges. A friendship joins two people, so it's an edge.",
+    },
+    {
+      id: "algo-b3-04",
+      domain: "d3",
+      level: "beginner",
+      lesson: "algo-b-graphs",
+      prompt: "You want the fewest train stops from your station to a friend's station. Which search explores stations closest to you first?",
+      options: ["BFS (breadth-first search)", "DFS (depth-first search)", "Sorting the station names", "Picking a random line"],
+      answer: [0],
+      explanation: "BFS spreads out in rings: first the stations one stop away, then two stops, and so on. The first time it reaches your friend's station, it has used the fewest stops.",
+    },
     {
       id: "algo3-01",
       domain: "d3",
@@ -162,7 +257,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["19", "4096", "6", "10"],
       answer: [0],
-      explanation: "Each call peels off the last digit: 6 + sumDigits(409) = 6 + 9 + sumDigits(40) = 6 + 9 + 0 + 4 = 19.",
+      explanation: "Each call peels off the last digit and adds it to the sum of the rest: 6, then 9, then 0, then 4. They add up to 19.",
     },
     {
       id: "algo3-02",
@@ -174,7 +269,7 @@ export default defineDomain({
       code: js("function factorial(n) {", "  if (n === 1) return 1;", "  return n * factorial(n - 1);", "}", "console.log(factorial(0));"),
       codeLang: "js",
       answer: [2],
-      explanation: "Starting at 0, n goes −1, −2, … and never equals 1. The base case must cover every stopping input: `if (n <= 1) return 1;`.",
+      explanation: "Starting at 0, n goes to −1, then −2, and never equals 1. The base case has to catch every input that should stop: `if (n <= 1) return 1;`.",
     },
     {
       id: "algo3-03",
@@ -186,7 +281,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["`in 2, in 1, out 1, out 2`", "`in 2, out 2, in 1, out 1`", "`in 1, in 2, out 2, out 1`", "`in 2, in 1, out 2, out 1`"],
       answer: [0],
-      explanation: "Code before the recursive call runs on the way down; code after it runs on the way back up, innermost call first.",
+      explanation: "Code before the recursive call runs on the way down. Code after it runs on the way back up, starting with the innermost call.",
     },
     {
       id: "algo3-04",
@@ -202,7 +297,7 @@ export default defineDomain({
         "JavaScript allows unlimited recursion depth",
       ],
       answer: [0, 1],
-      explanation: "Any recursion can be rewritten with an explicit stack, it's rarely faster than a loop, and engines cap stack depth.",
+      explanation: "Any recursion can be rewritten as a loop with your own stack. It's rarely faster than a loop, and engines limit how deep the stack can go.",
     },
     {
       id: "algo3-05",
@@ -231,7 +326,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["8", "6", "3", "7"],
       answer: [0],
-      explanation: "Each number is either taken or skipped: 2 × 2 × 2 = 8 subsets, including the empty one.",
+      explanation: "Each number is either taken or skipped. Three yes-or-no choices give 2 × 2 × 2, which is 8 subsets, including the empty one.",
     },
     {
       id: "algo3-06",
@@ -239,7 +334,7 @@ export default defineDomain({
       level: "intermediate",
       lesson: "algo-backtracking",
       type: "order",
-      prompt: "Order the steps of the backtracking template.",
+      prompt: "Put the steps of the backtracking template in order.",
       items: [
         "If the current path is a complete solution, record a copy and return",
         "Loop over candidate choices, skipping any that break a rule (prune)",
@@ -247,7 +342,7 @@ export default defineDomain({
         "Recurse to explore from there",
         "Undo the choice: remove it from the path",
       ],
-      explanation: "Check, then choose, explore, un-choose. Undoing restores the path so the next candidate starts from the same state.",
+      explanation: "Check, then choose, explore and un-choose. Undoing puts the path back the way it was, so the next candidate starts from the same state.",
     },
     {
       id: "algo3-07",
@@ -276,7 +371,7 @@ export default defineDomain({
       ),
       codeLang: "js",
       answer: [4],
-      explanation: "`out` stores references to the one shared `path` array, which is empty once backtracking finishes. Push a copy: `out.push([...path])`.",
+      explanation: "`out` holds references to one shared `path` array, and that array is empty once backtracking finishes. Push a copy instead: `out.push([...path])`.",
     },
     {
       id: "algo3-08",
@@ -286,7 +381,7 @@ export default defineDomain({
       prompt: "What is the time complexity of generating all permutations of n distinct items?",
       options: ["O(n · n!): there are n! permutations, each of length n", "O(2ⁿ)", "O(n²)", "O(n log n)"],
       answer: [0],
-      explanation: "Writing out n! results of length n already costs n · n!. Subsets, by contrast, are O(n · 2ⁿ).",
+      explanation: "Just writing out n! results, each of length n, already costs n · n!. Subsets, by comparison, cost O(n · 2ⁿ).",
     },
     {
       id: "algo3-09",
@@ -296,7 +391,7 @@ export default defineDomain({
       prompt: "Which algorithm finds the shortest path (fewest edges) in an unweighted graph?",
       options: ["BFS", "DFS", "Dijkstra's with a max-heap", "Binary search"],
       answer: [0],
-      explanation: "BFS reaches nodes in order of distance. With non-negative edge weights you'd use Dijkstra's with a min-heap.",
+      explanation: "BFS reaches nodes in order of distance. If edges have non-negative weights, you'd use Dijkstra's algorithm with a min-heap instead.",
     },
     {
       id: "algo3-10",
@@ -322,7 +417,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["`ABCDE`", "`ABDCE`", "`ACEBD`", "`ABDE`"],
       answer: [0],
-      explanation: "A queues B and C; B queues D; C finds D already seen and queues E. Level by level: A, then B C, then D E. `ABDCE` would be DFS order.",
+      explanation: "A queues B and C. B queues D. C finds D already seen and queues E. So it goes level by level: A, then B and C, then D and E. `ABDCE` would be the DFS order.",
     },
     {
       id: "algo3-11",
@@ -346,7 +441,7 @@ export default defineDomain({
       ),
       codeLang: "js",
       answer: [7],
-      explanation: "Nodes are enqueued but never added to `seen`, so a cycle re-queues them forever (and `seen.size` stays 1). Add `seen.add(next)` before pushing.",
+      explanation: "Nodes get queued but never added to `seen`, so a cycle keeps queuing them forever, and `seen.size` stays at 1. Add `seen.add(next)` before pushing.",
     },
     {
       id: "algo3-12",
@@ -354,14 +449,14 @@ export default defineDomain({
       level: "junior",
       lesson: "algo-bfs",
       type: "order",
-      prompt: "Order the steps of BFS from a start node.",
+      prompt: "Put the steps of BFS from a start node in order.",
       items: [
         "Put the start node in a queue and mark it visited",
         "Dequeue the front node",
         "For each unvisited neighbour, mark it visited and enqueue it",
         "Repeat until the queue is empty",
       ],
-      explanation: "Marking on enqueue guarantees each node enters the queue once, giving O(V + E).",
+      explanation: "Marking a node when you queue it means each node enters the queue only once. That's what keeps BFS at O(V + E).",
     },
     {
       id: "algo3-13",
@@ -371,7 +466,7 @@ export default defineDomain({
       prompt: "Which algorithm gives a valid order to take courses with prerequisites?",
       options: ["Topological sort (DFS postorder or Kahn's algorithm)", "BFS from the first course only", "Binary search over course ids", "Sorting courses by name"],
       answer: [0],
-      explanation: "Prerequisites form a directed graph. A topological order puts every course after its prerequisites, and exists only if there's no cycle.",
+      explanation: "Prerequisites form a directed graph. A topological order puts every course after its prerequisites, and one exists only if there's no cycle.",
     },
     {
       id: "algo3-14",
@@ -399,7 +494,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["3", "2", "4", "6"],
       answer: [0],
-      explanation: "The islands are {(0,0), (0,1), (1,1)}, {(1,3), (2,3)}, and {(2,0)}. Diagonals don't connect, so (2,0) stands alone. Each DFS sinks a whole island.",
+      explanation: "The islands are {(0,0), (0,1), (1,1)}, {(1,3), (2,3)} and {(2,0)}. Diagonals don't count as connected, so (2,0) stands alone. Each DFS sinks one whole island.",
     },
     {
       id: "algo3-15",
@@ -415,7 +510,7 @@ export default defineDomain({
         "Find a minimum spanning tree's total weight in O(1)",
       ],
       answer: [0, 1],
-      explanation: "Weighted shortest paths need Dijkstra (or Bellman-Ford with negative weights); spanning trees need Kruskal or Prim.",
+      explanation: "Shortest paths with weights need Dijkstra's algorithm, or Bellman-Ford if weights can be negative. Spanning trees need Kruskal's or Prim's algorithm.",
     },
     {
       id: "algo3-16",
@@ -423,7 +518,7 @@ export default defineDomain({
       level: "senior",
       lesson: "algo-dfs",
       type: "lines",
-      prompt: "This reports a cycle for the acyclic graph A→B, A→C, B→D, C→D. Tap the buggy line.",
+      prompt: "This reports a cycle for an acyclic graph with edges from A to B, A to C, B to D and C to D. Tap the buggy line.",
       code: js(
         "function hasCycle(graph) {",
         "  const state = {}; // 1 = on current path, 2 = done",
@@ -440,7 +535,7 @@ export default defineDomain({
       ),
       codeLang: "js",
       answer: [8],
-      explanation: "A finished node must be marked done (`state[u] = 2`). Left as \"on path\", D looks like a back edge when C reaches it a second time.",
+      explanation: "A finished node must be marked done with `state[u] = 2`. If it's left as \"on path\", D looks like part of a loop when C reaches it the second time.",
     },
     {
       id: "algo3-17",
@@ -456,7 +551,7 @@ export default defineDomain({
         ["Topological sort", "Order tasks that have dependencies (a DAG)"],
         ["Union-Find", "Check whether two nodes are connected as edges arrive"],
       ],
-      explanation: "Choosing the graph algorithm is most of the battle: unweighted → BFS, weighted → Dijkstra, dependencies → topological sort, dynamic connectivity → Union-Find.",
+      explanation: "Picking the right graph algorithm is most of the work. Unweighted means BFS, weighted means Dijkstra, dependencies mean topological sort, and connections that keep arriving mean Union-Find.",
     },
     {
       id: "algo3-18",
@@ -471,7 +566,7 @@ export default defineDomain({
         "Some nodes have no edges",
       ],
       answer: [0],
-      explanation: "Nodes on a cycle never reach indegree 0, so they're never output. Disconnected nodes and isolated nodes (indegree 0) are output normally.",
+      explanation: "Nodes on a cycle always have an incoming edge left, so they never get output. Disconnected nodes and nodes with no edges have nothing pointing at them, so they're output normally.",
     },
     {
       id: "algo3-19",
@@ -486,7 +581,7 @@ export default defineDomain({
         "An explicit stack uses no memory",
       ],
       answer: [0],
-      explanation: "A path graph or a 1000 × 1000 grid can recurse a million levels deep. A heap-allocated stack has the same O(V) space but no call-stack limit.",
+      explanation: "A long chain of nodes, or a 1,000 × 1,000 grid, can recurse a million levels deep. Your own stack still uses O(V) space, but it lives on the heap and has no call-stack limit.",
     },
     {
       id: "algo3-20",
@@ -496,7 +591,7 @@ export default defineDomain({
       prompt: "In N-Queens, checking column and diagonal conflicts before placing each queen is an example of…",
       options: ["Pruning: abandoning branches that can't lead to a solution", "Memoization", "A greedy choice", "Binary search"],
       answer: [0],
-      explanation: "Rejecting a partial board early skips its whole subtree, which is what makes backtracking practical despite its exponential worst case.",
+      explanation: "Rejecting a bad partial board early skips everything that would grow from it. That's what makes backtracking practical even though its worst case is exponential.",
     },
     {
       id: "algo3-21",
@@ -511,7 +606,7 @@ export default defineDomain({
         "Re-crawl everything daily without tracking visits",
       ],
       answer: [0],
-      explanation: "Hash partitioning gives each worker a disjoint slice of URLs to own. A Bloom filter answers \"seen?\" in a few bits per URL; a false positive just skips a page. DFS still needs a visited set to avoid loops.",
+      explanation: "Splitting URLs by hash gives each worker its own slice to own. A Bloom filter answers \"seen it?\" in a few bits per URL, and a false positive just skips one page. DFS would still need a visited set to avoid loops.",
     },
     {
       id: "algo3-22",
@@ -526,14 +621,14 @@ export default defineDomain({
         "Dijkstra's algorithm from the first task",
       ],
       answer: [0],
-      explanation: "Kahn's algorithm naturally produces \"waves\" of ready tasks for a worker pool, and its leftover nodes pinpoint the cycle to report back to the team.",
+      explanation: "Kahn's algorithm naturally produces waves of ready tasks to hand to a pool of workers. Any tasks left over point straight at the cycle, so you can report it.",
     },
     {
       id: "algo3-23",
       domain: "d3",
       level: "staff",
       lesson: "algo-recursion",
-      prompt: "This flattener passes every test, but crashes with `RangeError: Maximum call stack size exceeded` on one customer's deeply nested document. What's the most robust fix?",
+      prompt: "This flattener passes every test, but crashes with `RangeError: Maximum call stack size exceeded` on one customer's deeply nested document. What's the most dependable fix?",
       code: js(
         "function flatten(obj, prefix = '', out = {}) {",
         "  for (const [k, v] of Object.entries(obj)) {",
@@ -552,7 +647,7 @@ export default defineDomain({
         "Memoize the function",
       ],
       answer: [0],
-      explanation: "Recursion depth equals nesting depth, which the customer controls. An explicit stack moves that state to the heap; a depth limit also protects the service from hostile input. Swallowing the error loses data.",
+      explanation: "The recursion goes as deep as the nesting, and the customer controls the nesting. Your own stack moves that state to the heap, and a depth limit protects the service from hostile input. Swallowing the error just loses data.",
     },
     {
       id: "algo3-24",
@@ -567,24 +662,24 @@ export default defineDomain({
         "Switch to BFS over all assignments",
       ],
       answer: [0],
-      explanation: "The search space grows exponentially, so hardware won't save it, and BFS explores the same space with more memory. Heuristics or a solver built for constraints trade optimality for speed, which matches the requirement.",
+      explanation: "The number of possible rotas grows exponentially, so more hardware won't save it, and BFS searches the same space using more memory. Heuristics or a constraint solver give up perfection for speed, which is exactly what product asked for.",
     },
   ],
 
   cards: [
-    { id: "algo-c-bfs", domain: "d3", kind: "service", term: "BFS", definition: "Explore by distance with a queue; shortest path in unweighted graphs" },
-    { id: "algo-c-dfs", domain: "d3", kind: "service", term: "DFS", definition: "Go deep with recursion or a stack, then backtrack" },
-    { id: "algo-c-dijkstra", domain: "d3", kind: "service", term: "Dijkstra's algorithm", definition: "Shortest paths with non-negative weights, using a min-heap" },
-    { id: "algo-c-topo", domain: "d3", kind: "service", term: "Topological sort", definition: "Order a DAG so every edge points forward" },
-    { id: "algo-c-kahn", domain: "d3", kind: "service", term: "Kahn's algorithm", definition: "Topological sort by repeatedly removing indegree-0 nodes" },
-    { id: "algo-c-flood", domain: "d3", kind: "service", term: "Flood fill", definition: "DFS or BFS that marks a whole connected region" },
-    { id: "algo-c-bloom", domain: "d3", kind: "service", term: "Bloom filter", definition: "Compact \"probably seen\" set: no false negatives, rare false positives" },
-    { id: "algo-c-base", domain: "d3", kind: "concept", term: "Base case", definition: "An input small enough to answer without recursing" },
-    { id: "algo-c-callstack", domain: "d3", kind: "concept", term: "Call stack", definition: "Frames for active calls; its depth is recursion's space cost" },
-    { id: "algo-c-backtrack", domain: "d3", kind: "concept", term: "Backtracking", definition: "Choose, explore, un-choose" },
-    { id: "algo-c-prune", domain: "d3", kind: "concept", term: "Pruning", definition: "Stop exploring a branch that can't succeed" },
-    { id: "algo-c-visited", domain: "d3", kind: "concept", term: "Visited set", definition: "Stops revisits and infinite loops; mark on enqueue in BFS" },
-    { id: "algo-c-multisource", domain: "d3", kind: "concept", term: "Multi-source BFS", definition: "Start the queue with every source at distance 0" },
-    { id: "algo-c-threecolour", domain: "d3", kind: "concept", term: "Three-state DFS", definition: "Unvisited / on path / done; an edge to \"on path\" is a cycle" },
+    { id: "algo-c-bfs", domain: "d3", kind: "service", term: "BFS", definition: "Explores in order of distance using a queue. Finds shortest paths when every edge costs the same." },
+    { id: "algo-c-dfs", domain: "d3", kind: "service", term: "DFS", definition: "Goes as deep as it can with recursion or a stack, then backs up." },
+    { id: "algo-c-dijkstra", domain: "d3", kind: "service", term: "Dijkstra's algorithm", definition: "Finds shortest paths when edges have non-negative weights, using a min-heap." },
+    { id: "algo-c-topo", domain: "d3", kind: "service", term: "Topological sort", definition: "Orders a DAG so that every edge points forward." },
+    { id: "algo-c-kahn", domain: "d3", kind: "service", term: "Kahn's algorithm", definition: "Topological sort by repeatedly removing nodes that have no incoming edges." },
+    { id: "algo-c-flood", domain: "d3", kind: "service", term: "Flood fill", definition: "A DFS or BFS that marks a whole connected region." },
+    { id: "algo-c-bloom", domain: "d3", kind: "service", term: "Bloom filter", definition: "A compact \"probably seen\" set. Never misses something it saw, but now and then says yes wrongly." },
+    { id: "algo-c-base", domain: "d3", kind: "concept", term: "Base case", definition: "An input small enough to answer directly, without recursing." },
+    { id: "algo-c-callstack", domain: "d3", kind: "concept", term: "Call stack", definition: "The stack of calls still running. Its depth is the space cost of recursion." },
+    { id: "algo-c-backtrack", domain: "d3", kind: "concept", term: "Backtracking", definition: "Choose an option, explore where it leads, then undo it and try the next." },
+    { id: "algo-c-prune", domain: "d3", kind: "concept", term: "Pruning", definition: "Stopping early on a branch that can't lead to a solution." },
+    { id: "algo-c-visited", domain: "d3", kind: "concept", term: "Visited set", definition: "Stops repeat visits and endless loops. In BFS, mark a node when you queue it." },
+    { id: "algo-c-multisource", domain: "d3", kind: "concept", term: "Multi-source BFS", definition: "Start the queue with every source at distance 0." },
+    { id: "algo-c-threecolour", domain: "d3", kind: "concept", term: "Three-state DFS", definition: "Each node is unvisited, on the current path, or done. An edge to an on-path node means a cycle." },
   ],
 });

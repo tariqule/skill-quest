@@ -1,4 +1,4 @@
-import { Flow, Layers, Tiles } from "@/components/learn/blocks";
+import { Flow, Layers, Ladder, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { ElasticityLab, PillarWheel } from "../visuals";
 
@@ -16,7 +16,7 @@ export default defineDomain({
     weight: 24,
     emoji: "🌤️",
     color: "#38bdf8",
-    summary: "Why the cloud: its benefits, the Well-Architected Framework, the Cloud Adoption Framework, migration strategies, and cloud economics.",
+    summary: "What the cloud is and why companies move to it. You'll learn its benefits, how AWS judges a good design, how a company plans the move, and how cloud costs work.",
   },
 
   tasks: [
@@ -61,6 +61,76 @@ export default defineDomain({
 
   lessons: [
     {
+      id: "d1-start-what-is-cloud",
+      level: "beginner",
+      check: ["clf-b1-01", "clf-b1-02"],
+      task: "1.1",
+      title: "What \"the cloud\" actually means",
+      visual: (
+        <Flow
+          steps={[
+            { icon: "💻", label: "You", sub: "Open a browser or an app" },
+            { icon: "🌐", label: "The internet", sub: "Carries your request" },
+            { icon: "🏢", label: "AWS data center", sub: "Real computers that AWS owns and runs" },
+            { icon: "✅", label: "Your result", sub: "A website, a file, an answer" },
+          ]}
+        />
+      ),
+      points: [
+        "The **cloud** is computers in someone else's building that you rent over the internet. You use them, but you don't buy, power or fix them.",
+        "Think of electricity. You don't run a generator at home. You plug into the grid and pay for what you use. The cloud works the same way for computing.",
+        "**AWS** (Amazon Web Services) is a cloud provider. It rents out servers, storage, databases and hundreds of other building blocks.",
+        "A **server** is just a computer that does work for other computers, like showing a web page or storing files.",
+      ],
+      tip: "When a question says \"without buying hardware\" or \"without running a data center\", it's pointing at the basic idea of the cloud.",
+    },
+    {
+      id: "d1-start-pay-as-you-go",
+      level: "beginner",
+      check: ["clf-b1-03", "clf-b1-04"],
+      task: "1.4",
+      title: "Renting instead of buying",
+      visual: (
+        <Tiles
+          cols={2}
+          tiles={[
+            { icon: "🏢", title: "Your own servers", text: "You pay a lot up front, before you know how much you'll need.", color: "#fb7185" },
+            { icon: "☁️", title: "Cloud servers", text: "You pay a small amount for each hour you use, and stop when you're done.", color: "#34d399" },
+          ]}
+        />
+      ),
+      points: [
+        "Buying servers is like buying a car: a big payment up front, and you pay for it whether you drive or not.",
+        "The cloud is more like a taxi. You pay for each trip, and when you stop riding, you stop paying.",
+        "AWS calls this **pay-as-you-go** pricing. You're billed for what you actually use, by the second, hour, gigabyte or request.",
+        "Because you can add or remove servers in minutes, you no longer have to guess years ahead how many you'll need.",
+      ],
+      tip: "If a question mentions paying only for what you use, or avoiding a large up-front purchase, the answer is about pay-as-you-go pricing.",
+    },
+    {
+      id: "d1-start-where-cloud-lives",
+      level: "beginner",
+      check: ["clf-b1-05", "clf-b1-06"],
+      task: "1.1",
+      title: "Where the cloud lives: Regions and Availability Zones",
+      visual: (
+        <Ladder
+          rungs={[
+            { icon: "🗺️", name: "Region", text: "A part of the world, such as Ireland or Tokyo, where AWS has data centers." },
+            { icon: "🏘️", name: "Availability Zone", text: "One or more separate data centers inside a Region, with their own power and network." },
+            { icon: "🖥️", name: "Your resources", text: "The servers and storage you create, placed in a zone you pick." },
+          ]}
+        />
+      ),
+      points: [
+        "AWS has data centers all over the world. A **Region** is a geographic area, like Frankfurt or Sydney, where AWS groups them.",
+        "Each Region has several **Availability Zones** (AZs). An AZ is one or more data centers with its own power, cooling and network.",
+        "It's like a chain store with several branches in one city. If one branch floods, the others stay open.",
+        "Putting your app in two or more AZs means it keeps running when one of them has a problem.",
+      ],
+      tip: "Pick a Region close to your users for speed. Use more than one Availability Zone so one failure doesn't take you offline.",
+    },
+    {
       id: "d1-benefits",
       check: ["d1-01", "d1-02"],
       task: "1.1",
@@ -72,7 +142,7 @@ export default defineDomain({
             cols={3}
             tiles={[
               { icon: "💸", title: "Variable expense", text: "Pay for what you use instead of buying servers up front.", color: "#38bdf8" },
-              { icon: "🏭", title: "Economies of scale", text: "AWS's huge aggregate usage means lower pay-as-you-go prices.", color: "#38bdf8" },
+              { icon: "🏭", title: "Economies of scale", text: "AWS buys and runs hardware for millions of customers, so prices are lower.", color: "#38bdf8" },
               { icon: "🔮", title: "Stop guessing capacity", text: "Scale up or down in minutes instead of planning years ahead.", color: "#38bdf8" },
               { icon: "🏎️", title: "Speed and agility", text: "New resources in minutes, so experiments are cheap and fast.", color: "#38bdf8" },
               { icon: "🏗️", title: "No data centers to run", text: "Spend on your customers, not on racking and powering servers.", color: "#38bdf8" },
@@ -82,12 +152,12 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "Elasticity: acquire resources when you need them and release them when you don't, automatically.",
-        "High availability: keep running when parts fail, by spreading across multiple Availability Zones.",
-        "Agility: the time and cost to try something new drops from weeks to minutes.",
-        "Global infrastructure means speed of deployment and global reach, with low latency for users worldwide.",
+        "**Elasticity** means you add capacity when you need it and give it back when you don't, automatically. A shop that's busy at Christmas gets extra servers just for December.",
+        "**High availability** means your app keeps running when a part fails. You get it by spreading the app across more than one Availability Zone.",
+        "**Agility** means trying something new is quick and cheap. A test environment takes minutes to build, not weeks, and you can delete it the same day.",
+        "Because AWS has Regions around the world, you can launch close to users on another continent in minutes. That's what AWS means by **global reach**.",
       ],
-      tip: "\"Traffic varies a lot\" or \"seasonal peaks\" → elasticity (Auto Scaling). \"Try ideas quickly and cheaply\" → agility.",
+      tip: "If traffic goes up and down a lot, or has seasonal peaks, the answer is usually elasticity (with Auto Scaling). If the team wants to try ideas quickly and cheaply, it's agility.",
     },
     {
       id: "d1-wellarchitected",
@@ -96,12 +166,12 @@ export default defineDomain({
       title: "The six Well-Architected pillars",
       visual: <PillarWheel />,
       points: [
-        "Six pillars: operational excellence, security, reliability, performance efficiency, cost optimization, and sustainability.",
-        "Reliability is about recovering from failure and meeting demand; performance efficiency is about using the right resources efficiently.",
-        "Cost optimization avoids unneeded cost; sustainability reduces environmental impact (for example, by maximizing utilization).",
-        "The AWS Well-Architected Tool reviews your workloads against the framework's best practices, at no extra charge.",
+        "The **Well-Architected Framework** is AWS's checklist for a good cloud design. It has six pillars: operational excellence, security, reliability, performance efficiency, cost optimization and sustainability.",
+        "**Reliability** is about recovering from failure and keeping up with demand. **Performance efficiency** is about picking the right type and size of resource and using it well.",
+        "**Cost optimization** means not paying for things you don't need. **Sustainability** means lowering environmental impact, for example by keeping servers busy instead of idle.",
+        "The **AWS Well-Architected Tool** walks you through questions about your workload and flags risks against the framework. It costs nothing extra.",
       ],
-      tip: "Watch for the keyword: \"recover\" → reliability, \"right resource type and size\" → performance efficiency, \"environmental impact\" → sustainability.",
+      tip: "Look for the keyword. \"Recover\" points to reliability. \"Right resource type and size\" points to performance efficiency. \"Environmental impact\" points to sustainability.",
     },
     {
       id: "d1-caf",
@@ -119,20 +189,20 @@ export default defineDomain({
           <Tiles
             cols={4}
             tiles={[
-              { icon: "🛡️", title: "Reduced business risk", text: "Better reliability, performance, and security.", color: "#34d399" },
-              { icon: "🌱", title: "Improved ESG", text: "Environmental, social, and governance performance.", color: "#34d399" },
-              { icon: "📈", title: "Increased revenue", text: "New products and customers, faster.", color: "#34d399" },
-              { icon: "⚙️", title: "Operational efficiency", text: "Lower costs, higher productivity.", color: "#34d399" },
+              { icon: "🛡️", title: "Reduced business risk", text: "Systems that are more reliable, faster and safer.", color: "#34d399" },
+              { icon: "🌱", title: "Improved ESG", text: "Better environmental, social and governance results.", color: "#34d399" },
+              { icon: "📈", title: "Increased revenue", text: "New products reach new customers sooner.", color: "#34d399" },
+              { icon: "⚙️", title: "Operational efficiency", text: "Lower running costs and more done per person.", color: "#34d399" },
             ]}
           />
         </div>
       ),
       points: [
-        "AWS CAF organizes AWS's experience and best practices into six perspectives to help you plan and speed up cloud adoption.",
-        "Business, People, and Governance are business capabilities. Platform, Security, and Operations are technical capabilities.",
-        "People covers culture, organizational change, and skills. Governance covers orchestrating initiatives, managing risk, and cloud finances.",
+        "The **AWS Cloud Adoption Framework** (AWS CAF) is AWS's advice on how a whole organization moves to the cloud. It groups that advice into six perspectives.",
+        "Three perspectives are about the business: Business, People and Governance. Three are technical: Platform, Security and Operations.",
+        "**People** covers culture, team changes and skills. **Governance** covers steering the program, managing risk and keeping cloud spending under control.",
       ],
-      tip: "\"Training staff and changing culture\" → People perspective. \"Hybrid cloud platform and architecture\" → Platform perspective.",
+      tip: "If the problem is training staff or changing how teams work, think People. If it's designing the cloud platform and architecture, think Platform.",
     },
     {
       id: "d1-migration",
@@ -144,11 +214,11 @@ export default defineDomain({
           <Tiles
             cols={4}
             tiles={[
-              { icon: "🚚", title: "Rehost", text: "Lift and shift to EC2 with no changes.", color: "#f59e0b" },
+              { icon: "🚚", title: "Rehost", text: "Lift and shift: move servers to EC2 exactly as they are.", color: "#f59e0b" },
               { icon: "🏷️", title: "Relocate", text: "Move a whole platform, such as VMware, without new hardware or app changes.", color: "#f59e0b" },
               { icon: "🔧", title: "Replatform", text: "Lift, tinker, and shift: for example, a database moves to Amazon RDS.", color: "#f59e0b" },
-              { icon: "🛒", title: "Repurchase", text: "Drop and shop: switch to a SaaS product.", color: "#f59e0b" },
-              { icon: "🧬", title: "Refactor", text: "Re-architect with cloud-native features, such as serverless.", color: "#f59e0b" },
+              { icon: "🛒", title: "Repurchase", text: "Drop and shop: switch to a ready-made SaaS product.", color: "#f59e0b" },
+              { icon: "🧬", title: "Refactor", text: "Rebuild the app to use cloud features, such as serverless.", color: "#f59e0b" },
               { icon: "🗑️", title: "Retire", text: "Switch off what nobody needs.", color: "#f59e0b" },
               { icon: "⏸️", title: "Retain", text: "Keep it where it is, for now.", color: "#f59e0b" },
             ]}
@@ -156,20 +226,20 @@ export default defineDomain({
           <Flow
             color="#f59e0b"
             steps={[
-              { icon: "🔍", label: "Assess", sub: "Business case and readiness (Migration Evaluator, Application Discovery Service)" },
-              { icon: "🧭", label: "Mobilize", sub: "Plan, close gaps, build the landing zone" },
-              { icon: "🚀", label: "Migrate and modernize", sub: "Application Migration Service, AWS DMS, tracked in Migration Hub" },
+              { icon: "🔍", label: "Assess", sub: "Make the business case and check you're ready (Migration Evaluator, Application Discovery Service)" },
+              { icon: "🧭", label: "Mobilize", sub: "Make a plan, fix the gaps, and set up your first AWS accounts" },
+              { icon: "🚀", label: "Migrate and modernize", sub: "Move the workloads with Application Migration Service and AWS DMS, and track them in Migration Hub" },
             ]}
           />
         </div>
       ),
       points: [
-        "AWS DMS migrates databases with minimal downtime: the source stays live while changes replicate to the target.",
-        "AWS Schema Conversion Tool (AWS SCT) converts a schema between database engines, for example Oracle to Amazon Aurora PostgreSQL.",
-        "Application Discovery Service collects data about on-premises servers. Migration Evaluator builds a data-driven business case.",
-        "AWS Application Migration Service rehosts servers on AWS. AWS Migration Hub tracks progress in one place.",
+        "**AWS Database Migration Service** (AWS DMS) moves a database with very little downtime. Your old database keeps working while every change is copied across to the new one.",
+        "A database **schema** is its layout of tables and columns. The **AWS Schema Conversion Tool** (AWS SCT) rewrites it for a different engine, for example Oracle to Amazon Aurora PostgreSQL.",
+        "**Application Discovery Service** gathers facts about the servers you run today. **Migration Evaluator** turns facts like these into a business case with projected AWS costs.",
+        "**AWS Application Migration Service** copies your servers onto AWS as they are. **AWS Migration Hub** shows the progress of the whole migration in one place.",
       ],
-      tip: "\"No code changes\" → rehost. \"Move to a managed service but keep the app\" → replatform. \"Rebuild as microservices\" → refactor.",
+      tip: "If nothing in the app changes, it's rehost. If you move to a managed service but keep the app, it's replatform. If you rebuild it as microservices, it's refactor.",
     },
     {
       id: "d1-economics",
@@ -182,7 +252,7 @@ export default defineDomain({
             <div className="rounded-xl border border-rose-400/30 bg-rose-400/5 p-3">
               <div className="font-bold text-rose-200">🏢 On-premises: fixed costs (CapEx)</div>
               <ul className="mt-2 grid gap-1 text-sm text-slate-300">
-                <li>• Servers and storage bought for peak, years ahead</li>
+                <li>• Servers and storage bought years ahead, sized for the busiest day</li>
                 <li>• Data center space, power, and cooling</li>
                 <li>• Staff to rack, patch, and replace hardware</li>
                 <li>• Hardware refreshes every few years</li>
@@ -192,33 +262,113 @@ export default defineDomain({
               <div className="font-bold text-emerald-200">☁️ AWS: variable costs (OpEx)</div>
               <ul className="mt-2 grid gap-1 text-sm text-slate-300">
                 <li>• Pay as you go, per second, hour, GB, or request</li>
-                <li>• Scale down and stop paying</li>
-                <li>• Benefit from AWS economies of scale</li>
-                <li>• Automate to cut manual work and errors</li>
+                <li>• Scale down and you stop paying for it</li>
+                <li>• Lower prices from the huge scale of AWS</li>
+                <li>• Automation cuts manual work and mistakes</li>
               </ul>
             </div>
           </div>
           <Tiles
             cols={3}
             tiles={[
-              { icon: "📏", title: "Rightsizing", text: "Match instance type and size to real usage. AWS Compute Optimizer recommends sizes.", color: "#34d399" },
-              { icon: "🪪", title: "BYOL vs license included", text: "Bring licenses you already own, or pay for the license in the hourly price.", color: "#34d399" },
-              { icon: "🤖", title: "Automation", text: "IaC and schedules: repeatable deployments, idle resources stopped automatically.", color: "#34d399" },
+              { icon: "📏", title: "Rightsizing", text: "Pick a server size that matches what you really use. AWS Compute Optimizer suggests one.", color: "#34d399" },
+              { icon: "🪪", title: "BYOL or license included", text: "Bring software licenses you already own, or pay for the license inside the hourly price.", color: "#34d399" },
+              { icon: "🤖", title: "Automation", text: "Infrastructure as code builds the same setup every time, and schedules switch off idle servers.", color: "#34d399" },
             ]}
           />
         </div>
       ),
       points: [
-        "The cloud swaps fixed, up-front capital expense for variable, pay-as-you-go operating expense.",
-        "Total cost of ownership on premises includes hardware, facilities, power, cooling, and the people who run them.",
-        "BYOL can lower cost when you already own licenses; license-included pricing bundles the license into the price.",
-        "Rightsizing is a continuous process: measure, then resize under-used resources.",
+        "Buying servers is a **capital expense** (CapEx): a big, fixed payment up front. The cloud turns that into an **operating expense** (OpEx) that goes up and down with use.",
+        "**Total cost of ownership** (TCO) is everything it costs to run your own servers: the hardware, the building, power, cooling, and the people who look after it all.",
+        "With **bring your own license** (BYOL), you reuse software licenses you already own, which can save money. With license-included pricing, the license is part of the hourly price.",
+        "**Rightsizing** means shrinking servers that are bigger than they need to be. You keep doing it: measure usage, then resize what's under-used.",
       ],
-      tip: "\"Already owns licenses\" → BYOL (Dedicated Hosts for per-core or per-socket licenses). \"CPU always at 5%\" → rightsize.",
+      tip: "If the company already owns licenses, think BYOL (Dedicated Hosts when licenses are counted per core or per socket). If CPU sits at 5% all month, think rightsizing.",
     },
   ],
 
   questions: [
+    {
+      id: "clf-b1-01",
+      domain: "d1",
+      lesson: "d1-start-what-is-cloud",
+      level: "beginner",
+      prompt: "In everyday terms, what is \"the cloud\"?",
+      options: [
+        "Computers in someone else's data center that you rent over the internet",
+        "A type of weather satellite that stores files",
+        "Software that only runs on your own laptop",
+        "A cable that connects two offices",
+      ],
+      answer: [0],
+      explanation: "The cloud is computing power you rent from a provider like AWS. The computers are real, but they sit in the provider's data centers, and you reach them over the internet.",
+    },
+    {
+      id: "clf-b1-02",
+      domain: "d1",
+      lesson: "d1-start-what-is-cloud",
+      level: "beginner",
+      prompt: "What is AWS?",
+      options: ["A cloud provider that rents out computing services", "A brand of laptop", "A programming language", "A web browser"],
+      answer: [0],
+      explanation: "AWS stands for Amazon Web Services. It's a cloud provider: it rents out servers, storage, databases and many other services that you use over the internet.",
+    },
+    {
+      id: "clf-b1-03",
+      domain: "d1",
+      lesson: "d1-start-pay-as-you-go",
+      level: "beginner",
+      prompt: "A small company runs a test server on AWS for three hours, then deletes it. With pay-as-you-go pricing, what does it pay for?",
+      options: ["Only the time the server was running", "A full year of server time", "The cost of buying the physical server", "Nothing, because AWS is always free"],
+      answer: [0],
+      explanation: "Pay-as-you-go means you're billed for what you actually use. Once the server is deleted, the charges stop, a bit like paying a taxi fare only for the trip you took.",
+    },
+    {
+      id: "clf-b1-04",
+      domain: "d1",
+      lesson: "d1-start-pay-as-you-go",
+      level: "beginner",
+      prompt: "Why don't cloud customers need to guess years ahead how many servers they'll need?",
+      options: [
+        "They can add or remove servers in minutes as their needs change",
+        "AWS guesses for them and sends a fixed bill",
+        "They must buy the biggest servers to be safe",
+        "Cloud servers never get busy",
+      ],
+      answer: [0],
+      explanation: "In the cloud you can add servers when you get busy and remove them when things calm down. You change your mind as often as you like, instead of buying for the future up front.",
+    },
+    {
+      id: "clf-b1-05",
+      domain: "d1",
+      lesson: "d1-start-where-cloud-lives",
+      level: "beginner",
+      prompt: "What is an AWS Region?",
+      options: [
+        "A geographic area, such as Frankfurt or Tokyo, where AWS has a group of data centers",
+        "A single server rack",
+        "A discount plan for customers in one country",
+        "A folder for storing files",
+      ],
+      answer: [0],
+      explanation: "A Region is a part of the world where AWS runs data centers. You choose a Region when you create resources, usually one close to your users.",
+    },
+    {
+      id: "clf-b1-06",
+      domain: "d1",
+      lesson: "d1-start-where-cloud-lives",
+      level: "beginner",
+      prompt: "Why would you run your app in two Availability Zones instead of one?",
+      options: [
+        "So the app keeps running if one zone has a problem",
+        "Because AWS charges less for two zones",
+        "So the app uses a different programming language",
+        "Because one zone can only hold one server",
+      ],
+      answer: [0],
+      explanation: "Each Availability Zone has its own power and network. If one has trouble, your copy in the other zone keeps serving users, like a second branch of a shop staying open.",
+    },
     {
       id: "d1-01",
       domain: "d1",
@@ -305,7 +455,7 @@ export default defineDomain({
       prompt: "Which pillar of the AWS Well-Architected Framework focuses on a workload's ability to recover from failures and meet demand?",
       options: ["Performance efficiency", "Reliability", "Cost optimization", "Operational excellence"],
       answer: [1],
-      explanation: "Reliability covers recovering from failure, testing recovery, scaling horizontally, and not guessing capacity.",
+      explanation: "Reliability is about bouncing back from failures and keeping up with demand. It includes testing your recovery, adding more servers to share load, and not guessing capacity.",
     },
     {
       id: "d1-09",
@@ -323,7 +473,7 @@ export default defineDomain({
       prompt: "Implementing a strong identity foundation and protecting data in transit and at rest are design principles of which pillar?",
       options: ["Operational excellence", "Cost optimization", "Security", "Sustainability"],
       answer: [2],
-      explanation: "The security pillar covers identity, traceability, security at every layer, and data protection.",
+      explanation: "The security pillar covers who can access what, keeping a record of actions, protecting every layer, and protecting data. A strong identity foundation and encryption both belong here.",
     },
     {
       id: "d1-11",
@@ -406,7 +556,7 @@ export default defineDomain({
       prompt: "A company's cloud move is stalling because staff lack skills and teams resist new ways of working. Which AWS CAF perspective addresses this?",
       options: ["Platform", "People", "Operations", "Security"],
       answer: [1],
-      explanation: "The People perspective covers culture, organizational structure, leadership, and workforce skills for the transformation.",
+      explanation: "The People perspective is about the humans in the change: culture, how teams are organized, leadership and skills. Skill gaps and resistance to new ways of working sit right here.",
     },
     {
       id: "d1-19",
@@ -415,7 +565,7 @@ export default defineDomain({
       prompt: "Which AWS CAF perspective focuses on building an enterprise-grade, scalable hybrid cloud platform and modernizing workloads?",
       options: ["Business", "Governance", "Platform", "People"],
       answer: [2],
-      explanation: "The Platform perspective covers architecture, platform engineering, data and application modernization.",
+      explanation: "The Platform perspective covers the technical foundation: architecture, platform engineering, and modernizing data and applications.",
     },
     {
       id: "d1-20",
@@ -444,7 +594,7 @@ export default defineDomain({
         ["Security", "Confidentiality, integrity, and availability of data and workloads"],
         ["Operations", "Cloud services are delivered at the level the business agreed"],
       ],
-      explanation: "Business, People, and Governance are business capabilities; Platform, Security, and Operations are technical ones.",
+      explanation: "Business, People and Governance are the business perspectives. Platform, Security and Operations are the technical ones.",
     },
     {
       id: "d1-22",
@@ -462,7 +612,7 @@ export default defineDomain({
       prompt: "A company must leave its data center quickly. It plans to move its virtual machines to Amazon EC2 without changing the applications. Which migration strategy is this?",
       options: ["Refactor", "Repurchase", "Rehost", "Retire"],
       answer: [2],
-      explanation: "Rehosting (lift and shift) moves applications as they are. It's the fastest route and can be optimized later.",
+      explanation: "Rehosting, also called lift and shift, moves applications as they are. It's the fastest way out of a data center, and you can improve things once you're on AWS.",
     },
     {
       id: "d1-24",
@@ -480,7 +630,7 @@ export default defineDomain({
       prompt: "A company replaces its self-hosted customer relationship management (CRM) system with a software as a service (SaaS) product. Which migration strategy is this?",
       options: ["Relocate", "Repurchase", "Replatform", "Rehost"],
       answer: [1],
-      explanation: "Repurchasing (drop and shop) moves to a different product, usually SaaS.",
+      explanation: "Repurchasing, nicknamed drop and shop, means you stop running your own software and switch to a different product. Usually that's a SaaS product someone else runs for you.",
     },
     {
       id: "d1-26",
@@ -489,7 +639,7 @@ export default defineDomain({
       prompt: "A team rebuilds a monolithic application as serverless microservices to scale and release features faster. Which migration strategy is this?",
       options: ["Retain", "Rehost", "Refactor", "Relocate"],
       answer: [2],
-      explanation: "Refactoring (re-architecting) uses cloud-native features. It takes the most effort and offers the most long-term benefit.",
+      explanation: "Refactoring means redesigning the app around cloud features such as serverless. It takes the most effort, but it gives you the most benefit in the long run.",
     },
     {
       id: "d1-27",
@@ -498,7 +648,7 @@ export default defineDomain({
       prompt: "During a migration assessment, a company finds several applications that nobody uses any more. What should it do with them?",
       options: ["Retire them", "Rehost them", "Refactor them", "Repurchase them"],
       answer: [0],
-      explanation: "Retiring unused applications reduces the scope, cost, and risk of the migration.",
+      explanation: "If nobody uses an application, switch it off. Retiring it means less to move, less to pay for, and less that can go wrong.",
     },
     {
       id: "d1-28",
@@ -516,7 +666,7 @@ export default defineDomain({
       prompt: "A company is migrating from an Oracle database to Amazon Aurora PostgreSQL. Which tool converts the database schema to the new engine?",
       options: ["AWS Application Migration Service", "AWS Schema Conversion Tool (AWS SCT)", "AWS Migration Hub", "Amazon Inspector"],
       answer: [1],
-      explanation: "AWS SCT converts schemas and code between engines. AWS DMS then moves the data.",
+      explanation: "AWS SCT rewrites the schema and database code so they work on the new engine. After that, AWS DMS moves the data itself.",
     },
     {
       id: "d1-30",
@@ -525,7 +675,7 @@ export default defineDomain({
       type: "order",
       prompt: "Put the phases of a large AWS migration in order.",
       items: ["Assess", "Mobilize", "Migrate and modernize"],
-      explanation: "Assess builds the business case and readiness, Mobilize closes gaps and plans, then workloads are migrated and modernized.",
+      explanation: "First you assess: build the business case and check you're ready. Then you mobilize: plan and fix the gaps. Only then do you migrate and modernize the workloads.",
     },
     {
       id: "d1-31",
@@ -596,7 +746,7 @@ export default defineDomain({
         "Longer deployment times",
       ],
       answer: [0, 1],
-      explanation: "Automation reduces human error and wasted spend. It doesn't remove the need to design for failure.",
+      explanation: "Automation means fewer human mistakes and less money spent on idle servers. It doesn't stop things from failing, so you still need to design for failure.",
     },
     {
       id: "d1-37",
@@ -610,7 +760,7 @@ export default defineDomain({
         "Choose a smaller or better-fitting instance type",
         "Change the instance and confirm performance",
       ],
-      explanation: "Rightsizing starts with data, then targets waste, then changes and verifies. Repeat it regularly.",
+      explanation: "Start with real usage data, find the waste, then make the change and check performance is still fine. It's not a one-off: repeat it regularly.",
     },
     {
       id: "d1-38",
@@ -625,32 +775,32 @@ export default defineDomain({
         "Hiring staff to rack and cable servers",
       ],
       answer: [0, 1],
-      explanation: "Pay-as-you-go and no capital investment lower TCO. Paying for peak, long contracts, and racking servers are on-premises costs.",
+      explanation: "Paying only for what you use, with no big hardware purchase, lowers your total cost. Paying for peak capacity, long contracts and staff to rack servers are costs of running your own data center.",
     },
   ],
 
   cards: [
-    { id: "c1-elastic", domain: "d1", kind: "concept", term: "Elasticity", definition: "Automatically add and remove capacity to match demand" },
-    { id: "c1-ha", domain: "d1", kind: "concept", term: "High availability", definition: "Keep running when components fail, using multiple AZs" },
-    { id: "c1-agility", domain: "d1", kind: "concept", term: "Agility", definition: "Experiment quickly and cheaply; resources in minutes" },
-    { id: "c1-scale", domain: "d1", kind: "concept", term: "Economies of scale", definition: "AWS's huge usage lowers pay-as-you-go prices" },
-    { id: "c1-pillars", domain: "d1", kind: "concept", term: "Well-Architected pillars", definition: "Ops excellence, security, reliability, performance efficiency, cost optimization, sustainability" },
-    { id: "c1-caf", domain: "d1", kind: "concept", term: "AWS CAF perspectives", definition: "Business, People, Governance · Platform, Security, Operations" },
-    { id: "c1-rehost", domain: "d1", kind: "concept", term: "Rehost", definition: "Lift and shift with no changes" },
-    { id: "c1-replatform", domain: "d1", kind: "concept", term: "Replatform", definition: "Small optimizations, such as moving to a managed database" },
-    { id: "c1-refactor", domain: "d1", kind: "concept", term: "Refactor", definition: "Re-architect with cloud-native features" },
-    { id: "c1-repurchase", domain: "d1", kind: "concept", term: "Repurchase", definition: "Move to a different product, often SaaS" },
-    { id: "c1-capex", domain: "d1", kind: "concept", term: "CapEx vs OpEx", definition: "Up-front fixed spend vs pay-as-you-go variable spend" },
-    { id: "c1-byol", domain: "d1", kind: "concept", term: "BYOL", definition: "Use software licenses you already own on AWS" },
-    { id: "c1-rightsize", domain: "d1", kind: "concept", term: "Rightsizing", definition: "Match instance type and size to actual usage" },
-    { id: "s-watool", domain: "d1", kind: "service", term: "AWS Well-Architected Tool", definition: "Review workloads against the six pillars" },
-    { id: "s-dms", domain: "d1", kind: "service", term: "AWS DMS", definition: "Migrate databases with minimal downtime" },
-    { id: "s-sct", domain: "d1", kind: "service", term: "AWS Schema Conversion Tool", definition: "Convert database schemas between engines" },
-    { id: "s-mgn", domain: "d1", kind: "service", term: "AWS Application Migration Service", definition: "Rehost (lift and shift) servers onto AWS" },
-    { id: "s-ads", domain: "d1", kind: "service", term: "AWS Application Discovery Service", definition: "Collect data about on-premises servers to plan a migration" },
-    { id: "s-migev", domain: "d1", kind: "service", term: "Migration Evaluator", definition: "Build a data-driven business case for migrating" },
-    { id: "s-mighub", domain: "d1", kind: "service", term: "AWS Migration Hub", definition: "Track migration progress in one place" },
-    { id: "s-computeopt", domain: "d1", kind: "service", term: "AWS Compute Optimizer", definition: "Rightsizing recommendations from usage data" },
+    { id: "c1-elastic", domain: "d1", kind: "concept", term: "Elasticity", definition: "Adding and removing capacity automatically so it follows demand, like extra checkouts opening when the store gets busy." },
+    { id: "c1-ha", domain: "d1", kind: "concept", term: "High availability", definition: "Staying up when a part fails. You get it by running in more than one Availability Zone." },
+    { id: "c1-agility", domain: "d1", kind: "concept", term: "Agility", definition: "Being able to try ideas quickly and cheaply, because new resources take minutes instead of weeks." },
+    { id: "c1-scale", domain: "d1", kind: "concept", term: "Economies of scale", definition: "AWS runs hardware for so many customers that it costs less per customer, so prices drop." },
+    { id: "c1-pillars", domain: "d1", kind: "concept", term: "Well-Architected pillars", definition: "The six areas AWS checks a design against: operational excellence, security, reliability, performance efficiency, cost optimization and sustainability." },
+    { id: "c1-caf", domain: "d1", kind: "concept", term: "AWS CAF perspectives", definition: "Business, People and Governance are the business side. Platform, Security and Operations are the technical side." },
+    { id: "c1-rehost", domain: "d1", kind: "concept", term: "Rehost", definition: "Lift and shift: move the app to AWS exactly as it is." },
+    { id: "c1-replatform", domain: "d1", kind: "concept", term: "Replatform", definition: "Make a few small improvements on the way, such as moving to a managed database." },
+    { id: "c1-refactor", domain: "d1", kind: "concept", term: "Refactor", definition: "Redesign the app to use cloud features such as serverless. The most work, and the most long-term benefit." },
+    { id: "c1-repurchase", domain: "d1", kind: "concept", term: "Repurchase", definition: "Drop your own software and switch to a different product, often SaaS." },
+    { id: "c1-capex", domain: "d1", kind: "concept", term: "CapEx and OpEx", definition: "CapEx is a big fixed payment up front, like buying servers. OpEx is spending that follows use, like the cloud's pay-as-you-go bill." },
+    { id: "c1-byol", domain: "d1", kind: "concept", term: "BYOL", definition: "Bring your own license: reuse software licenses you already own on AWS instead of paying for them again." },
+    { id: "c1-rightsize", domain: "d1", kind: "concept", term: "Rightsizing", definition: "Choosing a server type and size that fits what you really use, so you don't pay for spare capacity." },
+    { id: "s-watool", domain: "d1", kind: "service", term: "AWS Well-Architected Tool", definition: "A free tool that asks questions about your workload and flags risks against the six pillars." },
+    { id: "s-dms", domain: "d1", kind: "service", term: "AWS DMS", definition: "Moves a database to AWS while the old one keeps running, so downtime is very short." },
+    { id: "s-sct", domain: "d1", kind: "service", term: "AWS Schema Conversion Tool", definition: "Rewrites a database's layout and code so it works on a different engine, such as Oracle to PostgreSQL." },
+    { id: "s-mgn", domain: "d1", kind: "service", term: "AWS Application Migration Service", definition: "Copies your servers onto AWS as they are. This is the rehost, or lift and shift, tool." },
+    { id: "s-ads", domain: "d1", kind: "service", term: "AWS Application Discovery Service", definition: "Gathers facts about the servers you run today, so you can plan the move." },
+    { id: "s-migev", domain: "d1", kind: "service", term: "Migration Evaluator", definition: "Builds a business case for moving to AWS, based on data from the servers you run today." },
+    { id: "s-mighub", domain: "d1", kind: "service", term: "AWS Migration Hub", definition: "One place to watch how the whole migration is going." },
+    { id: "s-computeopt", domain: "d1", kind: "service", term: "AWS Compute Optimizer", definition: "Looks at how you really use your servers and suggests better sizes." },
   ],
 
   challenges: [
@@ -661,7 +811,7 @@ export default defineDomain({
       title: "Follow the demand",
       goal: "Switch to Auto Scaling and set the minimum and maximum so there are zero idle and zero missing server-hours.",
       hint: "Demand dips to 2 servers overnight and peaks at 8 at noon.",
-      takeaway: "Elasticity removes both waste and shortfall: capacity follows demand instead of being bought for the peak.",
+      takeaway: "With elasticity you have no idle servers and no shortage. Capacity follows demand, so you never have to buy for the busiest moment.",
       render: (onSolved) => <ElasticityLab goal="elastic" onSolved={onSolved} />,
     },
   ],

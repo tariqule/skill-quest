@@ -27,7 +27,7 @@ const SLOTS: { word: string; logit: number }[][] = [
     { word: ".", logit: 4 },
     { word: ", perfect for a walk.", logit: 2.4 },
     { word: ", humming softly.", logit: 0.9 },
-    { word: "— or is it?", logit: 0.4 },
+    { word: ", or is it?", logit: 0.4 },
   ],
 ];
 
@@ -100,7 +100,7 @@ export function TemperatureLab({ goal, onSolved }: GoalProps<"identical" | "vari
           <Dial label="Top P" value={topP.toFixed(2)} note="Keep words until their odds add up to P">
             <input type="range" min={0.3} max={1} step={0.05} value={topP} onChange={(e) => setTopP(Number(e.target.value))} className="w-full accent-violet-400" aria-label="Top P" />
           </Dial>
-          <Dial label="Max tokens" value={String(maxTokens)} note="Caps the length; short caps cut answers off">
+          <Dial label="Max tokens" value={String(maxTokens)} note="Caps the length. A low cap cuts answers off">
             <input type="range" min={1} max={3} step={1} value={maxTokens} onChange={(e) => setMaxTokens(Number(e.target.value))} className="w-full accent-emerald-400" aria-label="Max tokens" />
           </Dial>
         </div>
@@ -119,7 +119,7 @@ export function TemperatureLab({ goal, onSolved }: GoalProps<"identical" | "vari
               </div>
             ))}
           </div>
-          <div className="mt-1 text-[11px] text-slate-500">Faded words are cut by Top K / Top P.</div>
+          <div className="mt-1 text-[11px] text-slate-500">Faded words have been cut by Top K or Top P.</div>
         </div>
       </div>
 
@@ -196,7 +196,7 @@ export function ThresholdLab({ goal, onSolved }: GoalProps<"catchAll" | "noFalse
 
   return (
     <div>
-      <LabHeader title="Fraud alarm threshold" hint="Each dot is a transaction (red = really fraud). Drag the cutoff: everything right of it gets flagged." />
+      <LabHeader title="Fraud alarm threshold" hint="Each dot is a transaction, and the red ones are real fraud. Drag the cutoff: everything to the right of it gets flagged." />
       <div className="relative h-16 rounded-xl border border-white/10 bg-slate-950/60">
         <div className="absolute inset-y-0 right-0 rounded-r-xl bg-amber-400/10" style={{ left: `${th}%` }} />
         <div className="absolute inset-y-0 w-0.5 bg-amber-400" style={{ left: `${th}%` }} />
@@ -226,7 +226,7 @@ export function ThresholdLab({ goal, onSolved }: GoalProps<"catchAll" | "noFalse
           ? "Low cutoff: you catch almost all fraud (high recall) but annoy many good customers (low precision)."
           : th > 80
             ? "High cutoff: flags are nearly always right (high precision) but lots of fraud slips through (low recall)."
-            : "Middle cutoff: a trade-off between the two. F1 helps you find the balance."}
+            : "Middle cutoff: a trade-off between the two. The F1 score helps you find the balance."}
       </p>
     </div>
   );
@@ -365,7 +365,7 @@ export function PromptLab({ goal, onSolved }: GoalProps<"perfect">) {
 
   return (
     <div>
-      <LabHeader title="Build a better prompt" hint="Switch prompt parts on and off. Watch the answer get more accurate, better formatted, and safer." />
+      <LabHeader title="Build a better prompt" hint="Switch parts of the prompt on and off. Watch the answer get more accurate, better laid out and safer." />
       <div className="flex flex-wrap gap-2">
         {PARTS.map((p) => (
           <button
@@ -554,7 +554,7 @@ export function ResponsibilityLab({ goal, onSolved }: GoalProps<"allCorrect">) {
 
   return (
     <div>
-      <LabHeader title="Whose job is it?" hint="Tap AWS or You for each task. Instant feedback." />
+      <LabHeader title="Whose job is it?" hint="Tap AWS or You for each task. You'll see straight away if you got it right." />
       <div className="grid gap-2">
         {DUTIES.map((d, i) => {
           const a = answers[i];

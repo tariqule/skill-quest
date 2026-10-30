@@ -9,7 +9,7 @@ import { Galaxy3D } from "@/components/three";
 import { COURSES } from "@/courses";
 import { overallReadiness, pct } from "@/engine/game";
 import { indexCourse } from "@/engine/indexes";
-import { LEVEL_BY_ID, LEVELS, questionsForLevel, type LevelChoice } from "@/engine/levels";
+import { LEVEL_BY_ID, levelOptions, questionsForLevel, type LevelChoice } from "@/engine/levels";
 import { getCourseStore, levelInfo } from "@/engine/store";
 import { setSharedLevel, useSharedLevel } from "@/engine/track-level";
 import { isCodeTrack, matchesQuery, searchText, TRACK_CATEGORIES, TRACK_FOCUSES, type TrackFocus } from "@/engine/tracks";
@@ -20,7 +20,7 @@ const TOTAL_QUESTIONS = TRACKS.reduce((n, t) => n + t.course.questions.length, 0
 const CATEGORY_BY_ID = Object.fromEntries(TRACK_CATEGORIES.map((c) => [c.id, c]));
 const COURSES_ONLY = TRACKS.map((t) => t.course);
 const LEVEL_COUNTS = Object.fromEntries(
-  LEVELS.map((l) => [l.id, COURSES_ONLY.reduce((n, c) => n + questionsForLevel(c, l.id).length, 0)]),
+  levelOptions({ kind: "interview" }).map((l) => [l.id, COURSES_ONLY.reduce((n, c) => n + questionsForLevel(c, l.id).length, 0)]),
 ) as Record<LevelChoice, number>;
 
 /** The Code Quests hub: every interview and learning track, in a terminal/arcade skin. */
@@ -82,9 +82,9 @@ export default function CodeHub() {
                 <Typewriter
                   lines={[
                     `$ code-quest --list`,
-                    `${TRACKS.length} tracks · ${TOTAL_QUESTIONS} questions · 4 skill levels`,
+                    `${TRACKS.length} tracks · ${TOTAL_QUESTIONS} questions · beginner to staff`,
                     `$ code-quest --levels`,
-                    LEVELS.map((l) => `${l.icon} ${l.name}`).join("  "),
+                    levelOptions({ kind: "interview" }).map((l) => `${l.icon} ${l.name}`).join("  "),
                   ]}
                 />
               </div>

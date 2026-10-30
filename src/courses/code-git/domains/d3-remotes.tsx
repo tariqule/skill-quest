@@ -12,7 +12,7 @@ export default defineDomain({
     weight: 25,
     emoji: "⚓",
     color: "#f472b6",
-    summary: "Cloning, fetching, pulling and pushing; remote-tracking branches and diverged histories; pull requests and forks; tags and releases.",
+    summary: "Sharing work with clone, fetch, pull and push, making sense of tracking branches and diverged histories, working through pull requests and forks, and marking releases with tags.",
   },
 
   tasks: [
@@ -35,6 +35,56 @@ export default defineDomain({
 
   lessons: [
     {
+      id: "d3-start-remote",
+      level: "beginner",
+      task: "3.1",
+      title: "What a remote is",
+      check: ["git-b3-01", "git-b3-02"],
+      visual: (
+        <Tiles
+          cols={3}
+          tiles={[
+            { icon: "💻", title: "Your copy", text: "The repository on your computer. You commit here.", color: "#38bdf8" },
+            { icon: "☁️", title: "The remote", text: "A shared copy on a site like GitHub, usually called origin.", color: "#f472b6" },
+            { icon: "👩‍💻", title: "Teammates' copies", text: "Everyone has their own full copy and shares through the remote.", color: "#a3e635" },
+          ]}
+        />
+      ),
+      points: [
+        "Think of a shared noticeboard in an office. Everyone keeps their own notes at their desk, and pins finished work on the board for others to see.",
+        "In Git, that shared board is a **remote**: another copy of the repository, usually on a site like GitHub, GitLab or Bitbucket.",
+        "`git clone <url>` downloads a project from a remote and remembers where it came from under the name `origin`.",
+        "You still commit on your own computer. The remote only changes when you choose to send your commits there.",
+      ],
+      tip: "`git remote -v` shows which remotes your project knows about and their web addresses. It's a quick way to check where your work will go.",
+    },
+    {
+      id: "d3-start-sync",
+      level: "beginner",
+      task: "3.1",
+      title: "Push and pull: sharing your work",
+      check: ["git-b3-03", "git-b3-04"],
+      visual: (
+        <div className="grid gap-4">
+          <Flow
+            color="#f472b6"
+            steps={[
+              { icon: "⬇️", label: "git pull", sub: "Get your teammates' new commits" },
+              { icon: "📸", label: "Commit", sub: "Do your own work locally" },
+              { icon: "⬆️", label: "git push", sub: "Send your commits to the remote" },
+            ]}
+          />
+          <CodeBlock lang="bash" caption="A typical start and end of a work session" code={sh("git pull                     # catch up first", "# ...edit, git add, git commit...", "git push                     # share what you did")} />
+        </div>
+      ),
+      points: [
+        "`git push` sends the commits you made on your computer up to the remote, so teammates can get them.",
+        "`git pull` does the opposite. It downloads new commits from the remote and adds them to the branch you're on.",
+        "A good habit is pull, work, push. Pulling first means you build on everyone's latest work, so your push goes through smoothly.",
+      ],
+      tip: "If `git push` is refused, don't reach for force. It usually just means someone pushed first: run `git pull`, then push again.",
+    },
+    {
       id: "d3-remotes",
       level: "junior",
       task: "3.1",
@@ -46,8 +96,8 @@ export default defineDomain({
             color="#f472b6"
             steps={[
               { icon: "☁️", label: "origin (GitHub)", sub: "The shared copy everyone pushes to" },
-              { icon: "⬇️", label: "git fetch", sub: "Download new commits; update origin/main. Your branch is untouched." },
-              { icon: "🔀", label: "git pull", sub: "fetch + integrate (merge or rebase) into your current branch" },
+              { icon: "⬇️", label: "git fetch", sub: "Download new commits and update origin/main. Your branch is untouched." },
+              { icon: "🔀", label: "git pull", sub: "Fetch, then merge or rebase into your current branch" },
               { icon: "⬆️", label: "git push", sub: "Upload your commits and move the branch on origin" },
             ]}
           />
@@ -65,10 +115,10 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "A remote is a named URL for another copy of the repository. `clone` creates one called `origin`.",
-        "`git fetch` is always safe: it only downloads and updates remote-tracking branches like `origin/main`.",
-        "`git pull` = `git fetch` + merging (or rebasing) the upstream into your current branch.",
-        "The first push of a new branch needs `-u origin <branch>` to set its upstream; after that, plain `git push` and `git pull` know where to go.",
+        "A **remote** is a short name for the web address of another copy of the repository. `clone` creates one called `origin`.",
+        "`git fetch` is always safe. It only downloads, then updates your record of the remote's branches, like `origin/main`.",
+        "`git pull` is a `git fetch` followed by a merge (or a rebase) of the remote branch into your current branch.",
+        "The first push of a new branch needs `-u origin <branch>`. That sets its **upstream**, the remote branch it pairs with. After that, plain `git push` and `git pull` know where to go.",
       ],
       tip: "When unsure, `git fetch` first and look (`git log --oneline main..origin/main`) before you pull. Nothing you have can be changed by a fetch.",
     },
@@ -103,10 +153,10 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "`origin/main` is a remote-tracking branch: your local, read-only record of where main was on origin at your last fetch.",
-        "\"ahead 1\" = you have a commit origin lacks; \"behind 1\" = origin has one you lack. Both at once means the branches diverged.",
-        "A push is accepted only if it's a fast-forward for the server, unless you force it.",
-        "Newer Git asks you to choose how `git pull` reconciles diverged branches: `pull.rebase true`, `false` (merge), or `pull.ff only`.",
+        "`origin/main` is a **remote-tracking branch**. It's your local, read-only note of where main was on origin the last time you fetched.",
+        "\"ahead 1\" means you have a commit origin doesn't. \"behind 1\" means origin has one you don't. Both at once means the branches have diverged.",
+        "The server accepts a push only if it simply moves its branch forward, a fast-forward. The exception is a forced push.",
+        "Newer Git asks you to choose how `git pull` handles diverged branches. Set `pull.rebase true` to rebase, `false` to merge, or `pull.ff only` to refuse anything but a fast-forward.",
       ],
       tip: "Make `--force-with-lease` your only force push. Better still, protect shared branches so nobody can force-push them at all.",
     },
@@ -123,14 +173,14 @@ export default defineDomain({
             { icon: "🌱", label: "Branch", sub: "git switch -c add-coupons" },
             { icon: "⬆️", label: "Push", sub: "git push -u origin add-coupons" },
             { icon: "📬", label: "Open PR", sub: "Describe what and why; link the issue" },
-            { icon: "🔍", label: "Review + CI", sub: "Comments, fixes, checks go green" },
+            { icon: "🔍", label: "Review and CI", sub: "Comments, fixes, then the checks go green" },
             { icon: "✅", label: "Merge", sub: "Merge, squash or rebase; delete the branch" },
           ]}
         />
       ),
       points: [
         "A pull request (a merge request on GitLab) asks to merge one branch into another, with review, discussion and automated checks.",
-        "No write access (typical in open source)? Fork the repository, push to your fork, and open the PR from there.",
+        "If you can't push to a repository, which is normal in open source, **fork** it. A fork is your own copy on the host. Push there and open the PR from it.",
         "Keep your fork current by adding the original as a second remote, usually called `upstream`.",
         "Small, focused PRs with a clear description get reviewed faster and break less.",
       ],
@@ -174,6 +224,90 @@ export default defineDomain({
   ],
 
   questions: [
+    {
+      id: "git-b3-01",
+      domain: "d3",
+      level: "beginner",
+      lesson: "d3-start-remote",
+      prompt: "In Git, what is a remote?",
+      options: [
+        "Another copy of the repository, often on a site like GitHub, that you can share commits with",
+        "A setting that lets you control Git from your phone",
+        "A backup that Git makes automatically every hour",
+        "A branch that nobody is allowed to change",
+      ],
+      answer: [0],
+      explanation: "A remote is just another copy of the project, stored somewhere you can reach over the network. You send commits to it with `git push` and get commits from it with `git pull`.",
+    },
+    {
+      id: "git-b3-02",
+      type: "output",
+      domain: "d3",
+      level: "beginner",
+      lesson: "d3-start-remote",
+      prompt: "You clone a project. Type the remote name that `git remote` prints.",
+      code: "git clone -q https://github.com/acme/shop.git\ncd shop\ngit remote",
+      codeLang: "bash",
+      answers: ["origin"],
+      explanation: "`git clone` remembers where the project came from and names that remote `origin`. It's only a nickname for the web address, and you'll see it in commands like `git push origin main`.",
+    },
+    {
+      id: "git-b3-03",
+      type: "fill",
+      domain: "d3",
+      level: "beginner",
+      lesson: "d3-start-sync",
+      prompt: "You've made two commits on your computer. Fill the gap to send them to the remote so your team can see them.",
+      code: "git {{1}}",
+      codeLang: "bash",
+      blanks: [{ options: ["push", "pull", "clone", "status"], answer: 0 }],
+      explanation: "`git push` uploads your new commits to the remote. `git pull` goes the other way, `git clone` copies a whole project, and `git status` only reports what's going on.",
+    },
+    {
+      id: "git-b3-04",
+      domain: "d3",
+      level: "beginner",
+      lesson: "d3-start-sync",
+      prompt: "A teammate pushed new commits this morning. What does `git pull` do for you?",
+      options: [
+        "Downloads their new commits and adds them to the branch you're on",
+        "Uploads your commits to the remote",
+        "Deletes your local changes and starts fresh",
+        "Creates a new branch called pull",
+      ],
+      answer: [0],
+      explanation: "`git pull` fetches what's new on the remote and brings it into your current branch. Pull before you start work so you're building on the latest version.",
+    },
+    {
+      id: "git-b3-05",
+      domain: "d3",
+      level: "beginner",
+      lesson: "d3-start-remote",
+      prompt: "Which statement about GitHub is true?",
+      options: [
+        "It's a website that stores Git repositories and helps people share and review them",
+        "It's the program you install to make commits",
+        "You can't use Git without it",
+        "It only works with one branch per project",
+      ],
+      answer: [0],
+      explanation: "Git is the tool on your computer. GitHub is one of several hosting sites (GitLab and Bitbucket are others) that keep a shared copy of your repository and add tools for working together.",
+    },
+    {
+      id: "git-b3-06",
+      domain: "d3",
+      level: "beginner",
+      lesson: "d3-start-sync",
+      prompt: "`git push` is refused because the remote has commits you don't have yet. What's the usual next step?",
+      options: [
+        "Run `git pull` to get those commits, then `git push` again",
+        "Delete the project and clone it again",
+        "Keep running `git push` until it works",
+        "Make an empty commit and push that",
+      ],
+      answer: [0],
+      explanation: "Someone pushed before you, so Git won't let you overwrite their work. Pulling brings their commits into your branch, and then your push can go through.",
+    },
     {
       id: "d3-01",
       domain: "d3",
@@ -253,7 +387,7 @@ export default defineDomain({
         "You have to clone the repository again",
       ],
       answer: [0],
-      explanation: "Diverged = both sides moved. `git pull --rebase` replays your commit on top of theirs; `git pull --no-rebase` makes a merge commit.",
+      explanation: "Diverged means both sides have moved on. `git pull --rebase` replays your commit on top of theirs, and `git pull --no-rebase` makes a merge commit instead.",
     },
     {
       id: "d3-07",
@@ -455,7 +589,7 @@ export default defineDomain({
         "Tag v1.1 is corrupted",
       ],
       answer: [0],
-      explanation: "Format: nearest tag, commits since it, then `g` (for git) plus the short hash. Build systems often embed it as a version string.",
+      explanation: "Read it left to right: the nearest tag, how many commits since that tag, then `g` (for git) and the short hash. Build systems often use it as a version string.",
     },
     {
       id: "d3-21",
@@ -465,7 +599,7 @@ export default defineDomain({
       prompt: "With semantic versioning, your library is at `v2.3.1` and you add a backwards-compatible feature. What's the next version?",
       options: ["`v2.4.0`", "`v3.0.0`", "`v2.3.2`", "`v2.4.1`"],
       answer: [0],
-      explanation: "MAJOR.MINOR.PATCH: a new compatible feature bumps MINOR and resets PATCH. A breaking change would bump MAJOR to 3.0.0.",
+      explanation: "Versions read MAJOR.MINOR.PATCH. A new feature that doesn't break anything bumps MINOR and resets PATCH to 0. A breaking change would bump MAJOR to 3.0.0.",
     },
     {
       id: "d3-22",
@@ -516,9 +650,9 @@ export default defineDomain({
     { id: "c3-push", domain: "d3", kind: "service", term: "git push", definition: "Upload commits and move the remote branch. Accepted only as a fast-forward unless forced." },
     { id: "c3-lease", domain: "d3", kind: "service", term: "git push --force-with-lease", definition: "Force-push only if the remote branch is still where you last saw it." },
     { id: "c3-tag", domain: "d3", kind: "service", term: "git tag", definition: "Name a commit permanently. -a makes an annotated tag with a message." },
-    { id: "c3-describe", domain: "d3", kind: "service", term: "git describe", definition: "Name a commit relative to the nearest annotated tag, e.g. v1.1-1-gfa38738." },
+    { id: "c3-describe", domain: "d3", kind: "service", term: "git describe", definition: "Name a commit relative to the nearest annotated tag, for example v1.1-1-gfa38738." },
     { id: "c3-codeowners", domain: "d3", kind: "service", term: "CODEOWNERS", definition: "A file mapping paths to the people or teams who must review changes to them." },
-    { id: "c3-tracking", domain: "d3", kind: "concept", term: "Remote-tracking branch", definition: "origin/main and friends: your local record of a remote branch as of the last fetch." },
+    { id: "c3-tracking", domain: "d3", kind: "concept", term: "Remote-tracking branch", definition: "A branch like origin/main: your local record of where a remote branch was at your last fetch." },
     { id: "c3-upstream", domain: "d3", kind: "concept", term: "Upstream branch", definition: "The remote branch a local branch pushes to and pulls from by default (set with push -u)." },
     { id: "c3-pr", domain: "d3", kind: "concept", term: "Pull request", definition: "A hosted request to merge a branch, with review, discussion and CI checks." },
     { id: "c3-fork", domain: "d3", kind: "concept", term: "Fork", definition: "Your own server-side copy of someone else's repository, used to propose changes without write access." },

@@ -148,7 +148,7 @@ export async function POST() {
 }`,
     codeLang: "ts",
     blanks: [{ options: ['"max"', '"all"', "true", '"now"'], answer: 0 }],
-    explanation: "In Next.js 16 `revalidateTag` takes a cache-life profile as its second argument; `\"max\"` is the recommended one, giving stale-while-revalidate behaviour. The one-argument form is deprecated, and `\"all\"`/`\"now\"` aren't profiles.",
+    explanation: "In Next.js 16, `revalidateTag` takes a cache-life profile as its second argument. `\"max\"` is the recommended one, and it gives stale-while-revalidate behaviour. The one-argument form is deprecated, and `\"all\"` and `\"now\"` aren't profiles.",
   },
   {
     id: "nextjs-fx-10",
@@ -352,7 +352,7 @@ const a = getUser(1), b = getUser(1), c = getUser(2);
 console.log(calls, a === b);`,
     codeLang: "ts",
     answers: ["2 true"],
-    explanation: "Two distinct ids mean two real calls (`1` and `2`); the repeated `getUser(1)` hits the memo and returns the very same object, so `a === b`. React's `cache()` does this per request so several components can ask for the same data cheaply.",
+    explanation: "Two different ids mean two real calls, for `1` and `2`. The repeated `getUser(1)` reuses the saved result and returns the very same object, so `a === b`. React's `cache()` does this for each request, so several components can ask for the same data cheaply.",
   },
   {
     id: "nextjs-ox-06",
@@ -393,7 +393,7 @@ fd.append("name", "Al");
 save({}, fd).then((s) => console.log(s.error ?? "ok"));`,
     codeLang: "ts",
     answers: ["too short"],
-    explanation: "\"Al\" has 2 characters, so the action returns `{ error: \"too short\" }` instead of throwing. Returning expected errors as values lets `useActionState` render them; thrown errors are for real bugs.",
+    explanation: "\"Al\" has 2 characters, so the action returns `{ error: \"too short\" }` instead of throwing. Returning expected errors as values lets `useActionState` show them. Thrown errors are for real bugs.",
   },
   {
     id: "nextjs-ox-08",
@@ -418,7 +418,7 @@ GET(new Request("http://x.test/api?page=4"))
     domain: "d4",
     lesson: "d4-proxy",
     level: "staff",
-    prompt: "A common `proxy.ts` matcher excludes API and static paths. Type the four digits logged (1 = the proxy runs for that path).",
+    prompt: "A common `proxy.ts` matcher skips API and static paths. Type the four digits logged. A 1 means the proxy runs for that path, and a 0 means it doesn't.",
     code: `const matcher = /^\\/((?!api|_next\\/static|_next\\/image|favicon\\.ico).*)$/;
 const paths = ["/", "/api/users", "/dashboard", "/_next/static/a.js"];
 console.log(paths.map((p) => (matcher.test(p) ? 1 : 0)).join(""));`,

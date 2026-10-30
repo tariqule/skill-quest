@@ -388,7 +388,7 @@ export function simulateStream(producer: number, consumer: number, hwm: number, 
           if (respect) {
             paused = true;
             pauses++;
-            if (pauses <= 3) events.push(`t${t}: write() returned false at ${buffer} chunks → producer pauses`);
+            if (pauses <= 3) events.push(`t${t}: write() returned false at ${buffer} chunks, so the producer pauses`);
             break;
           } else if (!warned) {
             warned = true;
@@ -409,7 +409,7 @@ export function simulateStream(producer: number, consumer: number, hwm: number, 
     if (paused && buffer === 0) {
       paused = false;
       drains++;
-      if (drains <= 3) events.push(`t${t}: buffer empty → 'drain' event → producer resumes`);
+      if (drains <= 3) events.push(`t${t}: buffer is empty, so 'drain' fires and the producer resumes`);
     }
   }
   events.push(`Done: all ${TOTAL} chunks delivered.`);

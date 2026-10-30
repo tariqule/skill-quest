@@ -1,5 +1,5 @@
 import { examQuestions, questionKind } from "./game";
-import { hasLevels, LEVELS, MIN_PER_LEVEL } from "./levels";
+import { BEGINNER_MIN, MIN_PER_LEVEL, SENIORITY } from "./levels";
 import { EXTRA_KINDS, isCodeTrack } from "./tracks";
 import type { Course } from "./types";
 
@@ -94,7 +94,7 @@ export function validateCourse(course: Course): string[] {
     const where = `coding challenge "${c.id}"`;
     if (!domainIds.has(c.domain)) err(`${where} has unknown domain "${c.domain}"`);
     if (c.lesson && !lessonIds.has(c.lesson)) err(`${where} links unknown lesson "${c.lesson}"`);
-    if (!LEVELS.some((l) => l.id === c.level)) err(`${where} needs a level`);
+    if (!SENIORITY.includes(c.level)) err(`${where} needs a level`);
     if (!c.prompt.trim() || !c.explanation.trim() || !c.title.trim()) err(`${where} needs a title, prompt, and explanation`);
     if (!new RegExp(`function\\s+${c.fn}\\b|(?:const|let|var)\\s+${c.fn}\\s*=`).test(c.starter)) err(`${where} starter must define \`${c.fn}\``);
     if (c.tests.length < 3) err(`${where} needs at least 3 tests`);
@@ -127,13 +127,26 @@ export function validateCourse(course: Course): string[] {
     }
   }
 
-  if (hasLevels(course)) {
-    for (const q of course.questions) if (!q.level) err(`question "${q.id}" needs a level (junior, intermediate, senior, or staff)`);
+  if (isCodeTrack(course)) {
+    for (const q of course.questions) if (!q.level) err(`question "${q.id}" needs a level (beginner, junior, intermediate, senior, or staff)`);
     for (const l of lessons) if (!l.level) err(`lesson "${l.id}" needs a level`);
-    for (const lv of LEVELS.filter((x) => x.id !== "all")) {
-      const n = course.questions.filter((q) => q.level === lv.id).length;
-      if (n < MIN_PER_LEVEL) err(`level "${lv.id}" has ${n} questions; each level needs at least ${MIN_PER_LEVEL}`);
+    for (const lv of SENIORITY.filter((x) => x !== "beginner")) {
+      const n = course.questions.filter((q) => q.level === lv).length;
+      if (n < MIN_PER_LEVEL) err(`level "${lv}" has ${n} questions; each level needs at least ${MIN_PER_LEVEL}`);
     }
+  }
+  // Beginner ("Start here") content, on every course.
+  const beginnerQs = course.questions.filter((q) => q.level === "beginner");
+  const beginnerTotal = Math.min(BEGINNER_MIN.questions, BEGINNER_MIN.questionsPerDomain * course.domains.length);
+  if (beginnerQs.length < beginnerTotal) err(`has ${beginnerQs.length} beginner questions; needs at least ${beginnerTotal}`);
+  for (const d of course.domains) {
+    const ls = (course.lessons[d.id] ?? []).filter((l) => l.level === "beginner").length;
+    const qs = beginnerQs.filter((q) => q.domain === d.id).length;
+    if (ls < BEGINNER_MIN.lessonsPerDomain) err(`domain "${d.id}" has ${ls} beginner lessons; needs at least ${BEGINNER_MIN.lessonsPerDomain}`);
+    if (qs < BEGINNER_MIN.questionsPerDomain) err(`domain "${d.id}" has ${qs} beginner questions; needs at least ${BEGINNER_MIN.questionsPerDomain}`);
+  }
+  for (const q of beginnerQs) {
+    if (q.type === "order" || q.type === "match" || q.type === "lines") err(`beginner question "${q.id}" should be choice, fill, or output (keep it gentle)`);
   }
   if (course.exam.questionTypes.every((t) => t.practiceOnly)) err("at least one question type must be an official (not practiceOnly) format");
   const official = examQuestions(course).length;

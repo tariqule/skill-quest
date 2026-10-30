@@ -132,7 +132,7 @@ export function dedent(code: string) {
   return lines.map((l) => l.slice(indent)).join("\n");
 }
 
-/** Text with `inline code` spans. */
+/** Text with `inline code` spans and **bold** key terms (code spans are never bolded inside). */
 export function RichText({ text }: { text: string }) {
   const parts = text.split(/(`[^`]+`)/g);
   return (
@@ -143,7 +143,17 @@ export function RichText({ text }: { text: string }) {
             {p.slice(1, -1)}
           </code>
         ) : (
-          <Fragment key={i}>{p}</Fragment>
+          <Fragment key={i}>
+            {p.split(/(\*\*[^*]+\*\*)/g).map((b, k) =>
+              b.startsWith("**") && b.endsWith("**") && b.length > 4 ? (
+                <strong key={k} className="font-bold text-white">
+                  {b.slice(2, -2)}
+                </strong>
+              ) : (
+                <Fragment key={k}>{b}</Fragment>
+              ),
+            )}
+          </Fragment>
         ),
       )}
     </>

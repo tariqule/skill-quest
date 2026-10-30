@@ -1,6 +1,6 @@
-# Cert Quest
+# SkillQuest
 
-Learn by playing: gamified, visual prep for cloud and AI certification exams and for coding interviews, built with Next.js 16, React 19, and Tailwind CSS 4.
+Learn tech by playing: visual, beginner-friendly courses for cloud and AI certifications, learning to code, and coding interviews, built with Next.js 16, React 19, and Tailwind CSS 4. Every course works at every level, from "never done this before" up.
 
 The app is a **course engine**. Each certification is a self-contained content package under `src/courses/`, and the engine (mission map, lessons, trials, exam simulator, training games, study guide, progress) works for any of them. It ships with:
 
@@ -39,7 +39,7 @@ A separate section at `/code` with its own terminal and arcade look, a 3D galaxy
 
 ## How it plays: teach first, then test
 
-1. **Catalog** (`/`): pick a course. Each course keeps its own progress.
+1. **Home** (`/`): three steps. *What do you want to do?* (get certified, learn to code, prepare for an interview), *How much do you know already?* (Beginner to Staff; certifications offer Beginner or "I know the basics"), then *Your picks* with one "Start here" course. The answers are saved as a profile (`engine/profile.ts`) and every course for that goal starts at the chosen level. Returning visitors see "Continue where you left off". Each course keeps its own progress and level.
 2. **Intro briefing** (`/c/<course>/start`): what the exam is, who it's for, the question types, the domains, and a daily goal. Shown on first visit.
 3. **Mission map** (`/c/<course>`): one world per exam domain. Each **mission** teaches one concept with a visual or a hands-on lab, then checks it. Miss a check and you get a quick recap of every key point (plus the answers you missed), then a **timed challenge** you must pass to finish the mission; failing it loops back through the recap.
 4. **World trial**: a short quiz with hearts. A star unlocks the next world. Already know a world? Skip to its trial.
@@ -47,6 +47,23 @@ A separate section at `/code` with its own terminal and arcade look, a 3D galaxy
 6. **Certification Gate** (`/c/<course>/exam`): a simulator in the real exam format: question count, unscored questions, timer, flag and navigate, every question type, the official score scale, and a per-domain report.
 
 Also in every course: a **study guide** drawer (📖 button or `?` key) with exam facts, every task statement and the missions that teach it, a searchable glossary, in-scope services, and tips; plus a **training deck** of replayable challenges (fix mistakes, timed drill, flashcards, service match, lightning round, boss battle, cheat sheet).
+
+### Levels and the Beginner path
+
+Every course has levels (`engine/levels.ts`). Code Quest tracks use Beginner, Junior, Intermediate, Senior, Staff and Everything; certifications use Beginner, Exam level (everything that isn't beginner) and Everything. `effectiveLevel()` maps a shared choice onto each kind of course.
+
+- **Beginner** shows each world's "Start here" lessons (`level: "beginner"`) as the path and the rest as "after the basics" (`engine/path.ts`). Trials give 5 hearts (`config.quest.beginnerHearts`), and the timed drill, boss and lightning round are hidden (`BEGINNER_LOCKED` in `engine/modes.ts`). The practice exam asks first.
+- On higher levels the basics stay available as optional lessons and never block the path.
+- **Level up** (`engine/levelup.ts`): once every "Start here" lesson is done and 80% of beginner questions are right, the map offers the next level (Junior, or Exam level on certifications). Players can pick any level at any time.
+- Every course needs at least 2 beginner lessons and 4 beginner questions per domain (16 in total); `npm test` checks it.
+
+### Mini games
+
+Every world has a small 3D game built from its own flashcards and questions at the player's level (`components/three/games/`): **Gem Catch**, **Memory Match**, **True or False Bins** and **Tower Builder**, rotated by world. They appear on the map (🎮 Mini game, `/c/<course>/game/<domain>`), as an optional break every three concepts in study mode, and on the "study session complete" screen. Each 3D piece also has a plain tap button, so the games work without WebGL. Best scores and a little XP are saved per world, with a badge for playing them all.
+
+### Writing style (voice lint)
+
+Course text is written like a person explaining it: full sentences, "you", an everyday example for each idea, terms defined the first time. `engine/voice.ts` (run by `npm test`) fails on buzzwords ("delve", "leverage", "seamless", "it's important to note" and others), em dashes, note shorthand in prose (arrows, " = ", "e.g."), lesson points over 40 words, and `**bold**` in titles or summaries (bold renders only in rich text such as points, tips and explanations).
 
 Progress is saved in the browser's `localStorage`. There is no backend and no account.
 

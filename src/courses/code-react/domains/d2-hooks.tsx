@@ -1,4 +1,4 @@
-import { CodeBlock, CodeCompare, Tiles } from "@/components/learn/blocks";
+import { CodeBlock, CodeCompare, Flow, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { EffectDepsLab } from "../labs";
 
@@ -12,7 +12,7 @@ export default defineDomain({
     weight: 30,
     emoji: "⚓",
     color: "#a78bfa",
-    summary: "useState and useReducer, useEffect and its dependency array, refs and memoization hooks, custom hooks, and the rules of hooks.",
+    summary: "The hooks you'll use every day: useState and useReducer for memory, useEffect for outside work, refs, memoization, custom hooks, and the rules that keep them working.",
   },
 
   tasks: [
@@ -23,6 +23,69 @@ export default defineDomain({
   ],
 
   lessons: [
+    {
+      id: "d2-b-state",
+      level: "beginner",
+      task: "2.1",
+      title: "State: a component's memory",
+      check: ["react-b2-01", "react-b2-02"],
+      visual: (
+        <CodeBlock
+          lang="jsx"
+          caption="A counter. `count` is the current value, `setCount` changes it, and 0 is where it starts."
+          code={`import { useState } from "react";
+
+function Counter() {
+  const [count, setCount] = useState(0);
+  return (
+    <button onClick={() => setCount(count + 1)}>
+      Clicked {count} times
+    </button>
+  );
+}`}
+        />
+      ),
+      points: [
+        "**State** is data a component remembers while the app runs, like how many times a button has been clicked.",
+        "Think of a scoreboard. It shows the current score, and when someone scores you update it, so everyone sees the new number.",
+        "`useState(0)` gives you two things: the current value (`count`) and a function that changes it (`setCount`). The `0` is the starting value.",
+        "When you call `setCount`, React draws the component again with the new value. That's how the screen stays up to date.",
+      ],
+      tip: "A **hook** is a function whose name starts with `use`, like `useState`. Hooks give your components extra abilities, such as memory.",
+    },
+    {
+      id: "d2-b-effect",
+      level: "beginner",
+      task: "2.2",
+      title: "Side jobs with useEffect",
+      check: ["react-b2-03", "react-b2-04"],
+      visual: (
+        <div className="grid gap-3">
+          <Flow
+            color="#a78bfa"
+            steps={[
+              { icon: "🧮", label: "Render", sub: "React works out the screen" },
+              { icon: "🖥️", label: "Screen updates", sub: "The user sees it" },
+              { icon: "📌", label: "Effect runs", sub: "Your outside job, like a timer" },
+            ]}
+          />
+          <CodeBlock
+            lang="jsx"
+            caption="Change the browser tab's title whenever `count` changes."
+            code={`useEffect(() => {
+  document.title = "Clicked " + count + " times";
+}, [count]);`}
+          />
+        </div>
+      ),
+      points: [
+        "A component's main job is to describe what's on screen. Some work happens outside the screen, like starting a timer or changing the browser tab's title.",
+        "`useEffect` is where that outside work goes. React runs it after the screen has updated.",
+        "The array at the end is the **dependency list**. React runs the effect again only when one of the values in it changes.",
+        "Think of a note that says \"when the score changes, update the sign outside\". The score is the dependency.",
+      ],
+      tip: "If you can work a value out from data you already have, you don't need an effect. Effects are for talking to things outside React.",
+    },
     {
       id: "d2-state",
       level: "junior",
@@ -83,12 +146,12 @@ dispatch({ type: "added", todo });`}
         </div>
       ),
       points: [
-        "Use the updater form `setX(prev => next)` when the next value depends on the previous one.",
-        "Treat state as immutable: create new objects and arrays. React compares with `Object.is`, so a mutated object looks unchanged.",
-        "`useState(fn)` (not `useState(fn())`) runs an expensive initialiser only on the first render.",
-        "Reach for `useReducer` when many events update related state; reducers must be pure, and `dispatch` is stable between renders.",
+        "When the next value depends on the previous one, pass a function to the setter: `setCount(prev => prev + 1)`. This is called the **updater** form.",
+        "Never edit state objects or arrays in place. Make new ones instead. React checks whether it got the same object back, and an edited object is still the same object.",
+        "Write `useState(fn)`, not `useState(fn())`, when the starting value is slow to work out. Passing the function means React calls it only on the first render.",
+        "Use `useReducer` when lots of different events update related state. You write all the update rules in one pure function, and the `dispatch` function never changes between renders.",
       ],
-      tip: "If you're asked to add an item to state in a live-coding round, say \"I'll create a new array\" while typing the spread. Interviewers listen for it.",
+      tip: "If you add an item to state in a live-coding round, say \"I'll create a new array\" while you type the spread. Interviewers listen for it.",
     },
     {
       id: "d2-effects",
@@ -110,13 +173,13 @@ dispatch({ type: "added", todo });`}
         </div>
       ),
       points: [
-        "Effects synchronise a component with something outside React: a network request, a subscription, a timer, a non-React widget.",
-        "List every reactive value the effect reads (props, state, values derived from them). The `react-hooks/exhaustive-deps` lint rule checks this.",
-        "Cleanup runs before the effect re-runs and when the component unmounts. Use it to unsubscribe, clear timers, or ignore stale responses.",
-        "Objects and functions created during render are new every time; as dependencies they make the effect run after every render.",
-        "In development, Strict Mode runs setup → cleanup → setup once on mount to prove your cleanup works.",
+        "An **effect** keeps a component in sync with something outside React, like a network connection, a timer or a map widget from another library.",
+        "List every prop, state value or value worked out from them that the effect reads. The `react-hooks/exhaustive-deps` lint rule checks this for you.",
+        "The **cleanup** is a function your effect returns. React runs it before the effect runs again and when the component is removed. Use it to unsubscribe, clear timers or ignore old responses.",
+        "Objects and functions you create while rendering are new every time. Put one in the dependency list and the effect runs after every render.",
+        "In development, Strict Mode runs your effect, then its cleanup, then the effect again when the component first appears. It's a quick test that your cleanup really works.",
       ],
-      tip: "The magic phrase: \"Effects are for synchronising with external systems, not for reacting to events.\" Then explain cleanup with a chat-room connect/disconnect example.",
+      tip: "A phrase interviewers like: \"Effects are for syncing with outside systems, not for reacting to clicks.\" Then explain cleanup with a chat room that connects and disconnects.",
     },
     {
       id: "d2-refs-memo",
@@ -149,12 +212,12 @@ dispatch({ type: "added", todo });`}
         </div>
       ),
       points: [
-        "Store information in a ref when it doesn't affect what's rendered: interval ids, previous values, DOM nodes.",
-        "Don't read or write `ref.current` during render (except lazy initialisation); do it in handlers and effects.",
-        "`useCallback(fn, deps)` is the same as `useMemo(() => fn, deps)`.",
-        "Memoization is an optimisation: it matters when the value is expensive or is passed to a `memo` child or an effect dependency.",
+        "Keep a value in a **ref** when it doesn't change what's on screen. Timer ids, a previous value and DOM elements are good examples.",
+        "Don't read or write `ref.current` while rendering, apart from setting it up the first time. Use it in event handlers and effects.",
+        "`useMemo` remembers a calculated value. `useCallback(fn, deps)` remembers a function, and it's the same thing as `useMemo(() => fn, deps)`.",
+        "**Memoization** means caching a result so you don't redo the work. It's only worth it when the work is slow, or the value goes to a `memo` child or an effect's dependency list.",
       ],
-      tip: "Asked \"useRef vs useState?\": state is for what the user sees and triggers a render; a ref is for what the component needs to remember but doesn't display.",
+      tip: "Asked about `useRef` versus `useState`? State is for what the user sees, and changing it re-renders. A ref is for what the component remembers but doesn't show.",
     },
     {
       id: "d2-rules",
@@ -204,16 +267,66 @@ dispatch({ type: "added", todo });`}
         </div>
       ),
       points: [
-        "Call hooks only at the top level of a component or custom hook: never in conditions, loops, nested functions, or after an early return.",
-        "React identifies each hook by its call order, so the order must be the same on every render.",
-        "Custom hooks share stateful logic, not state: two components calling `useOnlineStatus()` each get their own.",
-        "`use` is the exception: it can be called inside `if` and loops (but still only in components and hooks).",
+        "Call hooks only at the top level of a component or custom hook. Never put them inside an `if`, a loop, a nested function, or after an early `return`.",
+        "React tells hooks apart by the order you call them in. If the order changes between renders, React hands the wrong state to the wrong hook.",
+        "A **custom hook** is your own function that calls other hooks. It shares logic, not state: two components that call `useOnlineStatus()` each get their own copy.",
+        "`use` is the one exception. You can call it inside an `if` or a loop, though still only in components and hooks.",
       ],
-      tip: "Explain the \"why\": hooks are stored as a list per component instance; React walks that list in order on each render.",
+      tip: "Explain the reason, not just the rule. React stores each component's hooks as a list and walks through it in order on every render.",
     },
   ],
 
   questions: [
+    {
+      id: "react-b2-01",
+      domain: "d2",
+      lesson: "d2-b-state",
+      level: "beginner",
+      prompt: "What does `useState(0)` give you?",
+      options: ["The current value and a function to change it", "A number that can never change", "A copy of the whole page", "A connection to a database"],
+      answer: [0],
+      explanation: "`useState` returns a pair: the value right now and a setter function. The `0` is only the starting value. When you call the setter, the value changes and React draws the component again.",
+    },
+    {
+      id: "react-b2-02",
+      type: "fill",
+      domain: "d2",
+      lesson: "d2-b-state",
+      level: "beginner",
+      prompt: "Fill the gap so the button can update the counter.",
+      code: `const [count, {{1}}] = useState(0);
+
+<button onClick={() => setCount(count + 1)}>
+  {count}
+</button>`,
+      codeLang: "jsx",
+      blanks: [{ options: ["setCount", "count", "useCount", "updateState"], answer: 0 }],
+      explanation: "The second item in the pair is the setter, and by habit you name it `set` plus the value's name. The button calls `setCount`, so that's the name it needs here.",
+    },
+    {
+      id: "react-b2-03",
+      domain: "d2",
+      lesson: "d2-b-effect",
+      level: "beginner",
+      prompt: "When does React run the code inside `useEffect`?",
+      options: ["After the component has appeared on the screen", "Before the component's code is read", "Only when the user closes the page", "Never: it's only a comment"],
+      answer: [0],
+      explanation: "React draws the screen first and then runs your effect. That way the effect can work with a page that's already there, for example to set the tab title.",
+    },
+    {
+      id: "react-b2-04",
+      domain: "d2",
+      lesson: "d2-b-effect",
+      level: "beginner",
+      prompt: "After the first run, when will this effect run again?",
+      code: `useEffect(() => {
+  document.title = name;
+}, [name]);`,
+      codeLang: "jsx",
+      options: ["Whenever `name` changes", "On every key press anywhere in the app", "Never again", "Once every second"],
+      answer: [0],
+      explanation: "The dependency list is `[name]`, so React runs the effect again only when `name` has a new value. If nothing in the list changed, React skips it.",
+    },
     {
       id: "d2-01",
       domain: "d2",
@@ -230,7 +343,7 @@ function handleClick() {
       codeLang: "jsx",
       options: ["3", "1", "0", "It depends on timing"],
       answer: [0],
-      explanation: "Updater functions are queued and each receives the result of the previous one: 0 → 1 → 2 → 3.",
+      explanation: "Updater functions wait in a queue, and each one gets the result of the one before. So the value goes from 0 to 1, then 2, then 3.",
     },
     {
       id: "d2-02",
@@ -330,7 +443,7 @@ console.log(s.count);`,
       codeLang: "js",
       options: ["7", "0", "5", "It throws on the unknown action"],
       answer: [0],
-      explanation: "1 + 4 = 5; the unknown \"oops\" action hits `default` and returns the same state; 5 + 2 = 7.",
+      explanation: "Adding 4 to 1 gives 5. The unknown \"oops\" action falls through to `default`, which returns the state unchanged. Then adding 2 gives 7.",
     },
     {
       id: "d2-08",
@@ -352,7 +465,7 @@ console.log(s.count);`,
 }`,
       codeLang: "js",
       answer: [5],
-      explanation: "Line 5 mutates an object shared with the previous state. Strict Mode calls reducers twice in development, so the toggle flips twice; and memoized rows receive the same `todo` object, so they skip rendering. Return `state.map(t => t.id === action.id ? { ...t, done: !t.done } : t)`.",
+      explanation: "Line 5 edits an object that the previous state still uses. Strict Mode calls reducers twice in development, so the toggle flips twice. Memoized rows also get the same `todo` object, so they skip rendering. Return `state.map(t => t.id === action.id ? { ...t, done: !t.done } : t)`.",
     },
     {
       id: "d2-09",
@@ -367,7 +480,7 @@ console.log(s.count);`,
         "Never, because nothing can change",
       ],
       answer: [0],
-      explanation: "`[]` means \"depends on nothing reactive\", so it runs after the first commit only. (Strict Mode in development adds one extra setup + cleanup cycle.)",
+      explanation: "`[]` means the effect depends on nothing that changes, so it runs only after the first render. In development, Strict Mode adds one extra run and cleanup to test it.",
     },
     {
       id: "d2-10",
@@ -386,7 +499,7 @@ console.log(s.count);`,
       codeLang: "jsx",
       options: ["render, effect, cleanup", "effect, render, cleanup", "render, cleanup, effect", "render, effect"],
       answer: [0],
-      explanation: "The component body runs during render, the effect runs after commit, and the cleanup runs on unmount.",
+      explanation: "The component's body runs while rendering. The effect runs after React has updated the page. The cleanup runs when the component is removed.",
     },
     {
       id: "d2-11",
@@ -496,7 +609,7 @@ console.log(s.count);`,
       prompt: "An effect has no dependency array at all. When does it run?",
       options: ["After every render", "Only on mount", "Only when props change", "Only on unmount"],
       answer: [0],
-      explanation: "Omitting the array means \"synchronise after every commit\". It's rarely what you want for fetching or subscriptions.",
+      explanation: "Leaving out the array tells React to run the effect after every render. That's rarely what you want for fetching data or subscribing to something.",
     },
     {
       id: "d2-17",
@@ -511,7 +624,7 @@ console.log(s.count);`,
         "React runs the previous effect's cleanup (with the old id)",
         "React runs the effect again with the new id",
       ],
-      explanation: "Effects run after commit. Cleanup of the old effect always comes before the next setup.",
+      explanation: "Effects run after React has updated the page. The old effect's cleanup always runs before the new effect starts.",
     },
     {
       id: "d2-18",
@@ -624,7 +737,7 @@ console.log(s.count);`,
         "Only if the hook is defined in the same file",
       ],
       answer: [0],
-      explanation: "A custom hook is just a function that calls hooks; every call site has its own state. To share state, lift it up, use context, or use an external store.",
+      explanation: "A custom hook is just a function that calls hooks, and every place that calls it gets its own state. To share state, lift it up, use context, or use an external store.",
     },
     {
       id: "d2-25",
@@ -642,7 +755,7 @@ console.log(s.count);`,
         "}, [value, delay]);",
         "return debounced;",
       ],
-      explanation: "State holds the delayed value; the effect schedules an update and its cleanup cancels the pending timer whenever `value` changes again, so only the last value within `delay` wins.",
+      explanation: "State holds the delayed value. The effect starts a timer to update it, and the cleanup cancels that timer whenever `value` changes again. So only the last value typed within `delay` gets through.",
     },
     {
       id: "d2-26",
@@ -663,7 +776,7 @@ console.log(s.count);`,
         "`useLayoutEffect` instead of `useEffect`",
       ],
       answer: [0],
-      explanation: "`useEffectEvent` (stable in React 19.2) creates a non-reactive function that always sees the latest props and state. Call it from inside the effect; only `roomId` stays a dependency.",
+      explanation: "`useEffectEvent`, stable since React 19.2, creates a function that always sees the latest props and state but doesn't count as a dependency. Call it from inside the effect, and only `roomId` stays in the list.",
     },
     {
       id: "d2-27",
@@ -695,7 +808,7 @@ console.log(s.count);`,
         "Use `[]` everywhere so each effect runs only once",
       ],
       answer: [0, 1],
-      explanation: "Derived data belongs in render, and dependencies must be honest. Suppressing the linter hides stale-closure bugs; user events belong in event handlers.",
+      explanation: "Values you can work out belong in render, and the dependency list must be honest. Silencing the linter hides stale-closure bugs. Reactions to the user belong in event handlers.",
     },
     {
       id: "d2-29",
@@ -722,22 +835,22 @@ console.log(s.count);`,
         ["`useMemo`", "Cache an expensive calculation between renders"],
         ["`useContext`", "Read a value provided higher up the tree"],
       ],
-      explanation: "State drives the UI, effects sync with external systems, refs hold non-rendered values, memo caches computations, and context passes data deeply.",
+      explanation: "State drives what's on screen. Effects sync with outside systems. Refs hold values you don't show. Memoization caches calculations. Context passes data deep into the tree.",
     },
   ],
 
   cards: [
-    { id: "c-d2-usestate", domain: "d2", kind: "service", term: "useState", definition: "Returns `[value, setValue]`. The setter accepts a new value or an updater `prev => next`; updates are batched." },
-    { id: "c-d2-usereducer", domain: "d2", kind: "service", term: "useReducer", definition: "Returns `[state, dispatch]`. A pure `(state, action) => next` function centralises update logic." },
-    { id: "c-d2-useeffect", domain: "d2", kind: "service", term: "useEffect", definition: "Runs setup after commit to synchronise with an external system; cleanup runs before re-running and on unmount." },
-    { id: "c-d2-uselayouteffect", domain: "d2", kind: "service", term: "useLayoutEffect", definition: "Like useEffect but fires before the browser paints. For measuring layout; it blocks painting, so use sparingly." },
-    { id: "c-d2-useref", domain: "d2", kind: "service", term: "useRef", definition: "A mutable `{ current }` box that persists across renders without causing re-renders. DOM nodes, timer ids." },
+    { id: "c-d2-usestate", domain: "d2", kind: "service", term: "useState", definition: "Returns `[value, setValue]`. You pass the setter either a new value or a function that gets the previous value. React groups several updates into one render." },
+    { id: "c-d2-usereducer", domain: "d2", kind: "service", term: "useReducer", definition: "Returns `[state, dispatch]`. One pure function takes the current state and an action and returns the next state, so all your update rules live in one place." },
+    { id: "c-d2-useeffect", domain: "d2", kind: "service", term: "useEffect", definition: "Runs your code after React updates the page, to stay in sync with something outside React. Its cleanup runs before the next run and when the component is removed." },
+    { id: "c-d2-uselayouteffect", domain: "d2", kind: "service", term: "useLayoutEffect", definition: "Like useEffect, but it runs before the browser paints the screen. Use it to measure layout. It holds up painting, so use it sparingly." },
+    { id: "c-d2-useref", domain: "d2", kind: "service", term: "useRef", definition: "A box, `{ current }`, that keeps a value between renders without causing re-renders. Handy for DOM elements and timer ids." },
     { id: "c-d2-usememo", domain: "d2", kind: "service", term: "useMemo", definition: "Caches the result of a calculation until its dependencies change." },
     { id: "c-d2-usecallback", domain: "d2", kind: "service", term: "useCallback", definition: "Caches a function definition until its dependencies change. Same as `useMemo(() => fn, deps)`." },
-    { id: "c-d2-useeffectevent", domain: "d2", kind: "service", term: "useEffectEvent", definition: "Wraps logic that an effect calls but that shouldn't re-trigger it; always sees the latest props and state." },
-    { id: "c-d2-usesyncexternalstore", domain: "d2", kind: "service", term: "useSyncExternalStore", definition: "Subscribes to an external store with `subscribe` + `getSnapshot`, consistent under concurrent rendering." },
+    { id: "c-d2-useeffectevent", domain: "d2", kind: "service", term: "useEffectEvent", definition: "Wraps logic that an effect calls but that shouldn't make the effect run again. It always sees the latest props and state." },
+    { id: "c-d2-usesyncexternalstore", domain: "d2", kind: "service", term: "useSyncExternalStore", definition: "Reads from a store outside React using `subscribe` and `getSnapshot`, and keeps every component seeing the same value even during concurrent rendering." },
     { id: "c-d2-useid", domain: "d2", kind: "service", term: "useId", definition: "Generates a unique id that matches between server and client, for accessibility attributes like `htmlFor`." },
-    { id: "c-d2-deps", domain: "d2", kind: "concept", term: "Dependency array", definition: "The reactive values an effect or memo reads. Compared with `Object.is`; none = every render, `[]` = mount only." },
+    { id: "c-d2-deps", domain: "d2", kind: "concept", term: "Dependency array", definition: "The props and state an effect or memo reads, checked with `Object.is`. With no array it runs after every render. With `[]` it runs only once, when the component first appears." },
     { id: "c-d2-cleanup", domain: "d2", kind: "concept", term: "Effect cleanup", definition: "The function an effect returns. Runs before the next setup and on unmount: unsubscribe, clear timers, ignore stale results." },
     { id: "c-d2-stale", domain: "d2", kind: "concept", term: "Stale closure", definition: "A callback that captured old props or state from an earlier render. Fix with correct deps or updater functions." },
     { id: "c-d2-rules", domain: "d2", kind: "concept", term: "Rules of hooks", definition: "Call hooks only at the top level of components and custom hooks, so the call order is identical every render." },
@@ -752,8 +865,8 @@ console.log(s.count);`,
       lesson: "d2-effects",
       title: "Right dependencies, no wasted runs",
       goal: "Pick a dependency array, re-render the parent at least once, change the userId at least once, then resolve every request. The screen must match the prop and the effect must never run without a reason.",
-      hint: "No array runs on every parent render; `[]` never re-runs when userId changes.",
-      takeaway: "List exactly the reactive values the effect reads: `[userId]` re-runs when it changes and skips unrelated renders.",
+      hint: "With no array, the effect runs on every parent render. With `[]`, it never runs again when userId changes.",
+      takeaway: "List exactly the values the effect reads. `[userId]` runs again when the user changes and skips renders that have nothing to do with it.",
       render: (onSolved) => <EffectDepsLab goal="sync" onSolved={onSolved} />,
     },
     {
@@ -762,7 +875,7 @@ console.log(s.count);`,
       lesson: "d2-effects",
       title: "Win the race condition",
       goal: "Change the user, then resolve the newer request before the older one. The screen must still show the current user when everything has resolved.",
-      hint: "Without cleanup, the late response overwrites the right one. Turn on the `ignore` cleanup.",
+      hint: "Without a cleanup, the response that arrives last overwrites the right one. Turn on the `ignore` cleanup.",
       takeaway: "Cleanup runs before the next effect, so setting `ignore = true` stops stale responses from winning.",
       render: (onSolved) => <EffectDepsLab goal="race" onSolved={onSolved} />,
     },

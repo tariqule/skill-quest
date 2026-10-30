@@ -10,7 +10,7 @@ export const codingChallenges: CodingChallenge[] = [
     title: "Batch into chunks",
     idea: "slice in steps",
     prompt:
-      "Streams move data in chunks. Write `chunk(items, size)` that splits an array into consecutive arrays of at most `size` items, keeping order. `chunk([1,2,3,4,5], 2)` returns `[[1,2],[3,4],[5]]`. An empty array gives `[]`. `size` is always a positive integer.",
+      "Streams move data in chunks. Write `chunk(items, size)`, which splits an array into back-to-back arrays of at most `size` items, keeping the order. For example, `chunk([1,2,3,4,5], 2)` returns `[[1,2],[3,4],[5]]`. An empty array gives `[]`, and `size` is always a positive whole number.",
     fn: "chunk",
     starter: "function chunk(items, size) {\n  // TODO: return an array of arrays\n  return [];\n}",
     tests: [
@@ -24,13 +24,13 @@ export const codingChallenges: CodingChallenge[] = [
     ],
     hints: [
       "Walk the array in steps of `size` instead of one item at a time.",
-      "`items.slice(i, i + size)` returns at most `size` items and never throws past the end.",
+      "`items.slice(i, i + size)` returns at most `size` items, and it never throws if you go past the end.",
       "`for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size));`",
     ],
     solution:
       "function chunk(items, size) {\n  const out = [];\n  for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size));\n  return out;\n}",
     explanation:
-      "Stepping the index by `size` and slicing gives each chunk in O(n) total, and `slice` clamps at the end so the short tail needs no special case. This is exactly how a batching Transform groups records before a bulk insert. Follow-up: how would you do it lazily with a generator so you never hold all the chunks at once?",
+      "Stepping the index by `size` and slicing builds every chunk in O(n) time overall. `slice` stops at the end of the array, so the short last chunk needs no special case. A batching Transform groups records the same way before a bulk insert. A good follow-up: how would you do it lazily with a generator, so you never hold all the chunks at once?",
   },
   {
     id: "nodejs-cc-02",
@@ -40,7 +40,7 @@ export const codingChallenges: CodingChallenge[] = [
     title: "Parse a query string",
     idea: "split and decode",
     prompt:
-      "Write `parseQuery(qs)` that turns a URL query string into an object mapping each key to an array of its values, in order. `parseQuery('?a=1&b=2&a=3')` returns `{a:['1','3'], b:['2']}`. A leading `?` is optional, `+` means a space, and `%XX` sequences must be decoded (`decodeURIComponent`). A key without `=` has the value `''`. An empty string gives `{}`.",
+      "Write `parseQuery(qs)`, which turns a URL query string into an object. Each key maps to an array of its values, in order. For example, `parseQuery('?a=1&b=2&a=3')` returns `{a:['1','3'], b:['2']}`. The leading `?` is optional, `+` means a space, and `%XX` sequences must be decoded with `decodeURIComponent`. A key with no `=` gets the value `''`, and an empty string gives `{}`.",
     fn: "parseQuery",
     starter: "function parseQuery(qs) {\n  // TODO\n  return null;\n}",
     tests: [
@@ -54,14 +54,14 @@ export const codingChallenges: CodingChallenge[] = [
       { name: "encoded key and empty pairs", args: ["a%20b=1&&a%20b=2"], expected: { "a b": ["1", "2"] }, hidden: true },
     ],
     hints: [
-      "Strip a leading `?`, split on `&`, and skip empty pieces.",
-      "Split each pair at the FIRST `=` only (the value may contain more).",
-      "Replace `+` with a space BEFORE calling `decodeURIComponent` on both key and value.",
+      "Remove a leading `?`, split on `&`, and skip any empty pieces.",
+      "Split each pair at the FIRST `=` only, because the value may contain more of them.",
+      "Turn `+` into a space BEFORE you call `decodeURIComponent` on the key and the value.",
     ],
     solution:
       "function parseQuery(qs) {\n  const out = {};\n  const s = qs.startsWith('?') ? qs.slice(1) : qs;\n  for (const part of s.split('&')) {\n    if (!part) continue;\n    const i = part.indexOf('=');\n    const raw = i === -1 ? [part, ''] : [part.slice(0, i), part.slice(i + 1)];\n    const [k, v] = raw.map((x) => decodeURIComponent(x.replace(/\\+/g, ' ')));\n    (out[k] ||= []).push(v);\n  }\n  return out;\n}",
     explanation:
-      "One pass over the pairs, O(n). Splitting at the first `=` keeps values like `a=b` intact, and `+` must be turned into a space before percent-decoding because an encoded `%2B` must stay a plus. Follow-up: why prefer `new URLSearchParams` in production, and what does `__proto__` as a key do to an object like this one?",
+      "This is one pass over the pairs, so it's O(n). Splitting at the first `=` keeps values like `a=b` in one piece. You have to turn `+` into a space before percent-decoding, because an encoded `%2B` must stay a plus sign. A good follow-up: why use `new URLSearchParams` in production, and what would a key called `__proto__` do to an object like this one?",
   },
   {
     id: "nodejs-cc-03",
@@ -71,7 +71,7 @@ export const codingChallenges: CodingChallenge[] = [
     title: "Normalize a path",
     idea: "stack of segments",
     prompt:
-      "Write `normalizePath(p)` like `path.posix.normalize`, without a trailing slash. Collapse repeated `/`, drop `.` segments and resolve `..` against the previous segment. `normalizePath('/a/b/../c//d/.')` returns `'/a/c/d'`. Absolute paths never climb above `/` (`'/../a'` gives `'/a'`). Relative paths keep leading `..` (`'../../x'` stays as is), and an empty result is `'.'` for relative input and `'/'` for absolute.",
+      "Write `normalizePath(p)`, which works like `path.posix.normalize` but never leaves a trailing slash. Collapse repeated `/`, drop `.` segments, and resolve each `..` against the segment before it. For example, `normalizePath('/a/b/../c//d/.')` returns `'/a/c/d'`. Absolute paths never climb above `/`, so `'/../a'` gives `'/a'`. Relative paths keep any leading `..`, so `'../../x'` stays as it is. If nothing is left, return `'.'` for relative input and `'/'` for absolute input.",
     fn: "normalizePath",
     starter: "function normalizePath(p) {\n  // TODO\n  return p;\n}",
     tests: [
@@ -86,14 +86,14 @@ export const codingChallenges: CodingChallenge[] = [
       { name: "relative climbing past start", args: ["a/../../b"], expected: "../b", hidden: true },
     ],
     hints: [
-      "Split on `/` and process one segment at a time, building a stack of the segments you keep.",
-      "Skip `''` and `'.'`. For `'..'`, pop if the top is a real segment; otherwise it is kept only for relative paths.",
-      "Join the stack, then add the leading `/` for absolute input; handle the empty-stack case last.",
+      "Split on `/` and handle one segment at a time, building a stack of the segments you keep.",
+      "Skip `''` and `'.'`. For `'..'`, pop if the top of the stack is a real segment. If it isn't, keep the `'..'` only for relative paths.",
+      "Join the stack, then add the leading `/` for absolute input. Handle the empty stack last.",
     ],
     solution:
       "function normalizePath(p) {\n  const abs = p.startsWith('/');\n  const stack = [];\n  for (const seg of p.split('/')) {\n    if (seg === '' || seg === '.') continue;\n    if (seg === '..') {\n      if (stack.length && stack[stack.length - 1] !== '..') stack.pop();\n      else if (!abs) stack.push('..');\n    } else stack.push(seg);\n  }\n  const body = stack.join('/');\n  return abs ? '/' + body : body || '.';\n}",
     explanation:
-      "A stack models directory traversal: normal segments push, `..` pops, and the only subtle case is `..` with nothing to pop, which an absolute path ignores and a relative path preserves. O(n) time. Follow-up: why must server code normalise and then verify the result stays inside the base directory (path traversal)?",
+      "A stack mirrors moving through folders. Normal segments get pushed and `..` pops one off. The only tricky case is a `..` with nothing to pop: an absolute path ignores it, and a relative path keeps it. It runs in O(n) time. A good follow-up: why must server code normalise a path and then check the result is still inside the base folder? That's how you stop path traversal.",
   },
   {
     id: "nodejs-cc-04",
@@ -103,7 +103,7 @@ export const codingChallenges: CodingChallenge[] = [
     title: "Trailing debounce from a log",
     idea: "simulated clock",
     prompt:
-      "No timers allowed, so replay a call log. `events` is a list of `[time, value]` calls in time order. A trailing debounce with delay `wait` fires with the LAST value of a burst, at `lastCallTime + wait`, once `wait` ms pass with no new call. A gap of at least `wait` ends a burst. Return `[[fireTime, value], …]`. `debounceLog([[0,'a'],[50,'b'],[400,'c']], 100)` returns `[[150,'b'],[500,'c']]`.",
+      "Timers aren't allowed here, so you'll replay a log of calls instead. `events` is a list of `[time, value]` calls, in time order. A trailing debounce with delay `wait` fires once `wait` ms pass with no new call. It fires with the LAST value of the burst, at `lastCallTime + wait`. A gap of `wait` or more ends a burst. Return `[[fireTime, value], …]`. For example, `debounceLog([[0,'a'],[50,'b'],[400,'c']], 100)` returns `[[150,'b'],[500,'c']]`.",
     fn: "debounceLog",
     starter: "function debounceLog(events, wait) {\n  // TODO\n  return [];\n}",
     tests: [
@@ -117,14 +117,14 @@ export const codingChallenges: CodingChallenge[] = [
       { name: "same timestamp", args: [[[5, "a"], [5, "b"]], 10], expected: [[15, "b"]], hidden: true },
     ],
     hints: [
-      "Remember only the most recent event while you scan; you flush it when the next event is far enough away (or at the end).",
-      "Compare `next.time - last.time` with `wait`: `>= wait` means the timer would have fired first.",
-      "Loop over the events; when the gap is big, push `[last.time + wait, last.value]`. After the loop, flush the final pending event.",
+      "You only need to remember the most recent event as you go. You flush it when the next event is far enough away, or when you reach the end.",
+      "Compare `next.time - last.time` with `wait`. If it's `>= wait`, the timer would have fired first.",
+      "Loop over the events. When the gap is big enough, push `[last.time + wait, last.value]`. After the loop, flush the last pending event.",
     ],
     solution:
       "function debounceLog(events, wait) {\n  const out = [];\n  let last = null;\n  for (const ev of events) {\n    if (last && ev[0] - last[0] >= wait) out.push([last[0] + wait, last[1]]);\n    last = ev;\n  }\n  if (last) out.push([last[0] + wait, last[1]]);\n  return out;\n}",
     explanation:
-      "A debounce only ever cares about the latest call: each new call replaces the pending one, and a timer expiring is equivalent to the next call arriving at least `wait` later. One pass, O(n), O(1) extra state. Follow-up: what changes for a leading-edge debounce, and how would you add a `maxWait` so a constant stream still fires?",
+      "A debounce only ever cares about the latest call. Each new call replaces the pending one, and a timer running out is the same as the next call arriving at least `wait` later. That's a single pass, O(n), with O(1) extra state. A good follow-up: what changes for a leading-edge debounce, and how would you add a `maxWait` so a non-stop stream of calls still fires?",
   },
   {
     id: "nodejs-cc-05",
@@ -134,7 +134,7 @@ export const codingChallenges: CodingChallenge[] = [
     title: "Re-assemble lines from chunks",
     idea: "carry the remainder",
     prompt:
-      "Stream chunks do not respect line boundaries. Write `splitLines(chunks)`: given an array of string chunks, return the complete lines in order, as a line-splitting Transform would. A line may span several chunks. The last line is included even without a trailing `\\n`, and an input that ends with `\\n` does not produce an extra empty line. `splitLines(['ab','c\\nd','e\\n'])` returns `['abc','de']`. Empty lines in the middle are kept.",
+      "Stream chunks don't line up with line breaks. Write `splitLines(chunks)`: given an array of string chunks, return the complete lines in order, the way a line-splitting Transform would. One line can be spread over several chunks. Include the last line even if there's no trailing `\\n`, but don't add an empty line when the input ends with `\\n`. For example, `splitLines(['ab','c\\nd','e\\n'])` returns `['abc','de']`. Keep empty lines in the middle.",
     fn: "splitLines",
     starter: "function splitLines(chunks) {\n  // TODO: keep the unfinished tail between chunks\n  return [];\n}",
     tests: [
@@ -148,14 +148,14 @@ export const codingChallenges: CodingChallenge[] = [
       { name: "empty chunks mixed in", args: [["", "x", "", "y\nz", ""]], expected: ["xy", "z"], hidden: true },
     ],
     hints: [
-      "Keep a `rest` string: whatever came after the last newline so far.",
-      "For each chunk, `(rest + chunk).split('\\n')`; every piece except the last is a complete line, and the last piece becomes the new `rest`.",
-      "After the loop, if `rest` is non-empty, push it as the final line.",
+      "Keep a `rest` string holding whatever came after the last newline so far.",
+      "For each chunk, work out `(rest + chunk).split('\\n')`. Every piece except the last is a complete line, and the last piece becomes the new `rest`.",
+      "After the loop, if `rest` isn't empty, push it as the final line.",
     ],
     solution:
       "function splitLines(chunks) {\n  const out = [];\n  let rest = '';\n  for (const chunk of chunks) {\n    const parts = (rest + chunk).split('\\n');\n    rest = parts.pop();\n    out.push(...parts);\n  }\n  if (rest) out.push(rest);\n  return out;\n}",
     explanation:
-      "The classic Transform pattern: buffer the unfinished tail, emit the complete lines, flush the tail at the end. Work is O(total length). Follow-up: what breaks if you decode each Buffer chunk to a string separately (a multi-byte character split across chunks), and how does `StringDecoder` fix it?",
+      "This is the classic Transform pattern. Hold on to the unfinished tail, send out the complete lines, and flush the tail at the end. The work is O(total length). A good follow-up: what breaks if you decode each Buffer chunk to a string on its own, when a character that takes several bytes is split across chunks? And how does `StringDecoder` fix it?",
   },
   {
     id: "nodejs-cc-06",
@@ -165,7 +165,7 @@ export const codingChallenges: CodingChallenge[] = [
     title: "Compose onion middleware",
     idea: "recursive dispatch",
     prompt:
-      "Koa-style middleware wraps the rest of the chain. `runChain(mws)` takes a list of `{name, next}` (`next` is a boolean: does this middleware call `next()`?) and returns the log of events: `name>` when a middleware starts, and `<name` when it finishes after its `next()` returned. For `[{name:'a',next:true},{name:'b',next:false},{name:'c',next:true}]` the result is `['a>','b>','<b','<a']` because `b` never calls `next`, so `c` never runs.",
+      "Koa-style middleware wraps around the rest of the chain, like layers of an onion. `runChain(mws)` takes a list of `{name, next}`, where `next` is a boolean saying whether that middleware calls `next()`. Return the log of events: `name>` when a middleware starts, and `<name` when it finishes, after its `next()` has returned. For `[{name:'a',next:true},{name:'b',next:false},{name:'c',next:true}]`, the result is `['a>','b>','<b','<a']`. `b` never calls `next`, so `c` never runs.",
     fn: "runChain",
     starter: "function runChain(mws) {\n  const log = [];\n  // TODO: build dispatch(i) and start it at 0\n  return log;\n}",
     tests: [
@@ -180,13 +180,13 @@ export const codingChallenges: CodingChallenge[] = [
     ],
     hints: [
       "Each middleware gets a `next` function that runs the middleware after it.",
-      "Write `function dispatch(i)`: if `i` is past the end, return; otherwise log `name>`, call `dispatch(i + 1)` only if `mw.next`, then log `<name`.",
-      "Return `log` after calling `dispatch(0)`. The `<name` line is logged AFTER the inner call returns, which is what creates the onion.",
+      "Write `function dispatch(i)`. If `i` is past the end, return. Otherwise log `name>`, call `dispatch(i + 1)` only if `mw.next` is true, then log `<name`.",
+      "Call `dispatch(0)`, then return `log`. The `<name` entry is logged AFTER the inner call returns, and that's what makes the onion shape.",
     ],
     solution:
       "function runChain(mws) {\n  const log = [];\n  function dispatch(i) {\n    const mw = mws[i];\n    if (!mw) return;\n    log.push(mw.name + '>');\n    if (mw.next) dispatch(i + 1);\n    log.push('<' + mw.name);\n  }\n  dispatch(0);\n  return log;\n}",
     explanation:
-      "Each layer runs its \"before\" code, hands control inward with `next`, and resumes for its \"after\" code when the inner layers return, which is why timing and error-handling middleware go first. Not calling `next` short-circuits the rest. Follow-up: in real async middleware, what goes wrong if a middleware calls `next()` twice, and why must you `await next()`?",
+      "Each layer runs its \"before\" code, passes control inward with `next`, and then runs its \"after\" code once the inner layers return. That's why timing and error-handling middleware go first. Not calling `next` cuts the rest of the chain off. A good follow-up: in real async middleware, what goes wrong if a middleware calls `next()` twice, and why must you `await next()`?",
   },
   {
     id: "nodejs-cc-07",
@@ -196,7 +196,7 @@ export const codingChallenges: CodingChallenge[] = [
     title: "Promise pool on a simulated clock",
     idea: "min-time slot",
     prompt:
-      "A pool runs at most `limit` tasks at once. Tasks start in input order; the moment one finishes, the next waiting task starts. Given `durations` (ms per task) and `limit`, return the finish time of each task, indexed like the input, with the clock starting at 0. `poolFinish([5,3,4], 2)` returns `[5,3,7]`: tasks 0 and 1 start at 0, task 1 ends at 3 and frees a slot for task 2, which ends at 7. `limit` is at least 1.",
+      "A pool runs at most `limit` tasks at the same time. Tasks start in input order, and as soon as one finishes, the next waiting task starts. Given `durations` (ms per task) and `limit`, return the time each task finishes, in input order, with the clock starting at 0. For example, `poolFinish([5,3,4], 2)` returns `[5,3,7]`. Tasks 0 and 1 start at 0. Task 1 ends at 3 and frees a slot for task 2, which ends at 7. `limit` is always at least 1.",
     fn: "poolFinish",
     starter: "function poolFinish(durations, limit) {\n  // TODO\n  return [];\n}",
     tests: [
@@ -210,14 +210,14 @@ export const codingChallenges: CodingChallenge[] = [
       { name: "mixed lengths", args: [[7, 2, 5, 1, 3, 4], 3], expected: [7, 2, 5, 3, 6, 9], hidden: true },
     ],
     hints: [
-      "Track the time at which each of the `limit` slots becomes free (start them all at 0).",
-      "For each task in order, it starts on the slot that frees up earliest.",
-      "Keep an array `free` of `limit` zeros; for each task pick the index of the smallest value, set `finish = free[i] + duration`, store it back and record it.",
+      "Track the time at which each of the `limit` slots becomes free. They all start at 0.",
+      "Each task, in order, starts on whichever slot frees up first.",
+      "Keep an array `free` of `limit` zeros. For each task, find the index of the smallest value, set `finish = free[i] + duration`, store it back and record it.",
     ],
     solution:
       "function poolFinish(durations, limit) {\n  const free = new Array(Math.min(limit, Math.max(durations.length, 1))).fill(0);\n  return durations.map((d) => {\n    let best = 0;\n    for (let i = 1; i < free.length; i++) if (free[i] < free[best]) best = i;\n    free[best] += d;\n    return free[best];\n  });\n}",
     explanation:
-      "A real pool starts the next job when ANY slot frees, which is the slot with the smallest free-time. O(n * limit) here; a min-heap makes it O(n log limit). Follow-up: how do you cap concurrency for real with promises (an in-flight counter plus a queue, or `Promise.race` over the running set), and what should happen to the pool when one task rejects?",
+      "A real pool starts the next job when ANY slot frees up, which is the slot with the smallest free time. This version is O(n * limit), and a min-heap would make it O(n log limit). A good follow-up: how do you really cap concurrency with promises, using an in-flight counter and a queue, or `Promise.race` over the running set? And what should the pool do when one task rejects?",
   },
   {
     id: "nodejs-cc-08",
@@ -227,7 +227,7 @@ export const codingChallenges: CodingChallenge[] = [
     title: "Settle every promise",
     idea: "never reject",
     prompt:
-      "Write async `settleAll(specs)` that behaves like `Promise.allSettled`, built by hand. Each spec is the string `'ok:<value>'` or `'fail:<reason>'`; make a promise for it (`Promise.resolve(value)` or `Promise.reject(reason)`) and return a promise for an array, in input order, of `{ok:true,value}` or `{ok:false,reason}` (`value` and `reason` are the strings after the colon). It must never reject, and an empty list gives `[]`. Do not use `Promise.allSettled`.",
+      "Write async `settleAll(specs)`, which behaves like `Promise.allSettled` but is built by hand. Each spec is the string `'ok:<value>'` or `'fail:<reason>'`. Make a promise for each one, with `Promise.resolve(value)` or `Promise.reject(reason)`. Return a promise for an array, in input order, of `{ok:true,value}` or `{ok:false,reason}`, where `value` and `reason` are the strings after the colon. It must never reject, and an empty list gives `[]`. Don't use `Promise.allSettled`.",
     fn: "settleAll",
     starter: "async function settleAll(specs) {\n  // TODO\n  return [];\n}",
     tests: [
@@ -240,14 +240,14 @@ export const codingChallenges: CodingChallenge[] = [
       { name: "order preserved over many", args: [["fail:1", "ok:2", "fail:3", "ok:4", "ok:5", "fail:6"]], expected: [{ ok: false, reason: "1" }, { ok: true, value: "2" }, { ok: false, reason: "3" }, { ok: true, value: "4" }, { ok: true, value: "5" }, { ok: false, reason: "6" }], hidden: true },
     ],
     hints: [
-      "Turn each spec into a promise first, then attach handlers to each one so a rejection becomes a normal result.",
+      "Turn each spec into a promise first. Then attach handlers to each one, so a rejection turns into a normal result.",
       "`p.then((value) => ({ ok: true, value }), (reason) => ({ ok: false, reason }))` never rejects.",
-      "Wrap the mapped array in `Promise.all`; it keeps input order. Split a spec on the FIRST colon only.",
+      "Wrap the mapped array in `Promise.all`, which keeps input order. Split each spec at the FIRST colon only.",
     ],
     solution:
       "async function settleAll(specs) {\n  const wrapped = specs.map((s) => {\n    const i = s.indexOf(':');\n    const kind = s.slice(0, i);\n    const text = s.slice(i + 1);\n    const p = kind === 'ok' ? Promise.resolve(text) : Promise.reject(text);\n    return p.then((value) => ({ ok: true, value }), (reason) => ({ ok: false, reason }));\n  });\n  return Promise.all(wrapped);\n}",
     explanation:
-      "Converting each rejection into a fulfilled result object up front means `Promise.all` can never reject, and it preserves input order whatever the settle order. All promises run concurrently. Follow-up: why does `Promise.all` alone lose the other results (and risk unhandled rejections) when one input fails, and when would you prefer `Promise.any`?",
+      "Turning every rejection into a fulfilled result object up front means `Promise.all` can never reject. It also keeps input order, whatever order the promises settle in, and all the promises run at the same time. A good follow-up: why does `Promise.all` on its own lose the other results, and risk unhandled rejections, when one input fails? And when would you choose `Promise.any` instead?",
   },
   {
     id: "nodejs-cc-09",
@@ -257,7 +257,7 @@ export const codingChallenges: CodingChallenge[] = [
     title: "Sliding-window rate limiter",
     idea: "queue of timestamps",
     prompt:
-      "Design a rate limiter you can test over a log. Given request `times` in non-decreasing order (ms), allow at most `limit` ACCEPTED requests in any window of `windowMs` ms. A request at time `t` counts accepted requests with time `> t - windowMs`. Return an array of booleans: `true` if accepted. Rejected requests do not count against the limit. `rateLimit([0,1,2,3,10], 2, 5)` returns `[true,true,false,false,true]`.",
+      "Design a rate limiter you can test over a log. Request `times` come in non-decreasing order, in ms. Allow at most `limit` ACCEPTED requests in any window of `windowMs` ms. For a request at time `t`, count the accepted requests whose time is `> t - windowMs`. Return an array of booleans, `true` meaning accepted. Rejected requests don't count towards the limit. For example, `rateLimit([0,1,2,3,10], 2, 5)` returns `[true,true,false,false,true]`.",
     fn: "rateLimit",
     starter: "function rateLimit(times, limit, windowMs) {\n  // TODO\n  return [];\n}",
     tests: [
@@ -272,13 +272,13 @@ export const codingChallenges: CodingChallenge[] = [
     ],
     hints: [
       "You only need the timestamps of ACCEPTED requests that are still inside the window.",
-      "Keep them in a queue; before deciding, drop from the front while `front <= t - windowMs`.",
-      "If the queue length is below `limit`, push `t` and answer `true`; otherwise answer `false` without pushing.",
+      "Keep them in a queue. Before you decide on a request, drop items from the front while `front <= t - windowMs`.",
+      "If the queue is shorter than `limit`, push `t` and answer `true`. Otherwise answer `false` and don't push anything.",
     ],
     solution:
       "function rateLimit(times, limit, windowMs) {\n  const accepted = [];\n  let head = 0;\n  return times.map((t) => {\n    while (head < accepted.length && accepted[head] <= t - windowMs) head++;\n    if (accepted.length - head < limit) {\n      accepted.push(t);\n      return true;\n    }\n    return false;\n  });\n}",
     explanation:
-      "A sliding-window log: each timestamp is pushed once and evicted once, so the total work is O(n) and memory is O(limit). Using a head index avoids O(n) `shift` calls. Follow-up: how does this change across several Node processes or pods (a shared store like Redis with atomic ops), and when would you pick a token bucket for smoother bursts?",
+      "This is a sliding-window log. Each timestamp is added once and removed once, so the total work is O(n) and memory is O(limit). Moving a head index instead of calling `shift` avoids O(n) work on every removal. A good follow-up: how does this change across several Node processes or pods, where you'd need a shared store like Redis with atomic operations? And when would you choose a token bucket for smoother bursts?",
   },
   {
     id: "nodejs-cc-10",
@@ -288,7 +288,7 @@ export const codingChallenges: CodingChallenge[] = [
     title: "Module load order with cycles",
     idea: "Kahn's algorithm",
     prompt:
-      "Write `loadOrder(graph)`: `graph` maps each module to the modules it requires (every required module is also a key). Return `{order: [...]}` listing modules so each comes after its dependencies; when several are ready, take them in alphabetical order. If a cycle makes that impossible, return `{error: 'cycle', stuck: [...]}`, where `stuck` is the alphabetically sorted list of modules that could not be ordered. `loadOrder({app:['db','log'],db:['log'],log:[]})` returns `{order:['log','db','app']}`.",
+      "Write `loadOrder(graph)`. `graph` maps each module to the modules it requires, and every required module is also a key. Return `{order: [...]}`, listing the modules so each one comes after its dependencies. When several are ready at once, take them in alphabetical order. If a cycle makes that impossible, return `{error: 'cycle', stuck: [...]}`, where `stuck` is the alphabetically sorted list of modules that couldn't be placed. For example, `loadOrder({app:['db','log'],db:['log'],log:[]})` returns `{order:['log','db','app']}`.",
     fn: "loadOrder",
     starter: "function loadOrder(graph) {\n  // TODO\n  return { order: [] };\n}",
     tests: [
@@ -303,14 +303,14 @@ export const codingChallenges: CodingChallenge[] = [
       { name: "wide graph", args: [{ e: ["c", "d"], d: ["b"], c: ["a", "b"], b: ["a"], a: [] }], expected: { order: ["a", "b", "c", "d", "e"] }, hidden: true },
     ],
     hints: [
-      "Count, for every module, how many of its dependencies are not yet loaded.",
-      "Repeatedly take the alphabetically first module with a count of 0, append it, and decrement the count of every module that requires it.",
-      "If you run out of ready modules before placing all of them, the rest are stuck: return them sorted with `error: 'cycle'`.",
+      "For every module, count how many of its dependencies haven't been loaded yet.",
+      "Over and over, take the alphabetically first module whose count is 0, add it to the order, and lower the count of every module that requires it.",
+      "If you run out of ready modules before placing them all, the rest are stuck. Return them sorted, with `error: 'cycle'`.",
     ],
     solution:
       "function loadOrder(graph) {\n  const names = Object.keys(graph);\n  const pending = {};\n  const dependents = {};\n  for (const n of names) {\n    pending[n] = graph[n].length;\n    dependents[n] = dependents[n] || [];\n  }\n  for (const n of names) for (const d of graph[n]) dependents[d].push(n);\n  const ready = names.filter((n) => pending[n] === 0).sort();\n  const order = [];\n  while (ready.length) {\n    const n = ready.shift();\n    order.push(n);\n    for (const m of dependents[n]) {\n      if (--pending[m] === 0) {\n        ready.push(m);\n        ready.sort();\n      }\n    }\n  }\n  if (order.length === names.length) return { order };\n  const done = new Set(order);\n  return { error: 'cycle', stuck: names.filter((n) => !done.has(n)).sort() };\n}",
     explanation:
-      "Kahn's algorithm: modules with no unmet dependencies are safe to load, and loading one may unblock its dependents. Whatever never becomes ready is part of a cycle or depends on one. O(V + E) apart from the sort for tie-breaking. Follow-up: what does Node's CommonJS loader do on a cycle (a partially filled `exports`), and how do you break one in practice?",
+      "This is Kahn's algorithm. A module with no unmet dependencies is safe to load, and loading it may free up the modules that depend on it. Anything that never becomes ready is part of a cycle, or depends on one. It's O(V + E), apart from the sorting used to break ties. A good follow-up: what does Node's CommonJS loader do when it meets a cycle (it hands out a partly filled `exports`), and how do you break one in practice?",
   },
   {
     id: "nodejs-cc-11",
@@ -320,7 +320,7 @@ export const codingChallenges: CodingChallenge[] = [
     title: "Event emitter with once and off",
     idea: "listener list per event",
     prompt:
-      "Model Node's `EventEmitter` over an op log. `runEmitter(ops)` takes ops `['on', event, name]`, `['once', event, name]`, `['off', event, name]` and `['emit', event, arg]`, and returns the log of listener calls as strings `'name(arg)'`, in the order they ran. Listeners run in registration order. A `once` listener is removed before it runs, so it fires at most once. `off` removes only ONE registration of that name for that event: the most recently added one, as Node does. Emitting an event with no listeners logs nothing.",
+      "Model Node's `EventEmitter` over a log of operations. `runEmitter(ops)` takes ops `['on', event, name]`, `['once', event, name]`, `['off', event, name]` and `['emit', event, arg]`. Return the log of listener calls as strings `'name(arg)'`, in the order they ran. Listeners run in the order they were added. A `once` listener is removed before it runs, so it fires at most once. Like Node, `off` removes only ONE registration of that name for that event: the most recently added one. Emitting an event with no listeners logs nothing.",
     fn: "runEmitter",
     starter: "function runEmitter(ops) {\n  const log = [];\n  // TODO\n  return log;\n}",
     tests: [
@@ -335,13 +335,13 @@ export const codingChallenges: CodingChallenge[] = [
       { name: "two onces keep their order", args: [[["once", "x", "A"], ["on", "x", "B"], ["once", "x", "C"], ["emit", "x", 1], ["emit", "x", 2]]], expected: ["A(1)", "B(1)", "C(1)", "B(2)"], hidden: true },
     ],
     hints: [
-      "Keep an object mapping each event to an array of listener records `{name, once}`.",
-      "For `emit`, take a copy of the array, remove the `once` records from the real one, then log each copied record in order.",
-      "For `off`, search the event's array from the END for the matching name and splice that one record out.",
+      "Keep an object that maps each event to an array of listener records, `{name, once}`.",
+      "For `emit`, take a copy of the array, remove the `once` records from the real one, then log each record in the copy, in order.",
+      "For `off`, search the event's array from the END for the matching name, and splice out just that one record.",
     ],
     solution:
       "function runEmitter(ops) {\n  const log = [];\n  const listeners = {};\n  for (const [op, event, x] of ops) {\n    const list = (listeners[event] = listeners[event] || []);\n    if (op === 'on' || op === 'once') {\n      list.push({ name: x, once: op === 'once' });\n    } else if (op === 'off') {\n      for (let i = list.length - 1; i >= 0; i--) {\n        if (list[i].name === x) {\n          list.splice(i, 1);\n          break;\n        }\n      }\n    } else if (op === 'emit') {\n      const snapshot = list.slice();\n      listeners[event] = list.filter((l) => !l.once);\n      for (const l of snapshot) log.push(l.name + '(' + x + ')');\n    }\n  }\n  return log;\n}",
     explanation:
-      "Each event owns an ordered list; `emit` iterates over a snapshot so listeners added or removed mid-emit don't change the current run, and `once` entries are dropped before they run. Registration and emit are O(listeners). Follow-up: what does Node do for the special `'error'` event with no listener, and what is the `MaxListenersExceededWarning` guarding against?",
+      "Each event owns an ordered list. `emit` loops over a snapshot, so listeners added or removed during an emit don't change the current run, and `once` entries are dropped before they run. Adding a listener and emitting are both O(listeners). A good follow-up: what does Node do with the special `'error'` event when nobody is listening, and what is `MaxListenersExceededWarning` there to catch?",
   },
 ];

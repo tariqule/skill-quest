@@ -12,7 +12,7 @@ export default defineDomain({
     weight: 25,
     emoji: "🏰",
     color: "#f59e0b",
-    summary: "memo and avoiding needless renders, Suspense, lazy and transitions, React 19 Actions and hooks, the React Compiler, and app-scale decisions.",
+    summary: "Keeping apps fast, showing loading states with Suspense, React 19 Actions for forms, the React Compiler, and decisions for large apps.",
   },
 
   tasks: [
@@ -23,6 +23,61 @@ export default defineDomain({
   ],
 
   lessons: [
+    {
+      id: "d4-b-fast",
+      level: "beginner",
+      task: "4.1",
+      title: "Why some apps feel slow",
+      check: ["react-b4-01", "react-b4-02"],
+      visual: (
+        <Tiles
+          tiles={[
+            { icon: "🐢", title: "Too much work", text: "Big parts of the screen get redrawn even though nothing in them changed.", color: "#f87171" },
+            { icon: "🐇", title: "Just enough work", text: "Only the parts that use the changed data get redrawn.", color: "#34d399" },
+          ]}
+        />
+      ),
+      points: [
+        "A **re-render** is React calling your component again to check what the screen should look like now.",
+        "Re-renders are usually quick. They only become a problem when lots of components redraw again and again for no reason.",
+        "Think of a chalkboard menu. If one price changes, you rub out that one price, not the whole board.",
+        "The simplest fix is often to keep state close to where it's used, so a change only redraws that small part.",
+      ],
+      tip: "Don't guess what's slow. The React DevTools browser extension shows you which components redraw and how long each one takes.",
+    },
+    {
+      id: "d4-b-loading",
+      level: "beginner",
+      task: "4.2",
+      title: "Showing something while you wait",
+      check: ["react-b4-03", "react-b4-04"],
+      visual: (
+        <div className="grid gap-3">
+          <Flow
+            color="#f59e0b"
+            steps={[
+              { icon: "📄", label: "Page opens", sub: "The heading shows straight away" },
+              { icon: "⏳", label: "Fallback", sub: "\"Loading comments...\"" },
+              { icon: "💬", label: "Content arrives", sub: "The comments replace the fallback" },
+            ]}
+          />
+          <CodeBlock
+            lang="jsx"
+            code={`<h1>My post</h1>
+<Suspense fallback={<p>Loading comments...</p>}>
+  <Comments />
+</Suspense>`}
+          />
+        </div>
+      ),
+      points: [
+        "Some parts of a page take time to get ready, like comments that load from a server. People should see something while they wait.",
+        "`<Suspense>` is a React component that shows a **fallback**, a stand-in such as \"Loading...\", until the content inside it is ready.",
+        "It's like the buzzer a café gives you. You get something right away that says \"not yet\", and then your order arrives.",
+        "The rest of the page doesn't wait. Only the part wrapped in `<Suspense>` shows the fallback. It works with code built for it, like `lazy` components and the `use` hook.",
+      ],
+      tip: "Put the loading message where the content will appear, so the page doesn't jump around when it arrives.",
+    },
     {
       id: "d4-memo",
       level: "senior",
@@ -52,12 +107,12 @@ const onPick = useCallback((id) => pick(id), [pick]);
         </div>
       ),
       points: [
-        "`memo(Component)` skips a re-render when every prop is `Object.is`-equal to last time.",
-        "New objects, arrays, and functions created during render break that comparison; `useMemo` and `useCallback` keep them stable.",
-        "Moving state down (or passing components as `children`) often removes renders without any memoization.",
-        "Measure first with the React DevTools Profiler; for very long lists, virtualise so only visible rows render.",
+        "`memo(Component)` lets React skip re-rendering a component when every prop is the same as last time, checked with `Object.is`.",
+        "Objects, arrays and functions you create while rendering are new each time, so they never count as the same. `useMemo` and `useCallback` keep them stable.",
+        "Moving state down to the component that uses it, or passing components as `children`, often removes extra renders without any memoization.",
+        "Measure first with the React DevTools Profiler. For very long lists, use **virtualisation**: render only the rows that fit on screen.",
       ],
-      tip: "Lead with \"move state down\" before \"add memo\". It shows you fix the cause, not the symptom.",
+      tip: "Suggest moving state down before you suggest adding `memo`. It shows you fix the cause, not the symptom.",
     },
     {
       id: "d4-suspense",
@@ -101,12 +156,12 @@ function Summary({ statsPromise }) {
         </div>
       ),
       points: [
-        "Suspense doesn't detect data fetched inside effects; only Suspense-enabled sources trigger the fallback.",
-        "Declare `lazy` components at module level, never inside a component.",
-        "Updates inside a transition won't replace already-visible content with a fallback; React keeps showing the old UI.",
-        "`use(promise)` and `use(context)` can be called conditionally. Pass promises created outside render (for example from a server or a cache).",
+        "Suspense can't see data you fetch inside an effect. Only sources built for Suspense, like `lazy` or `use`, make it show the fallback.",
+        "`lazy` loads a component's code only when it's first needed. Declare it at the top of the file, never inside a component.",
+        "A **transition** marks an update as not urgent. Updates inside one won't swap content that's already on screen for a fallback. React keeps showing the old screen until the new one is ready.",
+        "You can call `use(promise)` and `use(context)` inside an `if`. Pass in promises made outside rendering, for example ones from the server or a cache.",
       ],
-      tip: "Describe boundaries as a design choice: \"Where do I want a loading state?\" Put a boundary there, not around every component.",
+      tip: "Treat Suspense boundaries as a design choice. Ask where you want a loading state, and put a boundary there, not around every component.",
     },
     {
       id: "d4-actions",
@@ -153,13 +208,13 @@ function SubmitButton() {
         </div>
       ),
       points: [
-        "An Action is an async function run in a transition. `<form action={fn}>` calls it with the form's `FormData` and resets uncontrolled fields after success.",
-        "`useActionState(action, initialState)` returns `[state, formAction, isPending]`; the action receives `(previousState, formData)`.",
-        "`useFormStatus()` (from react-dom) gives `{ pending, data, method, action }` for the parent form, so it must be called in a component rendered inside that form.",
-        "`useOptimistic(state, updateFn)` shows an expected value while an Action is pending, then falls back to the real state.",
-        "Function components can take `ref` as a normal prop in React 19, so `forwardRef` is no longer needed.",
+        "An **Action** is an async function that React runs in a transition. `<form action={fn}>` calls it with the form's `FormData`, and clears uncontrolled fields when it succeeds.",
+        "`useActionState(action, initialState)` returns `[state, formAction, isPending]`. Your action receives `(previousState, formData)`.",
+        "`useFormStatus()`, from react-dom, tells you about the form around it: `{ pending, data, method, action }`. So you call it in a component that sits inside that form.",
+        "`useOptimistic(state, updateFn)` shows the result you expect while an Action is running, then switches back to the real state when it's done.",
+        "In React 19, function components take `ref` as a normal prop, so you no longer need `forwardRef`.",
       ],
-      tip: "If asked what changed in React 19, lead with Actions: pending state, errors, optimistic updates, and forms handled by React instead of hand-written loading flags.",
+      tip: "If asked what changed in React 19, start with Actions. React now handles pending state, errors, optimistic updates and forms, so you stop writing your own loading flags.",
     },
     {
       id: "d4-scale",
@@ -208,16 +263,63 @@ function Table({ items, pick }) {
         </div>
       ),
       points: [
-        "The compiler removes most manual `memo`/`useMemo`/`useCallback`; code that breaks the Rules of React (mutation during render, conditional hooks) is skipped or may misbehave.",
-        "Adopt it incrementally (a directory or feature at a time) with its lint rules on, and keep existing memoization until you've verified behaviour.",
-        "Error boundaries are still class components (`getDerivedStateFromError` / `componentDidCatch`) or a library wrapper; they don't catch errors in event handlers or async code.",
-        "Class components still work in React 19, so migrations can be incremental rather than big-bang rewrites.",
+        "The **React Compiler** adds memoization for you at build time, so you write far less `memo`, `useMemo` and `useCallback`. Code that breaks the Rules of React gets skipped or may misbehave.",
+        "Roll it out a folder or feature at a time, with its lint rules on. Keep your existing memoization until you've checked everything still behaves.",
+        "An **error boundary** catches crashes in the components below it and shows a fallback. It's still a class component, or a library wrapper. It doesn't catch errors in event handlers or async code.",
+        "Class components still work in React 19, so you can move to hooks bit by bit instead of rewriting everything at once.",
       ],
-      tip: "Staff-level answers name the rollout plan: measure, pilot on one area, add guardrails (lint, tests, monitoring), then expand.",
+      tip: "Strong staff-level answers include a rollout plan. Measure, try it on one area, add safety checks like lint rules, tests and monitoring, then expand.",
     },
   ],
 
   questions: [
+    {
+      id: "react-b4-01",
+      domain: "d4",
+      lesson: "d4-b-fast",
+      level: "beginner",
+      prompt: "What is a re-render in React?",
+      options: ["React calling your component again to work out what the screen should show", "Reloading the whole browser tab", "Downloading React again", "Deleting the component"],
+      answer: [0],
+      explanation: "When data changes, React calls your component function again and compares the result with last time. Then it changes only the parts of the page that are actually different.",
+    },
+    {
+      id: "react-b4-02",
+      domain: "d4",
+      lesson: "d4-b-fast",
+      level: "beginner",
+      prompt: "A price changes in one small part of the page. What's the ideal amount of work for React to do?",
+      options: ["Redraw only the part that shows that price", "Redraw every component in the app", "Reload the whole page", "Nothing, and leave the old price on screen"],
+      answer: [0],
+      explanation: "Fast React apps redraw just what changed. Keeping state close to the component that uses it is the easiest way to get there.",
+    },
+    {
+      id: "react-b4-03",
+      domain: "d4",
+      lesson: "d4-b-loading",
+      level: "beginner",
+      prompt: "In `<Suspense fallback={<p>Loading...</p>}>`, what does `fallback` do?",
+      options: ["Shows that content while the part inside is still loading", "Hides the page until the user refreshes", "Makes the content download faster", "Shows an error when the user clicks"],
+      answer: [0],
+      explanation: "The fallback is a stand-in. React shows it until the components inside the Suspense boundary are ready, then swaps in the real content.",
+    },
+    {
+      id: "react-b4-04",
+      domain: "d4",
+      lesson: "d4-b-loading",
+      level: "beginner",
+      prompt: "While `<Comments />` is still loading, what does the user see?",
+      code: `<>
+  <h1>My post</h1>
+  <Suspense fallback={<p>Loading comments...</p>}>
+    <Comments />
+  </Suspense>
+</>`,
+      codeLang: "jsx",
+      options: ["The heading and \"Loading comments...\"", "A blank page", "Only the heading, with an empty gap below", "An error message"],
+      answer: [0],
+      explanation: "Only the part inside `<Suspense>` waits. The heading shows right away, and the fallback fills the gap until the comments are ready.",
+    },
     {
       id: "d4-01",
       domain: "d4",
@@ -257,7 +359,7 @@ function Table({ items }) {
         "It skips whenever the component has no state",
       ],
       answer: [0],
-      explanation: "memo is shallow: equal primitives and identical references pass; a new object with the same contents doesn't. You can pass a custom compare function, but that's rarely needed.",
+      explanation: "`memo` only does a shallow check. Equal numbers and strings pass, and so does the very same object. A new object with the same contents doesn't. You can pass your own compare function, but you'll rarely need to.",
     },
     {
       id: "d4-03",
@@ -272,7 +374,7 @@ function Table({ items }) {
         "Rewrite the screen with class components",
       ],
       answer: [0],
-      explanation: "Memoization has a cost and only helps where renders are expensive or frequent. Measure first, then fix the hot spots, often by restructuring state.",
+      explanation: "Memoization isn't free, and it only helps where renders are slow or happen a lot. Measure first, then fix the slow spots, often by moving state around.",
     },
     {
       id: "d4-04",
@@ -338,7 +440,7 @@ function Table({ items }) {
         "Prevents its children from ever re-rendering",
       ],
       answer: [0],
-      explanation: "Suspense is a loading boundary. Errors are handled by error boundaries, not Suspense.",
+      explanation: "Suspense handles waiting, by showing a fallback while something loads. Errors are a different job, handled by error boundaries.",
     },
     {
       id: "d4-08",
@@ -462,7 +564,7 @@ return (
         "React calls the action with the previous state and the FormData",
         "The component re-renders with the returned value as `state` and `isPending` false",
       ],
-      explanation: "React runs the Action in a transition: pending first, then the action, then one render with the result.",
+      explanation: "React runs the Action in a transition. First it shows the pending state, then it runs the action, then it renders once with the result.",
     },
     {
       id: "d4-15",
@@ -563,7 +665,7 @@ async function likeAction() {
         "Cache responses in localStorage",
       ],
       answer: [0],
-      explanation: "Fetch-on-render in nested effects serialises requests. Fetching as early as possible and in parallel (render-as-you-fetch) is the documented fix; frameworks do it with route-level or server data loading.",
+      explanation: "Fetching inside nested effects makes requests run one after another. The documented fix is to start fetching as early as possible and in parallel. Frameworks do this by loading data at the route or on the server.",
     },
     {
       id: "d4-21",
@@ -594,7 +696,7 @@ async function likeAction() {
         "Wrap each class in a function component and call it migrated",
       ],
       answer: [0],
-      explanation: "Classes and function components interoperate. Incremental migration reduces risk; prioritise code with bugs or that blocks hooks-based features.",
+      explanation: "Class and function components work together fine. Moving over bit by bit reduces risk. Start with code that has bugs, or that's blocking features built on hooks.",
     },
     {
       id: "d4-23",
@@ -609,7 +711,7 @@ async function likeAction() {
         "Catch errors in a global `window.onerror` and reload the page",
       ],
       answer: [0],
-      explanation: "An uncaught render error unmounts the tree up to the nearest error boundary. Boundaries per widget contain the blast radius. (They don't catch errors in event handlers or async code; handle those where they happen.)",
+      explanation: "An uncaught render error removes everything up to the nearest error boundary. A boundary around each widget keeps the damage small. Boundaries don't catch errors in event handlers or async code, so handle those where they happen.",
     },
     {
       id: "d4-24",
@@ -624,7 +726,7 @@ async function likeAction() {
         "Lazy-load the header and navigation",
       ],
       answer: [0],
-      explanation: "Routes and big optional features give large savings with few loading states. Splitting everything creates request waterfalls; lazy-loading what's always on screen just delays it.",
+      explanation: "Splitting by route, or by big optional features, saves a lot with only a few loading states. Splitting everything creates chains of requests, and lazy-loading what's always on screen just makes it appear later.",
     },
     {
       id: "d4-25",
@@ -639,7 +741,7 @@ async function likeAction() {
         "Toggling a todo's done state",
       ],
       answer: [0],
-      explanation: "Optimistic UI suits frequent, low-stakes, easily reversed actions. Showing \"Paid\" before the server confirms an irreversible, high-stakes operation misleads users; show pending state instead.",
+      explanation: "Optimistic updates suit frequent, low-stakes actions that are easy to undo. Showing \"Paid\" before the server confirms a serious, permanent action misleads users. Show a pending state instead.",
     },
     {
       id: "d4-26",
@@ -672,24 +774,24 @@ function Badge({ user }) {
         ["`use`", "The value of a promise or context, callable conditionally"],
         ["`useTransition`", "A way to mark updates as non-urgent, with isPending"],
       ],
-      explanation: "Actions cover async mutations (state, form status, optimistic UI); `use` reads resources; transitions keep the UI responsive during heavy updates.",
+      explanation: "Actions handle async changes, including state, form status and optimistic updates. `use` reads promises and context. Transitions keep the screen responsive during heavy updates.",
     },
   ],
 
   cards: [
     { id: "c-d4-memo", domain: "d4", kind: "service", term: "memo", definition: "Wraps a component so it skips re-rendering when all props are `Object.is`-equal to last time." },
-    { id: "c-d4-lazy", domain: "d4", kind: "service", term: "lazy", definition: "`lazy(() => import(\"./X\"))` loads a component's code on first render. Declare at module level; wrap in Suspense." },
+    { id: "c-d4-lazy", domain: "d4", kind: "service", term: "lazy", definition: "`lazy(() => import(\"./X\"))` loads a component's code the first time it renders. Declare it at the top of the file and wrap it in Suspense." },
     { id: "c-d4-suspense", domain: "d4", kind: "service", term: "Suspense", definition: "Shows a fallback while children suspend (lazy code, `use(promise)`, Suspense-enabled data)." },
-    { id: "c-d4-usetransition", domain: "d4", kind: "service", term: "useTransition", definition: "Returns `[isPending, startTransition]`. Marks updates as non-urgent and interruptible." },
+    { id: "c-d4-usetransition", domain: "d4", kind: "service", term: "useTransition", definition: "Returns `[isPending, startTransition]`. Updates inside `startTransition` are marked as not urgent, so React can pause them for typing and clicks." },
     { id: "c-d4-usedeferredvalue", domain: "d4", kind: "service", term: "useDeferredValue", definition: "Returns a lagging copy of a value so expensive renders don't block urgent input." },
     { id: "c-d4-use", domain: "d4", kind: "service", term: "use", definition: "Reads a promise (suspending until it resolves) or a context. Unlike other hooks, it can be called conditionally." },
-    { id: "c-d4-useactionstate", domain: "d4", kind: "service", term: "useActionState", definition: "`[state, formAction, isPending] = useActionState(fn, initial)`; fn receives `(previousState, formData)`." },
-    { id: "c-d4-useformstatus", domain: "d4", kind: "service", term: "useFormStatus", definition: "From react-dom. Returns `{ pending, data, method, action }` for the parent form; call it in a child of the form." },
+    { id: "c-d4-useactionstate", domain: "d4", kind: "service", term: "useActionState", definition: "Call `useActionState(fn, initial)` to get `[state, formAction, isPending]`. Your `fn` receives `(previousState, formData)`." },
+    { id: "c-d4-useformstatus", domain: "d4", kind: "service", term: "useFormStatus", definition: "From react-dom. Returns `{ pending, data, method, action }` for the form around it, so call it in a component inside the form." },
     { id: "c-d4-useoptimistic", domain: "d4", kind: "service", term: "useOptimistic", definition: "Shows an optimistic value while an Action is pending, then reverts to the real state." },
     { id: "c-d4-compiler", domain: "d4", kind: "service", term: "React Compiler", definition: "Build-time tool that auto-memoizes components and hooks. Requires code that follows the Rules of React." },
     { id: "c-d4-profiler", domain: "d4", kind: "service", term: "React DevTools Profiler", definition: "Records renders, how long each took, and why a component rendered. Measure before optimising." },
     { id: "c-d4-portal", domain: "d4", kind: "service", term: "createPortal", definition: "From react-dom. Renders children into a different DOM node (modals, tooltips) while keeping them in the React tree." },
-    { id: "c-d4-actions", domain: "d4", kind: "concept", term: "Action", definition: "An async function run in a transition. React tracks its pending state; forms accept them via `action`." },
+    { id: "c-d4-actions", domain: "d4", kind: "concept", term: "Action", definition: "An async function that React runs in a transition. React tracks whether it's still running, and forms accept one through `action`." },
     { id: "c-d4-optimistic", domain: "d4", kind: "concept", term: "Optimistic update", definition: "Show the expected result immediately, then reconcile with the server's answer. Best for low-stakes, reversible actions." },
     { id: "c-d4-boundary", domain: "d4", kind: "concept", term: "Error boundary", definition: "A class component (or library wrapper) that catches render errors below it and shows a fallback." },
     { id: "c-d4-virtual", domain: "d4", kind: "concept", term: "Virtualisation", definition: "Render only the rows visible in the viewport so huge lists stay fast." },
@@ -714,8 +816,8 @@ function Badge({ user }) {
       lesson: "d4-memo",
       title: "Make memo actually work",
       goal: "The count must stay in App. Press +1 so that only App and Counter re-render.",
-      hint: "memo on Sidebar isn't enough while its style prop is a fresh object every render.",
-      takeaway: "memo compares props with Object.is: it only helps when objects and functions you pass are stable.",
+      hint: "Putting memo on Sidebar isn't enough while its style prop is a brand-new object on every render.",
+      takeaway: "memo compares each prop with Object.is, so it only helps when the objects and functions you pass stay the same between renders.",
       render: (onSolved) => <RenderCounterLab goal="memo" onSolved={onSolved} />,
     },
   ],

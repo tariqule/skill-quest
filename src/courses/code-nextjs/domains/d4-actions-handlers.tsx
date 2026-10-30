@@ -11,7 +11,7 @@ export default defineDomain({
     weight: 20,
     emoji: "⚒️",
     color: "#f97316",
-    summary: "Mutate with Server Actions, build HTTP endpoints with Route Handlers, intercept requests in proxy.ts, and ship metadata, images, and fonts properly.",
+    summary: "Changing data with Server Actions, building your own API with Route Handlers, checking requests in proxy.ts, and getting metadata, images and fonts right.",
   },
 
   tasks: [
@@ -38,6 +38,73 @@ export default defineDomain({
   ],
 
   lessons: [
+    {
+      id: "d4-b-forms",
+      level: "beginner",
+      task: "4.1",
+      title: "Saving what users send",
+      check: ["next-b4-01", "next-b4-02"],
+      visual: (
+        <CodeBlock
+          lang="tsx"
+          caption="The form calls a function that runs on the server."
+          code={`export default function Page() {
+  async function subscribe(formData: FormData) {
+    "use server";
+    const email = formData.get("email");
+    // save the email in your database here
+  }
+
+  return (
+    <form action={subscribe}>
+      <input name="email" />
+      <button>Subscribe</button>
+    </form>
+  );
+}`}
+        />
+      ),
+      points: [
+        "A **mutation** is any change to your data, like saving a new comment or deleting a post.",
+        "Next.js lets a form call a function that runs on the server. This is a **Server Action**, and you mark it with `\"use server\"`.",
+        "It's like a post box. The visitor drops their letter in by filling in the form, and the server takes care of the rest.",
+        "The function receives the form's fields as `FormData`. `formData.get(\"email\")` reads the field named `email`.",
+      ],
+      tip: "Anyone can send data to a Server Action, not just your form. So always check who the user is, and whether the data makes sense, inside the action.",
+    },
+    {
+      id: "d4-b-api",
+      level: "beginner",
+      task: "4.2",
+      title: "Your own API with Route Handlers",
+      check: ["next-b4-03", "next-b4-04"],
+      visual: (
+        <div className="grid gap-3">
+          <Flow
+            color="#a78bfa"
+            steps={[
+              { icon: "📨", label: "Request", sub: "GET /api/hello" },
+              { icon: "📄", label: "route.ts", sub: "Your GET function runs" },
+              { icon: "📦", label: "Response", sub: "{ \"message\": \"Hello\" }" },
+            ]}
+          />
+          <CodeBlock
+            lang="ts"
+            code={`// app/api/hello/route.ts
+export async function GET() {
+  return Response.json({ message: "Hello" });
+}`}
+          />
+        </div>
+      ),
+      points: [
+        "Sometimes other programs need data from your app, like a mobile app or another company's service. They ask for it over HTTP, the way computers talk on the web.",
+        "A **Route Handler** is a file named `route.ts` that answers those requests. `app/api/hello/route.ts` answers at `/api/hello`.",
+        "You export a function named after the HTTP method. `GET` handles reading data, and `POST` handles sending new data.",
+        "Think of a shop's service hatch. People don't come in and browse. They ask for something at the hatch and you hand it over.",
+      ],
+      tip: "For forms on your own pages, Server Actions are usually simpler. Route Handlers are for everything else that talks HTTP.",
+    },
     {
       id: "d4-actions",
       level: "intermediate",
@@ -83,12 +150,12 @@ export function TodoForm() {
         />
       ),
       points: [
-        "`\"use server\"` at the top of an async function (in a Server Component) or a file marks Server Functions; Client Components import them from a `\"use server\"` file.",
-        "Actions are invoked with POST and are reachable directly, so authenticate, authorize, and validate inside every one.",
-        "Return expected errors as values and show them with `useActionState`; throw only for real bugs.",
-        "Set or delete cookies in actions or Route Handlers, never during Server Component rendering.",
+        "`\"use server\"` at the top of an async function, inside a Server Component, or at the top of a file, marks **Server Functions**. Client Components import them from a `\"use server\"` file.",
+        "Actions are called with a POST request, and anyone can send one directly. So check who the user is, what they're allowed to do, and whether the input is valid, inside every action.",
+        "Return expected errors, like \"name too short\", as values, and show them with `useActionState`. Throw only for real bugs.",
+        "Set or delete cookies in actions or Route Handlers, never while a Server Component is rendering.",
       ],
-      tip: "Interviewers often ask \"is hiding the delete button enough?\" Answer: no, the action is a public POST endpoint, so check the session and ownership inside it.",
+      tip: "Interviewers often ask whether hiding the delete button is enough. It isn't: the action is a public POST endpoint, so check the session and who owns the item inside it.",
     },
     {
       id: "d4-route-handlers",
@@ -120,11 +187,11 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/users/[id]">
         </div>
       ),
       points: [
-        "Route Handlers use the Web `Request`/`Response` APIs, extended by `NextRequest` and `NextResponse`.",
-        "The second argument's `params` is a Promise; `RouteContext<'/path/[id]'>` types it.",
-        "Use them for webhooks, public APIs, and non-UI clients; use Server Actions for your own UI's mutations.",
+        "Route Handlers use the web's standard `Request` and `Response` objects. `NextRequest` and `NextResponse` add a few extra helpers.",
+        "The handler's second argument holds `params`, which is a Promise. `RouteContext<'/path/[id]'>` gives it the right type.",
+        "Use them for webhooks, public APIs and other programs that aren't your UI. For changes made from your own pages, use Server Actions.",
       ],
-      tip: "A good comparison to have ready: Server Actions are for your own forms (one round trip returns UI and data); Route Handlers are for anything else that speaks HTTP.",
+      tip: "A comparison worth having ready: Server Actions are for your own forms, and one round trip brings back both UI and data. Route Handlers are for anything else that speaks HTTP.",
     },
     {
       id: "d4-proxy",
@@ -158,12 +225,12 @@ export const config = { matcher: "/dashboard/:path*" }`}
         </div>
       ),
       points: [
-        "Next.js 16 renamed Middleware to Proxy: `proxy.ts` with a `proxy` (or default) export. Same functionality.",
-        "Proxy runs on the Node.js runtime and the `runtime` option can't be set there.",
-        "Keep it fast: optimistic checks, redirects, rewrites, headers. It's not for slow data fetching or full authorization.",
-        "For fixed redirects, prefer `redirects` in `next.config.ts`.",
+        "Next.js 16 renamed Middleware to **Proxy**. You write a `proxy.ts` file that exports a `proxy` function, or a default export. It does the same job as before.",
+        "Proxy runs on the Node.js runtime, and you can't change that with the `runtime` option.",
+        "Keep it fast. Use it for quick checks, redirects, rewrites and headers, not for slow data fetching or full permission checks.",
+        "For redirects that never change, use `redirects` in `next.config.ts` instead.",
       ],
-      tip: "If an interviewer says \"middleware\", it's fine to say: \"In Next.js 16 that's `proxy.ts`; I'd keep it to cheap checks and do real auth in the data layer.\"",
+      tip: "If an interviewer says \"middleware\", you can answer: \"In Next.js 16 that's `proxy.ts`. I'd keep it to cheap checks and do the real auth next to the data.\"",
     },
     {
       id: "d4-polish",
@@ -192,16 +259,60 @@ export default function Page() {
         />
       ),
       points: [
-        "`metadata` and `generateMetadata` exports only work in Server Components (layouts and pages).",
-        "`next/image` serves sized, modern-format images, lazy-loads by default, and reserves space to avoid layout shift.",
-        "Remote images need `width` and `height` (or `fill`) and a matching `images.remotePatterns` entry.",
-        "`next/font` self-hosts fonts with your deployment, so the browser makes no request to Google.",
+        "**Metadata** is the page title, description and other `<head>` details. The `metadata` and `generateMetadata` exports only work in Server Components, in layouts and pages.",
+        "`next/image` serves images at the right size and in modern formats. It loads them only as they come into view, and saves their space so the page doesn't jump.",
+        "Images from other sites need `width` and `height`, or `fill`, plus a matching entry in `images.remotePatterns`.",
+        "`next/font` serves fonts from your own site, so the browser never has to ask Google for them.",
       ],
-      tip: "Tie these to Core Web Vitals in interviews: images and fonts are the usual culprits for layout shift (CLS) and a slow largest paint (LCP).",
+      tip: "Link these to Core Web Vitals, Google's page speed scores. Images and fonts are the usual cause of content jumping around (CLS) and a slow main image or heading (LCP).",
     },
   ],
 
   questions: [
+    {
+      id: "next-b4-01",
+      domain: "d4",
+      lesson: "d4-b-forms",
+      level: "beginner",
+      prompt: "Which line marks a function as a Server Action?",
+      options: ["`\"use server\"`", "`\"use client\"`", "`export default`", "`import { useState } from \"react\"`"],
+      answer: [0],
+      explanation: "`\"use server\"` tells Next.js the function runs on the server, so a form can call it to save data. `\"use client\"` does the opposite job: it marks code that runs in the browser.",
+    },
+    {
+      id: "next-b4-02",
+      domain: "d4",
+      lesson: "d4-b-forms",
+      level: "beginner",
+      prompt: "In a Server Action, what does `formData.get(\"email\")` give you?",
+      options: ["The value the user typed into the field named `email`", "The email address of the site's owner", "A list of every email in the database", "Nothing, because forms can't send email fields"],
+      answer: [0],
+      explanation: "`FormData` holds every named field in the form. `get(\"email\")` looks up the input with `name=\"email\"` and returns what the user typed there.",
+    },
+    {
+      id: "next-b4-03",
+      domain: "d4",
+      lesson: "d4-b-api",
+      level: "beginner",
+      prompt: "Which file answers requests at `/api/hello`?",
+      options: ["`app/api/hello/route.ts`", "`app/api/hello/page.tsx`", "`app/hello/api.ts`"],
+      answer: [0],
+      explanation: "The folders `api/hello` give the address, and a file named `route.ts` makes it answer HTTP requests with data. A `page.tsx` there would show a web page instead.",
+    },
+    {
+      id: "next-b4-04",
+      type: "fill",
+      domain: "d4",
+      lesson: "d4-b-api",
+      level: "beginner",
+      prompt: "Fill the gap so this Route Handler answers GET requests.",
+      code: `export async function {{1}}() {
+  return Response.json({ message: "Hello" });
+}`,
+      codeLang: "ts",
+      blanks: [{ options: ["GET", "get", "fetch", "handler"], answer: 0 }],
+      explanation: "Next.js matches the function's name to the HTTP method, written in capitals. Export `GET` to answer reads, and `POST` to accept new data.",
+    },
     {
       id: "d4-01",
       level: "junior",
@@ -210,7 +321,7 @@ export default function Page() {
       prompt: "Which HTTP method invokes a Server Action?",
       options: ["`POST`", "`GET`", "`PUT`", "Any method the form specifies"],
       answer: [0],
-      explanation: "Behind the scenes, actions are always invoked with POST, and only POST can invoke them.",
+      explanation: "Behind the scenes, Next.js always calls actions with a POST request, and only a POST request can call them.",
     },
     {
       id: "d4-02",
@@ -273,7 +384,7 @@ export function Form() {
         "Call `redirect(\"/error\")`",
       ],
       answer: [0],
-      explanation: "Validation failures are expected errors: model them as return values. Thrown errors are for unexpected bugs and land in error boundaries.",
+      explanation: "A failed form check is an expected error, so return it as a value. Thrown errors are for bugs you didn't expect, and they end up in error boundaries.",
     },
     {
       id: "d4-05",
@@ -307,7 +418,7 @@ export function Form() {
         "`  await db.todo.create({ data: { text: formData.get(\"text\") } })`",
         "`  updateTag(\"todos\")`",
       ],
-      explanation: "The directive comes first, then imports. Inside the action: authenticate, mutate, then expire the cache so the UI shows the new todo.",
+      explanation: "The directive comes first, then the imports. Inside the action, check the user, make the change, then expire the cache so the page shows the new todo.",
     },
     {
       id: "d4-07",
@@ -322,7 +433,7 @@ export default async function handler(request: Request) {
 }`,
       codeLang: "ts",
       answer: [2],
-      explanation: "Route Handlers export one named function per HTTP method. Rename it to `export async function GET()`.",
+      explanation: "Route Handlers export one function per HTTP method, named in capitals. Rename it to `export async function GET()`.",
     },
     {
       id: "d4-08",
@@ -373,7 +484,7 @@ export function GET(request: NextRequest) {
       codeLang: "ts",
       options: ['`{"q":"hats"}`', '`{"q":"shoes"}`', '`{"q":["hats","shoes"]}`', '`{"q":null}`'],
       answer: [0],
-      explanation: "`nextUrl.searchParams` is a standard `URLSearchParams`. `.get()` returns the first value; use `.getAll(\"q\")` for every value.",
+      explanation: "`nextUrl.searchParams` is a standard `URLSearchParams`. `.get()` returns the first value. Use `.getAll(\"q\")` to get every value.",
     },
     {
       id: "d4-11",
@@ -418,7 +529,7 @@ export async function GET() {
         "Nothing: request interception was removed",
       ],
       answer: [0],
-      explanation: "Middleware was renamed Proxy to reflect its network-boundary role. Config flags were renamed too, e.g. `skipProxyUrlNormalize`.",
+      explanation: "Middleware was renamed Proxy because it sits at the edge of the network, in front of your app. Config flags were renamed too, for example `skipProxyUrlNormalize`.",
     },
     {
       id: "d4-14",
@@ -453,7 +564,7 @@ export const config = { matcher: "/dashboard/:path*" }`,
         "Adding a security header to responses",
       ],
       answer: [0],
-      explanation: "Proxy is for fast checks, redirects, rewrites, and headers. It isn't meant for slow data fetching or as a full authorization solution; do real checks close to the data.",
+      explanation: "Proxy is for fast checks, redirects, rewrites and headers. It isn't meant for slow data fetching or as your full permission check. Do the real checks close to the data.",
     },
     {
       id: "d4-16",
@@ -467,7 +578,7 @@ export const config = { matcher: "/dashboard/:path*" }`,
       codeLang: "ts",
       options: ["`/contact`", "`/blog`", "`/`", "`/api/contact`"],
       answer: [0],
-      explanation: "An array matcher lists each path the proxy should run on. Paths outside the list skip it.",
+      explanation: "An array matcher lists each path the proxy should run on. Any path not in the list skips the proxy.",
     },
     {
       id: "d4-17",
@@ -487,7 +598,7 @@ export function Avatar() {
         "A `loader` function",
       ],
       answer: [0],
-      explanation: "Static imports get dimensions automatically; remote URLs need `width` and `height` to reserve space, or `fill` inside a positioned parent.",
+      explanation: "Imported image files get their size automatically. Images from a URL need `width` and `height` to save their space, or `fill` inside a positioned parent.",
     },
     {
       id: "d4-18",
@@ -545,7 +656,7 @@ export default function Page() {
         "Converts the font into an SVG sprite",
       ],
       answer: [0],
-      explanation: "Fonts are served as static assets from your own deployment, which helps privacy and performance and avoids layout shift.",
+      explanation: "Fonts are served as files from your own site. That's better for privacy and speed, and it stops text from jumping when the font loads.",
     },
     {
       id: "d4-22",
@@ -564,7 +675,7 @@ export default async function Page() {
 }`,
       codeLang: "tsx",
       answer: [6],
-      explanation: "Server Components can read cookies but not set them while rendering. Set cookies in a Server Action or Route Handler (or Proxy).",
+      explanation: "Server Components can read cookies but can't set them while rendering. Set cookies in a Server Action, a Route Handler or Proxy.",
     },
     {
       id: "d4-23",
@@ -579,7 +690,7 @@ export default async function Page() {
         "Put the business logic in `proxy.ts` so every client hits it",
       ],
       answer: [0],
-      explanation: "Server Actions are built for your own UI (one round trip returns data and UI). External clients need stable HTTP endpoints. Sharing the logic underneath keeps rules and auth in one place.",
+      explanation: "Server Actions are built for your own UI, where one round trip returns both data and UI. Outside programs need stable HTTP endpoints. Sharing the logic underneath keeps your rules and auth checks in one place.",
     },
     {
       id: "d4-24",
@@ -600,17 +711,17 @@ export default async function Page() {
 
   cards: [
     { id: "c4-useserver", domain: "d4", kind: "service", term: "\"use server\"", definition: "Marks an async function (or every export of a file) as a Server Function callable from the client via POST." },
-    { id: "c4-useactionstate", domain: "d4", kind: "service", term: "useActionState", definition: "React hook: `[state, formAction, pending] = useActionState(action, initial)`. The action gets `(prevState, formData)`." },
-    { id: "c4-route", domain: "d4", kind: "service", term: "route.ts", definition: "Route Handler file. Export `GET`, `POST`, etc. using Web Request/Response. Can't share a segment with `page.tsx`." },
+    { id: "c4-useactionstate", domain: "d4", kind: "service", term: "useActionState", definition: "A React hook. `useActionState(action, initial)` returns `[state, formAction, pending]`, and the action receives `(prevState, formData)`." },
+    { id: "c4-route", domain: "d4", kind: "service", term: "route.ts", definition: "The Route Handler file. Export `GET`, `POST` and other methods using the web's Request and Response. It can't sit in the same folder as a `page.tsx`." },
     { id: "c4-nextrequest", domain: "d4", kind: "service", term: "NextRequest / NextResponse", definition: "Extensions of Request/Response with `nextUrl`, cookies helpers, `redirect`, `rewrite`, and `next`." },
     { id: "c4-routecontext", domain: "d4", kind: "service", term: "RouteContext", definition: "Global type for a handler's second argument: `RouteContext<'/users/[id]'>` gives typed async `params`." },
-    { id: "c4-proxy", domain: "d4", kind: "service", term: "proxy.ts", definition: "Runs before a request completes (formerly middleware). Node.js runtime. Redirect, rewrite, headers, respond." },
-    { id: "c4-redirect", domain: "d4", kind: "service", term: "redirect()", definition: "From `next/navigation`. Throws to navigate (307 by default; 303 after a Server Action form post). Call outside try/catch." },
-    { id: "c4-cookies", domain: "d4", kind: "service", term: "cookies()", definition: "Async. Read in Server Components; `set`/`delete` only in Server Functions or Route Handlers." },
-    { id: "c4-image", domain: "d4", kind: "service", term: "next/image", definition: "`<Image>` resizes, lazy-loads, and serves modern formats; needs width/height or fill for remote sources." },
+    { id: "c4-proxy", domain: "d4", kind: "service", term: "proxy.ts", definition: "Runs before a request is finished, and used to be called middleware. It runs on Node.js and can redirect, rewrite, set headers or respond." },
+    { id: "c4-redirect", domain: "d4", kind: "service", term: "redirect()", definition: "From `next/navigation`. From `next/navigation`. It throws to move the user to another page, with a 307 status by default or 303 after a Server Action form post. Call it outside try/catch." },
+    { id: "c4-cookies", domain: "d4", kind: "service", term: "cookies()", definition: "Async. You can read cookies in Server Components, but `set` and `delete` only work in Server Functions or Route Handlers." },
+    { id: "c4-image", domain: "d4", kind: "service", term: "next/image", definition: "`<Image>` resizes images, loads them as they come into view and serves modern formats. Images from other sites need width and height, or fill." },
     { id: "c4-font", domain: "d4", kind: "service", term: "next/font", definition: "Self-hosts Google or local fonts with zero layout shift and no browser requests to Google." },
-    { id: "c4-genmeta", domain: "d4", kind: "service", term: "generateMetadata", definition: "Async export in a page or layout that returns `Metadata` built from data, e.g. a post title." },
+    { id: "c4-genmeta", domain: "d4", kind: "service", term: "generateMetadata", definition: "An async export in a page or layout that returns `Metadata` built from data, such as a blog post's title." },
     { id: "c4-progressive", domain: "d4", kind: "concept", term: "Progressive enhancement", definition: "Forms that call Server Actions from Server Components submit even before JavaScript loads." },
-    { id: "c4-matcher", domain: "d4", kind: "concept", term: "Proxy matcher", definition: "`export const config = { matcher }` limits which paths run the proxy, e.g. `'/dashboard/:path*'`." },
+    { id: "c4-matcher", domain: "d4", kind: "concept", term: "Proxy matcher", definition: "`export const config = { matcher }` limits which paths run the proxy, for example `'/dashboard/:path*'`." },
   ],
 });

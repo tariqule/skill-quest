@@ -20,6 +20,43 @@ export default defineDomain({
   tasks: [{ id: "1.1", title: "Task statement title", covers: ["What the exam guide lists under this task"] }],
 
   lessons: [
+    // "Start here" lessons come first, with level "beginner": assume the reader has never heard of
+    // the topic. Lead with an everyday analogy, then name the real thing. Each domain needs at least two.
+    {
+      id: "d1-start-what",
+      level: "beginner",
+      task: "1.1",
+      title: "What this is, in everyday terms",
+      visual: (
+        <Tiles
+          tiles={[
+            { icon: "🏠", title: "Everyday version", text: "The familiar thing this works like" },
+            { icon: "☁️", title: "The real thing", text: "What it's called and what it does" },
+          ]}
+        />
+      ),
+      points: ["Say what it is in one plain sentence.", "Give one example someone would recognise from daily life."],
+      tip: "A friendly tip a beginner can use straight away.",
+      check: ["d1-b-01", "d1-b-02"],
+    },
+    {
+      id: "d1-start-first",
+      level: "beginner",
+      task: "1.1",
+      title: "Your first step",
+      visual: (
+        <Flow
+          steps={[
+            { icon: "👋", label: "Start", sub: "Where you begin" },
+            { icon: "🛠️", label: "Do", sub: "The first small action" },
+            { icon: "🎉", label: "See", sub: "What you get" },
+          ]}
+        />
+      ),
+      points: ["Walk through the very first thing a newcomer does.", "Say what they should see when it works."],
+      tip: "What to try next.",
+      check: ["d1-b-03", "d1-b-04"],
+    },
     {
       id: "d1-intro",
       task: "1.1",
@@ -50,6 +87,18 @@ export default defineDomain({
   ],
 
   questions: [
+    // Beginner questions: level "beginner", choice / fill / output only, one clearly right answer,
+    // and an explanation that teaches. At least four per domain.
+    ...[1, 2, 3, 4].map((n) => ({
+      id: `d1-b-0${n}`,
+      domain: "d1",
+      level: "beginner" as const,
+      lesson: n <= 2 ? "d1-start-what" : "d1-start-first",
+      prompt: `A gentle beginner question ${n}?`,
+      options: ["The right answer", "A plausible mix-up", "Another plausible mix-up"],
+      answer: [0],
+      explanation: "Two or three friendly sentences that explain why, so the learner learns from the answer.",
+    })),
     {
       id: "d1-01",
       domain: "d1",

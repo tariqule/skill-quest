@@ -17,7 +17,7 @@ export const moreQuestions: Question[] = [
     codeLang: "python",
     blanks: [{ options: ["dict", "set", "list", "tuple"], answer: 0 }],
     explanation:
-      "`dict.fromkeys(xs)` builds a dict whose keys are the items; dict keys are unique and, since Python 3.7, remember insertion order, so `list(...)` of it de-duplicates in first-seen order in O(n). `set` would also de-duplicate but gives no order guarantee.",
+      "`dict.fromkeys(xs)` builds a dict whose keys are the items. Dict keys are unique, and since Python 3.7 they remember the order they were added. So turning it back into a list removes repeats and keeps first-seen order, in O(n). A `set` would also remove repeats, but it doesn't promise any order.",
   },
   {
     id: "python-fx-02",
@@ -25,7 +25,7 @@ export const moreQuestions: Question[] = [
     domain: "d1",
     level: "junior",
     lesson: "d1-slicing",
-    prompt: "Fill the gaps: reverse the string, then take its first three characters.",
+    prompt: "Fill the gaps to reverse the string, then take its first three characters.",
     code: L("s = \"interview\"", "rev = s[{{1}}]", "head = s[{{2}}]", "print(rev, head)  # weivretni int"),
     codeLang: "python",
     blanks: [
@@ -33,7 +33,7 @@ export const moreQuestions: Question[] = [
       { options: [":3", "0:2", "3", "1:3"], answer: 0 },
     ],
     explanation:
-      "A slice is `start:stop:step` and a step of `-1` walks backwards, so `s[::-1]` reverses. `s[:3]` takes indexes 0, 1 and 2 (the stop is exclusive). A single index like `s[-1]` or `s[3]` returns one character, not a slice.",
+      "A slice is `start:stop:step`, and a step of `-1` walks backwards, so `s[::-1]` reverses the string. `s[:3]` takes positions 0, 1 and 2, because the stop isn't included. A single index like `s[-1]` or `s[3]` gives you one character, not a slice.",
   },
   {
     id: "python-fx-03",
@@ -53,7 +53,7 @@ export const moreQuestions: Question[] = [
       { options: ["sum", "len", "max", "list"], answer: 0 },
     ],
     explanation:
-      "A comprehension filters with a trailing `if`. The even numbers 0, 2, 4 give squares 0, 4, 16, and `sum` over the dict's values gives 20.",
+      "A comprehension filters with an `if` at the end. The even numbers 0, 2 and 4 give squares 0, 4 and 16, and `sum` over the dict's values adds them up to 20.",
   },
   {
     id: "python-fx-04",
@@ -77,7 +77,7 @@ export const moreQuestions: Question[] = [
       { options: ["next", "first", "pop", "read"], answer: 0 },
     ],
     explanation:
-      "A function containing `yield` returns a generator that produces one value per `next()` and pauses in between. `return n` would end the function immediately on the first pass and return a plain int, not a generator.",
+      "A function that contains `yield` gives you a generator. It hands out one value each time you call `next()` and pauses in between. `return n` would end the function on the first pass and give back a plain int, not a generator.",
   },
   {
     id: "python-fx-05",
@@ -99,7 +99,7 @@ export const moreQuestions: Question[] = [
       { options: ["None", "[]", "not None", "False"], answer: 0 },
     ],
     explanation:
-      "Default values are evaluated once, when the function is defined, so a `[]` default is one list shared by every call. Use the `None` sentinel and create the list inside the body, testing it with `is None` (identity, the idiomatic check).",
+      "Default values are created once, when the function is defined, so a `[]` default is one list shared by every call. Use `None` as a placeholder instead and create the list inside the body. Check for it with `is None`, which is the usual Python way.",
   },
   {
     id: "python-fx-06",
@@ -124,7 +124,7 @@ export const moreQuestions: Question[] = [
       { options: ["*args, **kwargs", "args, kwargs", "*args", "**kwargs"], answer: 0 },
     ],
     explanation:
-      "`functools.wraps(fn)` copies `__name__`, `__doc__` and friends onto the wrapper so introspection and debugging still show the original function. Unpacking with `*args, **kwargs` forwards both positional and keyword arguments exactly as received.",
+      "`functools.wraps(fn)` copies `__name__`, `__doc__` and similar details onto the wrapper, so debuggers and `help()` still show the original function. Unpacking with `*args, **kwargs` passes on every positional and keyword argument exactly as it came in.",
   },
   {
     id: "python-fx-07",
@@ -132,7 +132,7 @@ export const moreQuestions: Question[] = [
     domain: "d4",
     level: "senior",
     lesson: "d4-errors",
-    prompt: "Fill the gaps to catch only the parse failure and re-raise a domain error that keeps the original as its cause.",
+    prompt: "Fill the gaps to catch only the parsing failure, then raise your own error that keeps the original one attached as its cause.",
     code: L(
       "try:",
       "    port = int(text)",
@@ -145,7 +145,7 @@ export const moreQuestions: Question[] = [
       { options: ["from", "with", "as", "and"], answer: 0 },
     ],
     explanation:
-      "`int('abc')` raises `ValueError`; catching the narrowest type avoids hiding unrelated bugs. `raise X from e` chains the exceptions so the traceback shows the original error as the direct cause.",
+      "`int('abc')` raises `ValueError`. Catching only that type means unrelated bugs still show up instead of being hidden. `raise X from e` links the two errors, so the traceback shows the original one as the direct cause.",
   },
   {
     id: "python-fx-08",
@@ -153,7 +153,7 @@ export const moreQuestions: Question[] = [
     domain: "d4",
     level: "staff",
     lesson: "d4-concurrency",
-    prompt: "CPU-bound work must bypass the GIL. Fill the gaps to run `crunch` on four worker processes.",
+    prompt: "This work keeps the CPU busy, so it needs to get around the GIL. Fill the gaps to run `crunch` on four worker processes.",
     code: L(
       "from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor",
       "",
@@ -169,7 +169,7 @@ export const moreQuestions: Question[] = [
       { options: ["map", "run", "gather", "apply"], answer: 0 },
     ],
     explanation:
-      "Only one thread executes Python bytecode at a time (the GIL), so threads don't speed up CPU-bound code; separate processes do. The executor interface is the same for both pools: `map(fn, iterable)` returns the results in input order. Threads and asyncio are for I/O-bound work.",
+      "The GIL lets only one thread run Python bytecode at a time, so threads won't speed up CPU-heavy code. Separate processes will. Both pools share the same interface: `map(fn, iterable)` returns the results in the same order as the inputs. Threads and asyncio are the tools for work that mostly waits on I/O.",
   },
 
   // ───────────── Type the output ─────────────
@@ -184,7 +184,7 @@ export const moreQuestions: Question[] = [
     codeLang: "python",
     answers: ["[1, 2, 3]", "[1,2,3]"],
     explanation:
-      "`b = a` copies the reference, not the list, so both names point at the same object and the append is visible through `a`. Use `a.copy()` or `list(a)` for an independent list.",
+      "`b = a` doesn't copy the list. Both names now point at the same list, so the append shows up through `a` too. Use `a.copy()` or `list(a)` when you want a separate list.",
   },
   {
     id: "python-ox-02",
@@ -197,7 +197,7 @@ export const moreQuestions: Question[] = [
     codeLang: "python",
     answers: ["2 [0, 9]", "2 [0,9]"],
     explanation:
-      "`copy()` is shallow: `b` is a new outer list holding the same inner lists. Appending to `b[0]` changes the shared inner list (so `a[0]` is `[0, 9]`), but appending a new item to `b` only changes `b`, so `a` still has 2 items.",
+      "`copy()` makes a shallow copy: `b` is a new outer list holding the same inner lists. Appending to `b[0]` changes an inner list they share, so `a[0]` becomes `[0, 9]`. Appending a new item to `b` only changes `b`, so `a` still has 2 items.",
   },
   {
     id: "python-ox-03",
@@ -210,7 +210,7 @@ export const moreQuestions: Question[] = [
     codeLang: "python",
     answers: ["[2, 6]", "[2,6]"],
     explanation:
-      "`x % 2` is truthy only for odd numbers, so the comprehension keeps 1 and 3 and doubles them: `[2, 6]`.",
+      "`x % 2` is 1 for odd numbers and 0 for even ones, and only 1 counts as true. So the comprehension keeps 1 and 3 and doubles them, giving `[2, 6]`.",
   },
   {
     id: "python-ox-04",
@@ -223,7 +223,7 @@ export const moreQuestions: Question[] = [
     codeLang: "python",
     answers: ["[0, 1, 2] []", "[0,1,2] []"],
     explanation:
-      "A generator expression is a one-shot iterator. The first `list(g)` consumes it completely, so the second one finds nothing left and returns an empty list. Build a list (or call the generator function again) if you need to iterate twice.",
+      "A generator expression can only be used once. The first `list(g)` uses it up, so the second finds nothing left and returns an empty list. If you need to loop twice, build a list first (or create a fresh generator).",
   },
   {
     id: "python-ox-05",
@@ -236,7 +236,7 @@ export const moreQuestions: Question[] = [
     codeLang: "python",
     answers: ["[2, 2, 2]", "[2,2,2]"],
     explanation:
-      "Closures capture the variable `i`, not its value at creation time (late binding). By the time the lambdas are called, the loop has finished and `i` is 2. Bind it with a default argument: `lambda i=i: i`.",
+      "Each lambda remembers the variable `i`, not the value it had when the lambda was made. This is called late binding. By the time the lambdas run, the loop has finished and `i` is 2. Capture the value with a default argument: `lambda i=i: i`.",
   },
   {
     id: "python-ox-06",
@@ -249,7 +249,7 @@ export const moreQuestions: Question[] = [
     codeLang: "python",
     answers: ["[1, 2]", "[1,2]"],
     explanation:
-      "The default list is created once and shared across calls, so the first call leaves `[1]` behind and the second call appends to it. This is the classic mutable-default-argument trap.",
+      "The default list is created once and shared by every call. The first call leaves `[1]` in it, and the second call adds 2 to that same list. This is the classic mutable default trap.",
   },
   {
     id: "python-ox-07",
@@ -262,7 +262,7 @@ export const moreQuestions: Question[] = [
     codeLang: "python",
     answers: ["(1, (2, 3), {'k': 4})"],
     explanation:
-      "`a` takes the first positional argument, `*args` collects the extra positionals into a tuple, and `**kw` collects the keyword arguments into a dict. The function returns all three as a tuple.",
+      "`a` takes the first positional argument. `*args` collects the extra positional ones into a tuple, and `**kw` collects the keyword arguments into a dict. The function returns all three together as one tuple.",
   },
   {
     id: "python-ox-08",
@@ -284,7 +284,7 @@ export const moreQuestions: Question[] = [
     codeLang: "python",
     answers: ["[1]"],
     explanation:
-      "`items` is a class attribute, one list shared by every instance. `self.items.append` mutates that shared list; it doesn't create an instance attribute. Create the list in `__init__` (`self.items = []`) for per-instance state.",
+      "`items` is a class attribute, so there's one list shared by every instance. `self.items.append` changes that shared list rather than giving `a` its own. Create the list in `__init__` with `self.items = []` if each object should have its own.",
   },
   {
     id: "python-ox-09",
@@ -307,7 +307,7 @@ export const moreQuestions: Question[] = [
     codeLang: "python",
     answers: ["BCA"],
     explanation:
-      "The method resolution order of `D` is D, B, C, A. `super()` in `B` means \"next class in the MRO\", which is `C`, not `A`. So the calls chain B, C, A and the strings concatenate to `BCA`. Cooperative `super()` is what makes diamond inheritance work.",
+      "The method resolution order (MRO) of `D` is D, B, C, A. Inside `B`, `super()` means \"the next class in the MRO\", which is `C`, not `A`. So the calls go B, then C, then A, and the strings join up as `BCA`. This is what makes diamond-shaped inheritance work.",
   },
   {
     id: "python-ox-10",
@@ -328,6 +328,6 @@ export const moreQuestions: Question[] = [
     codeLang: "python",
     answers: ["finally\ntry"],
     explanation:
-      "The `finally` block always runs when the function leaves the `try`, even through a `return`. The return value (`'try'`) is computed first, then `finally` prints, then the caller prints the returned value.",
+      "The `finally` block always runs when the function leaves the `try`, even through a `return`. The return value `'try'` is worked out first, then `finally` prints, and only then does the caller print the returned value.",
   },
 ];

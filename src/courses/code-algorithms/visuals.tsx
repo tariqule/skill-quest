@@ -85,11 +85,11 @@ function partitionSnaps(start: number[]): PartSnap[] {
   const hi = arr.length - 1;
   const pivot = arr[hi];
   let i = 0;
-  const snaps: PartSnap[] = [{ arr: [...arr], i, j: 0, note: `Pivot = ${pivot} (last element). i marks where the next small item goes.` }];
+  const snaps: PartSnap[] = [{ arr: [...arr], i, j: 0, note: `The pivot is ${pivot}, the last element. i marks where the next small item goes.` }];
   for (let j = 0; j < hi; j++) {
     if (arr[j] < pivot) {
       [arr[i], arr[j]] = [arr[j], arr[i]];
-      snaps.push({ arr: [...arr], i: i + 1, j, note: `${arr[i]} < ${pivot}: swap it into slot ${i}, then i = ${i + 1}.` });
+      snaps.push({ arr: [...arr], i: i + 1, j, note: `${arr[i]} < ${pivot}: swap it into slot ${i}, then move i to ${i + 1}.` });
       i++;
     } else {
       snaps.push({ arr: [...arr], i, j, note: `${arr[j]} ≥ ${pivot}: leave it; it belongs on the right.` });
@@ -138,7 +138,7 @@ export function PartitionStepper() {
           Reset
         </button>
         <span className="self-center text-xs text-slate-500">
-          <span className="text-emerald-300">green</span> &lt; pivot · <span className="text-pink-300">pink</span> = pivot
+          <span className="text-emerald-300">green</span> &lt; pivot · <span className="text-pink-300">pink</span> is the pivot
         </span>
       </div>
     </div>

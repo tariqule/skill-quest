@@ -10,13 +10,13 @@ export default defineDomain({
   domain: {
     id: "d3",
     number: 3,
-    name: "Techniques to improve gen AI model output",
+    name: "Getting better output",
     world: "The Grounding Forge",
     weight: 20,
     emoji: "🎯",
     color: "#fbbc04",
     summary:
-      "Foundation model limitations and how to overcome them, continuous monitoring, prompt engineering techniques, grounding and RAG, and sampling settings.",
+      "Where foundation models fall short and how to fix it, keeping models healthy after launch, prompting techniques, grounding and RAG, and the settings that control how a model writes.",
   },
 
   tasks: [
@@ -51,6 +51,79 @@ export default defineDomain({
   ],
 
   lessons: [
+    // ───── Start here (beginner)
+    {
+      id: "d3-b-mistakes",
+      level: "beginner",
+      task: "3.1",
+      title: "Why AI sometimes gets things wrong",
+      visual: (
+        <Tiles
+          cols={3}
+          tiles={[
+            { icon: "📅", title: "Out of date", text: "It only knows what it read before training ended.", color: "#ea4335" },
+            { icon: "🎭", title: "Made up", text: "It can fill a gap with something that sounds right but isn't true.", color: "#ea4335" },
+            { icon: "🪞", title: "Copied bias", text: "If its training data was unfair, its answers can be unfair too.", color: "#ea4335" },
+          ]}
+        />
+      ),
+      points: [
+        "Imagine a very well-read friend who has spent the last year on a remote island. They know a lot, but nothing about this year's news.",
+        "That friend also hates saying \"I don't know\", so sometimes they guess with total confidence. When a model does this, it's called a hallucination.",
+        "Models learn from people's writing, so they can pick up people's unfair views too. That's called bias.",
+        "None of this means AI is useless. It means you add checks, like giving it real sources and having a person review the important answers.",
+      ],
+      tip: "A confident answer isn't the same as a correct one. For anything that matters, check where the answer came from.",
+      check: ["gail-b3-01", "gail-b3-02"],
+    },
+    {
+      id: "d3-b-prompts",
+      level: "beginner",
+      task: "3.2",
+      title: "How to write a good prompt",
+      visual: (
+        <Tiles
+          cols={2}
+          tiles={[
+            { icon: "😕", title: "Vague prompt", text: "\"Write something about our sale.\"", color: "#94a3b8" },
+            { icon: "🎯", title: "Clear prompt", text: "\"Write a friendly 3-line email telling regular customers about our 20% weekend sale. End with a link to the shop.\"", color: "#fbbc04" },
+          ]}
+        />
+      ),
+      points: [
+        "A prompt is the instruction you give the model. Writing it well is called prompt engineering, and it needs no training or code.",
+        "Brief the model like a capable new assistant on day one. Say what you want, who it's for, how long it should be and what tone to use.",
+        "Showing an example of what you want is often the quickest way to get the format right.",
+      ],
+      tip: "If the answer isn't what you wanted, add the missing detail and ask again. Small changes to a prompt can make a big difference.",
+      check: ["gail-b3-03", "gail-b3-04"],
+    },
+    {
+      id: "d3-b-grounding",
+      level: "beginner",
+      task: "3.3",
+      title: "Giving the model the facts: grounding",
+      visual: (
+        <Flow
+          color="#fbbc04"
+          steps={[
+            { icon: "❓", label: "A question", sub: "\"How many days of leave do I get?\"" },
+            { icon: "📂", label: "Look it up", sub: "Find the right page in the HR handbook" },
+            { icon: "📎", label: "Hand it over", sub: "Give that page to the model with the question" },
+            { icon: "💬", label: "Answer", sub: "\"25 days, according to section 4 of the handbook\"" },
+          ]}
+        />
+      ),
+      points: [
+        "Grounding means giving the model real, trusted information to base its answer on, instead of relying on memory.",
+        "It's the difference between a closed-book exam and an open-book exam. With the right page in front of you, you're far less likely to guess.",
+        "The information can be your company's own documents, or fresh public information from Google Search.",
+      ],
+      tip: "When a question involves private company facts or very recent news, the answer usually involves grounding.",
+      check: ["gail-b3-05", "gail-b3-06"],
+    },
+
+    // ───── Exam lessons
     {
       id: "d3-limits",
       task: "3.1",
@@ -60,32 +133,32 @@ export default defineDomain({
           <Tiles
             cols={3}
             tiles={[
-              { icon: "🗃️", title: "Data dependency", text: "Output is only as good as the data. Biased or incomplete data shows up in answers.", color: "#ea4335" },
-              { icon: "📅", title: "Knowledge cutoff", text: "No knowledge of events after the training date.", color: "#ea4335" },
-              { icon: "⚖️", title: "Bias & fairness", text: "Biases in training data can be magnified in outputs.", color: "#ea4335" },
-              { icon: "🌀", title: "Hallucinations", text: "Confident outputs that aren't accurate or based on real information.", color: "#ea4335" },
-              { icon: "🧪", title: "Edge cases", text: "Rare, atypical inputs expose weaknesses.", color: "#ea4335" },
+              { icon: "🗃️", title: "Data dependency", text: "Answers are only as good as the data. Biased or incomplete data shows up in the output.", color: "#ea4335" },
+              { icon: "📅", title: "Knowledge cutoff", text: "The model knows nothing about events after its training date.", color: "#ea4335" },
+              { icon: "⚖️", title: "Bias & fairness", text: "Bias in the training data can get stronger in the answers.", color: "#ea4335" },
+              { icon: "🌀", title: "Hallucinations", text: "Confident answers that aren't accurate or based on real information.", color: "#ea4335" },
+              { icon: "🧪", title: "Edge cases", text: "Rare, unusual inputs that show up the model's weak spots.", color: "#ea4335" },
             ]}
           />
           <Ladder
             rungs={[
-              { icon: "✍️", name: "Prompt engineering", text: "Clearer instructions, examples, roles. No training." },
-              { icon: "📎", name: "Grounding / RAG", text: "Connect answers to verifiable sources: your data or Google Search." },
-              { icon: "🎛️", name: "Fine-tuning", text: "Further training for a specific task or domain." },
+              { icon: "✍️", name: "Prompt engineering", text: "Clearer instructions, examples and roles. No training." },
+              { icon: "📎", name: "Grounding and RAG", text: "Tie answers to sources you can check: your own data or Google Search." },
+              { icon: "🎛️", name: "Fine-tuning", text: "Extra training for one task or field." },
             ]}
           />
           <div className="rounded-xl border border-emerald-400/30 bg-emerald-400/5 p-3 text-sm text-slate-200">
-            🧑‍⚖️ <b className="text-emerald-200">Human in the loop (HITL)</b> sits alongside all of these: content moderation, sensitive fields such as healthcare and
-            finance, high-stakes decisions, and pre- or post-generation review.
+            🧑‍⚖️ <b className="text-emerald-200">Human in the loop (HITL)</b> works alongside all of these. Use it for content moderation, sensitive fields like healthcare and
+            finance, high-stakes decisions, and reviews before or after the model generates.
           </div>
         </div>
       ),
       points: [
-        "Knowledge cutoff → ground with current sources. Hallucinations about your business → ground in your own data.",
-        "Fine-tuning improves a pre-trained model for a specific task or domain, at more cost and effort than prompting.",
-        "HITL reviews can happen before outputs reach users (pre-generation review) or continuously after deployment (post-generation review).",
+        "If the model is out of date, ground it in current sources. If it makes things up about your business, ground it in your own data.",
+        "Fine-tuning gives a pre-trained model extra training for one task or field. It costs more time and money than prompting.",
+        "With human in the loop (HITL), people check the output. That can happen before answers reach users, or on an ongoing basis after launch.",
       ],
-      tip: "Grounding fixes missing or stale knowledge. Fine-tuning changes behaviour or style. Don't pick fine-tuning to add facts that change every week.",
+      tip: "Grounding fixes missing or out-of-date knowledge. Fine-tuning changes behaviour or style. Don't pick fine-tuning to add facts that change every week.",
       check: ["d3-01", "d3-06"],
     },
     {
@@ -97,27 +170,27 @@ export default defineDomain({
           <Flow
             color="#fbbc04"
             steps={[
-              { icon: "🏷️", label: "Version", sub: "Track every model version in Model Registry" },
+              { icon: "🏷️", label: "Version", sub: "Record every model version in Model Registry" },
               { icon: "📈", label: "Track", sub: "Review performance metrics and business KPIs" },
               { icon: "🌊", label: "Watch for drift", sub: "Model Monitoring spots accuracy changes over time" },
-              { icon: "🩹", label: "Patch & upgrade", sub: "Security patches, updates, and model upgrades" },
+              { icon: "🩹", label: "Patch and upgrade", sub: "Security patches, updates and model upgrades" },
             ]}
-            loop="Automate the cycle with Agent Platform Pipelines"
+            loop="Agent Platform Pipelines can run this cycle automatically"
           />
           <Tiles
             cols={3}
             tiles={[
-              { icon: "🧮", title: "Agent Platform Feature Store", text: "Manage the data features your models use." },
-              { icon: "🔁", title: "Agent Platform Pipelines", text: "Automate ML tasks and workflows." },
-              { icon: "🗂️", title: "Model Registry", text: "Keep track of model versions, and roll back if needed." },
+              { icon: "🧮", title: "Agent Platform Feature Store", text: "Manages the data features your models use." },
+              { icon: "🔁", title: "Agent Platform Pipelines", text: "Automates ML tasks and workflows." },
+              { icon: "🗂️", title: "Model Registry", text: "Keeps track of model versions so you can roll back." },
             ]}
           />
         </div>
       ),
       points: [
-        "Evaluation isn't a one-off: monitor, measure, and improve continuously after launch.",
-        "Drift is a change in model accuracy over time, often because real-world data changes.",
-        "Versioning lets you compare models and roll back a bad update.",
+        "Checking a model isn't a one-off job. After launch you keep watching it, measuring it and improving it.",
+        "Drift is when a model's accuracy changes over time, usually because the real world has changed. For example, shoppers' habits shift after a price rise.",
+        "Versioning means keeping a record of each model version. You can compare them, and go back to an older one if an update goes wrong.",
       ],
       check: ["d3-09", "d3-10"],
     },
@@ -130,28 +203,28 @@ export default defineDomain({
           <Tiles
             cols={3}
             tiles={[
-              { icon: "0️⃣", title: "Zero-shot", text: "Just the task, no examples.", color: "#4285f4" },
-              { icon: "1️⃣", title: "One-shot", text: "One example to copy.", color: "#4285f4" },
-              { icon: "🔢", title: "Few-shot", text: "Several examples to learn the pattern.", color: "#4285f4" },
-              { icon: "🎭", title: "Role prompting", text: "Assign a persona to shape style, tone, and focus.", color: "#34a853" },
-              { icon: "⛓️", title: "Prompt chaining", text: "A back-and-forth sequence where each step builds on the last.", color: "#34a853" },
-              { icon: "🪞", title: "Metaprompting", text: "Use prompts to generate, modify, or interpret other prompts.", color: "#34a853" },
+              { icon: "0️⃣", title: "Zero-shot", text: "Just the task, with no examples.", color: "#4285f4" },
+              { icon: "1️⃣", title: "One-shot", text: "One example for the model to copy.", color: "#4285f4" },
+              { icon: "🔢", title: "Few-shot", text: "Several examples so it can spot the pattern.", color: "#4285f4" },
+              { icon: "🎭", title: "Role prompting", text: "Give the model a persona to shape its style, tone and focus.", color: "#34a853" },
+              { icon: "⛓️", title: "Prompt chaining", text: "A back-and-forth series where each step builds on the last.", color: "#34a853" },
+              { icon: "🪞", title: "Metaprompting", text: "Use prompts to write, change or explain other prompts.", color: "#34a853" },
             ]}
           />
           <Tiles
             tiles={[
-              { icon: "🧮", title: "Chain-of-thought (CoT)", text: "Guide the model through intermediate reasoning steps for multi-step problems.", color: "#fbbc04" },
-              { icon: "🔁", title: "ReAct (reason + act)", text: "The model reasons, takes an action such as a tool call, observes, and repeats.", color: "#fbbc04" },
+              { icon: "🧮", title: "Chain-of-thought (CoT)", text: "Walk the model through the reasoning steps of a problem with several stages.", color: "#fbbc04" },
+              { icon: "🔁", title: "ReAct (reason + act)", text: "The model thinks, takes an action like calling a tool, looks at the result, and repeats.", color: "#fbbc04" },
             ]}
           />
         </div>
       ),
       points: [
-        "Prompt engineering is the art and science of crafting inputs that get the most value from a model, with no training.",
-        "More examples (zero → one → few-shot) help when the output must follow a specific format or pattern.",
-        "Streamline workflows by reusing prompts as templates, chaining within one conversation, saving info in Gemini, and using Gems.",
+        "Prompt engineering is the skill of writing inputs that get the most out of a model. No training is involved.",
+        "Adding examples helps when the output has to follow a set format. You can give none (zero-shot), one (one-shot) or several (few-shot).",
+        "You can save time by reusing good prompts as templates, chaining steps in one conversation, saving details in Gemini and using Gems.",
       ],
-      tip: "ReAct is the technique behind agents that use tools. Chain-of-thought is about showing reasoning, not calling tools.",
+      tip: "ReAct is the technique behind agents that use tools. Chain-of-thought is about showing the reasoning steps, not calling tools.",
       check: ["d3-15", "d3-19"],
     },
     {
@@ -163,9 +236,9 @@ export default defineDomain({
           <Tiles
             cols={3}
             tiles={[
-              { icon: "🏢", title: "First-party enterprise data", text: "Your own documents, policies, products, and records.", color: "#34a853" },
-              { icon: "🤝", title: "Third-party data", text: "Data from external providers, such as a licensed market data feed.", color: "#fbbc04" },
-              { icon: "🌐", title: "World data", text: "Public, current information, such as Grounding with Google Search.", color: "#4285f4" },
+              { icon: "🏢", title: "First-party enterprise data", text: "Your own documents, policies, products and records.", color: "#34a853" },
+              { icon: "🤝", title: "Third-party data", text: "Data from outside providers, like a market data feed you pay for.", color: "#fbbc04" },
+              { icon: "🌐", title: "World data", text: "Current public information, for example through Grounding with Google Search.", color: "#4285f4" },
             ]}
           />
           <RagSteps />
@@ -173,11 +246,11 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "Grounding connects a model's output to verifiable sources of information, which reduces hallucinations.",
-        "RAG retrieves relevant information, adds it to the prompt, and generates an answer from it. The model's weights don't change.",
-        "Google Cloud options: prebuilt RAG with Agent Search, the RAG APIs, and Grounding with Google Search.",
+        "Grounding ties a model's answer to sources you can check. That cuts down on hallucinations.",
+        "RAG (retrieval-augmented generation) finds the relevant information, adds it to the prompt and then writes an answer from it. The model itself doesn't change.",
+        "Google Cloud gives you three ways to ground: prebuilt RAG with Agent Search, the RAG APIs, and Grounding with Google Search.",
       ],
-      tip: "Private company facts → ground in enterprise data. Fresh public facts → Grounding with Google Search.",
+      tip: "For private company facts, ground in your enterprise data. For fresh public facts, use Grounding with Google Search.",
       check: ["d3-22", "d3-25"],
     },
     {
@@ -186,16 +259,131 @@ export default defineDomain({
       title: "Sampling parameters and settings",
       visual: <SamplingDial />,
       points: [
-        "Tokens are meaningful chunks of text such as words and punctuation. Token count drives cost and context limits.",
-        "Temperature controls randomness: low for facts and consistency, high for creativity.",
-        "Top-p limits choices to the most likely tokens whose probabilities add up to p.",
-        "Safety settings filter harmful content, and output length caps how much the model generates.",
+        "A token is a chunk of text, roughly a short word or a punctuation mark. The number of tokens drives both cost and how much fits in the context window.",
+        "Temperature controls how random the model's word choices are. Keep it low for facts and consistency, and raise it for creative work.",
+        "Top-p limits the model to the most likely next tokens, stopping once their combined probability reaches p. For example, 0.9 means the top 90%.",
+        "Safety settings filter out harmful content. Output length caps how much the model writes.",
       ],
       check: ["d3-27", "d3-28"],
     },
   ],
 
   questions: [
+    // ───── Start here (beginner)
+    {
+      id: "gail-b3-01",
+      level: "beginner",
+      domain: "d3",
+      lesson: "d3-b-mistakes",
+      prompt: "A chatbot confidently tells a customer about a discount code that never existed. What is this called?",
+      options: ["A hallucination", "A prompt", "A backup", "A token"],
+      answer: [0],
+      explanation:
+        "A hallucination is when a model makes something up and presents it as fact. It happens because the model is built to produce likely-sounding text, not to check the truth.",
+    },
+    {
+      id: "gail-b3-02",
+      level: "beginner",
+      domain: "d3",
+      lesson: "d3-b-mistakes",
+      prompt: "You ask a model about something that happened last week, and it has no idea. What's the most likely reason?",
+      options: [
+        "It only knows what was in its training data, which ended before last week",
+        "It's broken and needs to be reinstalled",
+        "It's refusing to answer on purpose",
+        "Your question was too short",
+      ],
+      answer: [0],
+      explanation:
+        "A model learns from data collected up to a certain date, called its knowledge cutoff. Anything after that date simply isn't in its memory unless you give it a fresh source.",
+    },
+    {
+      id: "gail-b3-03",
+      level: "beginner",
+      domain: "d3",
+      lesson: "d3-b-prompts",
+      prompt: "Which prompt is most likely to get a useful result?",
+      options: [
+        "\"Write a polite two-sentence reply to a customer whose parcel arrived late, and offer free delivery next time.\"",
+        "\"Reply.\"",
+        "\"Write something.\"",
+        "\"Customer, parcel, late.\"",
+      ],
+      answer: [0],
+      explanation:
+        "The first prompt says what to write, how long it should be, the tone and what to include. The more clearly you brief the model, the closer its first answer will be to what you need.",
+    },
+    {
+      id: "gail-b3-04",
+      level: "beginner",
+      domain: "d3",
+      lesson: "d3-b-prompts",
+      prompt: "You want the model's answers in a very specific layout. What's a quick way to get that?",
+      options: [
+        "Include an example of the layout in your prompt",
+        "Retrain the model from scratch",
+        "Use shorter words",
+        "Ask the same vague question again",
+      ],
+      answer: [0],
+      explanation:
+        "Models are good at copying a pattern they can see. Showing one or two examples of the layout is usually faster and cheaper than any kind of training.",
+    },
+    {
+      id: "gail-b3-05",
+      level: "beginner",
+      domain: "d3",
+      lesson: "d3-b-grounding",
+      prompt: "An HR assistant answers questions by first looking up the right page of the staff handbook and handing it to the model. What is this called?",
+      options: ["Grounding", "Hallucinating", "Guessing", "Encryption"],
+      answer: [0],
+      explanation:
+        "Grounding means giving the model trusted information to base its answer on. It works like an open-book exam, so the model doesn't have to rely on memory.",
+    },
+    {
+      id: "gail-b3-06",
+      level: "beginner",
+      domain: "d3",
+      lesson: "d3-b-grounding",
+      prompt: "Why do companies ground a model in their own documents?",
+      options: [
+        "So answers about their own policies and products are accurate",
+        "So the model runs without electricity",
+        "So nobody needs to write prompts any more",
+        "So the model forgets everything else it knows",
+      ],
+      answer: [0],
+      explanation:
+        "A public model has never seen a company's private documents, so it can only guess about them. Grounding hands it the real facts, which makes its answers more accurate.",
+    },
+    {
+      id: "gail-b3-07",
+      level: "beginner",
+      domain: "d3",
+      lesson: "d3-b-mistakes",
+      prompt: "An AI drafts letters that tell patients about their test results. What's the sensible safeguard?",
+      options: [
+        "Have a doctor review each letter before it's sent",
+        "Send the letters straight away to save time",
+        "Make the letters as long as possible",
+        "Let patients guess what the letters mean",
+      ],
+      answer: [0],
+      explanation:
+        "When a mistake could hurt someone, a person should check the AI's work first. This is called having a human in the loop, and it's standard practice in fields like healthcare.",
+    },
+    {
+      id: "gail-b3-08",
+      level: "beginner",
+      domain: "d3",
+      lesson: "d3-b-prompts",
+      prompt: "Starting a prompt with \"You are a friendly tour guide\" is an example of what?",
+      options: ["Giving the model a role", "Training the model", "Deleting the model's memory", "Grounding in company data"],
+      answer: [0],
+      explanation:
+        "Giving the model a role, or persona, shapes its tone and focus. It's a simple prompting trick that needs no training at all.",
+    },
+
     // ───── d3-limits
     {
       id: "d3-01",
@@ -210,7 +398,7 @@ export default defineDomain({
         "Context window; switch to an image model",
       ],
       answer: [0],
-      explanation: "Models only know what was in their training data up to a cutoff date. Grounding with current sources supplies newer information.",
+      explanation: "A model only knows what was in its training data up to a cutoff date. Grounding it in current sources gives it the newer information.",
     },
     {
       id: "d3-02",
@@ -219,7 +407,7 @@ export default defineDomain({
       prompt: "A support chatbot confidently describes a 90-day return policy that the company never offered. What is this called?",
       options: ["A hallucination", "Model drift", "A knowledge cutoff", "Prompt chaining"],
       answer: [0],
-      explanation: "Hallucinations are outputs that sound plausible but aren't accurate or based on real information. Grounding in the real policy helps.",
+      explanation: "A hallucination is an answer that sounds believable but isn't accurate or based on real information. Grounding the bot in the real policy helps.",
     },
     {
       id: "d3-03",
@@ -229,7 +417,7 @@ export default defineDomain({
         "A claims model handles typical claims well but produces strange results for rare claim types it has seldom seen, such as damage from a meteorite. Which limitation does this show?",
       options: ["Edge cases", "Knowledge cutoff", "Latency", "Data accessibility"],
       answer: [0],
-      explanation: "Rare and atypical scenarios, called edge cases, can expose a model's weaknesses and lead to unexpected results.",
+      explanation: "Edge cases are rare, unusual situations. Because the model has seen so few of them, they show up its weak spots and lead to odd results.",
     },
     {
       id: "d3-04",
@@ -238,7 +426,7 @@ export default defineDomain({
       prompt: "A model trained on an incomplete product catalog gives incomplete product answers. Which limitation BEST explains the root cause?",
       options: ["Data dependency", "Temperature setting", "Context window size", "Output length"],
       answer: [0],
-      explanation: "Foundation model performance depends heavily on data. Biased or incomplete data affects the outputs.",
+      explanation: "A foundation model depends heavily on its data. If the data is biased or incomplete, the answers will be too.",
     },
     {
       id: "d3-05",
@@ -252,7 +440,8 @@ export default defineDomain({
         ["Outputs drive high-stakes medical decisions", "Human-in-the-loop review"],
         ["Must consistently perform a specialised task in your domain", "Fine-tuning"],
       ],
-      explanation: "Fresh public facts need world data, private facts need enterprise data, high stakes need people, and specialised behaviour can justify fine-tuning.",
+      explanation:
+        "Fresh public facts need world data, and private facts need your own data. High-stakes decisions need people checking them, and a specialist task can justify fine-tuning.",
     },
     {
       id: "d3-06",
@@ -267,7 +456,7 @@ export default defineDomain({
         "Publishing the drafts without review to gather feedback faster",
       ],
       answer: [0],
-      explanation: "HITL gives critical oversight in sensitive fields such as healthcare, with experts reviewing outputs before they reach users.",
+      explanation: "In sensitive fields like healthcare, HITL gives you expert oversight. A clinician checks each draft before it reaches a patient.",
     },
     {
       id: "d3-07",
@@ -282,7 +471,7 @@ export default defineDomain({
         "Choosing a font for an internal slide",
       ],
       answer: [0, 1],
-      explanation: "HITL is most valuable where mistakes are costly or context is subtle: high-risk decisions, sensitive applications, and content moderation.",
+      explanation: "HITL matters most where mistakes are costly or the context is subtle, like high-risk decisions and content moderation. Lunch ideas and fonts don't need a reviewer.",
     },
     {
       id: "d3-08",
@@ -292,7 +481,8 @@ export default defineDomain({
         "A manufacturer needs a model to consistently produce maintenance reports in its specialised format and terminology. Careful prompting and examples still fall short, and it has thousands of good example reports. What should it consider next?",
       options: ["Fine-tuning the model on the example reports", "Raising the temperature", "Grounding with Google Search", "Using a smaller context window"],
       answer: [0],
-      explanation: "Fine-tuning improves a pre-trained model's performance for a specific task or domain when prompting isn't enough and good training examples exist.",
+      explanation:
+        "Fine-tuning gives a pre-trained model extra training for one task or field. It's the next step when prompting isn't enough and you have plenty of good examples to train on.",
     },
 
     // ───── d3-monitor
@@ -304,7 +494,7 @@ export default defineDomain({
         "A demand-forecasting model was accurate at launch, but its accuracy has slowly declined over six months as customer behaviour changed. What is this, and which tool helps detect it?",
       options: ["Drift; Model Monitoring", "Hallucination; Google AI Studio", "Edge case; Gems", "Knowledge cutoff; Text-to-Speech API"],
       answer: [0],
-      explanation: "Drift is a change in model accuracy over time. Model Monitoring watches for it so teams can retrain or adjust.",
+      explanation: "Drift is when a model's accuracy changes over time. Model Monitoring watches for it, so the team knows when to retrain or adjust.",
     },
     {
       id: "d3-10",
@@ -318,7 +508,7 @@ export default defineDomain({
         ["Agent Platform Feature Store", "Manage the data features models use"],
         ["Agent Platform Pipelines", "Automate machine learning tasks"],
       ],
-      explanation: "Together these support versioning, drift monitoring, feature management, and automation across the model lifecycle.",
+      explanation: "Together they cover versions, drift, the data features models use, and automation across the model's life.",
     },
     {
       id: "d3-11",
@@ -332,7 +522,7 @@ export default defineDomain({
         "Avoid versioning to keep things simple",
       ],
       answer: [0],
-      explanation: "Continuous monitoring covers KPIs, performance tracking, drift monitoring, versioning, model upgrades, and security patches.",
+      explanation: "Ongoing monitoring covers KPIs, performance tracking, drift, versioning, model upgrades and security patches. It never stops at launch.",
     },
     {
       id: "d3-12",
@@ -341,7 +531,7 @@ export default defineDomain({
       prompt: "After a model update, answer quality drops and the team wants to restore the previous model quickly. Which practice makes this possible?",
       options: ["Model versioning with Model Registry", "Raising top-p", "Few-shot prompting", "Grounding with Google Search"],
       answer: [0],
-      explanation: "Versioning keeps track of each model version, so you can compare them and roll back.",
+      explanation: "Versioning keeps a record of every model version, so you can compare them and go back to the one that worked.",
     },
     {
       id: "d3-13",
@@ -356,7 +546,7 @@ export default defineDomain({
         "Deploy new versions without recording which one is live",
       ],
       answer: [0, 1],
-      explanation: "Keep models secure and current, and watch their accuracy over time. Logging, evaluation, and version tracking make that possible.",
+      explanation: "Keep models secure and up to date, and keep an eye on their accuracy. Logging, evaluation and version tracking are what make that possible.",
     },
 
     // ───── d3-prompting
@@ -367,7 +557,7 @@ export default defineDomain({
       prompt: "A user types: \"Write a two-sentence product description for a stainless-steel water bottle.\" There are no examples. Which technique is this?",
       options: ["Zero-shot prompting", "Few-shot prompting", "Chain-of-thought prompting", "Prompt tuning"],
       answer: [0],
-      explanation: "Zero-shot prompting asks the model to complete a task with no examples.",
+      explanation: "Zero-shot prompting asks the model to do a task without giving it any examples.",
     },
     {
       id: "d3-15",
@@ -377,7 +567,7 @@ export default defineDomain({
         "A team wants support tickets tagged with one of five internal categories in an exact format. Its prompt includes six example tickets with the correct tags. Which technique is this?",
       options: ["Few-shot prompting", "Zero-shot prompting", "Role prompting", "Fine-tuning"],
       answer: [0],
-      explanation: "Few-shot prompting gives the model several examples to learn the pattern and format from, without training.",
+      explanation: "Few-shot prompting gives the model several examples so it can pick up the pattern and format. No training is involved.",
     },
     {
       id: "d3-16",
@@ -391,7 +581,7 @@ export default defineDomain({
         "Draft a launch email built on those messages",
         "Shorten the draft and make the tone friendlier",
       ],
-      explanation: "In prompt chaining each step builds on the previous output within the same conversation, which keeps context and improves quality.",
+      explanation: "In prompt chaining, each step builds on the answer before it, in the same conversation. The model keeps the context, and the result gets better at each step.",
     },
     {
       id: "d3-17",
@@ -401,7 +591,7 @@ export default defineDomain({
         "A prompt begins: \"You are an experienced, plain-spoken financial coach for first-time home buyers.\" Which technique is being used?",
       options: ["Role prompting", "ReAct prompting", "Zero-shot classification", "Metaprompting"],
       answer: [0],
-      explanation: "Role prompting assigns a persona to influence the model's style, tone, and focus.",
+      explanation: "Role prompting gives the model a persona, which shapes its style, tone and focus.",
     },
     {
       id: "d3-18",
@@ -410,7 +600,7 @@ export default defineDomain({
       prompt: "A user pastes a single sample customer reply and asks Gemini to write ten more in the same style. Which technique is this?",
       options: ["One-shot prompting", "Zero-shot prompting", "Few-shot prompting", "Prompt chaining"],
       answer: [0],
-      explanation: "One-shot prompting provides exactly one example to learn from.",
+      explanation: "One-shot prompting gives the model exactly one example to learn from. Several examples would make it few-shot.",
     },
     {
       id: "d3-19",
@@ -425,7 +615,7 @@ export default defineDomain({
         "Removing all context from the prompt",
       ],
       answer: [0],
-      explanation: "Chain-of-thought prompting walks the model through a problem step by step, which helps on multi-step reasoning tasks.",
+      explanation: "Chain-of-thought prompting walks the model through the problem one step at a time. That helps a lot on tasks with several stages of reasoning.",
     },
     {
       id: "d3-20",
@@ -435,7 +625,7 @@ export default defineDomain({
         "An assistant must answer \"Where is my order?\" by reasoning about the request, looking up the order in a system, reading the result, and deciding what to do next. Which prompting technique supports this?",
       options: ["ReAct (reason and act) prompting", "Zero-shot prompting", "One-shot prompting", "Role prompting"],
       answer: [0],
-      explanation: "ReAct lets an LLM interleave reasoning with actions such as tool calls, observing results before continuing.",
+      explanation: "ReAct lets a model mix thinking with actions, like calling a tool. It looks at each result before deciding what to do next.",
     },
     {
       id: "d3-21",
@@ -450,7 +640,7 @@ export default defineDomain({
         ["Prompt chaining", "A sequence of prompts that build on each other"],
         ["Metaprompting", "Using the model to write or improve prompts"],
       ],
-      explanation: "These techniques shape output without training. Pick by how much guidance and structure the task needs.",
+      explanation: "All of these shape the output without any training. Pick one based on how much guidance and structure the task needs.",
     },
 
     // ───── d3-grounding
@@ -466,7 +656,7 @@ export default defineDomain({
         "Running the model on on-premises hardware",
       ],
       answer: [0],
-      explanation: "Grounding ties answers to verifiable sources such as enterprise documents or Google Search, which improves accuracy and trust.",
+      explanation: "Grounding ties answers to sources you can check, like company documents or Google Search. That makes the answers more accurate and easier to trust.",
     },
     {
       id: "d3-23",
@@ -479,7 +669,7 @@ export default defineDomain({
         ["Third-party data", "A licensed data feed from an external provider"],
         ["World data", "Current public information found through Google Search"],
       ],
-      explanation: "First-party data is yours, third-party data comes from other organisations, and world data is public information.",
+      explanation: "First-party data is your own. Third-party data comes from other organisations, and world data is information anyone can find publicly.",
     },
     {
       id: "d3-24",
@@ -488,7 +678,7 @@ export default defineDomain({
       type: "order",
       prompt: "Put the core steps of retrieval-augmented generation (RAG) in order.",
       items: ["Retrieve relevant information from external sources", "Add the retrieved information to the prompt", "Generate a response from the augmented prompt"],
-      explanation: "Retrieval, augmentation, generation. Optionally, the model can iterate on retrieval when it needs more context.",
+      explanation: "First it retrieves the information, then it adds it to the prompt, then it generates the answer. If it needs more context, it can go back and retrieve again.",
     },
     {
       id: "d3-25",
@@ -498,7 +688,7 @@ export default defineDomain({
         "A news-summary assistant must answer questions about events from the past few hours with sources. Which Google Cloud grounding option fits BEST?",
       options: ["Grounding with Google Search", "Prebuilt RAG over internal HR documents", "Fine-tuning on last year's articles", "A lower top-p value"],
       answer: [0],
-      explanation: "Grounding with Google Search connects the model to fresh world data, which overcomes the knowledge cutoff.",
+      explanation: "Grounding with Google Search connects the model to fresh public information. That gets around the knowledge cutoff for very recent events.",
     },
     {
       id: "d3-26",
@@ -513,7 +703,8 @@ export default defineDomain({
         "Data quality no longer matters",
       ],
       answer: [0, 1],
-      explanation: "RAG improves relevance and enables citations without changing the model. Answers are only as good as the retrieved data, and mistakes are still possible.",
+      explanation:
+        "RAG makes answers more relevant and lets them cite sources, without changing the model. But the answers are only as good as the information it finds, and mistakes can still happen.",
     },
 
     // ───── d3-sampling
@@ -525,7 +716,7 @@ export default defineDomain({
         "A legal team wants contract summaries that are factual and as consistent as possible when the same document is summarised twice. How should temperature be set?",
       options: ["Low", "High", "It has no effect on consistency", "As high as the model allows"],
       answer: [0],
-      explanation: "Low temperature makes word choices more focused and predictable. High temperature adds creativity and variation.",
+      explanation: "A low temperature makes the model's word choices focused and predictable. A high temperature adds creativity and variety, which is the opposite of what this team wants.",
     },
     {
       id: "d3-28",
@@ -535,7 +726,7 @@ export default defineDomain({
         "Which setting limits the model's word choices to the most likely tokens whose combined probability reaches a chosen threshold?",
       options: ["Top-p (nucleus sampling)", "Output length", "Safety settings", "Context window"],
       answer: [0],
-      explanation: "Top-p is the cumulative probability of the most likely tokens considered during generation. It is another way to control randomness.",
+      explanation: "Top-p sets how much of the probability the model's choices can cover, starting from the most likely tokens. It's another way to control how random the output is.",
     },
     {
       id: "d3-29",
@@ -549,7 +740,7 @@ export default defineDomain({
         ["Output length", "The maximum length of the generated text"],
         ["Safety settings", "Filtering of harmful or inappropriate content"],
       ],
-      explanation: "Sampling settings let you tune behaviour without changing the model or the prompt.",
+      explanation: "These settings let you adjust how the model behaves without changing the model or the prompt.",
     },
     {
       id: "d3-30",
@@ -558,7 +749,7 @@ export default defineDomain({
       prompt: "A children's education app must make sure the model never returns harmful or inappropriate content. Which settings are MOST directly designed for this?",
       options: ["Safety settings", "Top-p", "Token count", "Temperature"],
       answer: [0],
-      explanation: "Safety settings filter potentially harmful or inappropriate content out of the model's output.",
+      explanation: "Safety settings filter out content that could be harmful or inappropriate. The other settings affect randomness and length, not safety.",
     },
     {
       id: "d3-31",
@@ -573,23 +764,29 @@ export default defineDomain({
         "Switch the safety settings off",
       ],
       answer: [0, 1],
-      explanation: "Capping output length and asking for a concise format both reduce tokens generated. Cost scales with token count.",
+      explanation: "Capping the output length and asking for a short format both mean fewer tokens are generated. Since cost grows with token count, both bring the bill down.",
     },
   ],
 
   cards: [
-    { id: "d3-c01", domain: "d3", kind: "concept", term: "Knowledge cutoff", definition: "A model knows nothing after its training date. Fix with grounding in current sources." },
-    { id: "d3-c02", domain: "d3", kind: "concept", term: "Hallucination", definition: "A confident output that isn't accurate or based on real information." },
-    { id: "d3-c03", domain: "d3", kind: "concept", term: "Human in the loop (HITL)", definition: "Human input and review built into the ML workflow, before or after generation." },
-    { id: "d3-c04", domain: "d3", kind: "concept", term: "Drift", definition: "A change in model accuracy over time. Detected with Model Monitoring." },
-    { id: "d3-c05", domain: "d3", kind: "concept", term: "Few-shot prompting", definition: "Give several examples in the prompt so the model follows the pattern." },
-    { id: "d3-c06", domain: "d3", kind: "concept", term: "Chain-of-thought", definition: "Guide the model through intermediate reasoning steps." },
-    { id: "d3-c07", domain: "d3", kind: "concept", term: "ReAct", definition: "Reason and act: the model reasons, takes actions such as tool calls, and observes the results." },
-    { id: "d3-c08", domain: "d3", kind: "concept", term: "Grounding", definition: "Connect output to verifiable sources: enterprise, third-party, or world data." },
-    { id: "d3-c09", domain: "d3", kind: "concept", term: "RAG", definition: "Retrieve relevant information, augment the prompt with it, then generate." },
-    { id: "d3-c10", domain: "d3", kind: "concept", term: "Temperature vs top-p", definition: "Temperature sets randomness; top-p limits choices to the most likely tokens up to probability p." },
-    { id: "d3-c11", domain: "d3", kind: "service", term: "Grounding with Google Search", definition: "Grounds answers in fresh, public world data." },
-    { id: "d3-c12", domain: "d3", kind: "service", term: "Model Registry", definition: "Tracks model versions so you can compare and roll back." },
+    { id: "d3-c01", domain: "d3", kind: "concept", term: "Knowledge cutoff", definition: "A model knows nothing after its training date. You fix it by grounding the model in current sources." },
+    { id: "d3-c02", domain: "d3", kind: "concept", term: "Hallucination", definition: "A confident answer that isn't accurate or based on real information." },
+    { id: "d3-c03", domain: "d3", kind: "concept", term: "Human in the loop (HITL)", definition: "People reviewing and giving input as part of the ML workflow, before or after the model generates." },
+    { id: "d3-c04", domain: "d3", kind: "concept", term: "Drift", definition: "A change in a model's accuracy over time. Model Monitoring detects it." },
+    { id: "d3-c05", domain: "d3", kind: "concept", term: "Few-shot prompting", definition: "Putting several examples in the prompt so the model follows the pattern." },
+    { id: "d3-c06", domain: "d3", kind: "concept", term: "Chain-of-thought", definition: "Walking the model through a problem one reasoning step at a time." },
+    { id: "d3-c07", domain: "d3", kind: "concept", term: "ReAct", definition: "Reason and act. The model thinks, takes an action such as calling a tool, and looks at the result." },
+    { id: "d3-c08", domain: "d3", kind: "concept", term: "Grounding", definition: "Tying output to sources you can check: your own data, third-party data or public world data." },
+    { id: "d3-c09", domain: "d3", kind: "concept", term: "RAG", definition: "Retrieval-augmented generation. Find the relevant information, add it to the prompt, then write the answer." },
+    {
+      id: "d3-c10",
+      domain: "d3",
+      kind: "concept",
+      term: "Temperature versus top-p",
+      definition: "Temperature sets how random the choices are. Top-p limits choices to the most likely tokens, up to a combined probability of p.",
+    },
+    { id: "d3-c11", domain: "d3", kind: "service", term: "Grounding with Google Search", definition: "Grounds answers in fresh, public information from the web." },
+    { id: "d3-c12", domain: "d3", kind: "service", term: "Model Registry", definition: "Keeps track of model versions so you can compare them and roll back." },
   ],
 
   challenges: [
@@ -598,9 +795,9 @@ export default defineDomain({
       domain: "d3",
       lesson: "d3-grounding",
       title: "Ground it right",
-      goal: "Get an accurate, cited answer to both factual questions by choosing the right grounding source for each.",
-      hint: "One question is about a private company policy; the other is about yesterday's public news.",
-      takeaway: "Ground private facts in enterprise data and fresh public facts with Google Search. Creative tasks rarely need grounding.",
+      goal: "Get an accurate answer, with a source, to both factual questions by picking the right grounding source for each.",
+      hint: "One question is about a private company policy. The other is about yesterday's public news.",
+      takeaway: "Ground private facts in your company's data and fresh public facts with Google Search. Creative tasks rarely need grounding.",
       render: (onSolved) => <GroundingLab goal="allGrounded" onSolved={onSolved} />,
     },
   ],

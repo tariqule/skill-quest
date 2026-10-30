@@ -1,4 +1,4 @@
-import { CodeBlock, CodeCompare, Tiles } from "@/components/learn/blocks";
+import { CodeBlock, CodeCompare, Flow, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { js } from "../snippet";
 import { ArrayShift, LinkedListReverse } from "../visuals";
@@ -13,7 +13,7 @@ export default defineDomain({
     weight: 25,
     emoji: "🏝️",
     color: "#22d3ee",
-    summary: "Contiguous arrays and their Big-O, immutable strings and character counting, linked lists, reversal, and fast/slow pointers.",
+    summary: "How arrays sit in memory and what each operation costs, why strings never change in place, and how linked lists, reversal and fast and slow pointers work.",
   },
 
   tasks: [
@@ -36,6 +36,59 @@ export default defineDomain({
 
   lessons: [
     {
+      id: "ds-b-array",
+      level: "beginner",
+      check: ["ds-b1-01", "ds-b1-02"],
+      task: "1.1",
+      title: "Start here: what a data structure is",
+      visual: (
+        <div className="grid gap-4">
+          <Tiles
+            cols={4}
+            tiles={[
+              { icon: "🍎", title: "0", text: "\"apple\"", color: "#22d3ee" },
+              { icon: "🍌", title: "1", text: "\"banana\"", color: "#22d3ee" },
+              { icon: "🍒", title: "2", text: "\"cherry\"", color: "#22d3ee" },
+              { icon: "➕", title: "3", text: "Empty slot, ready for the next item", color: "#22d3ee" },
+            ]}
+          />
+          <CodeBlock lang="js" code={js("const fruits = ['apple', 'banana', 'cherry'];", "console.log(fruits[0]); // apple", "fruits.push('date');    // add to the end")} />
+        </div>
+      ),
+      points: [
+        "A **data structure** is a way of arranging data so the jobs you do most often are quick. It's like choosing between a filing cabinet, a stack of plates and a phone book.",
+        "An **array** is the simplest one: a row of numbered slots, like lockers in a hallway. Each slot holds one item.",
+        "The slot numbers are called **indexes**, and they start at 0. So `fruits[0]` is the first item and `fruits[1]` is the second.",
+        "You'll pick structures by asking which operations your program does a lot: looking things up, adding, removing or keeping things in order.",
+      ],
+      tip: "Counting from 0 feels odd at first. Read `fruits[1]` as \"one step past the start\" and it starts to make sense.",
+    },
+    {
+      id: "ds-b-chain",
+      level: "beginner",
+      check: ["ds-b1-03", "ds-b1-04"],
+      task: "1.3",
+      title: "Start here: a chain of linked nodes",
+      visual: (
+        <Flow
+          color="#22d3ee"
+          steps={[
+            { icon: "🏁", label: "head", sub: "Where the list starts" },
+            { icon: "📦", label: "Node: 1", sub: "Holds a value and points to the next node" },
+            { icon: "📦", label: "Node: 2", sub: "Same idea, one link further" },
+            { icon: "🛑", label: "null", sub: "Nothing next, so the list ends here" },
+          ]}
+        />
+      ),
+      points: [
+        "A **linked list** is a chain of small boxes called **nodes**. Each node holds a value and a pointer to the next node.",
+        "Think of a treasure hunt. Each clue tells you where the next clue is hidden, but not where the fifth one is.",
+        "The first node is called the **head**. To reach any other node, you start at the head and follow the pointers one by one.",
+        "The last node points to `null`, which means \"nothing here\". That's how you know the list has ended.",
+      ],
+      tip: "Arrays let you jump straight to slot 5. Linked lists make you walk there, but adding a node at the front is instant.",
+    },
+    {
       id: "ds-arrays",
       level: "junior",
       check: ["ds1-01", "ds1-02"],
@@ -43,19 +96,19 @@ export default defineDomain({
       title: "Arrays: one block of memory",
       visual: <ArrayShift />,
       points: [
-        "Elements sit side by side, so `arr[i]` is one address calculation: O(1).",
-        "`push` / `pop` at the end are O(1); `unshift`, `shift`, and `splice` in the middle shift elements: O(n).",
-        "A dynamic array doubles its capacity when full. One push can cost O(n), but the average over many pushes is O(1) amortized.",
-        "Searching an unsorted array is O(n). Sorted? Binary search is O(log n).",
+        "An array's items sit side by side in memory. Finding `arr[i]` is one quick address calculation, so it takes O(1) time however long the array is.",
+        "`push` and `pop` work at the end and are O(1). `unshift`, `shift` and `splice` in the middle have to slide other items over, so they're O(n).",
+        "A **dynamic array** doubles its space when it fills up. That one push copies everything and costs O(n), but averaged over many pushes it's O(1). We call that **amortized** O(1).",
+        "Searching an unsorted array means checking items one by one, which is O(n). If the array is sorted, binary search finds a value in O(log n).",
       ],
-      tip: "When you say push is O(1), add \"amortized\". Interviewers notice the precision.",
+      tip: "When you say push is O(1), add \"amortized\". Interviewers notice that kind of precision.",
     },
     {
       id: "ds-strings",
       level: "junior",
       check: ["ds1-05", "ds1-06"],
       task: "1.2",
-      title: "Strings: immutable character arrays",
+      title: "Strings: characters you can't change in place",
       visual: (
         <div className="grid gap-4">
           <CodeCompare
@@ -78,19 +131,20 @@ export default defineDomain({
           <Tiles
             cols={3}
             tiles={[
-              { icon: "🧊", title: "Immutable", text: "`toUpperCase`, `slice`, `replace` all return a new string. The original never changes.", color: "#22d3ee" },
-              { icon: "🔢", title: "Frequency map", text: "`Map` for any characters, or a 26-slot array indexed by `charCodeAt(0) - 97` for a–z.", color: "#22d3ee" },
-              { icon: "🧵", title: "Build, then join", text: "Collect pieces in an array and `join` once. Portable advice for any language.", color: "#22d3ee" },
+              { icon: "🧊", title: "Immutable", text: "`toUpperCase`, `slice` and `replace` all hand you a new string. The original never changes.", color: "#22d3ee" },
+              { icon: "🔢", title: "Frequency map", text: "Use a `Map` for any characters, or a 26-slot array indexed by `charCodeAt(0) - 97` for a to z.", color: "#22d3ee" },
+              { icon: "🧵", title: "Build, then join", text: "Collect pieces in an array and `join` them once at the end. That advice works in any language.", color: "#22d3ee" },
             ]}
           />
         </div>
       ),
       points: [
-        "`length` is O(1); `slice` / `substring` copy k characters: O(k); comparing two strings is O(n).",
-        "Many string problems are really counting problems: anagrams, first unique character, ransom note.",
-        "In Java or Python, repeated `+=` in a loop can copy the whole string each time. JavaScript engines optimise it, but building an array and joining is the safe answer.",
+        "Strings are **immutable**: once made, they never change. Methods like `toUpperCase` give you a brand new string instead.",
+        "Reading `length` is O(1). `slice` and `substring` copy k characters, so they cost O(k). Comparing two strings checks each character, so it's O(n).",
+        "Many string problems are really counting problems in disguise. Anagrams, the first unique character and the ransom note puzzle all come down to counting letters.",
+        "In Java or Python, using `+=` in a loop can copy the whole string every time. JavaScript engines optimise this, but building an array and joining it is the safe answer anywhere.",
       ],
-      tip: "Ask about the character set (ASCII? Unicode? case-sensitive?). It changes whether a 26-slot array is enough.",
+      tip: "Ask which characters can appear. Plain ASCII, full Unicode or case-sensitive input changes whether a 26-slot array is enough.",
     },
     {
       id: "ds-linked",
@@ -118,38 +172,95 @@ export default defineDomain({
           />
           <Tiles
             tiles={[
-              { icon: "➡️", title: "Singly linked", text: "Each node knows only `next`. Insert/delete at head O(1); reaching index k is O(k).", color: "#22d3ee" },
-              { icon: "↔️", title: "Doubly linked", text: "Nodes know `prev` and `next`, so removing a known node is O(1).", color: "#22d3ee" },
-              { icon: "🎯", title: "Tail pointer", text: "Keeps append O(1). Removing the tail is still O(n) unless the list is doubly linked.", color: "#22d3ee" },
-              { icon: "🧠", title: "Memory", text: "No contiguous block, but one extra pointer per node and worse cache locality.", color: "#22d3ee" },
+              { icon: "➡️", title: "Singly linked", text: "Each node only knows `next`. Adding or removing at the head is O(1), but reaching index k takes O(k).", color: "#22d3ee" },
+              { icon: "↔️", title: "Doubly linked", text: "Each node knows both `prev` and `next`, so removing a node you already hold is O(1).", color: "#22d3ee" },
+              { icon: "🎯", title: "Tail pointer", text: "Keeping a pointer to the last node makes appending O(1). Removing the tail is still O(n) unless the list is doubly linked.", color: "#22d3ee" },
+              { icon: "🧠", title: "Memory", text: "It doesn't need one big block, but every node carries an extra pointer and scans are less cache friendly.", color: "#22d3ee" },
             ]}
           />
         </div>
       ),
       points: [
-        "Linked lists trade O(1) random access for cheap insertion and removal at known positions.",
-        "A dummy (sentinel) head lets you delete the real head with the same code as any other node.",
-        "LRU caches pair a hash map (key → node) with a doubly linked list (recency order) for O(1) get and put.",
+        "A linked list gives up instant access by index. In return, adding or removing a node at a spot you already hold is cheap.",
+        "A **dummy head** (also called a sentinel) is a fake node placed before the real head. It lets you delete the real head with the same code as any other node.",
+        "An **LRU cache** pairs a hash map with a doubly linked list. The map finds a key's node, and the list keeps nodes in order of recent use, so `get` and `put` are both O(1).",
       ],
-      tip: "Draw the boxes and arrows before you code. Most linked list bugs are a pointer updated in the wrong order.",
+      tip: "Draw the boxes and arrows before you write code. Most linked list bugs come from updating pointers in the wrong order.",
     },
     {
       id: "ds-pointers",
       level: "intermediate",
       check: ["ds1-13", "ds1-14"],
       task: "1.3",
-      title: "Linked list tricks: reverse and runners",
+      title: "Linked list tricks: reversing and runners",
       visual: <LinkedListReverse />,
       points: [
-        "Reverse in place with three pointers: save `next`, flip `curr.next`, advance `prev` and `curr`. O(n) time, O(1) space.",
-        "Fast/slow pointers: fast moves 2, slow moves 1. When fast hits the end, slow is at the middle.",
-        "If there is a cycle, fast laps slow and they meet (Floyd's algorithm). O(1) space, unlike a visited Set.",
+        "You can reverse a list in place with three pointers. Save `next`, flip `curr.next` to point backwards, then move `prev` and `curr` forward. It's O(n) time and O(1) extra space.",
+        "With **fast and slow pointers**, the fast one moves two nodes per step and the slow one moves one. When fast reaches the end, slow is in the middle.",
+        "If the list has a cycle, the fast pointer laps the slow one and they meet. This is Floyd's algorithm, and it needs O(1) space, unlike storing visited nodes in a Set.",
       ],
-      tip: "Say your loop invariant out loud: \"everything before curr is already reversed, and prev is its head.\"",
+      tip: "Say your loop rule out loud: \"everything before curr is already reversed, and prev is its head.\"",
     },
   ],
 
   questions: [
+    {
+      id: "ds-b1-01",
+      domain: "d1",
+      level: "beginner",
+      lesson: "ds-b-array",
+      prompt: "What is a data structure?",
+      options: [
+        "A way of arranging data so the operations you need are quick",
+        "A program that draws charts from data",
+        "A special kind of computer that stores files",
+        "A list of rules for naming variables",
+      ],
+      answer: [0],
+      explanation: "A data structure is just an arrangement of data, like a row of lockers or a chain of clues. Different arrangements make different jobs fast, so you pick the one that suits what your program does most.",
+    },
+    {
+      id: "ds-b1-02",
+      domain: "d1",
+      level: "beginner",
+      lesson: "ds-b-array",
+      type: "output",
+      prompt: "Type what this prints. Remember that array indexes start at 0.",
+      code: js("const fruits = ['apple', 'banana', 'cherry'];", "console.log(fruits[1]);"),
+      codeLang: "js",
+      answers: ["banana"],
+      explanation: "Index 0 is `apple`, so index 1 is the second item, `banana`. Counting from 0 is how almost every programming language numbers array slots.",
+    },
+    {
+      id: "ds-b1-03",
+      domain: "d1",
+      level: "beginner",
+      lesson: "ds-b-chain",
+      prompt: "In a linked list, how does one node know which node comes next?",
+      options: [
+        "It holds a pointer to the next node",
+        "The nodes are numbered, and the computer counts up",
+        "All the nodes sit side by side in one block of memory",
+        "It searches every node until it finds the right one",
+      ],
+      answer: [0],
+      explanation: "Each node stores its value plus a pointer, often called `next`, to the node after it. That's like a treasure hunt clue that tells you where the next clue is.",
+    },
+    {
+      id: "ds-b1-04",
+      domain: "d1",
+      level: "beginner",
+      lesson: "ds-b-chain",
+      prompt: "You want the fourth value in a linked list. What do you have to do?",
+      options: [
+        "Start at the head and follow the `next` pointers three times",
+        "Read slot 3 directly, like an array",
+        "Start at the last node and walk backwards",
+        "Ask the list for its length first, then divide by four",
+      ],
+      answer: [0],
+      explanation: "A linked list has no numbered slots, so you can't jump ahead. You start at the head, which is the first value, and hop along three links to reach the fourth.",
+    },
     {
       id: "ds1-01",
       domain: "d1",
@@ -163,7 +274,7 @@ export default defineDomain({
         "Arrays are kept sorted, so the value is found by binary search",
       ],
       answer: [0],
-      explanation: "Contiguous storage means the address of element i is computed with one multiplication and addition, whatever the array's length.",
+      explanation: "The items sit side by side in one block, so the computer finds item i with one multiplication and one addition. That's the same amount of work whether the array has ten items or ten million.",
     },
     {
       id: "ds1-02",
@@ -175,7 +286,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["O(n²)", "O(n)", "O(n log n)", "O(1)"],
       answer: [0],
-      explanation: "Each `unshift` shifts every existing element right: 0 + 1 + … + (n − 1) moves, which is O(n²). Pushing then reversing once would be O(n).",
+      explanation: "Each `unshift` slides every existing item one place to the right. That's 0 + 1 + … + (n − 1) moves in total, which grows like n², so it's O(n²). Pushing everything and reversing once at the end would be O(n).",
     },
     {
       id: "ds1-03",
@@ -187,7 +298,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["`[1, 4, 5] [2, 3]`", "`[1, 2, 5] [3, 4]`", "`[3, 4, 5] [1, 2]`", "`[1, 5] [2, 3, 4]`"],
       answer: [0],
-      explanation: "`splice(start, deleteCount)` mutates the array: it removes 2 items starting at index 1 (2 and 3) and returns them. Later elements shift left, so splice is O(n).",
+      explanation: "`splice(start, deleteCount)` changes the array itself. Here it removes 2 items starting at index 1, which are 2 and 3, and returns them. The items after them slide left, which is why splice is O(n).",
     },
     {
       id: "ds1-04",
@@ -203,7 +314,7 @@ export default defineDomain({
         ["Find a value in an unsorted array", "O(n): linear scan"],
         ["Find a value in a sorted array", "O(log n): binary search"],
       ],
-      explanation: "Index access is direct; appends are amortized O(1) thanks to capacity doubling; front inserts move everything; searching depends on whether the data is sorted.",
+      explanation: "Reading by index goes straight to the slot. Appending is amortized O(1) because the array doubles its space only now and then. Adding at the front moves everything, and how fast you can search depends on whether the data is sorted.",
     },
     {
       id: "ds1-05",
@@ -215,7 +326,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["`cat CAT`", "`CAT CAT`", "`cat cat`", "`CAT cat`"],
       answer: [0],
-      explanation: "Strings are immutable. `toUpperCase` returns a new string and leaves `s` untouched.",
+      explanation: "Strings can't be changed in place. `toUpperCase` builds a new string, `CAT`, and leaves `s` as it was.",
     },
     {
       id: "ds1-06",
@@ -227,7 +338,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["O(n log n)", "O(n)", "O(n²)", "O(log n)"],
       answer: [0],
-      explanation: "Sorting dominates: O(n log n). Counting characters in a Map or a 26-slot array solves it in O(n).",
+      explanation: "The sort is the slowest step, and sorting n characters is O(n log n). Counting the characters in a Map or a 26-slot array solves the same problem in O(n).",
     },
     {
       id: "ds1-07",
@@ -235,7 +346,7 @@ export default defineDomain({
       level: "intermediate",
       lesson: "ds-strings",
       type: "lines",
-      prompt: "This should return the first non-repeating character, but it always returns `null`. Tap the buggy line.",
+      prompt: "This should return the first character that appears only once, but it always returns `null`. Tap the buggy line.",
       code: js(
         "function firstUnique(s) {",
         "  const count = new Map();",
@@ -250,7 +361,7 @@ export default defineDomain({
       ),
       codeLang: "js",
       answer: [4],
-      explanation: "The first time a character is seen, `count.get(ch)` is `undefined`, and `undefined + 1` is `NaN`. Every count stays `NaN`, so nothing equals 1. Fix: `(count.get(ch) ?? 0) + 1`.",
+      explanation: "The first time a character shows up, `count.get(ch)` is `undefined`, and `undefined + 1` is `NaN`. Every count stays `NaN`, so none of them ever equals 1. The fix is `(count.get(ch) ?? 0) + 1`.",
     },
     {
       id: "ds1-08",
@@ -266,7 +377,7 @@ export default defineDomain({
         "Reverse one string and compare",
       ],
       answer: [0, 1],
-      explanation: "Both counting approaches touch each character a constant number of times. Sorting is O(n log n), the nested comparison is O(n²), and reversing checks for palindromes, not anagrams.",
+      explanation: "Both counting approaches touch each character a fixed number of times, so they're O(n). Sorting is O(n log n) and comparing every pair is O(n²). Reversing a string checks for a palindrome, not an anagram.",
     },
     {
       id: "ds1-09",
@@ -276,7 +387,7 @@ export default defineDomain({
       prompt: "Which operation is O(1) on a singly linked list that only stores a `head` pointer?",
       options: ["Insert at the head", "Insert at the tail", "Read the k-th element", "Delete the last node"],
       answer: [0],
-      explanation: "A new node just points at the old head. Everything at the tail or at index k requires walking the list: O(n).",
+      explanation: "A new node just points at the old head and becomes the new head. Anything at the tail or at index k means walking the list first, which is O(n).",
     },
     {
       id: "ds1-10",
@@ -300,7 +411,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["`0->1->2->3`", "`1->2->3->0`", "`0->3->2->1`", "`1->2->3`"],
       answer: [0],
-      explanation: "Line 8 inserts 0 at the head in O(1). The loop then walks the list from the new head to the end.",
+      explanation: "Line 8 adds 0 in front of the old head in O(1). The loop then walks from the new head to the end, collecting 0, 1, 2 and 3.",
     },
     {
       id: "ds1-11",
@@ -325,7 +436,7 @@ export default defineDomain({
       ),
       codeLang: "js",
       answer: [6],
-      explanation: "Moving `cur` skips ahead without unlinking anything (and crashes when the target is last, because `cur` becomes `null`). It should be `cur.next = cur.next.next;`, staying on `cur` to check the new next node.",
+      explanation: "Moving `cur` just skips ahead without unlinking anything. It also crashes when the target is the last node, because `cur` becomes `null`. The line should be `cur.next = cur.next.next;`, which unlinks the node and stays on `cur` to check the new next one.",
     },
     {
       id: "ds1-12",
@@ -340,7 +451,7 @@ export default defineDomain({
         ["Dynamic array", "O(1) random access by index"],
         ["Circular linked list", "The last node points back to the first"],
       ],
-      explanation: "Arrays win on indexing; linked lists win on local inserts and removals. Doubly linked lists pay an extra pointer per node for O(1) removal.",
+      explanation: "Arrays win when you read by index. Linked lists win when you add or remove next to a node you already hold. A doubly linked list pays for one extra pointer per node to get O(1) removal.",
     },
     {
       id: "ds1-13",
@@ -348,9 +459,9 @@ export default defineDomain({
       level: "intermediate",
       lesson: "ds-pointers",
       type: "order",
-      prompt: "Order the four lines inside `while (curr)` that reverse a singly linked list in place.",
+      prompt: "Put the four lines inside `while (curr)` in order so they reverse a singly linked list in place.",
       items: ["`const next = curr.next;`", "`curr.next = prev;`", "`prev = curr;`", "`curr = next;`"],
-      explanation: "Save the rest of the list first, flip the pointer, then advance both `prev` and `curr`. Flipping before saving would lose the rest of the list.",
+      explanation: "First save the rest of the list, then flip the pointer, then move `prev` and `curr` forward. If you flipped the pointer before saving, you'd lose your only link to the rest of the list.",
     },
     {
       id: "ds1-14",
@@ -360,14 +471,14 @@ export default defineDomain({
       prompt: "A fast pointer moves 2 nodes per step and a slow pointer moves 1. If the list contains a cycle, what happens?",
       options: ["They eventually meet inside the cycle", "The fast pointer reaches `null`", "The slow pointer reaches `null` first", "They never meet, because fast skips over slow"],
       answer: [0],
-      explanation: "Inside the cycle the gap between them shrinks by one node each step, so fast can't jump over slow forever. This is Floyd's cycle detection.",
+      explanation: "Once both are inside the cycle, the gap between them shrinks by one node every step. Fast can't jump over slow forever, so they meet. This is Floyd's cycle detection.",
     },
     {
       id: "ds1-15",
       domain: "d1",
       level: "senior",
       lesson: "ds-pointers",
-      prompt: "The list is `1 → 2 → 3 → 4 → 5 → 6`. What does `middle(head)` return?",
+      prompt: "The list holds 1, 2, 3, 4, 5, 6 in that order. What does `middle(head)` return?",
       code: js(
         "function middle(head) {",
         "  let slow = head, fast = head;",
@@ -381,7 +492,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["4", "3", "3.5", "6"],
       answer: [0],
-      explanation: "Slow goes 1 → 2 → 3 → 4 while fast goes 1 → 3 → 5 → null. With an even length this version returns the second middle node. Use `while (fast.next && fast.next.next)` to get the first.",
+      explanation: "Slow visits 1, 2, 3, 4 while fast visits 1, 3, 5 and then falls off the end. With an even number of nodes, this version returns the second of the two middle nodes. Use `while (fast.next && fast.next.next)` if you want the first one.",
     },
     {
       id: "ds1-16",
@@ -405,7 +516,7 @@ export default defineDomain({
       ),
       codeLang: "js",
       answer: [10],
-      explanation: "The loop only ends when `curr` is `null`. The new head is `prev`, so the function must `return prev;`.",
+      explanation: "The loop only stops when `curr` is `null`, so returning `curr` always gives `null`. The new head is `prev`, so the function should `return prev;`.",
     },
     {
       id: "ds1-17",
@@ -427,7 +538,7 @@ export default defineDomain({
       codeLang: "js",
       options: ["O(n) time, O(1) space", "O(n) time, O(n) space", "O(n²) time, O(1) space", "O(log n) time, O(1) space"],
       answer: [0],
-      explanation: "Each pointer takes O(n) steps before reaching the end or meeting, and only two variables are used. Storing visited nodes in a Set is also O(n) time but O(n) space.",
+      explanation: "Each pointer takes O(n) steps before it reaches the end or meets the other, and the function only keeps two variables. Storing visited nodes in a Set also takes O(n) time, but it needs O(n) space.",
     },
     {
       id: "ds1-18",
@@ -443,7 +554,7 @@ export default defineDomain({
         "After a resize, reads become O(n)",
       ],
       answer: [0, 1],
-      explanation: "Copies happen at sizes 1, 2, 4, 8, …, which sum to less than 2n. A resize can leave up to half the capacity unused, and reads stay O(1).",
+      explanation: "Copies happen when the size hits 1, 2, 4, 8 and so on, and those add up to less than 2n. A resize can leave up to half the space unused, and reads stay O(1) the whole time.",
     },
     {
       id: "ds1-19",
@@ -458,7 +569,7 @@ export default defineDomain({
         "`Map` lookups are O(n)",
       ],
       answer: [0],
-      explanation: "Both are O(1) per character, but the fixed array avoids hashing and has constant size. It breaks for larger character sets, so mention that trade-off.",
+      explanation: "Both are O(1) per character, but the fixed array skips hashing and never grows. It stops working for bigger character sets, so mention that trade-off when you use it.",
     },
     {
       id: "ds1-20",
@@ -466,9 +577,9 @@ export default defineDomain({
       level: "junior",
       lesson: "ds-linked",
       type: "order",
-      prompt: "Order the steps to insert a new node after node `p` in a singly linked list.",
+      prompt: "Put the steps in order to insert a new node after node `p` in a singly linked list.",
       items: ["Create the new node `n`", "Set `n.next = p.next`", "Set `p.next = n`"],
-      explanation: "Point the new node at the rest of the list before re-pointing `p`; doing it the other way round loses the rest of the list.",
+      explanation: "Point the new node at the rest of the list before you re-point `p`. If you do it the other way round, you lose the rest of the list.",
     },
     {
       id: "ds1-21",
@@ -485,7 +596,7 @@ export default defineDomain({
         "Sort the array before shifting so the oldest item is cheaper to find",
       ],
       answer: [0],
-      explanation: "`shift`, `splice(0, 1)`, and `slice(1)` all move or copy the whole array: O(n) per event. A ring buffer of capacity MAX writes at `(head + size) % MAX` and never moves data.",
+      explanation: "`shift`, `splice(0, 1)` and `slice(1)` all move or copy the whole array, so each event costs O(n). A **ring buffer** is a fixed-size array that wraps around: it writes at `(head + size) % MAX` and never moves data.",
     },
     {
       id: "ds1-22",
@@ -500,7 +611,7 @@ export default defineDomain({
         "A min-heap of access times with a linear scan to find keys",
       ],
       answer: [0],
-      explanation: "The map finds a node in O(1); the doubly linked list moves it to the front and evicts from the back in O(1). In JavaScript, a `Map`'s insertion order can play the list's role (delete and re-set on access).",
+      explanation: "The map finds a key's node in O(1). The doubly linked list moves that node to the front and drops the oldest from the back, also in O(1). In JavaScript, a `Map` remembers insertion order, so deleting and re-setting a key on access can stand in for the list.",
     },
     {
       id: "ds1-23",
@@ -516,23 +627,23 @@ export default defineDomain({
         "Sort the parts before joining",
       ],
       answer: [0, 1],
-      explanation: "Joining once avoids repeated copying, and streaming bounds peak memory to one chunk. The other options add work without addressing either problem.",
+      explanation: "Joining once avoids copying the growing string over and over. Streaming means you only hold one chunk in memory at a time. The other options add work and fix neither problem.",
     },
   ],
 
   cards: [
-    { id: "ds-c-push", domain: "d1", kind: "service", term: "`Array.prototype.push`", definition: "Append to the end: O(1) amortized" },
-    { id: "ds-c-unshift", domain: "d1", kind: "service", term: "`Array.prototype.unshift`", definition: "Insert at the front: O(n), shifts every element" },
-    { id: "ds-c-splice", domain: "d1", kind: "service", term: "`Array.prototype.splice`", definition: "Insert or remove at an index in place: O(n)" },
-    { id: "ds-c-slice", domain: "d1", kind: "service", term: "`Array.prototype.slice`", definition: "Copy a range into a new array: O(k)" },
-    { id: "ds-c-dynarr", domain: "d1", kind: "service", term: "Dynamic array", definition: "Contiguous storage that grows by doubling its capacity" },
-    { id: "ds-c-sll", domain: "d1", kind: "service", term: "Singly linked list", definition: "Nodes with `val` and `next`; O(1) insert at head" },
-    { id: "ds-c-dll", domain: "d1", kind: "service", term: "Doubly linked list", definition: "Nodes with `prev` and `next`; O(1) removal of a known node" },
-    { id: "ds-c-ring", domain: "d1", kind: "service", term: "Ring buffer", definition: "Fixed array with wrapping head/tail indexes; O(1) bounded queue" },
-    { id: "ds-c-amortized", domain: "d1", kind: "concept", term: "Amortized O(1)", definition: "Rare expensive steps averaged over many cheap ones" },
-    { id: "ds-c-dummy", domain: "d1", kind: "concept", term: "Dummy (sentinel) head", definition: "A fake first node that removes head-of-list edge cases" },
-    { id: "ds-c-runner", domain: "d1", kind: "concept", term: "Fast & slow pointers", definition: "Two runners at different speeds: find the middle, detect cycles" },
-    { id: "ds-c-immutable", domain: "d1", kind: "concept", term: "String immutability", definition: "String methods return new strings; the original never changes" },
-    { id: "ds-c-contiguous", domain: "d1", kind: "concept", term: "Contiguous memory", definition: "Elements side by side: O(1) index math and cache-friendly scans" },
+    { id: "ds-c-push", domain: "d1", kind: "service", term: "`Array.prototype.push`", definition: "Adds an item to the end of an array. It's O(1) amortized." },
+    { id: "ds-c-unshift", domain: "d1", kind: "service", term: "`Array.prototype.unshift`", definition: "Adds an item to the front. It's O(n), because every other item slides over." },
+    { id: "ds-c-splice", domain: "d1", kind: "service", term: "`Array.prototype.splice`", definition: "Inserts or removes items at an index, changing the array itself. It's O(n)." },
+    { id: "ds-c-slice", domain: "d1", kind: "service", term: "`Array.prototype.slice`", definition: "Copies a range into a new array and leaves the original alone. It's O(k) for k items." },
+    { id: "ds-c-dynarr", domain: "d1", kind: "service", term: "Dynamic array", definition: "An array stored in one block that doubles its space whenever it fills up." },
+    { id: "ds-c-sll", domain: "d1", kind: "service", term: "Singly linked list", definition: "A chain of nodes, each with a `val` and a `next` pointer. Adding at the head is O(1)." },
+    { id: "ds-c-dll", domain: "d1", kind: "service", term: "Doubly linked list", definition: "Nodes with both `prev` and `next` pointers, so removing a node you hold is O(1)." },
+    { id: "ds-c-ring", domain: "d1", kind: "service", term: "Ring buffer", definition: "A fixed-size array whose head and tail indexes wrap around. It makes an O(1) queue with a size limit." },
+    { id: "ds-c-amortized", domain: "d1", kind: "concept", term: "Amortized O(1)", definition: "An operation that's usually cheap and only rarely expensive, so the average over many calls is O(1)." },
+    { id: "ds-c-dummy", domain: "d1", kind: "concept", term: "Dummy (sentinel) head", definition: "A fake first node that lets you treat the real head like any other node, so you need fewer special cases." },
+    { id: "ds-c-runner", domain: "d1", kind: "concept", term: "Fast & slow pointers", definition: "Two pointers moving at different speeds. They find the middle of a list and detect cycles." },
+    { id: "ds-c-immutable", domain: "d1", kind: "concept", term: "String immutability", definition: "String methods give you a new string. The original never changes." },
+    { id: "ds-c-contiguous", domain: "d1", kind: "concept", term: "Contiguous memory", definition: "Items stored side by side, which makes index lookups O(1) and scans friendly to the CPU cache." },
   ],
 });

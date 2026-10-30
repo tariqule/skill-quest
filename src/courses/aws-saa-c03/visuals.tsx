@@ -67,7 +67,7 @@ const FILTERS = [
   { k: "State", sg: "Stateful: replies are allowed automatically", nacl: "Stateless: allow the return traffic (ephemeral ports) too" },
   { k: "Rules", sg: "Allow rules only", nacl: "Allow and deny rules" },
   { k: "Evaluation", sg: "All rules are evaluated together", nacl: "Numbered rules, lowest number first; first match wins" },
-  { k: "Can reference", sg: "Other security groups (e.g. allow the ALB's SG)", nacl: "CIDR ranges only" },
+  { k: "Can reference", sg: "Other security groups (for example, allow the ALB's group)", nacl: "CIDR ranges only" },
   { k: "Best for", sg: "Least-privilege access between tiers", nacl: "Blocking a specific IP range at the subnet edge" },
 ] as const;
 

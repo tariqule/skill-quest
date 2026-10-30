@@ -16,7 +16,7 @@ export default defineDomain({
     weight: 22,
     emoji: "🔭",
     color: "#a78bfa",
-    summary: "Logs, metrics, and traces, root cause analysis, AI-assisted troubleshooting, health checks, Lambda tuning and concurrency, connection pooling, caching, and messaging optimizations.",
+    summary: "How to find out why an app is broken or slow, and how to make it faster and cheaper: logs, metrics, and traces, root cause analysis, AI-assisted troubleshooting, health checks, Lambda tuning and concurrency, connection pooling, caching, and messaging.",
   },
 
   tasks: [
@@ -57,6 +57,81 @@ export default defineDomain({
   ],
 
   lessons: [
+    // ── Start here ──
+    {
+      id: "d4-start-watching",
+      level: "beginner",
+      task: "4.2",
+      title: "Start here: seeing what your app is doing",
+      check: ["dva3-b4-01", "dva3-b4-02"],
+      visual: (
+        <Tiles
+          cols={3}
+          tiles={[
+            { icon: "📓", title: "Logs", text: "A diary. Each line says what happened, like \"Order 123 failed: card declined\".", color: "#a78bfa" },
+            { icon: "📈", title: "Metrics", text: "The gauges on a dashboard. Numbers over time, like errors per minute.", color: "#a78bfa" },
+            { icon: "🚨", title: "Alarms", text: "A warning light. It goes off when a number crosses a line you chose.", color: "#f87171" },
+          ]}
+        />
+      ),
+      points: [
+        "Once your app is running, you can't watch every request by eye. You need it to tell you what it's doing.",
+        "Think of driving a car. The dashboard shows your speed and fuel, a warning light comes on when something's wrong, and the mechanic reads the car's log to find out why.",
+        "Your app works the same way. **Logs** are lines of text your code writes, **metrics** are numbers measured over time, and **alarms** warn you when a metric looks bad.",
+        "On AWS, all three live in **Amazon CloudWatch**. Lambda sends its logs and basic metrics there automatically.",
+      ],
+      tip: "When a question asks how to notice a problem early, the answer usually involves a CloudWatch metric with an alarm on it.",
+    },
+    {
+      id: "d4-start-tracing",
+      level: "beginner",
+      task: "4.1",
+      title: "Start here: following one request",
+      check: ["dva3-b4-03", "dva3-b4-04"],
+      visual: (
+        <Flow
+          color="#38bdf8"
+          steps={[
+            { icon: "🙋", label: "User clicks Buy", sub: "One request starts" },
+            { icon: "🚪", label: "API Gateway", sub: "Takes 20 ms" },
+            { icon: "λ", label: "Lambda", sub: "Takes 80 ms" },
+            { icon: "🗄️", label: "DynamoDB", sub: "Takes 900 ms: here's the slow part" },
+          ]}
+        />
+      ),
+      points: [
+        "A single click in your app often passes through several services. When it's slow or fails, you need to know which one is to blame.",
+        "It's like tracking a parcel. The tracking page shows every depot it passed through and when, so you can see where it got stuck.",
+        "**AWS X-Ray** does this for requests. It records each step a request takes and how long it spent there. That record is called a **trace**.",
+        "**AWS CloudTrail** answers a different question: who called which AWS API, and when. For example, it can tell you who deleted a bucket.",
+      ],
+      tip: "Slow or failing request across services: think X-Ray. Who changed or deleted something: think CloudTrail.",
+    },
+    {
+      id: "d4-start-faster",
+      level: "beginner",
+      task: "4.3",
+      title: "Start here: making a slow app faster",
+      check: ["dva3-b4-05", "dva3-b4-06"],
+      visual: (
+        <Flow
+          color="#34d399"
+          steps={[
+            { icon: "🔎", label: "Measure", sub: "Find the slowest step" },
+            { icon: "🧊", label: "Cache", sub: "Keep popular answers close by" },
+            { icon: "🛒", label: "Run more at once", sub: "Open more checkout lanes" },
+            { icon: "✅", label: "Measure again", sub: "Check it actually helped" },
+          ]}
+        />
+      ),
+      points: [
+        "Before you speed anything up, find the **bottleneck**: the slowest step, the one that holds everything else up. Logs and traces show you where it is.",
+        "A **cache** keeps a copy of answers you need often, close at hand. It's like keeping milk in your fridge instead of going to the shop every time you want a cup of tea.",
+        "**Concurrency** is how many requests your code handles at the same moment, like the number of open checkout lanes in a supermarket.",
+        "On AWS, caches include Amazon ElastiCache and CloudFront, and Lambda adds more copies of your function as more requests arrive.",
+      ],
+      tip: "Always measure before and after a change. A fix that feels faster but isn't measured is just a guess.",
+    },
     {
       id: "d4-logs-metrics",
       task: "4.1 · 4.2",
@@ -67,29 +142,30 @@ export default defineDomain({
           <Tiles
             cols={3}
             tiles={[
-              { icon: "📝", title: "Logging", text: "Record discrete events with context: what happened, to whom, with which request ID.", color: "#a78bfa" },
-              { icon: "📈", title: "Monitoring", text: "Watch known metrics and alarm when they cross a threshold.", color: "#a78bfa" },
-              { icon: "🔭", title: "Observability", text: "Combine logs, metrics, and traces to answer questions you didn't plan for.", color: "#a78bfa" },
+              { icon: "📝", title: "Logging", text: "Write down each thing that happens, with context: what happened, to whom, and in which request.", color: "#a78bfa" },
+              { icon: "📈", title: "Monitoring", text: "Keep an eye on numbers you already know matter, and raise an alarm when one crosses a line.", color: "#a78bfa" },
+              { icon: "🔭", title: "Observability", text: "Use logs, metrics, and traces together to answer questions you didn't plan for.", color: "#a78bfa" },
             ]}
           />
           <Flow
             color="#f59e0b"
             steps={[
-              { icon: "🧾", label: "Structured JSON logs", sub: "level, requestId, userId, latencyMs" },
-              { icon: "🔎", label: "Logs Insights", sub: "fields · filter · stats · sort" },
-              { icon: "📏", label: "Metric filter / EMF", sub: "Turn log data into metrics" },
-              { icon: "🚨", label: "Alarm → SNS", sub: "Notify or act" },
+              { icon: "🧾", label: "Structured JSON logs", sub: "Fields like level, requestId, userId, latencyMs" },
+              { icon: "🔎", label: "Logs Insights", sub: "Query with fields, filter, stats, sort" },
+              { icon: "📏", label: "Metric filter or EMF", sub: "Turns log lines into numbers you can graph" },
+              { icon: "🚨", label: "Alarm and SNS", sub: "Tell someone, or take an action" },
             ]}
           />
         </div>
       ),
       points: [
-        "Embedded metric format (EMF) writes metrics inside structured log lines; CloudWatch extracts them asynchronously, with no PutMetricData calls in the request path.",
-        "Standard metrics have 1-minute resolution; high-resolution custom metrics go down to 1 second.",
-        "EC2 doesn't publish memory or disk-space metrics by default: install the CloudWatch agent.",
-        "Log group retention defaults to never expire. Set a retention period to control cost.",
+        "**Embedded metric format** (EMF) lets you write a metric inside a structured log line. CloudWatch pulls the number out later, in the background.",
+        "That means your code never calls PutMetricData while handling a request, so publishing metrics doesn't slow the request down.",
+        "Standard metrics record one data point a minute. **High-resolution** custom metrics can record one every second, which helps when alarms must react fast.",
+        "EC2 can't see inside your operating system, so it doesn't report memory or disk space by default. Install the **CloudWatch agent** on the instance to send them.",
+        "By default, logs in a log group are kept forever, and you keep paying to store them. Set a retention period, like 30 days, to control the cost.",
       ],
-      tip: "\"Custom metric from Lambda without slowing requests\" → EMF. \"Count ERROR lines and alarm\" → metric filter.",
+      tip: "If a question wants a custom metric from Lambda without slowing requests, pick EMF. If it wants to count ERROR lines in logs and alarm, pick a metric filter.",
     },
     {
       id: "d4-xray",
@@ -98,12 +174,14 @@ export default defineDomain({
       check: ["d4-08", "d4-10"],
       visual: <TraceWaterfall />,
       points: [
-        "A trace is made of segments (one per service) and subsegments (downstream calls). The service map shows latency and errors between components.",
-        "Annotations are indexed key-value pairs used in filter expressions; metadata is stored but not searchable.",
-        "Lambda: turn on active tracing and allow xray:PutTraceSegments and xray:PutTelemetryRecords in the role. EC2 and ECS: run the X-Ray daemon or an ADOT collector (UDP 2000).",
-        "Sampling rules control how many requests are traced, keeping cost down at high volume.",
+        "A **trace** follows one request through your whole app. It's made of **segments**, one per service, and **subsegments** for the calls each service makes.",
+        "The **service map** draws your services as boxes and shows how slow each hop is and where errors happen.",
+        "**Annotations** are key-value pairs that X-Ray indexes, so you can search traces by them. **Metadata** is stored with the trace but you can't search by it.",
+        "On Lambda, turn on **active tracing** and let the function's role call xray:PutTraceSegments and xray:PutTelemetryRecords.",
+        "On EC2 and ECS, nothing sends traces for you. Run the **X-Ray daemon** or an ADOT collector next to your app; your code sends it trace data on UDP port 2000.",
+        "**Sampling rules** decide how many requests get traced. At high volume you trace a sample, not every request, which keeps the cost down.",
       ],
-      tip: "\"Search traces by customer ID\" → annotation. \"Attach a debug payload\" → metadata.",
+      tip: "If you need to search traces by something, like a customer ID, use an annotation. If you just want to attach extra debug data, use metadata.",
     },
     {
       id: "d4-rca",
@@ -115,29 +193,30 @@ export default defineDomain({
           <Tiles
             cols={3}
             tiles={[
-              { icon: "🧱", title: "502 Bad Gateway", text: "Lambda proxy returned a malformed response (missing statusCode or a non-string body).", color: "#f87171" },
-              { icon: "⌛", title: "504 Gateway Timeout", text: "Integration ran past API Gateway's timeout (29 s by default).", color: "#f87171" },
-              { icon: "🚦", title: "429 / throttling", text: "Rate or concurrency limit reached. Back off, raise quotas, or smooth traffic.", color: "#f87171" },
-              { icon: "🔒", title: "AccessDenied", text: "Missing permission in a role, key policy, or resource policy. CloudTrail shows the denied call.", color: "#f59e0b" },
-              { icon: "🏗️", title: "Stack failed", text: "Read CloudFormation stack events for the first failure reason.", color: "#f59e0b" },
-              { icon: "🚚", title: "Deployment failed", text: "CodeDeploy lifecycle event logs and the agent log on the instance.", color: "#f59e0b" },
+              { icon: "🧱", title: "502 Bad Gateway", text: "Lambda sent back a response in the wrong shape, like no statusCode or a body that isn't a string.", color: "#f87171" },
+              { icon: "⌛", title: "504 Gateway Timeout", text: "The backend took longer than API Gateway would wait, which is 29 seconds by default.", color: "#f87171" },
+              { icon: "🚦", title: "429 / throttling", text: "You hit a rate or concurrency limit. Retry more slowly, raise the quota, or spread the traffic out.", color: "#f87171" },
+              { icon: "🔒", title: "AccessDenied", text: "A role, key policy, or resource policy is missing a permission. CloudTrail shows which call was denied.", color: "#f59e0b" },
+              { icon: "🏗️", title: "Stack failed", text: "Read the CloudFormation stack events and find the first failure. Its reason is usually the real cause.", color: "#f59e0b" },
+              { icon: "🚚", title: "Deployment failed", text: "Check the CodeDeploy lifecycle event logs and the agent log on the instance.", color: "#f59e0b" },
             ]}
           />
           <Flow
             color="#34d399"
             steps={[
-              { icon: "📣", label: "Event happens", sub: "Deployment succeeded, quota near limit, alarm" },
-              { icon: "🚌", label: "EventBridge rule", sub: "Matches the event" },
-              { icon: "📨", label: "SNS topic", sub: "Email, chat, or on-call" },
+              { icon: "📣", label: "Event happens", sub: "A deployment finishes, a quota gets close, an alarm fires" },
+              { icon: "🚌", label: "EventBridge rule", sub: "Picks out the events you care about" },
+              { icon: "📨", label: "SNS topic", sub: "Sends an email, a chat message, or a page" },
             ]}
           />
         </div>
       ),
       points: [
-        "Start from symptoms (dashboard or alarm), follow traces to the failing component, then read that component's logs.",
-        "CloudTrail records API calls (who did what); turn on data events for S3 object and Lambda invoke activity.",
-        "Health checks: load balancer target groups and ECS container health checks replace unhealthy targets. In Kubernetes, a liveness probe restarts a stuck container; a readiness probe keeps a pod out of service until it can handle traffic.",
-        "Quota alerts: CloudWatch alarms on AWS usage metrics (shown in Service Quotas) warn before you hit a limit.",
+        "Start from the symptom, like a dashboard or an alarm. Follow traces to the part that's failing, then read that part's logs to find out why.",
+        "**CloudTrail** records API calls, so it tells you who did what and when. To also record S3 object reads and writes or Lambda invokes, turn on data events.",
+        "A **health check** regularly asks your app \"are you OK?\". Load balancer target groups and ECS container health checks use the answer to replace unhealthy targets.",
+        "In Kubernetes, a **liveness probe** restarts a container that's stuck. A **readiness probe** keeps a pod out of service until it can handle traffic.",
+        "To hear about a quota before you hit it, put a CloudWatch alarm on the AWS usage metric for it. Service Quotas shows these metrics.",
       ],
     },
     {
@@ -150,29 +229,30 @@ export default defineDomain({
           <Flow
             color="#a78bfa"
             steps={[
-              { icon: "🚨", label: "Alarm fires", sub: "Or a metric spike, or a Logs Insights query" },
-              { icon: "🤖", label: "CloudWatch investigations", sub: "AI scans metrics, logs, traces, deployments, and changes" },
-              { icon: "💡", label: "Hypotheses", sub: "Likely root causes with evidence" },
-              { icon: "🧑‍💻", label: "You verify and fix", sub: "Accept or discard each suggestion" },
+              { icon: "🚨", label: "Alarm fires", sub: "Or a metric spikes, or you run a Logs Insights query" },
+              { icon: "🤖", label: "CloudWatch investigations", sub: "AI looks through metrics, logs, traces, deployments, and changes" },
+              { icon: "💡", label: "Hypotheses", sub: "Likely causes, each with its evidence" },
+              { icon: "🧑‍💻", label: "You verify and fix", sub: "You keep or throw out each suggestion" },
             ]}
           />
           <Tiles
             cols={3}
             tiles={[
-              { icon: "🐛", title: "Explain an error", text: "Paste a stack trace (no secrets or customer data) into an AI coding assistant and ask for likely causes and a fix.", color: "#38bdf8" },
-              { icon: "🐢", title: "Find bottlenecks", text: "Share a slow function and its trace or profile, and ask for code efficiency improvements, such as batching or reusing clients.", color: "#38bdf8" },
-              { icon: "🧮", title: "Right-size resources", text: "Ask for over-provisioned memory, chatty calls, and missing caches, then confirm with measurements.", color: "#38bdf8" },
+              { icon: "🐛", title: "Explain an error", text: "Paste a stack trace into an AI coding assistant, with secrets and customer data removed, and ask for likely causes and a fix.", color: "#38bdf8" },
+              { icon: "🐢", title: "Find bottlenecks", text: "Share a slow function and its trace or profile, and ask how to make the code faster, for example by batching calls or reusing clients.", color: "#38bdf8" },
+              { icon: "🧮", title: "Right-size resources", text: "Ask it to spot too much memory, too many small calls, and missing caches. Then confirm with real measurements.", color: "#38bdf8" },
             ]}
           />
         </div>
       ),
       points: [
-        "CloudWatch investigations is a generative AI assistant for incidents. It works from an alarm, metric, or Logs Insights query, surfaces related telemetry (metrics, logs, deployment and CloudTrail change events, X-Ray traces), and proposes root-cause hypotheses.",
-        "Investigations use the permissions of the signed-in user (or a configured role) and log their actions in CloudTrail.",
-        "AI suggestions are hypotheses, not facts: confirm them with metrics, traces, and a test before you change production.",
-        "Use AI tools to spot optimization opportunities in code (inefficient loops, per-request client creation, missing batching), then measure before and after.",
+        "**CloudWatch investigations** is a generative AI assistant for incidents. You start it from an alarm, a metric, or a Logs Insights query.",
+        "It gathers related telemetry, such as metrics, logs, deployments, CloudTrail change events, and X-Ray traces, and suggests what the root cause might be.",
+        "An investigation can only see what the signed-in user, or a role you set up, is allowed to see. Its actions are logged in CloudTrail.",
+        "Treat an AI suggestion as a guess, not a fact. Check it against metrics and traces, and test the fix, before you change production.",
+        "AI tools can also spot slow code, like wasteful loops, a new client created on every request, or calls that should be batched. Measure before and after you change it.",
       ],
-      tip: "\"Generate root-cause hypotheses from an alarm with AI\" → CloudWatch investigations. Always verify the suggestion with telemetry.",
+      tip: "If a question wants AI to suggest root causes from an alarm, pick CloudWatch investigations. Always check the suggestion against your telemetry.",
     },
     {
       id: "d4-concurrency",
@@ -184,31 +264,33 @@ export default defineDomain({
           <Tiles
             cols={3}
             tiles={[
-              { icon: "🧮", title: "Concurrency", text: "≈ requests per second × average duration in seconds.", color: "#38bdf8" },
-              { icon: "🔒", title: "Reserved concurrency", text: "Guarantees capacity for one function and also caps it. Free.", color: "#38bdf8" },
-              { icon: "🔥", title: "Provisioned concurrency", text: "Pre-initialized environments with no cold starts. Billed while configured.", color: "#38bdf8" },
+              { icon: "🧮", title: "Concurrency", text: "Roughly requests per second times the average duration in seconds.", color: "#38bdf8" },
+              { icon: "🔒", title: "Reserved concurrency", text: "Saves capacity for one function and also caps it there. No extra charge.", color: "#38bdf8" },
+              { icon: "🔥", title: "Provisioned concurrency", text: "Keeps environments warmed up, so there are no cold starts. You pay while it's switched on.", color: "#38bdf8" },
             ]}
           />
           <Flow
             color="#f59e0b"
             steps={[
-              { icon: "🎛️", label: "Try several memory sizes", sub: "128 MB … 3,008 MB …" },
-              { icon: "⏱️", label: "Measure duration", sub: "REPORT lines, Lambda Insights" },
-              { icon: "💵", label: "Compare cost", sub: "GB-seconds × price" },
-              { icon: "✅", label: "Pick the cheapest that meets latency" },
+              { icon: "🎛️", label: "Try several memory sizes", sub: "For example 128 MB, 1,024 MB, 3,008 MB" },
+              { icon: "⏱️", label: "Measure duration", sub: "From REPORT log lines or Lambda Insights" },
+              { icon: "💵", label: "Compare cost", sub: "Memory in GB times seconds, times the price" },
+              { icon: "✅", label: "Pick the cheapest one that's fast enough" },
             ]}
           />
         </div>
       ),
       points: [
-        "The default Regional concurrency quota is 1,000 across all functions; request an increase through Service Quotas if needed.",
-        "Throttled synchronous calls return 429 (TooManyRequestsException); asynchronous events are retried automatically.",
-        "Cold starts: keep packages small, initialize SDK clients and connections outside the handler, use provisioned concurrency or SnapStart on supported runtimes.",
-        "Lambda allocates CPU in proportion to memory: a CPU-bound function often gets faster, and sometimes cheaper, with more memory.",
-        "Reuse connections: a pool in long-running apps, and RDS Proxy in front of RDS or Aurora when many Lambda environments would otherwise open their own connections. Size thread pools to the work and the downstream limits.",
-        "EC2 Auto Scaling with target tracking (for example 50% average CPU) adds and removes instances to match load.",
+        "**Concurrency** is how many copies of your function run at the same moment. By default, all functions in a Region share 1,000. You can ask for more through Service Quotas.",
+        "When you hit the limit, a synchronous call fails with a 429 error (TooManyRequestsException). Asynchronous events aren't lost: Lambda retries them for you.",
+        "A **cold start** is the extra wait while Lambda sets up a new environment for your function.",
+        "To shorten cold starts, keep the package small and create SDK clients and connections outside the handler. To remove them, use provisioned concurrency, or SnapStart on runtimes that support it.",
+        "Lambda gives a function more CPU when you give it more memory. So a function that does heavy computing often gets faster, and sometimes cheaper, with more memory.",
+        "Reuse database connections instead of opening a new one each time. Long-running apps keep a **connection pool**, a set of open connections they share.",
+        "When many Lambda environments would each open their own connection, put **RDS Proxy** in front of RDS or Aurora to share them. Size thread pools to the work and to what the database can take.",
+        "**EC2 Auto Scaling** with target tracking adds and removes instances to match the load. For example, you can ask it to keep average CPU near 50%.",
       ],
-      tip: "Do the math: 200 requests/s × 0.5 s = 100 concurrent executions.",
+      tip: "Do the math. 200 requests a second, each taking half a second, means about 100 running at once.",
     },
     {
       id: "d4-optimize",
@@ -220,29 +302,113 @@ export default defineDomain({
           <Flow
             color="#34d399"
             steps={[
-              { icon: "🌐", label: "CloudFront", sub: "Cache key: only the headers, cookies, and query strings that change the response" },
-              { icon: "🚪", label: "API Gateway cache", sub: "Per stage, TTL default 300 s" },
-              { icon: "⚡", label: "ElastiCache / DAX", sub: "Application-level cache" },
-              { icon: "🗄️", label: "Database", sub: "Fewer, cheaper reads" },
+              { icon: "🌐", label: "CloudFront", sub: "Put only the headers, cookies, and query strings that change the response in the cache key" },
+              { icon: "🚪", label: "API Gateway cache", sub: "One cache per stage, kept 300 seconds by default" },
+              { icon: "⚡", label: "ElastiCache or DAX", sub: "A cache your own code reads and writes" },
+              { icon: "🗄️", label: "Database", sub: "Gets fewer reads, so it costs less" },
             ]}
           />
           <Tiles
             cols={2}
             tiles={[
-              { icon: "🎯", title: "SNS subscription filter policy", text: "Each subscriber receives only the messages it cares about, by attribute or body.", color: "#a78bfa" },
-              { icon: "⏳", title: "SQS long polling + batching", text: "Fewer empty receives; send, receive, and delete up to 10 messages per call.", color: "#a78bfa" },
+              { icon: "🎯", title: "SNS subscription filter policy", text: "Each subscriber gets only the messages it cares about, picked by attribute or message body.", color: "#a78bfa" },
+              { icon: "⏳", title: "SQS long polling and batching", text: "Fewer empty replies. Send, receive, and delete up to 10 messages in one call.", color: "#a78bfa" },
             ]}
           />
         </div>
       ),
       points: [
-        "Forwarding every header makes almost every request unique, so CloudFront's cache hit ratio collapses. Include only what varies the response, such as Accept-Language.",
-        "Use logs and traces to find the bottleneck before tuning: slow dependency, cold starts, under-sized memory, or chatty calls.",
+        "A **cache key** is what CloudFront uses to decide whether two requests are the same. If you add every header to it, almost every request looks unique, so the cache rarely gets a hit.",
+        "Include only what actually changes the response, such as Accept-Language for a page that comes in several languages.",
+        "Find the bottleneck in logs and traces before you tune anything. It might be a slow dependency, cold starts, too little memory, or too many small calls.",
       ],
     },
   ],
 
   questions: [
+    // ── Start here ──
+    {
+      id: "dva3-b4-01",
+      domain: "d4",
+      lesson: "d4-start-watching",
+      level: "beginner",
+      prompt: "Your code writes the line \"Order 123 failed: card declined\" each time a payment fails. What is that line called?",
+      options: ["A metric", "A log entry", "An alarm", "A trace"],
+      answer: [1],
+      explanation:
+        "A log entry is a line of text your code writes to record something that happened. Logs tell you the details of one event. Metrics, by contrast, are numbers measured over time.",
+    },
+    {
+      id: "dva3-b4-02",
+      domain: "d4",
+      lesson: "d4-start-watching",
+      level: "beginner",
+      prompt: "You want to be told when your app has more than 10 errors in five minutes. Which CloudWatch feature does that?",
+      options: ["A log group", "A dashboard", "An alarm", "A retention period"],
+      answer: [2],
+      explanation:
+        "A CloudWatch alarm watches a metric and acts when it crosses a line you set, like more than 10 errors in five minutes. It can send you an email or a message through Amazon SNS. A dashboard only shows the numbers; someone still has to look at it.",
+    },
+    {
+      id: "dva3-b4-07",
+      domain: "d4",
+      lesson: "d4-start-watching",
+      level: "beginner",
+      prompt: "Where does AWS Lambda send your function's logs by default?",
+      options: ["Amazon CloudWatch Logs", "An email to the account owner", "A text file on your laptop", "Nowhere, logs must be switched on by hand"],
+      answer: [0],
+      explanation:
+        "Lambda sends whatever your function prints, plus a summary line for each run, to Amazon CloudWatch Logs. The function's role just needs permission to write there, which the basic Lambda execution role gives.",
+    },
+    {
+      id: "dva3-b4-03",
+      domain: "d4",
+      lesson: "d4-start-tracing",
+      level: "beginner",
+      prompt: "A request goes through API Gateway, then Lambda, then DynamoDB, and it's slow. Which AWS service shows how long each step took?",
+      options: ["AWS X-Ray", "AWS CloudTrail", "Amazon S3", "AWS IAM"],
+      answer: [0],
+      explanation:
+        "X-Ray records a trace for each request, showing every service it passed through and how long it spent in each. That way you can see which step is slow, like a parcel tracking page shows where a delivery got stuck.",
+    },
+    {
+      id: "dva3-b4-04",
+      domain: "d4",
+      lesson: "d4-start-tracing",
+      level: "beginner",
+      prompt: "Someone deleted an S3 bucket last night. Which service can tell you who did it?",
+      options: ["AWS X-Ray", "Amazon CloudWatch metrics", "AWS CloudTrail", "Amazon CloudFront"],
+      answer: [2],
+      explanation:
+        "CloudTrail records calls to AWS APIs, including who made each call and when. Deleting a bucket is an API call, so it shows up there. X-Ray follows requests through your app; it doesn't track who changed your AWS resources.",
+    },
+    {
+      id: "dva3-b4-05",
+      domain: "d4",
+      lesson: "d4-start-faster",
+      level: "beginner",
+      prompt: "What does a cache do?",
+      options: [
+        "It deletes old data to save space",
+        "It encrypts data so nobody else can read it",
+        "It sends each request to a different Region",
+        "It keeps a copy of often-used data close by, so you don't fetch it from the slow source every time",
+      ],
+      answer: [3],
+      explanation:
+        "A cache stores copies of data you ask for often, somewhere quick to reach. Reading from the cache is faster than going back to the database each time. It's the milk in your fridge instead of a trip to the shop.",
+    },
+    {
+      id: "dva3-b4-06",
+      domain: "d4",
+      lesson: "d4-start-faster",
+      level: "beginner",
+      prompt: "A Lambda function gets 10 requests every second, and each one takes 2 seconds to finish. Roughly how many copies of the function are running at the same time?",
+      options: ["5", "12", "20", "200"],
+      answer: [2],
+      explanation:
+        "Each request keeps a copy busy for 2 seconds, and 10 new ones arrive every second. So about 10 times 2, which is 20, are running at once. This number is the function's concurrency.",
+    },
     // ── Logs and metrics ──
     {
       id: "d4-01",
@@ -257,7 +423,7 @@ export default defineDomain({
         "Use AWS CloudTrail data events",
       ],
       answer: [0],
-      explanation: "EMF log lines are turned into metrics by CloudWatch asynchronously, so the function only writes a log line.",
+      explanation: "With EMF, the function just writes a log line. CloudWatch turns it into a metric later, in the background, so the request doesn't wait on an extra API call.",
     },
     {
       id: "d4-02",
@@ -271,7 +437,7 @@ export default defineDomain({
         "AWS Config",
       ],
       answer: [0],
-      explanation: "Logs Insights queries log groups interactively; Lambda REPORT lines expose fields such as @duration and @requestId.",
+      explanation: "Logs Insights lets you query a log group in seconds. Lambda's REPORT lines include fields like @duration and @requestId, so you can sort by duration and keep the top 20.",
     },
     {
       id: "d4-03",
@@ -280,7 +446,7 @@ export default defineDomain({
       prompt: "The team wants an alarm when the word ERROR appears more than 10 times in 5 minutes in an application's log group. What should the developer set up?",
       options: ["A metric filter on the log group and a CloudWatch alarm on the resulting metric", "A CloudTrail trail", "An S3 Lifecycle rule", "An X-Ray sampling rule"],
       answer: [0],
-      explanation: "Metric filters turn matching log events into a CloudWatch metric that alarms can watch.",
+      explanation: "A metric filter counts the log lines that match a pattern, like ERROR, and turns that count into a CloudWatch metric. You then put an alarm on that metric.",
     },
     {
       id: "d4-04",
@@ -289,7 +455,7 @@ export default defineDomain({
       prompt: "A developer can't find memory utilization metrics for an application on Amazon EC2 in CloudWatch. What should the developer do?",
       options: ["Install and configure the CloudWatch agent on the instance", "Enable detailed monitoring", "Enable AWS X-Ray", "Increase the instance size"],
       answer: [0],
-      explanation: "Memory and disk usage are inside the OS, so EC2 doesn't report them by default. The CloudWatch agent publishes them as custom metrics. Detailed monitoring only changes the interval of default metrics.",
+      explanation: "Memory and disk use live inside the operating system, so EC2 can't see them. The CloudWatch agent runs on the instance and sends them as custom metrics. Detailed monitoring only sends the default metrics more often.",
     },
     {
       id: "d4-05",
@@ -298,7 +464,7 @@ export default defineDomain({
       prompt: "A trading application must publish a custom latency metric with 1-second granularity so alarms react within seconds. What should the developer use?",
       options: ["A high-resolution custom metric (storage resolution of 1 second)", "A standard-resolution metric", "CloudTrail Insights", "S3 server access logs"],
       answer: [0],
-      explanation: "High-resolution custom metrics can be stored at 1-second resolution, and alarms on them can evaluate at 10- or 30-second periods.",
+      explanation: "A high-resolution custom metric can store one data point every second. Alarms on it can check every 10 or 30 seconds, so they react within seconds.",
     },
     {
       id: "d4-06",
@@ -313,7 +479,7 @@ export default defineDomain({
         "Disable logging in production to save cost",
       ],
       answer: [0, 1],
-      explanation: "Structured logs can be filtered and aggregated by field, and correlation IDs tie one request's logs together across services.",
+      explanation: "Structured logs let you filter and count by field, like level or userId. A correlation ID travels with the request, so you can pull together its logs from every service.",
     },
     {
       id: "d4-07",
@@ -326,7 +492,7 @@ export default defineDomain({
         ["Monitoring", "Watching known metrics and alerting on thresholds"],
         ["Observability", "Using logs, metrics, and traces together to explain unexpected behaviour"],
       ],
-      explanation: "Monitoring tells you something is wrong; observability helps you find out why.",
+      explanation: "Logging records what happened. Monitoring tells you something is wrong. Observability helps you find out why.",
     },
     // ── X-Ray ──
     {
@@ -336,7 +502,7 @@ export default defineDomain({
       prompt: "Support engineers need to search AWS X-Ray traces for a specific customer ID. How should the developer record the customer ID?",
       options: ["As an annotation on the segment or subsegment", "As metadata", "In the function's environment variables", "In the trace header only"],
       answer: [0],
-      explanation: "Annotations are indexed for filter expressions, for example annotation.customerId = \"123\". Metadata isn't indexed.",
+      explanation: "X-Ray indexes annotations, so you can search with a filter expression like annotation.customerId equal to \"123\". Metadata isn't indexed, so you can't search by it.",
     },
     {
       id: "d4-09",
@@ -345,7 +511,7 @@ export default defineDomain({
       prompt: "A developer wants to attach a large JSON object describing the request to each trace for debugging, but doesn't need to search by it. What should be used?",
       options: ["X-Ray metadata", "X-Ray annotations", "A CloudWatch metric dimension", "A custom HTTP header"],
       answer: [0],
-      explanation: "Metadata holds objects of any type with the trace without indexing them.",
+      explanation: "Metadata can hold any value, including a big JSON object, alongside the trace. It isn't indexed, which is fine because you don't need to search by it.",
     },
     {
       id: "d4-10",
@@ -359,7 +525,7 @@ export default defineDomain({
         "Open UDP port 2000 in a security group",
       ],
       answer: [0],
-      explanation: "Lambda runs the X-Ray daemon for you when active tracing is on. The role needs xray:PutTraceSegments and xray:PutTelemetryRecords (for example the AWSXRayDaemonWriteAccess policy).",
+      explanation: "When active tracing is on, Lambda runs the X-Ray daemon for you. The function's role also needs xray:PutTraceSegments and xray:PutTelemetryRecords, which the AWSXRayDaemonWriteAccess policy gives.",
     },
     {
       id: "d4-11",
@@ -373,7 +539,7 @@ export default defineDomain({
         "A Lambda layer",
       ],
       answer: [0],
-      explanation: "The SDK sends segments over UDP to a local daemon or collector, which batches them to the X-Ray API. On ECS, run it as a sidecar and grant the task role X-Ray write permissions.",
+      explanation: "The X-Ray SDK doesn't talk to X-Ray directly. It sends trace data over UDP to a local daemon or collector, which forwards it in batches. On ECS, run that as a sidecar container and give the task role X-Ray write permissions.",
     },
     {
       id: "d4-12",
@@ -388,7 +554,7 @@ export default defineDomain({
         "How much the account spent last month",
       ],
       answer: [0, 1],
-      explanation: "X-Ray shows request paths, latency, and errors across services. CloudTrail answers who-did-what questions, and Cost Explorer covers spend.",
+      explanation: "X-Ray shows where a request went, how long each step took, and where errors happened. For who deleted something, use CloudTrail. For spend, use Cost Explorer.",
     },
     // ── Root cause analysis ──
     {
@@ -403,7 +569,7 @@ export default defineDomain({
         "Add a usage plan",
       ],
       answer: [0],
-      explanation: "With proxy integration, API Gateway expects a specific response shape. A malformed response results in a 502.",
+      explanation: "With a proxy integration, API Gateway expects an object with statusCode, headers, and a string body. A plain string isn't that shape, so API Gateway returns 502.",
     },
     {
       id: "d4-14",
@@ -418,7 +584,7 @@ export default defineDomain({
         "Enable API Gateway caching",
       ],
       answer: [0],
-      explanation: "API Gateway's integration timeout is 29 seconds by default, so the Lambda timeout doesn't help. Long work should be asynchronous.",
+      explanation: "API Gateway stops waiting after 29 seconds by default, so a longer Lambda timeout doesn't help. For work that takes longer, accept the request right away and do the work in the background.",
     },
     {
       id: "d4-15",
@@ -432,7 +598,7 @@ export default defineDomain({
         "Lower the item size limit",
       ],
       answer: [0],
-      explanation: "The SDK already retries throttled requests with backoff. Lasting fixes are spreading writes across partitions and matching capacity to demand.",
+      explanation: "Retrying with exponential backoff, waiting a bit longer after each failure, rides out short spikes. The SDK already does this. The lasting fix is to spread writes across partitions and give the table enough capacity.",
     },
     {
       id: "d4-16",
@@ -441,7 +607,7 @@ export default defineDomain({
       prompt: "A CloudFormation stack update failed and rolled back. Where should the developer look first to find out why?",
       options: ["The stack's Events, for the first resource with a FAILED status and its status reason", "AWS Trusted Advisor", "The S3 bucket that stored the template", "CloudWatch billing metrics"],
       answer: [0],
-      explanation: "Stack events list each resource operation in order. The first failure's status reason usually explains the root cause; later events are the rollback.",
+      explanation: "Stack events list every resource change in order. The first FAILED event's reason usually explains the real problem. The events after it are just the rollback.",
     },
     {
       id: "d4-17",
@@ -455,7 +621,7 @@ export default defineDomain({
         "Delete the deployment group and retry",
       ],
       answer: [0],
-      explanation: "CodeDeploy shows which hook failed and its script output, and the agent on the instance writes detailed logs for each deployment.",
+      explanation: "The CodeDeploy console shows which lifecycle hook failed and what its script printed. The CodeDeploy agent on the instance also writes a detailed log for each deployment.",
     },
     {
       id: "d4-18",
@@ -469,7 +635,7 @@ export default defineDomain({
         "An SQS queue that the team checks by hand",
       ],
       answer: [0],
-      explanation: "AWS services emit events to EventBridge; a rule can match the events you care about and notify through SNS.",
+      explanation: "CodeDeploy already sends an event to EventBridge whenever a deployment changes state. An EventBridge rule picks out success and failure events and sends them to an SNS topic, which emails the team.",
     },
     {
       id: "d4-19",
@@ -483,7 +649,7 @@ export default defineDomain({
         "Query that component's logs in Logs Insights using the trace or request ID",
         "Fix and redeploy, then confirm the error metric returns to normal",
       ],
-      explanation: "Go from symptom (metrics) to location (traces) to cause (logs), then verify the fix with the same metric.",
+      explanation: "Metrics show the symptom, traces show where it happens, and logs show why. After the fix, check that the same metric goes back to normal.",
     },
     // ── Concurrency ──
     {
@@ -493,7 +659,7 @@ export default defineDomain({
       prompt: "A payment Lambda function must always be able to scale to 100 concurrent executions, even when other functions in the account are busy. What should the developer configure?",
       options: ["Reserved concurrency of 100 on the payment function", "Provisioned concurrency on every other function", "A longer timeout", "A larger memory size"],
       answer: [0],
-      explanation: "Reserved concurrency sets aside capacity from the account pool for the function, and also caps it at that number.",
+      explanation: "Reserved concurrency sets aside part of the account's capacity for one function, so busy neighbours can't take it. It also caps the function at that number.",
     },
     {
       id: "d4-21",
@@ -502,7 +668,7 @@ export default defineDomain({
       prompt: "A latency-sensitive API backed by a Java Lambda function shows slow responses on the first requests after a quiet period. Which option removes cold starts for expected traffic?",
       options: ["Provisioned concurrency", "Reserved concurrency", "A shorter timeout", "More environment variables"],
       answer: [0],
-      explanation: "Provisioned concurrency keeps initialized environments ready. Reserved concurrency only guarantees and limits capacity; it doesn't pre-warm.",
+      explanation: "Provisioned concurrency keeps environments set up and waiting, so the first requests don't hit a cold start. Reserved concurrency only saves and caps capacity. It doesn't warm anything up.",
     },
     {
       id: "d4-22",
@@ -511,7 +677,7 @@ export default defineDomain({
       prompt: "A Lambda function receives 200 requests per second, and each invocation takes 500 ms on average. About how many concurrent executions are needed?",
       options: ["100", "50", "200", "400"],
       answer: [0],
-      explanation: "Concurrency ≈ requests per second × duration in seconds = 200 × 0.5 = 100.",
+      explanation: "Concurrency is roughly requests per second times the duration in seconds. 200 times 0.5 gives 100.",
     },
     {
       id: "d4-23",
@@ -526,7 +692,7 @@ export default defineDomain({
         "Disable CloudWatch Logs for the functions",
       ],
       answer: [0, 1],
-      explanation: "Throttling means concurrency demand exceeds the available limit. Raise the limit or reduce demand (shorter duration, or buffer with a queue). Longer timeouts make it worse.",
+      explanation: "Throttling means more copies want to run than the limit allows. Raise the limit, or lower the demand by making each run shorter or putting a queue in front. Longer timeouts make it worse, because each run holds its slot longer.",
     },
     // ── Optimization ──
     {
@@ -542,7 +708,7 @@ export default defineDomain({
         "Turn off compression",
       ],
       answer: [0, 1],
-      explanation: "Every value in the cache key splits the cache. Keep the key minimal, forward other values with an origin request policy if the origin needs them, and cache longer when possible.",
+      explanation: "Every value in the cache key splits the cache into more pieces. Keep the key small. If the origin still needs other values, forward them with an origin request policy, and cache for longer where you can.",
     },
     {
       id: "d4-25",
@@ -552,7 +718,7 @@ export default defineDomain({
         "An SNS topic publishes all order events. The shipping service's SQS queue only needs events where orderType is \"physical\", but it currently receives everything and discards most messages. What should the developer do?",
       options: ["Add a subscription filter policy on orderType to the shipping queue's subscription", "Create one topic per message", "Increase the queue's visibility timeout", "Add a Lambda function that deletes unwanted messages"],
       answer: [0],
-      explanation: "Filter policies let SNS deliver only matching messages to each subscription, which reduces consumer work and cost.",
+      explanation: "A filter policy tells SNS to deliver only matching messages to that subscription. The shipping queue then gets only physical orders, so there's less to process and pay for.",
     },
     {
       id: "d4-26",
@@ -561,7 +727,7 @@ export default defineDomain({
       prompt: "Thousands of clients call the same GET endpoint of an API Gateway REST API, and the response changes only every few minutes. How can the developer reduce backend load with the LEAST effort?",
       options: ["Enable API caching on the stage with a suitable TTL", "Add more Lambda memory", "Use a Lambda authorizer", "Switch to a WebSocket API"],
       answer: [0],
-      explanation: "Stage caching serves repeated responses from the cache for the TTL (300 seconds by default, up to 3,600) without invoking the backend.",
+      explanation: "With caching on, the stage answers repeat requests from its cache without calling the backend. Entries last for the TTL, 300 seconds by default and up to 3,600.",
     },
     {
       id: "d4-27",
@@ -575,7 +741,7 @@ export default defineDomain({
         "Increase the timeout until the function stops failing",
       ],
       answer: [0],
-      explanation: "Cost depends on memory × duration. More memory can shorten duration enough to cost the same or less, so measure instead of guessing.",
+      explanation: "Lambda cost is memory times duration. More memory also brings more CPU, which can shorten each run enough to cost the same or less. So measure several settings instead of guessing.",
     },
     {
       id: "d4-28",
@@ -589,7 +755,7 @@ export default defineDomain({
         ["Lambda initialization is slow because of a large package", "Remove unused dependencies to shrink the package"],
         ["Subscribers discard most of the SNS messages they receive", "Add subscription filter policies"],
       ],
-      explanation: "Find the bottleneck in logs and traces first, then apply the optimization that targets it.",
+      explanation: "Each fix targets one kind of problem. Find the bottleneck in logs and traces first, then pick the fix that matches it.",
     },
     // ── Lambda tuning, pooling, and scaling (moved from Domain 1 in DVA-C03) ──
     {
@@ -599,7 +765,7 @@ export default defineDomain({
       prompt: "A CPU-intensive Lambda function that resizes images runs slowly at 512 MB of memory. Which change most directly improves its performance?",
       options: ["Increase the memory setting, which also increases the CPU allocated", "Increase the timeout", "Add more environment variables", "Move the function to a VPC"],
       answer: [0],
-      explanation: "Lambda allocates CPU power in proportion to memory. More memory often shortens duration enough that cost stays similar or drops.",
+      explanation: "Lambda gives a function more CPU when you give it more memory. The function often finishes so much faster that the cost stays about the same or even drops.",
     },
     {
       id: "d4-30",
@@ -614,7 +780,7 @@ export default defineDomain({
         "Load all configuration from Amazon S3 on every invocation",
       ],
       answer: [0, 1],
-      explanation: "Init code runs once per environment and is reused by warm invocations. Smaller packages initialize faster. Reuse isn't guaranteed, so code must still work on a fresh environment.",
+      explanation: "Code outside the handler runs once per environment, and later warm invocations reuse it. Smaller packages also start faster. Reuse isn't guaranteed, though, so your code must still work in a fresh environment.",
     },
     {
       id: "d4-35",
@@ -629,7 +795,7 @@ export default defineDomain({
         "Switch the functions to an SQS FIFO queue trigger",
       ],
       answer: [0],
-      explanation: "RDS Proxy pools and shares database connections across many clients, so bursts of Lambda environments don't exhaust the database's connection limit.",
+      explanation: "RDS Proxy keeps a pool of database connections and shares them among many clients. A burst of Lambda environments then reuses those connections instead of using up the database's limit.",
     },
     {
       id: "d4-36",
@@ -643,7 +809,7 @@ export default defineDomain({
         "Lambda provisioned concurrency",
       ],
       answer: [0],
-      explanation: "Target tracking adjusts the group's capacity to keep the chosen metric near the target value, scaling out and in automatically.",
+      explanation: "Target tracking adds or removes instances to keep the chosen metric, here average CPU, close to the target. You don't have to do anything by hand.",
     },
     // ── AI-assisted troubleshooting and optimization ──
     {
@@ -654,7 +820,7 @@ export default defineDomain({
         "A CloudWatch alarm fires for rising API latency. The on-call developer wants AI-generated root-cause hypotheses based on related metrics, logs, recent deployments, and change events, without building any tooling. What should they use?",
       options: ["CloudWatch investigations, started from the alarm", "AWS CloudShell", "An S3 Lifecycle rule", "AWS AppConfig feature flags"],
       answer: [0],
-      explanation: "CloudWatch investigations is a generative AI assistant that analyzes telemetry around an alarm, metric, or Logs Insights query and suggests observations and hypotheses for you to accept or discard.",
+      explanation: "CloudWatch investigations is a generative AI assistant built into CloudWatch. Started from an alarm, it looks at the related telemetry and suggests possible causes for you to keep or throw out.",
     },
     {
       id: "d4-32",
@@ -669,7 +835,7 @@ export default defineDomain({
         "Restart every service in the account",
       ],
       answer: [0],
-      explanation: "AI output is a hypothesis to confirm. Check the evidence and test the change, just as you would a colleague's theory.",
+      explanation: "Treat what the AI says as a theory to check. Look at the evidence and test the change, just as you would with a colleague's idea.",
     },
     {
       id: "d4-33",
@@ -684,7 +850,7 @@ export default defineDomain({
         "Log the full request body, including tokens, on every call",
       ],
       answer: [0, 1],
-      explanation: "Reusing clients and batching calls cut latency and request counts. Sleeping, longer timeouts, and logging secrets don't fix bottlenecks. Measure before and after any change.",
+      explanation: "Reusing clients and batching calls cut both waiting time and the number of requests. Sleeping, longer timeouts, and logging secrets don't fix anything. Measure before and after any change.",
     },
     {
       id: "d4-34",
@@ -699,7 +865,7 @@ export default defineDomain({
         "Rotate nothing, because logs are private",
       ],
       answer: [0],
-      explanation: "Keep secrets and personal data out of prompts. The exposed password also needs rotating and the logging fixed so it isn't written again.",
+      explanation: "Keep secrets and personal data out of anything you paste into an AI tool. The exposed password should also be rotated, and the debug logging fixed so it isn't written again.",
     },
     // ── Observability, health, and integrations ──
     {
@@ -715,7 +881,7 @@ export default defineDomain({
         "An ECR lifecycle policy",
       ],
       answer: [0],
-      explanation: "A failing liveness probe makes Kubernetes restart the container. A readiness probe only removes the pod from service; it doesn't restart it.",
+      explanation: "When a liveness probe fails, Kubernetes restarts the container. A readiness probe only stops sending traffic to the pod. It doesn't restart anything.",
     },
     {
       id: "d4-38",
@@ -729,7 +895,7 @@ export default defineDomain({
         "A CloudTrail trail delivered to S3",
       ],
       answer: [0],
-      explanation: "Lambda publishes concurrency as a CloudWatch metric, so a standard alarm with an SNS action can warn before you hit the limit. Service Quotas also shows usage against quotas for many services.",
+      explanation: "Lambda already publishes ConcurrentExecutions as a CloudWatch metric. A normal alarm on it, with an SNS action, warns you before you reach the limit. Service Quotas also shows usage against quotas for many services.",
     },
     {
       id: "d4-39",
@@ -744,7 +910,7 @@ export default defineDomain({
         "The function needs a NAT gateway",
       ],
       answer: [0],
-      explanation: "Matched events with failed invocations point at delivery to the target, not the pattern. EventBridge needs permission in the function's resource-based policy to invoke it.",
+      explanation: "The rule is matching events, so the pattern is fine. The failures happen when EventBridge tries to call the function, which means it isn't allowed to. Add events.amazonaws.com to the function's resource-based policy.",
     },
     {
       id: "d4-41",
@@ -759,7 +925,7 @@ export default defineDomain({
         "Write actions to /tmp in each function",
       ],
       answer: [0],
-      explanation: "Consistent structured fields make events filterable and joinable across services. Keep sensitive values out of those fields.",
+      explanation: "When every function logs the same fields, you can filter by userId and follow one user's actions across services. Keep sensitive values out of those fields.",
     },
     {
       id: "d4-42",
@@ -773,7 +939,7 @@ export default defineDomain({
         "Add more annotations to each segment",
       ],
       answer: [0],
-      explanation: "Sampling rules control how many requests are traced (a reservoir per second plus a percentage), keeping cost down while preserving a representative picture.",
+      explanation: "Sampling rules decide how many requests get traced: a fixed number each second, called the reservoir, plus a percentage of the rest. You still get a fair picture, at a lower cost.",
     },
     {
       id: "d4-40",
@@ -788,27 +954,27 @@ export default defineDomain({
         "Create one queue per message",
       ],
       answer: [0, 1],
-      explanation: "Larger batches and a batching window mean more messages per invocation. Combine them with partial batch responses so one failure doesn't retry the whole batch.",
+      explanation: "A bigger batch size, plus a short wait to fill each batch, means more messages per invocation and fewer invocations overall. Use partial batch responses too, so one bad message doesn't retry the whole batch.",
     },
   ],
 
   cards: [
-    { id: "s-cloudwatch", domain: "d4", kind: "service", term: "Amazon CloudWatch", definition: "Metrics, logs, dashboards, and alarms" },
-    { id: "s-logsinsights", domain: "d4", kind: "service", term: "CloudWatch Logs Insights", definition: "Interactive query language for log groups" },
-    { id: "s-xray", domain: "d4", kind: "service", term: "AWS X-Ray", definition: "Distributed tracing with a service map" },
-    { id: "s-cloudtrail", domain: "d4", kind: "service", term: "AWS CloudTrail", definition: "Records API calls: who did what, and when" },
-    { id: "s-cloudfront", domain: "d4", kind: "service", term: "Amazon CloudFront", definition: "CDN that caches content at edge locations" },
-    { id: "c-emf", domain: "d4", kind: "concept", term: "Embedded metric format", definition: "Metrics written inside structured logs, extracted asynchronously" },
-    { id: "c-annotation", domain: "d4", kind: "concept", term: "X-Ray annotation", definition: "Indexed key-value pair you can filter traces by" },
-    { id: "c-metricfilter", domain: "d4", kind: "concept", term: "Metric filter", definition: "Turns matching log events into a CloudWatch metric" },
-    { id: "c-reserved", domain: "d4", kind: "concept", term: "Reserved concurrency", definition: "Guarantees and caps a function's concurrent executions" },
-    { id: "c-provisioned", domain: "d4", kind: "concept", term: "Provisioned concurrency", definition: "Pre-initialized environments that avoid cold starts" },
-    { id: "c-filterpolicy", domain: "d4", kind: "concept", term: "SNS filter policy", definition: "Delivers only matching messages to a subscription" },
-    { id: "c-502", domain: "d4", kind: "concept", term: "API Gateway 502", definition: "Malformed Lambda proxy response" },
-    { id: "c-504", domain: "d4", kind: "concept", term: "API Gateway 504", definition: "Integration exceeded the timeout (29 s by default)" },
-    { id: "s-investigations", domain: "d4", kind: "service", term: "CloudWatch investigations", definition: "Generative AI assistant that proposes root-cause hypotheses from telemetry" },
-    { id: "s-rdsproxy", domain: "d4", kind: "service", term: "Amazon RDS Proxy", definition: "Pools and shares database connections for RDS and Aurora" },
-    { id: "c-liveness", domain: "d4", kind: "concept", term: "Liveness probe", definition: "Fails → Kubernetes restarts the container" },
-    { id: "c-readiness", domain: "d4", kind: "concept", term: "Readiness probe", definition: "Fails → pod gets no traffic until it's ready" },
+    { id: "s-cloudwatch", domain: "d4", kind: "service", term: "Amazon CloudWatch", definition: "The AWS service for metrics, logs, dashboards, and alarms." },
+    { id: "s-logsinsights", domain: "d4", kind: "service", term: "CloudWatch Logs Insights", definition: "A query tool for searching and summarizing your log groups." },
+    { id: "s-xray", domain: "d4", kind: "service", term: "AWS X-Ray", definition: "Follows each request across your services and draws a map of them." },
+    { id: "s-cloudtrail", domain: "d4", kind: "service", term: "AWS CloudTrail", definition: "Records API calls, so you can see who did what, and when." },
+    { id: "s-cloudfront", domain: "d4", kind: "service", term: "Amazon CloudFront", definition: "A content delivery network. It keeps copies of your content in locations close to your users." },
+    { id: "c-emf", domain: "d4", kind: "concept", term: "Embedded metric format", definition: "Metrics written inside structured log lines. CloudWatch pulls them out in the background." },
+    { id: "c-annotation", domain: "d4", kind: "concept", term: "X-Ray annotation", definition: "A key-value pair that X-Ray indexes, so you can search traces by it." },
+    { id: "c-metricfilter", domain: "d4", kind: "concept", term: "Metric filter", definition: "Counts log lines that match a pattern and turns the count into a CloudWatch metric." },
+    { id: "c-reserved", domain: "d4", kind: "concept", term: "Reserved concurrency", definition: "Saves a set number of concurrent executions for one function, and caps it there." },
+    { id: "c-provisioned", domain: "d4", kind: "concept", term: "Provisioned concurrency", definition: "Environments set up in advance, so requests don't wait for a cold start." },
+    { id: "c-filterpolicy", domain: "d4", kind: "concept", term: "SNS filter policy", definition: "Tells SNS to deliver only matching messages to one subscription." },
+    { id: "c-502", domain: "d4", kind: "concept", term: "API Gateway 502", definition: "Lambda sent back a proxy response in the wrong shape." },
+    { id: "c-504", domain: "d4", kind: "concept", term: "API Gateway 504", definition: "The backend took longer than the timeout, 29 seconds by default." },
+    { id: "s-investigations", domain: "d4", kind: "service", term: "CloudWatch investigations", definition: "A generative AI assistant that suggests possible root causes from your telemetry." },
+    { id: "s-rdsproxy", domain: "d4", kind: "service", term: "Amazon RDS Proxy", definition: "Keeps a pool of database connections for RDS and Aurora and shares them among clients." },
+    { id: "c-liveness", domain: "d4", kind: "concept", term: "Liveness probe", definition: "When it fails, Kubernetes restarts the container." },
+    { id: "c-readiness", domain: "d4", kind: "concept", term: "Readiness probe", definition: "When it fails, the pod gets no traffic until it's ready." },
   ],
 });

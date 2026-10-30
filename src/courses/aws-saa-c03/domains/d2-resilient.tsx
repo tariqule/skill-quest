@@ -15,7 +15,7 @@ export default defineDomain({
     weight: 26,
     emoji: "🏝️",
     color: "#34d399",
-    summary: "Loose coupling with queues and events, load balancing and Auto Scaling, serverless and containers, Multi-AZ data, disaster recovery, Route 53 failover, and automation.",
+    summary: "How to design systems that keep working when something breaks. You'll cover queues and events, load balancing and scaling, serverless and containers, copies of data, disaster recovery, DNS failover and automation.",
   },
 
   tasks: [
@@ -52,6 +52,77 @@ export default defineDomain({
 
   lessons: [
     {
+      id: "d2-start-no-single-point",
+      level: "beginner",
+      task: "2.2",
+      title: "What resilient means: no single point of failure",
+      check: ["saa-b2-01", "saa-b2-02"],
+      visual: (
+        <Tiles
+          cols={2}
+          tiles={[
+            { icon: "😟", title: "One of everything", text: "One server in one place. If it fails, the whole app is down.", color: "#f87171" },
+            { icon: "😌", title: "Two or more of everything", text: "Servers in two Availability Zones. If one fails, the other keeps serving.", color: "#34d399" },
+          ]}
+        />
+      ),
+      points: [
+        "A **resilient** system keeps working when one of its parts breaks. Things will break, so the design has to expect it.",
+        "Picture a restaurant with only one chef. If the chef is ill, nobody eats. With two chefs, dinner still happens.",
+        "Anything you have only one of is a **single point of failure**. Good designs remove them by having spares in different places.",
+        "On AWS, that usually means running copies in at least two **Availability Zones**, separate data centers within a Region.",
+      ],
+      tip: "Look at a design and ask: if this one piece disappeared, would the app stop? If yes, it needs a spare.",
+    },
+    {
+      id: "d2-start-sharing-work",
+      level: "beginner",
+      task: "2.1",
+      title: "Sharing the work: load balancers and Auto Scaling",
+      check: ["saa-b2-03", "saa-b2-04"],
+      visual: (
+        <Flow
+          color="#38bdf8"
+          steps={[
+            { icon: "👥", label: "Visitors arrive", sub: "Lots of them at once" },
+            { icon: "⚖️", label: "Load balancer", sub: "Sends each visitor to a healthy server" },
+            { icon: "🖥️", label: "Several servers", sub: "Auto Scaling adds more when it gets busy" },
+          ]}
+        />
+      ),
+      points: [
+        "A **load balancer** spreads visitors across several servers, so no single server gets swamped.",
+        "Think of a busy supermarket. Someone at the front points each shopper to an open checkout, and skips any lane that's closed.",
+        "**Auto Scaling** opens more checkouts when the queue grows and closes them when the store goes quiet. On AWS, that means adding and removing servers automatically.",
+        "Together, they keep the app fast at busy times and cheap at quiet times. If a server breaks, the load balancer simply stops sending people to it.",
+      ],
+      tip: "Load balancer: shares the traffic. Auto Scaling: changes how many servers there are. You usually want both.",
+    },
+    {
+      id: "d2-start-take-a-ticket",
+      level: "beginner",
+      task: "2.1",
+      title: "Take a ticket: how queues help",
+      check: ["saa-b2-05", "saa-b2-06"],
+      visual: (
+        <Flow
+          color="#34d399"
+          steps={[
+            { icon: "🛒", label: "Website takes the order", sub: "Says thanks straight away" },
+            { icon: "📬", label: "Order waits in a queue", sub: "Amazon SQS keeps it safe" },
+            { icon: "⚙️", label: "Workers process orders", sub: "One by one, at their own pace" },
+          ]}
+        />
+      ),
+      points: [
+        "A **queue** is a waiting line for work. One part of an app drops a task in, and another part picks it up when it's ready.",
+        "It's like the ticket machine at a deli counter. Customers take a number and wait, and staff serve them in turn. Nobody is turned away when it gets busy.",
+        "On AWS, **Amazon SQS** (Simple Queue Service) is the queue. If the workers are slow or briefly down, orders wait safely instead of getting lost.",
+        "Splitting an app into parts that talk through a queue is called **decoupling**. One part can fail or slow down without breaking the others.",
+      ],
+      tip: "If a question worries about losing requests during a traffic spike, a queue such as SQS is usually the answer.",
+    },
+    {
       id: "d2-decoupling",
       task: "2.1",
       title: "Loose coupling: queues, topics, events, and workflows",
@@ -61,21 +132,21 @@ export default defineDomain({
           <Flow
             color="#34d399"
             steps={[
-              { icon: "🛒", label: "Producer", sub: "Web tier accepts the order" },
-              { icon: "📣", label: "SNS topic / EventBridge bus", sub: "One event, many subscribers" },
-              { icon: "📬", label: "SQS queue per consumer", sub: "Buffers spikes, retries, DLQ" },
-              { icon: "⚙️", label: "Workers scale on queue depth", sub: "Each at its own pace" },
+              { icon: "🛒", label: "Producer", sub: "The web tier accepts the order" },
+              { icon: "📣", label: "SNS topic or EventBridge bus", sub: "One event goes to many subscribers" },
+              { icon: "📬", label: "An SQS queue for each consumer", sub: "Soaks up spikes, retries, and has a dead-letter queue" },
+              { icon: "⚙️", label: "Workers scale on queue length", sub: "Each works at its own pace" },
             ]}
           />
           <Tiles
             cols={4}
             tiles={[
-              { icon: "📬", title: "Amazon SQS", text: "Pull-based queue. Standard: at-least-once, best-effort order. FIFO: ordered per message group, no duplicates.", color: "#34d399" },
-              { icon: "📣", title: "Amazon SNS", text: "Push pub/sub to SQS, Lambda, HTTPS, email, SMS. Subscription filter policies.", color: "#34d399" },
-              { icon: "🚌", title: "Amazon EventBridge", text: "Event bus with content-based rules, SaaS and AWS service events, schedules, archive and replay.", color: "#34d399" },
+              { icon: "📬", title: "Amazon SQS", text: "A queue that consumers pull from. Standard delivers at least once, in roughly the right order. FIFO keeps order per message group, with no duplicates.", color: "#34d399" },
+              { icon: "📣", title: "Amazon SNS", text: "Pushes each message to subscribers such as SQS, Lambda, HTTPS, email and SMS. Filter policies pick which messages each one gets.", color: "#34d399" },
+              { icon: "🚌", title: "Amazon EventBridge", text: "An event bus with rules that match on content. Takes events from SaaS apps and AWS services, runs schedules, and can archive and replay.", color: "#34d399" },
               { icon: "🎼", title: "AWS Step Functions", text: "Orchestrates multi-step workflows with retries, branches, parallel steps, and waits for humans.", color: "#34d399" },
               { icon: "🐇", title: "Amazon MQ", text: "Managed ActiveMQ or RabbitMQ for apps that already speak JMS, AMQP, MQTT, or STOMP.", color: "#38bdf8" },
-              { icon: "🌊", title: "Amazon Kinesis", text: "Ordered streams that many consumers can re-read: real-time analytics, not task queues.", color: "#38bdf8" },
+              { icon: "🌊", title: "Amazon Kinesis", text: "Ordered streams that many consumers can re-read. Built for real-time analytics, not task queues.", color: "#38bdf8" },
               { icon: "🚪", title: "Amazon API Gateway", text: "Managed REST, HTTP, and WebSocket APIs with throttling, caching (REST), auth, and usage plans.", color: "#38bdf8" },
               { icon: "📂", title: "AWS Transfer Family", text: "Managed SFTP, FTPS, FTP, and AS2 endpoints that store files in S3 or EFS.", color: "#38bdf8" },
             ]}
@@ -83,12 +154,12 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "A queue between tiers absorbs bursts and keeps orders safe when the back end is slow or down: the producer only needs the queue to accept the message.",
-        "Fanout: publish once to SNS (or an EventBridge bus) and give each consumer its own SQS queue so each can fail and retry independently.",
-        "FIFO queues guarantee order within a message group ID and remove duplicates; use Standard when throughput matters more than strict order.",
-        "Migrating an app that already uses a standard message broker protocol? Amazon MQ avoids rewriting it for SQS/SNS.",
+        "A queue between tiers soaks up bursts and keeps orders safe when the back end is slow or down. The producer only needs the queue to accept the message.",
+        "**Fanout** means publishing once to SNS, or an EventBridge bus, and giving each consumer its own SQS queue. Each consumer can then fail and retry on its own.",
+        "**FIFO** (first in, first out) queues keep messages in order within a message group ID and remove duplicates. Use Standard queues when throughput matters more than strict order.",
+        "Moving an app that already talks to a standard message broker? **Amazon MQ** saves you rewriting it for SQS and SNS.",
       ],
-      tip: "\"Decouple\", \"handle spikes\", or \"don't lose requests when the processing tier fails\" → put SQS between the tiers.",
+      tip: "When you see \"decouple\", \"handle spikes\" or \"don't lose requests when the processing tier fails\", put SQS between the tiers.",
     },
     {
       id: "d2-scaling",
@@ -100,28 +171,28 @@ export default defineDomain({
           <Tiles
             cols={3}
             tiles={[
-              { icon: "🧭", title: "Application Load Balancer", text: "Layer 7 HTTP/HTTPS/gRPC. Routes by path, host, header, or query string. Targets: instances, IPs, Lambda, containers.", color: "#38bdf8" },
-              { icon: "⚡", title: "Network Load Balancer", text: "Layer 4 TCP/UDP/TLS. Very high throughput, low latency, static IP per AZ (Elastic IPs allowed).", color: "#38bdf8" },
-              { icon: "🧱", title: "Gateway Load Balancer", text: "Inserts third-party virtual appliances (firewalls, IDS) transparently into traffic, using GENEVE.", color: "#38bdf8" },
+              { icon: "🧭", title: "Application Load Balancer", text: "Works at layer 7 with HTTP, HTTPS and gRPC. Routes by path, host, header or query string to instances, IPs, Lambda or containers.", color: "#38bdf8" },
+              { icon: "⚡", title: "Network Load Balancer", text: "Works at layer 4 with TCP, UDP and TLS. Huge throughput, low latency, and a fixed IP in each AZ (Elastic IPs allowed).", color: "#38bdf8" },
+              { icon: "🧱", title: "Gateway Load Balancer", text: "Slips third-party appliances, such as firewalls and intrusion detection, into the traffic path using GENEVE.", color: "#38bdf8" },
             ]}
           />
           <Layers
             layers={[
-              { name: "Dynamic scaling", color: "#34d399", items: ["Target tracking (e.g. 50% CPU)", "Step scaling (bigger steps for bigger alarms)", "Simple scaling"] },
-              { name: "Planned scaling", color: "#f59e0b", items: ["Scheduled actions (known peaks)", "Predictive scaling (ML forecast of daily patterns)"] },
-              { name: "Health and capacity", color: "#a78bfa", items: ["Min / desired / max", "ELB health checks replace unhealthy instances", "Spread across multiple AZs", "Launch templates"] },
+              { name: "Dynamic scaling", color: "#34d399", items: ["Target tracking (for example, hold CPU at 50%)", "Step scaling (bigger steps for bigger alarms)", "Simple scaling"] },
+              { name: "Planned scaling", color: "#f59e0b", items: ["Scheduled actions for known peaks", "Predictive scaling, which forecasts daily patterns with ML"] },
+              { name: "Health and capacity", color: "#a78bfa", items: ["Minimum, desired and maximum size", "ELB health checks replace unhealthy instances", "Spread across several AZs", "Launch templates"] },
             ]}
           />
         </div>
       ),
       points: [
-        "Horizontal scaling (more instances behind a load balancer) improves both capacity and availability; vertical scaling (bigger instance) has limits and usually needs a restart.",
-        "Make the tier stateless (sessions in ElastiCache or DynamoDB) so any instance can serve any request and scale-in loses nothing.",
-        "Use ELB health checks in the Auto Scaling group so instances that fail at the application level get replaced, not just ones whose EC2 status fails.",
-        "Target tracking is the simplest dynamic policy: pick a metric (CPU, ALBRequestCountPerTarget, or queue backlog per instance) and a target value.",
-        "Path-based routing on one ALB (/api → API targets, /images → image targets) replaces several load balancers.",
+        "**Horizontal scaling** means adding more instances behind a load balancer, which helps both capacity and availability. **Vertical scaling** means a bigger instance, which has a ceiling and usually needs a restart.",
+        "Make the tier **stateless** by keeping sessions in ElastiCache or DynamoDB. Then any instance can serve any request, and removing one loses nothing.",
+        "Turn on ELB health checks in the Auto Scaling group. Then instances that fail at the application level get replaced, not only ones whose EC2 status check fails.",
+        "**Target tracking** is the simplest dynamic policy. You pick a metric, such as CPU, ALBRequestCountPerTarget or queue backlog per instance, and a value to hold it at.",
+        "One ALB with path-based routing can replace several load balancers. For example, it sends /api to the API targets and /images to the image targets.",
       ],
-      tip: "Static IP addresses, UDP, or millions of requests per second → NLB. Content-based routing or Lambda targets → ALB. Third-party appliances → GWLB.",
+      tip: "Static IP addresses, UDP or millions of requests per second point to an NLB. Routing on content, or Lambda targets, point to an ALB. Third-party appliances point to a GWLB.",
     },
     {
       id: "d2-serverless",
@@ -133,10 +204,10 @@ export default defineDomain({
           <Tiles
             cols={4}
             tiles={[
-              { icon: "λ", title: "AWS Lambda", text: "Event-driven functions up to 15 minutes. Scales per request; pay per request and duration.", color: "#f59e0b" },
-              { icon: "🚢", title: "Amazon ECS", text: "AWS-native container orchestration: task definitions, services, and integration with ALB.", color: "#f59e0b" },
-              { icon: "☸️", title: "Amazon EKS", text: "Managed Kubernetes control plane: portable manifests and the Kubernetes ecosystem.", color: "#f59e0b" },
-              { icon: "🪄", title: "AWS Fargate", text: "Serverless compute for ECS and EKS: no EC2 instances to patch or scale.", color: "#f59e0b" },
+              { icon: "λ", title: "AWS Lambda", text: "Functions that run on events, for up to 15 minutes each. Scales with every request, and you pay per request and run time.", color: "#f59e0b" },
+              { icon: "🚢", title: "Amazon ECS", text: "AWS's own container service, with task definitions, services and built-in ALB support.", color: "#f59e0b" },
+              { icon: "☸️", title: "Amazon EKS", text: "Kubernetes with the control plane run by AWS. Your manifests and Kubernetes tools carry over.", color: "#f59e0b" },
+              { icon: "🪄", title: "AWS Fargate", text: "Runs ECS and EKS containers with no EC2 instances for you to patch or scale.", color: "#f59e0b" },
             ]}
           />
           <Flow
@@ -151,12 +222,12 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "Choose Lambda for short, event-driven work with spiky traffic; containers for long-running processes, custom runtimes, or steady load.",
-        "Fargate removes server management for containers; EC2 launch type gives control over instance types, GPUs, and pricing options.",
-        "Pick EKS when the team already uses Kubernetes or needs portability; ECS is simpler when you just want AWS-native containers.",
-        "API Gateway + Lambda + DynamoDB is the classic serverless web back end: no servers, scales to zero, pay per use.",
+        "Choose Lambda for short jobs triggered by events, with spiky traffic. Choose containers for long-running processes, custom runtimes or steady load.",
+        "Fargate takes server management away for containers. The EC2 launch type gives you control over instance types, GPUs and pricing options.",
+        "Pick EKS when the team already uses Kubernetes or needs to move between clouds. ECS is simpler when you just want containers on AWS.",
+        "API Gateway in front of Lambda, with DynamoDB for data, is the classic serverless back end. There are no servers, it scales to zero, and you pay per use.",
       ],
-      tip: "A job that runs longer than 15 minutes rules out Lambda. Look for ECS/Fargate, AWS Batch, or Step Functions to split the work.",
+      tip: "A job that runs longer than 15 minutes rules out Lambda. Look for ECS on Fargate, AWS Batch, or Step Functions to split the work.",
     },
     {
       id: "d2-multiaz",
@@ -168,12 +239,12 @@ export default defineDomain({
           <Tiles
             cols={3}
             tiles={[
-              { icon: "🪞", title: "RDS Multi-AZ", text: "Synchronous standby in another AZ with automatic failover to the same endpoint. For availability, not read scaling.", color: "#34d399" },
-              { icon: "📖", title: "Read replicas", text: "Asynchronous, readable copies (also cross-Region). Offload reads; promote one manually if needed.", color: "#34d399" },
+              { icon: "🪞", title: "RDS Multi-AZ", text: "A standby in another AZ, kept in sync, that takes over automatically on the same endpoint. It's for availability, not for more reads.", color: "#34d399" },
+              { icon: "📖", title: "Read replicas", text: "Readable copies that lag slightly behind, even in other Regions. They take reads off the primary, and you can promote one by hand.", color: "#34d399" },
               { icon: "🌌", title: "Amazon Aurora", text: "Storage keeps six copies across three AZs. Up to 15 low-lag replicas, which are also failover targets.", color: "#34d399" },
               { icon: "🌐", title: "Aurora Global Database", text: "Storage-level replication to other Regions, typically under a second, for fast cross-Region recovery and local reads.", color: "#38bdf8" },
-              { icon: "🌍", title: "DynamoDB global tables", text: "Multi-Region, multi-active replication: read and write in every Region.", color: "#38bdf8" },
-              { icon: "🔌", title: "RDS Proxy", text: "Pools and shares database connections, absorbs Lambda connection storms, and shortens failover time.", color: "#38bdf8" },
+              { icon: "🌍", title: "DynamoDB global tables", text: "Copies a table to several Regions, and you can read and write in every one of them.", color: "#38bdf8" },
+              { icon: "🔌", title: "RDS Proxy", text: "Pools and shares database connections, soaks up floods of Lambda connections, and shortens failover.", color: "#38bdf8" },
             ]}
           />
           <Layers
@@ -185,12 +256,12 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "Multi-AZ protects against an AZ or instance failure; read replicas scale reads. Exam questions often offer one when the scenario needs the other.",
-        "Aurora replicas can be promoted automatically during failover; standard RDS read replicas must be promoted manually.",
-        "EBS volumes live in one AZ: snapshot them (stored regionally) to restore in another AZ or copy to another Region.",
-        "Remove every single point of failure: one NAT gateway, one instance, or one AZ is a weak link.",
+        "**Multi-AZ** protects you when an AZ or an instance fails. **Read replicas** let you serve more reads. Exam questions often offer one when the scenario needs the other.",
+        "Aurora can promote a replica automatically during failover. A standard RDS read replica has to be promoted by hand.",
+        "An EBS volume lives in one AZ. Take a snapshot, which is stored across the Region, to restore it in another AZ or copy it to another Region.",
+        "Hunt down every single point of failure. One NAT gateway, one instance or one AZ is a weak link.",
       ],
-      tip: "\"Survive an AZ failure with automatic failover\" → Multi-AZ. \"Reports are slowing down the primary\" → read replica.",
+      tip: "If the app must survive an AZ failure with automatic failover, choose Multi-AZ. If reports are slowing down the primary database, choose a read replica.",
     },
     {
       id: "d2-dr",
@@ -201,21 +272,21 @@ export default defineDomain({
         <div className="grid gap-6">
           <Ladder
             rungs={[
-              { icon: "💾", name: "Backup & restore", text: "Hours. Backups in another Region; rebuild with IaC." },
-              { icon: "🕯️", name: "Pilot light", text: "Tens of minutes. Live data replication; app servers off until needed." },
-              { icon: "♨️", name: "Warm standby", text: "Minutes. A smaller full copy always running; scale up." },
-              { icon: "🌍", name: "Multi-site active/active", text: "Near zero. Full production in several Regions at once." },
+              { icon: "💾", name: "Backup and restore", text: "Hours. Backups sit in another Region, and you rebuild with infrastructure as code." },
+              { icon: "🕯️", name: "Pilot light", text: "Tens of minutes. Data is copied live, but app servers stay off until needed." },
+              { icon: "♨️", name: "Warm standby", text: "Minutes. A smaller but complete copy is always running, ready to scale up." },
+              { icon: "🌍", name: "Multi-site active/active", text: "Near zero. Full production runs in several Regions at once." },
             ]}
           />
           <DrStrategyLab />
         </div>
       ),
       points: [
-        "RPO (recovery point objective): how much data you can afford to lose, measured back from the disaster. RTO (recovery time objective): how long you can be down.",
-        "Pick the cheapest strategy that meets both targets: cost and complexity rise as RPO and RTO shrink.",
-        "Pilot light keeps data live but compute off; warm standby keeps a scaled-down copy serving (or ready to serve) traffic.",
-        "Raise service quotas in the recovery Region before you need them, or the standby can't scale up during a disaster.",
-        "AWS Elastic Disaster Recovery and AWS Backup cross-Region copies are common building blocks; test recovery regularly.",
+        "**RPO** (recovery point objective) is how much data you can afford to lose, counted back from the disaster. **RTO** (recovery time objective) is how long you can afford to be down.",
+        "Pick the cheapest strategy that meets both targets. Cost and complexity go up as RPO and RTO get smaller.",
+        "**Pilot light** keeps the data live but the servers off. **Warm standby** keeps a smaller copy running that serves, or is ready to serve, traffic.",
+        "Raise your service quotas in the recovery Region before you need them. Otherwise the standby can't scale up during a disaster.",
+        "AWS Elastic Disaster Recovery and cross-Region copies in AWS Backup are common building blocks. Whatever you pick, test recovery regularly.",
       ],
       tip: "Read the RPO and RTO numbers first, cross out strategies that can't meet them, then choose the cheapest that remains.",
     },
@@ -230,20 +301,20 @@ export default defineDomain({
           <Tiles
             cols={3}
             tiles={[
-              { icon: "❤️‍🩹", title: "Health checks", text: "Monitor an endpoint, other health checks (calculated), or a CloudWatch alarm for private resources.", color: "#38bdf8" },
-              { icon: "🔗", title: "Alias records", text: "Point a name, including the zone apex, at ELB, CloudFront, S3 websites, and more. No charge for alias queries to AWS resources.", color: "#38bdf8" },
-              { icon: "🚀", title: "Global Accelerator", text: "Two static anycast IPs on the AWS edge network; shifts TCP/UDP traffic between Regions in seconds.", color: "#38bdf8" },
+              { icon: "❤️‍🩹", title: "Health checks", text: "Watch an endpoint, a group of other health checks, or a CloudWatch alarm for private resources.", color: "#38bdf8" },
+              { icon: "🔗", title: "Alias records", text: "Point a name, even the bare domain, at ELB, CloudFront, S3 websites and more. Alias queries to AWS resources are free.", color: "#38bdf8" },
+              { icon: "🚀", title: "Global Accelerator", text: "Two fixed anycast IPs on the AWS edge network. Moves TCP and UDP traffic between Regions in seconds.", color: "#38bdf8" },
             ]}
           />
         </div>
       ),
       points: [
-        "Failover routing gives active-passive DR: primary while healthy, secondary (another Region or a static S3 page) otherwise.",
-        "Latency routing sends users to the Region with the lowest latency; geolocation routes by where users are, which suits compliance and localization.",
-        "Weighted routing splits traffic by percentage for canary or blue/green migrations.",
-        "Use an alias record for the zone apex (example.com) pointing at a load balancer; a CNAME isn't allowed at the apex.",
+        "**Failover routing** gives you active-passive recovery. Users go to the primary while it's healthy, and to a secondary, such as another Region or a static S3 page, when it isn't.",
+        "**Latency routing** sends users to the Region that answers them fastest. **Geolocation routing** goes by where users are, which suits legal rules and local languages.",
+        "**Weighted routing** splits traffic by percentage, which is handy for canary releases and blue/green moves.",
+        "For the bare domain (example.com), called the **zone apex**, use an alias record pointing at the load balancer. A CNAME isn't allowed there.",
       ],
-      tip: "\"Users must only be served from their country's Region\" → geolocation, not latency. \"Lowest response time\" → latency.",
+      tip: "If users must only be served from their own country's Region, use geolocation, not latency. If the goal is the lowest response time, use latency.",
     },
     {
       id: "d2-automation",
@@ -255,7 +326,7 @@ export default defineDomain({
           <Tiles
             cols={4}
             tiles={[
-              { icon: "📐", title: "AWS CloudFormation", text: "Infrastructure as code: rebuild identical environments in any Region, and roll back failed changes.", color: "#a78bfa" },
+              { icon: "📐", title: "AWS CloudFormation", text: "Infrastructure as code. Rebuild identical environments in any Region, and roll back changes that fail.", color: "#a78bfa" },
               { icon: "🧊", title: "Immutable infrastructure", text: "Replace instances from a new AMI or image instead of patching them in place.", color: "#a78bfa" },
               { icon: "🔭", title: "AWS X-Ray", text: "Traces requests across services to find bottlenecks and failing dependencies.", color: "#a78bfa" },
               { icon: "📈", title: "Amazon CloudWatch", text: "Metrics, alarms, logs, and dashboards. Alarms trigger scaling, notifications, or EC2 recovery.", color: "#a78bfa" },
@@ -265,24 +336,90 @@ export default defineDomain({
             color="#a78bfa"
             steps={[
               { icon: "🖥️", label: "Legacy app on one instance", sub: "Can't change the code" },
-              { icon: "🔁", label: "Auto Scaling group, min = max = 1", sub: "Self-healing replacement" },
-              { icon: "🧭", label: "Behind a load balancer or Elastic IP", sub: "Stable endpoint" },
-              { icon: "💾", label: "Data on EFS or a managed DB", sub: "Survives replacement" },
+              { icon: "🔁", label: "Auto Scaling group with min and max of 1", sub: "Replaces the instance if it dies" },
+              { icon: "🧭", label: "Behind a load balancer or Elastic IP", sub: "The address stays the same" },
+              { icon: "💾", label: "Data on EFS or a managed database", sub: "Survives the replacement" },
             ]}
           />
         </div>
       ),
       points: [
-        "Automate everything you'd otherwise do by hand in an outage: CloudFormation for infrastructure, Auto Scaling for capacity, alarms for recovery.",
-        "Measure what the business cares about (successful checkouts, p99 latency), not just CPU, and alarm on it.",
-        "Service quotas and throttling: know your limits, request increases ahead of time, and add retries with backoff.",
-        "For apps you can't modify, wrap them: an Auto Scaling group of one for self-healing, RDS Proxy to smooth database failovers, or a load balancer in front.",
+        "Automate anything you'd otherwise do by hand during an outage. Use CloudFormation for infrastructure, Auto Scaling for capacity and alarms for recovery.",
+        "Measure what the business cares about, such as successful checkouts or the slowest 1% of response times, not just CPU. Then alarm on it.",
+        "Know your **service quotas**, the limits AWS sets per account. Ask for increases ahead of time, and retry throttled calls with a growing delay (backoff).",
+        "If you can't change an app, wrap it. An Auto Scaling group of one heals it, RDS Proxy smooths database failovers, and a load balancer gives it a steady front door.",
       ],
       tip: "\"Application changes are not possible\" means the answer is infrastructure around the app: Auto Scaling, load balancers, RDS Proxy, Route 53 failover.",
     },
   ],
 
   questions: [
+    // ── Start here ──
+    {
+      id: "saa-b2-01",
+      domain: "d2",
+      lesson: "d2-start-no-single-point",
+      level: "beginner",
+      prompt: "What is a single point of failure?",
+      options: ["A part you have only one of, so the whole system stops if it breaks", "A server that has never failed", "A backup kept in another Region", "A load balancer with two servers behind it"],
+      answer: [0],
+      explanation: "If a system depends on one thing and that thing breaks, everything stops. Like a restaurant with one chef, the fix is to have a spare.",
+    },
+    {
+      id: "saa-b2-02",
+      domain: "d2",
+      lesson: "d2-start-no-single-point",
+      level: "beginner",
+      prompt: "A website runs on one server in one Availability Zone. What's the simplest way to make it more resilient?",
+      options: ["Run servers in two Availability Zones", "Use a bigger server in the same zone", "Turn the server off at night", "Add a second website name"],
+      answer: [0],
+      explanation: "Availability Zones are separate data centers. With servers in two of them, a problem in one zone doesn't take the website down.",
+    },
+    {
+      id: "saa-b2-03",
+      domain: "d2",
+      lesson: "d2-start-sharing-work",
+      level: "beginner",
+      prompt: "What does a load balancer do?",
+      options: ["Spreads incoming visitors across several servers", "Stores files for the website", "Encrypts the database", "Sends the monthly bill"],
+      answer: [0],
+      explanation: "A load balancer is like the person at a supermarket who points each shopper to an open checkout. It shares out the visitors so no server gets swamped, and skips any that are broken.",
+    },
+    {
+      id: "saa-b2-04",
+      domain: "d2",
+      lesson: "d2-start-sharing-work",
+      level: "beginner",
+      prompt: "Traffic to a shop's website doubles every evening. Which AWS feature adds servers when it's busy and removes them when it's quiet?",
+      options: ["Auto Scaling", "AWS KMS", "Amazon S3 Glacier", "AWS Artifact"],
+      answer: [0],
+      explanation: "Auto Scaling changes the number of servers to match demand. You get enough servers in the evening rush, and you don't pay for spare ones overnight.",
+    },
+    {
+      id: "saa-b2-05",
+      domain: "d2",
+      lesson: "d2-start-take-a-ticket",
+      level: "beginner",
+      prompt: "Why put a queue between a website and the servers that process its orders?",
+      options: [
+        "Orders wait safely in line instead of getting lost when the processing servers are busy",
+        "It makes the website look nicer",
+        "It deletes old orders automatically",
+        "It removes the need for any servers",
+      ],
+      answer: [0],
+      explanation: "A queue is like a deli ticket machine. Customers take a number and wait their turn, so nobody is turned away, even when staff are busy.",
+    },
+    {
+      id: "saa-b2-06",
+      domain: "d2",
+      lesson: "d2-start-take-a-ticket",
+      level: "beginner",
+      prompt: "Which AWS service is a message queue?",
+      options: ["Amazon SQS", "Amazon EC2", "Amazon Route 53", "AWS IAM"],
+      answer: [0],
+      explanation: "Amazon SQS stands for Simple Queue Service. One part of your app puts messages in, and another part takes them out when it's ready.",
+    },
     // ── Decoupling ──
     {
       id: "d2-01",
@@ -312,7 +449,7 @@ export default defineDomain({
         "Store events in an S3 bucket that the services list every minute",
       ],
       answer: [0],
-      explanation: "SNS fans out one message to several queues; each queue gives its service its own buffer, retries, and dead-letter queue. With one shared queue, each message goes to only one consumer.",
+      explanation: "SNS fans one message out to several queues. Each queue gives its service its own buffer, retries and dead-letter queue. With one shared queue, each message goes to only one consumer.",
     },
     {
       id: "d2-03",
@@ -348,7 +485,7 @@ export default defineDomain({
         "An insurance claim workflow has eight steps, including parallel checks, a branch on claim value, retries for a flaky partner API, and a manual approval that can take several days. Which service should coordinate it?",
       options: ["AWS Step Functions Standard workflow", "Amazon SQS with a single worker", "Amazon EventBridge Scheduler", "A Lambda function that sleeps between steps"],
       answer: [0],
-      explanation: "Step Functions provides branching, parallel states, retries, and callback waits; Standard workflows can run for up to a year with a visual history. Lambda is limited to 15 minutes.",
+      explanation: "Step Functions provides branching, parallel states, retries, and waits for callbacks. Standard workflows can run for up to a year with a visual history. Lambda is limited to 15 minutes.",
     },
     {
       id: "d2-06",
@@ -435,7 +572,7 @@ export default defineDomain({
         "Disable health checks during the morning",
       ],
       answer: [0],
-      explanation: "Scheduled actions handle known peaks; predictive scaling forecasts recurring patterns and launches capacity in advance.",
+      explanation: "Scheduled actions handle peaks you know about. Predictive scaling learns repeating patterns and launches capacity before the rush.",
     },
     {
       id: "d2-13",
@@ -488,7 +625,7 @@ export default defineDomain({
         ["Static IPs and millions of TCP/UDP requests per second", "Network Load Balancer"],
         ["Insert third-party firewall appliances transparently", "Gateway Load Balancer"],
       ],
-      explanation: "ALB is layer 7, NLB is layer 4, and GWLB is for virtual appliances.",
+      explanation: "The ALB works at layer 7 and understands HTTP. The NLB works at layer 4 with raw TCP and UDP. The GWLB is for putting virtual appliances in the traffic path.",
     },
 
     // ── Serverless and containers ──
@@ -560,7 +697,7 @@ export default defineDomain({
         "Run the application in AWS Batch",
       ],
       answer: [0],
-      explanation: "Containerizing as-is (lift and shift into containers) gets consistent deployment and scaling now; services can be split out later.",
+      explanation: "Putting the app in a container as it is, a lift and shift into containers, gives you consistent deployment and scaling now. You can split it into services later.",
     },
     {
       id: "d2-23",
@@ -574,7 +711,7 @@ export default defineDomain({
         ["Reuse existing Kubernetes manifests and Helm charts", "Amazon EKS"],
         ["Deploy a web app by uploading code, with capacity managed for you", "AWS Elastic Beanstalk"],
       ],
-      explanation: "Event-driven short tasks → Lambda; serverless containers → Fargate; Kubernetes → EKS; managed app platform on EC2 → Elastic Beanstalk.",
+      explanation: "Short jobs triggered by events suit Lambda. Containers with no servers suit Fargate. Kubernetes means EKS. A managed app platform on EC2 means Elastic Beanstalk.",
     },
 
     // ── Multi-AZ data ──
@@ -723,7 +860,7 @@ export default defineDomain({
         "The percentage of requests that must succeed",
       ],
       answer: [0],
-      explanation: "RPO is about data (how far back your last good copy is); RTO is about time (how long until service is back).",
+      explanation: "RPO is about data: how far back your last good copy is. RTO is about time: how long until service is back.",
     },
     {
       id: "d2-36",
@@ -779,7 +916,7 @@ export default defineDomain({
         "A company is migrating from an old stack to a new one. It wants to send 10% of users to the new stack, watch error rates, and roll back instantly if needed. It also wants the zone apex example.com to point at the new Application Load Balancer. Which TWO Route 53 features should it use? (Choose two.)",
       options: ["Weighted routing records", "An alias record for the zone apex", "A CNAME record at the zone apex", "Multivalue answer routing", "Geoproximity routing with a bias of 0"],
       answer: [0, 1],
-      explanation: "Weighted records split traffic by percentage and can be changed instantly. Alias records can point the apex at an ALB; CNAMEs aren't allowed at the zone apex.",
+      explanation: "Weighted records split traffic by percentage and can be changed instantly. An alias record can point the bare domain (the zone apex) at an ALB. A CNAME isn't allowed there.",
     },
     {
       id: "d2-41",
@@ -789,7 +926,7 @@ export default defineDomain({
         "Due to data residency rules, users in Germany must always be served from the eu-central-1 deployment and all other users from us-east-1. Which routing policy meets this requirement?",
       options: ["Geolocation routing with a Germany record and a default record", "Latency-based routing", "Weighted routing", "Failover routing"],
       answer: [0],
-      explanation: "Geolocation routing answers by the user's location; the default record covers everyone not matched by a specific location.",
+      explanation: "Geolocation routing answers based on where the user is. The default record catches everyone who doesn't match a specific location.",
     },
     {
       id: "d2-42",
@@ -846,7 +983,7 @@ export default defineDomain({
         "Run two copies of the application writing to the same EBS volume",
       ],
       answer: [0],
-      explanation: "An Auto Scaling group of one replaces a failed instance in any healthy AZ; EFS keeps data available across AZs; the load balancer gives a stable endpoint.",
+      explanation: "An Auto Scaling group of one replaces a failed instance in any healthy AZ. EFS keeps the data available across AZs, and the load balancer gives a stable address.",
     },
     {
       id: "d2-46",
@@ -930,17 +1067,17 @@ export default defineDomain({
     { id: "s-cloudformation", domain: "d2", kind: "service", term: "AWS CloudFormation", definition: "Infrastructure as code: templates that create and update stacks" },
     { id: "s-xray", domain: "d2", kind: "service", term: "AWS X-Ray", definition: "Distributed tracing to find latency and errors across services" },
     { id: "s-cloudwatch", domain: "d2", kind: "service", term: "Amazon CloudWatch", definition: "Metrics, alarms, logs, and dashboards" },
-    { id: "c-rpo", domain: "d2", kind: "concept", term: "RPO", definition: "Maximum acceptable data loss, measured back in time from the disaster" },
-    { id: "c-rto", domain: "d2", kind: "concept", term: "RTO", definition: "Maximum acceptable time to restore service" },
-    { id: "c-pilotlight", domain: "d2", kind: "concept", term: "Pilot light", definition: "Live data replication; app servers off until a disaster" },
-    { id: "c-warmstandby", domain: "d2", kind: "concept", term: "Warm standby", definition: "Scaled-down, fully working copy that scales up on failover" },
-    { id: "c-activeactive", domain: "d2", kind: "concept", term: "Multi-site active/active", definition: "Full production in several Regions at once; near-zero RPO and RTO" },
+    { id: "c-rpo", domain: "d2", kind: "concept", term: "RPO", definition: "Recovery point objective: the most data you can afford to lose, counted back from the moment of the disaster." },
+    { id: "c-rto", domain: "d2", kind: "concept", term: "RTO", definition: "Recovery time objective: the longest you can afford to be down before service is back." },
+    { id: "c-pilotlight", domain: "d2", kind: "concept", term: "Pilot light", definition: "Data is copied live to the recovery Region, but the app servers stay off until a disaster." },
+    { id: "c-warmstandby", domain: "d2", kind: "concept", term: "Warm standby", definition: "A smaller but fully working copy that's always running and scales up on failover." },
+    { id: "c-activeactive", domain: "d2", kind: "concept", term: "Multi-site active/active", definition: "Full production running in several Regions at once, so RPO and RTO are close to zero." },
     { id: "c-multiaz", domain: "d2", kind: "concept", term: "RDS Multi-AZ", definition: "Synchronous standby in another AZ with automatic failover" },
-    { id: "c-readreplica", domain: "d2", kind: "concept", term: "Read replica", definition: "Asynchronous readable copy for scaling reads" },
-    { id: "c-fanout", domain: "d2", kind: "concept", term: "Fanout", definition: "One SNS message delivered to several SQS queues" },
-    { id: "c-stateless", domain: "d2", kind: "concept", term: "Stateless tier", definition: "No session data on instances, so any instance serves any request" },
-    { id: "c-immutable", domain: "d2", kind: "concept", term: "Immutable infrastructure", definition: "Replace servers from new images instead of changing them in place" },
-    { id: "c-alias", domain: "d2", kind: "concept", term: "Alias record", definition: "Route 53 record pointing at AWS resources, allowed at the zone apex" },
+    { id: "c-readreplica", domain: "d2", kind: "concept", term: "Read replica", definition: "A readable copy that lags slightly behind the primary. Used to serve more reads." },
+    { id: "c-fanout", domain: "d2", kind: "concept", term: "Fanout", definition: "Publishing one SNS message and having it delivered to several SQS queues." },
+    { id: "c-stateless", domain: "d2", kind: "concept", term: "Stateless tier", definition: "A tier that keeps no session data on its instances, so any instance can serve any request." },
+    { id: "c-immutable", domain: "d2", kind: "concept", term: "Immutable infrastructure", definition: "Replacing servers with fresh ones built from a new image, instead of changing them in place." },
+    { id: "c-alias", domain: "d2", kind: "concept", term: "Alias record", definition: "A Route 53 record that points at an AWS resource. Unlike a CNAME, it works on the bare domain." },
   ],
 
   challenges: [
@@ -951,7 +1088,7 @@ export default defineDomain({
       title: "Right-size the recovery",
       goal: "For all four workloads, pick the cheapest DR strategy that still meets their RPO and RTO.",
       hint: "Rule out strategies that can't meet both numbers, then choose the cheapest that's left. Overspending counts as a miss.",
-      takeaway: "Backup & restore → pilot light → warm standby → active/active: each step buys a smaller RPO and RTO for more money.",
+      takeaway: "Backup and restore, pilot light, warm standby, active/active: each step up buys a smaller RPO and RTO, and costs more.",
       render: (onSolved) => <DrStrategyLab goal="all" onSolved={onSolved} />,
     },
   ],

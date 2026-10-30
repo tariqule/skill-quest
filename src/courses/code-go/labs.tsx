@@ -428,7 +428,7 @@ const B = 'func() { Println("B", n) }';
 
 const DEFER_STEPS: Record<keyof typeof DEFER_CODE, DeferStep[]> = {
   named: [
-    { line: 1, stack: [A], n: 0, out: [], note: "defer evaluates the call's arguments NOW: n is 0, so the deferred call is Println(\"A\", 0)." },
+    { line: 1, stack: [A], n: 0, out: [], note: "defer works out the call's arguments right now: n is 0, so the deferred call is Println(\"A\", 0)." },
     { line: 2, stack: [A, X], n: 0, out: [], note: "A closure is deferred. It reads n when it runs, not now." },
     { line: 3, stack: [A, X, B], n: 0, out: [], note: "Another closure. Deferred calls stack up: last in, first out." },
     { line: 4, stack: [A, X, B], n: 2, out: [], note: "n = 2." },
@@ -448,7 +448,7 @@ const DEFER_STEPS: Record<keyof typeof DEFER_CODE, DeferStep[]> = {
     { line: 7, stack: [A, X], n: 2, out: ["B 2"], note: "The closure prints the local n: 2." },
     { line: 7, stack: [A], n: 20, out: ["B 2"], note: "n = 20, but the result was already fixed at 3." },
     { line: 7, stack: [], n: 20, out: ["B 2", "A 0"], note: "Println(\"A\", 0) runs last." },
-    { line: 7, stack: [], n: 20, out: ["B 2", "A 0"], note: "f returns 3: deferred code can change only NAMED results.", result: 3 },
+    { line: 7, stack: [], n: 20, out: ["B 2", "A 0"], note: "f returns 3: deferred code can only change named results.", result: 3 },
   ],
 };
 

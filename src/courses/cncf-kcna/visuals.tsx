@@ -8,14 +8,14 @@ import { useState } from "react";
 
 const COMPONENTS = {
   apiserver: { icon: "🚪", name: "kube-apiserver", text: "The front door. Every client (kubectl, kubelets, controllers) talks to it over REST. It authenticates, authorizes, runs admission, validates, and is the only component that reads and writes etcd." },
-  etcd: { icon: "🗃️", name: "etcd", text: "Consistent, highly available key-value store holding all cluster state. Uses the Raft consensus algorithm, so run an odd number of members (3 or 5) and back it up." },
+  etcd: { icon: "🗃️", name: "etcd", text: "A consistent, highly available key-value store that holds all cluster state. It uses the Raft consensus algorithm, so run an odd number of members (3 or 5) and back it up." },
   scheduler: { icon: "🧩", name: "kube-scheduler", text: "Watches for Pods with no node, filters out nodes that can't run them (resources, taints, selectors), scores the rest, and binds the Pod to the best node." },
   cm: { icon: "🔁", name: "kube-controller-manager", text: "Runs the built-in control loops (Deployment, ReplicaSet, Node, Job, EndpointSlice, ServiceAccount, …). Each loop compares desired with actual state and acts to close the gap." },
-  ccm: { icon: "☁️", name: "cloud-controller-manager", text: "Optional. Holds cloud-specific loops: node lifecycle, routes, and load balancers for Services of type LoadBalancer." },
+  ccm: { icon: "☁️", name: "cloud-controller-manager", text: "Optional. It runs the cloud-specific loops: node lifecycle, routes, and load balancers for Services of type LoadBalancer." },
   kubelet: { icon: "🧑‍✈️", name: "kubelet", text: "The node agent. Registers the node, watches for Pods bound to it, asks the container runtime (over CRI) to run them, runs probes, and reports status back to the API server." },
   proxy: { icon: "🔀", name: "kube-proxy", text: "Programs node networking rules (iptables, IPVS, or nftables) so traffic to a Service's virtual IP reaches a backing Pod. Some CNI plugins replace it." },
-  runtime: { icon: "🐳", name: "Container runtime", text: "Pulls images and runs containers through the Container Runtime Interface. containerd and CRI-O are common; both use a low-level OCI runtime such as runc." },
-  pods: { icon: "📦", name: "Pods", text: "The smallest deployable unit: one or more containers sharing a network namespace (one IP, localhost) and volumes." },
+  runtime: { icon: "🐳", name: "Container runtime", text: "Pulls images and runs containers through the Container Runtime Interface. containerd and CRI-O are common, and both use a low-level OCI runtime such as runc underneath." },
+  pods: { icon: "📦", name: "Pods", text: "The smallest thing you can deploy: one or more containers sharing a network namespace (one IP, talking over localhost) and volumes." },
 } as const;
 
 type ComponentId = keyof typeof COMPONENTS;
@@ -162,7 +162,7 @@ export function RollingUpdateViz() {
           </div>
         </div>
       )}
-      <div className="mt-2 text-xs text-slate-400">Defaults are 25% for both. maxUnavailable 0 keeps full capacity; a bigger maxSurge finishes faster but needs spare room in the cluster.</div>
+      <div className="mt-2 text-xs text-slate-400">Both default to 25%. Setting maxUnavailable to 0 keeps full capacity. A bigger maxSurge finishes faster, but needs spare room in the cluster.</div>
     </div>
   );
 }
@@ -172,7 +172,7 @@ export function RollingUpdateViz() {
 const STATUSES = [
   { status: "Pending", tone: "#fbbf24", cause: "No node can take the Pod yet: not enough CPU or memory to satisfy requests, an untolerated taint, a nodeSelector or affinity no node matches, or an unbound PersistentVolumeClaim.", cmd: "kubectl describe pod <name>  # read the FailedScheduling event" },
   { status: "ImagePullBackOff", tone: "#fb7185", cause: "The kubelet can't pull the image: a typo in the name or tag, the tag doesn't exist, or a private registry without imagePullSecrets.", cmd: "kubectl describe pod <name>  # Events show the pull error" },
-  { status: "CrashLoopBackOff", tone: "#fb7185", cause: "The container starts and exits again and again; the kubelet restarts it with a growing back-off delay. Usually an app error, a bad command, or missing config.", cmd: "kubectl logs <name> --previous" },
+  { status: "CrashLoopBackOff", tone: "#fb7185", cause: "The container starts and exits again and again, and the kubelet waits a little longer before each restart. Usually it's an app error, a bad command, or missing config.", cmd: "kubectl logs <name> --previous" },
   { status: "OOMKilled", tone: "#f472b6", cause: "The container used more memory than its limit and the kernel killed it (exit code 137). Raise the limit or fix the leak.", cmd: "kubectl describe pod <name>  # Last State: Terminated, Reason: OOMKilled" },
   { status: "CreateContainerConfigError", tone: "#c084fc", cause: "The Pod references a ConfigMap, Secret, or key that doesn't exist, so the container can't be created.", cmd: "kubectl describe pod <name>" },
   { status: "Running, 0/1 Ready", tone: "#38bdf8", cause: "The readiness probe is failing, so the Pod is removed from Service endpoints and gets no traffic. The container isn't restarted for this.", cmd: "kubectl describe pod <name>  # Readiness probe failed" },

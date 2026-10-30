@@ -13,7 +13,7 @@ export default defineDomain({
     weight: 30,
     emoji: "🧊",
     color: "#22d3ee",
-    summary: "Fetch in Server Components without waterfalls, stream with Suspense, cache with \"use cache\" and cacheLife, and pick the right revalidation call after a mutation.",
+    summary: "Getting data onto the page quickly: fetching on the server, streaming slow parts, caching with \"use cache\", and refreshing cached data after a change.",
   },
 
   tasks: [
@@ -41,6 +41,59 @@ export default defineDomain({
 
   lessons: [
     {
+      id: "d3-b-fetch",
+      level: "beginner",
+      task: "3.1",
+      title: "Getting data onto the page",
+      check: ["next-b3-01", "next-b3-02"],
+      visual: (
+        <CodeBlock
+          lang="tsx"
+          caption="A Server Component that waits for a list of posts, then shows it."
+          code={`export default async function Page() {
+  const res = await fetch("https://api.example.com/posts");
+  const posts = await res.json();
+  return (
+    <ul>
+      {posts.map((p) => <li key={p.id}>{p.title}</li>)}
+    </ul>
+  );
+}`}
+        />
+      ),
+      points: [
+        "Most pages show data from somewhere else, like a list of blog posts from a database or from another site's API.",
+        "An **API** is a web address that returns data instead of a page, usually in a format called JSON.",
+        "In Next.js, a Server Component can be an `async` function. It waits for the data with `await`, then returns the page.",
+        "It's like a waiter who checks with the kitchen before coming to your table, so they arrive with the answer already in hand.",
+      ],
+      tip: "`await` means \"wait here until this is done\". You can only use it inside a function marked `async`.",
+    },
+    {
+      id: "d3-b-cache",
+      level: "beginner",
+      task: "3.3",
+      title: "Caching: saving work for next time",
+      check: ["next-b3-03", "next-b3-04"],
+      visual: (
+        <Flow
+          color="#f59e0b"
+          steps={[
+            { icon: "🙋", label: "First visitor", sub: "Next.js does the work and saves the result" },
+            { icon: "💾", label: "Cache", sub: "The saved result waits" },
+            { icon: "⚡", label: "Next visitors", sub: "Get the saved copy straight away" },
+          ]}
+        />
+      ),
+      points: [
+        "**Caching** means saving a result so you can reuse it, instead of working it out again every time.",
+        "It's like a café brewing a big pot of coffee in the morning. Each customer gets a cup straight away instead of waiting for a fresh brew.",
+        "Next.js can cache data and whole parts of a page, so visitors get them fast and your database does less work.",
+        "The catch: cached data can go **stale**, which means out of date. So you also need a way to refresh it when something changes.",
+      ],
+      tip: "In Next.js 16, with Cache Components turned on, you cache a function or component by writing `\"use cache\"` inside it. You'll meet it properly in the later lessons.",
+    },
+    {
       id: "d3-fetching",
       level: "intermediate",
       task: "3.1",
@@ -64,12 +117,12 @@ const albums = await getAlbums(id)`,
         />
       ),
       points: [
-        "Server Components can be `async` and await a database or `fetch` directly; credentials never reach the client.",
-        "`fetch` is not cached by default. Identical `fetch` calls in one render tree are memoized, so fetch where the data is needed.",
-        "For ORM or database calls, wrap the function in React's `cache()` to dedupe within one request.",
-        "Start independent requests together and `await Promise.all` to avoid waterfalls.",
+        "Server Components can be `async` and wait for a database or `fetch` directly. Passwords and keys never reach the browser.",
+        "`fetch` isn't cached by default. But identical `fetch` calls during one render are shared, so you can fetch right where the data is needed without paying twice.",
+        "For database calls, wrap the function in React's `cache()`. Then calls with the same arguments during one request run only once.",
+        "A **waterfall** is when requests wait for each other one by one. Start requests that don't depend on each other together, then `await Promise.all` to wait for both.",
       ],
-      tip: "When you see two `await`s in a row in an interview snippet, ask yourself whether the second depends on the first. If not, call out the waterfall.",
+      tip: "When you see two `await`s in a row in an interview snippet, ask whether the second needs the first. If it doesn't, point out the waterfall.",
     },
     {
       id: "d3-streaming",
@@ -106,11 +159,11 @@ export default function Page() {
         </div>
       ),
       points: [
-        "`<Suspense>` lets the rest of the page ship first while one component waits for data.",
-        "`loading.tsx` is a ready-made Suspense boundary around the page (not around the layout in the same folder).",
-        "Runtime data read in a layout (cookies, headers, uncached fetches) isn't covered by that segment's `loading.tsx`: give it its own `<Suspense>` or move it into the page.",
+        "**Streaming** means sending the page in pieces. `<Suspense>` lets the rest of the page arrive first while one slow component waits for its data.",
+        "`loading.tsx` is a ready-made Suspense boundary around the page. It doesn't wrap the layout in the same folder.",
+        "If a layout reads request data like cookies, headers or uncached fetches, that folder's `loading.tsx` won't cover it. Give that part its own `<Suspense>`, or move it into the page.",
       ],
-      tip: "Describe streaming as \"send what's ready now, fill the holes later\". Then mention that placing Suspense close to the slow data keeps the most UI instant.",
+      tip: "Describe streaming as \"send what's ready now, fill the gaps later\". Then add that putting Suspense close to the slow data keeps most of the page instant.",
     },
     {
       id: "d3-use-cache",
@@ -136,12 +189,12 @@ export async function getProducts(category: string) {
         </div>
       ),
       points: [
-        "Cache Components (`cacheComponents: true`, on by default in new apps) enables `\"use cache\"` and Partial Prerendering.",
-        "`\"use cache\"` caches an async function's or component's return value, keyed by its serializable arguments and captured variables.",
-        "Cached scopes can't call `cookies()`, `headers()`, or read `searchParams`: read them outside and pass values in as arguments.",
-        "Static markup, cached output, and Suspense fallbacks form the static shell; runtime work streams in. For per-request random values, `await connection()` first.",
+        "**Cache Components** is a setting, `cacheComponents: true`, that's on by default in new apps. It turns on `\"use cache\"` and Partial Prerendering.",
+        "`\"use cache\"` saves what an async function or component returns. Its arguments, and any outside variables it uses, decide which saved copy you get back.",
+        "Cached code can't call `cookies()` or `headers()`, or read `searchParams`. Read them outside the cached function and pass the values in as arguments.",
+        "Plain markup, cached output and Suspense fallbacks together form the **static shell**, built ahead of time. Per-request work streams in later. For values like random ids, `await connection()` first.",
       ],
-      tip: "Under Cache Components, route segment options like `export const revalidate` and `dynamic` are gone. Say \"I'd use `cacheLife` on the cached function\" instead.",
+      tip: "With Cache Components, route options like `export const revalidate` and `dynamic` are gone. Say \"I'd use `cacheLife` on the cached function\" instead.",
     },
     {
       id: "d3-revalidate",
@@ -164,15 +217,60 @@ export async function getProducts(category: string) {
         </div>
       ),
       points: [
-        "Time-based revalidation is stale-while-revalidate: after `revalidate` passes, the next request gets cached content and triggers a background refresh.",
-        "`revalidateTag` needs a second argument in Next.js 16; `'max'` is recommended. The one-argument form is deprecated.",
-        "`updateTag` and `refresh` throw outside Server Actions; webhooks in Route Handlers use `revalidateTag`.",
+        "To **revalidate** is to refresh cached data. Time-based revalidation is stale-while-revalidate: once the time is up, the next visitor still gets the old copy, and their visit starts a refresh in the background.",
+        "In Next.js 16, `revalidateTag` needs a second argument, and `'max'` is the recommended one. The one-argument form is deprecated.",
+        "`updateTag` and `refresh` throw an error outside Server Actions. Webhooks in Route Handlers use `revalidateTag` instead.",
       ],
-      tip: "Frame it as a product question: \"Must this user see their own change right now?\" → `updateTag`. \"Is a few seconds of staleness fine?\" → `revalidateTag(tag, 'max')`.",
+      tip: "Treat it as a product question. If this user must see their own change right away, use `updateTag`. If a few seconds of old data is fine, use `revalidateTag(tag, 'max')`.",
     },
   ],
 
   questions: [
+    {
+      id: "next-b3-01",
+      domain: "d3",
+      lesson: "d3-b-fetch",
+      level: "beginner",
+      prompt: "What does `await` do in `const res = await fetch(url);`?",
+      options: ["Waits for the request to finish before moving to the next line", "Skips the request to save time", "Sends the request a second time", "Saves the data to a file"],
+      answer: [0],
+      explanation: "`fetch` takes a moment to get an answer back. `await` pauses the function until the answer arrives, so the next line can use it.",
+    },
+    {
+      id: "next-b3-02",
+      type: "fill",
+      domain: "d3",
+      lesson: "d3-b-fetch",
+      level: "beginner",
+      prompt: "Fill the gap so this Server Component can use `await`.",
+      code: `export default {{1}} function Page() {
+  const posts = await getPosts();
+  return <p>{posts.length} posts</p>;
+}`,
+      codeLang: "tsx",
+      blanks: [{ options: ["async", "await", "static", "server"], answer: 0 }],
+      explanation: "`await` only works inside a function marked `async`. Server Components are allowed to be `async`, which is how they wait for data before returning the page.",
+    },
+    {
+      id: "next-b3-03",
+      domain: "d3",
+      lesson: "d3-b-cache",
+      level: "beginner",
+      prompt: "What is caching?",
+      options: ["Saving a result so it can be reused instead of worked out again", "Deleting old pages from the site", "Sending the same email to every user", "Making images bigger"],
+      answer: [0],
+      explanation: "Caching keeps a copy of work you've already done. The next person who asks gets the saved copy straight away, like a cup from a pot of coffee that's already brewed.",
+    },
+    {
+      id: "next-b3-04",
+      domain: "d3",
+      lesson: "d3-b-cache",
+      level: "beginner",
+      prompt: "What does it mean when cached data is stale?",
+      options: ["It's out of date compared with the real data", "It loads faster than before", "It has been deleted", "It's been encrypted"],
+      answer: [0],
+      explanation: "Stale data is an old saved copy. If a post was edited after it was cached, visitors still see the old version until the cache is refreshed.",
+    },
     {
       id: "d3-01",
       level: "intermediate",
@@ -193,7 +291,7 @@ export async function getProducts(category: string) {
         "Swap the two `await` lines",
       ],
       answer: [0],
-      explanation: "Starting both requests before awaiting lets them run at the same time. Swapping the lines still awaits one before starting the other.",
+      explanation: "Starting both requests before you await either lets them run at the same time. Swapping the lines doesn't help, because it still waits for one before starting the other.",
     },
     {
       id: "d3-02",
@@ -255,7 +353,7 @@ export async function getProducts(category: string) {
         "The server finishes the slow query inside `<Revenue />`",
         "The rendered chunk streams in and replaces the fallback",
       ],
-      explanation: "Streaming sends ready UI first and fills Suspense holes as their data resolves, so a slow query never blocks the whole page.",
+      explanation: "Streaming sends the ready parts of the page first and fills each Suspense gap as its data arrives. A slow query never holds up the whole page.",
     },
     {
       id: "d3-06",
@@ -302,7 +400,7 @@ export default async function Layout({ children }: LayoutProps<"/dashboard">) {
         "Client-side React state between navigations",
       ],
       answer: [0],
-      explanation: "It works at data level (a function) or UI level (a component, layout, or page). Different inputs produce separate cache entries.",
+      explanation: "You can use it on data, in a function, or on UI, in a component, layout or page. Different inputs get their own separate saved copies.",
     },
     {
       id: "d3-09",
@@ -321,7 +419,7 @@ await getPrice("A1", "USD")`,
       codeLang: "ts",
       options: ["2", "1", "3", "0"],
       answer: [0],
-      explanation: "Arguments are part of the cache key. `(A1, USD)` and `(A1, EUR)` are two entries; the third call hits the first entry.",
+      explanation: "The arguments decide which saved copy you get. `(A1, USD)` and `(A1, EUR)` are two different entries, and the third call reuses the first one.",
     },
     {
       id: "d3-10",
@@ -366,7 +464,7 @@ async function Recommendations({ user }: { user?: string }) {
         "Move `cookies()` into `generateStaticParams`",
       ],
       answer: [0],
-      explanation: "Extract runtime values in an uncached component and pass them into the cached one. The argument joins the cache key, so each user gets their own entry.",
+      explanation: "Read request values in an uncached component and pass them into the cached one. The argument becomes part of the cache key, so each user gets their own saved copy.",
     },
     {
       id: "d3-12",
@@ -382,7 +480,7 @@ async function Recommendations({ user }: { user?: string }) {
         ["`\"days\"`", "Revalidate after 1 day, expire after 1 week"],
         ["`\"max\"`", "Revalidate after 30 days, expire after 1 year"],
       ],
-      explanation: "`revalidate` is when a request triggers a background refresh; `expire` is when, with no traffic, the next request must wait. Very short lifetimes like `\"seconds\"` are left out of prerenders.",
+      explanation: "`revalidate` is the point after which a request starts a background refresh. `expire` is the point after which, if nobody visited, the next request has to wait. Very short lifetimes like `\"seconds\"` are left out of prerenders.",
     },
     {
       id: "d3-13",
@@ -409,7 +507,7 @@ async function Recommendations({ user }: { user?: string }) {
         "Nothing: reading `cookies()` makes the whole route dynamic",
       ],
       answer: [0],
-      explanation: "That's Partial Prerendering. Reading `cookies()` inside a Suspense boundary no longer opts the whole route into dynamic rendering; only that hole streams.",
+      explanation: "That's Partial Prerendering. Reading `cookies()` inside a Suspense boundary no longer makes the whole route dynamic. Only that one gap streams in.",
     },
     {
       id: "d3-14",
@@ -428,7 +526,7 @@ export default function Page() {
 }`,
       codeLang: "tsx",
       answer: [3],
-      explanation: "Random values and timestamps must be handled explicitly. `await connection()` (from `next/server`) defers to request time; alternatively `\"use cache\"` would share one value across users.",
+      explanation: "Random values and timestamps need to be handled on purpose. `await connection()`, from `next/server`, waits until a real request arrives. The other option, `\"use cache\"`, would share one value across all users.",
     },
     {
       id: "d3-15",
@@ -490,7 +588,7 @@ export async function POST(request: Request) {
         "Tags are only allowed on `fetch`, not on cached functions",
       ],
       answer: [0],
-      explanation: "Next.js 16 uses `revalidateTag(tag, profile)`. Without a profile it behaves like an immediate expiry and is deprecated; use `updateTag` in Server Actions for that.",
+      explanation: "Next.js 16 uses `revalidateTag(tag, profile)`. Without a profile it acts like an immediate expiry, and that form is deprecated. Use `updateTag` in Server Actions when you want that.",
     },
     {
       id: "d3-19",
@@ -521,7 +619,7 @@ export async function POST(request: Request) {
         "That request kicks off a background regeneration",
         "Later visitors get the fresh content",
       ],
-      explanation: "Revalidation is triggered by requests, not by the call itself. With `'max'`, visitors never wait: they get stale content while fresh content is built.",
+      explanation: "The refresh is started by the next request, not by the call itself. With `'max'`, visitors never wait: they get the old content while the new content is built.",
     },
     {
       id: "d3-21",
@@ -588,7 +686,7 @@ export default nextConfig`,
         "Shorten its `cacheLife` to `\"seconds\"`",
       ],
       answer: [0],
-      explanation: "The default handler is in-memory per instance, which is ephemeral on serverless. `\"use cache: remote\"` uses a shared cache handler; the network round trip pays off for high-hit-rate data like this.",
+      explanation: "The default cache lives in each server's memory, which disappears often on serverless hosting. `\"use cache: remote\"` uses a shared cache instead. The extra network trip is worth it for data that's read this often.",
     },
     {
       id: "d3-25",
@@ -624,17 +722,17 @@ export default nextConfig`,
 
   cards: [
     { id: "c3-usecache", domain: "d3", kind: "service", term: "\"use cache\"", definition: "Caches an async function's or component's return value. Arguments and captured values form the cache key." },
-    { id: "c3-cachelife", domain: "d3", kind: "service", term: "cacheLife", definition: "Sets a cached scope's lifetime: a profile (`seconds`…`max`) or `{ stale, revalidate, expire }`." },
+    { id: "c3-cachelife", domain: "d3", kind: "service", term: "cacheLife", definition: "Sets how long cached code stays fresh, using a named profile from `seconds` up to `max`, or your own `{ stale, revalidate, expire }`." },
     { id: "c3-cachetag", domain: "d3", kind: "service", term: "cacheTag", definition: "Labels a cached entry so it can be invalidated on demand with `updateTag` or `revalidateTag`." },
-    { id: "c3-revalidatetag", domain: "d3", kind: "service", term: "revalidateTag", definition: "`revalidateTag(tag, 'max')`: marks tagged data stale (stale-while-revalidate). Works in Server Actions and Route Handlers." },
+    { id: "c3-revalidatetag", domain: "d3", kind: "service", term: "revalidateTag", definition: "`revalidateTag(tag, 'max')` marks tagged data as stale, so the next visitor gets the old copy while a fresh one is built. Works in Server Actions and Route Handlers." },
     { id: "c3-updatetag", domain: "d3", kind: "service", term: "updateTag", definition: "Expires tagged data immediately so the next read waits for fresh data. Server Actions only." },
     { id: "c3-revalidatepath", domain: "d3", kind: "service", term: "revalidatePath", definition: "Invalidates cached data for one route path when you don't know (or need) its tags." },
     { id: "c3-refresh", domain: "d3", kind: "service", term: "refresh", definition: "Re-renders the current route from a Server Action without revalidating tagged data." },
     { id: "c3-connection", domain: "d3", kind: "service", term: "connection()", definition: "From `next/server`. Await it to defer work (like random ids or timestamps) to request time." },
-    { id: "c3-suspense", domain: "d3", kind: "service", term: "<Suspense>", definition: "Shows a fallback while children wait for data; lets the rest of the page stream first." },
-    { id: "c3-reactcache", domain: "d3", kind: "service", term: "cache (React)", definition: "Memoizes a function per request, e.g. an ORM query shared by `generateMetadata` and the page." },
-    { id: "c3-ppr", domain: "d3", kind: "concept", term: "Static shell (PPR)", definition: "Prerendered static markup, cached output, and Suspense fallbacks; runtime holes stream in at request time." },
-    { id: "c3-cc", domain: "d3", kind: "concept", term: "Cache Components", definition: "`cacheComponents: true`: caching is opt-in with \"use cache\", and every route produces a static shell." },
+    { id: "c3-suspense", domain: "d3", kind: "service", term: "<Suspense>", definition: "Shows a fallback while its children wait for data, so the rest of the page can stream in first." },
+    { id: "c3-reactcache", domain: "d3", kind: "service", term: "cache (React)", definition: "Remembers a function's result for the length of one request. For example, one database query shared by `generateMetadata` and the page." },
+    { id: "c3-ppr", domain: "d3", kind: "concept", term: "Static shell (PPR)", definition: "The part of the page built ahead of time: plain markup, cached output and Suspense fallbacks. Per-request parts stream in when someone visits." },
+    { id: "c3-cc", domain: "d3", kind: "concept", term: "Cache Components", definition: "The `cacheComponents: true` setting. Nothing is cached unless you write \"use cache\", and every route gets a static shell." },
     { id: "c3-swr", domain: "d3", kind: "concept", term: "Stale-while-revalidate", definition: "Serve the cached value now and regenerate in the background, so no visitor waits." },
     { id: "c3-runtime", domain: "d3", kind: "concept", term: "Runtime APIs", definition: "`cookies()`, `headers()`, `searchParams`, and unknown `params`: request data that can't be prerendered." },
   ],
@@ -647,7 +745,7 @@ export default nextConfig`,
       title: "Read your own writes",
       goal: "Edit a post in the database, then make the very next page visit show the new version without anyone getting stale data.",
       hint: "One of the green or amber buttons expires the entry immediately. Use it after editing, then visit.",
-      takeaway: "`updateTag` in a Server Action expires the entry, so the next read blocks for fresh data: perfect when users must see their own change.",
+      takeaway: "`updateTag` in a Server Action expires the entry, so the next read waits for fresh data. That's what you want when users must see their own change.",
       render: (onSolved) => <CacheLab goal="readYourWrites" onSolved={onSolved} />,
     },
     {
@@ -657,7 +755,7 @@ export default nextConfig`,
       title: "Stale while revalidate",
       goal: "Edit a post, then get one visitor served the old version instantly while a background refresh runs, and the next visitor the new one.",
       hint: "Either let the revalidate time pass with the clock, or mark the tag stale with revalidateTag(\"posts\", \"max\"). Then visit twice.",
-      takeaway: "Time-based revalidation and `revalidateTag(tag, 'max')` never make a visitor wait: one request gets stale data and triggers the refresh.",
+      takeaway: "Time-based revalidation and `revalidateTag(tag, 'max')` never make a visitor wait. One request gets the old data and starts the refresh.",
       render: (onSolved) => <CacheLab goal="swr" onSolved={onSolved} />,
     },
   ],

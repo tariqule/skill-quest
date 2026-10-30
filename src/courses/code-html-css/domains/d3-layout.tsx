@@ -13,7 +13,7 @@ export default defineDomain({
     weight: 30,
     emoji: "📐",
     color: "#a78bfa",
-    summary: "Flexbox for rows and columns, grid for two-dimensional layouts, positioning and stacking, and pages that adapt from phone to desktop.",
+    summary: "Putting boxes where you want them: flexbox for rows, grid for rows and columns together, positioning and layering, and pages that work from phone to desktop.",
   },
 
   tasks: [
@@ -24,6 +24,68 @@ export default defineDomain({
   ],
 
   lessons: [
+    {
+      id: "d3-b-layout",
+      level: "beginner",
+      task: "3.1",
+      title: "What layout means",
+      check: ["web-b3-01", "web-b3-02"],
+      visual: (
+        <div className="grid gap-3">
+          <Tiles
+            tiles={[
+              { icon: "📚", title: "Normal flow", text: "Boxes stack one under another, like books in a pile.", color: "#94a3b8" },
+              { icon: "📖", title: "display: flex", text: "Boxes line up side by side, like books on a shelf.", color: "#38bdf8" },
+            ]}
+          />
+          <CodeBlock
+            lang="css"
+            caption="Put the menu's links in a row with a little space between them."
+            code={`.menu {
+  display: flex;
+  gap: 12px;
+}`}
+          />
+        </div>
+      ),
+      points: [
+        "**Layout** means deciding where each box goes on the page: side by side, stacked, or in a grid.",
+        "By default, most boxes stack one under another, like books in a pile. This is called **normal flow**.",
+        "`display: flex` on a parent lines its children up side by side, like books on a shelf. This is called **flexbox**.",
+        "`gap: 12px` adds space between the items, so they don't touch.",
+      ],
+      tip: "Layout properties go on the parent, the box that holds the items. Put `display: flex` on the menu, not on each link inside it.",
+    },
+    {
+      id: "d3-b-screens",
+      level: "beginner",
+      task: "3.4",
+      title: "Pages that fit any screen",
+      check: ["web-b3-03", "web-b3-04"],
+      visual: (
+        <CodeBlock
+          lang="css"
+          caption="One column on phones. Two columns once the screen is at least 700px wide."
+          code={`.cards {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 700px) {
+  .cards {
+    grid-template-columns: 1fr 1fr;
+  }
+}`}
+        />
+      ),
+      points: [
+        "People visit on phones, tablets and big monitors. **Responsive design** means one page that adapts to every screen size.",
+        "Think of water poured into different glasses. It takes the shape of whatever it's in, and a good layout does the same.",
+        "A **media query** applies CSS only when a condition is true. `@media (min-width: 700px)` applies when the screen is at least 700 pixels wide.",
+        "A common approach is to style for small screens first, then add more columns as the screen gets wider.",
+      ],
+      tip: "Add `<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">` to your page's `<head>`. Without it, phones pretend to be a wide desktop screen and shrink everything.",
+    },
     {
       id: "d3-flex",
       level: "junior",
@@ -43,12 +105,12 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "`display: flex` on a container lays its children out along one axis: a row by default, or a column with `flex-direction: column`.",
-        "`justify-content` distributes items along the main axis; `align-items` aligns them on the cross axis. Swap the direction and the axes swap too.",
-        "`gap` puts space between items only, never at the edges.",
-        "Items share leftover space by `flex-grow` and give up space by `flex-shrink`, starting from `flex-basis`.",
+        "`display: flex` on a container lines its children up in one direction: a row by default, or a column with `flex-direction: column`.",
+        "The **main axis** is the direction items flow. `justify-content` spreads items along it. `align-items` lines them up across it, on the **cross axis**. Switch to a column and the two swap.",
+        "`gap` puts space between items only, never around the outside edges.",
+        "Each item starts at its `flex-basis` size. Spare room is shared out by `flex-grow`, and when space is short, items give some up according to `flex-shrink`.",
       ],
-      tip: "Centering anything, finally: `display: flex; justify-content: center; align-items: center;` on the parent. (Or `display: grid; place-items: center;`.)",
+      tip: "To centre anything, put `display: flex; justify-content: center; align-items: center;` on the parent. `display: grid; place-items: center;` works too.",
     },
     {
       id: "d3-grid",
@@ -72,12 +134,12 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "Grid defines columns and rows on the parent; children drop into cells automatically, row by row.",
-        "`fr` is a share of the leftover space after fixed tracks and gaps: `200px 1fr 2fr` gives the last column twice the middle one.",
-        "`repeat(auto-fit, minmax(200px, 1fr))` fits as many columns of at least 200px as possible and stretches them to fill the row.",
-        "Place items by line numbers (`grid-column: 1 / 3`, `span 2`, `1 / -1`) or by named areas with `grid-template-areas`.",
+        "With **grid**, you set up columns and rows on the parent. The children drop into the cells on their own, filling one row before starting the next.",
+        "`fr` means a share of the space left after fixed columns and gaps. With `200px 1fr 2fr`, the last column gets twice as much as the middle one.",
+        "`repeat(auto-fit, minmax(200px, 1fr))` fits in as many columns of at least 200px as it can, then stretches them to fill the row.",
+        "You can place items by line number, like `grid-column: 1 / 3`, `span 2` or `1 / -1`. Or you can name areas with `grid-template-areas` and drop items into them.",
       ],
-      tip: "Flex or grid? If you're thinking in one direction (a toolbar, a row of tags), use flex. If you need things to line up in both rows and columns, use grid.",
+      tip: "Flex or grid? If you're thinking in one direction, like a toolbar or a row of tags, use flex. If things need to line up in both rows and columns, use grid.",
     },
     {
       id: "d3-position",
@@ -97,12 +159,12 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "`relative` nudges an element but keeps its space; `absolute` removes it from flow and places it against the nearest positioned ancestor.",
-        "`fixed` pins to the viewport; `sticky` scrolls normally until it reaches its `top` (or other) offset, then sticks within its scroll container.",
+        "`position: relative` nudges an element but keeps its space. `absolute` lifts it out of the normal flow and places it against the nearest **positioned** ancestor, meaning one whose position isn't `static`.",
+        "`fixed` pins an element to the browser window. `sticky` scrolls normally until it reaches its `top` (or other) offset, then sticks inside the box that scrolls it.",
         "Give the parent `position: relative` to make it the anchor for an absolutely positioned badge or close button.",
-        "A child's `z-index: 9999` can't escape its parent's stacking context; raise or restructure the parent instead.",
+        "`z-index` decides which boxes sit on top. A child's `z-index: 9999` can't escape its parent's **stacking context**, a group the browser layers as one. Raise the parent, or change the structure, instead.",
       ],
-      tip: "When sticky doesn't stick, look up the ancestors for `overflow: hidden`, `auto` or `scroll`. Any of them becomes the scroll container that sticky sticks to.",
+      tip: "When sticky won't stick, check the ancestors for `overflow: hidden`, `auto` or `scroll`. Any of those becomes the scroll container that sticky sticks to.",
     },
     {
       id: "d3-responsive",
@@ -126,16 +188,56 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "Add the viewport meta tag, or phones render a desktop-width page and zoom out.",
-        "Mobile-first: write base styles for small screens, then add `@media (min-width: …)` blocks in ascending order as space grows.",
-        "Fluid values like `clamp(1.5rem, 5vw, 3rem)` scale smoothly between a minimum and a maximum.",
-        "`srcset` and `sizes` let the browser download a right-sized image; `width` and `height` reserve space so content doesn't jump (layout shift).",
+        "Add the viewport meta tag. Without it, phones draw the page at desktop width and zoom out.",
+        "Work **mobile-first**. Write your base styles for small screens, then add `@media (min-width: …)` blocks, smallest first, as the screen gets wider.",
+        "Fluid values like `clamp(1.5rem, 5vw, 3rem)` grow smoothly with the screen but never go below the minimum or above the maximum.",
+        "`srcset` and `sizes` let the browser download an image of the right size. `width` and `height` save its space, so content doesn't jump when it loads. That jump is called **layout shift**.",
       ],
-      tip: "Don't pick breakpoints from device lists. Drag your browser narrower until the layout looks wrong, and put a breakpoint there.",
+      tip: "Don't pick breakpoints from lists of devices. Drag your browser narrower until the layout looks wrong, and put a breakpoint there.",
     },
   ],
 
   questions: [
+    {
+      id: "web-b3-01",
+      domain: "d3",
+      lesson: "d3-b-layout",
+      level: "beginner",
+      prompt: "What does `display: flex` do to an element's children?",
+      options: ["Lines them up side by side in a row", "Hides them", "Makes their text bigger", "Stacks them on top of each other in 3D"],
+      answer: [0],
+      explanation: "Flexbox puts a parent's children in a row by default, like books on a shelf. You can switch it to a column later if you need to.",
+    },
+    {
+      id: "web-b3-02",
+      domain: "d3",
+      lesson: "d3-b-layout",
+      level: "beginner",
+      prompt: "You want the links in a menu to sit in a row. Where does `display: flex` go?",
+      options: ["On the parent element that holds the links", "On each link", "On the `<html>` element"],
+      answer: [0],
+      explanation: "Flexbox is set on the container, and it arranges the container's children. So the menu gets `display: flex`, and its links line up inside it.",
+    },
+    {
+      id: "web-b3-03",
+      domain: "d3",
+      lesson: "d3-b-screens",
+      level: "beginner",
+      prompt: "What does `@media (min-width: 700px) { ... }` do?",
+      options: ["Applies the CSS inside only when the screen is at least 700px wide", "Makes the page exactly 700px wide", "Hides the page on screens wider than 700px", "Loads a video that's 700px wide"],
+      answer: [0],
+      explanation: "A media query is a condition. The rules inside the braces only count when it's true, here when the screen is 700 pixels wide or more.",
+    },
+    {
+      id: "web-b3-04",
+      domain: "d3",
+      lesson: "d3-b-screens",
+      level: "beginner",
+      prompt: "What is responsive design?",
+      options: ["Building one page that adapts to any screen size", "Making a page respond to voice commands", "Building a separate site for every phone model", "Making buttons react faster to clicks"],
+      answer: [0],
+      explanation: "Responsive design means a single page that rearranges itself to fit the screen, like water taking the shape of its glass. You don't build a new site for each device.",
+    },
     // ── d3-flex ──
     {
       id: "d3-01",
@@ -192,7 +294,7 @@ export default defineDomain({
       codeLang: "css",
       options: [".a 200px, .b 400px", ".a 300px, .b 300px", ".a 400px, .b 200px", ".a 0px, .b 600px"],
       answer: [0],
-      explanation: "`flex: 1` means grow 1, shrink 1, basis 0%. Both start at 0, so all 600px is free space, shared 1 : 2.",
+      explanation: "`flex: 1` means grow 1, shrink 1, basis 0%. Both items start at 0, so all 600px is free space, shared in the ratio 1 to 2.",
     },
     {
       id: "d3-05",
@@ -206,7 +308,7 @@ export default defineDomain({
       codeLang: "css",
       options: [".a 175px, .b 325px", ".a 125px, .b 375px", ".a 250px, .b 250px", ".a 100px, .b 400px"],
       answer: [0],
-      explanation: "Start from the bases: 100 + 100 = 200, leaving 300px free. It's shared by grow factors 1 : 3, so .a gets 75 (175px) and .b gets 225 (325px). The ratio applies to the free space, not the final widths.",
+      explanation: "Start from the bases: 100 plus 100 is 200, which leaves 300px free. That's shared in the ratio 1 to 3, so .a gets 75 more (175px) and .b gets 225 more (325px). The ratio applies to the free space, not the final widths.",
     },
     {
       id: "d3-06",
@@ -220,7 +322,7 @@ export default defineDomain({
       codeLang: "css",
       options: [".a 175px, .b 125px", ".a 150px, .b 150px", ".a 225px, .b 75px", ".a 200px, .b 100px"],
       answer: [0],
-      explanation: "They overflow by 100px. Shrinking is weighted by shrink × basis: 1 × 200 = 200 and 3 × 200 = 600, so .a gives up a quarter (25px → 175px) and .b three quarters (75px → 125px).",
+      explanation: "Together they're 100px too wide. Shrinking is weighted by shrink times basis: 1 times 200 for .a and 3 times 200 for .b, so 200 against 600. So .a gives up a quarter, 25px, ending at 175px, and .b gives up three quarters, 75px, ending at 125px.",
     },
     {
       id: "d3-07",
@@ -238,7 +340,7 @@ export default defineDomain({
 }`,
       codeLang: "css",
       answer: [6],
-      explanation: "`justify-content` is a container property. On the buttons it does nothing; move it into `.toolbar`, the flex container.",
+      explanation: "`justify-content` belongs on the flex container. On the buttons it does nothing, so move it to `.toolbar`.",
     },
     {
       id: "d3-08",
@@ -270,7 +372,7 @@ export default defineDomain({
       codeLang: "css",
       options: ["3", "2", "7", "1"],
       answer: [0],
-      explanation: "Three columns are defined; items fill them row by row (3 + 3 + 1), and the grid creates as many rows as needed automatically.",
+      explanation: "Three columns are defined, and the items fill them row by row: 3, then 3, then 1. The grid adds as many rows as it needs on its own.",
     },
     {
       id: "d3-10",
@@ -286,7 +388,7 @@ export default defineDomain({
       codeLang: "css",
       options: ["200px, 200px, 400px", "200px, 300px, 300px", "266px, 266px, 266px", "200px, 1px, 2px"],
       answer: [0],
-      explanation: "Fixed tracks come first: 800 − 200 = 600px left. That's split into 3 fractions (1 + 2), so 1fr = 200px and 2fr = 400px.",
+      explanation: "Fixed columns come first, so 800 minus 200 leaves 600px. That's split into 3 shares, 1 plus 2, so 1fr is 200px and 2fr is 400px.",
     },
     {
       id: "d3-11",
@@ -303,7 +405,7 @@ export default defineDomain({
       codeLang: "css",
       options: ["200px", "213px", "220px", "180px"],
       answer: [0],
-      explanation: "Three columns have two gaps between them: 640 − 2 × 20 = 600px, divided by 3 = 200px each.",
+      explanation: "Three columns have two gaps between them. Take 40px of gaps from 640 and you have 600px, which divided by 3 is 200px each.",
     },
     {
       id: "d3-12",
@@ -333,7 +435,7 @@ export default defineDomain({
       codeLang: "css",
       options: ["3 columns, each about 233px wide (2 rows)", "4 columns of 175px", "3 columns of 200px with 100px empty", "6 columns of about 117px"],
       answer: [0],
-      explanation: "The browser fits as many 200px minimums as possible: 700 / 200 = 3 (rounded down). Then each column's max of `1fr` stretches the three to share 700px: about 233.33px each. Six cards make two rows.",
+      explanation: "The browser fits in as many 200px columns as it can. 700 divided by 200 is 3, rounded down. Then each column's `1fr` maximum stretches the three to share all 700px, about 233.33px each. Six cards make two rows.",
     },
     {
       id: "d3-14",
@@ -382,7 +484,7 @@ export default defineDomain({
         ["`fixed`", "Placed against the viewport; stays put on scroll"],
         ["`sticky`", "Normal until a scroll threshold, then sticks"],
       ],
-      explanation: "Positioned means anything but static. That's why `position: relative` on a parent is the classic way to anchor absolutely positioned children.",
+      explanation: "\"Positioned\" means any position value except `static`. That's why `position: relative` on a parent is the classic way to anchor absolutely positioned children.",
     },
     {
       id: "d3-17",
@@ -453,7 +555,7 @@ export default defineDomain({
         "`.hero` comes later in the HTML, and later elements always paint on top",
       ],
       answer: [0],
-      explanation: "z-index only competes among siblings in the same stacking context. The menu's 9999 ranks it inside the toolbar; the toolbar itself (1) loses to the hero (2). Raise the toolbar above the hero, or render the menu outside it.",
+      explanation: "z-index only competes among elements in the same stacking context. The menu's 9999 only ranks it inside the toolbar, and the toolbar itself, at 1, loses to the hero at 2. Raise the toolbar above the hero, or render the menu outside it.",
     },
     {
       id: "d3-26",
@@ -503,7 +605,7 @@ export default defineDomain({
       codeLang: "css",
       options: ["2", "1", "3", "It depends on the device"],
       answer: [0],
-      explanation: "At 800px the first query matches (800 ≥ 640) and the second doesn't (800 < 1024), so the 2-column rule overrides the 1-column base.",
+      explanation: "At 800px the first query matches, because 800 is at least 640. The second doesn't, because 800 is less than 1024. So the 2-column rule overrides the 1-column base.",
     },
     {
       id: "d3-23",
@@ -526,7 +628,7 @@ export default defineDomain({
         "Only the first matching media query is ever applied",
       ],
       answer: [0],
-      explanation: "Media queries don't add specificity; they just switch rules on or off. Every matching block applies, and normal cascade order decides. With `min-width` queries, write them in ascending order.",
+      explanation: "Media queries don't add specificity. They just switch rules on or off. Every matching block applies, and normal cascade order decides. With `min-width` queries, write them from smallest to largest.",
     },
     {
       id: "d3-24",
@@ -538,7 +640,7 @@ export default defineDomain({
       codeLang: "css",
       options: ["24px and 48px", "20px and 60px", "24px and 60px", "20px and 48px"],
       answer: [0],
-      explanation: "5vw is 20px at 400px, below the 1.5rem (24px) minimum, so it's 24px. At 1200px, 5vw is 60px, above the 3rem (48px) maximum, so it's 48px.",
+      explanation: "At 400px wide, 5vw is 20px, which is below the 1.5rem (24px) minimum, so you get 24px. At 1200px, 5vw is 60px, above the 3rem (48px) maximum, so you get 48px.",
     },
     {
       id: "d3-25",
@@ -553,7 +655,7 @@ export default defineDomain({
         "Give every image `position: absolute`",
       ],
       answer: [0, 1],
-      explanation: "Layout shift happens when space isn't reserved. Intrinsic dimensions let the browser compute an aspect ratio up front, and placeholder boxes do the same for embeds. Lazy-loading the hero delays your main image (hurting load speed) without reserving space; absolute positioning breaks the layout.",
+      explanation: "Layout shift happens when space isn't saved in advance. Width and height attributes let the browser work out the shape up front, and placeholder boxes do the same for embeds. Lazy-loading the hero image delays your main image without saving space, and absolute positioning breaks the layout.",
     },
     {
       id: "d3-27",
@@ -568,7 +670,7 @@ export default defineDomain({
         "Detect the device on the server and send a different stylesheet to each",
       ],
       answer: [0],
-      explanation: "Devices change every year; content doesn't. Break where the layout actually breaks, keep the set small and shared, and let components adapt to their own space with container queries rather than the viewport.",
+      explanation: "Devices change every year, but your content doesn't. Add breakpoints where the layout actually breaks, keep the set small and shared, and let components adapt to their own space with container queries instead of the window size.",
     },
   ],
 
@@ -576,18 +678,18 @@ export default defineDomain({
     { id: "c-d3-flex", domain: "d3", kind: "service", term: "display: flex", definition: "Lays children out along one axis. Container controls direction, wrap, justify-content, align-items and gap." },
     { id: "c-d3-justify", domain: "d3", kind: "service", term: "justify-content", definition: "Distributes items along the main axis: flex-start, center, space-between, space-around, space-evenly." },
     { id: "c-d3-align", domain: "d3", kind: "service", term: "align-items", definition: "Aligns items on the cross axis: stretch (default), flex-start, center, flex-end, baseline." },
-    { id: "c-d3-flexshort", domain: "d3", kind: "service", term: "flex", definition: "Item shorthand for grow, shrink, basis. `flex: 1` = `1 1 0%`; the initial value is `0 1 auto`." },
+    { id: "c-d3-flexshort", domain: "d3", kind: "service", term: "flex", definition: "A shorthand on items for grow, shrink and basis. `flex: 1` means `1 1 0%`, and the starting value is `0 1 auto`." },
     { id: "c-d3-gap", domain: "d3", kind: "service", term: "gap", definition: "Space between flex items or grid tracks, never at the outer edges." },
     { id: "c-d3-grid", domain: "d3", kind: "service", term: "grid-template-columns", definition: "Defines a grid's columns: `200px 1fr`, `repeat(3, 1fr)`, `repeat(auto-fit, minmax(200px, 1fr))`." },
     { id: "c-d3-fr", domain: "d3", kind: "service", term: "fr", definition: "A fraction of the free space left in a grid after fixed tracks and gaps." },
-    { id: "c-d3-minmax", domain: "d3", kind: "service", term: "minmax()", definition: "A grid track size with a floor and a ceiling, e.g. `minmax(200px, 1fr)`." },
+    { id: "c-d3-minmax", domain: "d3", kind: "service", term: "minmax()", definition: "A column or row size with a lower and upper limit, for example `minmax(200px, 1fr)`." },
     { id: "c-d3-areas", domain: "d3", kind: "service", term: "grid-template-areas", definition: "Draws the layout as strings of names. Each name must form a rectangle." },
-    { id: "c-d3-sticky", domain: "d3", kind: "service", term: "position: sticky", definition: "Scrolls normally, then sticks at its offset (e.g. `top: 0`) within its nearest scroll container." },
-    { id: "c-d3-stacking", domain: "d3", kind: "concept", term: "Stacking context", definition: "A group painted as one layer. z-index only competes inside it. Created by positioned + z-index, opacity < 1, transform, isolation." },
+    { id: "c-d3-sticky", domain: "d3", kind: "service", term: "position: sticky", definition: "Scrolls normally, then sticks at its offset, for example `top: 0`, inside its nearest scroll container." },
+    { id: "c-d3-stacking", domain: "d3", kind: "concept", term: "Stacking context", definition: "A group the browser paints as one layer, and z-index only competes inside it. Created by a positioned element with a z-index, opacity below 1, a transform, or isolation." },
     { id: "c-d3-mobilefirst", domain: "d3", kind: "concept", term: "Mobile-first", definition: "Base CSS for small screens, then `@media (min-width: …)` blocks that add complexity as space grows." },
     { id: "c-d3-clamp", domain: "d3", kind: "service", term: "clamp()", definition: "`clamp(min, preferred, max)`: a fluid value that never goes below min or above max." },
     { id: "c-d3-srcset", domain: "d3", kind: "service", term: "srcset / sizes", definition: "Offer several image files with their widths and how wide the image displays; the browser picks the best one." },
-    { id: "c-d3-cls", domain: "d3", kind: "concept", term: "Layout shift", definition: "Content jumping as late resources load. Prevent it by reserving space: width/height attributes, aspect-ratio, min-height." },
+    { id: "c-d3-cls", domain: "d3", kind: "concept", term: "Layout shift", definition: "Content jumping around as images and other late files load. Prevent it by saving space with width and height attributes, aspect-ratio or min-height." },
   ],
 
   challenges: [
@@ -597,7 +699,7 @@ export default defineDomain({
       lesson: "d3-flex",
       title: "Dead centre",
       goal: "With display: flex, put the group of boxes in the exact middle of the container, horizontally and vertically.",
-      hint: "One property per axis.",
+      hint: "You need one property for each direction.",
       takeaway: "`justify-content: center` handles the main axis and `align-items: center` the cross axis. Together they centre anything.",
       render: (onSolved) => <FlexGridLab goal="center" onSolved={onSolved} />,
     },
@@ -608,7 +710,7 @@ export default defineDomain({
       title: "Edges and baseline",
       goal: "In a flex row, push the first and last boxes to the edges with equal space between all boxes, and line every box up along the bottom.",
       hint: "Look for a justify-content value with \"between\" in it, and an align-items value for the end of the cross axis.",
-      takeaway: "`space-between` puts the free space only between items; `align-items: flex-end` aligns them to the bottom of a row.",
+      takeaway: "`space-between` puts the free space only between items. `align-items: flex-end` lines them up along the bottom of a row.",
       render: (onSolved) => <FlexGridLab goal="between" onSolved={onSolved} />,
     },
     {
@@ -617,8 +719,8 @@ export default defineDomain({
       lesson: "d3-grid",
       title: "A neat 3 × 2 grid",
       goal: "Switch to grid and lay out exactly 6 boxes in three equal columns with a gap of at least 12px (no spanning).",
-      hint: "You need display: grid, a three-equal-columns template, 6 boxes and a bigger gap.",
-      takeaway: "`grid-template-columns: repeat(3, 1fr)` plus `gap` gives equal columns; the rows appear on their own.",
+      hint: "You need display: grid, a template with three equal columns, 6 boxes and a bigger gap.",
+      takeaway: "`grid-template-columns: repeat(3, 1fr)` plus `gap` gives you equal columns, and the rows appear on their own.",
       render: (onSolved) => <FlexGridLab goal="grid3" onSolved={onSolved} />,
     },
   ],

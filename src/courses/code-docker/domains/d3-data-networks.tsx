@@ -36,6 +36,63 @@ export default defineDomain({
 
   lessons: [
     {
+      id: "d3-start-data",
+      level: "beginner",
+      task: "3.1",
+      title: "Where a container keeps its files",
+      check: ["dkr-b3-01", "dkr-b3-02"],
+      visual: (
+        <div className="grid gap-4">
+          <Tiles
+            cols={2}
+            tiles={[
+              { icon: "🛏️", title: "Inside the container", text: "Like a hotel room. Leave something there and it's cleared away when you check out (delete the container).", color: "#fb7185" },
+              { icon: "🧳", title: "In a volume", text: "Like a locker you rent. It stays put, and the next container can open it and find everything still there.", color: "#34d399" },
+            ]}
+          />
+          <CodeBlock
+            lang="bash"
+            code={snip(
+              "docker run -it -v notes:/data alpine sh   # a volume called notes, shown at /data",
+              "# inside: echo hi > /data/todo.txt, then exit",
+              "docker run --rm -v notes:/data alpine cat /data/todo.txt   # a new container still sees: hi",
+            )}
+          />
+        </div>
+      ),
+      points: [
+        "A container can create and change files while it runs. But those files belong to that one container, and they're deleted when you delete it.",
+        "That's fine for a web server, but terrible for a database. You'd lose every saved record the first time you replaced the container.",
+        "A **volume** is storage that Docker keeps outside any container. You attach it with `-v name:/path`, and the files under that path go into the volume.",
+        "Delete the container, start a new one with the same `-v`, and your files are still there.",
+      ],
+      tip: "A good habit: if you'd be upset to lose it, keep it in a volume.",
+    },
+    {
+      id: "d3-start-ports",
+      level: "beginner",
+      task: "3.2",
+      title: "Opening a door with a port",
+      check: ["dkr-b3-03", "dkr-b3-04"],
+      visual: (
+        <Flow
+          color="#f472b6"
+          steps={[
+            { icon: "🌍", label: "Your browser", sub: "opens localhost:8080" },
+            { icon: "🚪", label: "-p 8080:80", sub: "your computer's door 8080 leads to the container's door 80" },
+            { icon: "🐳", label: "nginx container", sub: "listening on port 80" },
+          ]}
+        />
+      ),
+      points: [
+        "A **port** is a numbered door that a program listens on. Web servers usually use port 80, and many dev servers use 3000 or 8080.",
+        "A container is like a room with the doors shut. Programs inside can listen on a port, but nothing outside can reach them yet.",
+        "`-p 8080:80` opens a door. Traffic to port 8080 on your computer goes to port 80 inside the container. Your computer's number comes first.",
+        "So after `docker run -d -p 8080:80 nginx`, you open `http://localhost:8080` in your browser to see the nginx welcome page.",
+      ],
+      tip: "If port 8080 is already taken on your computer, pick another number for the first half, like `-p 8081:80`. The container's side stays the same.",
+    },
+    {
       id: "d3-storage",
       level: "intermediate",
       task: "3.1",
@@ -65,9 +122,9 @@ export default defineDomain({
       ),
       points: [
         "A container's writable layer dies with the container. Anything you need to keep goes in a volume or bind mount.",
-        "Named volumes are created and managed by Docker; bind mounts map a specific host path into the container.",
+        "Docker creates and manages **named volumes** for you. A **bind mount** instead maps a specific folder on the host into the container.",
         "`-v /some/path` with no name creates an anonymous volume: a new, empty one for every new container.",
-        "An empty named volume is pre-filled with the image's files at that path; a bind mount hides them.",
+        "An empty named volume is pre-filled with the image's files at that path. A bind mount hides them instead.",
       ],
       tip: "Name every volume that holds real data. `docker volume ls` full of random hashes is how databases get lost during cleanup.",
     },
@@ -79,9 +136,9 @@ export default defineDomain({
       check: ["d3-08", "d3-09"],
       visual: <PortLab />,
       points: [
-        "`-p 8080:3000` means host port 8080 forwards to container port 3000: always HOST:CONTAINER.",
+        "`-p 8080:3000` forwards port 8080 on the host (your computer) to port 3000 in the container. The order is always host first, then container.",
         "Published ports listen on all host interfaces by default. `-p 127.0.0.1:8080:3000` keeps it on this machine only.",
-        "Inside a container, `localhost` is the container itself. Your app must listen on `0.0.0.0` to accept traffic from outside it.",
+        "Inside a container, `localhost` is the container itself. Your app must listen on `0.0.0.0`, meaning every network interface, to accept traffic from outside it.",
         "Containers on the same user-defined network reach each other directly on container ports. Publishing is only for traffic from outside Docker.",
       ],
       tip: "\"Works in the container, not from my browser\" is almost always one of two things: a missing `-p`, or an app listening on 127.0.0.1.",
@@ -115,7 +172,7 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "User-defined bridge networks have built-in DNS: containers find each other by name.",
+        "Networks you create yourself (user-defined bridge networks) have built-in DNS, the name lookup service. Containers on them find each other by name.",
         "The default `bridge` network doesn't resolve container names, which is why you create your own network (Compose does it for you).",
         "Talk to other containers on their container port (`api:3000`), not on a published host port.",
         "To reach a service running on the host itself, Docker Desktop provides the name `host.docker.internal`.",
@@ -160,13 +217,82 @@ export default defineDomain({
         "Compose describes a whole app (services, networks, volumes) in one file. `docker compose up -d` builds and starts it all.",
         "Compose puts every service on a shared project network, so services reach each other by service name.",
         "`depends_on` alone only orders start-up. Add a healthcheck and `condition: service_healthy` to wait for readiness.",
-        "`docker compose down` removes containers and the network but keeps named volumes; `down -v` deletes those too.",
+        "`docker compose down` removes the containers and the network but keeps named volumes. `down -v` deletes the volumes too.",
       ],
       tip: "Commit `compose.yaml` to the repo. A new teammate going from `git clone` to a running stack with one command is the best onboarding there is.",
     },
   ],
 
   questions: [
+    {
+      id: "dkr-b3-01",
+      domain: "d3",
+      level: "beginner",
+      lesson: "d3-start-data",
+      prompt: "You save a file inside a container (not in a volume), then delete the container with `docker rm`. What happens to the file?",
+      options: [
+        "It's deleted along with the container",
+        "It's moved to your desktop",
+        "It's saved into the image for next time",
+        "It's uploaded to Docker Hub",
+      ],
+      answer: [0],
+      explanation: "Files written inside a container live only in that container. Delete the container and they go with it, which is why anything worth keeping belongs in a volume.",
+    },
+    {
+      id: "dkr-b3-02",
+      domain: "d3",
+      level: "beginner",
+      lesson: "d3-start-data",
+      type: "fill",
+      prompt: "Fill the gap to attach a volume called `notes` at `/data`, so files saved there outlive the container.",
+      code: "docker run -it {{1}} notes:/data alpine sh",
+      codeLang: "bash",
+      blanks: [{ options: ["-v", "-p", "-e", "-d"], answer: 0 }],
+      explanation: "`-v name:/path` attaches a volume. `-p` publishes a port, `-e` sets an environment variable, and `-d` runs the container in the background.",
+    },
+    {
+      id: "dkr-b3-03",
+      domain: "d3",
+      level: "beginner",
+      lesson: "d3-start-ports",
+      prompt: "What does `-p 8080:80` do in `docker run -d -p 8080:80 nginx`?",
+      options: [
+        "Connects port 8080 on your computer to port 80 inside the container",
+        "Limits the container to 80 percent of the CPU",
+        "Starts 8080 copies of nginx",
+        "Downloads version 8080 of nginx",
+      ],
+      answer: [0],
+      explanation: "`-p` publishes a port. The first number is the door on your computer, and the second is the door inside the container, so `localhost:8080` reaches nginx on port 80.",
+    },
+    {
+      id: "dkr-b3-04",
+      domain: "d3",
+      level: "beginner",
+      lesson: "d3-start-ports",
+      type: "fill",
+      prompt: "nginx listens on port 80 inside the container. Fill the gap so you can open it at `http://localhost:8080`.",
+      code: "docker run -d -p {{1}}:80 nginx",
+      codeLang: "bash",
+      blanks: [{ options: ["8080", "80", "443", "3000"], answer: 0 }],
+      explanation: "Your computer's port goes first and the container's port second. You want to visit 8080 on your computer, so the mapping is `8080:80`.",
+    },
+    {
+      id: "dkr-b3-05",
+      domain: "d3",
+      level: "beginner",
+      lesson: "d3-start-ports",
+      prompt: "You start a web server container with no `-p` option at all. Can you open it in your browser at `localhost`?",
+      options: [
+        "No: a container's ports are closed to your computer until you publish one with `-p`",
+        "Yes: Docker opens every port automatically",
+        "Yes, but only after you restart Docker",
+        "Only if the browser is Chrome",
+      ],
+      answer: [0],
+      explanation: "The server is running and listening, but only inside the container. Publishing a port with `-p` is what connects it to `localhost` on your computer.",
+    },
     {
       id: "d3-01",
       domain: "d3",
@@ -211,7 +337,7 @@ export default defineDomain({
         ["Bind mount (`-v \"$(pwd)\":/app`)", "Live-editing source code from the host during development"],
         ["tmpfs (`--tmpfs /tmp`)", "Scratch files kept in memory and never written to disk"],
       ],
-      explanation: "Volumes for data, bind mounts for sharing host files, tmpfs for throwaway or sensitive temporary files.",
+      explanation: "Use volumes for data, bind mounts for sharing files from the host, and tmpfs for throwaway or sensitive temporary files.",
     },
     {
       id: "d3-04",
@@ -226,7 +352,7 @@ export default defineDomain({
         "Bind mounts are stored inside the image",
       ],
       answer: [0],
-      explanation: "Bind mounts depend on the host's directory layout; volumes are portable and managed with `docker volume` commands.",
+      explanation: "Bind mounts depend on how folders are laid out on that host. Volumes are portable, and you manage them with `docker volume` commands.",
     },
     {
       id: "d3-05",
@@ -493,7 +619,7 @@ export default defineDomain({
       lesson: "d3-storage",
       prompt: "How should you back up a Postgres database that runs in a container with a named volume?",
       options: [
-        "Use the database's own tooling (e.g. `pg_dump` via `docker exec`, or a managed backup job) and store backups off the host",
+        "Use the database's own tooling (for example `pg_dump` via `docker exec`, or a managed backup job) and store backups off the host",
         "Commit the running container to an image",
         "`docker export` the container",
         "Copy the volume's folder while the database is writing",
@@ -504,18 +630,18 @@ export default defineDomain({
   ],
 
   cards: [
-    { id: "c3-volume", domain: "d3", kind: "service", term: "docker volume", definition: "Create, list and remove Docker-managed volumes that outlive containers." },
-    { id: "c3-network", domain: "d3", kind: "service", term: "docker network", definition: "Create and manage networks; user-defined bridges give containers DNS by name." },
-    { id: "c3-publish", domain: "d3", kind: "service", term: "-p HOST:CONTAINER", definition: "Publish a container port on the host. Add an IP prefix (127.0.0.1:) to limit who can reach it." },
-    { id: "c3-compose-up", domain: "d3", kind: "service", term: "docker compose up", definition: "Build (if needed) and start every service in compose.yaml; -d runs in the background." },
-    { id: "c3-compose-down", domain: "d3", kind: "service", term: "docker compose down", definition: "Stop and remove the project's containers and networks; -v also removes its volumes." },
-    { id: "c3-host-internal", domain: "d3", kind: "service", term: "host.docker.internal", definition: "Hostname that reaches the Docker host from inside a container (Docker Desktop; add-host on Linux)." },
-    { id: "c3-depends-on", domain: "d3", kind: "service", term: "depends_on", definition: "Compose start order; with condition: service_healthy it waits for a passing healthcheck." },
-    { id: "c3-named-volume", domain: "d3", kind: "concept", term: "Named volume", definition: "Docker-managed storage referenced by name; survives container removal." },
-    { id: "c3-bind", domain: "d3", kind: "concept", term: "Bind mount", definition: "A host directory mapped into a container; hides the image's content at that path." },
-    { id: "c3-anon", domain: "d3", kind: "concept", term: "Anonymous volume", definition: "A volume with a random name (from -v /path or VOLUME); each new container gets a new one." },
-    { id: "c3-localhost", domain: "d3", kind: "concept", term: "localhost in a container", definition: "The container's own loopback, not the host. Apps must listen on 0.0.0.0 to be reachable." },
-    { id: "c3-dns", domain: "d3", kind: "concept", term: "Container DNS", definition: "On user-defined networks (and in Compose), containers resolve each other by name or service name." },
+    { id: "c3-volume", domain: "d3", kind: "service", term: "docker volume", definition: "Creates, lists and removes Docker-managed volumes, which outlive containers." },
+    { id: "c3-network", domain: "d3", kind: "service", term: "docker network", definition: "Creates and manages networks. On user-defined bridge networks, containers find each other by name." },
+    { id: "c3-publish", domain: "d3", kind: "service", term: "-p HOST:CONTAINER", definition: "Publishes a container port on the host. An IP prefix such as 127.0.0.1: limits who can reach it." },
+    { id: "c3-compose-up", domain: "d3", kind: "service", term: "docker compose up", definition: "Builds images if needed and starts every service in compose.yaml. -d runs them in the background." },
+    { id: "c3-compose-down", domain: "d3", kind: "service", term: "docker compose down", definition: "Stops and removes the project's containers and networks. -v also removes its volumes." },
+    { id: "c3-host-internal", domain: "d3", kind: "service", term: "host.docker.internal", definition: "A hostname that reaches the Docker host from inside a container. Docker Desktop provides it, and on Linux you add it with --add-host." },
+    { id: "c3-depends-on", domain: "d3", kind: "service", term: "depends_on", definition: "Sets Compose start order. With condition: service_healthy, it waits for a passing healthcheck." },
+    { id: "c3-named-volume", domain: "d3", kind: "concept", term: "Named volume", definition: "Docker-managed storage you refer to by name. It survives when the container is removed." },
+    { id: "c3-bind", domain: "d3", kind: "concept", term: "Bind mount", definition: "A host folder mapped into a container. It hides whatever the image had at that path." },
+    { id: "c3-anon", domain: "d3", kind: "concept", term: "Anonymous volume", definition: "A volume with a random name, made by -v /path or VOLUME. Each new container gets a new one." },
+    { id: "c3-localhost", domain: "d3", kind: "concept", term: "localhost in a container", definition: "The container's own loopback, not the host. Apps must listen on 0.0.0.0 to be reachable from outside." },
+    { id: "c3-dns", domain: "d3", kind: "concept", term: "Container DNS", definition: "On user-defined networks and in Compose, containers find each other by container name or service name." },
   ],
 
   challenges: [
@@ -526,7 +652,7 @@ export default defineDomain({
       title: "Reach it from your browser",
       goal: "Make curl http://localhost:8080 on your laptop return 200 OK.",
       hint: "Two things must be right: the -p mapping direction and the address the app listens on.",
-      takeaway: "-p is HOST:CONTAINER, and the app must listen on 0.0.0.0 inside the container for forwarded traffic to reach it.",
+      takeaway: "-p takes the host port first, then the container port. The app must also listen on 0.0.0.0 inside the container for forwarded traffic to reach it.",
       render: (onSolved) => <PortLab goal="publish" onSolved={onSolved} />,
     },
     {
@@ -536,7 +662,7 @@ export default defineDomain({
       title: "Laptop yes, Wi-Fi no",
       goal: "Make the app reachable from your laptop but NOT from a phone on the same Wi-Fi.",
       hint: "Published ports listen on every host interface by default. You can choose the host IP too.",
-      takeaway: "-p 127.0.0.1:8080:3000 publishes on the host's loopback only: ideal for local dev databases and admin tools.",
+      takeaway: "-p 127.0.0.1:8080:3000 publishes on the host's loopback only. That's ideal for local dev databases and admin tools.",
       render: (onSolved) => <PortLab goal="private" onSolved={onSolved} />,
     },
     {

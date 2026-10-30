@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
-import { LEVELS, type LevelChoice } from "@/engine/levels";
+import { LEVELS, type LevelChoice, type LevelInfo } from "@/engine/levels";
 
 /** Deterministic pseudo-random so server and client render the same rain. */
 function rand(seed: number) {
@@ -70,11 +70,24 @@ export function Typewriter({ lines, speed = 22 }: { lines: string[]; speed?: num
   );
 }
 
+const CODE_LEVELS = LEVELS.filter((l) => l.id !== "exam");
+
 /** Arcade-style difficulty select. `counts` shows how many questions each level has; "mixed" highlights none. */
-export function LevelPicker({ value, onChange, counts }: { value: LevelChoice | "mixed"; onChange: (l: LevelChoice) => void; counts: Record<LevelChoice, number> }) {
+export function LevelPicker({
+  value,
+  onChange,
+  counts,
+  options = CODE_LEVELS,
+}: {
+  value: LevelChoice | "mixed";
+  onChange: (l: LevelChoice) => void;
+  counts?: Partial<Record<LevelChoice, number>>;
+  options?: LevelInfo[];
+}) {
+  const cols = options.length <= 3 ? "sm:grid-cols-3" : "sm:grid-cols-3 lg:grid-cols-6";
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-      {LEVELS.map((l) => {
+    <div className={`grid grid-cols-2 gap-3 ${cols}`}>
+      {options.map((l) => {
         const on = value === l.id;
         return (
           <button
@@ -93,9 +106,11 @@ export function LevelPicker({ value, onChange, counts }: { value: LevelChoice | 
             <div className="text-2xl">{l.icon}</div>
             <div className="mt-1 font-mono text-sm font-black uppercase tracking-wider text-white">{l.name}</div>
             <div className="mt-0.5 text-[11px] leading-snug text-slate-400">{l.blurb}</div>
-            <div className="mt-2 font-mono text-[11px]" style={{ color: l.color }}>
-              {counts[l.id]} questions
-            </div>
+            {counts?.[l.id] !== undefined && (
+              <div className="mt-2 font-mono text-[11px]" style={{ color: l.color }}>
+                {counts[l.id]} questions
+              </div>
+            )}
           </button>
         );
       })}

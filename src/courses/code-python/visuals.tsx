@@ -99,8 +99,8 @@ export function SliceRuler() {
         <div className="text-emerald-300">&apos;{result}&apos;</div>
       </div>
       <p className="mt-2 text-xs text-slate-400">
-        Top row: positive indexes. Bottom row: negative indexes. The stop index is never included, and out-of-range bounds are clipped instead of
-        raising.
+        The top row shows positive indexes and the bottom row shows negative ones. The stop index is never included, and bounds past the end are
+        trimmed instead of raising an error.
       </p>
     </div>
   );
@@ -218,10 +218,10 @@ export function ComplexityExplorer() {
 // ───────────── LEGB rings ─────────────
 
 const SCOPES = [
-  { key: "B", name: "Built-in", color: "#94a3b8", text: "Names Python ships with: len, print, range, ValueError. Searched last." },
-  { key: "G", name: "Global", color: "#a78bfa", text: "Names at the top level of the module. Rebinding one inside a function needs `global`." },
-  { key: "E", name: "Enclosing", color: "#f59e0b", text: "Locals of any outer function. Closures read them; rebinding one needs `nonlocal`." },
-  { key: "L", name: "Local", color: "#34d399", text: "Names assigned inside the current function. Searched first. Any assignment makes a name local for the whole function." },
+  { key: "B", name: "Built-in", color: "#94a3b8", text: "Names that come with Python, like len, print, range and ValueError. Searched last." },
+  { key: "G", name: "Global", color: "#a78bfa", text: "Names at the top level of the file. Pointing one at something new from inside a function needs `global`." },
+  { key: "E", name: "Enclosing", color: "#f59e0b", text: "Local names of any function wrapped around this one. Closures can read them, and reassigning one needs `nonlocal`." },
+  { key: "L", name: "Local", color: "#34d399", text: "Names assigned inside the current function. Searched first. Assigning a name anywhere in the function makes it local for the whole function." },
 ];
 
 export function LegbRings() {
@@ -333,7 +333,7 @@ const TRY_LINES = ["try:", "    risky()", "except ValueError:", "    handle()", 
 const PATHS: { id: string; label: string; lines: number[]; result: string }[] = [
   { id: "ok", label: "risky() succeeds", lines: [1, 2, 5, 6, 7, 8, 9], result: "else runs only when the try block finished without an exception." },
   { id: "value", label: "raises ValueError", lines: [1, 2, 3, 4, 7, 8, 9], result: "The matching except handles it, else is skipped, finally still runs." },
-  { id: "key", label: "raises KeyError", lines: [1, 2, 7, 8], result: "No handler matches: finally runs, then the KeyError propagates and after() never runs." },
+  { id: "key", label: "raises KeyError", lines: [1, 2, 7, 8], result: "No handler matches, so finally runs, then the KeyError carries on up and after() never runs." },
 ];
 
 export function ExceptionPaths() {

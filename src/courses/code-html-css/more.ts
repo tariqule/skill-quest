@@ -20,7 +20,7 @@ export const moreQuestions: Question[] = [
       { options: ["href", "src", "link", "url"], answer: 0 },
     ],
     explanation:
-      "`<img>` is the void element for images and takes `src` and `alt`. A link's destination goes in the `href` attribute of `<a>`; `src` is for resources that are loaded into the page, such as images and scripts.",
+      "`<img>` is the void element for images, and it takes `src` and `alt`. A link's destination goes in the `href` attribute of `<a>`. `src` is for files loaded into the page, such as images and scripts.",
   },
   {
     id: "web-fx-02",
@@ -138,7 +138,7 @@ export const moreQuestions: Question[] = [
     codeLang: "css",
     answers: ["200", "200px"],
     explanation:
-      "The three flex bases add up to 300px, leaving 200px of free space. It is shared by flex-grow: 1 + 1 + 2 = 4 shares of 50px each. `.c` gets two shares: 100 + 100 = 200px, while `.a` and `.b` end at 150px each.",
+      "The three flex bases add up to 300px, which leaves 200px free. flex-grow splits it into 4 shares, 1 plus 1 plus 2, of 50px each. `.c` gets two shares, so it ends at 200px, while `.a` and `.b` end at 150px each.",
   },
   {
     id: "web-ox-04",
@@ -152,7 +152,7 @@ export const moreQuestions: Question[] = [
     codeLang: "css",
     answers: ["315", "315px"],
     explanation:
-      "Fixed space first: 100px for column one plus two 20px gaps leaves 560 - 100 - 40 = 420px. The `fr` units split that remainder in a 1:3 ratio, so 1fr is 105px and 3fr is 315px. Gaps are subtracted before the fractions are divided, not shared out.",
+      "Fixed space comes first. Take 100px for column one and two 20px gaps away from 560px, and 420px is left. The `fr` units split that in a 1 to 3 ratio, so 1fr is 105px and 3fr is 315px. Gaps come off before the fractions are shared out.",
   },
   {
     id: "web-ox-05",

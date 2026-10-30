@@ -3,7 +3,7 @@
 import { createContext, useContext, type ReactNode } from "react";
 import { getCourse } from "@/courses";
 import { indexCourse, type CourseIndex } from "./indexes";
-import { hasLevels, questionsForLevel } from "./levels";
+import { effectiveLevel, questionsForLevel } from "./levels";
 import { getCourseStore, type CourseStore } from "./store";
 import type { Course } from "./types";
 
@@ -48,7 +48,7 @@ export function useCourse(): CourseContextValue {
 export function useLevelPool() {
   const { course } = useCourse();
   const p = useProgress();
-  const level = hasLevels(course) ? p.level : "all";
+  const level = effectiveLevel(course, p.level);
   return { level, pool: questionsForLevel(course, level) };
 }
 

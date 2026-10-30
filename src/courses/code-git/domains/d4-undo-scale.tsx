@@ -1,4 +1,4 @@
-import { CodeBlock, Tiles } from "@/components/learn/blocks";
+import { CodeBlock, Flow, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { sh } from "../snippet";
 import { ResetModes } from "../visuals";
@@ -13,7 +13,7 @@ export default defineDomain({
     weight: 30,
     emoji: "⏳",
     color: "#f59e0b",
-    summary: "restore, reset and revert; the reflog safety net; stash, cherry-pick and bisect; branching strategies, protected branches, signed commits and huge repositories.",
+    summary: "Undoing safely with restore, reset and revert, rescuing lost commits with the reflog, handy tools like stash, cherry-pick and bisect, and running Git well across a big team or a huge repository.",
   },
 
   tasks: [
@@ -36,6 +36,52 @@ export default defineDomain({
 
   lessons: [
     {
+      id: "d4-start-undo",
+      level: "beginner",
+      task: "4.1",
+      title: "Undoing mistakes is normal",
+      check: ["git-b4-01", "git-b4-02"],
+      visual: (
+        <Tiles
+          cols={2}
+          tiles={[
+            { icon: "🧽", title: "Not committed yet", text: "Throw away a file's edits with `git restore <file>`. Like closing a document without saving.", color: "#38bdf8" },
+            { icon: "✍️", title: "Already committed and shared", text: "Add a correcting commit with `git revert <commit>`. Like writing a correction in a notebook kept in pen.", color: "#34d399" },
+          ]}
+        />
+      ),
+      points: [
+        "Everyone makes mistakes in Git. The good news is that almost anything you've committed can be undone or recovered.",
+        "If you've edited a file and want it back as it was at the last commit, run `git restore <file>`. It's like closing a document without saving.",
+        "That edit is gone for good once you restore, because it was never committed. Check with `git diff` first if you're unsure.",
+        "If a bad commit is already shared, use `git revert <commit>`. It adds a new commit that cancels the old one, like a correction written in a pen notebook.",
+      ],
+      tip: "Commit often. A commit is a save point you can always get back to. Unsaved, uncommitted edits are the only thing that's easy to lose.",
+    },
+    {
+      id: "d4-start-stash",
+      level: "beginner",
+      task: "4.2",
+      title: "Putting work aside with stash",
+      check: ["git-b4-03", "git-b4-06"],
+      visual: (
+        <Flow
+          color="#f59e0b"
+          steps={[
+            { icon: "🗂️", label: "git stash", sub: "Put half-done work in a drawer" },
+            { icon: "🚑", label: "Do the urgent thing", sub: "Switch branches, fix, commit" },
+            { icon: "📤", label: "git stash pop", sub: "Take the work back out" },
+          ]}
+        />
+      ),
+      points: [
+        "Picture clearing your desk for an urgent visitor. You sweep your papers into a drawer, deal with the visitor, then take the papers back out.",
+        "`git stash` is that drawer. It saves your uncommitted changes and leaves your files as they were at the last commit.",
+        "When you're ready to continue, `git stash pop` puts the changes back and removes them from the drawer.",
+      ],
+      tip: "A stash is for a short break, not long-term storage. If the work will sit for days, commit it on its own branch instead.",
+    },
+    {
       id: "d4-undo",
       level: "intermediate",
       task: "4.1",
@@ -47,7 +93,7 @@ export default defineDomain({
           <Tiles
             cols={3}
             tiles={[
-              { icon: "📄", title: "git restore", text: "Files. Discard edits (`git restore f`), unstage (`--staged`), or fetch an old version (`--source=HEAD~2 f`).", color: "#38bdf8" },
+              { icon: "📄", title: "git restore", text: "Works on files. Discard edits (`git restore f`), unstage (`--staged`), or bring back an old version (`--source=HEAD~2 f`).", color: "#38bdf8" },
               { icon: "⏪", title: "git reset", text: "Moves your branch back. Rewrites history, so keep it for commits you haven't pushed.", color: "#f59e0b" },
               { icon: "↩️", title: "git revert", text: "Adds a NEW commit that undoes an old one. Safe on shared branches: nothing is rewritten.", color: "#34d399" },
             ]}
@@ -55,8 +101,8 @@ export default defineDomain({
         </div>
       ),
       points: [
-        "Undo a file → `git restore`. Undo local commits → `git reset`. Undo a pushed commit → `git revert`.",
-        "`reset --soft` keeps the changes staged, `--mixed` (default) keeps them unstaged, `--hard` throws them away.",
+        "To undo changes to a file, use `git restore`. To undo commits you haven't pushed, use `git reset`. To undo a commit you've already pushed, use `git revert`.",
+        "`reset --soft` keeps the undone changes staged. `--mixed`, the default, keeps them as unstaged edits. `--hard` throws them away.",
         "`--hard` is the dangerous one: uncommitted work it overwrites is not recoverable.",
         "Amending or resetting a commit you already pushed means your next push must be forced, so avoid it on shared branches.",
       ],
@@ -84,10 +130,10 @@ export default defineDomain({
         />
       ),
       points: [
-        "The reflog records every commit HEAD (and each branch) has pointed at: commits, resets, rebases, switches.",
+        "The **reflog** is a diary of every commit HEAD, and each branch, has pointed at. Commits, resets, rebases and switches all leave an entry.",
         "\"Lost\" commits after a bad reset, rebase or branch deletion can be found there and restored with `reset` or `branch`.",
-        "It's local to your clone, never pushed, and entries expire (the defaults keep them for weeks to months).",
-        "It can't save what was never committed: uncommitted edits and untracked files deleted by `reset --hard` or `git clean`.",
+        "It lives only in your clone and is never pushed. Old entries expire, though the defaults keep them for weeks to months.",
+        "It can't save what was never committed. Uncommitted edits and untracked files wiped by `reset --hard` or `git clean` are gone.",
       ],
       tip: "Panicking after a rebase gone wrong? Stop, run `git reflog`, find the line from just before you started, and `git reset --hard` to it.",
     },
@@ -119,9 +165,9 @@ export default defineDomain({
       ),
       points: [
         "`git stash` saves tracked changes and cleans your working tree. Untracked files stay unless you add `-u`.",
-        "`pop` re-applies and drops the stash (it keeps it if there's a conflict); `apply` re-applies and keeps it.",
+        "`pop` puts the changes back and deletes the stash, unless there's a conflict, when it keeps it. `apply` puts them back and always keeps the stash.",
         "`git cherry-pick <commit>` re-applies one commit's changes on the current branch as a new commit.",
-        "`git bisect` binary-searches history for the first bad commit: about log₂(n) tests, so ~10 for 1,000 commits.",
+        "`git bisect` finds the first bad commit by halving the range each time, like guessing a number with \"higher or lower\". About 10 tests cover 1,000 commits.",
       ],
       tip: "Give stashes names (`git stash push -m \"half-done filter\"`). A stash list of ten \"WIP on main\" entries is where work goes to die.",
     },
@@ -148,13 +194,85 @@ export default defineDomain({
         "Pick a branching strategy from how you release: continuous deployment favours trunk-based; versioned releases may need release branches.",
         "Protect main: required reviews and status checks, no force pushes, no deletion.",
         "Commit signatures make authorship verifiable; the platform can then require them on protected branches.",
-        "Scale tools trade completeness for speed: shallow clones drop history, partial clones defer file contents, sparse checkout limits the working tree.",
+        "Tools for huge repositories trade completeness for speed. Shallow clones skip old history, partial clones fetch file contents later, and sparse checkout limits which folders you get.",
       ],
       tip: "When a team proposes a new workflow, ask how a hotfix reaches production at 2 a.m. under it. That question exposes most branching-strategy problems.",
     },
   ],
 
   questions: [
+    {
+      id: "git-b4-01",
+      domain: "d4",
+      level: "beginner",
+      lesson: "d4-start-undo",
+      prompt: "You've edited `menu.txt` but haven't committed. You want the file back exactly as it was at your last commit. Which command?",
+      options: ["`git restore menu.txt`", "`git commit menu.txt`", "`git push menu.txt`", "`git log menu.txt`"],
+      answer: [0],
+      explanation: "`git restore` puts the file back to the last saved version and throws your edits away. `git log` only shows history, and `commit` and `push` would save and share the edits instead.",
+    },
+    {
+      id: "git-b4-02",
+      domain: "d4",
+      level: "beginner",
+      lesson: "d4-start-undo",
+      prompt: "A commit with a mistake is already on the shared `main` branch. What does `git revert` do about it?",
+      options: [
+        "Adds a new commit that cancels out the bad one, so nobody's history is rewritten",
+        "Deletes the bad commit from everyone's computer",
+        "Moves the bad commit to a hidden branch",
+        "Renames the bad commit",
+      ],
+      answer: [0],
+      explanation: "Revert is like writing a correction in a notebook kept in pen. The old commit stays in history, and a new commit undoes its changes. Teammates just pull the fix as normal.",
+    },
+    {
+      id: "git-b4-03",
+      type: "fill",
+      domain: "d4",
+      level: "beginner",
+      lesson: "d4-start-stash",
+      prompt: "You stashed your half-done work to fix a bug. Fill the gap to bring the work back and remove it from the stash list.",
+      code: "git stash\n# ...fix the bug and commit...\ngit stash {{1}}",
+      codeLang: "bash",
+      blanks: [{ options: ["pop", "push", "drop", "clear"], answer: 0 }],
+      explanation: "`git stash pop` takes your changes out of the drawer and puts them back in your files. `drop` and `clear` would delete stashes without applying them, and `push` saves a new stash.",
+    },
+    {
+      id: "git-b4-04",
+      type: "output",
+      domain: "d4",
+      level: "beginner",
+      lesson: "d4-start-undo",
+      prompt: "Type what the last command prints.",
+      code: "git init -q\necho \"Hello\" > note.txt\ngit add note.txt\ngit commit -qm \"Add note\"\necho \"Oops\" > note.txt\ngit restore note.txt\ncat note.txt",
+      codeLang: "bash",
+      answers: ["Hello"],
+      explanation: "`git restore` copied the committed version back over your edit, so the file says `Hello` again. The `Oops` edit was never committed, so it's gone.",
+    },
+    {
+      id: "git-b4-05",
+      type: "output",
+      domain: "d4",
+      level: "beginner",
+      lesson: "d4-start-undo",
+      prompt: "Type the three lines `git log --format=%s` prints after the revert, newest first.",
+      code:
+        "git init -q\necho a > a.txt && git add a.txt && git commit -qm \"Start\"\necho b > b.txt && git add b.txt && git commit -qm \"Add banner\"\ngit revert --no-edit HEAD\ngit log --format=%s",
+      codeLang: "bash",
+      answers: ["Revert \"Add banner\"\nAdd banner\nStart"],
+      explanation: "Revert didn't remove `Add banner` from history. It added a new commit on top, named after the one it undoes, which takes `b.txt` away again.",
+    },
+    {
+      id: "git-b4-06",
+      domain: "d4",
+      level: "beginner",
+      lesson: "d4-start-stash",
+      prompt: "You're halfway through a change and need to switch to something urgent. Which command puts your unfinished work aside?",
+      options: ["`git stash`", "`git init`", "`git clone`", "`git tag`"],
+      answer: [0],
+      explanation: "`git stash` saves your uncommitted changes and gives you clean files to work with. When you're done with the urgent job, `git stash pop` brings your work back.",
+    },
     {
       id: "d4-01",
       domain: "d4",
@@ -211,7 +329,7 @@ export default defineDomain({
         "`?? f.txt`",
       ],
       answer: [0],
-      explanation: "`--soft` only moves the branch, so the index still holds the commit's content: it prints `M  f.txt`. Commit again to redo it, e.g. with a better message.",
+      explanation: "`--soft` only moves the branch, so the index still holds the commit's content and it prints `M  f.txt`. Commit again to redo it, for example with a better message.",
     },
     {
       id: "d4-05",
@@ -338,7 +456,7 @@ export default defineDomain({
       prompt: "A bug appeared somewhere in the last 1,000 commits. Roughly how many commits does `git bisect` make you test?",
       options: ["About 10", "About 100", "About 500", "All 1,000"],
       answer: [0],
-      explanation: "Each test halves the range: 1,000 → 500 → 250 → … → 1 takes about log₂(1000) ≈ 10 steps.",
+      explanation: "Each test halves the range: 1,000 commits become 500, then 250, and so on down to 1. That takes about log₂(1000), roughly 10 steps.",
     },
     {
       id: "d4-15",
@@ -371,7 +489,7 @@ export default defineDomain({
         "It compares file sizes between commits",
       ],
       answer: [0],
-      explanation: "Any script that exits 0 when the bug is absent works. Exit 125 is for commits that can't be tested (e.g. they don't build).",
+      explanation: "Any script works if it exits 0 when the bug is absent. Exit 125 is for commits that can't be tested, for example ones that don't build.",
     },
     {
       id: "d4-17",
@@ -456,7 +574,7 @@ export default defineDomain({
         "Unsigned commits can't be pushed",
       ],
       answer: [0],
-      explanation: "Git authorship is just text. GPG, SSH or S/MIME signatures, verified by the platform, stop impersonation and support supply-chain requirements.",
+      explanation: "In Git, the author is just text anyone can type. A GPG, SSH or S/MIME signature, checked by the platform, stops impersonation and meets supply-chain rules.",
     },
     {
       id: "d4-23",
