@@ -340,7 +340,7 @@ export default defineDomain({
       prompt: "What's the main difference between AI and ordinary software?",
       options: [
         "AI learns patterns from examples instead of only following rules a person wrote",
-        "AI always runs faster than ordinary software",
+        "AI always runs faster than ordinary software, because it skips all of the slow steps",
         "AI only works on phones",
         "AI never makes mistakes",
       ],
@@ -367,7 +367,7 @@ export default defineDomain({
       prompt: "In generative AI, what is a prompt?",
       options: [
         "The question or instruction you send to the model",
-        "The bill you get at the end of the month",
+        "The bill you get at the end of each month",
         "A picture the model creates",
         "A password that protects the model",
       ],
@@ -384,7 +384,7 @@ export default defineDomain({
       options: [
         "A small chunk of text, about a short word or part of a word",
         "A whole page of text",
-        "A coin you buy to use AI",
+        "A coin you buy so that you can use an AI app for one question",
         "A type of computer chip",
       ],
       answer: [0],
@@ -401,7 +401,7 @@ export default defineDomain({
         "It learns from examples, and those examples can contain unfair patterns",
         "Computers dislike certain people",
         "AI is always programmed to be unfair",
-        "It only happens when the internet is slow",
+        "It only happens when the internet is slow and the model can't finish its work",
       ],
       answer: [0],
       explanation:
@@ -413,7 +413,7 @@ export default defineDomain({
       lesson: "d1-b-trust",
       level: "beginner",
       prompt: "A website adds a note saying \"Answers on this page are written by AI.\" Which idea does this show?",
-      options: ["Being open that AI is involved", "Making the AI run faster", "Saving money on tokens", "Training a new model"],
+      options: ["Being open that AI is involved", "Making the AI run a lot faster", "Saving money on tokens", "Training a new model"],
       answer: [0],
       explanation:
         "Telling people when AI is involved lets them decide how much to trust what they read. Microsoft calls this transparency.",
@@ -426,7 +426,7 @@ export default defineDomain({
       prompt: "In AI, what is a model?",
       options: [
         "The trained part that takes new input and gives an answer",
-        "A person who poses for photos used in training",
+        "A person who poses for the photos used in training",
         "A drawing of how the app looks",
         "The screen where users type",
       ],
@@ -442,7 +442,7 @@ export default defineDomain({
       prompt: "You ask a chat model the same question twice and the wording of the answers is different. What does this mean?",
       options: [
         "This is normal, because the model picks from likely words each time",
-        "The model is broken and needs replacing",
+        "The model is broken and needs to be replaced with a new one before you continue",
         "Someone changed your question",
         "The model forgot everything it learned",
       ],
@@ -459,7 +459,7 @@ export default defineDomain({
       options: [
         "AI can be wrong, so waiting for high confidence avoids risky mistakes",
         "It makes the robot look more human",
-        "It means the robot never needs electricity",
+        "It means the robot never needs to be checked, charged, or repaired by a person",
         "It lets the robot skip training",
       ],
       answer: [0],
@@ -496,7 +496,7 @@ export default defineDomain({
       lesson: "d1-rai",
       prompt:
         "A secure-entry system takes face photos to grant temporary access. It deletes each photo once access is granted, and operators can't view them. Which principle is this?",
-      options: ["Privacy and security", "Inclusiveness", "Fairness", "Accountability"],
+      options: ["Privacy and security", "Inclusiveness", "Fairness", "Accountability and transparency"],
       answer: [0],
       explanation:
         "The system keeps personal data only as long as it needs it and limits who can see it. That protects privacy and security.",
@@ -586,7 +586,7 @@ export default defineDomain({
       options: [
         "It should be considered from the solution's conception through design, implementation, and operation",
         "It only needs attention after a model is deployed to production",
-        "Turning on content filters is enough to make any solution responsible",
+        "Turning on content filters is enough to make any AI solution responsible from the first day it goes live",
         "It applies to generative AI but not to vision or speech solutions",
       ],
       answer: [0],
@@ -619,7 +619,7 @@ export default defineDomain({
         "A word, part of a word, or punctuation mark with a unique integer ID",
         "A password that authenticates calls to the model",
         "A complete sentence from the training data",
-        "A label that marks a training example as correct",
+        "A label that marks a training example as correct or incorrect before the model learns from it",
       ],
       answer: [0],
       explanation:
@@ -634,7 +634,7 @@ export default defineDomain({
         "Vectors that encode a token's meaning, so tokens used in similar contexts point in similar directions",
         "Images embedded in a prompt",
         "The integer IDs assigned to tokens",
-        "Hidden system prompts the provider adds to every request",
+        "Hidden system prompts that the provider adds to every request to control the model's tone and its length",
       ],
       answer: [0],
       explanation:
@@ -658,7 +658,7 @@ export default defineDomain({
       options: [
         "Gives more weight to \"heard\" and \"dog\" because they influence the meaning of \"bark\" most",
         "Removes \"I\" and \"a\" from the vocabulary",
-        "Translates \"bark\" into another language",
+        "Translates \"bark\" into another language so the model can compare it with similar words first",
         "Assigns \"bark\" a new random integer ID",
       ],
       answer: [0],
@@ -721,7 +721,7 @@ export default defineDomain({
         "Text generation is probabilistic, so the model can sample different tokens each time",
         "The deployment was deleted and recreated between calls",
         "The model is retrained after every request",
-        "The endpoint routes each request to a different language",
+        "The endpoint routes each request to a different language model in another Azure region",
       ],
       answer: [0],
       explanation:
@@ -745,7 +745,7 @@ export default defineDomain({
       domain: "d1",
       lesson: "d1-choose",
       prompt: "Before picking a model, your team wants to rank the candidates on quality, safety, and speed using standard test sets. Which Foundry feature helps most?",
-      options: ["Model leaderboards and benchmark results", "Tokens-per-minute quotas", "The Azure Language MCP server", "Batch transcription"],
+      options: ["Model leaderboards and benchmark results", "Tokens-per-minute quotas", "The Azure Language MCP server tools", "Batch transcription"],
       answer: [0],
       explanation:
         "Leaderboards and benchmarks score every model the same way, so the comparison is fair. Once you have a shortlist, try those models with your own data.",
@@ -755,7 +755,7 @@ export default defineDomain({
       domain: "d1",
       lesson: "d1-choose",
       prompt: "A search feature must turn product descriptions into vectors so that items can be matched by meaning. Which type of model should you deploy?",
-      options: ["An embedding model such as text-embedding-3-small", "An image-generation model", "A video-generation model", "A speech synthesis voice"],
+      options: ["An embedding model such as text-embedding-3-small", "An image-generation model that draws each product", "A video-generation model", "A speech synthesis voice"],
       answer: [0],
       explanation:
         "Embedding models are built to turn text into vectors that capture meaning. That lets \"warm winter jacket\" match \"insulated coat\" even though the words differ.",
@@ -765,7 +765,7 @@ export default defineDomain({
       domain: "d1",
       lesson: "d1-choose",
       prompt: "An insurance app lets customers upload a photo of their damaged car and ask questions about it. Which kind of model fits best?",
-      options: ["A multimodal (vision-enabled) model", "An embedding model", "A small text-only model", "A speech-to-text model"],
+      options: ["A multimodal (vision-enabled) model", "An embedding model", "A small text-only language model (SLM)", "A speech-to-text model"],
       answer: [0],
       explanation:
         "Multimodal means the model accepts more than one kind of input. A vision-enabled model takes the photo and the question together and answers in plain language.",
@@ -803,7 +803,7 @@ export default defineDomain({
       prompt: "What do safety evaluators in Microsoft Foundry do?",
       options: [
         "Scan and score outputs for harms such as violence, self-harm, or bias, without fixing them",
-        "Automatically rewrite unsafe responses into safe ones",
+        "Automatically rewrite unsafe responses into safe ones before the user ever gets to see them",
         "Retrain the model to remove unsafe behaviour",
         "Encrypt prompts before they reach the model",
       ],
@@ -848,7 +848,7 @@ export default defineDomain({
       domain: "d1",
       lesson: "d1-deploy",
       prompt: "A call-center assistant handles a steady, high volume of requests and needs consistently fast replies. Which kind of deployment is most suitable?",
-      options: ["A provisioned deployment with reserved provisioned throughput units (PTUs)", "A Developer deployment", "A batch deployment", "No deployment: call the model from the playground"],
+      options: ["A provisioned deployment with reserved provisioned throughput units (PTUs)", "A Developer deployment", "A batch deployment", "No deployment: call the model directly from the Foundry playground whenever a request arrives"],
       answer: [0],
       explanation:
         "A provisioned deployment reserves capacity just for you, like booking a private lane. You get predictable throughput and response times that vary less than on standard types.",
@@ -971,7 +971,7 @@ export default defineDomain({
       domain: "d1",
       lesson: "d1-workloads",
       prompt: "A finance team needs the merchant, date, and amount pulled out of scanned expense receipts and stored as data. Which workload is this?",
-      options: ["Information extraction", "Generative AI", "Speech recognition", "Sentiment analysis"],
+      options: ["Information extraction", "Generative AI", "Speech recognition", "Sentiment analysis API"],
       answer: [0],
       explanation:
         "Turning messy content like receipts into neat, searchable fields is information extraction.",
@@ -1026,7 +1026,7 @@ export default defineDomain({
       lesson: "d1-text",
       prompt:
         "You need to find the person, organization, location, and date in: \"On 2 May, Priya Patel visited Lisbon for a Fabrikam conference.\" Which technique should you use?",
-      options: ["Named entity recognition", "Sentiment analysis", "Summarization", "Language detection"],
+      options: ["Named entity recognition", "Sentiment analysis", "Summarization", "Language detection API"],
       answer: [0],
       explanation:
         "An entity is a named thing, like a person or a place. Named entity recognition finds them and gives each a type such as Person, Organization, Location, or DateTime, sometimes with a subtype.",
@@ -1046,7 +1046,7 @@ export default defineDomain({
       domain: "d1",
       lesson: "d1-text",
       prompt: "A brand team wants each sentence of a long review labeled positive, negative, or neutral, plus an overall rating. Which technique does this?",
-      options: ["Sentiment analysis and opinion mining", "Entity linking", "Language detection", "Optical character recognition"],
+      options: ["Sentiment analysis and opinion mining", "Entity linking", "Language detection", "Optical character recognition (OCR)"],
       answer: [0],
       explanation: "Sentiment analysis labels the mood of text. It can score the whole document or each sentence on its own.",
     },
@@ -1067,7 +1067,7 @@ export default defineDomain({
       prompt: "What does Azure Language's language detection return for a piece of text?",
       options: [
         "The primary language, its ISO 639-1 code, and a confidence score",
-        "A translation of the text into English",
+        "A translation of the text into English, with a quality score for the translation",
         "A spoken audio version of the text",
         "A list of the key phrases in the text",
       ],
@@ -1082,7 +1082,7 @@ export default defineDomain({
       prompt: "A clinic must find names, phone numbers, addresses, and health details in notes and blank them out before sharing. Which capability fits?",
       options: [
         "Personally identifiable information (PII) detection",
-        "Key phrase extraction",
+        "Key phrase extraction with a custom stop-word list added",
         "Entity linking",
         "Image classification",
       ],
@@ -1166,7 +1166,7 @@ export default defineDomain({
         "A label for each object and the coordinates of its bounding box",
         "One label for the whole image",
         "A spoken description of the image",
-        "A new image generated from the input",
+        "A new image generated from the input with each of the items removed",
       ],
       answer: [0],
       explanation:
@@ -1212,7 +1212,7 @@ export default defineDomain({
       options: [
         "It creates a new image that matches a text description",
         "It assigns one label to an existing image",
-        "It reads printed text from a scanned page",
+        "It reads printed text from a scanned page or photo",
         "It draws bounding boxes around faces",
       ],
       answer: [0],
