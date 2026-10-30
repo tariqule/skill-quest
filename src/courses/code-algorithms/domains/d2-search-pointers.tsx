@@ -131,6 +131,8 @@ export default defineDomain({
         "Binary search needs a **monotonic** test: one that answers false, false, then true, true, and never flips back. You're hunting for the boundary.",
         "To count copies of x in a sorted integer array, use `lowerBound(x + 1) - lowerBound(x)`.",
         "Searching on the answer turns \"find the minimum speed\" or \"find the maximum distance\" into O(log range) checks, each costing whatever your test costs.",
+        "**Binary search on the answer**: when a yes/no check `canDo(x)` flips from false to true exactly once as x grows, binary search over the possible answers instead of over an array.",
+        "Each probe runs the check once, which matters when the check is expensive, like a load test measuring p99 **tail latency**.",
       ],
       tip: "When a problem asks for the smallest or largest value that meets a condition, ask: if x works, does x + 1 also work?",
     },

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { COURSES } from "@/courses";
 import { qualityReport, teachBeforeTestWarnings, type ConceptList } from "./quality";
 import { CONCEPTS as DS } from "@/courses/code-data-structures/concepts";
+import { CONCEPTS as ALGO } from "@/courses/code-algorithms/concepts";
 import type { Course } from "./types";
 
 /**
@@ -9,7 +10,7 @@ import type { Course } from "./types";
  * AIF-C01 is held strictly in validate.test.ts and its own teach-before-test test.
  * Add a course's concept list here as it gets one (Phase 2), then make it strict.
  */
-const CONCEPT_LISTS: Record<string, ConceptList> = { "code-data-structures": DS };
+const CONCEPT_LISTS: Record<string, ConceptList> = { "code-data-structures": DS, "code-algorithms": ALGO };
 
 describe("quality report (warnings only)", () => {
   it("prints longest-option and teach-before-test counts per course", () => {
