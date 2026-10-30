@@ -6,9 +6,10 @@ import { useState } from "react";
 import { ScenarioPlay } from "@/components/scenarios/ScenarioPlay";
 import { PageShell } from "@/components/ui";
 import { useCourse } from "@/engine/course-context";
-import { gradeFor, SCENARIO_GAME_BY_ID, type ScenarioGameId, type ScenarioItem } from "@/engine/scenarios";
+import { gameText, gradeFor, SCENARIO_GAME_BY_ID, type ScenarioGameId, type ScenarioItem } from "@/engine/scenarios";
 import { itemKey } from "@/engine/srs";
 import { getSrs, gradeItem } from "@/engine/srs-store";
+import { completeScenario } from "@/engine/scenario-progress";
 import { scenariosFor } from "@/scenarios";
 
 /** Unplayed items first, then the ones due soonest. */
@@ -20,12 +21,13 @@ function order(courseId: string, items: ScenarioItem[]) {
 
 export function ScenarioGame() {
   const { game } = useParams<{ game: string }>();
-  const { course, href } = useCourse();
+  const { course, href, store } = useCourse();
   const info = SCENARIO_GAME_BY_ID[game as ScenarioGameId];
   const all = info ? scenariosFor(course.id, info.id) : [];
   const [queue, setQueue] = useState<ScenarioItem[] | null>(null);
   const [i, setI] = useState(0);
   const [scores, setScores] = useState<number[]>([]);
+  const [xp, setXp] = useState(0);
   if (!info) notFound();
   if (!all.length) {
     return (
@@ -39,7 +41,7 @@ export function ScenarioGame() {
   }
   const q = queue ?? [];
   return (
-    <PageShell title={`${info.icon} ${info.name}`} subtitle={info.rule}>
+    <PageShell title={`${info.icon} ${info.name}`} subtitle={gameText(info.id, all).rule}>
       {!queue ? (
         <div>
           <p className="text-base text-slate-300">{all.length} items. Unplayed ones come first.</p>
@@ -59,6 +61,8 @@ export function ScenarioGame() {
             doneLabel={i + 1 < q.length ? "Next scenario" : "Finish"}
             onDone={(share) => {
               gradeItem(itemKey(course.id, "sc", q[i].id), gradeFor(share));
+              const gained = completeScenario(store, course.config.xp.scenarioComplete, course.id, q[i].id, share);
+              setXp((n) => n + gained);
               setScores((s) => [...s, share]);
               setI((n) => n + 1);
               window.scrollTo({ top: 0 });
@@ -68,7 +72,7 @@ export function ScenarioGame() {
       ) : (
         <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-6 text-center" aria-live="polite">
           <p className="text-2xl font-black text-white">Round done 🎉</p>
-          <p className="mt-2 text-base text-slate-300">Average score {Math.round((scores.reduce((a, b) => a + b, 0) / Math.max(1, scores.length)) * 100)}%. These items are now scheduled in Daily Review.</p>
+          <p className="mt-2 text-base text-slate-300">Average score {Math.round((scores.reduce((a, b) => a + b, 0) / Math.max(1, scores.length)) * 100)}%, +{xp} XP. These items are now scheduled in Daily Review.</p>
           <Link href={href("/scenarios")} className="mt-4 inline-block rounded-2xl bg-sky-400 px-5 py-2.5 font-black text-slate-950">
             Back to scenario games
           </Link>

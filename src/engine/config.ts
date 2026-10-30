@@ -12,6 +12,7 @@ export const DEFAULT_CONFIG: GameConfig = {
     timedCorrect: 6,
     studyCorrect: 8,
     challengeSolved: 15,
+    scenarioComplete: 20,
     codingSolved: 40,
     studyMinute: 2,
     flashcardKnown: 3,

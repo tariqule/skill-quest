@@ -412,6 +412,8 @@ export interface GameConfig {
     timedCorrect: number;
     studyCorrect: number;
     challengeSolved: number;
+    /** Scenario games: XP for finishing one item at 100%, scaled by the score. */
+    scenarioComplete: number;
     /** Live coding: XP for a first solve, before hint penalties. */
     codingSolved: number;
     /** Awarded per full minute of study time. */

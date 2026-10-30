@@ -1,4 +1,4 @@
-import { chainPaths, STAR_PRIMER, type ScenarioItem } from "./scenarios";
+import { CHOICE_SPECIFIC, chainParents, chainPaths, STAR_PRIMER, type ScenarioItem } from "./scenarios";
 import { LONGEST_OPTION_RATIO } from "./validate";
 
 /**
@@ -61,6 +61,20 @@ export function validateScenarios(courseId: string, items: ScenarioItem[], lesso
         const best = s.choices.find((c) => c.best);
         const longestWrong = Math.max(0, ...s.choices.filter((c) => !c.best).map((c) => c.text.length));
         if (best && longestWrong && best.text.length > longestWrong * LONGEST_OPTION_RATIO) err(x, `step "${id}": best choice is the giveaway longest (${best.text.length} vs ${longestWrong})`);
+      }
+      // Narrative consistency: a step reached from one weak choice must name it; a step reached from several must be choice-neutral.
+      const parents = chainParents(x);
+      for (const [id, s] of Object.entries(x.steps)) {
+        const ps = parents[id] ?? [];
+        const texts = new Set(ps.map((p) => p.choice.text));
+        if (s.consequenceOf !== undefined) {
+          if (texts.size !== 1 || !texts.has(s.consequenceOf)) err(x, `consequence step "${id}" must have exactly one parent choice ("${s.consequenceOf}")`);
+          if (!s.situation.includes(`“${s.consequenceOf}”`)) err(x, `consequence step "${id}" must name its parent choice`);
+          if (CHOICE_SPECIFIC.test(s.situation.replace(/^You went with “[^”]*”\.\s*/, ""))) err(x, `consequence step "${id}" body assumes a specific pick`);
+        } else {
+          if (ps.some((p) => !p.choice.best) && texts.size === 1) err(x, `step "${id}" follows one weak choice but isn't marked as its consequence`);
+          if (CHOICE_SPECIFIC.test(s.situation)) err(x, `rejoin step "${id}" assumes a specific earlier pick: "${s.situation}"`);
+        }
       }
       const paths = chainPaths(x);
       const reached = new Set(paths.flat());

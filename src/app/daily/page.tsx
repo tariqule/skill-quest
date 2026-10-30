@@ -10,6 +10,7 @@ import { usePlan } from "@/engine/plan-store";
 import { reviewNote, type ReviewGrade } from "@/engine/srs";
 import { getSrs, gradeItem } from "@/engine/srs-store";
 import { buildQueue } from "@/engine/daily-queue";
+import { completeScenario } from "@/engine/scenario-progress";
 import { getCourseStore } from "@/engine/store";
 import { GameItem } from "@/components/code-games/GameItem";
 import { isChoice, type Card, type ChoiceQuestion, type Course } from "@/engine/types";
@@ -88,7 +89,10 @@ function Session() {
         <div className="h-full rounded-full bg-emerald-400 transition-all" style={{ width: `${(i / queue.length) * 100}%` }} />
       </div>
       {item.kind === "card" ? <CardItem key={item.key} card={item.card} onGrade={next} /> : item.kind === "sc" ? (
-          <ScenarioPlay key={item.key} courseId={item.course.id} item={item.sc} onDone={(share) => next(gradeFor(share))} />
+          <ScenarioPlay key={item.key} courseId={item.course.id} item={item.sc} onDone={(share) => {
+            completeScenario(getCourseStore(item.course), item.course.config.xp.scenarioComplete, item.course.id, item.sc.id, share);
+            next(gradeFor(share));
+          }} />
         ) : isChoice(item.q) ? (
           <QuestionItem key={item.key} course={item.course} q={item.q} fresh={item.fresh} note={note} onGrade={next} />
         ) : (

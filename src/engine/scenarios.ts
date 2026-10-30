@@ -106,6 +106,18 @@ export interface ChainChoice {
 export interface ChainStep {
   situation: string;
   choices: ChainChoice[];
+  /** Set on a consequence step: the text of the one choice that leads here (the situation must name it). */
+  consequenceOf?: string;
+}
+
+/** Phrases that mean a situation assumes a specific earlier pick; rejoin steps must not use them. */
+export const CHOICE_SPECIFIC = /\b(you went with|you chose|you picked|you deleted|you doubled|you swapped|you skipped|you started|after the force-push|raising temperature|hiding the field|with higher temperature|scaling up gave|deleted pods|the bigger instance|switching base images|more web servers|instant retries|the fine-tuned model)\b/i;
+
+/** Parents of every step: the (step id, choice) pairs whose `next` points at it. */
+export function chainParents(item: ChainItem) {
+  const out: Record<string, { from: string; choice: ChainChoice }[]> = {};
+  for (const [from, s] of Object.entries(item.steps)) for (const choice of s.choices) if (choice.next) (out[choice.next] ??= []).push({ from, choice });
+  return out;
 }
 
 export interface ChainItem extends Base {
@@ -156,11 +168,43 @@ export interface MatcherItem extends Base {
   notes?: string[];
 }
 
+/** Hub and game-page text for a game, worded for the items this course actually has. */
+export function gameText(game: ScenarioGameId, items: ScenarioItem[]): { blurb: string; rule: string } {
+  const g = SCENARIO_GAMES.find((x) => x.id === game)!;
+  if (game !== "matcher") return { blurb: g.blurb, rule: g.rule };
+  const ms = items.filter((x): x is MatcherItem => x.type === "matcher");
+  const uses = ms.filter((m) => m.mode === "usecase");
+  const clouds = [...new Set(ms.filter((m) => m.mode === "clouds").flatMap((m) => [m.leftLabel, m.rightLabel]))];
+  const kinds = [...new Set(uses.map((m) => m.rightLabel.toLowerCase()))];
+  const kind = kinds.length === 1 ? kinds[0] : "service or concept";
+  const list = clouds.length > 1 ? `${clouds.slice(0, -1).join(", ")} and ${clouds[clouds.length - 1]}` : clouds[0];
+  const blurb = uses.length && clouds.length ? `Match each need to the right ${kind}, then find what it's called on ${list}.` : uses.length ? `Match each need to the right ${kind}.` : `Match equivalent services across ${list}.`;
+  const rule = `Pick an item on the left, then its match on the right.${clouds.length ? " Cloud service names come from the providers' official docs." : " Every match is explained when you check."}`;
+  return { blurb, rule };
+}
+
 export function matcherRight(item: MatcherItem, picks: Record<number, number | undefined>) {
   return item.pairs.map((_, i) => picks[i] === i);
 }
 
 // ───────────── Registry and grading ─────────────
+
+/** XP for finishing a scenario item: the base scaled by the score (at least 1 for any completion). */
+export function scenarioXp(base: number, share: number) {
+  return Math.max(1, Math.round(base * Math.min(1, Math.max(0, share))));
+}
+
+/** "Time's up" only when the clock really ran out; stopping early shows where the clock stopped. */
+export function timerLabel(left: number, stoppedEarly: boolean, mm: string) {
+  if (left <= 0) return "Time's up";
+  return stoppedEarly ? `Stopped at ${mm}` : mm;
+}
+
+/** "1 strong call" / "2 strong calls". */
+export const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
+
+/** Score at or above which a played item counts as mastered on the hub. */
+export const MASTERED_AT = 0.7;
 
 export type ScenarioItem = ArchItem | InterviewItem | ChainItem | MatcherItem;
 
