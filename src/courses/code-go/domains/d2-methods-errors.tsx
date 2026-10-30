@@ -314,7 +314,7 @@ export default defineDomain({
       prompt: "In `func (d Dog) Speak() string`, what is `(d Dog)`?",
       options: [
         "The receiver: it attaches `Speak` to the `Dog` type, and `d` is the dog the method is called on",
-        "The list of values the method returns",
+        "The list of values the method returns: `Speak` returns a `Dog` value named `d` to whoever calls it",
         "A second name for the method",
         "A comment explaining the method",
       ],
@@ -384,7 +384,7 @@ export default defineDomain({
       prompt: "What does `if err != nil { ... }` check for?",
       options: [
         "Whether the call failed, because a non-nil error means something went wrong",
-        "Whether the call succeeded, because nil means it failed",
+        "Whether the call succeeded, because a nil error means it failed",
         "Whether the program has crashed",
         "Whether `err` is a number",
       ],
@@ -449,7 +449,7 @@ export default defineDomain({
         "`T`'s method set is {A} and `*T`'s is {A, B}, so only `*T` satisfies an interface that needs both",
         "Both `T` and `*T` have the method set {A, B}",
         "`T` has {A, B}; `*T` has only {B}",
-        "Go doesn't allow mixing value and pointer receivers on one type",
+        "Go doesn't allow mixing value and pointer receivers on one type, so this won't compile",
       ],
       answer: [0],
       explanation:
@@ -535,7 +535,7 @@ export default defineDomain({
         "Implicitly, by having all of the interface's methods; there's no `implements` keyword",
         "By declaring `type T implements I`",
         "By embedding the interface in the struct",
-        "By registering it with the runtime in `init()`",
+        "By registering it with the runtime in an `init()` function, which records which interfaces it implements",
       ],
       answer: [0],
       explanation: "A type satisfies an interface automatically, just by having the right methods. That lets you define an interface for a type you don't own.",
@@ -584,7 +584,7 @@ export default defineDomain({
         "It prints `0 false`, then panics: interface conversion: interface {} is string, not int",
         "It prints `42 true` then `42`",
         "It prints `0 false` then `0`",
-        "Compile error: impossible type assertion",
+        "Compile error: impossible type assertion, since `x` holds a string and can never be an `int`",
       ],
       answer: [0],
       explanation: "The comma-ok form reports a mismatch by giving the zero value and `false`. The single-value form panics when the type inside doesn't match. And type assertions never convert a string into a number.",
@@ -648,7 +648,7 @@ export default defineDomain({
       prompt: "Which is the idiomatic Go guidance for interfaces?",
       options: [
         "Accept interfaces, return concrete types; keep interfaces small and define them where they're used",
-        "Define a large interface next to every struct so it can be mocked",
+        "Define a large interface right next to every struct, so that each one can be mocked in tests",
         "Return interfaces from constructors so the type can change later",
         "Prefix interface names with I, like `IReader`",
       ],
@@ -681,7 +681,7 @@ export default defineDomain({
       options: [
         "Drop the big interface, export the concrete `*Store`, and let each consumer declare the one- to three-method interface it actually uses",
         "Split `Store` into 40 packages, one per method",
-        "Generate mocks for the 40-method interface in CI so nobody writes them by hand",
+        "Generate mocks for the 40-method interface in CI so nobody writes them by hand, and keep passing the full interface to every consumer that needs any part of it",
         "Have every method take `any` so the interface never changes",
       ],
       answer: [0],
@@ -799,7 +799,7 @@ export default defineDomain({
       options: [
         "`true`, then `disk full` and `quota exceeded` on separate lines",
         "`false`, then `disk full; quota exceeded`",
-        "`true`, then `[disk full quota exceeded]`",
+        "`true`, then `[disk full quota exceeded]` on one line",
         "`false`, then `disk full`",
       ],
       answer: [0],
@@ -925,7 +925,7 @@ export default defineDomain({
       prompt: "Your team is setting conventions for a shared library. When should its code panic instead of returning an error?",
       options: [
         "Only for programmer bugs or impossible states; public APIs return errors, and panics used internally are recovered and converted before crossing the package boundary",
-        "Whenever an error is serious enough that callers should notice",
+        "Whenever an error is serious enough that callers should notice it, since a panic can't be ignored the way a returned error can, and callers can always add `recover` if they want to keep going",
         "Never return errors; panic, and let callers recover",
         "Call `log.Fatal` instead, so the process restarts cleanly",
       ],
@@ -943,7 +943,7 @@ export default defineDomain({
         "The whole process crashes: net/http recovers panics only in the handler's own goroutine, and recover works only in the panicking goroutine",
         "net/http recovers it, logs the stack trace, and keeps serving",
         "Only that request fails with a 500",
-        "The goroutine exits silently and the rest of the program continues",
+        "The goroutine exits silently and the rest of the program continues, because net/http recovers panics from every goroutine a handler starts",
       ],
       answer: [0],
       explanation:
