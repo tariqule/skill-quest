@@ -1,0 +1,48 @@
+/**
+ * Key SQL concepts, used by the "teach before test" check.
+ * If a question's prompt or correct answer mentions a concept, some lesson at or
+ * before the question's lesson must mention it too. Add an entry when you add a
+ * question about something new, then teach it in a lesson.
+ */
+export const CONCEPTS: [string, RegExp][] = [
+  ["SELECT", /\bSELECT\b/],
+  ["WHERE", /\bWHERE\b/],
+  ["ORDER BY", /ORDER BY/i],
+  ["LIMIT / OFFSET", /\bLIMIT\b|\bOFFSET\b/],
+  ["DISTINCT", /\bDISTINCT\b/],
+  ["NULL", /\bNULL\b/],
+  ["IS NULL", /IS (NOT )?NULL/i],
+  ["IN", /\bIN \(/],
+  ["BETWEEN", /\bBETWEEN\b/],
+  ["GROUP BY", /GROUP BY/i],
+  ["HAVING", /\bHAVING\b/],
+  ["COUNT", /COUNT\(/i],
+  ["SUM / AVG", /\b(SUM|AVG)\(/i],
+  ["INNER JOIN", /INNER JOIN/i],
+  ["LEFT JOIN", /LEFT (OUTER )?JOIN/i],
+  ["FULL OUTER JOIN", /FULL (OUTER )?JOIN/i],
+  ["CROSS JOIN", /CROSS JOIN/i],
+  ["self join", /self[- ]join/i],
+  ["subquery", /subquer/i],
+  ["EXISTS", /\bEXISTS\b/],
+  ["CTE", /\bWITH\b|\bCTE/],
+  ["recursive CTE", /RECURSIVE/i],
+  ["UNION", /\bUNION\b/],
+  ["CASE", /\bCASE\b/],
+  ["window function", /OVER ?\(|window function/i],
+  ["ROW_NUMBER / RANK", /ROW_NUMBER|DENSE_RANK|\bRANK\(/i],
+  ["PARTITION BY", /PARTITION BY/i],
+  ["LAG / LEAD", /\b(LAG|LEAD)\(/i],
+  ["UNIQUE", /\bUNIQUE\b/],
+  ["index", /\bindex/i],
+  ["composite key / index", /composite|multi-column/i],
+  ["transaction", /transaction/i],
+  ["ACID", /\bACID\b/],
+  ["isolation level", /isolation|READ COMMITTED|SERIALIZABLE|REPEATABLE READ/i],
+  ["normalization", /normali[sz]/i],
+  ["EXPLAIN", /\bEXPLAIN\b/],
+  ["INSERT", /\bINSERT\b/],
+  ["UPDATE", /\bUPDATE\b/],
+  ["DELETE", /\bDELETE\b/],
+  ["view", /\bview\b/i],
+];

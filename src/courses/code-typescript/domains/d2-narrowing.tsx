@@ -83,6 +83,7 @@ describe("hi");   // "HI"`}
       check: ["d2-01", "d2-02"],
       task: "2.1",
       title: "Unions: one of several types",
+      sources: [{ title: "TS Handbook: Everyday Types", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html", license: "Official docs (link only)" }],
       visual: (
         <CodeBlock
           lang="ts"
@@ -100,6 +101,7 @@ describe("hi");   // "HI"`}
         "A union `A | B` accepts a value of either type. Until you narrow it, you can only use the members both types share.",
         "Narrowing is a check the compiler understands. Inside the branch, the type is smaller.",
         "Literal unions like `\"sm\" | \"md\" | \"lg\"` are a light alternative to enums, and they disappear when compiled.",
+        "Besides `typeof`, you can narrow with `x instanceof Date` (is the class's prototype on the chain?), the `in` operator (`\"email\" in x` checks for a property key), and `Array.isArray(x)`.",
       ],
       tip: "When someone asks why a line doesn't compile, point at the member of the union that's missing the property.",
     },
@@ -139,6 +141,7 @@ describe("hi");   // "HI"`}
       check: ["d2-07", "d2-09"],
       task: "2.2",
       title: "Discriminated unions and exhaustiveness",
+      sources: [{ title: "TS Handbook: Narrowing", url: "https://www.typescriptlang.org/docs/handbook/2/narrowing.html", license: "Official docs (link only)" }],
       visual: (
         <CodeBlock
           lang="ts"
@@ -163,6 +166,7 @@ function area(s: Shape): number {
         "Give every member of the union a shared property with a different literal value, like `kind`, `type` or `status`. Checking it narrows to exactly one member.",
         "If every member is handled, the value left in the `default` branch is `never`. Pass it to `assertNever`, and adding a new member becomes a compile error there.",
         "Model states as a union, like loading, error and success, so combinations that make no sense can't be written at all.",
+        "Optional properties like `error?: Error; data?: T` allow impossible combinations. A discriminated union, one member per `status`, makes each state carry exactly the fields it needs.",
       ],
       tip: "Offer the `assertNever` pattern without being asked when you switch over a union. It shows you've done this in real code.",
     },
@@ -172,6 +176,7 @@ function area(s: Shape): number {
       check: ["d2-10", "d2-12"],
       task: "2.3",
       title: "Type predicates and assertion functions",
+      sources: [{ title: "TS Handbook: Narrowing", url: "https://www.typescriptlang.org/docs/handbook/2/narrowing.html", license: "Official docs (link only)" }],
       visual: (
         <CodeCompare
           lang="ts"
@@ -191,6 +196,7 @@ user.name; // user is non-null from here on` }}
         "Since TypeScript 5.5, simple arrow callbacks like `x => x != null` are inferred as predicates, so `filter` narrows on its own.",
         "An assertion function, written `asserts x is T`, throws when the check fails. If it returns, `x` is narrowed for the rest of the scope.",
         "Where untrusted data comes in, such as JSON, queues or forms, build predicates from a runtime schema instead of writing partial checks by hand.",
+        "An assertion function returns `asserts v is NonNullable<T>`, a generic type that removes `null` and `undefined`. If the call returns normally, `v` is non-nullable for the rest of the scope; otherwise it throws.",
       ],
       tip: "Point out that a wrong predicate is worse than none. It makes the compiler confidently wrong.",
     },
@@ -231,7 +237,7 @@ console.log(describe(7));`, codeLang: "ts",
       prompt: "`x` is a `string | number`. Inside `if (typeof x === \"string\") { ... }`, what does TypeScript know about `x`?",
       options: [
         "It's a string, so string methods like `toUpperCase()` are allowed",
-        "It's still `string | number`, so nothing has changed",
+        "It's still `string | number`, so nothing at all has changed",
         "It's a number",
         "It's `undefined`",
       ],
@@ -407,7 +413,7 @@ function area(s: Shape) {
         "Every member has a common property whose type is a distinct literal, like `kind: \"circle\"`",
         "Every member is a class",
         "The union has exactly two members",
-        "The union is declared with `enum`",
+        "The union is declared with `enum`, and each member has its own type name the compiler can switch on at runtime",
       ],
       answer: [0],
       explanation: "The shared property with a different literal on each member is called the discriminant. One comparison against it narrows the value to exactly one member.",
@@ -436,7 +442,7 @@ function area(s: Shape): number {
       options: [
         "A shared discriminated union `{ status: \"loading\" } | { status: \"error\"; error: Error } | { status: \"success\"; data: T }`, handled with exhaustive switches",
         "Add comments documenting which combinations are valid",
-        "Make all three fields required and default them to null",
+        "Make all three fields required and default them to `null`, then check each one for `null` in every component that reads the state, so loading, error and data are always present together",
         "Add a fourth boolean, `isSuccess`",
       ],
       answer: [0],
@@ -447,7 +453,7 @@ function area(s: Shape): number {
       prompt: "An `OrderCreated` event shared by five services needs a breaking change to its payload. How should you model the change in the shared types?",
       options: [
         "Add a new union member with its own discriminant (e.g. `type: \"order.created.v2\"`), keep handling v1 until every consumer migrates, and let exhaustive switches show who hasn't",
-        "Change the existing event's fields in place and release all five services the same day",
+        "Change the existing event's fields in place and release all five services on the same day, with a shared feature flag so that they all switch over to the new shape together at once",
         "Make every field optional so old and new payloads both type-check",
         "Type the payload as `unknown` everywhere",
       ],
@@ -499,7 +505,7 @@ const nums = mixed.filter((x) => x != null);`, codeLang: "ts",
 }`, codeLang: "ts",
       options: [
         "If the function returns normally, `v` is non-nullable for the rest of the calling scope",
-        "The function returns a boolean that narrows `v` inside an if",
+        "The function returns a boolean that narrows `v` inside an `if` block only",
         "The function converts `v` to a non-null value",
         "`v` is checked at compile time, so the throw can be removed",
       ],
@@ -512,7 +518,7 @@ const nums = mixed.filter((x) => x != null);`, codeLang: "ts",
       options: [
         "Parse the message as `unknown` and validate it with a runtime schema (one that also gives you the TypeScript type) at the boundary; send invalid messages to a dead-letter queue",
         "Wrap the business logic in try/catch",
-        "Replace `as OrderEvent` with `as unknown as OrderEvent`",
+        "Replace `as OrderEvent` with `as unknown as OrderEvent` in the consumer, and turn on `strict` mode so the compiler checks each message's fields against the type when the queue delivers it at runtime",
         "Add optional chaining to every property access",
       ],
       answer: [0],
@@ -524,7 +530,7 @@ const nums = mixed.filter((x) => x != null);`, codeLang: "ts",
       options: [
         "Make the predicate check every field the type promises (ideally derived from a schema) and add tests, since the compiler doesn't verify predicate bodies",
         "Change the return type to `boolean`",
-        "Ask teams to stop using the predicate",
+        "Ask teams to stop using the predicate and cast the parsed value with `as User` at each call site instead, since a cast is easier to search for in code review and gives the same compile-time guarantee",
         "Mark `email` as optional in `User`",
       ],
       answer: [0],

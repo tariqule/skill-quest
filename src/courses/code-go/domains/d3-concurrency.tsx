@@ -258,6 +258,7 @@ export default defineDomain({
       level: "senior",
       task: "3.4",
       title: "Mutexes, atomics, and data races",
+      sources: [{ title: "Go docs: package sync", url: "https://pkg.go.dev/sync", license: "CC BY 4.0" }],
       check: ["d3-18", "d3-21"],
       visual: (
         <CodeCompare
@@ -295,6 +296,7 @@ export default defineDomain({
         "A `sync.Mutex` lets one goroutine at a time into a section of code. Never copy a struct that contains one, so use pointer receivers. Locking it twice from the same goroutine deadlocks.",
         "`sync.RWMutex` helps when reads far outnumber writes. `sync.Once` runs setup code exactly once. `sync/atomic` types like `atomic.Int64` suit simple counters.",
         "Go's motto is \"share memory by communicating\". Channels hand data from one goroutine to another, and mutexes guard shared data. Both are fine, so pick whichever is simpler.",
+        "Never copy a `sync.Mutex`: a value receiver copies the struct and its lock. `go vet` reports copied locks.",
       ],
       tip: "If you see `count++` inside a goroutine, say \"data race\" before anything else, then offer a mutex or an `atomic.Int64`.",
     },
@@ -312,7 +314,7 @@ export default defineDomain({
         "Runs the function in a new goroutine, so the code after it carries on without waiting",
         "Runs the function twice",
         "Makes the function run faster on one CPU",
-        "Stops the program until the function finishes",
+        "Stops the program until the function finishes running, then carries on with the next line",
       ],
       answer: [0],
       explanation:
@@ -327,7 +329,7 @@ export default defineDomain({
       options: [
         "The program ends, so the goroutine may never get to run or finish",
         "Go waits for it to finish before the program ends",
-        "The goroutine becomes the new main and keeps going",
+        "The goroutine becomes the new main and just keeps going",
         "The program crashes with an error",
       ],
       answer: [0],
@@ -399,7 +401,7 @@ export default defineDomain({
       prompt: "What does `wg.Wait()` do?",
       options: [
         "Pauses until every job counted with `Add` has called `Done`",
-        "Starts all the goroutines in the group",
+        "Starts all of the goroutines in the group at once.",
         "Waits for exactly one second",
         "Stops every running goroutine",
       ],
@@ -422,7 +424,7 @@ export default defineDomain({
       codeLang: "go",
       options: [
         "Usually nothing: the program exits when `main` returns, without waiting for goroutines",
-        "Always the line, because Go waits for all goroutines before exiting",
+        "Always the line, because Go waits for all goroutines to finish before it exits",
         "`fatal error: all goroutines are asleep - deadlock!`",
         "Compile error: `go` needs a function literal",
       ],
@@ -479,7 +481,7 @@ export default defineDomain({
         wg.Wait()
       `,
       codeLang: "go",
-      options: ["The digits 0, 1, and 2, each exactly once, in any order", "Always `012`", "Always `333`", "Usually `333`, sometimes other digits"],
+      options: ["The digits 0, 1, and 2, each exactly once, in any order", "Always `012`", "Always `333`", "Usually `333`, but sometimes other digits too."],
       answer: [0],
       explanation:
         "Since Go 1.22, every pass of a three-part `for` loop has its own `i`, so each closure holds a different variable. The goroutines still run in no particular order. Before Go 1.22 they all shared one `i`, which is where the classic `333` came from.",
@@ -515,7 +517,7 @@ export default defineDomain({
         }
       `,
       codeLang: "go",
-      options: ["`fatal error: all goroutines are asleep - deadlock!`", "It prints `1`", "It prints `0`", "Compile error: unused channel"],
+      options: ["`fatal error: all goroutines are asleep - deadlock!`", "It prints `1`", "It prints `0`", "Compile error: unused channel `ch` declared and never read from"],
       answer: [0],
       explanation: "A send on an unbuffered channel waits until another goroutine receives. `main` is the only goroutine, and it's stuck on the send, so the runtime reports a deadlock. With `make(chan int, 1)` it would print 1.",
     },
@@ -623,7 +625,7 @@ export default defineDomain({
       options: [
         "Four goroutines are stuck forever on their send, which is a goroutine leak. The fix is `make(chan string, len(urls))`",
         "It deadlocks immediately",
-        "It always returns the last URL's result",
+        "It always returns the last URL's result, because the unbuffered channel overwrites each earlier value until only the final send is left for the receiver",
         "It has a data race on `u`",
       ],
       answer: [0],
@@ -639,7 +641,7 @@ export default defineDomain({
       options: [
         "A fixed pool of N workers reading from a bounded channel, so producers block (or shed load) when it's full",
         "Call `runtime.GOMAXPROCS(1)` so fewer goroutines run",
-        "Add `time.Sleep(time.Millisecond)` before each `go handle(job)`",
+        "Add `time.Sleep(time.Millisecond)` before each `go handle(job)` call, so goroutines start more slowly",
         "Give every job its own unbuffered channel",
       ],
       answer: [0],
@@ -687,7 +689,7 @@ export default defineDomain({
       codeLang: "go",
       options: [
         "It prints `a` or `b`: when several cases are ready, select chooses one at random",
-        "It always prints `a`, the first case listed",
+        "It always prints `a`, the first case listed, because select checks its cases from top to bottom",
         "It always prints `b`, the most recent send",
         "It prints both lines",
       ],
@@ -712,7 +714,7 @@ export default defineDomain({
         }
       `,
       codeLang: "go",
-      options: ["`context deadline exceeded`", "`work done`", "`context canceled`", "`<nil>`"],
+      options: ["`context deadline exceeded`", "`work done`", "`context canceled` error", "`<nil>`"],
       answer: [0],
       explanation: "The context's 50 ms deadline passes first, which closes `ctx.Done()`. `ctx.Err()` then reports `context.DeadlineExceeded`, whose message is \"context deadline exceeded\". Calling `cancel` instead would give \"context canceled\".",
     },
@@ -747,7 +749,7 @@ export default defineDomain({
       prompt: "In a loop that merges two channels with `select`, why set a channel variable to `nil` once it's closed?",
       options: [
         "Operations on a nil channel block forever, so that case is never chosen again while the other keeps working",
-        "Setting it to nil closes it a second time safely",
+        "Setting it to nil closes it a second time safely, so the receiving case gets the zero value and stops being chosen",
         "Nil channels return zero values faster",
         "It frees the channel's buffer immediately",
       ],
@@ -763,7 +765,7 @@ export default defineDomain({
       options: [
         "Request-scoped data that crosses API boundaries, like a request ID or auth identity, keyed by an unexported type",
         "Passing optional function parameters",
-        "Holding the service's database handle and configuration",
+        "Holding the service's database handle and configuration, so every function can reach them without extra parameters",
         "Sharing mutable state between goroutines",
       ],
       answer: [0],
@@ -792,7 +794,7 @@ export default defineDomain({
       level: "staff",
       lesson: "d3-select",
       prompt: "A handler fans out 3 RPCs. You want to wait for all of them, cancel the others as soon as one fails, and return the first error. Which tool fits best?",
-      options: ["`errgroup.WithContext` from golang.org/x/sync/errgroup", "`sync.WaitGroup` on its own", "`sync.Once`", "A `select` with a `default` case"],
+      options: ["`errgroup.WithContext` from golang.org/x/sync/errgroup", "`sync.WaitGroup` on its own", "`sync.Once`", "A `select` with a `default` case around each of the calls"],
       answer: [0],
       explanation:
         "`errgroup.WithContext` gives you a group and a context tied to it. `g.Go` runs each call, the first error cancels the context, and `g.Wait` returns that error. `SetLimit` can also cap how many run at once.",
@@ -819,7 +821,7 @@ export default defineDomain({
       codeLang: "go",
       options: [
         "Possibly less than 1000: `count++` is an unprotected read, add and write, which is a data race",
-        "Always 1000, because `wg.Wait()` synchronizes everything",
+        "Always 1000, because `wg.Wait()` synchronizes every write made by the goroutines",
         "Always 0",
         "Compile error: `count` must be atomic",
       ],
@@ -851,7 +853,7 @@ export default defineDomain({
         "When reads greatly outnumber writes and the critical sections aren't trivial, since many readers can hold RLock at once",
         "Always; it's strictly faster",
         "When writes outnumber reads",
-        "When you need to lock re-entrantly from the same goroutine",
+        "When you need to lock re-entrantly from the same goroutine, since RWMutex lets a goroutine that holds Lock call Lock again",
       ],
       answer: [0],
       explanation: "An RWMutex has more bookkeeping, so for tiny locked sections or lots of writes, a plain Mutex is often just as fast or faster. Neither can be locked twice by the same goroutine: that deadlocks.",

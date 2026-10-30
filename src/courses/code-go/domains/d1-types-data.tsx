@@ -190,6 +190,7 @@ export default defineDomain({
       level: "intermediate",
       task: "1.2",
       title: "Slices share backing arrays",
+      sources: [{ title: "Go blog: Go Slices: usage and internals", url: "https://go.dev/blog/slices-intro", license: "CC BY 4.0" }],
       check: ["d1-09", "d1-11"],
       visual: <SliceLab />,
       points: [
@@ -198,6 +199,7 @@ export default defineDomain({
         "If there's spare capacity (len < cap), `append` writes into the shared array, so other slices over it see the change. Past the capacity, it allocates a new array.",
         "Always use the result: `s = append(s, x)`. The old header may still point at the old array.",
         "`a[low:high:max]` limits the capacity, so a later append has to copy instead of overwriting `a`'s elements.",
+        "Returning an internal slice shares its backing array, even if you `defer` an unlock first. Callers who modify it race with you, and `go test -race` (the race detector) will flag it. Return a copy with `slices.Clone`.",
       ],
       tip: "Draw the backing array, then two brackets for the two slices. Saying \"len is less than cap, so append overwrites the shared slot\" is exactly what interviewers want to hear.",
     },
@@ -679,7 +681,7 @@ export default defineDomain({
       options: [
         "Copy the 64 bytes into their own slice (`bytes.Clone(data[:64])`) so the 10 MB array can be collected",
         "Call `runtime.GC()` after each request",
-        "Store `data[:64:64]` instead, to cap the slice",
+        "Store `data[:64:64]` instead, to cap the slice, which lets the garbage collector free the rest of the array",
         "Set `data = nil` right after slicing",
       ],
       answer: [0],
@@ -719,7 +721,7 @@ export default defineDomain({
       options: [
         "It prints `0 0`, then panics: assignment to entry in nil map",
         "It prints `0 0` then `map[x:1]`",
-        "It panics on the first `Println`: nil map read",
+        "It panics on the first `Println`, with a nil map read",
         "Compile error: `m` is not initialized",
       ],
       answer: [0],
@@ -792,7 +794,7 @@ export default defineDomain({
         "Entries can move when the map grows, so the pointer could end up pointing at stale memory",
         "Map values are always stored on the stack",
         "Only keys are hashed, so values have no fixed type",
-        "Taking addresses is only allowed for package-level variables",
+        "Taking addresses is only allowed for package-level variables, not for locals",
       ],
       answer: [0],
       explanation:
@@ -806,7 +808,7 @@ export default defineDomain({
       prompt: "What happens if you `delete` entries from a map inside a `for k := range m` loop over that same map (in one goroutine)?",
       options: [
         "It's allowed; an entry deleted before the loop reaches it won't be produced",
-        "It panics with \"concurrent map iteration and map write\"",
+        "It panics with \"concurrent map iteration and map write\" at once",
         "It's a compile error",
         "The loop restarts from the beginning",
       ],

@@ -201,6 +201,7 @@ export default defineDomain({
       level: "intermediate",
       task: "1.4",
       title: "INSERT, UPDATE and DELETE",
+      sources: [{ title: "PostgreSQL docs: UPDATE", url: "https://www.postgresql.org/docs/current/sql-update.html", license: "PostgreSQL License" }],
       check: ["d1-20", "d1-21"],
       visual: (
         <div className="grid gap-4">
@@ -237,6 +238,8 @@ export default defineDomain({
         "DELETE removes the rows the WHERE matches. TRUNCATE empties a whole table quickly. DROP TABLE removes the table itself.",
         "PostgreSQL's RETURNING hands back the rows you just inserted, updated or deleted, such as generated ids.",
         "INSERT … ON CONFLICT (key) DO UPDATE is PostgreSQL's upsert: it inserts the row, or updates the row that already has that key. DO NOTHING skips it instead.",
+        "Aggregates summarise many rows into one value: `COUNT(*)` counts rows, `SUM(col)` adds a column up, and `AVG(col)` averages it. They are a quick way to check what an UPDATE changed.",
+        "Wrap risky changes in a **transaction**: `BEGIN;`, run the change, check it, then `COMMIT;` to keep it or `ROLLBACK;` to undo it. Nobody else sees the change until you commit.",
       ],
       tip: "Wrap risky changes in BEGIN … COMMIT. Check the row count the database reports, and ROLLBACK if it's not what you expected.",
     },
@@ -253,7 +256,7 @@ export default defineDomain({
         "A program that stores information in an organised way and answers questions about it",
         "A website for sharing spreadsheets with friends",
         "A programming language for building phone apps",
-        "A backup copy of all the files on your computer",
+        "A backup copy of all the files and the folders stored on your computer",
       ],
       answer: [0],
       explanation:
@@ -267,7 +270,7 @@ export default defineDomain({
       prompt: "A `products` table has the columns name, price and colour. What is one column?",
       options: [
         "One detail, such as price, that every product has",
-        "One product, with all of its details",
+        "One product, together with all of its details",
         "The whole list of products",
         "A question you ask the table",
       ],
@@ -307,7 +310,7 @@ export default defineDomain({
       level: "beginner",
       lesson: "d1-start-first",
       prompt: "In `SELECT name FROM customers;`, which word names the table?",
-      options: ["`customers`", "`name`", "`SELECT`", "`FROM`"],
+      options: ["`customers`", "`name`", "`ORDER BY`", "`FROM`"],
       answer: [0],
       explanation:
         "The table's name comes straight after FROM, so here it's customers. `name` is the column you want, and SELECT and FROM are SQL keywords.",
@@ -367,7 +370,7 @@ export default defineDomain({
       options: [
         "Many users and programs can read and write at the same time while the database enforces rules (types, keys) and keeps changes consistent",
         "Databases keep rows in a fixed order, so lookups are always fast",
-        "Tables can't contain duplicate values, so the data is always clean",
+        "Tables can't contain duplicate values, so the data is always clean, and every query returns its rows in the same order they were inserted",
         "A database removes the need for backups",
       ],
       answer: [0],
@@ -386,7 +389,7 @@ export default defineDomain({
         SELECT name FROM customers WHERE city = 'Lisbon';
       `,
       codeLang: "sql",
-      options: ["Two rows: `Ana` and `Cy`", "One row: `Ana`", "One row: `Bo`", "All three names"],
+      options: ["Two rows: `Ana` and `Cy`", "One row: `Ana`", "One row: `Bo`", "All three of the names"],
       answer: [0],
       explanation: "WHERE keeps the rows whose city equals 'Lisbon' (Ana and Cy), and SELECT keeps only the name column.",
     },
@@ -454,7 +457,7 @@ export default defineDomain({
         WHERE category = 'toys' OR category = 'home' AND price < 50;
       `,
       codeLang: "sql",
-      options: ["`ball`, `kite` and `lamp`", "`ball` and `lamp`", "All four products", "`lamp` only"],
+      options: ["`ball`, `kite` and `lamp`", "`ball` and `lamp`", "All four of the products", "`lamp` only"],
       answer: [0],
       explanation:
         "AND binds tighter than OR, so this is `category = 'toys' OR (category = 'home' AND price < 50)`: every toy plus the cheap home item. If you meant \"cheap toys or home items\", write `(category = 'toys' OR category = 'home') AND price < 50`.",
@@ -541,7 +544,7 @@ export default defineDomain({
         "No guaranteed order: it can differ between runs, versions or plans",
         "The order the rows were inserted",
         "Sorted by primary key",
-        "Alphabetically by the first column",
+        "Alphabetically by the first column, for text columns, and by value for numbers",
       ],
       answer: [0],
       explanation:
@@ -642,7 +645,7 @@ export default defineDomain({
       prompt: "Which statement adds a new customer?",
       options: [
         "`INSERT INTO customers (name, city) VALUES ('Eli', 'Rome');`",
-        "`ADD INTO customers VALUES ('Eli', 'Rome');`",
+        "`ADD INTO customers VALUES ('Eli', 'Rome', NULL);`",
         "`UPDATE customers ADD ('Eli', 'Rome');`",
         "`INSERT customers WHERE name = 'Eli';`",
       ],
@@ -708,7 +711,7 @@ export default defineDomain({
       prompt: "Your team's style guide bans `SELECT *` in application code. What is the strongest reason?",
       options: [
         "When columns are added or reordered, the code silently receives a different shape, and it fetches columns it never uses",
-        "`SELECT *` is deprecated in the SQL standard",
+        "`SELECT *` is deprecated in the SQL standard, and newer PostgreSQL versions print a warning and plan it more slowly than an explicit list",
         "`SELECT *` locks the whole table",
         "`SELECT *` can't be combined with WHERE",
       ],

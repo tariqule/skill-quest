@@ -45,6 +45,7 @@ export default defineDomain({
       level: "beginner",
       task: "1.1",
       title: "What Java is and your first program",
+      sources: [{ title: "dev.java: Getting Started", url: "https://dev.java/learn/getting-started/", license: "Official docs (link only)" }],
       check: ["java-b1-01", "java-b1-02"],
       visual: (
         <div className="grid gap-4">
@@ -74,6 +75,7 @@ export default defineDomain({
         "Java code lives inside a **class**. For now, think of the class as the box your program sits in.",
         "The program starts at the `main` method. Every line inside its curly braces `{ }` runs, top to bottom.",
         "`System.out.println(...)` prints a line of text. Each statement ends with a semicolon `;`, like a full stop at the end of a sentence.",
+        "`javac Main.java` compiles your code to bytecode in `Main.class`. `java Main` then runs that bytecode on the **JVM** (Java Virtual Machine), which is why the same class file runs on any operating system.",
       ],
       tip: "Before Java runs your code, a tool called the **compiler** (`javac`) checks it. A missing semicolon or a typo is caught here, before anything runs.",
     },
@@ -157,6 +159,7 @@ export default defineDomain({
       level: "junior",
       task: "1.1",
       title: "The four pillars, in code",
+      sources: [{ title: "dev.java: Classes and Objects", url: "https://dev.java/learn/classes-objects/", license: "Official docs (link only)" }],
       check: ["d1-01", "d1-03"],
       visual: (
         <div className="grid gap-4">
@@ -195,6 +198,7 @@ export default defineDomain({
         "Fields and static methods don't follow the object. A subclass field with the same name just hides the parent's, and the declared type decides which one you get.",
         "An override may return a more specific type (a covariant return). It can't make the method less visible or throw broader checked exceptions.",
         "Handing out an internal list from a getter breaks encapsulation, because callers can change it. Return a copy or a read-only view instead.",
+        "The four OOP ideas: **encapsulation** (private fields, public methods), **inheritance** (`class Dog extends Animal`), **polymorphism** (an `Animal` variable runs `Dog`'s method), and **abstraction** (an `interface` or `abstract` class describes what, not how).",
       ],
       tip: "When asked to explain polymorphism, write two lines, `Animal a = new Dog(); a.speak();`, and say which method runs and why. A concrete example beats a definition.",
     },
@@ -256,6 +260,7 @@ export default defineDomain({
       level: "intermediate",
       task: "1.2",
       title: "== and equals, hashCode, and the Integer cache",
+      sources: [{ title: "dev.java: Comparing Objects", url: "https://dev.java/learn/classes-objects/", license: "Official docs (link only)" }],
       check: ["d1-10", "d1-12"],
       visual: (
         <div className="grid gap-6">
@@ -298,6 +303,8 @@ export default defineDomain({
         "`equals` must give the same answer both ways round, be consistent, and return false for `null` rather than throwing.",
         "Autoboxing uses `Integer.valueOf`, which reuses cached objects for -128 to 127. That's why `==` on boxed numbers seems to work in small tests and then fails later.",
         "Unboxing a null wrapper throws `NullPointerException`. For example, `int n = map.get(key)` blows up when the key is missing.",
+        "Hash-based collections like `HashSet` and `HashMap` call `hashCode()` first, then `equals()`. Override both together, or equal objects land in different buckets and `contains` returns false.",
+        "Mutable objects make bad map keys: change a field after inserting and the key's hash no longer matches its bucket. Prefer immutable value types with `final` fields, or a `record`, like immutable `String`.",
       ],
       tip: "If you override equals, say \"and hashCode\" in the same breath. Interviewers listen for it.",
     },
@@ -306,6 +313,7 @@ export default defineDomain({
       level: "junior",
       task: "1.3",
       title: "Strings: immutable, pooled, and built with StringBuilder",
+      sources: [{ title: "Java SE API: String", url: "https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html", license: "Official docs (link only)" }],
       check: ["d1-09", "d1-14"],
       visual: (
         <div className="grid gap-6">
@@ -340,6 +348,7 @@ export default defineDomain({
         "`new String(\"x\")` and strings built while the program runs are separate objects. Compare them with `equals`, never `==`.",
         "Because they can't change, strings are safe as map keys, safe to share between threads, and can cache their own hash code.",
         "`StringBuilder` is the faster choice for building text. `StringBuffer` is its older, synchronized twin.",
+        "`+=` on a String inside a loop creates a new String each time, producing lots of garbage for the garbage collector. Use one `StringBuilder`, or write straight to an output stream.",
       ],
       tip: "A classic follow-up is \"how many objects does `new String(\"hi\")` create?\". The answer: the literal in the pool (if it isn't there already) plus one new object on the heap.",
     },
@@ -371,7 +380,7 @@ export default defineDomain({
       options: [
         "Checks the code and turns it into a `Main.class` file the JVM can run",
         "Runs the program and prints its output",
-        "Deletes the source file once it has run",
+        "Deletes the source file from the disk once it has run successfully",
         "Downloads Java onto your computer",
       ],
       answer: [0],
@@ -441,7 +450,7 @@ export default defineDomain({
       options: [
         "A class is the blueprint; an object is one thing built from it with `new`",
         "They're two words for exactly the same thing",
-        "An object is the blueprint; a class is built from it",
+        "An object is the blueprint; a class is the thing built from it",
         "A class can only ever produce one object",
       ],
       answer: [0],
@@ -600,7 +609,7 @@ export default defineDomain({
       prompt: "When is an abstract class a better fit than an interface?",
       options: [
         "When subclasses share state and constructor logic, such as a base entity holding an id and a creation time",
-        "When unrelated classes like `Car` and `Phone` both need a `charge()` capability",
+        "When unrelated classes like `Car` and `Phone` both need a `charge()` capability and its logic",
         "When a class needs to inherit behaviour from several types at once",
         "When you want callers to implement the type with a lambda",
       ],
@@ -776,7 +785,7 @@ export default defineDomain({
       prompt: "Why is `String` immutable in Java?",
       options: [
         "So strings can be shared from the pool, used safely as hash keys, and passed between threads without copying",
-        "Because the JVM stores all strings on the thread stack",
+        "Because the JVM stores all strings on the thread stack, and stack memory is read-only once a method has started running",
         "So that `==` always works for comparing strings",
         "Because Java has no mutable character sequences",
       ],
@@ -849,7 +858,7 @@ export default defineDomain({
       prompt: "A widely shared `Money` class has setters and is used as a key in caches across many services. Keys sometimes \"disappear\" from those caches. What's the best long-term fix?",
       options: [
         "Make `Money` an immutable value type (final fields, or a record), deprecate the setters, and move callers to copy-with methods like `withAmount(...)`",
-        "Document \"never mutate a key\" on the class and rely on code review",
+        "Document \"never mutate a key\" on the class and rely on code review to catch it, and override `hashCode` to return a constant so that a mutated key still lands in the same bucket",
         "Override `hashCode()` to return a constant so lookups never miss",
         "Switch every cache to `IdentityHashMap`",
       ],
@@ -866,7 +875,7 @@ export default defineDomain({
       options: [
         "Add `refund` as a `default` method (with a safe default or `UnsupportedOperationException`), then let teams override it on their own schedule",
         "Add `refund` as an abstract method and announce it in the release notes",
-        "Convert `PaymentGateway` into an abstract class with a concrete `refund`",
+        "Convert `PaymentGateway` into an abstract class with a concrete `refund`, and ask every team to change `implements` to `extends` in the same release so it all still compiles",
         "Copy the interface into `PaymentGateway2` and ask every team to migrate",
       ],
       answer: [0],
@@ -900,7 +909,7 @@ export default defineDomain({
         "Request changes: it only works because of the -128 to 127 cache. Use `equals` (or primitive `long`/`int`), and add a test with an id above 127",
         "Approve: the JVM caches every `Integer`, so `==` is safe",
         "Approve, but ask them to add `-XX:AutoBoxCacheMax` to production flags",
-        "Request changes: wrap the ids in `String.valueOf` and compare with `==`",
+        "Request changes: wrap both of the ids in `String.valueOf` and compare them with `==`, since string literals are interned and the pool makes the comparison safe for any value",
       ],
       answer: [0],
       explanation:

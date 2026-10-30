@@ -12,6 +12,21 @@ import { CONCEPTS as DVA3 } from "@/courses/aws-dva-c03/concepts";
 import { CONCEPTS as GCP } from "@/courses/gcp-genai-leader/concepts";
 import { CONCEPTS as AZ } from "@/courses/azure-ai-901/concepts";
 import { CONCEPTS as KCNA } from "@/courses/cncf-kcna/concepts";
+import { CONCEPTS as DS } from "@/courses/code-data-structures/concepts";
+import { CONCEPTS as ALGO } from "@/courses/code-algorithms/concepts";
+import { CONCEPTS as JS } from "@/courses/code-javascript/concepts";
+import { CONCEPTS as REACT } from "@/courses/code-react/concepts";
+import { CONCEPTS as SD } from "@/courses/code-system-design/concepts";
+import { CONCEPTS as SQL } from "@/courses/code-sql/concepts";
+import { CONCEPTS as NEXT } from "@/courses/code-nextjs/concepts";
+import { CONCEPTS as TS } from "@/courses/code-typescript/concepts";
+import { CONCEPTS as WEB } from "@/courses/code-html-css/concepts";
+import { CONCEPTS as JAVA } from "@/courses/code-java/concepts";
+import { CONCEPTS as PY } from "@/courses/code-python/concepts";
+import { CONCEPTS as NODE } from "@/courses/code-nodejs/concepts";
+import { CONCEPTS as GO } from "@/courses/code-go/concepts";
+import { CONCEPTS as GIT } from "@/courses/code-git/concepts";
+import { CONCEPTS as DOCKER } from "@/courses/code-docker/concepts";
 
 /**
  * Non-blocking quality report for every course. Counts are printed, not enforced:
@@ -27,6 +42,21 @@ const CONCEPT_LISTS: Record<string, ConceptList> = {
   "gcp-genai-leader": GCP,
   "azure-ai-901": AZ,
   "cncf-kcna": KCNA,
+  "code-data-structures": DS,
+  "code-algorithms": ALGO,
+  "code-javascript": JS,
+  "code-react": REACT,
+  "code-system-design": SD,
+  "code-sql": SQL,
+  "code-nextjs": NEXT,
+  "code-typescript": TS,
+  "code-html-css": WEB,
+  "code-java": JAVA,
+  "code-python": PY,
+  "code-nodejs": NODE,
+  "code-go": GO,
+  "code-git": GIT,
+  "code-docker": DOCKER,
 };
 
 /** What the learner sees in a lesson, including its rendered visual. */

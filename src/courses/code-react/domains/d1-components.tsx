@@ -87,6 +87,7 @@ export default defineDomain({
       level: "junior",
       task: "1.1",
       title: "Components are functions that return JSX",
+      sources: [{ title: "react.dev: Writing Markup with JSX", url: "https://react.dev/learn/writing-markup-with-jsx", license: "CC BY 4.0" }],
       check: ["d1-01", "d1-21"],
       visual: (
         <div className="grid gap-3">
@@ -131,6 +132,7 @@ export default defineDomain({
         "JSX turns into plain function calls, so curly braces `{}` can hold any JavaScript expression. You write `className` instead of `class`, and `htmlFor` instead of `for`.",
         "A component returns one root element. To return several side by side, wrap them in a **Fragment**, `<>…</>`, which groups them without adding an extra element to the page.",
         "Components must be **pure**: give them the same props and state and they return the same JSX. They don't change anything outside themselves while rendering.",
+        "In development, `<StrictMode>` renders each component twice and runs every effect's setup, **cleanup** and setup again. That's on purpose: it exposes side effects in render and effects that don't clean up after themselves.",
       ],
       tip: "Interviewers like asking why components need capital letters. The answer: lowercase tags are treated as built-in HTML elements, and capitalised ones point to your own components.",
     },
@@ -139,6 +141,7 @@ export default defineDomain({
       level: "junior",
       task: "1.2",
       title: "Props vs state",
+      sources: [{ title: "react.dev: State: A Component's Memory", url: "https://react.dev/learn/state-a-components-memory", license: "CC BY 4.0" }],
       check: ["d1-05", "d1-07"],
       visual: (
         <div className="grid gap-3">
@@ -166,6 +169,7 @@ export default defineDomain({
         "Data flows down. A parent passes props to its children, and a child asks for changes by calling a function it got as a prop.",
         "Never change props inside a child. Treat them like a photo you were handed: you can look, but you don't draw on it.",
         "Plain variables inside a component start fresh on every render. They can't remember anything, and changing one doesn't update the screen. That's what state is for.",
+        "When state changes, React **re-renders** the component: it calls the function again and updates the screen to match the new result. Ordinary local variables reset on each re-render; state survives.",
       ],
       tip: "A line that works well in interviews: \"Props are settings from outside. State is memory from inside.\"",
     },
@@ -230,7 +234,7 @@ export default defineDomain({
       lesson: "d1-b-what",
       level: "beginner",
       prompt: "What is React mainly used for?",
-      options: ["Building user interfaces out of reusable components", "Storing data in a database", "Styling pages instead of CSS", "Running a web server"],
+      options: ["Building user interfaces out of reusable components", "Storing data in a database", "Styling pages instead of writing all the CSS files by hand", "Running a web server"],
       answer: [0],
       explanation: "React is a JavaScript library for building the parts of an app that people see and use. It doesn't store data or replace CSS. You split the screen into components and React keeps them up to date.",
     },
@@ -240,7 +244,7 @@ export default defineDomain({
       lesson: "d1-b-what",
       level: "beginner",
       prompt: "In React, what is a component?",
-      options: ["One reusable piece of the user interface, like a button or a card", "A file that holds only your CSS", "A kind of database table", "A browser plugin you install"],
+      options: ["One reusable piece of the user interface, like a button or a card", "A file that holds only your CSS styles for a single page of the app", "A kind of database table", "A browser plugin you install"],
       answer: [0],
       explanation: "A component is a building block of the screen. You write it once and use it as often as you like, the way you'd reuse the same LEGO brick in many places.",
     },
@@ -293,7 +297,7 @@ export default defineDomain({
       options: [
         "JSX treats lowercase tags as built-in HTML elements and capitalised tags as references to components",
         "Capitalised functions are automatically memoized",
-        "It's only a style convention; lowercase components work the same",
+        "It's only a style convention; lowercase components work exactly the same way inside JSX",
         "React looks components up by name in a global registry",
       ],
       answer: [0],
@@ -342,7 +346,7 @@ export default defineDomain({
       prompt: "Which statement about props and state is correct?",
       options: [
         "Props are passed in by the parent and are read-only to the child; state is owned by the component and changed through its setter",
-        "Props and state are the same thing; state is just the name for props inside class components",
+        "Props and state are the same thing; state is just the name that's used for props inside of class components only",
         "A child can update its props directly to tell the parent about changes",
         "State is shared automatically between every instance of a component",
       ],
@@ -463,7 +467,7 @@ export default defineDomain({
       prompt: "A parent re-renders but passes exactly the same props to its child. By default, what happens to the child?",
       options: [
         "It re-renders too; React doesn't compare props unless the child is wrapped in `memo`",
-        "It's skipped automatically because the props are equal",
+        "It's skipped automatically, because all of the props it gets are equal",
         "It unmounts and remounts",
         "It re-renders only if it has state",
       ],
@@ -485,7 +489,7 @@ export default defineDomain({
       options: [
         "React matches rows by index, so the existing inputs stay in slots 0 and 1 with their old values; C doesn't appear at the top",
         "Nothing; index keys are always safe",
-        "React throws an error about duplicate keys",
+        "React throws an error about duplicate keys, because index keys clash once the new row C is inserted at position 0 of the array",
         "Every input is cleared",
       ],
       answer: [0],
@@ -533,7 +537,7 @@ export default defineDomain({
         "To reset all of Profile's state (form drafts, toggles) whenever the user changes",
         "To make Profile render faster",
         "Because every component needs a key",
-        "To keep Profile's state when switching users",
+        "To keep Profile's state the same when switching between different users on the page",
       ],
       answer: [0],
       explanation: "A new key makes React unmount the old instance and mount a fresh one, so all state inside resets. It's simpler and less buggy than an effect that resets each piece of state.",
@@ -582,7 +586,7 @@ export default defineDomain({
         "React comparing the new element tree with the previous one to decide the minimal DOM changes",
         "Merging two components' state into one",
         "Re-running every effect after each render",
-        "Syncing state between the server and client",
+        "Syncing state between the server and the client after the first page load has finished hydrating",
       ],
       answer: [0],
       explanation: "React diffs by type and key. Same type at the same position: update in place. Different type: tear down the old subtree and build a new one.",
@@ -633,7 +637,7 @@ function Lengths() {
       options: [
         "Make a stable key part of the API (for example a required `getKey(item)` that returns a data id), migrate callers, and keep index keys only for static lists",
         "Wrap each row in `memo` so it can't re-render",
-        "Force a remount of the whole list on every sort with `key={Math.random()}` on the list",
+        "Force a remount of the whole list on every sort with `key={Math.random()}` on the list, so each row's state is thrown away and rebuilt from the newly sorted data",
         "Tell teams not to put inputs inside rows",
       ],
       answer: [0],
@@ -648,7 +652,7 @@ function Lengths() {
         "A page re-renders a 400-row table on every keystroke in a search box at the top. Profiling shows the search text lives in state in the page root. What's the best first change?",
       options: [
         "Move the input's state down into a `SearchBox` component (and lift only the submitted query), so typing doesn't re-render the table",
-        "Store the search text in a `useRef` so nothing ever re-renders",
+        "Store the search text in a `useRef` so nothing ever re-renders, and read `ref.current` inside the table whenever it needs to filter the rows",
         "Wrap every component on the page in `memo`",
         "Move the state into a global store",
       ],
@@ -664,7 +668,7 @@ function Lengths() {
       options: [
         "Nothing is rendered to the DOM for it, but it is still mounted and keeps its state",
         "React throws an error",
-        "React unmounts the component and its state is lost",
+        "React unmounts the component, and its state is lost for good after that",
         "It renders the text \"null\"",
       ],
       answer: [0],
@@ -680,7 +684,7 @@ function Lengths() {
       options: [
         "Keep Strict Mode: the double render exposes a side effect in render. Move the event into an event handler (or an effect with cleanup) so it's pure",
         "Turn Strict Mode off; it's only for class components",
-        "Keep Strict Mode on and deduplicate events with a module-level flag",
+        "Keep Strict Mode on and deduplicate the events with a module-level flag, so the second render sees the flag and skips sending the same analytics call",
         "Turn Strict Mode off in development and on in production",
       ],
       answer: [0],

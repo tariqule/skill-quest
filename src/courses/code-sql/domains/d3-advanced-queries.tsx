@@ -183,6 +183,7 @@ export default defineDomain({
       level: "senior",
       task: "3.2",
       title: "Window functions",
+      sources: [{ title: "PostgreSQL docs: Window Functions", url: "https://www.postgresql.org/docs/current/tutorial-window.html", license: "PostgreSQL License" }],
       check: ["d3-14", "d3-16"],
       visual: (
         <div className="grid gap-4">
@@ -207,6 +208,9 @@ export default defineDomain({
         "For two tied rows and one more, ROW_NUMBER gives 1, 2, 3. RANK gives 1, 1, 3, and DENSE_RANK gives 1, 1, 2.",
         "With ORDER BY, aggregates like SUM become running totals. The default frame (RANGE … CURRENT ROW) includes all rows tied with the current one.",
         "Window functions run after WHERE, GROUP BY and HAVING, so to filter on one, compute it in a subquery or CTE first.",
+        "`LAG(col)` reads the value from the previous row in the window's order, and `LEAD(col)` reads the next row. Where there is no such row, they return NULL.",
+        "To remove duplicates, number rows per key with `ROW_NUMBER()`, delete the rows numbered above 1, then add a `UNIQUE` constraint so new duplicates are rejected.",
+        "A window over millions of rows is costly to run on every request. Precompute the result into a table or a materialized **view** (a stored query result you refresh) and look rows up by key.",
       ],
       tip: "\"Top N per group\", \"change since yesterday\" and \"running total\" are all window-function problems. Recognising the pattern is half the work.",
     },
@@ -271,7 +275,7 @@ export default defineDomain({
       prompt: "In `WHERE price > (SELECT AVG(price) FROM products)`, what does the part in brackets do?",
       options: [
         "Works out the average price, which the outer query then compares each product against",
-        "Sorts the products from cheapest to most expensive",
+        "Sorts all of the products from the cheapest one to the most expensive one",
         "Deletes every product below the average price",
         "Creates a new table called AVG",
       ],
@@ -394,7 +398,7 @@ export default defineDomain({
       prompt: "`SELECT name, (SELECT id FROM orders WHERE customer_id = c.id) FROM customers c;` fails for customers with two orders. Why?",
       options: [
         "A scalar subquery must return at most one row; PostgreSQL raises `more than one row returned by a subquery used as an expression`",
-        "Subqueries aren't allowed in the SELECT list",
+        "Subqueries aren't allowed in the SELECT list in PostgreSQL, so the parser rejects the query before planning; they're only allowed in FROM and WHERE",
         "The subquery needs GROUP BY",
         "Correlated subqueries must use EXISTS",
       ],
@@ -428,7 +432,7 @@ export default defineDomain({
       options: [
         "Defines a named result, totals, that the rest of that one statement can query like a table",
         "Creates a permanent table called totals",
-        "Creates a saved view that other queries can use later",
+        "Creates a saved view that other queries in the database can use later on by name",
         "Runs the two SELECTs in parallel",
       ],
       answer: [0],
@@ -518,7 +522,7 @@ export default defineDomain({
       options: [
         "The window version keeps every row and adds the customer's total to each one; GROUP BY returns one row per customer",
         "They're identical; OVER is just newer syntax",
-        "The window version only works on the first row of each customer",
+        "The window version only works on the first row of each customer, so all of the other rows get NULL for their totals",
         "GROUP BY keeps every row; the window version collapses them",
       ],
       answer: [0],
@@ -638,7 +642,7 @@ export default defineDomain({
         "Number rows per key with ROW_NUMBER (newest first), delete rn > 1 in batches, then add a UNIQUE constraint on (user_id, event_key)",
         "`CREATE TABLE clean AS SELECT DISTINCT * FROM events` and swap the tables",
         "Delete every row whose key has `COUNT(*) > 1`",
-        "Add the UNIQUE constraint first; PostgreSQL removes the duplicates while building it",
+        "Add the UNIQUE constraint first, and PostgreSQL removes the duplicate rows for you while it builds the index.",
       ],
       answer: [0],
       explanation:
@@ -654,7 +658,7 @@ export default defineDomain({
         "Precompute ranks into a table or materialized view refreshed on a schedule, and look up a player's row by key",
         "Switch to DENSE_RANK, which doesn't have to sort",
         "Add `PARTITION BY player_id` to the window",
-        "Run the query at the SERIALIZABLE isolation level",
+        "Run the query at the SERIALIZABLE isolation level, so each rank is computed once and reused by later sessions",
       ],
       answer: [0],
       explanation:
@@ -771,7 +775,7 @@ export default defineDomain({
       options: [
         "UNION must sort or hash the whole result to remove duplicates; UNION ALL just appends, which is cheaper and gives the same rows here",
         "UNION only works on tables, not partitions",
-        "UNION ALL removes duplicates more accurately",
+        "UNION ALL removes duplicates more accurately than UNION, because it compares every column of each row instead of only the first column of the result",
         "UNION changes the column types",
       ],
       answer: [0],

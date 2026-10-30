@@ -1,0 +1,47 @@
+/**
+ * Key Docker concepts, used by the "teach before test" check.
+ * If a question's prompt or correct answer mentions a concept, some lesson at or
+ * before the question's lesson must mention it too. Add an entry when you add a
+ * question about something new, then teach it in a lesson.
+ */
+export const CONCEPTS: [string, RegExp][] = [
+  ["container", /container/i],
+  ["image", /image/i],
+  ["layer", /layer/i],
+  ["registry", /registry|Docker Hub/i],
+  ["docker run", /docker run/],
+  ["docker ps", /docker ps/],
+  ["docker exec", /docker exec/],
+  ["docker logs", /docker logs/],
+  ["--rm", /--rm/],
+  ["detached -d", / -d\b|detached/],
+  ["restart policy", /restart/i],
+  ["stop / SIGTERM", /SIGTERM|SIGKILL|docker stop/],
+  ["Dockerfile", /Dockerfile/],
+  ["FROM", /\bFROM\b/],
+  ["RUN", /\bRUN\b/],
+  ["COPY", /\bCOPY\b/],
+  ["build cache", /cache/i],
+  [".dockerignore", /dockerignore/],
+  ["multi-stage build", /multi-stage|AS build|--from/i],
+  ["CMD", /\bCMD\b/],
+  ["exec form", /exec form|shell form|PID 1/i],
+  ["volume", /volume/i],
+  ["bind mount", /bind mount|-v \.|--mount/i],
+  ["tmpfs", /tmpfs/],
+  ["port publish -p", /-p \d|publish/i],
+  ["EXPOSE", /EXPOSE/],
+  ["network", /network/i],
+  ["DNS by name", /\bDNS\b|service name/i],
+  ["Compose", /compose/i],
+  ["healthcheck", /health/i],
+  ["depends_on", /depends_on/],
+  ["tag", /\btag|:latest/i],
+  ["digest", /digest|sha256/i],
+  ["non-root USER", /non-root|\bUSER\b|as root/i],
+  ["secrets", /secret/i],
+  ["image scanning", /scan|CVE|vulnerab/i],
+  ["SBOM", /SBOM/],
+  ["signing", /sign/i],
+  ["Kubernetes", /kubernetes|\bpod\b/i],
+];

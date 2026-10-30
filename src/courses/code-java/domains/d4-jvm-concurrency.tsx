@@ -168,6 +168,7 @@ export default defineDomain({
       level: "senior",
       task: "4.2",
       title: "Races, locks, and visibility",
+      sources: [{ title: "Java SE API: Thread", url: "https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Thread.html", license: "Official docs (link only)" }],
       check: ["d4-07", "d4-09"],
       visual: (
         <div className="grid gap-6">
@@ -202,6 +203,7 @@ export default defineDomain({
         "`volatile` makes reads and writes of one variable visible to every thread, in order. It doesn't make multi-step actions like `count++` safe.",
         "Check-then-act, as in `if (!map.containsKey(k)) map.put(k, v)`, is a race even on a thread-safe map. Use `computeIfAbsent`.",
         "**Deadlock** needs threads waiting on each other in a circle. Always take multiple locks in one fixed order, or use `tryLock` with a timeout.",
+        "For a simple shared counter, `AtomicInteger.incrementAndGet()` is thread-safe without a lock. `AtomicReference` does the same for swapping a whole object reference.",
       ],
       tip: "When you spot shared data that can change in an interview problem, say so out loud and pick a strategy: keep it on one thread, make it immutable, or guard it with a lock.",
     },
@@ -418,7 +420,7 @@ export default defineDomain({
         "`n` and the `sb` reference in the thread's stack frame; the StringBuilder object on the heap",
         "All three on the heap",
         "All three on the stack",
-        "`n` on the heap; `sb` and its object on the stack",
+        "`n` on the heap, as a boxed value; `sb` and its StringBuilder object both on the thread's stack",
       ],
       answer: [0],
       explanation:
@@ -536,7 +538,7 @@ export default defineDomain({
         "Some value up to 20000; it can be less because updates get lost",
         "Always exactly 20000",
         "Always exactly 10000",
-        "It throws `ConcurrentModificationException`",
+        "It throws a `ConcurrentModificationException` at once",
       ],
       answer: [0],
       explanation:
@@ -626,7 +628,7 @@ export default defineDomain({
         "Deadlock; always acquire the locks in one global order (for example by account id)",
         "A lost update; make the fields volatile",
         "Livelock; add `Thread.sleep` between the two locks",
-        "No risk: nested synchronized blocks are always safe",
+        "No risk at all: nested synchronized blocks are always safe in Java code",
       ],
       answer: [0],
       explanation:
@@ -642,7 +644,7 @@ export default defineDomain({
         "Replace `int count` with an `AtomicInteger` and call `count.incrementAndGet()`",
         "Mark `count` as `volatile`",
         "Make `inc()` a static method",
-        "Write `count += 1` instead of `count++`",
+        "Write `count += 1` instead of `count++`, since a compound assignment is a single bytecode step",
       ],
       answer: [0],
       explanation:
@@ -709,7 +711,7 @@ export default defineDomain({
       prompt: "What are Java 21 virtual threads best suited for?",
       options: [
         "Many concurrent tasks that mostly wait on I/O, such as one thread per HTTP request, because a blocked virtual thread frees its carrier thread",
-        "Making CPU-bound number crunching run faster than the number of cores allows",
+        "Making CPU-bound number crunching run faster than the number of cores allows, since each virtual thread gets its own slice of a CPU and they all run in parallel at once",
         "Replacing `synchronized` with lock-free code automatically",
         "Running Java code on the GPU",
       ],
@@ -804,7 +806,7 @@ export default defineDomain({
       prompt: "Why are immutable objects thread-safe without any locking?",
       options: [
         "Their state can't change after construction, so threads can share them freely and never see a half-updated object",
-        "The JVM automatically synchronizes every method of a final class",
+        "The JVM automatically synchronizes every method of a final class, so threads take turns using each object",
         "They're stored on each thread's stack, so they're never shared",
         "The garbage collector copies them for each thread",
       ],
@@ -820,7 +822,7 @@ export default defineDomain({
       prompt: "You're moving a blocking-I/O service from a 200-thread pool to virtual threads. The database pool has 50 connections. What must you add as part of the move?",
       options: [
         "A limit on concurrent database work (a `Semaphore`, or relying on the connection pool's wait with a timeout), because the 200-thread cap that used to throttle load is gone",
-        "A fixed pool of 200 virtual threads, to keep the old behaviour",
+        "A fixed pool of 200 virtual threads, to keep the old behaviour, plus `synchronized` around each database call so that only one virtual thread at a time can pin its carrier while it waits on the network",
         "Nothing: virtual threads make the database faster",
         "A larger `-Xss` stack size",
       ],
@@ -855,7 +857,7 @@ export default defineDomain({
         "Add a timeout to each call (`orTimeout` or `completeOnTimeout`, Java 9+) and run the blocking calls on a dedicated, bounded executor instead of the common pool",
         "Use `join()` instead of `get()`",
         "Raise the common pool's parallelism to 1000",
-        "Retry immediately in a tight loop until the call succeeds",
+        "Retry immediately in a tight loop until the call succeeds, and raise the common pool's parallelism to a few hundred threads so the blocked tasks no longer starve the other work in the service",
       ],
       answer: [0],
       explanation:
@@ -871,7 +873,7 @@ export default defineDomain({
         "On reload, build a new immutable `Config` and publish it through one `volatile` field (or an `AtomicReference`); readers just read that reference",
         "Keep one mutable `Config` and make every getter `synchronized`",
         "Store each setting in a `ConcurrentHashMap` and update the keys one by one",
-        "Give each thread its own copy in a `ThreadLocal`, refreshed on its next request",
+        "Give each thread its own copy in a `ThreadLocal`, refreshed on its next request, so every reader always sees a consistent config",
       ],
       answer: [0],
       explanation:

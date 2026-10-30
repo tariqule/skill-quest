@@ -1,0 +1,47 @@
+/**
+ * Key JavaScript concepts, used by the "teach before test" check.
+ * If a question's prompt or correct answer mentions a concept, some lesson at or
+ * before the question's lesson must mention it too. Add an entry when you add a
+ * question about something new, then teach it in a lesson.
+ */
+export const CONCEPTS: [string, RegExp][] = [
+  ["let / const", /\b(let|const)\b/],
+  ["var", /\bvar\b/],
+  ["temporal dead zone", /temporal dead zone|\bTDZ\b/i],
+  ["closure", /closures?\b/i],
+  ["arrow function", /arrow function/i],
+  ["bind / call / apply", /\.bind\(|\bbind\b|\.call\(|\.apply\(/],
+  ["strict equality", /===|eqeqeq|strict equality/i],
+  ["NaN", /\bNaN\b/],
+  ["BigInt", /bigint/i],
+  ["prototype", /prototyp/i],
+  ["class", /\bclass(es)?\b/],
+  ["optional chaining", /optional chaining|\?\./i],
+  ["Promise", /\bpromises?\b/i],
+  ["async / await", /\basync\b|\bawait\b/i],
+  ["Promise.all", /promise\.all\b/i],
+  ["Promise.allSettled", /allSettled/i],
+  ["Promise.race / any", /promise\.(race|any)/i],
+  ["event loop", /event loop/i],
+  ["microtask", /microtask/i],
+  ["setTimeout", /settimeout/i],
+  ["unhandled rejection", /unhandledrejection|unhandled rejection/i],
+  ["AbortController", /abortcontroller|abortsignal/i],
+  ["Map", /\bMap\b/],
+  ["WeakMap / WeakRef", /weakmap|weakref|weakset/i],
+  ["structuredClone", /structuredclone/i],
+  ["JSON", /\bJSON\b/],
+  ["reduce", /\breduce\b/],
+  ["map / filter", /\.(map|filter)\(/],
+  ["immutability", /immutab|structural sharing|Object\.freeze/i],
+  ["ES modules", /\bESM?\b|ES modules?|import\b/],
+  ["CommonJS", /commonjs|require\(/i],
+  ["tree shaking", /tree[- ]shak|side[- ]effect/i],
+  ["garbage collection", /garbage[- ]collect/i],
+  ["Symbol", /\bsymbol\b/i],
+  ["worker", /web worker|worker thread/i],
+  ["AsyncLocalStorage", /asynclocalstorage/i],
+  ["DOM", /\bDOM\b/],
+  ["event listener", /addEventListener|event listener|listeners?\b/i],
+  ["typeof", /\btypeof\b/],
+];

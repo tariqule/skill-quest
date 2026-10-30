@@ -132,6 +132,7 @@ export default defineDomain({
       level: "intermediate",
       task: "2.1",
       title: "Outer joins and anti-joins",
+      sources: [{ title: "PostgreSQL docs: Joins Between Tables", url: "https://www.postgresql.org/docs/current/tutorial-join.html", license: "PostgreSQL License" }],
       check: ["d2-06", "d2-08"],
       visual: (
         <div className="grid gap-4">
@@ -168,6 +169,7 @@ export default defineDomain({
         "A WHERE condition on the optional (right) side of a LEFT JOIN throws away the NULL rows, quietly turning it back into an inner join. Put such conditions in ON.",
         "An anti-join finds rows with no match, such as customers who never ordered. Write a LEFT JOIN, then WHERE right.key IS NULL. NOT EXISTS does the same.",
         "A self join joins a table to itself with two aliases, for example employees e and their managers m.",
+        "A `FULL OUTER JOIN` (or just `FULL JOIN`) keeps every row from both tables. Rows with no match on the other side get NULLs there. MySQL doesn't support it; combine a LEFT and RIGHT join with UNION instead.",
       ],
       tip: "When a LEFT JOIN result is missing rows, look at the WHERE clause first. It's almost always a filter on the right-hand table.",
     },
@@ -176,6 +178,7 @@ export default defineDomain({
       level: "intermediate",
       task: "2.2",
       title: "GROUP BY and HAVING",
+      sources: [{ title: "PostgreSQL docs: Aggregate Functions", url: "https://www.postgresql.org/docs/current/tutorial-agg.html", license: "PostgreSQL License" }],
       check: ["d2-14", "d2-16"],
       visual: (
         <div className="grid gap-4">
@@ -200,6 +203,7 @@ export default defineDomain({
         "WHERE filters rows before grouping, and HAVING filters groups after. Aggregates are allowed in HAVING but not in WHERE.",
         "The database runs a query in a logical order (FROM, WHERE, GROUP BY, HAVING, SELECT, ORDER BY, LIMIT), which explains most \"why can't I use that here?\" errors.",
         "If you join an order to its three items and then sum the order's total, the total is counted three times. This is called fan-out. Aggregate the children first.",
+        "Joining one parent to two child tables multiplies rows (each item pairs with each payment), so sums inflate. Aggregate each child in its own **subquery** or CTE (a named `WITH` query) first, one row per parent, then join.",
       ],
       tip: "Ask \"what is one row of my result?\" (one customer, one day). That's your GROUP BY.",
     },
@@ -208,6 +212,7 @@ export default defineDomain({
       level: "intermediate",
       task: "2.3",
       title: "NULL and three-valued logic",
+      sources: [{ title: "PostgreSQL docs: Comparison Functions and Operators", url: "https://www.postgresql.org/docs/current/functions-comparison.html", license: "PostgreSQL License" }],
       check: ["d2-22", "d2-26"],
       visual: (
         <div className="grid gap-4">
@@ -229,6 +234,7 @@ export default defineDomain({
         "Arithmetic and || with NULL give NULL. COALESCE(a, b, …) returns the first non-NULL argument.",
         "Aggregates skip NULLs (COUNT(col), SUM, AVG), but COUNT(*) counts every row. SUM over no rows is NULL, not 0.",
         "`x <> 'Oslo'` is UNKNOWN when x is NULL. So rows with a NULL city are left out of both `city = 'Oslo'` and `city <> 'Oslo'`.",
+        "A `UNIQUE` constraint ignores NULLs by default in PostgreSQL, because NULL never equals NULL. Any number of rows can have a NULL there. PostgreSQL 15+ can forbid this with `UNIQUE NULLS NOT DISTINCT`.",
       ],
       tip: "Make columns NOT NULL unless \"unknown\" is a real state. Every nullable column is a question every query has to answer.",
     },
@@ -244,7 +250,7 @@ export default defineDomain({
       options: [
         "So each customer's details are stored once, and every order points to them",
         "Because a table can't hold text",
-        "To make the orders table as large as possible",
+        "To make the orders table as large as possible on the server's disk",
         "Because SQL can't read names",
       ],
       answer: [0],
@@ -259,7 +265,7 @@ export default defineDomain({
       prompt: "What does a join do?",
       options: [
         "Puts matching rows from two tables side by side in one result",
-        "Copies every row of one table into another table",
+        "Copies every row of one table into another, new table",
         "Deletes the rows that appear in both tables",
         "Turns two tables into one new permanent table",
       ],
@@ -345,7 +351,7 @@ export default defineDomain({
       prompt: "In `JOIN orders o ON o.customer_id = c.id`, what does the ON clause do?",
       options: [
         "Decides which pairs of rows from the two tables belong together",
-        "Chooses which columns appear in the result",
+        "Chooses which of the columns appear in the final result",
         "Sorts the joined rows",
         "Creates an index on customer_id",
       ],
@@ -381,7 +387,7 @@ export default defineDomain({
         CROSS JOIN colors c;
       `,
       codeLang: "sql",
-      options: ["12", "7", "4", "3"],
+      options: ["12", "7", "4", "16"],
       answer: [0],
       explanation: "A CROSS JOIN pairs every row with every row (a Cartesian product), so 3 times 4 gives 12. It's useful for generating combinations and dangerous when it happens by accident.",
     },
@@ -671,7 +677,7 @@ export default defineDomain({
         "Aggregate each child table in its own subquery or CTE (one row per order) before joining them to orders",
         "Change it to `SUM(DISTINCT o.total)`",
         "Use LEFT JOIN instead of JOIN",
-        "Add `ORDER BY o.id` so duplicates are grouped",
+        "Add `ORDER BY o.id` so that the duplicated rows are grouped together and each sum is then only counted once",
       ],
       answer: [0],
       explanation:
@@ -788,7 +794,7 @@ export default defineDomain({
       options: [
         "Declare columns NOT NULL (with sensible defaults) unless \"unknown\" is a genuine state the business needs to record",
         "Wrap every column in COALESCE in every query",
-        "Replace NULL with magic values like -1 or 'N/A'",
+        "Replace NULL with magic values like -1 or 'N/A' in every column, so that comparisons never return UNKNOWN anywhere",
         "Avoid outer joins entirely",
       ],
       answer: [0],

@@ -100,6 +100,7 @@ export default defineDomain({
       level: "junior",
       task: "4.1",
       title: "An HTTP server from scratch",
+      sources: [{ title: "Node.js docs: HTTP", url: "https://nodejs.org/api/http.html", license: "Official docs (link only)" }],
       check: ["d4-01", "d4-22"],
       visual: (
         <div className="grid gap-4">
@@ -138,6 +139,7 @@ export default defineDomain({
         "Every request has to finish with `res.end()`, or a framework helper that calls it. Otherwise the client waits until it times out.",
         "Frameworks like Express and Fastify add routing, body parsing and middleware on top of this same API.",
         "A graceful shutdown works like this: on SIGTERM, stop taking new connections, let running requests finish, close resources, then exit.",
+        "`http.createServer((req, res) => ...)` calls your function per request. `req` is a readable stream (IncomingMessage) and `res` is a writable stream (ServerResponse).",
       ],
       tip: "Being able to write a server with only `node:http` shows you understand what frameworks do for you.",
     },
@@ -251,7 +253,7 @@ export default defineDomain({
         "It waits for requests, for example from a browser, and sends back a response to each one",
         "It stores your files so you don't lose them",
         "It makes your computer run faster",
-        "It turns your JavaScript into a website design",
+        "It turns your JavaScript into a website design, with the HTML and CSS generated for each page",
       ],
       answer: [0],
       explanation:
@@ -296,7 +298,7 @@ export default defineDomain({
         "Anyone who can see the code, or its history in git, can read the password",
         "Node can't read passwords from code",
         "Passwords make the code run more slowly",
-        "It's fine, as long as the file is called secret.js",
+        "It's fine, as long as the file is called secret.js and is small",
       ],
       answer: [0],
       explanation:
@@ -308,7 +310,7 @@ export default defineDomain({
       level: "beginner",
       lesson: "d4-start-server",
       prompt: "Your server calls `server.listen(3000)`. Which address do you open in your browser to visit it?",
-      options: ["`http://localhost:3000`", "`http://3000.com`", "`http://node/3000`", "`file://server.js`"],
+      options: ["`http://localhost:3000`", "`http://3000.com`", "`http://node/3000`", "`file://server.js:80`"],
       answer: [0],
       explanation:
         "`localhost` means this computer, and `3000` is the port, like a door number, that your server is listening on. Opening `http://localhost:3000` sends a request to your server.",
@@ -323,7 +325,7 @@ export default defineDomain({
       prompt: "In `http.createServer((req, res) => { … })`, what are `req` and `res`?",
       options: [
         "`req` is a readable stream (IncomingMessage) and `res` is a writable stream (ServerResponse)",
-        "Plain objects with the parsed JSON body and a `send` method",
+        "Plain objects that hold the parsed JSON body, the headers and a `send` method",
         "Promises that resolve when the request finishes",
         "Two EventEmitters with no stream behaviour",
       ],
@@ -373,7 +375,7 @@ export default defineDomain({
         "It declares four parameters: `(err, req, res, next)`",
         "Its name starts with `error`",
         "It's registered with `app.error()`",
-        "It throws instead of calling `next()`",
+        "It throws an error instead of calling `next()`",
       ],
       answer: [0],
       explanation:
@@ -431,7 +433,7 @@ export default defineDomain({
       options: [
         "In a secret manager or the deployment's secret store, injected at runtime (for example as an environment variable)",
         "In `config.js`, committed to the repo",
-        "In a `.env` file committed so the whole team has it",
+        "In a `.env` file committed to the repository, so the whole team and every single deployment always has the same key",
         "Base64-encoded inside the source code",
       ],
       answer: [0],
@@ -514,7 +516,7 @@ export default defineDomain({
       options: [
         "`===` can stop at the first different character, which leaks timing information, so compare equal-length Buffers with `crypto.timingSafeEqual`",
         "`===` ignores case for strings, so use `localeCompare`",
-        "`process.env` is slow to read, so cache it in a global",
+        "`process.env` is slow to read on every request, so cache the token in a global at startup and compare against that cached copy with `==` instead of `===`",
         "Tokens should be compared with `==` to handle numbers",
       ],
       answer: [0],
@@ -531,7 +533,7 @@ export default defineDomain({
         "Hash them with a slow, salted password hash such as `crypto.scrypt`, bcrypt or argon2",
         "Hash them once with SHA-256",
         "Encrypt them with AES so support staff can see them",
-        "Store them as they are, but restrict database access",
+        "Store them exactly as they are, but restrict database access to admins only",
       ],
       answer: [0],
       explanation:
@@ -545,7 +547,7 @@ export default defineDomain({
       prompt: "Why is testing user input against a regex like `/^(a+)+$/` a denial-of-service risk in Node?",
       options: [
         "Nested quantifiers can make the regex engine backtrack exponentially on some inputs, blocking the single JavaScript thread",
-        "Regexes run on the thread pool and can use up all four threads",
+        "Regexes run on the libuv thread pool, and this one can use up all four threads, so file and crypto work all queues behind it",
         "The regex leaks memory every time it's compiled",
         "Regexes can't handle Unicode, so they crash on emoji",
       ],
@@ -649,7 +651,7 @@ export default defineDomain({
       prompt: "A service's RSS grows slowly for days until the container is killed for running out of memory, but heap snapshots show the JS heap is stable. Where do you look next?",
       options: [
         "Memory outside the V8 heap: compare rss with heapUsed, external and arrayBuffers from `process.memoryUsage()` (Buffers, native addons)",
-        "The heap snapshot tool must be wrong, so increase `--max-old-space-size`",
+        "The heap snapshot tool must be wrong, so increase `--max-old-space-size` until the restarts stop, since rss and the heap are always the same number",
         "Unhandled promise rejections",
         "The number of npm dependencies",
       ],
@@ -682,7 +684,7 @@ export default defineDomain({
       prompt: "You want every log line, in every module, to include the current request's ID, without passing it through every function. What do you use?",
       options: [
         "`AsyncLocalStorage` from `node:async_hooks`: run each request inside `als.run(ctx, ...)` and read the context anywhere further down",
-        "A global variable set at the start of each request",
+        "A global variable set at the start of each request and read further down, which is safe because Node only ever handles one request at a time",
         "`process.env.REQUEST_ID`, set for each request",
         "A worker thread per request",
       ],
@@ -718,7 +720,7 @@ export default defineDomain({
         "It passes control to the next matching middleware or route, and `next(err)` jumps to error handlers",
         "It ends the response with status 200",
         "It restarts the current middleware",
-        "It moves the request to the next server in the cluster",
+        "It moves the request to the next server in the cluster, so a busy worker can hand the request off to another",
       ],
       answer: [0],
       explanation:
@@ -756,7 +758,7 @@ export default defineDomain({
       codeLang: "js",
       options: [
         "The error middleware never runs, because the rejection is unhandled, and on modern Node that crashes the process by default",
-        "Express catches it and the error middleware sends a 500",
+        "Express catches it automatically and the error middleware sends a 500, the same way it does for errors thrown synchronously in a route",
         "Express retries the handler once",
         "The client gets an empty 200 response",
       ],
