@@ -3,6 +3,7 @@ import d1 from "./domains/d1-objects";
 import d2 from "./domains/d2-collections";
 import d3 from "./domains/d3-modern-java";
 import d4 from "./domains/d4-jvm-concurrency";
+import { codeGames } from "./games";
 import { moreQuestions } from "./more";
 
 /**
@@ -22,7 +23,7 @@ export default defineCourse({
   level: "Intermediate",
   storageKey: "course:code-java:v1",
 
-  domains: withQuestions([d1, d2, d3, d4], moreQuestions),
+  domains: withQuestions([d1, d2, d3, d4], [...moreQuestions, ...codeGames]),
 
   exam: {
     questions: 30,

@@ -73,7 +73,7 @@ export default defineDomain({
       points: [
         "**Java** is a programming language used for apps, websites, Android phones and big company systems. You write instructions, and the computer follows them in order.",
         "Java code lives inside a **class**. For now, think of the class as the box your program sits in.",
-        "The program starts at the `main` method. Every line inside its curly braces `{ }` runs, top to bottom.",
+        "The program starts at the `main` method. Every line inside its curly braces `{ }` runs, top to bottom. Copy its first line exactly: `public static void main(String[] args)`. `static` means the method belongs to the class itself, so Java can call it before any objects exist.",
         "`System.out.println(...)` prints a line of text. Each statement ends with a semicolon `;`, like a full stop at the end of a sentence.",
         "`javac Main.java` compiles your code to bytecode in `Main.class`. `java Main` then runs that bytecode on the **JVM** (Java Virtual Machine), which is why the same class file runs on any operating system.",
       ],

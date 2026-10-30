@@ -4,6 +4,7 @@ import d2 from "./domains/d2-search-pointers";
 import d3 from "./domains/d3-recursion-graphs";
 import d4 from "./domains/d4-dp-greedy-patterns";
 import { codingChallenges } from "./coding";
+import { codeGames } from "./games";
 import { moreQuestions } from "./more";
 
 /**
@@ -23,7 +24,7 @@ export default defineCourse({
   level: "Intermediate",
   storageKey: "course:code-algorithms:v1",
 
-  domains: withQuestions([d1, d2, d3, d4], moreQuestions),
+  domains: withQuestions([d1, d2, d3, d4], [...moreQuestions, ...codeGames]),
   coding: codingChallenges,
 
   exam: {

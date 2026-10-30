@@ -9,7 +9,8 @@ import { type ReviewGrade } from "@/engine/srs";
 import { gradeItem } from "@/engine/srs-store";
 import { buildQueue } from "@/engine/daily-queue";
 import { getCourseStore } from "@/engine/store";
-import { type Card, type ChoiceQuestion, type Course } from "@/engine/types";
+import { GameItem } from "@/components/code-games/GameItem";
+import { isChoice, type Card, type ChoiceQuestion, type Course } from "@/engine/types";
 
 const noop = () => () => {};
 
@@ -83,7 +84,11 @@ function Session() {
       <div className="mb-4 h-1.5 rounded-full bg-white/10">
         <div className="h-full rounded-full bg-emerald-400 transition-all" style={{ width: `${(i / queue.length) * 100}%` }} />
       </div>
-      {item.kind === "card" ? <CardItem key={item.key} card={item.card} onGrade={next} /> : <QuestionItem key={item.key} course={item.course} q={item.q} fresh={item.fresh} onGrade={next} />}
+      {item.kind === "card" ? <CardItem key={item.key} card={item.card} onGrade={next} /> : isChoice(item.q) ? (
+          <QuestionItem key={item.key} course={item.course} q={item.q} fresh={item.fresh} onGrade={next} />
+        ) : (
+          <GameItem key={item.key} course={item.course} q={item.q} tag={item.fresh ? "new for you" : "you missed this before"} onDone={(ok) => next(ok ? "good" : "again")} />
+        )}
     </div>
   );
 }
@@ -188,3 +193,4 @@ function QuestionItem({ course, q, fresh, onGrade }: { course: Course; q: Choice
     </div>
   );
 }
+

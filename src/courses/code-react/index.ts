@@ -3,6 +3,7 @@ import d1 from "./domains/d1-components";
 import d2 from "./domains/d2-hooks";
 import d3 from "./domains/d3-data-flow";
 import d4 from "./domains/d4-modern-react";
+import { codeGames } from "./games";
 import { moreQuestions } from "./more";
 
 /**
@@ -22,7 +23,7 @@ export default defineCourse({
   level: "Intermediate",
   storageKey: "course:code-react:v1",
 
-  domains: withQuestions([d1, d2, d3, d4], moreQuestions),
+  domains: withQuestions([d1, d2, d3, d4], [...moreQuestions, ...codeGames]),
 
   exam: {
     questions: 30,

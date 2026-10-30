@@ -12,6 +12,9 @@ export function testedText(q: Question): string {
   if (Array.isArray(x.items)) parts.push(...(x.items as string[]));
   if (Array.isArray(x.pairs)) parts.push(...(x.pairs as string[][]).flat());
   if (typeof x.answer === "string") parts.push(x.answer);
+  // Code games: the solution lines and the right fix are what the player must know.
+  if (x.type === "parsons") parts.push(String(x.code));
+  if (x.type === "bug" && Array.isArray(x.fixes)) parts.push(String((x.fixes as string[])[x.fix as number]));
   return parts.join(" ");
 }
 

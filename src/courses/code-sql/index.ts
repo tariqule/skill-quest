@@ -1,4 +1,5 @@
 import { defineCourse, withQuestions } from "@/engine/define";
+import { codeGames } from "./games";
 import { moreQuestions } from "./more";
 import d1 from "./domains/d1-first-queries";
 import d2 from "./domains/d2-joins-groups";
@@ -23,7 +24,7 @@ export default defineCourse({
   level: "Beginner",
   storageKey: "course:code-sql:v1",
 
-  domains: withQuestions([d1, d2, d3, d4], moreQuestions),
+  domains: withQuestions([d1, d2, d3, d4], [...moreQuestions, ...codeGames]),
 
   exam: {
     questions: 30,

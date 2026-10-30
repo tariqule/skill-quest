@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useCourse } from "@/engine/course-context";
 import { decodeText, encodeText, normalizeOutput, type PreparedQuestion } from "@/engine/game";
 import { setGuideOpen } from "@/engine/ui-state";
+import { BugBody, OutputChoices, ParsonsBody, TraceSteps } from "./code-games/bodies";
 import { CodeBlock, RichText, Tokens } from "./learn/code";
 
 const LETTERS = ["A", "B", "C", "D", "E", "F", "G"];
@@ -15,7 +16,9 @@ const KIND_LABEL = {
   match: "🔗 Matching",
   lines: "🐞 Bug hunt",
   fill: "🧩 Fill in the blanks",
-  output: "⌨️ Type the output",
+  output: "🔮 Predict the output",
+  parsons: "🧱 Parsons puzzle",
+  bug: "🐞 Spot the bug",
 };
 
 interface Props {
@@ -50,8 +53,7 @@ export function QuestionCard({ q, submitted, onSubmit, reveal = true, showDomain
       <h2 className="text-lg sm:text-xl font-semibold leading-snug text-white">
         <RichText text={q.prompt} />
       </h2>
-      {q.code && q.kind !== "lines" && q.kind !== "fill" && (
-
+      {q.code && q.kind !== "lines" && q.kind !== "fill" && q.kind !== "parsons" && q.kind !== "bug" && (
         <div className="mt-4">
           <CodeBlock code={q.code} lang={q.codeLang} />
         </div>
@@ -63,11 +65,14 @@ export function QuestionCard({ q, submitted, onSubmit, reveal = true, showDomain
       {q.kind === "lines" && <LinesBody q={q} submitted={submitted} onSubmit={onSubmit} reveal={reveal} />}
       {q.kind === "fill" && <FillBody q={q} submitted={submitted} onSubmit={onSubmit} reveal={reveal} />}
       {q.kind === "output" && <OutputBody q={q} submitted={submitted} onSubmit={onSubmit} reveal={reveal} />}
+      {q.kind === "parsons" && <ParsonsBody q={q} submitted={submitted} onSubmit={onSubmit} reveal={reveal} />}
+      {q.kind === "bug" && <BugBody q={q} submitted={submitted} onSubmit={onSubmit} reveal={reveal} />}
 
       {locked && reveal && explain && (
         <div className="mt-5 rounded-xl border border-white/10 bg-slate-950/60 p-4 text-base leading-relaxed text-slate-300">
           <span className="font-semibold text-white">Why: </span>
           <RichText text={q.explanation} />
+          {(q.type === "output" || q.type === "bug") && q.trace && q.trace.length > 0 && <TraceSteps steps={q.trace} />}
           <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
             {concept && (
               <button type="button" onClick={() => setShowConcept(!showConcept)} className="text-xs font-semibold text-sky-300 hover:underline">
@@ -438,6 +443,7 @@ function OutputBody({ q, submitted, onSubmit, reveal }: BodyProps) {
         </p>
       )}
       {!locked && <SubmitButton disabled={!ready} onClick={() => onSubmit(encodeText(text))} />}
+      {!locked && <OutputChoices q={q} onSubmit={onSubmit} />}
     </>
   );
 }

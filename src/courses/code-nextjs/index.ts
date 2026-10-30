@@ -1,4 +1,5 @@
 import { defineCourse, withQuestions } from "@/engine/define";
+import { codeGames } from "./games";
 import { moreQuestions } from "./more";
 import d1 from "./domains/d1-routing";
 import d2 from "./domains/d2-server-client";
@@ -22,7 +23,7 @@ export default defineCourse({
   level: "Intermediate",
   storageKey: "course:code-nextjs:v1",
 
-  domains: withQuestions([d1, d2, d3, d4], moreQuestions),
+  domains: withQuestions([d1, d2, d3, d4], [...moreQuestions, ...codeGames]),
 
   exam: {
     questions: 30,

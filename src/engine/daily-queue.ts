@@ -5,13 +5,17 @@ import type { StudyPlan } from "./plan";
 import { interleaveDue, itemKey, parseKey } from "./srs";
 import { getSrs, syncFromProgress } from "./srs-store";
 import { getCourseStore } from "./store";
-import { isChoice, type Card, type ChoiceQuestion, type Course } from "./types";
+import { codeGameOf } from "./code-games";
+import { isChoice, type Card, type Course, type Question } from "./types";
+
+/** Daily Review shows choice questions and the code games (Parsons, Spot the Bug, Predict the Output). */
+export const reviewable = (q: Question) => isChoice(q) || !!codeGameOf(q);
 
 export const SESSION = 30;
 export const NEW_CARDS = 5;
 export const NEW_QUESTIONS = 3;
 
-export type Item = { key: string; course: Course; fresh?: boolean } & ({ kind: "card"; card: Card } | { kind: "q"; q: ChoiceQuestion });
+export type Item = { key: string; course: Course; fresh?: boolean } & ({ kind: "card"; card: Card } | { kind: "q"; q: Question });
 
 const progressOf = (c: Course) => getCourseStore(c).get();
 
@@ -30,7 +34,7 @@ export function buildQueue(plan: StudyPlan | null): Item[] {
       return card ? { key, course, kind: "card", card } : null;
     }
     const q = course.questions.find((x) => x.id === k.id);
-    return q && isChoice(q) ? { key, course, kind: "q", q } : null;
+    return q && reviewable(q) ? { key, course, kind: "q", q } : null;
   };
   const items = interleaveDue(srs, now, active, SESSION * 2)
     .map(resolve)
@@ -54,7 +58,7 @@ export function buildQueue(plan: StudyPlan | null): Item[] {
     for (const id of pool) {
       const course = getCourse(id);
       if (!course || freshQs.length >= NEW_QUESTIONS) continue;
-      const q = course.questions.filter(isChoice).find((x) => {
+      const q = course.questions.filter(reviewable).find((x) => {
         const k = itemKey(id, "q", x.id);
         return !srs[k] && !seen.has(k);
       });
