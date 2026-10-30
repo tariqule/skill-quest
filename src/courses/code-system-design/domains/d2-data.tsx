@@ -159,6 +159,7 @@ read_quorum: 2          # R replicas consulted per read
         "Replicas help with reads and with staying up. They don't help with writes, because every write still lands on the primary.",
         "**Asynchronous** replication is fast, but replicas run a little behind, so a user can read back stale data. **Synchronous** replication avoids losing writes but makes each write slower.",
         "Leaderless stores, in the style of Amazon's Dynamo, use **quorums**. With N copies, a write waits for W of them and a read asks R. If R plus W is more than N, the two groups always overlap.",
+        "When two **regions** both accept writes, the same data can change in both places at once. You need a conflict strategy: last-write-wins loses one edit, while mergeable data types (CRDTs) keep both.",
       ],
       tip: "Whenever you add read replicas, say how you'll handle lag. A common answer: read a user's own recent writes from the primary.",
     },

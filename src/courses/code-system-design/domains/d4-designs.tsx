@@ -206,6 +206,7 @@ id 125 → base62 "21"   (2 × 62 + 1)`}
         "The usual answer is a mix. Push posts for most authors, pull them for accounts with huge followings, and merge the two when the feed loads.",
         "Store each timeline as a short list of post ids, such as the latest few hundred, and fill in the posts from a separate cache.",
         "Chat needs long-lived connections on gateway servers, a registry of who is connected where, ordered storage per conversation, delivery confirmations, and push notifications for people who are offline.",
+        "A **WebSocket** is a long-lived, two-way connection between a client and a server, so the server can push messages the moment they arrive instead of waiting for the client to ask.",
       ],
       tip: "At staff level, drive the trade-off yourself. State the read and write ratio and how followers are spread, then justify the mixed fan-out with numbers.",
     },
