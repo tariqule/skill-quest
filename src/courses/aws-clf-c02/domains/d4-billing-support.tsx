@@ -107,7 +107,7 @@ export default defineDomain({
       task: "4.3",
       title: "Where to turn when you're stuck",
       visual: (
-        <Ladder
+        <Ladder caption="free and self-serve at the top, paid experts at the bottom"
           rungs={[
             { icon: "🧑‍🔧", name: "Paid Support plans", text: "Talk to AWS engineers, with faster answers the higher the plan." },
             { icon: "💬", name: "AWS re:Post", text: "Ask the community. Experts and AWS staff answer questions." },
@@ -164,7 +164,7 @@ export default defineDomain({
               { icon: "📤", label: "AWS out to the internet", sub: "Going out is charged per GB" },
             ]}
           />
-          <Ladder
+          <Ladder caption="higher price to store, cheaper and faster to read as you climb"
             rungs={[
               { icon: "🧊", name: "Archive classes", text: "Cheapest per GB, but you pay to get data back and you wait longer." },
               { icon: "🌗", name: "Infrequent access classes", text: "Cheaper to store, with a fee for each GB you read." },

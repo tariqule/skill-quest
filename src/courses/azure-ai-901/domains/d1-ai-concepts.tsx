@@ -1,4 +1,4 @@
-import { Flow, Ladder, ServiceRows, Tiles } from "@/components/learn/blocks";
+import { Flow, Ladder, ServiceRows, SeverityScale, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { RaiMatcherLab, ToolSorterLab } from "../labs";
 import { CvTasks, DeploymentChooser, TokenEmbeddings } from "../visuals";
@@ -424,13 +424,19 @@ export default defineDomain({
       task: "1.1",
       title: "Guardrails in practice: content filters and Prompt Shields",
       visual: (
-        <Ladder
-          rungs={[
-            { icon: "🟢", name: "Safe", text: "Labeled, never blocked." },
-            { icon: "🟡", name: "Low", text: "Blocked only by the strictest setting." },
-            { icon: "🟠", name: "Medium", text: "Blocked by the default setting." },
-            { icon: "🔴", name: "High", text: "Blocked by every setting that filters." },
+        <SeverityScale
+          levels={[
+            { name: "Safe", color: "#4ade80", text: "Labeled only" },
+            { name: "Low", color: "#facc15", text: "Mild" },
+            { name: "Medium", color: "#fb923c", text: "Clear harm" },
+            { name: "High", color: "#f87171", text: "Severe" },
           ]}
+          settings={[
+            { name: "Block low and up", blocksFrom: 1, note: "strictest" },
+            { name: "Block medium and up", blocksFrom: 2, note: "default" },
+            { name: "Block high only", blocksFrom: 3, note: "most lenient" },
+          ]}
+          caption="The same grid applies to each harm category: hate, sexual, violence, and self-harm. Safe content is never blocked."
         />
       ),
       points: [

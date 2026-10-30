@@ -156,7 +156,12 @@ function MissionMap() {
       {/* Practice deck */}
       <section className="mt-12">
         <h2 className="text-xl font-black text-white">🎮 Practice games</h2>
-        <p className="mt-1 text-sm text-slate-400">Practice games you can replay any time.</p>
+        <p className="mt-1 text-sm text-slate-400">
+          Practice games you can replay any time. Need a quick recap?{" "}
+          <Link href={href("/cheatsheet")} className="font-semibold text-sky-300 underline">
+            📜 Open the cheat sheet
+          </Link>
+        </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {modesFor(course, level)
             .map((id) => MODE_BY_ID[id])
@@ -269,7 +274,7 @@ function PathNodeButton({ node, color, offset }: { node: PathNode; color: string
   const size = node.type === "quest" ? 84 : 68;
   const later = node.state === "later";
   const icon = node.state === "done" ? "✓" : locked ? "🔒" : node.type === "quest" ? "⚔️" : node.basics ? "🐣" : later ? "⏭" : "📖";
-  const label = node.type === "quest" ? "World trial" : `${lesson?.title ?? ""}${later ? " (after the basics)" : node.optional ? " (basics, optional)" : ""}`;
+  const label = node.type === "quest" ? "World trial" : `${lesson?.title ?? node.title}${later ? " (after the basics, open any time)" : node.optional ? " (basics, optional)" : ""}`;
 
   const inner = (
     <span
@@ -277,7 +282,7 @@ function PathNodeButton({ node, color, offset }: { node: PathNode; color: string
       style={{ width: size, height: size, "--c": node.state === "done" ? "#facc15" : color, "--edge": node.state === "done" ? "#a16207" : "#0f172a" } as CSSProperties}
     >
       {node.state === "current" && <span className="ring-pulse absolute inset-0 rounded-full border-4" style={{ borderColor: color }} />}
-      <span className={locked ? "opacity-70 grayscale" : ""}>{icon}</span>
+      <span aria-hidden="true" className={locked ? "opacity-70 grayscale" : ""}>{icon}</span>
     </span>
   );
 
@@ -291,7 +296,7 @@ function PathNodeButton({ node, color, offset }: { node: PathNode; color: string
           {inner}
         </span>
       ) : (
-        <Link href={href(node.to)} aria-label={label}>
+        <Link href={href(node.to)} aria-label={label} title={label}>
           {inner}
         </Link>
       )}

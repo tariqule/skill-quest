@@ -55,6 +55,7 @@ export default defineDomain({
         "The things are called **vertices** (or nodes), and the connections are called **edges**.",
         "Graphs are everywhere. Friends on a social network, pages linking to each other and flights between airports are all graphs.",
         "The most common way to store one is a **neighbour list**: for each vertex, a list of the vertices it connects to.",
+        "Pitfall: graphs can loop back on themselves. When you walk one, keep a set of places you've already visited, or you can go round in circles forever.",
       ],
       tip: "A tree is a special kind of graph: everything is connected, and there are no loops.",
     },

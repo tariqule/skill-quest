@@ -203,7 +203,6 @@ export async function getProducts(category: string) {
         "Cached code can't call `cookies()` or `headers()`, or read `searchParams`. Read them outside the cached function and pass the values in as arguments.",
         "Plain markup, cached output and Suspense fallbacks together form the **static shell**, built ahead of time. Per-request work streams in later. For values like random ids, `await connection()` first.",
         "Worked example: a `getCategories` function marked `\"use cache\"` runs once, then later calls reuse the result until its cache life runs out or you invalidate its tag.",
-        "Pitfall: reading `cookies()` or `headers()` inside a `\"use cache\"` scope. Those values differ per request, so read them outside and pass what you need in as arguments.",
       ],
       tip: "With Cache Components, route options like `export const revalidate` and `dynamic` are gone. Say \"I'd use `cacheLife` on the cached function\" instead.",
     },

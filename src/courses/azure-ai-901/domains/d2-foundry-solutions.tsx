@@ -181,7 +181,7 @@ export default defineDomain({
       task: "2.1",
       title: "Microsoft Foundry: your AI workshop",
       visual: (
-        <Ladder
+        <Ladder caption="each one sits inside the one below"
           rungs={[
             { icon: "🏢", name: "Foundry resource", text: "The building. It holds the models, the billing, and the security." },
             { icon: "🗂️", name: "Foundry project", text: "One workbench inside, for one job, such as a support bot." },
@@ -321,7 +321,6 @@ export default defineDomain({
         "A Foundry resource is the Azure resource behind your Foundry work. It provides model hosting, the agent service, quotas, monitoring and the security boundary.",
         "Keep keys in Azure Key Vault and let the app read them at runtime with its **managed identity**, an identity in Microsoft Entra ID that Azure manages for the app, so no secret sits in code.",
         "In a client-server AI app, the client collects input and shows results. The server runs **inference** on the model deployment and applies system instructions and safety settings.",
-        "Pitfall: pasting the API key into source code. Read it from an environment variable or, better, sign in with Microsoft Entra ID so there's no key to leak.",
       ],
       tip: "Think of it as two sides. The client collects input, sends the request, and shows the result. The server, your model deployment, runs the model, applies instructions and safety, and sends back the output.",
     },
@@ -340,7 +339,6 @@ export default defineDomain({
       points: [
         "A Foundry agent bundles a model, instructions, and tools. Tools let it take actions. Knowledge gives it information to answer from.",
         "Tools include Code Interpreter, knowledge sources, your own functions or APIs, and MCP servers. You manage them in the Foundry Tool Catalog.",
-        "Foundry IQ is a knowledge layer that respects permissions. It indexes your sources and gives answers with citations.",
         "Once you're happy with the model, instructions, and tools, save them as an agent and keep testing it in the playground.",
         "Foundry IQ gives agents a permission-aware knowledge base across sources such as Azure Blob Storage, SharePoint and OneLake, with answers backed by citations.",
         "Worked example: a travel agent gets a flight search tool. Asked for Friday flights to Lisbon, the model decides to call the tool, reads the results, and replies with options.",

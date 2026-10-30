@@ -36,7 +36,7 @@
       const dir = "r" + ++n + "x" + Date.now();
       cheerpOSAddStringFile("/str/" + dir + "-Main.java", source);
       const t0 = performance.now();
-      const rc = await cheerpjRunMain("org.eclipse.jdt.internal.compiler.batch.Main", ECJ, "-d", "/files/" + dir, "-source", "10", "-target", "1.8", "-nowarn", "-encoding", "UTF-8", "-log", "/files/" + dir + ".log", "/str/" + dir + "-Main.java");
+      const rc = await cheerpjRunMain("org.eclipse.jdt.internal.compiler.batch.Main", ECJ, "-d", "/files/" + dir, "-source", "10", "-target", "1.8", "-g", "-nowarn", "-encoding", "UTF-8", "-log", "/files/" + dir + ".log", "/str/" + dir + "-Main.java");
       const compileMs = performance.now() - t0;
       if (rc !== 0) {
         post({ type: "result", id, compileError: (await text("/files/" + dir + ".log")) || "The code didn't compile." });

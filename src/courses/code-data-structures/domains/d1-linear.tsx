@@ -98,7 +98,6 @@ export default defineDomain({
       sources: [{ title: "Python docs: Data Structures (lists)", url: "https://docs.python.org/3/tutorial/datastructures.html", license: "PSF License" }],
       visual: <ArrayShift />,
       points: [
-        "An array's items sit side by side in memory. Finding `arr[i]` is one quick address calculation, so it takes O(1) time however long the array is.",
         "`push` and `pop` work at the end and are O(1). `unshift`, `shift` and `splice` in the middle have to slide other items over, so they're O(n).",
         "A **dynamic array** doubles its space when it fills up. That one push copies everything and costs O(n), but averaged over many pushes it's O(1). We call that **amortized** O(1).",
         "Searching an unsorted array means checking items one by one, which is O(n). If the array is sorted, binary search finds a value in O(log n).",

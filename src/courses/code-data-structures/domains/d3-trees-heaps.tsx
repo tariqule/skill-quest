@@ -43,7 +43,7 @@ export default defineDomain({
       task: "3.1",
       title: "Start here: trees, like a family tree",
       visual: (
-        <Ladder
+        <Ladder caption="further from the root as you climb"
           rungs={[
             { icon: "👑", name: "Root", text: "The one node at the top. Everything else hangs below it." },
             { icon: "🌿", name: "Children", text: "The nodes directly below a node. In a binary tree, each node has at most two: left and right." },
@@ -56,7 +56,7 @@ export default defineDomain({
         "The top node is the **root**. The nodes directly below a node are its **children**, and the node above is its **parent**.",
         "In a **binary tree**, each node has at most two children, called left and right.",
         "A node with no children is a **leaf**. Your computer's folders form a tree too: folders inside folders, with files as the leaves.",
-        "For example, folders on your computer form a tree. One root folder holds others, each folder has exactly one parent, and files at the bottom are the leaves.",
+        "For example, a company org chart is a tree. The CEO is the root, each person reports to one manager, and people with no reports are the leaves.",
       ],
       tip: "Computer science trees grow downwards. The root is drawn at the top and the leaves at the bottom.",
     },
@@ -81,6 +81,7 @@ export default defineDomain({
         "Each item has a priority. A patient with a broken arm waits while a heart attack patient is seen first, even if they came in later.",
         "The usual way to build one is a **heap**: a tree where every parent is more urgent than its children, so the most urgent item sits at the top.",
         "Grabbing the top item is instant. Adding or removing items only takes a few steps, even with millions of them.",
+        "Pitfall: a heap isn't sorted. Only the top item is sure to be the smallest (or the largest), so reading the array from start to end doesn't give sorted order.",
       ],
       tip: "A plain queue asks \"who came first?\". A priority queue asks \"who matters most right now?\".",
     },
@@ -181,7 +182,6 @@ export default defineDomain({
         "For the top k items, keep a min-heap of size k and pop whenever it grows past k. That's O(n log k).",
         "JavaScript has no built-in priority queue. Write a small heap class, or say which library you'd use.",
         "To cancel an item in a heap cheaply, use **lazy deletion**: mark it cancelled and skip it when it reaches the top, or keep a map from item to heap index so you can remove it in O(log n).",
-        "Pitfall: JavaScript has no built-in heap. Sorting an array after every insert costs O(n log n) each time, so write a small binary heap or use a library.",
       ],
       tip: "\"k-th largest\", \"merge k sorted lists\" and \"which meeting room frees up next\" are all heap problems.",
     },

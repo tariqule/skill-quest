@@ -9,7 +9,7 @@ import { CodeBlock, RichText } from "@/components/learn/code";
 import { summarize, type RunResult } from "@/engine/coding";
 import { LANGUAGE_LABEL, javaShow, languageOf } from "@/engine/coding-langs";
 import { runChallenge, warmRuntime, type LiveRun } from "@/engine/runners";
-import { codingGrade } from "@/engine/coding-review";
+import { codingGrade, runStatusChips } from "@/engine/coding-review";
 import { makeOnce } from "@/engine/scenario-progress";
 import { itemKey } from "@/engine/srs";
 import { gradeItem } from "@/engine/srs-store";
@@ -122,7 +122,13 @@ function Workspace({ challenge: c }: { challenge: CodingChallenge }) {
         )}
         <span className="rounded bg-sky-400/10 px-1.5 py-0.5 text-sky-200">{label}</span>
         {c.idea && <span className="rounded bg-white/5 px-1.5 py-0.5 text-slate-400">💡 {c.idea}</span>}
-        {solved && <span className="rounded bg-emerald-400/15 px-1.5 py-0.5 text-emerald-200">✅ solved</span>}
+        <span role="status" className="contents">
+          {runStatusChips(solved, summary && result ? { ...summary, error: !!result.error, timedOut: !!result.timedOut } : null).map((chip) => (
+            <span key={chip.text} className={`rounded px-1.5 py-0.5 ${chip.tone === "good" ? "bg-emerald-400/15 text-emerald-200" : "bg-rose-400/15 text-rose-200"}`}>
+              {chip.text}
+            </span>
+          ))}
+        </span>
       </div>
       <h1 className="mt-2 font-mono text-2xl font-black text-white sm:text-3xl">{c.title}</h1>
 
@@ -318,8 +324,8 @@ function Results({ result, fn, lang }: { result: RunResult; fn: string; lang: st
                 <div className="text-slate-400">
                   {fn}({t.args})
                 </div>
-                {t.error ? <div className="text-rose-200">threw {t.error}</div> : <div>got {t.got}</div>}
-                <div className="text-emerald-300">expected {t.expected}</div>
+                {t.error ? <div className="text-rose-200">threw {t.error}</div> : <div>got {t.got ?? "nothing"}</div>}
+                {t.expected !== undefined && <div className="text-emerald-300">expected {t.expected}</div>}
               </div>
             )}
           </li>

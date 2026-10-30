@@ -313,7 +313,7 @@ export default defineDomain({
       title: "Storage: objects, blocks, files, and archives",
       visual: (
         <div className="grid gap-4">
-          <Ladder
+          <Ladder caption="higher price to store, cheaper and faster to read as you climb"
             rungs={[
               { icon: "🧊", name: "S3 Glacier Deep Archive", text: "The cheapest. Getting data back takes hours. For keeping things for years." },
               { icon: "❄️", name: "S3 Glacier Flexible Retrieval", text: "Archives you can get back in minutes to hours." },

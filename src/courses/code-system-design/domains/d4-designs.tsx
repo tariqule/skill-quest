@@ -61,7 +61,7 @@ POST /users           →  201 Created     (new user made)`}
       title: "Keeping a system up",
       check: ["sd-b4-03", "sd-b4-04"],
       visual: (
-        <Ladder
+        <Ladder dollars caption="more uptime costs more as you climb"
           rungs={[
             { icon: "🙂", name: "99%", text: "Down about 7 hours a month. Fine for a hobby project." },
             { icon: "😀", name: "99.9%", text: "Down about 43 minutes a month. A common target for business apps." },

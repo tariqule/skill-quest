@@ -85,16 +85,17 @@ def __cq_run(code, fn, tests_json):
         args = __json.loads(__json.dumps(t["args"]))
         if not hidden:
             r["args"] = ", ".join(__cq_show(a) for a in t["args"])
+            r["expected"] = __cq_show(t["expected"])
         try:
             with __ctx.redirect_stdout(out):
                 got = f(*args)
             r["ok"] = __cq_eq(__cq_norm(got), t["expected"])
             if not hidden:
                 r["got"] = __cq_show(got)
-                r["expected"] = __cq_show(t["expected"])
         except RecursionError as e:
             r["ok"] = False
-            r["error"] = "RecursionError: maximum recursion depth exceeded (check the base case)"
+            frames = [f for f in __tb.extract_tb(e.__traceback__) if f.filename == "solution.py"]
+            r["error"] = "RecursionError: your function probably calls itself forever (check the base case)" + (f"\n  line {frames[-1].lineno}, in {frames[-1].name}" if frames else "")
         except BaseException as e:
             r["ok"] = False
             r["error"] = __cq_error(e)
@@ -241,27 +242,34 @@ class Main {
     if (v instanceof Map) { Map<?, ?> m = (Map<?, ?>) v; if (m.size() == 1 && m.containsKey("$set")) return "set" + __show(m.get("$set")); StringBuilder b = new StringBuilder("{"); for (Map.Entry<?, ?> e : m.entrySet()) { if (b.length() > 1) b.append(", "); b.append(e.getKey()).append("=").append(__show(e.getValue())); } return b.append("}").toString(); }
     return String.valueOf(v);
   }
+  static boolean __user(StackTraceElement e) { String k = e.getClassName(); return !k.startsWith("Main") && !k.startsWith("__") && !k.startsWith("java.") && !k.startsWith("sun.") && !k.startsWith("jdk."); }
+  static String __at(StackTraceElement e) { return e.getLineNumber() > 0 ? "\\n  at line " + e.getLineNumber() + ", in " + e.getMethodName() : "\\n  in method " + e.getMethodName(); }
+  /** CheerpJ reports a JavaScript stack overflow as an ArithmeticException with no message and a very deep stack. */
+  static boolean __overflow(Throwable t) { return t instanceof StackOverflowError || (t instanceof ArithmeticException && t.getMessage() == null && t.getStackTrace().length > 500); }
   static String __err(Throwable t) {
+    if (__overflow(t)) {
+      for (StackTraceElement e : t.getStackTrace()) if (__user(e)) return "StackOverflowError: your method probably calls itself forever (check the base case)" + __at(e);
+      return "StackOverflowError: your method probably calls itself forever (check the base case)";
+    }
     StringBuilder b = new StringBuilder(t.toString());
     int shown = 0;
     for (StackTraceElement e : t.getStackTrace()) {
       if (e.getClassName().startsWith("Main")) break;
-      if (e.getFileName() != null && e.getFileName().equals("Main.java") && shown < 3) { b.append("\\n  at line ").append(e.getLineNumber()).append(", in ").append(e.getMethodName()); shown++; }
+      if (__user(e) && shown < 3) { b.append(__at(e)); shown++; }
     }
     return b.toString();
   }
   static void __test(StringBuilder sb, int i, String name, boolean hidden, __Call c, Object expected) {
     if (__n++ > 0) sb.append(",");
     sb.append("{\\"name\\":").append(__q(name)).append(",\\"hidden\\":").append(hidden);
+    Object exp = __norm(expected);
+    if (!hidden) sb.append(",\\"expected\\":").append(__q(__show(exp)));
     try {
       Object got = __norm(c.call());
-      Object exp = __norm(expected);
       sb.append(",\\"ok\\":").append(__eq(got, exp));
-      if (!hidden) sb.append(",\\"got\\":").append(__q(__show(got))).append(",\\"expected\\":").append(__q(__show(exp)));
+      if (!hidden) sb.append(",\\"got\\":").append(__q(__show(got)));
     } catch (__Timeout e) {
       throw e;
-    } catch (StackOverflowError e) {
-      sb.append(",\\"ok\\":false,\\"error\\":").append(__q("StackOverflowError: the recursion never stops (check the base case)"));
     } catch (Throwable e) {
       sb.append(",\\"ok\\":false,\\"error\\":").append(__q(__err(e)));
     }

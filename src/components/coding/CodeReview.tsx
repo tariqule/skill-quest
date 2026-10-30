@@ -97,7 +97,7 @@ export function CodeReview({ course, c, onDone }: { course: Course; c: CodingCha
             <div className="mt-1 whitespace-pre-wrap text-xs font-normal text-rose-100">
               {(() => {
                 const t = result!.results.find((x) => !x.ok && !x.hidden)!;
-                return `${t.name}: ${t.error ? `threw ${t.error}` : `got ${t.got}, expected ${t.expected}`}`;
+                return `${t.name}: ${t.error ? `threw ${t.error}` : `got ${t.got ?? "nothing"}`}${t.expected !== undefined ? `, expected ${t.expected}` : ""}`;
               })()}
             </div>
           )}

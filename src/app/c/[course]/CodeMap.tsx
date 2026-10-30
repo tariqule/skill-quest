@@ -14,7 +14,7 @@ import { domainMastery, overallReadiness, pct } from "@/engine/game";
 import { effectiveLevel, LEVEL_BY_ID } from "@/engine/levels";
 import { CourseLevel, LevelUpBanner } from "@/components/LevelControls";
 import { MODE_BY_ID, modesFor } from "@/engine/modes";
-import { buildPath, type PathNode } from "@/engine/path";
+import { buildPath, tileLabel, type PathNode } from "@/engine/path";
 import { levelInfo } from "@/engine/store";
 
 /** The mission map for interview tracks: a terminal hub plus an arcade level-select. */
@@ -266,7 +266,7 @@ function Tile({ node, label, color }: { node: PathNode; label: string; color: st
     >
       <div className="flex items-center justify-between font-mono text-xs font-black" style={{ color: boss ? "#f472b6" : color }}>
         <span>{label}</span>
-        <span>{done ? "★" : locked ? "🔒" : boss ? "⚔️" : current ? "▶" : later ? "⏭" : node.basics ? "🐣" : "·"}</span>
+        <span aria-hidden="true">{done ? "★" : locked ? "🔒" : boss ? "⚔️" : current ? "▶" : later ? "⏭" : node.basics ? "🐣" : "·"}</span>
       </div>
       <div className="mt-2 line-clamp-3 text-xs leading-snug text-slate-200">{boss ? "Stage boss: prove the whole stage" : node.title}</div>
       {later && <div className="mt-1 text-[10px] text-slate-500">after the basics</div>}
@@ -282,7 +282,7 @@ function Tile({ node, label, color }: { node: PathNode; label: string; color: st
   return locked ? (
     <span aria-label={`${node.title} (locked)`}>{body}</span>
   ) : (
-    <Link href={href(node.to)} aria-label={node.title} className="block h-full">
+    <Link href={href(node.to)} aria-label={tileLabel(node)} title={tileLabel(node)} className="block h-full">
       {body}
     </Link>
   );

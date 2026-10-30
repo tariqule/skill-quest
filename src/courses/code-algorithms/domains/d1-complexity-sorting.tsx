@@ -199,7 +199,6 @@ export default defineDomain({
       points: [
         "Always pass a comparator when sorting numbers: `nums.sort((a, b) => a - b)`.",
         "Library sorts are hybrids. V8, Python and Java's object sort use Timsort, a mix of merge and insertion sort. Many C++ libraries use introsort, which mixes quicksort, heap sort and insertion sort.",
-        "If the data is bigger than memory, use an external merge sort: sort chunks that fit, write them to disk, then merge them k at a time.",
         "When data doesn't fit in memory, use an **external merge sort**: sort memory-sized chunks, write each to disk, then k-way merge the chunks with a **min-heap** that always yields the smallest next item.",
         "Worked example: sort orders by date, then sort again by customer with a stable sort. Each customer's orders stay in date order.",
       ],

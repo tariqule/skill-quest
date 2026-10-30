@@ -55,7 +55,7 @@ export default defineDomain({
         "A **queue** works like a line at a counter. People join at the back and leave from the front, so the oldest item comes out first.",
         "In JavaScript an array can be a stack: `push` puts an item on top and `pop` takes the top one off.",
         "Your browser's back button is a stack of pages. A printer working through jobs in order is a queue.",
-        "For example, your browser's back button is a stack: the last page you opened is the first one you return to. A print queue is a queue: the first job sent prints first.",
+        "For example, undo in a text editor is a stack: the last change you made is the first one undone. Callers waiting on a support line form a queue.",
       ],
       tip: "Ask yourself: should the newest thing go first, or the oldest? Newest means stack, oldest means queue.",
     },

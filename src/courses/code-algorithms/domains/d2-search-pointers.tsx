@@ -172,7 +172,7 @@ export default defineDomain({
         "Two pointers replace a nested loop when each comparison lets you rule out a whole group of pairs at once.",
         "For a pair sum in a sorted array: if the sum is too small, move the left pointer up, because nothing paired with a[l] can reach the target. If it's too big, move the right pointer down.",
         "It's usually O(n) time and O(1) space, plus O(n log n) if you need to sort first.",
-        "Worked example: find two numbers adding to 9 in sorted `[1, 3, 5, 6, 8]`. 1 + 8 is 9, done. If the sum is too small, move left up; too big, move right down.",
+        "Worked example: find two numbers adding to 11 in sorted `[1, 3, 5, 6, 8]`. Start with 1 and 8, which make 9. That's too small, so step left to 3, and 3 plus 8 makes 11.",
         "Pitfall: using this sum trick on unsorted input. Moving a pointer only makes sense when you know which way the values grow.",
       ],
       tip: "Explain why moving a pointer can't skip the answer. That reasoning is what interviewers are listening for.",

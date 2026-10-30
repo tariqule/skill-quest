@@ -114,7 +114,7 @@ export default defineDomain({
       task: "1.1",
       title: "Where the cloud lives: Regions and Availability Zones",
       visual: (
-        <Ladder
+        <Ladder caption="each one sits inside the one below"
           rungs={[
             { icon: "🗺️", name: "Region", text: "A part of the world, such as Ireland or Tokyo, where AWS has data centers." },
             { icon: "🏘️", name: "Availability Zone", text: "One or more separate data centers inside a Region, with their own power and network." },

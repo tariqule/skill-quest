@@ -92,3 +92,12 @@ export function buildPath(course: Course, p: Progress): { worlds: PathWorld[]; c
   const examUnlocked = course.domains.every((d) => (p.questStars[d.id] ?? 0) > 0);
   return { worlds, current, examUnlocked };
 }
+
+/** Accessible name for a map tile: the lesson title plus its state, so icon-only states such as ⏭ are spoken. */
+export function tileLabel(node: Pick<PathNode, "type" | "title" | "state">): string {
+  const title = node.type === "quest" ? `Stage boss: ${node.title}` : node.title;
+  if (node.state === "later") return `${title} (after the basics, open any time)`;
+  if (node.state === "done") return `${title} (done)`;
+  if (node.state === "current") return `${title} (start here)`;
+  return title;
+}

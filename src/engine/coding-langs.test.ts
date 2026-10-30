@@ -139,6 +139,16 @@ describe.runIf(HAS_JAVA)("java harness", () => {
     expect(r.results[0].error).toMatch(/ArrayIndexOutOfBounds[\s\S]*at line 4, in max/);
     expect(r.logs[0]).toBe("hi");
   });
+  it("names endless recursion as a StackOverflowError with the player's line", () => {
+    const r = runJava(c, "class Solution {\n  int max(int[] nums) {\n    return max(nums);\n  }\n}");
+    expect(r.results[0].error).toMatch(/StackOverflowError: your method probably calls itself forever[\s\S]*at line 3, in max/);
+  }, 30_000);
+  it("shows expected and actual values for a wrong answer", () => {
+    const t = runJava(c, "class Solution {\n  int max(int[] nums) {\n    return -999;\n  }\n}").results.find((x) => !x.hidden)!;
+    expect(t.ok).toBe(false);
+    expect(t.got).toBe("-999");
+    expect(t.expected).toBeTruthy();
+  }, 30_000);
 });
 
 describe.runIf(HAS_PY).each(PY)("%s", (_, c) => {
@@ -158,4 +168,23 @@ describe.runIf(HAS_JAVA)("java 8 library check", () => {
     writeFileSync(join(dir, "A.java"), "class A { Object x = java.util.List.of(1); }");
     expect(() => execFileSync(JAVAC!, ["--release", "8", "-d", dir, join(dir, "A.java")], { stdio: "pipe" })).toThrow();
   }, 60_000);
+});
+
+describe.runIf(HAS_PY)("python failure messages", () => {
+  const [, c] = PY[0];
+  it("shows expected and actual values for a wrong answer", () => {
+    const t = runPy(c, `def ${c.fn}(*args):\n    return "nope"\n`).results.find((x) => !x.hidden)!;
+    expect(t.ok).toBe(false);
+    expect(t.got).toBe("'nope'");
+    expect(t.expected).toBeTruthy();
+  });
+  it("keeps the expected value when the code throws", () => {
+    const t = runPy(c, `def ${c.fn}(*args):\n    raise ValueError("boom")\n`).results.find((x) => !x.hidden)!;
+    expect(t.error).toMatch(/ValueError/);
+    expect(t.expected).toBeTruthy();
+  });
+  it("names endless recursion and points at the line", () => {
+    const r = runPy(c, `def ${c.fn}(*args):\n    return ${c.fn}(*args)\n`);
+    expect(r.results[0].error).toMatch(/RecursionError: your function probably calls itself forever[\s\S]*line 2/);
+  });
 });

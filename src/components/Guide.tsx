@@ -217,9 +217,13 @@ function ServicesTab() {
 }
 
 function TipsTab() {
-  const { course } = useCourse();
+  const { course, href } = useCourse();
   return (
     <div className="grid gap-2">
+      <Link href={href("/cheatsheet")} onClick={() => setGuideOpen(false)} className="flex gap-3 rounded-xl border border-sky-400/30 bg-sky-400/10 p-3 text-sm font-semibold text-sky-200 underline">
+        <span className="text-xl" aria-hidden>📜</span>
+        <span>Cheat sheet: every key fact on one page</span>
+      </Link>
       {course.guide.tips.map((t) => (
         <div key={t.tip} className="flex gap-3 rounded-xl bg-white/5 p-3 text-sm text-slate-200">
           <span className="text-xl">{t.icon}</span>
@@ -250,6 +254,9 @@ function PlayTab() {
           <div>{d}</div>
         </div>
       ))}
+      <Link href={href("/cheatsheet")} onClick={() => setGuideOpen(false)} className="text-sky-300 underline">
+        📜 Open the one-page cheat sheet
+      </Link>
       <Link href={href("/start")} onClick={() => setGuideOpen(false)} className="text-sky-300 underline">
         Replay the intro briefing
       </Link>

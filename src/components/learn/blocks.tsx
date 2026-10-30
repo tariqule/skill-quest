@@ -115,7 +115,11 @@ export function Layers({ layers }: { layers: { name: string; color: string; item
   );
 }
 
-export function Ladder({ rungs }: { rungs: { icon: string; name: string; text: string }[] }) {
+/**
+ * A climbing ladder: the first rung is at the bottom. Rungs only show $ marks when `dollars` is set, and the
+ * caption is whatever the lesson says the climb means, so non-cost ladders don't claim to be about cost.
+ */
+export function Ladder({ rungs, caption, dollars = false }: { rungs: { icon: string; name: string; text: string }[]; caption?: string; dollars?: boolean }) {
   return (
     <div className="flex flex-col-reverse gap-2">
       {rungs.map((r, i) => (
@@ -124,16 +128,71 @@ export function Ladder({ rungs }: { rungs: { icon: string; name: string; text: s
           className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950/60 p-3"
           style={{ marginLeft: `${i * 6}%`, boxShadow: `inset 4px 0 0 0 hsl(${140 - i * 40} 70% 55%)` }}
         >
-          <span className="text-2xl">{r.icon}</span>
+          <span className="text-2xl" aria-hidden="true">{r.icon}</span>
           <div className="min-w-0">
             <div className="font-semibold text-white">
-              {i + 1}. {r.name} <span className="ml-1 text-xs text-slate-400">{"$".repeat(i + 1)}</span>
+              {i + 1}. {r.name}
+              {dollars && (
+                <>
+                  <span className="ml-1 text-sm text-slate-200" aria-hidden="true">{"$".repeat(i + 1)}</span>
+                  <span className="sr-only">, cost level {i + 1} of {rungs.length}</span>
+                </>
+              )}
             </div>
-            <div className="text-base text-slate-400">{r.text}</div>
+            <div className="text-base text-slate-300">{r.text}</div>
           </div>
         </div>
       ))}
-      <div className="text-xs text-slate-400">⬆ more cost, effort, and data as you climb</div>
+      {caption && <div className="text-sm text-slate-200">⬆ {caption}</div>}
+    </div>
+  );
+}
+
+/**
+ * Severity levels with the filter settings that block them. Each setting row marks which levels it blocks,
+ * so "block from low upward" reads straight off the grid.
+ */
+export function SeverityScale({ levels, settings, caption }: { levels: { name: string; color: string; text: string }[]; settings: { name: string; blocksFrom: number | null; note?: string }[]; caption?: string }) {
+  return (
+    <div className="grid gap-3">
+      <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${levels.length}, minmax(0, 1fr))` }}>
+        {levels.map((l) => (
+          <div key={l.name} className="rounded-xl border border-white/10 bg-slate-950/60 p-2 text-center" style={{ boxShadow: `inset 0 4px 0 0 ${l.color}` }}>
+            <div className="font-semibold text-white">{l.name}</div>
+            <div className="text-sm text-slate-300">{l.text}</div>
+          </div>
+        ))}
+      </div>
+      <table className="w-full border-separate border-spacing-1 text-sm">
+        <caption className="sr-only">Which severity levels each filter setting blocks</caption>
+        <thead>
+          <tr>
+            <th scope="col" className="text-left font-semibold text-slate-200">Setting</th>
+            {levels.map((l) => (
+              <th key={l.name} scope="col" className="font-semibold text-slate-200">{l.name}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {settings.map((st) => (
+            <tr key={st.name}>
+              <th scope="row" className="text-left font-semibold text-white">
+                {st.name}
+                {st.note && <span className="ml-1 font-normal text-slate-300">({st.note})</span>}
+              </th>
+              {levels.map((l, i) => {
+                const blocked = st.blocksFrom !== null && i >= st.blocksFrom;
+                return (
+                  <td key={l.name} className={`rounded-md px-1 py-1 text-center font-semibold ${blocked ? "bg-rose-500/25 text-rose-100" : "bg-white/5 text-slate-200"}`}>
+                    {blocked ? "⛔ blocked" : "✓ allowed"}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {caption && <div className="text-sm text-slate-200">{caption}</div>}
     </div>
   );
 }
