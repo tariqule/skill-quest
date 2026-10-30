@@ -216,6 +216,7 @@ export default defineDomain({
         "**CloudTrail** records API calls, so it tells you who did what and when. To also record S3 object reads and writes or Lambda invokes, turn on data events.",
         "A **health check** regularly asks your app \"are you OK?\". Load balancer target groups and ECS container health checks use the answer to replace unhealthy targets.",
         "In Kubernetes, a **readiness probe** keeps a pod out of service until it's ready to handle traffic.",
+        "For DynamoDB throttling (ProvisionedThroughputExceededException), retry with exponential backoff, spread writes off a hot partition key, raise provisioned capacity, or switch the table to on-demand capacity mode.",
       ],
     },
     {
