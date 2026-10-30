@@ -479,7 +479,7 @@ export default defineDomain({
         "Linear regression on spend",
         "Clustering (unsupervised learning)",
         "Binary classification of buyers",
-        "Reinforcement learning with rewards",
+        "Reinforcement learning (rewards)",
       ],
       answer: [1],
       explanation:
@@ -925,7 +925,7 @@ export default defineDomain({
       options: [
         "Using a trained model to make predictions on new data",
         "Collecting and cleaning the data used for training",
-        "Labeling images by hand so a model can learn from them",
+        "Labeling images by hand so that a model can learn",
         "Choosing which algorithm and settings to train with",
       ],
       answer: [0],
@@ -962,7 +962,7 @@ export default defineDomain({
       prompt: "Why do you keep back a test dataset that the model never sees during training?",
       options: [
         "To estimate how the model will perform on new, unseen data",
-        "To give the model extra examples to learn from in training",
+        "To give the model more examples to learn from in training",
         "To choose the learning rate while the model is training",
         "To keep a backup copy of the data in case training fails",
       ],
@@ -1111,7 +1111,7 @@ export default defineDomain({
       prompt: "Before building a model, a data scientist charts distributions and correlations to understand the data and find problems. Which phase is this?",
       options: [
         "Exploratory data analysis (EDA)",
-        "Model deployment and monitoring",
+        "Model deployment and tracking",
         "Hyperparameter tuning jobs",
         "Inference on a test endpoint",
       ],
@@ -1285,7 +1285,7 @@ export default defineDomain({
       "prompt": "Feature Store has an online store and an offline store. What is the online store for?",
       "options": [
         "Fast lookups when the model makes live predictions",
-        "Long-term offline history for building new training datasets",
+        "Long-term history for building training sets",
         "Saving trained model files for later",
         "Holding the logs of each training job"
       ],
@@ -1477,7 +1477,7 @@ export default defineDomain({
       "options": [
         "Root mean squared error",
         "F1 score",
-        "Area under the ROC curve",
+        "Area under the curve",
         "Precision"
       ],
       "answer": [
@@ -1536,15 +1536,15 @@ export default defineDomain({
       "domain": "d1",
       "lesson": "d1-lifecycle",
       "type": "order",
-      "prompt": "Put these ML project steps in order.",
+      "prompt": "A live model's results start to slip. Put the MLOps steps that fix it in order.",
       "items": [
-        "Collect and label the data",
-        "Engineer features",
-        "Train and tune the model",
-        "Evaluate on held-out data",
-        "Deploy and monitor the model"
+        "Model Monitor detects drift in production",
+        "Collect and label fresh data",
+        "Re-train the model",
+        "Register and approve the new version",
+        "Redeploy the model"
       ],
-      "explanation": "The ML lifecycle moves from data, to features, to training, to evaluation, then to deployment with monitoring."
+      "explanation": "Monitoring spots the drift first. You then gather newer data, re-train, approve the new version in Model Registry and redeploy it. Running this loop well is MLOps."
     },
     {
       "id": "d1-81",

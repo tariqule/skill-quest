@@ -533,7 +533,7 @@ export default defineDomain({
       options: [
         "A model deployed across several AWS Regions for resilience",
         "A model that can take in or produce more than one data type",
-        "A model with several hyperparameters tuned at the same time",
+        "A model with several hyperparameters tuned at once",
         "An ensemble that combines several classification models",
       ],
       answer: [1],
@@ -625,7 +625,7 @@ export default defineDomain({
         "Lower cost and faster time to value",
         "It never hallucinates",
         "It requires no data governance",
-        "It always outperforms custom models",
+        "It always outperforms custom ones",
       ],
       answer: [0],
       explanation: "Training from scratch needs enormous amounts of data and computing power. A foundation model already knows a lot, so adapting it is far cheaper and quicker.",
@@ -637,7 +637,7 @@ export default defineDomain({
       prompt: "Which AWS chips are built specifically for low-cost, high-performance deep learning inference?",
       options: [
         "AWS Inferentia",
-        "AWS Graviton4 CPUs",
+        "AWS Graviton4",
         "AWS Trainium",
         "AWS Nitro",
       ],
@@ -897,7 +897,7 @@ export default defineDomain({
         "Efficiency (productivity gain)",
         "Higher model accuracy",
         "Better data residency",
-        "Lower latency on the company network",
+        "Lower latency on the network",
       ],
       answer: [0],
       explanation: "Saving people's time is an efficiency gain. It's one of the business metrics companies use to justify spending on GenAI.",
@@ -1033,7 +1033,7 @@ export default defineDomain({
         "Infrastructure as a Service (IaaS)",
         "Software as a Service (SaaS)",
         "Platform as a Service (PaaS)",
-        "On-premises hosting in your own data center",
+        "On-premises data center hosting",
       ],
       answer: [0],
       explanation: "IaaS gives you the most freedom. The provider runs the hardware and you manage the operating system and apps on top.",
@@ -1045,7 +1045,7 @@ export default defineDomain({
       prompt: "A new GenAI feature isn't available in the AWS Region a company uses. What's the most likely reason?",
       options: [
         "New services and features reach Regions at different times",
-        "Each Availability Zone chooses which services it will offer",
+        "Each Availability Zone picks which services it will offer",
         "Every Region gets each feature on the same day by design",
         "Edge locations host new features before any Region does",
       ],
@@ -1146,7 +1146,7 @@ export default defineDomain({
       prompt: "Employees want Amazon Quick to answer only from documents they're allowed to see. What makes this work?",
       options: [
         "Users sign in through IAM Identity Center and answers respect their access",
-        "All users share one admin login so that the assistant can see every single file",
+        "All users share one admin login so that the assistant can see every file",
         "The assistant answers from public internet data instead of company files",
         "The temperature is set to 0 so it never mentions restricted documents",
       ],
@@ -1294,7 +1294,7 @@ export default defineDomain({
       "domain": "d2",
       "lesson": "d2-tokens",
       "prompt": "Roughly what is a token?",
-      "options": ["A piece of a word, often a few characters","A single full sentence of text, end to end","One whole page of a document at a time","One user's login session with the model"],
+      "options": ["A piece of a word, often a few characters","One full sentence of text, end to end","One whole page of a document at a time","One user's login session with the model"],
       "answer": [
         0
       ],
@@ -1304,12 +1304,17 @@ export default defineDomain({
       "id": "d2-68",
       "domain": "d2",
       "lesson": "d2-tokens",
-      "prompt": "What is the context window of a model?",
-      "options": ["The most tokens it can handle in one request","The time it takes to train the model from scratch","The number of users who can call it at once","The AWS Region where the model is hosted"],
+      "prompt": "In a very long chat, a model starts ignoring details from the first messages. What is the most likely cause?",
+      "options": [
+        "The chat no longer fits in the model's context window",
+        "The temperature was set too low for long chats",
+        "The model was retrained between two of the messages",
+        "The AWS Region ran out of capacity for the model"
+      ],
       "answer": [
         0
       ],
-      "explanation": "The context window covers the prompt and the reply together. Text beyond it can't be used."
+      "explanation": "The context window caps how many tokens fit in one request, and the chat history counts toward it. Once a chat outgrows it, the earliest messages get cut off or summarised."
     },
     {
       "id": "d2-69",
@@ -1411,7 +1416,7 @@ export default defineDomain({
       "options": [
         "It's nondeterministic and samples its words",
         "It forgets its training every hour",
-        "It always reads a random web page before it answers",
+        "It always reads a random web page first",
         "It runs on a different model each time"
       ],
       "answer": [
@@ -1458,7 +1463,7 @@ export default defineDomain({
       "domain": "d2",
       "lesson": "d2-stack",
       "prompt": "Which statement about Amazon Bedrock is true?",
-      "options": ["You call many models through one API, with no servers to run","You must buy GPUs and install each model yourself first","It only offers foundation models that Amazon built and trained itself","It can only be used by clicking in the AWS console"],
+      "options": ["You call many models through one API, with no servers to run","You must buy GPUs and install each model yourself first","It only offers foundation models that Amazon built itself","It can only be used by clicking in the AWS console"],
       "answer": [
         0
       ],
@@ -1513,7 +1518,7 @@ export default defineDomain({
       "prompt": "What does a Bedrock agent add on top of a plain model call?",
       "options": [
         "It plans steps and calls tools or APIs",
-        "It makes the model's weights smaller and faster to load",
+        "It makes the model's weights smaller",
         "It encrypts data with your KMS key",
         "It removes the need for any prompt"
       ],
@@ -1642,7 +1647,7 @@ export default defineDomain({
       "options": [
         "Amazon Bedrock AgentCore",
         "Amazon Lex chatbots",
-        "AWS Step Functions workflows",
+        "AWS Step Functions",
         "Amazon Kendra search"
       ],
       "answer": [
