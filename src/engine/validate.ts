@@ -1,3 +1,4 @@
+import { prepareParsons } from "./code-games";
 import { examQuestions, questionKind } from "./game";
 import { BEGINNER_MIN, MIN_PER_LEVEL, SENIORITY } from "./levels";
 import { EXTRA_KINDS, isCodeTrack } from "./tracks";
@@ -65,6 +66,8 @@ export function validateCourse(course: Course): string[] {
       const lines = q.code.split("\n").filter((l) => l.trim());
       if (lines.length < 3) err(`${where} needs at least 3 solution lines`);
       if ((q.distractors ?? []).some((d) => lines.some((l) => l.trim() === d.trim()))) err(`${where} has a decoy that is also a solution line`);
+      // The player sets indentation, so no block may show leading whitespace (it would give a decoy away).
+      if (q.indent && prepareParsons(q, (xs) => [...xs].reverse()).blocks.some((b) => /^\s/.test(b))) err(`${where} shows a line with leading whitespace though the player sets indentation`);
     } else if (q.type === "bug") {
       const lines = q.code.split("\n");
       if (q.line < 1 || q.line > lines.length || !lines[q.line - 1].trim()) err(`${where} points at a line that doesn't exist or is blank`);

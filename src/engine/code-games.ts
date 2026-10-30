@@ -16,6 +16,14 @@ export const CODE_GAMES: { id: CodeGameId; name: string; icon: string; blurb: st
 
 export const CODE_GAME_BY_ID = Object.fromEntries(CODE_GAMES.map((g) => [g.id, g])) as Record<CodeGameId, (typeof CODE_GAMES)[number]>;
 
+/** The rule shown for a game in this course: Parsons only mentions indentation when some puzzle uses it. */
+export function gameRule(game: CodeGameId, course?: Course) {
+  if (game === "parsons" && course && !gamePool(course, "parsons").some((q) => q.type === "parsons" && q.indent)) {
+    return "Put the lines in order. Some lines are decoys that don't belong.";
+  }
+  return CODE_GAME_BY_ID[game].rule;
+}
+
 export function codeGameOf(q: Question): CodeGameId | null {
   return q.type === "parsons" || q.type === "bug" || q.type === "output" ? q.type : null;
 }
@@ -79,7 +87,9 @@ export function prepareParsons(q: ParsonsQuestion, shuffle: <T>(xs: T[]) => T[])
   // Without player indentation, a block keeps its own leading spaces so the code still reads naturally.
   const rawLines = q.code.replace(/^\n+|\s+$/g, "").split("\n").filter((l) => l.trim() !== "");
   const solTexts = indent ? lines.map((l) => l.text) : rawLines;
-  const all = [...solTexts.map((t) => ({ t, decoy: false })), ...(q.distractors ?? []).map((t) => ({ t, decoy: true }))];
+  // When the player sets indentation, every block (decoys included) is shown flush left so whitespace can't give a decoy away.
+  const decoyTexts = (q.distractors ?? []).map((t) => (indent ? t.trim() : t));
+  const all = [...solTexts.map((t) => ({ t, decoy: false })), ...decoyTexts.map((t) => ({ t, decoy: true }))];
   let order = shuffle(all.map((_, i) => i));
   for (let k = 0; k < 5 && order.every((x, i) => x === i); k++) order = shuffle(order);
   return {
@@ -136,6 +146,8 @@ export function parsonsSolution(p: PreparedParsons) {
 
 /** The fix choice travels after the line pick as `FIX_BASE + option index`. */
 export const FIX_BASE = 1000;
+/** Appended to a Spot the Bug answer when the player first tapped a line that was fine: still graded as a miss. */
+export const MISSED_LINE = -1;
 
 /** The code with the fix applied: line `line` replaced, keeping its indentation. */
 export function applyFix(q: Pick<BugQuestion, "code" | "line">, fix: string) {

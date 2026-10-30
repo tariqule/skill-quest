@@ -37,6 +37,11 @@ export const PRACTICE_MINUTES = 10;
 export const MOCK_MINUTES = 30;
 const SECONDS_PER_REVIEW = 30;
 
+/** The date to keep when the plan's goal changes: a date set for one goal never carries over to another. */
+export function dateForGoal(prevGoal: PlanGoal, nextGoal: PlanGoal, date: string) {
+  return prevGoal === nextGoal ? date : "";
+}
+
 /** Whole days from `today` to `date` (both YYYY-MM-DD). Negative once the date has passed. */
 export function daysLeft(date: string | null, today: string): number | null {
   if (!date) return null;

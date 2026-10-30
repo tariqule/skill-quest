@@ -8,7 +8,7 @@ import { getCourseStore } from "@/engine/store";
 import type { Course, Question } from "@/engine/types";
 
 /** One code-game item outside a course page (Daily Review, the daily warm-up), with its course context. */
-export function GameItem({ course, q, tag, onDone }: { course: Course; q: Question; tag?: string; onDone: (correct: boolean) => void }) {
+export function GameItem({ course, q, tag, note, onDone }: { course: Course; q: Question; tag?: string; note?: (correct: boolean) => string; onDone: (correct: boolean) => void }) {
   const [prepared] = useState(() => prepare(q));
   const [submitted, setSubmitted] = useState<number[] | null>(null);
   const correct = submitted !== null && isCorrect(prepared, submitted);
@@ -26,6 +26,11 @@ export function GameItem({ course, q, tag, onDone }: { course: Course; q: Questi
         {tag ? ` · ${tag}` : ""}
       </div>
       <QuestionCard q={prepared} submitted={submitted} onSubmit={submit} />
+      {submitted && note && (
+        <p className={`mt-4 text-base font-semibold ${correct ? "text-emerald-200" : "text-rose-200"}`} role="status">
+          {note(correct)}
+        </p>
+      )}
       {submitted && (
         <button type="button" onClick={() => onDone(correct)} className="mt-4 w-full rounded-2xl bg-emerald-400 py-3 text-base font-black text-slate-950">
           Next →

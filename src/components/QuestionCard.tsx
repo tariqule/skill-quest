@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useCourse } from "@/engine/course-context";
 import { decodeText, encodeText, normalizeOutput, type PreparedQuestion } from "@/engine/game";
+import type { TablePreview } from "@/engine/types";
 import { setGuideOpen } from "@/engine/ui-state";
 import { BugBody, OutputChoices, ParsonsBody, TraceSteps } from "./code-games/bodies";
 import { CodeBlock, RichText, Tokens } from "./learn/code";
@@ -53,6 +54,7 @@ export function QuestionCard({ q, submitted, onSubmit, reveal = true, showDomain
       <h2 className="text-lg sm:text-xl font-semibold leading-snug text-white">
         <RichText text={q.prompt} />
       </h2>
+      {"tables" in q && q.tables && q.tables.length > 0 && <TablesPanel tables={q.tables} />}
       {q.code && q.kind !== "lines" && q.kind !== "fill" && q.kind !== "parsons" && q.kind !== "bug" && (
         <div className="mt-4">
           <CodeBlock code={q.code} lang={q.codeLang} />
@@ -407,6 +409,11 @@ function OutputBody({ q, submitted, onSubmit, reveal }: BodyProps) {
           {multiline ? "Type the output, one line per line. Press Submit when you're done." : "Type exactly what it prints or returns, then press Enter."}
         </p>
       )}
+      {!locked && (
+        <p id={`${q.id}-spacing`} className="mt-1 text-xs text-slate-300">
+          Spacing inside lines matters. Line endings and blank lines at the start or end don&apos;t.
+        </p>
+      )}
       {multiline ? (
         <textarea
           autoFocus
@@ -418,6 +425,7 @@ function OutputBody({ q, submitted, onSubmit, reveal }: BodyProps) {
           autoCapitalize="off"
           autoCorrect="off"
           aria-label="Your output"
+          aria-describedby={`${q.id}-spacing`}
           className={`mt-3 w-full rounded-xl border p-3 font-mono text-base text-white outline-none transition ${tone}`}
         />
       ) : (
@@ -433,6 +441,7 @@ function OutputBody({ q, submitted, onSubmit, reveal }: BodyProps) {
           autoCapitalize="off"
           autoCorrect="off"
           aria-label="Your output"
+          aria-describedby={`${q.id}-spacing`}
           placeholder="Type the output…"
           className={`mt-3 w-full rounded-xl border px-3 py-2.5 font-mono text-base text-white outline-none transition ${tone}`}
         />
@@ -469,4 +478,40 @@ function isTyping(e: KeyboardEvent) {
 /** Placeholder for a fill-in-the-blank dropdown: "Choose…", or "Blank 2: choose…" when there are several. */
 export function blankPlaceholder(n: number, count: number) {
   return count > 1 ? `Blank ${n}: choose…` : "Choose…";
+}
+
+/** Compact, collapsible preview of the data a code game runs on (SQL), so prompts don't repeat it. */
+function TablesPanel({ tables }: { tables: TablePreview[] }) {
+  return (
+    <details className="mt-3 rounded-xl border border-white/15 bg-slate-950/60 text-sm open:pb-2">
+      <summary className="cursor-pointer select-none px-3 py-2 font-semibold text-sky-200">
+        🗂 Tables: {tables.map((t) => t.name).join(", ")}
+      </summary>
+      <div className="flex flex-wrap gap-3 px-3">
+        {tables.map((t) => (
+          <div key={t.name} className="min-w-0 max-w-full overflow-x-auto">
+            <table className="border-collapse font-mono text-[12px] text-slate-100">
+              <caption className="pb-1 text-left font-sans text-xs font-bold text-slate-300">{t.name}</caption>
+              <thead>
+                <tr>
+                  {t.columns.map((c) => (
+                    <th key={c} scope="col" className="border border-white/15 bg-white/5 px-2 py-0.5 text-left font-semibold text-slate-200">{c}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {t.rows.map((r, i) => (
+                  <tr key={i}>
+                    {r.map((v, k) => (
+                      <td key={k} className={`border border-white/10 px-2 py-0.5 ${v === null ? "italic text-slate-400" : ""}`}>{v === null ? "NULL" : String(v)}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ))}
+      </div>
+    </details>
+  );
 }

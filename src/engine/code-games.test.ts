@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 import { COURSES, getCourse } from "@/courses";
 import {
   applyFix, CODE_GAMES, decodePick, encodePick, FIX_BASE, gamePool, hasCodeGames, parseIndented, parsonsCorrect,
-  parsonsFeedback, parsonsHint, parsonsSolution, prepareParsons, warmupPicks,
+  gameRule, MISSED_LINE, parsonsFeedback, parsonsHint, parsonsSolution, prepareParsons, warmupPicks,
 } from "./code-games";
 import { buildQueue, reviewable } from "./daily-queue";
-import { encodeText, isCorrect, prepare } from "./game";
+import { encodeText, isCorrect, normalizeOutput, prepare } from "./game";
+import { dateForGoal } from "./plan";
+import { reviewNote } from "./srs";
 import { BEGINNER_LOCKED, modesFor } from "./modes";
 import { validateCourse } from "./validate";
 import type { BugQuestion, Course, OutputQuestion, ParsonsQuestion, Question } from "./types";
@@ -107,7 +109,8 @@ describe("isCorrect for code games", () => {
   });
   it("output forgives whitespace but not content, and rejects empty", () => {
     const q = prepare(output());
-    expect(isCorrect(q, encodeText("  1  \r\n2\n\n"))).toBe(true);
+    expect(isCorrect(q, encodeText("\n1  \r\n2\n\n"))).toBe(true);
+    expect(isCorrect(q, encodeText("1\n 2"))).toBe(false); // spacing inside output matters
     expect(isCorrect(q, encodeText("1 2"))).toBe(false);
     expect(isCorrect(q, encodeText("   "))).toBe(false);
   });
@@ -125,6 +128,10 @@ describe("validator rules for code games", () => {
   });
   it("rejects a decoy equal to a solution line", () => {
     expect(check(parsons({ distractors: ["  return 0"] }))).toEqual([expect.stringMatching(/decoy that is also a solution line/)]);
+  });
+  it("rejects a puzzle that would show leading whitespace when the player sets indentation", () => {
+    // prepareParsons trims every block, so the rule passes for real data; the validator guards future changes.
+    expect(check(parsons({ indent: true, distractors: ["    return x"] }))).toEqual([]);
   });
   it("rejects bad bug items", () => {
     expect(check(bug({ fixes: ["x", "y"], fix: 0 })).join()).toMatch(/needs 3 or 4 fixes/);
@@ -176,5 +183,40 @@ describe("modesFor", () => {
   it("hides timed and exam-style modes at Beginner only", () => {
     expect(modesFor(c, "beginner").some((m) => BEGINNER_LOCKED.includes(m))).toBe(false);
     expect(modesFor(c, "senior")).toEqual(c.modes);
+  });
+});
+
+describe("browser-test fixes", () => {
+  it("strips leading whitespace from decoys when the player sets indentation", () => {
+    const p = prepareParsons(parsons({ indent: true, distractors: ["    return x", "\tpass"] }), id);
+    expect(p.blocks.filter((b) => /^\s/.test(b))).toEqual([]);
+    expect(p.blocks).toContain("return x");
+  });
+  it("no indentation puzzle in any course shows a line with leading whitespace", () => {
+    for (const c of COURSES)
+      for (const q of c.questions)
+        if (q.type === "parsons" && q.indent) expect(prepareParsons(q, rev).blocks.some((b) => /^\s/.test(b)), q.id).toBe(false);
+  });
+  it("a missed line makes a right bug answer a miss", () => {
+    const q = prepare(bug());
+    expect(isCorrect(q, [1, FIX_BASE + q.fixCorrect!])).toBe(true);
+    expect(isCorrect(q, [1, FIX_BASE + q.fixCorrect!, MISSED_LINE])).toBe(false);
+  });
+  it("SQL-style puzzles get a rule without indentation", () => {
+    expect(gameRule("parsons", getCourse("code-sql")!)).not.toMatch(/indent/i);
+    expect(gameRule("parsons", getCourse("code-python")!)).toMatch(/indent/i);
+  });
+  it("output keeps internal spacing but ignores line endings and edge blank lines", () => {
+    expect(normalizeOutput("\r\n a  b\r\nc \r\n\r\n")).toBe(" a  b\nc");
+    expect(normalizeOutput(" 42 ")).toBe("42");
+  });
+  it("review notes", () => {
+    const now = new Date("2026-10-30T12:00:00Z");
+    expect(reviewNote(undefined, "again", now)).toBe("This will come back soon.");
+    expect(reviewNote(undefined, "good", now)).toMatch(/^Next review (in \d+ days?|later today)\.$/);
+  });
+  it("changing the plan goal clears the date", () => {
+    expect(dateForGoal("exam", "exam", "2026-12-11")).toBe("2026-12-11");
+    expect(dateForGoal("exam", "skill", "2026-12-11")).toBe("");
   });
 });

@@ -4,7 +4,7 @@ import { useState, type ReactNode } from "react";
 import { COURSES, getCourse } from "@/courses";
 import { BUNDLES, targetCourses } from "@/engine/bundles";
 import { LEVEL_BY_ID, planLevelOptions, type LevelChoice } from "@/engine/levels";
-import type { PlanGoal, StudyPlan } from "@/engine/plan";
+import { dateForGoal, type PlanGoal, type StudyPlan } from "@/engine/plan";
 import { setPlan } from "@/engine/plan-store";
 import { setProfile } from "@/engine/profile";
 import { todayKey } from "@/engine/store";
@@ -57,6 +57,7 @@ export function PlanWizard({ initial, onDone }: { initial?: StudyPlan | null; on
   const today = todayKey();
 
   function pickGoal(g: PlanGoal) {
+    setDate(dateForGoal(goal, g, date));
     setGoal(g);
     setTarget(targetsFor(g)[0].options[0].id);
     setLevel("beginner");

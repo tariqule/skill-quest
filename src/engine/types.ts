@@ -87,7 +87,7 @@ export interface FillQuestion extends BaseQuestion {
 
 /**
  * "Type the output": the player types what `code` prints or returns. `answers` lists every accepted
- * spelling; multi-line output joins lines with a newline. Spaces at line ends and repeated spaces are ignored.
+ * spelling; multi-line output joins lines with a newline. Line endings, spaces at line ends and blank edge lines are ignored; spacing inside lines must match.
  */
 export interface OutputQuestion extends BaseQuestion {
   type: "output";
@@ -101,6 +101,15 @@ export interface OutputQuestion extends BaseQuestion {
   /** Runner only: code that wraps the snippet so it runs on its own; `{{code}}` marks where the snippet goes. Never shown. */
   harness?: string;
   verified?: Verified;
+  /** Data the snippet works on, shown in a collapsible "Tables" panel instead of repeated in the prompt. */
+  tables?: TablePreview[];
+}
+
+/** A small table shown next to a code game (SQL). `null` cells show as NULL. */
+export interface TablePreview {
+  name: string;
+  columns: string[];
+  rows: (string | number | null)[][];
 }
 
 /** How a code game's answer was checked. */
@@ -123,6 +132,8 @@ export interface ParsonsQuestion extends BaseQuestion {
   /** Runner only: code that wraps the snippet so it runs on its own; `{{code}}` marks where the snippet goes. Never shown. */
   harness?: string;
   verified?: Verified;
+  /** Data the snippet works on, shown in a collapsible "Tables" panel instead of repeated in the prompt. */
+  tables?: TablePreview[];
 }
 
 /**
@@ -141,6 +152,8 @@ export interface BugQuestion extends BaseQuestion {
   /** Runner only: code that wraps the snippet so it runs on its own; `{{code}}` marks where the snippet goes. Never shown. */
   harness?: string;
   verified?: Verified;
+  /** Data the snippet works on, shown in a collapsible "Tables" panel instead of repeated in the prompt. */
+  tables?: TablePreview[];
 }
 
 export type Question = ChoiceQuestion | OrderQuestion | MatchQuestion | LinesQuestion | FillQuestion | OutputQuestion | ParsonsQuestion | BugQuestion;

@@ -1,4 +1,4 @@
-import type { BugQuestion, OutputQuestion, ParsonsQuestion, SkillLevel, Verified } from "@/engine/types";
+import type { BugQuestion, OutputQuestion, ParsonsQuestion, SkillLevel, TablePreview, Verified } from "@/engine/types";
 
 /** Join snippet lines (keeps the source free of template-literal escaping). */
 export const L = (...lines: string[]) => lines.join("\n");
@@ -16,6 +16,7 @@ interface Common {
   /** Defaults to the kit's setting: "run" when the language has a runner on the box. */
   verified?: Verified;
   harness?: string;
+  tables?: TablePreview[];
 }
 
 /**
@@ -33,6 +34,7 @@ export function gameKit(prefix: string, lang: string, verified: Verified) {
     codeLang: c.lang ?? lang,
     verified: c.verified ?? verified,
     ...(c.harness ? { harness: c.harness } : {}),
+    ...(c.tables ? { tables: c.tables } : {}),
   });
   return {
     parsons: (c: Common & Pick<ParsonsQuestion, "code" | "distractors" | "indent" | "hint" | "expected">): ParsonsQuestion => ({

@@ -5,8 +5,8 @@ import { useState, useSyncExternalStore } from "react";
 import { AppBar } from "@/components/Hud";
 import { CodeBlock, RichText } from "@/components/learn/code";
 import { usePlan } from "@/engine/plan-store";
-import { type ReviewGrade } from "@/engine/srs";
-import { gradeItem } from "@/engine/srs-store";
+import { reviewNote, type ReviewGrade } from "@/engine/srs";
+import { getSrs, gradeItem } from "@/engine/srs-store";
 import { buildQueue } from "@/engine/daily-queue";
 import { getCourseStore } from "@/engine/store";
 import { GameItem } from "@/components/code-games/GameItem";
@@ -65,6 +65,7 @@ function Session() {
   }
 
   const item = queue[i];
+  const note = (ok: boolean) => reviewNote(getSrs()[item.key], ok ? "good" : "again", new Date());
   const next = (grade: ReviewGrade) => {
     gradeItem(item.key, grade);
     if (grade !== "again") setRight((n) => n + 1);
@@ -85,9 +86,9 @@ function Session() {
         <div className="h-full rounded-full bg-emerald-400 transition-all" style={{ width: `${(i / queue.length) * 100}%` }} />
       </div>
       {item.kind === "card" ? <CardItem key={item.key} card={item.card} onGrade={next} /> : isChoice(item.q) ? (
-          <QuestionItem key={item.key} course={item.course} q={item.q} fresh={item.fresh} onGrade={next} />
+          <QuestionItem key={item.key} course={item.course} q={item.q} fresh={item.fresh} note={note} onGrade={next} />
         ) : (
-          <GameItem key={item.key} course={item.course} q={item.q} tag={item.fresh ? "new for you" : "you missed this before"} onDone={(ok) => next(ok ? "good" : "again")} />
+          <GameItem key={item.key} course={item.course} q={item.q} tag={item.fresh ? "new for you" : "you missed this before"} note={note} onDone={(ok) => next(ok ? "good" : "again")} />
         )}
     </div>
   );
@@ -130,7 +131,7 @@ function CardItem({ card, onGrade }: { card: Card; onGrade: (g: ReviewGrade) => 
   );
 }
 
-function QuestionItem({ course, q, fresh, onGrade }: { course: Course; q: ChoiceQuestion; fresh?: boolean; onGrade: (g: ReviewGrade) => void }) {
+function QuestionItem({ course, q, fresh, note, onGrade }: { course: Course; q: ChoiceQuestion; fresh?: boolean; note: (ok: boolean) => string; onGrade: (g: ReviewGrade) => void }) {
   const multi = q.answer.length > 1;
   const [picked, setPicked] = useState<number[]>([]);
   const [done, setDone] = useState(false);
@@ -181,7 +182,8 @@ function QuestionItem({ course, q, fresh, onGrade }: { course: Course; q: Choice
       )}
       {done && (
         <div className="mt-4">
-          <div className={`text-lg font-black ${correct ? "text-emerald-300" : "text-rose-300"}`}>{correct ? "✅ Got it" : "❌ Not yet. It'll come back soon."}</div>
+          <div className={`text-lg font-black ${correct ? "text-emerald-300" : "text-rose-300"}`}>{correct ? "✅ Got it" : "❌ Not yet"}</div>
+          <p className="mt-1 text-base font-semibold text-slate-100" role="status">{note(correct)}</p>
           <p className="mt-1 text-base text-slate-200">
             <RichText text={q.explanation} />
           </p>

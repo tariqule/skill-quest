@@ -43,10 +43,11 @@ describe("output", () => {
     for (const s of ["[2,4]", "a\nb", "héllo ✓ 😀", ""]) expect(decodeText(encodeText(s))).toBe(s);
   });
 
-  it("accepts any listed spelling and ignores spacing noise, but not wrong or empty answers", () => {
+  it("accepts any listed spelling and ignores edge whitespace, but not wrong or empty answers", () => {
     const q = prepare(output);
     expect(isCorrect(q, encodeText("[2,4]"))).toBe(true);
-    expect(isCorrect(q, encodeText("  [ 2,   4 ]  "))).toBe(true);
+    expect(isCorrect(q, encodeText("  [2,4]  \n"))).toBe(true);
+    expect(isCorrect(q, encodeText("[ 2,   4 ]"))).toBe(false);
     expect(isCorrect(q, encodeText("[2, 4]"))).toBe(false);
     expect(isCorrect(q, encodeText("[4,2]"))).toBe(false);
     expect(isCorrect(q, encodeText("   "))).toBe(false);
@@ -55,7 +56,8 @@ describe("output", () => {
   });
 
   it("compares multi-line output line by line", () => {
-    expect(normalizeOutput("a  b \r\n\n c ")).toBe("a b\n\nc");
+    expect(normalizeOutput("\n\na  b \r\n\n c \r\n\n")).toBe("a  b\n\n c");
+    expect(normalizeOutput("  hi  ")).toBe("hi");
     const q = prepare({ ...output, answers: ["1\n2\n3"] });
     expect(isCorrect(q, encodeText("1 \n2\n3\n"))).toBe(true);
     expect(isCorrect(q, encodeText("1\n3\n2"))).toBe(false);

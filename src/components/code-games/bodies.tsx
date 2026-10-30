@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, type KeyboardEvent } from "react";
-import { FIX_BASE, MAX_INDENT, decodePick, encodePick, parsonsFeedback, parsonsHint, parsonsSolution, type ParsonsStatus } from "@/engine/code-games";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { FIX_BASE, MAX_INDENT, MISSED_LINE, decodePick, encodePick, parsonsFeedback, parsonsHint, parsonsSolution, type ParsonsStatus } from "@/engine/code-games";
 import { encodeText, shuffle, type PreparedQuestion } from "@/engine/game";
 import { CodeBlock, Tokens } from "../learn/code";
 
@@ -33,23 +33,34 @@ export function ParsonsBody({ q, submitted, onSubmit, reveal }: BodyProps) {
   const pool = p.blocks.map((_, i) => i).filter((i) => !used.has(i));
   const status = locked ? parsonsFeedback(p, rows) : null;
   const text = (pick: number) => p.blocks[decodePick(pick).block];
+  // Row to focus after the next render (indent, reorder and remove re-render the list).
+  const focusRow = useRef<number | null>(null);
+  useEffect(() => {
+    if (focusRow.current === null) return;
+    const i = Math.min(focusRow.current, placed.length - 1);
+    focusRow.current = null;
+    if (i >= 0) document.getElementById(`${q.id}-row-${i}`)?.focus();
+    else document.getElementById(`${q.id}-pool`)?.querySelector("button")?.focus();
+  }, [placed, q.id]);
 
   function move(i: number, to: number) {
     if (to < 0 || to >= placed.length) return;
     const next = [...placed];
     [next[i], next[to]] = [next[to], next[i]];
+    focusRow.current = to;
     setPlaced(next);
     setLive(`Moved "${text(placed[i]).trim()}" to line ${to + 1}.`);
-    requestAnimationFrame(() => document.getElementById(`${q.id}-row-${to}`)?.focus());
   }
   function indent(i: number, by: number) {
     const { block, indent: cur } = decodePick(placed[i]);
     const n = Math.max(0, Math.min(MAX_INDENT, cur + by));
+    focusRow.current = i;
     setPlaced(placed.map((x, k) => (k === i ? encodePick(block, n) : x)));
-    setLive(`Indentation ${n}.`);
+    setLive(n === cur ? `Line ${i + 1} can't move further.` : `Line ${i + 1} ${n > cur ? "indented" : "outdented"} to level ${n}.`);
   }
   function remove(i: number) {
-    setLive(`Removed "${text(placed[i]).trim()}".`);
+    setLive(`Removed "${text(placed[i]).trim()}" from line ${i + 1}.`);
+    focusRow.current = i;
     setPlaced(placed.filter((_, k) => k !== i));
   }
   function onRowKey(e: KeyboardEvent, i: number) {
@@ -72,7 +83,7 @@ export function ParsonsBody({ q, submitted, onSubmit, reveal }: BodyProps) {
           Tap lines to add them in order{p.indent ? ", set the indentation with ⇤ ⇥" : ""}, and leave out the decoys. Keyboard: ↑↓ to move between lines, Alt+↑↓ to reorder{p.indent ? ", ←→ to indent" : ""}, Delete to remove.
         </p>
       )}
-      <div className="sr-only" aria-live="polite">{live}</div>
+      <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">{live}</div>
       <ol aria-label="Your solution" className="mt-4 grid min-w-0 gap-1.5 rounded-xl border border-white/10 bg-slate-950 p-2">
         {rows.length === 0 && <li className="px-2 py-3 text-sm text-slate-500">Your solution is empty. Add lines from below.</li>}
         {rows.map((pick, i) => {
@@ -80,7 +91,7 @@ export function ParsonsBody({ q, submitted, onSubmit, reveal }: BodyProps) {
           const st = status?.[i];
           const tone = st && reveal ? STATUS[st].tone : "border-white/10 bg-white/[0.03]";
           return (
-            <li key={`${pick}-${i}`} className={`flex min-w-0 items-center gap-1 rounded-lg border ${tone}`}>
+            <li key={decodePick(pick).block} className={`flex min-w-0 items-center gap-1 rounded-lg border ${tone}`}>
               <button
                 id={`${q.id}-row-${i}`}
                 type="button"
@@ -115,7 +126,7 @@ export function ParsonsBody({ q, submitted, onSubmit, reveal }: BodyProps) {
       {!locked && pool.length > 0 && (
         <div className="mt-3">
           <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">Lines to use ({pool.length})</div>
-          <ul className="mt-2 grid gap-1.5">
+          <ul id={`${q.id}-pool`} className="mt-2 grid gap-1.5">
             {pool.map((i) => (
               <li key={i}>
                 <button
@@ -170,37 +181,54 @@ export function ParsonsBody({ q, submitted, onSubmit, reveal }: BodyProps) {
   );
 }
 
-/** Spot the Bug: tap the buggy line, then pick the fix. */
+/**
+ * Spot the Bug: tap the buggy line, then pick the fix. Fixes only appear for the right line: tapping a
+ * line that's fine says so and counts as a miss, and the player tries another line.
+ */
 export function BugBody({ q, submitted, onSubmit, reveal }: BodyProps) {
   const [line, setLine] = useState<number | null>(null);
   const [fix, setFix] = useState<number | null>(null);
+  const [missed, setMissed] = useState<number[]>([]);
   const locked = submitted !== null;
+  const right = q.correct[0];
   const pickedLine = locked ? submitted[0] : line;
   const pickedFix = locked ? (submitted[1] ?? FIX_BASE - 1) - FIX_BASE : fix;
-  const right = q.correct[0];
+  const missedAny = locked ? submitted.includes(MISSED_LINE) : missed.length > 0;
+  const onRight = pickedLine === right;
+  const fixes = q.fixOptions ?? [];
+  const correctFix = q.fixCorrect ?? -1;
+
+  function pick(i: number) {
+    setLine(i);
+    setFix(null);
+    if (i !== right && !missed.includes(i)) setMissed([...missed, i]);
+  }
 
   return (
     <>
-      {!locked && <p className="mt-2 text-sm text-amber-300">{line === null ? "Step 1: tap the line with the bug." : "Step 2: pick the fix for that line, then Check."}</p>}
+      {!locked && (
+        <p className="mt-2 text-sm text-amber-300">{line === null || !onRight ? "Step 1: tap the line with the bug." : "Step 2: pick the fix for that line, then Check."}</p>
+      )}
       <div className="mt-4 min-w-0 overflow-hidden rounded-xl border border-white/10 bg-slate-950">
-        {q.codeLang && <div className="border-b border-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">{q.codeLang}</div>}
+        {q.codeLang && <div className="border-b border-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-300">{q.codeLang}</div>}
         <div className="overflow-x-auto py-1" role="group" aria-label="Code lines: tap the buggy one">
           {q.shuffled.map((l, i) => {
             const isPicked = pickedLine === i;
             let tone = "hover:bg-sky-400/10";
-            if (locked && reveal) tone = i === right ? "bg-emerald-400/20" : isPicked ? "bg-rose-400/20" : "opacity-60";
-            else if (isPicked) tone = "bg-amber-400/20 ring-1 ring-amber-400/60";
+            if (locked && reveal) tone = i === right ? "bg-emerald-400/20" : missed.includes(i) || isPicked ? "bg-rose-400/20" : "opacity-60";
+            else if (isPicked) tone = onRight ? "bg-amber-400/20 ring-1 ring-amber-400/60" : "bg-rose-400/15 ring-1 ring-rose-400/60";
+            else if (missed.includes(i)) tone = "bg-rose-400/10";
             return (
               <button
                 key={i}
                 type="button"
                 disabled={locked || !l.trim()}
                 aria-pressed={isPicked}
-                aria-label={`Line ${i + 1}: ${l.trim() || "blank"}`}
-                onClick={() => setLine(i)}
+                aria-label={`Line ${i + 1}: ${l.trim() || "blank"}${missed.includes(i) ? ", already checked: fine" : ""}`}
+                onClick={() => pick(i)}
                 className={`flex min-h-9 w-full min-w-max items-start gap-3 px-3 py-1 text-left font-mono text-[13px] leading-relaxed transition ${tone}`}
               >
-                <span className="w-6 shrink-0 select-none text-right text-slate-400">{i + 1}</span>
+                <span className="w-6 shrink-0 select-none text-right text-slate-300">{i + 1}</span>
                 <span className="whitespace-pre text-slate-100"><Tokens code={l || " "} lang={q.codeLang} /></span>
                 {locked && reveal && i === right && <span className="ml-auto pl-3 text-emerald-300">🐞</span>}
               </button>
@@ -208,18 +236,27 @@ export function BugBody({ q, submitted, onSubmit, reveal }: BodyProps) {
           })}
         </div>
       </div>
-      {pickedLine !== null && (
+      <div role="status" aria-live="polite">
+        {!locked && line !== null && !onRight && (
+          <p className="pop-in mt-3 rounded-lg border border-rose-400/40 bg-rose-400/10 px-3 py-2 text-sm text-rose-100">
+            Line {line + 1} is fine. Try another line. (This counts as a miss.)
+          </p>
+        )}
+      </div>
+      {(locked ? reveal : onRight && line !== null) && (
         <div className="pop-in mt-4">
-          <div className="text-sm font-semibold text-slate-200">{locked ? "The fix" : `Replace line ${pickedLine + 1} with:`}</div>
+          <div className="text-sm font-semibold text-white">{locked ? `The fix for line ${right + 1}` : `Replace line ${right + 1} with:`}</div>
           <ul className="mt-2 grid gap-2" role="radiogroup" aria-label="Fixes">
-            {(q.fixOptions ?? []).map((f, i) => {
-              const isPicked = pickedFix === i;
-              let tone = "border-white/10 bg-white/5 hover:border-sky-400/60";
-              if (locked && reveal) tone = i === q.fixCorrect ? "border-emerald-400 bg-emerald-400/15" : isPicked ? "border-rose-400 bg-rose-400/15" : "border-white/5 opacity-60";
-              else if (isPicked) tone = "border-sky-400 bg-sky-400/15";
+            {fixes.map((f, i) => {
+              const isPicked = onRight && pickedFix === i;
+              let tone = "border-white/30 bg-slate-800 hover:border-sky-400 hover:bg-sky-400/10";
+              if (locked && reveal) tone = i === correctFix ? "border-emerald-400 bg-emerald-400/15" : isPicked ? "border-rose-400 bg-rose-400/15" : "border-white/15 bg-slate-800/60 text-slate-300";
+              else if (isPicked) tone = "border-sky-400 bg-sky-400/20";
               return (
                 <li key={i}>
-                  <button type="button" role="radio" aria-checked={isPicked} disabled={locked} onClick={() => setFix(i)} className={`flex min-h-11 w-full min-w-0 items-center overflow-x-auto rounded-xl border px-3 py-2 text-left font-mono text-[13px] text-slate-100 ${tone}`}>
+                  <button type="button" role="radio" aria-checked={isPicked} disabled={locked} onClick={() => setFix(i)} className={`flex min-h-11 w-full min-w-0 items-center gap-2 overflow-x-auto rounded-xl border px-3 py-2 text-left font-mono text-[13px] text-white ${tone}`}>
+                    {locked && reveal && i === correctFix && <span className="font-sans text-emerald-300" aria-hidden>✓</span>}
+                    {locked && reveal && isPicked && i !== correctFix && <span className="font-sans text-rose-300" aria-hidden>✗</span>}
                     <span className="whitespace-pre"><Tokens code={f} lang={q.codeLang} /></span>
                   </button>
                 </li>
@@ -228,9 +265,24 @@ export function BugBody({ q, submitted, onSubmit, reveal }: BodyProps) {
           </ul>
         </div>
       )}
-      {locked && reveal && pickedLine !== right && <p className="mt-2 text-sm text-emerald-300">The bug is on line {right + 1}.</p>}
+      {locked && reveal && (
+        <div className="mt-2 grid gap-1 text-sm">
+          {missedAny && <p className="text-rose-200">You tapped {missed.length > 1 ? "lines that were" : "a line that was"} fine first, so this counts as a miss.</p>}
+          {!onRight && <p className="text-emerald-300">The bug is on line {right + 1}.</p>}
+          {onRight && pickedFix !== null && pickedFix !== correctFix && pickedFix >= 0 && (
+            <p className="text-rose-200">
+              Your fix doesn&apos;t work. The right fix is <code className="whitespace-pre rounded bg-white/10 px-1 font-mono text-emerald-200">{fixes[correctFix]?.trim()}</code>.
+            </p>
+          )}
+        </div>
+      )}
       {!locked && (
-        <button type="button" disabled={line === null || fix === null} onClick={() => onSubmit([line!, FIX_BASE + fix!])} className="mt-5 rounded-xl bg-sky-500 px-5 py-2.5 font-semibold text-slate-950 transition hover:bg-sky-400 disabled:opacity-40">
+        <button
+          type="button"
+          disabled={line === null || !onRight || fix === null}
+          onClick={() => onSubmit([line!, FIX_BASE + fix!, ...(missed.length ? [MISSED_LINE] : [])])}
+          className="mt-5 rounded-xl bg-sky-500 px-5 py-2.5 font-semibold text-slate-950 transition hover:bg-sky-400 disabled:opacity-40"
+        >
           Check
         </button>
       )}

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
 import { QuizSession } from "@/components/QuizSession";
 import { PageShell } from "@/components/ui";
-import { CODE_GAME_BY_ID, GAME_ROUND, gamePool, warmupPicks, type CodeGameId } from "@/engine/code-games";
+import { CODE_GAME_BY_ID, GAME_ROUND, gameRule, gamePool, warmupPicks, type CodeGameId } from "@/engine/code-games";
 import { useCourse, useLevelPool } from "@/engine/course-context";
 import { levelDeck, prepare } from "@/engine/game";
 
@@ -13,7 +13,7 @@ export function GamePlay() {
   const { course, store, href } = useCourse();
   const { level } = useLevelPool();
   const mix = game === "mix";
-  const info = mix ? { icon: "🎲", name: "Mixed warm-up", rule: "Two of each code game, unplayed ones first." } : CODE_GAME_BY_ID[game as CodeGameId];
+  const info = mix ? { icon: "🎲", name: "Mixed warm-up", rule: "Two of each code game, unplayed ones first." } : CODE_GAME_BY_ID[game as CodeGameId] && { ...CODE_GAME_BY_ID[game as CodeGameId], rule: gameRule(game as CodeGameId, course) };
   if (!info) notFound();
 
   return (

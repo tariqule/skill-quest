@@ -1,8 +1,9 @@
+import type { TablePreview } from "@/engine/types";
 import { gameKit, L } from "../code-games-kit";
 
 const { parsons, bug, output } = gameKit("sql", "sql", "run");
 
-/** The sample data every item runs against. The learner sees it described in the prompt. */
+/** The sample data every item runs against. The learner sees it in the Tables panel. */
 const SEED = L(
   "CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT NOT NULL, city TEXT);",
   "INSERT INTO users VALUES (1, 'Ada', 'Oslo'), (2, 'Bo', 'Rome'), (3, 'Cy', NULL), (4, 'Di', 'Oslo');",
@@ -10,16 +11,18 @@ const SEED = L(
   "INSERT INTO orders VALUES (1, 1, 30), (2, 1, 20), (3, 2, 50), (4, 5, 10);",
 );
 const DB = `${SEED}\n{{code}}\n`;
-const TABLES =
-  " Tables: `users(id, name, city)` holds Ada (Oslo), Bo (Rome), Cy (no city) and Di (Oslo), ids 1 to 4. `orders(id, user_id, total)` holds (1, 1, 30), (2, 1, 20), (3, 2, 50) and (4, 5, 10).";
+const USERS: TablePreview = { name: "users", columns: ["id", "name", "city"], rows: [[1, "Ada", "Oslo"], [2, "Bo", "Rome"], [3, "Cy", null], [4, "Di", "Oslo"]] };
+const ORDERS: TablePreview = { name: "orders", columns: ["id", "user_id", "total"], rows: [[1, 1, 30], [2, 1, 20], [3, 2, 50], [4, 5, 10]] };
+/** Shown in the collapsible Tables panel next to every item that runs on the sample data. */
+const T = [USERS, ORDERS];
 const ROWS = " Each row prints on its own line with columns joined by `|`; NULL prints as nothing.";
 
 /** Code games for the SQL track. Every answer was checked by running it in SQLite 3.46 (code-games-run.test.ts); nothing here relies on SQLite-only behaviour unless the item says so. */
 export const codeGames = [
   // ───────────── Parsons puzzles ─────────────
   parsons({
-    n: "01", domain: "d1", level: "beginner", lesson: "d1-sort", harness: DB,
-    prompt: "Put the clauses in order to list the names of users in Oslo, alphabetically." + TABLES,
+    n: "01", domain: "d1", level: "beginner", lesson: "d1-sort", harness: DB, tables: T,
+    prompt: "Put the clauses in order to list the names of users in Oslo, alphabetically.",
     code: L("SELECT name", "FROM users", "WHERE city = 'Oslo'", "ORDER BY name;"),
     distractors: ["WHERE city = Oslo"],
     hint: "SELECT, then FROM, then WHERE, then ORDER BY. Text values go in single quotes.",
@@ -27,8 +30,8 @@ export const codeGames = [
     explanation: "Clauses always appear in this order. Without quotes, `Oslo` would be read as a column name, and there's no such column.",
   }),
   parsons({
-    n: "02", domain: "d2", level: "beginner", lesson: "d2-start-join", harness: DB,
-    prompt: "Join orders to users and list the name and total of every order over 25, smallest first." + TABLES + ROWS,
+    n: "02", domain: "d2", level: "beginner", lesson: "d2-start-join", harness: DB, tables: T,
+    prompt: "Join orders to users and list the name and total of every order over 25, smallest first." + ROWS,
     code: L("SELECT u.name, o.total", "FROM orders o", "JOIN users u ON u.id = o.user_id", "WHERE o.total > 25", "ORDER BY o.total;"),
     distractors: ["JOIN users u ON u.id = o.id"],
     hint: "Match the order's `user_id` to the user's `id`.",
@@ -36,8 +39,8 @@ export const codeGames = [
     explanation: "The join condition links the foreign key `orders.user_id` to the key it points at, `users.id`. Matching `o.id` would pair order 1 with user 1 by coincidence and give wrong rows.",
   }),
   parsons({
-    n: "03", domain: "d2", level: "junior", lesson: "d2-groupby", harness: DB,
-    prompt: "Show each user_id whose orders add up to at least 50, with that sum." + TABLES + ROWS,
+    n: "03", domain: "d2", level: "junior", lesson: "d2-groupby", harness: DB, tables: T,
+    prompt: "Show each user_id whose orders add up to at least 50, with that sum." + ROWS,
     code: L("SELECT user_id, SUM(total) AS spent", "FROM orders", "GROUP BY user_id", "HAVING SUM(total) >= 50", "ORDER BY user_id;"),
     distractors: ["WHERE SUM(total) >= 50"],
     hint: "Filtering on a group's total happens after grouping.",
@@ -45,8 +48,8 @@ export const codeGames = [
     explanation: "`WHERE` filters rows before grouping, so it can't use `SUM`. `HAVING` filters the groups after `GROUP BY` has built them.",
   }),
   parsons({
-    n: "04", domain: "d2", level: "intermediate", lesson: "d2-outer", harness: DB,
-    prompt: "List the users who have never placed an order." + TABLES,
+    n: "04", domain: "d2", level: "intermediate", lesson: "d2-outer", harness: DB, tables: T,
+    prompt: "List the users who have never placed an order.",
     code: L("SELECT u.name", "FROM users u", "LEFT JOIN orders o ON o.user_id = u.id", "WHERE o.id IS NULL", "ORDER BY u.name;"),
     distractors: ["WHERE o.id = NULL"],
     hint: "A LEFT JOIN keeps every user and fills the order columns with NULL when there's no match.",
@@ -54,8 +57,8 @@ export const codeGames = [
     explanation: "This is the anti-join pattern: keep all users, then keep only the ones whose order side came back empty. `= NULL` is never true, so you must write `IS NULL`.",
   }),
   parsons({
-    n: "05", domain: "d3", level: "intermediate", lesson: "d3-ctes", harness: DB,
-    prompt: "Use a CTE to total each user's orders, then show names with totals, biggest first." + TABLES + ROWS,
+    n: "05", domain: "d3", level: "intermediate", lesson: "d3-ctes", harness: DB, tables: T,
+    prompt: "Use a CTE to total each user's orders, then show names with totals, biggest first." + ROWS,
     code: L("WITH spend AS (", "  SELECT user_id, SUM(total) AS s FROM orders GROUP BY user_id", ")", "SELECT u.name, spend.s", "FROM spend", "JOIN users u ON u.id = spend.user_id", "ORDER BY spend.s DESC, u.name;"),
     distractors: ["SELECT u.name, SUM(total)"],
     hint: "The CTE comes first and acts like a named table for the query after it.",
@@ -63,8 +66,8 @@ export const codeGames = [
     explanation: "`WITH name AS (...)` defines a temporary result you can join like a table. User 5's orders drop out because there's no matching user. Ties on 50 are broken by name.",
   }),
   parsons({
-    n: "06", domain: "d3", level: "senior", lesson: "d3-windows", harness: DB,
-    prompt: "Show each order with a running total in id order." + TABLES + ROWS,
+    n: "06", domain: "d3", level: "senior", lesson: "d3-windows", harness: DB, tables: T,
+    prompt: "Show each order with a running total in id order." + ROWS,
     code: L("SELECT id, total,", "  SUM(total) OVER (ORDER BY id) AS running", "FROM orders", "ORDER BY id;"),
     distractors: ["  SUM(total) AS running"],
     hint: "A window function keeps every row; `OVER` says which rows to add up.",
@@ -74,7 +77,8 @@ export const codeGames = [
   parsons({
     n: "07", domain: "d4", level: "junior", lesson: "d4-start-transactions",
     harness: "CREATE TABLE accounts (id INTEGER PRIMARY KEY, balance INTEGER NOT NULL);\nINSERT INTO accounts VALUES (1, 100), (2, 0);\n{{code}}\n",
-    prompt: "Move 40 from account 1 to account 2 as one transaction, then show both balances. Table: `accounts(id, balance)` holds (1, 100) and (2, 0)." + ROWS,
+    tables: [{ name: "accounts", columns: ["id", "balance"], rows: [[1, 100], [2, 0]] }],
+    prompt: "Move 40 from account 1 to account 2 as one transaction, then show both balances." + ROWS,
     code: L("BEGIN;", "UPDATE accounts SET balance = balance - 40 WHERE id = 1;", "UPDATE accounts SET balance = balance + 40 WHERE id = 2;", "COMMIT;", "SELECT id, balance FROM accounts ORDER BY id;"),
     distractors: ["ROLLBACK;"],
     hint: "Both updates go between BEGIN and COMMIT.",
@@ -84,8 +88,8 @@ export const codeGames = [
 
   // ───────────── Spot the bug ─────────────
   bug({
-    n: "01", domain: "d2", level: "junior", lesson: "d2-nulls", harness: DB,
-    prompt: "Count the users who don't live in Oslo, including anyone with no city. The answer is 2." + TABLES,
+    n: "01", domain: "d2", level: "junior", lesson: "d2-nulls", harness: DB, tables: T,
+    prompt: "Count the users who don't live in Oslo, including anyone with no city. The answer is 2.",
     code: L("SELECT COUNT(*) FROM users", "WHERE city <> 'Oslo';"),
     line: 2,
     fixes: ["WHERE city <> 'Oslo' OR city IS NULL;", "WHERE city != 'Oslo';", "WHERE NOT city = 'Oslo';"],
@@ -95,8 +99,8 @@ export const codeGames = [
     explanation: "Any comparison with NULL gives unknown. `!=` and `NOT ... =` behave the same way. Handle NULL explicitly.",
   }),
   bug({
-    n: "02", domain: "d2", level: "junior", lesson: "d2-start-count", harness: DB,
-    prompt: "This should count every user: 4. Find the bug." + TABLES,
+    n: "02", domain: "d2", level: "junior", lesson: "d2-start-count", harness: DB, tables: T,
+    prompt: "This should count every user: 4. Find the bug.",
     code: "SELECT COUNT(city) FROM users;",
     line: 1,
     fixes: ["SELECT COUNT(*) FROM users;", "SELECT COUNT(DISTINCT city) FROM users;", "SELECT SUM(city IS NOT NULL) FROM users;"],
@@ -106,8 +110,8 @@ export const codeGames = [
     explanation: "Use `COUNT(*)` to count rows and `COUNT(col)` to count known values. `DISTINCT` counts different cities: 2.",
   }),
   bug({
-    n: "03", domain: "d2", level: "intermediate", lesson: "d2-outer", harness: DB,
-    prompt: "Show every user with how many orders they placed, including 0." + TABLES + ROWS,
+    n: "03", domain: "d2", level: "intermediate", lesson: "d2-outer", harness: DB, tables: T,
+    prompt: "Show every user with how many orders they placed, including 0." + ROWS,
     code: L("SELECT u.name, COUNT(o.id)", "FROM users u", "JOIN orders o ON o.user_id = u.id", "GROUP BY u.id", "ORDER BY u.id;"),
     line: 3,
     fixes: ["LEFT JOIN orders o ON o.user_id = u.id", "RIGHT JOIN orders o ON o.user_id = u.id", "JOIN orders o ON o.user_id = u.id OR o.id IS NULL"],
@@ -117,8 +121,8 @@ export const codeGames = [
     explanation: "Use a LEFT JOIN when the left side must all appear, and count a column from the right side (not `*`, which would give 1).",
   }),
   bug({
-    n: "04", domain: "d1", level: "junior", lesson: "d1-sort", harness: DB,
-    prompt: "This should return the id of the biggest order, 3." + TABLES,
+    n: "04", domain: "d1", level: "junior", lesson: "d1-sort", harness: DB, tables: T,
+    prompt: "This should return the id of the biggest order, 3.",
     code: L("SELECT id FROM orders", "ORDER BY total", "LIMIT 1;"),
     line: 2,
     fixes: ["ORDER BY total DESC", "ORDER BY id DESC", "ORDER BY total ASC"],
@@ -128,8 +132,8 @@ export const codeGames = [
     explanation: "For top-N queries, sort descending and then LIMIT.",
   }),
   bug({
-    n: "05", domain: "d2", level: "intermediate", lesson: "d2-groupby", harness: DB,
-    prompt: "This should list the user_id of everyone with more than one order. It doesn't even run. Find the bug." + TABLES,
+    n: "05", domain: "d2", level: "intermediate", lesson: "d2-groupby", harness: DB, tables: T,
+    prompt: "This should list the user_id of everyone with more than one order. It doesn't even run. Find the bug.",
     code: L("SELECT user_id FROM orders", "GROUP BY user_id", "WHERE COUNT(*) > 1;"),
     line: 3,
     fixes: ["HAVING COUNT(*) > 1;", "HAVING COUNT(*) > 2;", "HAVING user_id > 1;"],
@@ -139,8 +143,8 @@ export const codeGames = [
     explanation: "Row filters go in WHERE, group filters in HAVING.",
   }),
   bug({
-    n: "06", domain: "d1", level: "junior", lesson: "d1-modify", harness: DB,
-    prompt: "Only Bo (id 2) moved to Paris, so the count should be 1. Find the bug." + TABLES,
+    n: "06", domain: "d1", level: "junior", lesson: "d1-modify", harness: DB, tables: T,
+    prompt: "Only Bo (id 2) moved to Paris, so the count should be 1. Find the bug.",
     code: L("UPDATE users SET city = 'Paris';", "SELECT COUNT(*) FROM users WHERE city = 'Paris';"),
     line: 1,
     fixes: ["UPDATE users SET city = 'Paris' WHERE id = 2;", "UPDATE users SET city = 'Paris' WHERE city = city;", "UPDATE users SET city = 'Paris' WHERE city IS NOT NULL;"],
@@ -152,7 +156,8 @@ export const codeGames = [
   bug({
     n: "07", domain: "d3", level: "senior", lesson: "d3-subqueries",
     harness: `${SEED}\nINSERT INTO orders VALUES (5, NULL, 5);\n{{code}}\n`,
-    prompt: "List users with no orders. One order has no user_id (NULL). The answer is Cy, then Di." + TABLES + " Plus order (5, NULL, 5).",
+    tables: [USERS, { ...ORDERS, rows: [...ORDERS.rows, [5, null, 5]] }],
+    prompt: "List users with no orders. One order has no user_id (NULL). The answer is Cy, then Di.",
     code: L("SELECT name FROM users", "WHERE id NOT IN (SELECT user_id FROM orders)", "ORDER BY name;"),
     line: 2,
     fixes: ["WHERE NOT EXISTS (SELECT 1 FROM orders o WHERE o.user_id = users.id)", "WHERE id NOT IN (SELECT DISTINCT user_id FROM orders)", "WHERE NOT id IN (SELECT user_id FROM orders)"],
@@ -162,8 +167,8 @@ export const codeGames = [
     explanation: "A single NULL in a `NOT IN` subquery empties the result. Prefer `NOT EXISTS` (or a LEFT JOIN with IS NULL).",
   }),
   bug({
-    n: "08", domain: "d3", level: "senior", lesson: "d3-windows", harness: DB,
-    prompt: "Show each user_id's single biggest order." + TABLES + ROWS,
+    n: "08", domain: "d3", level: "senior", lesson: "d3-windows", harness: DB, tables: T,
+    prompt: "Show each user_id's single biggest order." + ROWS,
     code: L("SELECT user_id, total FROM (", "  SELECT user_id, total, ROW_NUMBER() OVER (ORDER BY total DESC) AS rn", "  FROM orders", ") WHERE rn = 1", "ORDER BY user_id;"),
     line: 2,
     fixes: ["  SELECT user_id, total, ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY total DESC) AS rn", "  SELECT user_id, total, ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY total) AS rn", "  SELECT user_id, total, RANK() OVER (ORDER BY total DESC) AS rn"],
@@ -175,8 +180,8 @@ export const codeGames = [
 
   // ───────────── Predict the output ─────────────
   output({
-    n: "01", domain: "d1", level: "beginner", lesson: "d1-select", harness: DB,
-    prompt: "What does this return? One name per line." + TABLES,
+    n: "01", domain: "d1", level: "beginner", lesson: "d1-select", harness: DB, tables: T,
+    prompt: "What does this return? One name per line.",
     code: "SELECT name FROM users WHERE id > 2 ORDER BY id;",
     answers: ["Cy\nDi"],
     choices: ["Cy\nDi", "Bo\nCy\nDi", "Di\nCy"],
@@ -193,8 +198,8 @@ export const codeGames = [
     explanation: "NULL means unknown, so comparing it to anything (even NULL) gives unknown. Use `IS NULL` and `COALESCE`.",
   }),
   output({
-    n: "03", domain: "d2", level: "beginner", lesson: "d2-start-count", harness: DB,
-    prompt: "What does this return?" + TABLES + ROWS,
+    n: "03", domain: "d2", level: "beginner", lesson: "d2-start-count", harness: DB, tables: T,
+    prompt: "What does this return?" + ROWS,
     code: "SELECT COUNT(*), COUNT(city), COUNT(DISTINCT city) FROM users;",
     answers: ["4|3|2"],
     choices: ["4|3|2", "4|4|3", "4|3|3"],
@@ -202,8 +207,8 @@ export const codeGames = [
     explanation: "Aggregates ignore NULLs, except `COUNT(*)`, which counts rows.",
   }),
   output({
-    n: "04", domain: "d2", level: "intermediate", lesson: "d2-groupby", harness: DB,
-    prompt: "What does this return? (SQLite sorts NULL first.)" + TABLES + ROWS,
+    n: "04", domain: "d2", level: "intermediate", lesson: "d2-groupby", harness: DB, tables: T,
+    prompt: "What does this return? (SQLite sorts NULL first.)" + ROWS,
     code: "SELECT city, COUNT(*) FROM users GROUP BY city ORDER BY city;",
     answers: ["|1\nOslo|2\nRome|1"],
     choices: ["|1\nOslo|2\nRome|1", "Oslo|2\nRome|1", "Oslo|2\nRome|1\n|1"],
@@ -211,8 +216,8 @@ export const codeGames = [
     explanation: "GROUP BY treats NULLs as one group even though `NULL = NULL` isn't true. Whether NULL sorts first or last depends on the database; add `NULLS LAST` to choose.",
   }),
   output({
-    n: "05", domain: "d3", level: "junior", lesson: "d3-case-sets", harness: DB,
-    prompt: "What does this return?" + TABLES + ROWS,
+    n: "05", domain: "d3", level: "junior", lesson: "d3-case-sets", harness: DB, tables: T,
+    prompt: "What does this return?" + ROWS,
     code: L("SELECT name,", "  CASE WHEN city = 'Oslo' THEN 'local'", "       WHEN city IS NULL THEN 'unknown'", "       ELSE 'away' END", "FROM users ORDER BY id;"),
     answers: ["Ada|local\nBo|away\nCy|unknown\nDi|local"],
     choices: ["Ada|local\nBo|away\nCy|unknown\nDi|local", "Ada|local\nBo|away\nCy|away\nDi|local", "Ada|local\nBo|away\nCy|\nDi|local"],
@@ -229,8 +234,8 @@ export const codeGames = [
     explanation: "ROW_NUMBER never ties, RANK leaves gaps after ties, and DENSE_RANK leaves none.",
   }),
   output({
-    n: "07", domain: "d3", level: "intermediate", lesson: "d3-case-sets", harness: DB,
-    prompt: "What does this return?" + TABLES + ROWS,
+    n: "07", domain: "d3", level: "intermediate", lesson: "d3-case-sets", harness: DB, tables: T,
+    prompt: "What does this return?" + ROWS,
     code: L("SELECT", "  (SELECT COUNT(*) FROM (SELECT city FROM users UNION SELECT 'Rome')),", "  (SELECT COUNT(*) FROM (SELECT city FROM users UNION ALL SELECT 'Rome'));"),
     answers: ["3|5"],
     choices: ["3|5", "2|5", "4|5", "3|4"],
@@ -238,8 +243,8 @@ export const codeGames = [
     explanation: "UNION removes duplicate rows (and treats NULLs as equal for that); UNION ALL skips that work and is faster when you know there are no duplicates.",
   }),
   output({
-    n: "08", domain: "d2", level: "intermediate", lesson: "d2-outer", harness: DB,
-    prompt: "What does this return?" + TABLES,
+    n: "08", domain: "d2", level: "intermediate", lesson: "d2-outer", harness: DB, tables: T,
+    prompt: "What does this return?",
     code: "SELECT COUNT(*) FROM users u LEFT JOIN orders o ON o.user_id = u.id;",
     answers: ["5"],
     choices: ["5", "4", "3", "6"],

@@ -42,14 +42,19 @@ export function decodeText(picked: number[] | null | undefined): string {
   return (picked ?? []).map((n) => String.fromCodePoint(n)).join("");
 }
 
-/** Compare typed output ignoring trailing spaces, blank edge lines, and runs of spaces. */
+/**
+ * Compare typed output: line endings are normalized, trailing whitespace on each line and blank
+ * lines at either end are dropped, and leading whitespace on a one-line answer is ignored.
+ * Spacing inside lines (and indentation in multi-line output) must match exactly, because it is part of the output.
+ */
 export function normalizeOutput(text: string) {
-  return text
-    .replace(/\r/g, "")
+  const out = text
+    .replace(/\r\n?/g, "\n")
     .split("\n")
-    .map((l) => l.trim().replace(/[ \t]+/g, " "))
+    .map((l) => l.replace(/[ \t]+$/, ""))
     .join("\n")
     .replace(/^\n+|\n+$/g, "");
+  return out.includes("\n") ? out : out.trimStart();
 }
 
 export function shuffle<T>(items: T[]): T[] {

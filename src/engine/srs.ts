@@ -79,6 +79,13 @@ export function review(record: SrsRecord | undefined, grade: ReviewGrade, now: D
   return toRecord(scheduler.next(card, now, GRADE[grade]).card);
 }
 
+/** What Daily Review tells the player after grading: a miss comes back soon, otherwise when it is next due. */
+export function reviewNote(record: SrsRecord | undefined, grade: ReviewGrade, now: Date) {
+  if (grade === "again") return "This will come back soon.";
+  const days = daysUntil(review(record, grade, now), now);
+  return days <= 0 ? "Next review later today." : `Next review in ${days} day${days === 1 ? "" : "s"}.`;
+}
+
 export function isDue(record: SrsRecord | undefined, now: Date) {
   return record !== undefined && new Date(record.due).getTime() <= now.getTime();
 }

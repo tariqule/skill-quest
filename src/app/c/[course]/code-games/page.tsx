@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { PageShell } from "@/components/ui";
-import { CODE_GAMES, gamePool, hasCodeGames } from "@/engine/code-games";
+import { CODE_GAMES, gamePool, gameRule, hasCodeGames } from "@/engine/code-games";
 import { useCourse, useLevelPool, useProgress } from "@/engine/course-context";
 import { levelOf } from "@/engine/levels";
 import type { SkillLevel } from "@/engine/types";
@@ -34,7 +34,7 @@ export default function CodeGamesHub() {
                 <span className="min-w-0">
                   <span className="block text-lg font-black text-white">{g.name}</span>
                   <span className="block text-base text-slate-300">{g.blurb}</span>
-                  <span className="mt-1 block text-sm text-slate-400">{g.rule}</span>
+                  <span className="mt-1 block text-sm text-slate-400">{gameRule(g.id, course)}</span>
                   <span className="mt-2 block font-mono text-xs text-emerald-300">
                     {cleared}/{pool.length} cleared · {counts.map(([l, n]) => `${n} ${l}`).join(" · ")}
                   </span>
