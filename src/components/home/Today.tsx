@@ -13,6 +13,7 @@ import { getCourseStore, todayKey } from "@/engine/store";
 import type { Course } from "@/engine/types";
 import { lastLesson } from "@/engine/last-opened";
 import { hasCodeGames } from "@/engine/code-games";
+import { hasScenarios, scenariosFor } from "@/scenarios";
 import { PlanWizard } from "./PlanWizard";
 
 const progressOf = (c: Course) => getCourseStore(c).get();
@@ -170,6 +171,7 @@ export function Today({ plan }: { plan: StudyPlan | null }) {
           <span className="shrink-0 text-sm text-slate-300">5 min</span>
         </Link>
       )}
+      <ScenarioCard courseIds={targetCourses(plan.target)} />
       <QuickLinks session={session} recent={recent} streak={null} review={!s.items.some((i) => i.kind === "review")} />
     </section>
   );
@@ -206,6 +208,25 @@ function ContinueButton({ first, planCourses }: { first: ReturnType<typeof itemL
         {target.title} · {target.sub}
       </span>
       <span aria-hidden className="text-lg font-black">→</span>
+    </Link>
+  );
+}
+
+/** Home plan card for the Phase 4 scenario games, pointing at the first planned course that has them. */
+function ScenarioCard({ courseIds }: { courseIds: string[] }) {
+  const id = courseIds.find(hasScenarios);
+  const course = id ? getCourse(id) : undefined;
+  if (!id || !course) return null;
+  const kinds = new Set(scenariosFor(id).map((x) => x.type));
+  const names = [kinds.has("architect") && "Architecture Builder", kinds.has("chain") && "Scenario Chains", kinds.has("matcher") && "Service Matcher", kinds.has("interview") && "Mock Interview"].filter(Boolean).join(", ");
+  return (
+    <Link href={`/c/${id}/scenarios`} className="mt-3 flex items-center gap-3 rounded-2xl border border-emerald-400/40 bg-emerald-400/10 p-3 transition hover:border-emerald-300">
+      <span className="text-2xl" aria-hidden>🏗️</span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-base font-bold text-white">Scenario games · {course.shortTitle}</span>
+        <span className="block text-sm text-slate-400">{names}</span>
+      </span>
+      <span className="shrink-0 text-sm text-slate-300">10 min</span>
     </Link>
   );
 }

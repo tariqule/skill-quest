@@ -1,13 +1,16 @@
 import { resolveConfig } from "./config";
 import { ALL_MODES } from "./modes";
+import { hasScenarios } from "@/scenarios";
 import type { CodingChallenge, Course, CourseDefinition, DomainModule, ModeId, Question } from "./types";
 
 /** Live coding only appears for courses that have challenges; every other mode is on by default. */
-function resolveModes(modes: ModeId[] | undefined, coding: CodingChallenge[] | undefined, games: boolean): ModeId[] {
-  let base = modes ?? ALL_MODES.filter((m) => m.id !== "coding" && m.id !== "codegames").map((m) => m.id);
+function resolveModes(modes: ModeId[] | undefined, coding: CodingChallenge[] | undefined, games: boolean, scenarios: boolean): ModeId[] {
+  let base = modes ?? ALL_MODES.filter((m) => m.id !== "coding" && m.id !== "codegames" && m.id !== "scenarios").map((m) => m.id);
   if (coding?.length && !base.includes("coding")) base = ["coding", ...base];
   // Code games appear first wherever a course has all three kinds.
   if (games && !base.includes("codegames")) base = ["codegames", ...base];
+  // Scenario games (Phase 4) appear wherever src/scenarios has items for the course.
+  if (scenarios && !base.includes("scenarios")) base = ["scenarios", ...base];
   return base;
 }
 
@@ -36,6 +39,6 @@ export function defineCourse(def: CourseDefinition): Course {
     challenges: domains.flatMap((m) => m.challenges ?? []),
     guide: { ...guide, tasks: Object.fromEntries(domains.map((m) => [m.domain.id, m.tasks])) },
     config: resolveConfig(def.exam, config),
-    modes: resolveModes(modes, def.coding, ["parsons", "bug", "output"].every((t) => domains.some((m) => m.questions.some((q) => q.type === t)))),
+    modes: resolveModes(modes, def.coding, ["parsons", "bug", "output"].every((t) => domains.some((m) => m.questions.some((q) => q.type === t))), hasScenarios(def.id)),
   };
 }

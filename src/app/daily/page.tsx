@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { ScenarioPlay } from "@/components/scenarios/ScenarioPlay";
+import { gradeFor } from "@/engine/scenarios";
 import { useState, useSyncExternalStore } from "react";
 import { AppBar } from "@/components/Hud";
 import { CodeBlock, RichText } from "@/components/learn/code";
@@ -85,7 +87,9 @@ function Session() {
       <div className="mb-4 h-1.5 rounded-full bg-white/10">
         <div className="h-full rounded-full bg-emerald-400 transition-all" style={{ width: `${(i / queue.length) * 100}%` }} />
       </div>
-      {item.kind === "card" ? <CardItem key={item.key} card={item.card} onGrade={next} /> : isChoice(item.q) ? (
+      {item.kind === "card" ? <CardItem key={item.key} card={item.card} onGrade={next} /> : item.kind === "sc" ? (
+          <ScenarioPlay key={item.key} courseId={item.course.id} item={item.sc} onDone={(share) => next(gradeFor(share))} />
+        ) : isChoice(item.q) ? (
           <QuestionItem key={item.key} course={item.course} q={item.q} fresh={item.fresh} note={note} onGrade={next} />
         ) : (
           <GameItem key={item.key} course={item.course} q={item.q} tag={item.fresh ? "new for you" : "you missed this before"} note={note} onDone={(ok) => next(ok ? "good" : "again")} />
