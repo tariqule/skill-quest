@@ -173,7 +173,7 @@ export default defineDomain({
       task: "2.1",
       title: "Services, Ingress, Gateway API, and service mesh",
       check: ["d2-11", "d2-12"],
-      sources: [{ title: "Kubernetes docs: Liveness, Readiness and Startup Probes", url: "https://kubernetes.io/docs/concepts/configuration/liveness-readiness-startup-probes/", license: "CC BY 4.0" }],
+      sources: [{ title: "Kubernetes docs: Service", url: "https://kubernetes.io/docs/concepts/services-networking/service/", license: "CC BY 4.0" }],
       visual: (
         <div className="grid gap-4">
           <ServiceTypeLab />

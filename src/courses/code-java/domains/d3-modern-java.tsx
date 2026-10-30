@@ -199,7 +199,7 @@ export default defineDomain({
       level: "intermediate",
       task: "3.2",
       title: "Lambdas and lazy streams",
-      sources: [{ title: "dev.java: The Stream API", url: "https://dev.java/learn/api/streams/", license: "Official docs (link only)" }],
+      sources: [{ title: "Java SE API: java.util.stream", url: "https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/stream/package-summary.html", license: "Official docs (link only)" }],
       check: ["d3-08", "d3-12"],
       visual: (
         <div className="grid gap-5">

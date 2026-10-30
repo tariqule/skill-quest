@@ -168,7 +168,7 @@ kubectl describe pod web-7d4b9`}
       task: "1.1 · 1.2",
       title: "The Kubernetes API, objects, and kubectl",
       check: ["d1-11", "d1-12"],
-      sources: [{ title: "Kubernetes docs: Deployments", url: "https://kubernetes.io/docs/concepts/workloads/controllers/deployment/", license: "CC BY 4.0" }],
+      sources: [{ title: "Kubernetes docs: The Kubernetes API", url: "https://kubernetes.io/docs/concepts/overview/kubernetes-api/", license: "CC BY 4.0" }],
       visual: (
         <div className="grid gap-4">
           <CodeBlock

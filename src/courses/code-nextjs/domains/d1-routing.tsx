@@ -130,7 +130,7 @@ export default defineDomain({
       level: "intermediate",
       task: "1.2",
       title: "Layouts, templates, and the special-file stack",
-      sources: [{ title: "Next.js docs: Route Groups", url: "https://nextjs.org/docs/app/api-reference/file-conventions/route-groups", license: "Official docs (link only)" }],
+      sources: [{ title: "Next.js docs: Layouts and Pages", url: "https://nextjs.org/docs/app/getting-started/layouts-and-pages", license: "Official docs (link only)" }],
       check: ["d1-06", "d1-08"],
       visual: <FileStack />,
       points: [

@@ -260,7 +260,7 @@ export default defineDomain({
       level: "senior",
       task: "4.4",
       title: "The GIL: threads, processes, asyncio",
-      sources: [{ title: "Python docs: contextvars", url: "https://docs.python.org/3/library/contextvars.html", license: "PSF License" }],
+      sources: [{ title: "Python docs: Concurrent Execution", url: "https://docs.python.org/3/library/concurrency.html", license: "PSF License" }],
       check: ["d4-19", "d4-22"],
       visual: (
         <div className="grid gap-4">

@@ -260,7 +260,7 @@ export default defineDomain({
       level: "intermediate",
       task: "1.2",
       title: "== and equals, hashCode, and the Integer cache",
-      sources: [{ title: "dev.java: Comparing Objects", url: "https://dev.java/learn/classes-objects/", license: "Official docs (link only)" }],
+      sources: [{ title: "Java SE API: Object (equals and hashCode)", url: "https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html", license: "Official docs (link only)" }],
       check: ["d1-10", "d1-12"],
       visual: (
         <div className="grid gap-6">

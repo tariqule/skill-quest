@@ -98,7 +98,7 @@ export default defineDomain({
       check: ["algo1-05", "algo1-06"],
       task: "1.1",
       title: "Counting the work",
-      sources: [{ title: "MDN: Array.prototype.sort", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort", license: "CC BY-SA 2.5" }],
+      sources: [{ title: "Python wiki: Time complexity of built-in operations", url: "https://wiki.python.org/moin/TimeComplexity", license: "CC BY-SA 2.5" }],
       visual: (
         <div className="grid gap-4">
           <CodeCompare

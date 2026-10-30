@@ -134,7 +134,7 @@ export default defineDomain({
     {
       id: "d2-shared",
       check: ["d2-01", "d2-07"],
-      sources: [{ title: "AWS Lambda: Security in AWS Lambda", url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-security.html", license: "AWS docs, facts only" }],
+      sources: [{ title: "AWS: Shared Responsibility Model", url: "https://aws.amazon.com/compliance/shared-responsibility-model/", license: "AWS docs, facts only" }],
       task: "2.1",
       title: "Shared responsibility, and how it shifts",
       visual: (

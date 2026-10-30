@@ -164,7 +164,7 @@ export default defineDomain({
     {
       id: "d1-wellarchitected",
       check: ["d1-08", "d1-09"],
-      sources: [{ title: "AWS Well-Architected Framework: Security Pillar", url: "https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/welcome.html", license: "AWS docs, facts only" }],
+      sources: [{ title: "AWS Well-Architected Framework: The pillars of the framework", url: "https://docs.aws.amazon.com/wellarchitected/latest/framework/the-pillars-of-the-framework.html", license: "AWS docs, facts only" }],
       task: "1.2",
       title: "The six Well-Architected pillars",
       visual: <PillarWheel />,

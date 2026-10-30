@@ -89,7 +89,7 @@ export default function LikeButton() {
       level: "junior",
       task: "2.1",
       title: "Server by default",
-      sources: [{ title: "Next.js docs: Environment Variables", url: "https://nextjs.org/docs/app/guides/environment-variables", license: "Official docs (link only)" }],
+      sources: [{ title: "Next.js docs: Server and Client Components", url: "https://nextjs.org/docs/app/getting-started/server-and-client-components", license: "Official docs (link only)" }],
       check: ["d2-02", "d2-10"],
       visual: (
         <div className="grid gap-4">

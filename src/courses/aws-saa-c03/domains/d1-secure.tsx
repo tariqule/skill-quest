@@ -217,7 +217,7 @@ export default defineDomain({
       task: "1.2",
       title: "VPC design: subnets, routes, security groups, and NACLs",
       check: ["d1-19", "d1-22"],
-      sources: [{ title: "AWS Firewall Manager", url: "https://docs.aws.amazon.com/waf/latest/developerguide/fms-chapter.html", license: "AWS docs, facts only" }],
+      sources: [{ title: "Amazon VPC: Infrastructure security (security groups and network ACLs)", url: "https://docs.aws.amazon.com/vpc/latest/userguide/infrastructure-security.html", license: "AWS docs, facts only" }],
       visual: (
         <div className="grid gap-6">
           <VpcBuilderLab />
