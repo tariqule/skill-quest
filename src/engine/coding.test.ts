@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { COURSES } from "@/courses";
 import { runLocally, summarize } from "./coding";
 
-const CHALLENGES = COURSES.flatMap((c) => (c.coding ?? []).map((x) => [`${c.id}/${x.id}`, x] as const));
+const CHALLENGES = COURSES.flatMap((c) => (c.coding ?? []).filter((x) => (x.language ?? "js") === "js").map((x) => [`${c.id}/${x.id}`, x] as const));
 
 describe("runner", () => {
   it("reports a missing function, thrown errors, and wrong answers", async () => {

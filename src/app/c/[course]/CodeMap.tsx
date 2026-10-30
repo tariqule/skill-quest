@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { LANGUAGE_LABEL, languageOf } from "@/engine/coding-langs";
 import { IntroOffer } from "@/components/learn/IntroOffer";
 import { type CSSProperties } from "react";
 import { TerminalWindow, Typewriter } from "@/components/code/ui";
@@ -111,7 +112,7 @@ export function CodeMap() {
               <div className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-emerald-300">New · live coding</div>
               <div className="font-mono text-xl font-black text-white">Write real code, run real tests</div>
               <p className="mt-1 text-sm text-slate-400">
-                {codingAtLevel.length} challenges at {skill.name.toLowerCase()} level: an editor, hidden tests, hints, and a reference solution. {codingSolved}/{codingAtLevel.length} solved.
+                {codingAtLevel.length} {LANGUAGE_LABEL[languageOf(codingAtLevel[0])]} challenges at {skill.name.toLowerCase()} level, run in your browser: an editor, hidden tests, hints, and a reference solution. {codingSolved}/{codingAtLevel.length} solved.
               </p>
             </div>
             <span className="btn-3d rounded-xl bg-emerald-400 px-5 py-2.5 text-center font-mono text-sm font-black uppercase tracking-wider text-slate-950" style={{ "--edge": "#065f46" } as CSSProperties}>

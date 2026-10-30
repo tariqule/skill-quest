@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { LANGUAGE_LABEL, languageOf } from "@/engine/coding-langs";
 import { Bar } from "@/components/ui";
 import { useCourse, useLevelPool, useProgress } from "@/engine/course-context";
 import { LEVEL_BY_ID } from "@/engine/levels";
@@ -79,7 +80,7 @@ export default function CodingList() {
                       </div>
                       <div className="mt-2 font-mono text-base font-black text-white group-hover:text-emerald-200">{c.title}</div>
                       <div className="mt-1 font-mono text-[11px] text-slate-500">
-                        {c.tests.length} tests{st ? ` · ${st.attempts} ${st.attempts === 1 ? "run" : "runs"}` : ""}
+                        {LANGUAGE_LABEL[languageOf(c)]} · {c.tests.length} tests{st ? ` · ${st.attempts} ${st.attempts === 1 ? "run" : "runs"}` : ""}
                       </div>
                     </Link>
                   );

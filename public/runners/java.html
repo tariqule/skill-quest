@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Java runner</title>
+<!-- CheerpJ (WebAssembly JVM, Java 8 runtime) by Leaning Technologies, community licence: https://cheerpj.com/licensing/ -->
+<script src="https://cjrtnc.leaningtech.com/5.0/loader.js"></script>
+</head>
+<body>
+<pre id="console" hidden></pre>
+<script>
+// Compiles and runs one Main.java per request inside this frame, using the Eclipse Compiler for Java
+// (ecj-3.26.0.jar, EPL-2.0, served from this folder) on CheerpJ. The parent page removes the whole frame
+// when a run takes too long, which is the only reliable way to stop a runaway JVM thread.
+(function () {
+  const ECJ = "/app/runners/ecj-3.26.0.jar";
+  let n = 0;
+  const post = (msg) => parent.postMessage(Object.assign({ source: "cq-java" }, msg), location.origin);
+  const ready = (async () => {
+    if (typeof cheerpjInit !== "function") throw new Error("The Java runtime (CheerpJ) could not be downloaded.");
+    await cheerpjInit({ version: 8, status: "none" });
+  })();
+  ready.then(() => post({ type: "ready" }), (e) => post({ type: "fail", error: String((e && e.message) || e) }));
+  const text = async (path) => {
+    try {
+      return await (await cjFileBlob(path)).text();
+    } catch (e) {
+      return null;
+    }
+  };
+  window.addEventListener("message", async (e) => {
+    if (e.origin !== location.origin || !e.data || e.data.target !== "cq-java") return;
+    const { id, source } = e.data;
+    try {
+      await ready;
+      const dir = "r" + ++n + "x" + Date.now();
+      cheerpOSAddStringFile("/str/" + dir + "-Main.java", source);
+      const t0 = performance.now();
+      const rc = await cheerpjRunMain("org.eclipse.jdt.internal.compiler.batch.Main", ECJ, "-d", "/files/" + dir, "-source", "10", "-target", "1.8", "-nowarn", "-encoding", "UTF-8", "-log", "/files/" + dir + ".log", "/str/" + dir + "-Main.java");
+      const compileMs = performance.now() - t0;
+      if (rc !== 0) {
+        post({ type: "result", id, compileError: (await text("/files/" + dir + ".log")) || "The code didn't compile." });
+        return;
+      }
+      await cheerpjRunMain("Main", "/files/" + dir, "/files/" + dir + "/result.json");
+      const out = await text("/files/" + dir + "/result.json");
+      post({ type: "result", id, output: out, compileMs });
+    } catch (err) {
+      post({ type: "result", id, crash: String((err && err.message) || err) });
+    }
+  });
+})();
+</script>
+</body>
+</html>

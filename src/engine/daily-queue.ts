@@ -8,7 +8,7 @@ import { getCourseStore } from "./store";
 import { codeGameOf } from "./code-games";
 import { scenarioById } from "@/scenarios";
 import type { ScenarioItem } from "./scenarios";
-import { isChoice, type Card, type Course, type Question } from "./types";
+import { isChoice, type Card, type CodingChallenge, type Course, type Question } from "./types";
 
 /** Daily Review shows choice questions and the code games (Parsons, Spot the Bug, Predict the Output). */
 export const reviewable = (q: Question) => isChoice(q) || !!codeGameOf(q);
@@ -17,7 +17,7 @@ export const SESSION = 30;
 export const NEW_CARDS = 5;
 export const NEW_QUESTIONS = 3;
 
-export type Item = { key: string; course: Course; fresh?: boolean } & ({ kind: "card"; card: Card } | { kind: "q"; q: Question } | { kind: "sc"; sc: ScenarioItem });
+export type Item = { key: string; course: Course; fresh?: boolean } & ({ kind: "card"; card: Card } | { kind: "q"; q: Question } | { kind: "sc"; sc: ScenarioItem } | { kind: "code"; code: CodingChallenge });
 
 const progressOf = (c: Course) => getCourseStore(c).get();
 
@@ -38,6 +38,10 @@ export function buildQueue(plan: StudyPlan | null): Item[] {
     if (k.kind === "sc") {
       const sc = scenarioById(k.courseId, k.id);
       return sc ? { key, course, kind: "sc", sc } : null;
+    }
+    if (k.kind === "code") {
+      const code = (course.coding ?? []).find((c) => c.id === k.id);
+      return code ? { key, course, kind: "code", code } : null;
     }
     const q = course.questions.find((x) => x.id === k.id);
     return q && reviewable(q) ? { key, course, kind: "q", q } : null;

@@ -6,7 +6,13 @@ import { useRef, useState, useSyncExternalStore } from "react";
 import { Editor } from "@/components/coding/Editor";
 import { Confetti } from "@/components/fx";
 import { CodeBlock, RichText } from "@/components/learn/code";
-import { runInWorker, summarize, type RunResult } from "@/engine/coding";
+import { summarize, type RunResult } from "@/engine/coding";
+import { LANGUAGE_LABEL, javaShow, languageOf } from "@/engine/coding-langs";
+import { runChallenge, warmRuntime, type LiveRun } from "@/engine/runners";
+import { codingGrade } from "@/engine/coding-review";
+import { makeOnce } from "@/engine/scenario-progress";
+import { itemKey } from "@/engine/srs";
+import { gradeItem } from "@/engine/srs-store";
 import { useCourse, useLevelPool } from "@/engine/course-context";
 import { LEVEL_BY_ID } from "@/engine/levels";
 import type { CodingChallenge } from "@/engine/types";
@@ -38,7 +44,14 @@ function Workspace({ challenge: c }: { challenge: CodingChallenge }) {
   const { course, store, href } = useCourse();
   const { level } = useLevelPool();
   const [code, setCode] = useState(() => readDraft(c));
-  const [result, setResult] = useState<RunResult | null>(null);
+  const [result, setResult] = useState<LiveRun | null>(null);
+  const [status, setStatus] = useState("");
+  const [attempted, setAttempted] = useState(false);
+  const warmed = useRef(false);
+  const failed = useRef(false);
+  const [once] = useState(makeOnce);
+  const lang = languageOf(c);
+  const label = LANGUAGE_LABEL[lang];
   const [running, setRunning] = useState(false);
   const [hints, setHints] = useState(0);
   const [solution, setSolution] = useState<"hidden" | "confirm" | "shown">("hidden");
@@ -67,10 +80,19 @@ function Workspace({ challenge: c }: { challenge: CodingChallenge }) {
     if (busy.current) return;
     busy.current = true;
     setRunning(true);
-    const r = await runInWorker(code, c.fn, c.tests);
+    setResult(null);
+    const r = await runChallenge(c, code, setStatus);
+    setStatus("");
     const ok = summarize(r).allPassed;
     const used = hints + (solution === "shown" ? c.hints.length : 0);
-    const earned = store.recordCoding(c.id, ok, used);
+    // A runtime that failed to download isn't the player's mistake, so it doesn't count as an attempt.
+    const earned = r.unavailable ? 0 : store.recordCoding(c.id, ok, used);
+    if (!r.unavailable) {
+      setAttempted(true);
+      // Schedule the exercise in Daily Review: once for the first failing run, once for the first pass.
+      once(ok ? "pass" : "fail", () => gradeItem(itemKey(course.id, "code", c.id), codingGrade({ solved: ok, hints: used, failedBefore: failed.current, sawSolution: solution === "shown" })));
+      if (!ok) failed.current = true;
+    }
     setResult(r);
     setRunning(false);
     busy.current = false;
@@ -98,6 +120,7 @@ function Workspace({ challenge: c }: { challenge: CodingChallenge }) {
             {domain.emoji} {domain.world}
           </span>
         )}
+        <span className="rounded bg-sky-400/10 px-1.5 py-0.5 text-sky-200">{label}</span>
         {c.idea && <span className="rounded bg-white/5 px-1.5 py-0.5 text-slate-400">💡 {c.idea}</span>}
         {solved && <span className="rounded bg-emerald-400/15 px-1.5 py-0.5 text-emerald-200">✅ solved</span>}
       </div>
@@ -114,12 +137,12 @@ function Workspace({ challenge: c }: { challenge: CodingChallenge }) {
             <ul className="mt-2 grid gap-1.5 font-mono text-[12px]">
               {visibleTests.slice(0, 3).map((t, i) => (
                 <li key={i} className="overflow-x-auto whitespace-nowrap rounded-lg bg-black/30 px-2.5 py-1.5 text-slate-300">
-                  {c.fn}({t.args.map(show).join(", ")}) <span className="text-emerald-300">→ {show(t.expected)}</span>
+                  {c.fn}({t.args.map((a) => show(a, lang)).join(", ")}) <span className="text-emerald-300">→ {show(t.expected, lang)}</span>
                 </li>
               ))}
             </ul>
             <p className="mt-2 text-xs text-slate-500">
-              {c.tests.length} tests{c.tests.some((t) => t.hidden) ? `, ${c.tests.filter((t) => t.hidden).length} of them hidden` : ""}. Edit the function, then run.
+              {c.tests.length} tests{c.tests.some((t) => t.hidden) ? `, ${c.tests.filter((t) => t.hidden).length} of them hidden` : ""}. {lang === "java" ? `Edit the method in class Solution, then run. Java runs as Java 8 with Java 10 syntax, so var works but List.of does not.` : "Edit the function, then run."}
             </p>
           </div>
 
@@ -150,7 +173,14 @@ function Workspace({ challenge: c }: { challenge: CodingChallenge }) {
         </section>
 
         <section className="min-w-0 space-y-3">
-          <Editor value={code} onChange={change} onRun={run} minLines={Math.max(12, c.starter.split("\n").length + 4)} />
+          <div onFocus={() => {
+              if (!warmed.current && lang !== "js") {
+                warmed.current = true;
+                warmRuntime(c);
+              }
+            }}>
+          <Editor value={code} lang={lang} onChange={change} onRun={run} minLines={Math.max(12, c.starter.split("\n").length + 4)} />
+          </div>
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
@@ -159,7 +189,7 @@ function Workspace({ challenge: c }: { challenge: CodingChallenge }) {
               className="btn-3d rounded-xl bg-emerald-400 px-5 py-2.5 font-mono text-sm font-black uppercase tracking-wider text-slate-950 disabled:opacity-60"
               style={{ "--edge": "#065f46" } as React.CSSProperties}
             >
-              {running ? "Running…" : "▶ Run tests"}
+              {running ? "Running…" : `▶ Run ${label}`}
             </button>
             <button
               type="button"
@@ -171,7 +201,7 @@ function Workspace({ challenge: c }: { challenge: CodingChallenge }) {
             >
               ↺ Reset
             </button>
-            {solution === "hidden" && (
+            {solution === "hidden" && (attempted || result?.unavailable) && (
               <button type="button" onClick={() => setSolution("confirm")} className="rounded-xl border border-white/15 px-3 py-2.5 font-mono text-xs font-bold text-slate-400 hover:bg-white/5">
                 👁 Show solution
               </button>
@@ -184,7 +214,11 @@ function Workspace({ challenge: c }: { challenge: CodingChallenge }) {
             <span className="ml-auto hidden font-mono text-[11px] text-slate-500 sm:inline">Ctrl/⌘ + Enter to run</span>
           </div>
 
-          {result && <Results result={result} fn={c.fn} />}
+          {solution === "hidden" && !attempted && !result?.unavailable && <p className="font-mono text-[11px] text-slate-500">The reference solution unlocks after your first run.</p>}
+          <div aria-live="polite" className="font-mono text-xs text-sky-200">
+            {running && status}
+          </div>
+          {result && <Results result={result} fn={c.fn} lang={lang} />}
 
           {summary?.allPassed && (
             <div className="pop-in rounded-2xl border border-emerald-400/40 bg-emerald-400/10 p-4">
@@ -192,6 +226,11 @@ function Workspace({ challenge: c }: { challenge: CodingChallenge }) {
               <p className="mt-2 text-sm text-slate-200">
                 <RichText text={c.explanation} />
               </p>
+              {c.complexity && (
+                <p className="mt-2 font-mono text-xs text-emerald-100/80">
+                  ⏱ <RichText text={c.complexity} />
+                </p>
+              )}
               <div className="mt-3 flex flex-wrap gap-2">
                 {next && (
                   <Link href={href(`/coding/${next.id}`)} className="rounded-xl bg-emerald-400 px-4 py-2 font-mono text-sm font-black text-slate-950">
@@ -209,11 +248,16 @@ function Workspace({ challenge: c }: { challenge: CodingChallenge }) {
             <div className="rounded-2xl border border-white/10 bg-[#07111c]/90 p-4">
               <div className="font-mono text-xs font-bold uppercase tracking-wider text-slate-500">Reference solution</div>
               <div className="mt-2">
-                <CodeBlock code={c.solution} lang="js" />
+                <CodeBlock code={c.solution} lang={lang} />
               </div>
               <p className="mt-3 text-sm text-slate-300">
                 <RichText text={c.explanation} />
               </p>
+              {c.complexity && (
+                <p className="mt-2 font-mono text-xs text-slate-400">
+                  ⏱ <RichText text={c.complexity} />
+                </p>
+              )}
               <button type="button" onClick={() => change(c.solution)} className="mt-3 rounded-lg border border-white/15 px-3 py-1.5 font-mono text-xs font-bold text-slate-200 hover:bg-white/5">
                 Copy into editor
               </button>
@@ -225,7 +269,9 @@ function Workspace({ challenge: c }: { challenge: CodingChallenge }) {
   );
 }
 
-function show(v: unknown): string {
+function show(v: unknown, lang: string = "js"): string {
+  if (lang === "java") return javaShow(v);
+  if (lang === "python") return pyShow(v);
   if (v === undefined || v === "$undefined") return "undefined";
   if (v === "$NaN") return "NaN";
   if (v === "$Infinity") return "Infinity";
@@ -234,18 +280,29 @@ function show(v: unknown): string {
   return JSON.stringify(v);
 }
 
-function Results({ result, fn }: { result: RunResult; fn: string }) {
+function pyShow(v: unknown): string {
+  if (v === null) return "None";
+  if (v === true) return "True";
+  if (v === false) return "False";
+  if (typeof v === "string") return `'${v.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/\n/g, "\\n")}'`;
+  if (Array.isArray(v)) return `[${v.map(pyShow).join(", ")}]`;
+  if (v && typeof v === "object") return `{${Object.entries(v).map(([k, x]) => `${pyShow(k)}: ${pyShow(x)}`).join(", ")}}`;
+  return String(v);
+}
+
+function Results({ result, fn, lang }: { result: RunResult; fn: string; lang: string }) {
   const s = summarize(result);
   if (result.error) {
     return (
       <div className="rounded-2xl border border-rose-400/40 bg-rose-400/10 p-4 font-mono text-sm text-rose-100">
         <div className="font-black">{result.timedOut ? "⏱️ Stopped" : "💥 Couldn't run"}</div>
-        <pre className="mt-1 whitespace-pre-wrap">{result.error}</pre>
+        <pre className="mt-1 overflow-x-auto whitespace-pre-wrap">{result.error}</pre>
+        {result.logs.length > 0 && <pre className="mt-2 max-h-40 overflow-auto rounded-lg bg-black/40 p-2.5 text-[12px] text-slate-200">{result.logs.join("\n")}</pre>}
       </div>
     );
   }
   return (
-    <div className="rounded-2xl border border-white/10 bg-[#07111c]/90 p-4">
+    <div className="rounded-2xl border border-white/10 bg-[#07111c]/90 p-4" role="status">
       <div className={`font-mono text-sm font-black ${s.allPassed ? "text-emerald-300" : "text-amber-200"}`}>
         {s.passed}/{s.total} tests passed
       </div>
@@ -270,7 +327,7 @@ function Results({ result, fn }: { result: RunResult; fn: string }) {
       </ul>
       {result.logs.length > 0 && (
         <div className="mt-3">
-          <div className="font-mono text-[11px] font-bold uppercase tracking-wider text-slate-500">console.log</div>
+          <div className="font-mono text-[11px] font-bold uppercase tracking-wider text-slate-500">{lang === "python" ? "print output" : lang === "java" ? "System.out" : "console.log"}</div>
           <pre className="mt-1 max-h-40 overflow-auto rounded-lg bg-black/40 p-2.5 font-mono text-[12px] text-slate-200">{result.logs.join("\n")}</pre>
         </div>
       )}

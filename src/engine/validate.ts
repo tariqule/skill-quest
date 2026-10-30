@@ -1,3 +1,4 @@
+import { definesEntry } from "./coding-langs";
 import { prepareParsons } from "./code-games";
 import { examQuestions, questionKind } from "./game";
 import { BEGINNER_MIN, MIN_PER_LEVEL, SENIORITY } from "./levels";
@@ -111,7 +112,9 @@ export function validateCourse(course: Course): string[] {
     if (c.lesson && !lessonIds.has(c.lesson)) err(`${where} links unknown lesson "${c.lesson}"`);
     if (!SENIORITY.includes(c.level)) err(`${where} needs a level`);
     if (!c.prompt.trim() || !c.explanation.trim() || !c.title.trim()) err(`${where} needs a title, prompt, and explanation`);
-    if (!new RegExp(`function\\s+${c.fn}\\b|(?:const|let|var)\\s+${c.fn}\\s*=`).test(c.starter)) err(`${where} starter must define \`${c.fn}\``);
+    if (!definesEntry(c)) err(`${where} starter must define \`${c.fn}\`${c.language === "java" ? " inside class Solution" : ""}`);
+    if (c.language === "java" && (!c.java || c.java.params.length !== (c.tests[0]?.args.length ?? 0))) err(`${where} needs java param types matching its test args`);
+    if (c.language && c.language !== "js" && !c.complexity) err(`${where} needs complexity notes`);
     if (c.tests.length < 3) err(`${where} needs at least 3 tests`);
     if (c.tests.every((t) => t.hidden)) err(`${where} needs at least one visible test`);
     if (c.hints.length < 2) err(`${where} needs at least 2 hints`);
