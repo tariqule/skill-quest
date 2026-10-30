@@ -94,6 +94,7 @@ export default defineDomain({
         "**Explainability** means being able to say why the model gave a particular answer, like a maths teacher asking you to show your working.",
         "**Transparency** means being open: telling people they're dealing with AI and being honest about what it can't do.",
         "For important or uncertain cases, a person can review the AI's answer. This is called **human in the loop**.",
+        "**SageMaker Model Cards** record a model's intended uses, risk rating, training details and evaluation results in one place.",
       ],
       tip: "When a regulator wants every decision explained, look for answers about explainability, simpler models or human review.",
     },
@@ -121,6 +122,7 @@ export default defineDomain({
       ),
       points: [
         "Choosing a model responsibly also means thinking about the environment. A right-sized model does the same job with less energy.",
+        "**Controllability** means you can steer and monitor how the AI system behaves.",
       ],
     },
     {
@@ -134,6 +136,7 @@ export default defineDomain({
         "**Underfitting**, also called high bias, means the model is poor everywhere because it's too simple.",
         "Data that's unbalanced or doesn't represent everyone can harm particular groups of people.",
         "You find bias by comparing results across groups, checking label quality, having people audit outputs, and using SageMaker Clarify.",
+        "A pre-training check: **class imbalance** (CI) shows when one group has far more samples than another.",
       ],
     },
     {
@@ -150,6 +153,7 @@ export default defineDomain({
       points: [
         "Guardrails check both what goes into the model and what comes out. They can block harmful content, topics you've banned, specific words, personal data and prompt attacks.",
         "The **contextual grounding check** flags answers that your source documents don't back up.",
+        "Amazon's image models, Titan Image Generator and Nova Canvas, add an invisible **watermark**, so generated images can be detected later.",
       ],
     },
     {
@@ -180,6 +184,7 @@ export default defineDomain({
       ),
       points: [
         "Most of these problems are fixed at the source: the data the model learns from.",
+        "Generated text or images can break **copyright** when they copy protected work.",
       ],
     },
     {
@@ -192,6 +197,7 @@ export default defineDomain({
         "Your tools here are **SageMaker Model Cards** to document a model, **SageMaker Clarify** to explain predictions with SHAP, and **Bedrock Model Evaluations**.",
         "Open-source models, open data and clear licences all make a system more transparent.",
         "Design for people: show users why a decision was made and let them give feedback. **Amazon A2I** adds a human reviewer when you need one.",
+        "**Interpretability** is how easily a person can follow the model's logic. Simpler models are more interpretable, so there is often a trade-off with accuracy.",
       ],
     },
     {
@@ -305,7 +311,7 @@ export default defineDomain({
       options: ["SageMaker Clarify", "SageMaker Ground Truth", "SageMaker Pipelines", "SageMaker Neo"],
       answer: [0],
       explanation:
-        "SageMaker Clarify checks for bias both before and after training. It explains predictions using SHAP values, which show how much each feature contributed.",
+        "SageMaker Clarify checks for bias both before and after training. It explains predictions using SHAP values, which show how much each feature contributed. Note: AWS has closed Clarify to new customers, though existing customers can still use it and the exam guide still covers it.",
     },
     {
       id: "d4-02",
@@ -981,7 +987,7 @@ export default defineDomain({
       "lesson": "d4-legal",
       "prompt": "A company uses an image model and later learns it may copy artists' work. Which risk is this?",
       "options": [
-        "Intellectual property infringement",
+        "Copyright infringement",
         "Model drift over time",
         "Overfitting the test set",
         "Provisioned throughput limits"
@@ -1153,6 +1159,122 @@ export default defineDomain({
         0
       ],
       "explanation": "Invented facts are hallucinations. Grounding answers in trusted documents and checking citations cuts them down."
+    },
+
+    // ── Added: AIF-C01 exam-style practice ──
+    {
+      "id": "d4-59",
+      "domain": "d4",
+      "lesson": "d4-guardrails",
+      "prompt": "A marketing team wants to check later whether an image was made by an Amazon image model on Bedrock. What helps?",
+      "options": [
+        "The model's invisible watermark",
+        "A higher temperature setting",
+        "A larger context window",
+        "Provisioned Throughput logs"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Amazon Titan Image Generator and Nova Canvas add an invisible watermark, which Bedrock can detect. This supports transparency."
+    },
+    {
+      "id": "d4-60",
+      "domain": "d4",
+      "lesson": "d4-guardrails",
+      "prompt": "Which options can catch toxic content in a generative AI app? (Choose two.)",
+      "options": [
+        "Bedrock Guardrails content filters",
+        "Amazon Comprehend toxicity detection",
+        "AWS KMS key rotation",
+        "Amazon S3 Glacier storage",
+        "AWS Cost Explorer reports"
+      ],
+      "answer": [
+        0,
+        1
+      ],
+      "explanation": "Guardrails content filters block harmful text in prompts and replies. Comprehend can score text for toxicity."
+    },
+    {
+      "id": "d4-61",
+      "domain": "d4",
+      "lesson": "d4-dimensions",
+      "type": "match",
+      "prompt": "Match each responsible AI dimension to its meaning.",
+      "pairs": [
+        [
+          "Fairness",
+          "Similar outcomes across groups of people"
+        ],
+        [
+          "Explainability",
+          "Understanding why the model gave an output"
+        ],
+        [
+          "Privacy and security",
+          "Protecting personal data"
+        ],
+        [
+          "Veracity and robustness",
+          "Correct output, even with unusual inputs"
+        ],
+        [
+          "Controllability",
+          "Steering and monitoring the system's behavior"
+        ]
+      ],
+      "explanation": "AWS lists these among its core dimensions of responsible AI."
+    },
+    {
+      "id": "d4-62",
+      "domain": "d4",
+      "lesson": "d4-bias",
+      "prompt": "A loan dataset has 9,000 records for one age group and 1,000 for another. Which pre-training bias metric flags this?",
+      "options": [
+        "Class imbalance (CI)",
+        "Difference in proportions of labels (DPL)",
+        "Recall difference",
+        "Accuracy difference"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Class imbalance compares how many samples each group has. DPL compares positive labels between groups. Recall and accuracy difference need a trained model."
+    },
+    {
+      "id": "d4-63",
+      "domain": "d4",
+      "lesson": "d4-explain",
+      "prompt": "A bank must explain each loan decision to customers. Which choices help? (Choose two.)",
+      "options": [
+        "Use a simpler model if accuracy allows",
+        "Use SHAP values to show feature impact",
+        "Raise the model's temperature",
+        "Turn off logging for the model",
+        "Use the largest model on offer"
+      ],
+      "answer": [
+        0,
+        1
+      ],
+      "explanation": "Simple models are easier to interpret, and SHAP values show how much each input pushed a decision. Bigger models are usually harder to explain."
+    },
+    {
+      "id": "d4-64",
+      "domain": "d4",
+      "lesson": "d4-legal",
+      "prompt": "A generated image closely copies a famous artist's protected work. Which risk is this?",
+      "options": [
+        "Copyright infringement",
+        "Model drift over time",
+        "Data residency rules",
+        "Overfitting to training data"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Generated content can copy protected work, which is an intellectual property risk."
     },
   ],
 

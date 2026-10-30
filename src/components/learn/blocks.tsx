@@ -35,7 +35,7 @@ export function Flow({ steps, color = "#38bdf8", loop }: { steps: FlowStep[]; co
               {s.sub && (active === i || steps.length <= 4) && <div className="mt-1 text-xs leading-snug text-slate-400">{s.sub}</div>}
             </button>
             {i < steps.length - 1 && (
-              <span className="text-lg text-slate-500 sm:shrink-0" aria-hidden>
+              <span className="text-lg text-slate-400 sm:shrink-0" aria-hidden>
                 <span className="sm:hidden">↓</span>
                 <span className="hidden sm:inline">→</span>
               </span>
@@ -44,7 +44,7 @@ export function Flow({ steps, color = "#38bdf8", loop }: { steps: FlowStep[]; co
         ))}
       </div>
       {loop && <div className="mt-2 text-center text-xs text-slate-400">↺ {loop}</div>}
-      {steps.length > 4 && <div className="mt-2 text-center text-[11px] text-slate-500">Tap a step for details</div>}
+      {steps.length > 4 && <div className="mt-2 text-center text-[11px] text-slate-400">Tap a step for details</div>}
     </div>
   );
 }
@@ -70,7 +70,7 @@ export function Tiles({ tiles, cols = 2 }: { tiles: Tile[]; cols?: 2 | 3 | 4 }) 
             <span className="text-2xl">{t.icon}</span>
             <span className="font-semibold text-white">{t.title}</span>
           </div>
-          <p className="mt-1.5 text-sm leading-snug text-slate-300"><RichText text={t.text} /></p>
+          <p className="mt-1.5 text-base leading-normal text-slate-300"><RichText text={t.text} /></p>
         </div>
       ))}
     </div>
@@ -84,9 +84,9 @@ export function ServiceRows({ rows }: { rows: { input: string; service: string; 
       {rows.map((r) => (
         <div key={r.service} className="grid grid-cols-[1fr_auto_1.3fr_auto_1fr] items-center gap-2 rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-sm">
           <span className="text-slate-300">{r.input}</span>
-          <span className="text-slate-500">→</span>
+          <span className="text-slate-400">→</span>
           <span className="rounded-lg bg-sky-400/15 px-2 py-1 text-center font-semibold text-sky-200">{r.service}</span>
-          <span className="text-slate-500">→</span>
+          <span className="text-slate-400">→</span>
           <span className="text-slate-300">{r.output}</span>
         </div>
       ))}
@@ -129,11 +129,11 @@ export function Ladder({ rungs }: { rungs: { icon: string; name: string; text: s
             <div className="font-semibold text-white">
               {i + 1}. {r.name} <span className="ml-1 text-xs text-slate-400">{"$".repeat(i + 1)}</span>
             </div>
-            <div className="text-sm text-slate-400">{r.text}</div>
+            <div className="text-base text-slate-400">{r.text}</div>
           </div>
         </div>
       ))}
-      <div className="text-xs text-slate-500">⬆ more cost, effort, and data as you climb</div>
+      <div className="text-xs text-slate-400">⬆ more cost, effort, and data as you climb</div>
     </div>
   );
 }

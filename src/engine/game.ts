@@ -288,3 +288,14 @@ export function formatDate(iso: string) {
   const [y, m, d] = iso.split("-").map(Number);
   return `${MONTHS[m - 1]} ${d}, ${y}`;
 }
+
+/**
+ * Teach before test: keep only questions whose lesson the player has already seen.
+ * Questions without a lesson stay in. Falls back to the full pool when nothing has
+ * been seen yet (for example a direct link), so a session is never empty.
+ */
+export function taughtPool<T extends { lesson?: string }>(pool: T[], seen: readonly string[]): T[] {
+  const set = new Set(seen);
+  const taught = pool.filter((q) => !q.lesson || set.has(q.lesson));
+  return taught.length ? taught : pool;
+}

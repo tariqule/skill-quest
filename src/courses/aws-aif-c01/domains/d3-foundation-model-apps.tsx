@@ -164,6 +164,8 @@ export default defineDomain({
       points: [
         "Pick the smallest model that's good enough for the job. It'll be cheaper and faster than a giant one.",
         "**Prompt caching** saves work when many requests start with the same long text, like a shared set of instructions.",
+        "Sometimes you don't need to pick a model at all. **Amazon Q Business** is a ready-made assistant over company data, and **Amazon Q Developer** is one for code. **Amazon Kendra** adds enterprise search.",
+        "For throughput, an **inference profile** with **cross-Region inference** spreads requests across Regions.",
       ],
     },
     {
@@ -176,6 +178,7 @@ export default defineDomain({
         "**Temperature** controls how adventurous the model's word choices are.",
         "Keep it low for facts and answers that must be the same every time. Turn it up for brainstorming and creative writing.",
         "**Top P** and **Top K** limit which words the model can pick from. **Max tokens** caps how long the answer can be.",
+        "**Top-k** limits the choice to the k most likely next tokens. A **stop sequence** is text that tells the model to stop writing, such as a closing tag.",
       ],
     },
     {
@@ -193,6 +196,8 @@ export default defineDomain({
         "**Amazon Bedrock Knowledge Bases** handles the whole RAG pipeline for you: it reads your documents, splits them into chunks, turns them into embeddings, stores them and fetches the right ones.",
         "The embeddings live in a **vector store**. Options include Amazon OpenSearch Service, Aurora or RDS for PostgreSQL (with pgvector) and Amazon Neptune.",
         "Use RAG when your information changes often, or when answers must point back to your own documents.",
+        "Vector stores on AWS include OpenSearch, Aurora PostgreSQL with pgvector, Neptune Analytics, **Amazon DocumentDB** and MemoryDB.",
+        "Knowledge Bases can run **hybrid search**, which mixes vector search with keyword search, on OpenSearch, Aurora PostgreSQL and MongoDB Atlas. **Amazon Kendra** can also act as the retriever.",
       ],
     },
     {
@@ -215,6 +220,7 @@ export default defineDomain({
         "**Distillation** uses a big \"teacher\" model to train a small, cheap \"student\" model.",
         "Fine-tuning data has to be chosen carefully, labeled correctly, representative of real use, and properly governed.",
         "**RLHF**, reinforcement learning from human feedback, nudges a model toward the answers people prefer.",
+        "Other ways to adapt a model: **few-shot** prompting shows it a few examples, **instruction tuning** trains it on instruction and answer pairs, and **transfer learning** reuses a trained model for a new, related task.",
       ],
       tip: "Rule of thumb for the exam: pick the lowest rung that meets the requirement.",
     },
@@ -274,6 +280,7 @@ export default defineDomain({
         "**Amazon Bedrock Model Evaluation** runs automatic checks, model-as-judge checks and human reviews, on standard benchmark datasets or your own.",
         "Test the whole app, not just the model. For example, check that RAG finds the right documents and that agents actually finish their tasks.",
         "Tie it back to the business with numbers like task completion rate, user satisfaction and cost per interaction.",
+        "**Perplexity** measures how well a model predicts real text. Lower is better.",
       ],
     },
     {
@@ -495,7 +502,7 @@ export default defineDomain({
       domain: "d3",
       lesson: "d3-prompts",
       prompt: "A prompt shows three examples of an input and the output you want, then asks the model to handle a new input. What technique is this?",
-      options: ["Zero-shot prompting", "Few-shot prompting", "Chain-of-thought prompting", "Prompt injection"],
+      options: ["Zero-shot prompting", "Few-shot prompting", "Chain-of-thought prompts", "Prompt injection"],
       answer: [1],
       explanation:
         "Giving a few examples in the prompt is few-shot prompting. Zero-shot gives no examples, and one-shot gives exactly one.",
@@ -506,7 +513,7 @@ export default defineDomain({
       lesson: "d3-prompts",
       prompt: "Asking a model to 'think step by step' before it answers a maths word problem is an example of what?",
       options: [
-        "Chain-of-thought prompting",
+        "Chain-of-thought prompts",
         "Fine-tuning on worked examples",
         "Negative prompting",
         "Zero-shot prompting",
@@ -827,7 +834,7 @@ export default defineDomain({
       options: [
         "One-shot prompting",
         "Zero-shot prompting",
-        "Chain-of-thought prompting",
+        "Chain-of-thought prompts",
         "Few-shot fine-tuning",
       ],
       answer: [0],
@@ -1456,7 +1463,7 @@ export default defineDomain({
       "options": [
         "Few-shot prompting",
         "Zero-shot prompting",
-        "Chain-of-thought prompting",
+        "Chain-of-thought prompts",
         "Prompt chaining"
       ],
       "answer": [
@@ -1671,6 +1678,183 @@ export default defineDomain({
         0
       ],
       "explanation": "Vectors match meaning but can miss exact codes. Hybrid search adds keyword matching to catch them."
+    },
+
+    // ── Added: AIF-C01 exam-style practice ──
+    {
+      "id": "d3-93",
+      "domain": "d3",
+      "lesson": "d3-rag",
+      "prompt": "A company already keeps its product data in Amazon DocumentDB. It wants vector similarity search without adding a new database. What can it do?",
+      "options": [
+        "Turn on vector search in DocumentDB",
+        "Export everything to S3 Glacier first",
+        "Store the embeddings in Secrets Manager",
+        "Rebuild the catalog in Amazon Neptune"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "DocumentDB supports vector search, so embeddings can live next to the data you already have."
+    },
+    {
+      "id": "d3-94",
+      "domain": "d3",
+      "lesson": "d3-rag",
+      "prompt": "Which AWS services can store embeddings for vector search in a RAG app? (Choose three.)",
+      "options": [
+        "Amazon OpenSearch Service",
+        "Aurora PostgreSQL with pgvector",
+        "Amazon DocumentDB",
+        "Amazon Polly",
+        "AWS CloudTrail",
+        "Amazon Translate"
+      ],
+      "answer": [
+        0,
+        1,
+        2
+      ],
+      "explanation": "OpenSearch, Aurora PostgreSQL with pgvector and DocumentDB all support vector search. Polly, CloudTrail and Translate do not store vectors."
+    },
+    {
+      "id": "d3-95",
+      "domain": "d3",
+      "lesson": "d3-params",
+      "prompt": "A legal summary tool gives a different answer every run. The team wants consistent, focused output. What should they change?",
+      "options": [
+        "Lower the temperature",
+        "Raise the temperature",
+        "Raise top-p to 1.0",
+        "Increase the max tokens"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Low temperature makes the model pick the most likely words, so answers vary less."
+    },
+    {
+      "id": "d3-96",
+      "domain": "d3",
+      "lesson": "d3-params",
+      "prompt": "What does the top-k setting control?",
+      "options": [
+        "Size of the next-token shortlist",
+        "The longest reply the model can write",
+        "How many chunks RAG returns",
+        "How many models run at once"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Top-k limits the model to the k most likely next tokens. A small k gives safer, less varied text."
+    },
+    {
+      "id": "d3-97",
+      "domain": "d3",
+      "lesson": "d3-rag",
+      "type": "order",
+      "prompt": "Put these RAG steps in order, from setup to answer.",
+      "items": [
+        "Split documents into chunks",
+        "Create an embedding for each chunk",
+        "Store the vectors in a vector database",
+        "Embed the user's question",
+        "Retrieve the closest chunks and add them to the prompt"
+      ],
+      "explanation": "RAG first indexes your documents as vectors. At question time it finds the closest chunks and gives them to the model."
+    },
+    {
+      "id": "d3-98",
+      "domain": "d3",
+      "lesson": "d3-eval",
+      "prompt": "Which metric measures how well a language model predicts real text, where a lower score is better?",
+      "options": [
+        "Perplexity",
+        "BLEU score",
+        "Recall",
+        "RMSE"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Perplexity is low when the model is not surprised by the next word. BLEU scores translations against a reference."
+    },
+    {
+      "id": "d3-99",
+      "domain": "d3",
+      "lesson": "d3-eval",
+      "type": "match",
+      "prompt": "Match each metric to what it is mainly used for.",
+      "pairs": [
+        [
+          "ROUGE",
+          "Summaries, by word overlap with a reference"
+        ],
+        [
+          "BLEU",
+          "Machine translation quality"
+        ],
+        [
+          "BERTScore",
+          "Meaning similarity using embeddings"
+        ],
+        [
+          "Perplexity",
+          "How well a model predicts text"
+        ]
+      ],
+      "explanation": "Pick the metric that fits the task. ROUGE for summaries, BLEU for translation."
+    },
+    {
+      "id": "d3-100",
+      "domain": "d3",
+      "lesson": "d3-eval",
+      "prompt": "Which are ways Amazon Bedrock can evaluate models? (Choose two.)",
+      "options": [
+        "Automatic evaluation with built-in metrics",
+        "Human evaluation with a review team",
+        "Rules in AWS Config",
+        "CloudTrail event history",
+        "Amazon Inspector scans"
+      ],
+      "answer": [
+        0,
+        1
+      ],
+      "explanation": "Bedrock Evaluations offers automatic jobs with built-in metrics and human jobs where people rate outputs. It can also use a model as a judge."
+    },
+    {
+      "id": "d3-101",
+      "domain": "d3",
+      "lesson": "d3-prompts",
+      "prompt": "A model gets multi-step math problems wrong. Which prompt technique asks it to reason step by step before answering?",
+      "options": [
+        "Chain-of-thought prompts",
+        "Zero-shot prompting",
+        "Negative prompting",
+        "Prompt template reuse"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Chain-of-thought prompting asks the model to show its steps, which helps on reasoning tasks."
+    },
+    {
+      "id": "d3-102",
+      "domain": "d3",
+      "lesson": "d3-select",
+      "prompt": "A company needs a model to answer questions about a 300-page contract in one request. Which model attribute matters most?",
+      "options": [
+        "Context window size",
+        "Image generation quality",
+        "Number of supported voices",
+        "Embedding dimension"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "The context window is how many tokens the model can read at once. A long contract needs a large one."
     },
   ],
 

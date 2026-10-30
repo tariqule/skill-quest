@@ -375,3 +375,54 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ───────── Readability ───────── */
+body {
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+}
+code,
+kbd,
+pre,
+samp {
+  font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9375em;
+}
+
+/* ───────── Print (cheat sheet) ───────── */
+@media print {
+  @page {
+    margin: 12mm;
+  }
+  html,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 11pt;
+  }
+  header,
+  nav,
+  footer,
+  button {
+    display: none !important;
+  }
+  .cheat-sheet,
+  .cheat-sheet * {
+    color: #000 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  .cheat-card {
+    border: 1px solid #999 !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-top: 8pt;
+    padding: 8pt;
+  }
+  .cheat-sheet a[href^="#"] {
+    text-decoration: none;
+  }
+}

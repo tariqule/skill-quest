@@ -133,6 +133,7 @@ export default defineDomain({
       points: [
         "Plan for the main threats: prompt injection, data leaking out, toxic output and software vulnerabilities.",
         "Log every AI interaction so you can audit it later, and check and filter what the model sends back.",
+        "**Amazon Inspector** scans for software vulnerabilities, **AWS Config** checks resource settings against rules, and **AWS Lake Formation** controls data lake access. **Amazon Q Developer** can scan code for security issues.",
       ],
     },
     {
@@ -177,6 +178,7 @@ export default defineDomain({
       points: [
         "**Data governance** covers how long you keep data, where it lives, and how it's logged and monitored.",
         "Keeping data inside approved Regions is called **data residency**.",
+        "**AWS Audit Manager** collects evidence that you meet a standard. The **AWS Well-Architected Tool** reviews a workload against best practices, and its **Generative AI Lens** adds AI-specific questions.",
       ],
     },
     {
@@ -188,6 +190,7 @@ export default defineDomain({
       points: [
         "Use the matrix to work out which security and governance controls are yours to own. The more of the model you build yourself, the more you own.",
         "A good governance process has written policies, regular reviews, standards for transparency, and training for the team.",
+        "**Amazon Q Business** is a Scope 2 example: an enterprise app with generative AI built in.",
       ],
     },
     {
@@ -227,6 +230,7 @@ export default defineDomain({
         "IAM basics: people and groups get permissions through JSON policies. AWS services get permissions through **IAM roles**. Always grant the least access needed.",
         "CloudTrail shows who called which Bedrock API, including calls that were denied, so you can audit access.",
         "SageMaker **network isolation mode** blocks all outgoing traffic from training containers.",
+        "**Cross-Region inference** uses an **inference profile** to send requests to other Regions. Check that against your data residency rules.",
       ],
       tip: "To reach Bedrock without the internet, use a VPC endpoint (PrivateLink). If Bedrock can't read your encrypted bucket, give its role permission to decrypt with KMS.",
     },
@@ -265,6 +269,7 @@ export default defineDomain({
         "Give data clear owners. **Data owners**, **data stewards** and **data custodians** each have a role, and a governance council oversees them.",
         "MLOps habits apply here too: keep versions of data, code and models, automate, and keep integrating, delivering, retraining and monitoring.",
         "AWS Artifact can also share compliance reports from third-party software vendors with customers they've given access to.",
+        "**AWS Lake Formation** controls access to a data lake, down to the table, column and row.",
       ],
     },
   ],
@@ -1297,6 +1302,137 @@ export default defineDomain({
         "Review the evidence and build a report"
       ],
       "explanation": "You pick a framework, scope an assessment, collect evidence and then report on it."
+    },
+
+    // ── Added: AIF-C01 exam-style practice ──
+    {
+      "id": "d5-69",
+      "domain": "d5",
+      "lesson": "d5-data-governance",
+      "prompt": "A data lake in S3 feeds training jobs. Each team may see only some columns and rows. Which service manages this fine-grained access?",
+      "options": [
+        "AWS Lake Formation",
+        "AWS Glue DataBrew",
+        "Amazon Macie",
+        "AWS Artifact"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Lake Formation sets table, column and row permissions on a data lake. Macie finds sensitive data but does not grant access."
+    },
+    {
+      "id": "d5-70",
+      "domain": "d5",
+      "lesson": "d5-watchers",
+      "prompt": "A company must keep a record of every prompt and reply sent to Bedrock, and of who called the APIs. Which steps help? (Choose two.)",
+      "options": [
+        "Turn on Bedrock model invocation logging",
+        "Use CloudTrail to record Bedrock API calls",
+        "Raise top-p on every model",
+        "Use a larger context window",
+        "Turn off CloudWatch to save cost"
+      ],
+      "answer": [
+        0,
+        1
+      ],
+      "explanation": "Invocation logging stores prompts and replies in CloudWatch Logs or S3. CloudTrail records who called which API and when."
+    },
+    {
+      "id": "d5-71",
+      "domain": "d5",
+      "lesson": "d5-toolbox",
+      "prompt": "Does Amazon Bedrock use a customer's prompts and outputs to train its base models?",
+      "options": [
+        "No, they never train base models",
+        "Yes, for every model provider",
+        "Only for Amazon's own models",
+        "Only when Guardrails are off"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "AWS and the model providers don't use Bedrock inputs or outputs to train base models."
+    },
+    {
+      "id": "d5-72",
+      "domain": "d5",
+      "lesson": "d5-watchers",
+      "prompt": "A team wants to review its generative AI workload against AWS best practices and track the fixes. What should it use?",
+      "options": [
+        "The Well-Architected Tool with its Generative AI Lens",
+        "AWS Artifact with its compliance report library",
+        "Amazon Inspector with its vulnerability scanning",
+        "AWS Config with its conformance pack rules"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "The Well-Architected Tool reviews a workload against best practices. The Generative AI Lens adds questions for AI workloads."
+    },
+    {
+      "id": "d5-73",
+      "domain": "d5",
+      "lesson": "d5-watchers",
+      "type": "match",
+      "prompt": "Match each AWS service to its governance job.",
+      "pairs": [
+        [
+          "AWS Config",
+          "Records resource settings and checks rules"
+        ],
+        [
+          "Amazon Inspector",
+          "Scans workloads for software flaws"
+        ],
+        [
+          "AWS Artifact",
+          "Gives you AWS compliance reports"
+        ],
+        [
+          "AWS CloudTrail",
+          "Logs API calls for audits"
+        ],
+        [
+          "AWS Trusted Advisor",
+          "Advice on cost, security and limits"
+        ]
+      ],
+      "explanation": "Each service covers a different part of governance and compliance."
+    },
+    {
+      "id": "d5-74",
+      "domain": "d5",
+      "lesson": "d5-scoping",
+      "type": "order",
+      "prompt": "Order the Generative AI Security Scoping Matrix scopes from least to most ownership.",
+      "items": [
+        "Consumer app",
+        "Enterprise app",
+        "Pre-trained model",
+        "Fine-tuned model",
+        "Self-trained model"
+      ],
+      "explanation": "Scopes 1 and 2 are apps you buy. Scopes 3 to 5 are apps you build, with more ownership of the model each step."
+    },
+    {
+      "id": "d5-75",
+      "domain": "d5",
+      "lesson": "d5-network",
+      "prompt": "A company wants Bedrock traffic from its VPC to stay off the public internet, with data encrypted under its own keys. Which options help? (Choose two.)",
+      "options": [
+        "AWS PrivateLink VPC endpoints",
+        "AWS KMS customer managed keys",
+        "Amazon CloudFront caching",
+        "A public NAT gateway",
+        "Amazon Polly voices"
+      ],
+      "answer": [
+        0,
+        1
+      ],
+      "explanation": "PrivateLink keeps traffic on the AWS network. KMS customer managed keys let you control encryption."
     },
   ],
 

@@ -94,7 +94,7 @@ export default function FlashcardsPage() {
               </div>
             ))}
           </div>
-          <p className="mt-2 text-xs text-slate-500">Box 1 = new or missed · Box 5 = mastered</p>
+          <p className="mt-2 text-xs text-slate-400">Box 1: new or missed · Box 5: mastered</p>
 
           <Button onClick={start} className="mt-6">
             {phase === "done" ? "Another round" : `Study ${Math.min(SESSION, pool.length)} cards`}
@@ -125,7 +125,7 @@ export default function FlashcardsPage() {
               {card.kind === "service" ? "Service" : "Concept"} · {domain.emoji} D{domain.number}
             </div>
             <div className="mt-4 text-center text-2xl sm:text-3xl font-bold text-white"><RichText text={card.term} /></div>
-            <div className="mt-6 text-xs text-slate-500">Tap or press Space to flip</div>
+            <div className="mt-6 text-xs text-slate-400">Tap or press Space to flip</div>
           </div>
           <div className="flip-face flip-back absolute inset-0 flex items-center justify-center rounded-2xl border border-sky-400/30 bg-slate-800 p-6">
             <div className="text-center text-xl sm:text-2xl text-slate-100"><RichText text={card.definition} /></div>

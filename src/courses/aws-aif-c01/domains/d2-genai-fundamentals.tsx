@@ -124,6 +124,7 @@ export default defineDomain({
         "**The cloud** means renting computing power over the internet instead. It's like getting electricity from the grid rather than building your own generator.",
         "**Amazon Bedrock** is the AWS service that gives you ready-trained models from Amazon and other companies. Your app sends a prompt and gets the answer back.",
         "You pay for what you use, so you can try an idea cheaply before committing to it.",
+        "If you want full control, **SageMaker JumpStart** deploys open and proprietary models to SageMaker endpoints you manage, and you can **fine-tune** them on your data.",
       ],
       tip: "When a question says \"use a foundation model without managing servers\", the answer is usually Amazon Bedrock.",
     },
@@ -216,6 +217,8 @@ export default defineDomain({
         "Generative AI answers. **Agentic AI** acts: it makes a plan, calls tools, checks the results and repeats until the job is done.",
         "**Context engineering** means choosing what the model gets to see: instructions, retrieved data, memory and tool results, all within its token limit.",
         "The **Model Context Protocol (MCP)** is an open standard for plugging agents into tools and data, a bit like USB for AI.",
+        "On AWS, **Bedrock Agents** are managed agents that call your APIs, often through **AWS Lambda**, and look things up in knowledge bases.",
+        "**Amazon Bedrock AgentCore** runs agents built with any framework and adds runtime, memory, gateway, identity and observability. **Strands Agents** is an open-source SDK for building agents in code.",
       ],
     },
     {
@@ -246,6 +249,7 @@ export default defineDomain({
       points: [
         "When you choose a model, weigh its type, how capable it is, cost, speed, compliance needs and how complex it is to run.",
         "Show the value with business numbers: return on investment, time saved, conversion rate, revenue per user and customer lifetime value.",
+        "Bedrock also adds safety tools such as **Guardrails**, which filter harmful content in prompts and replies.",
       ],
     },
     {
@@ -265,6 +269,8 @@ export default defineDomain({
       points: [
         "Managed services make starting easy. There are no servers to run, you can experiment quickly, and you pay as you go.",
         "The big cost choices are paying per token on demand or reserving Provisioned Throughput, which custom models need. Region and redundancy also change the bill.",
+        "Bedrock's building blocks include **Knowledge Bases** for RAG, **batch inference** for big offline jobs, and **IAM** to control who can call which model.",
+        "For developers, **Amazon Q Developer** helps write, explain and fix code in the IDE and console, and can scan code for security issues.",
       ],
     },
     {
@@ -297,6 +303,7 @@ export default defineDomain({
         "You also get the provider's economies of scale, no guessing about capacity, speed, and the ability to go global in minutes.",
         "AI apps lean on a few core services: **S3** stores data, **EC2** gives you servers, **Lambda** runs code without servers, and **IAM** controls access.",
         "S3 has storage classes for every need, from Standard for everyday data down to Glacier Deep Archive for data you almost never read.",
+        "Containers run on **Amazon ECS**, AWS's own orchestrator, or **Amazon EKS**, which is managed Kubernetes. **AWS Lambda** runs short functions with no servers to manage.",
       ],
       tip: "If a question says \"data must stay in the EU\", pick an EU Region. Keeping data in one place is called data residency, and it's a Region decision.",
     },
@@ -327,6 +334,9 @@ export default defineDomain({
         "**Model invocation logging** saves every prompt and response to CloudWatch Logs, S3 or both, so you can audit and analyse them later.",
         "Bedrock sends metrics to CloudWatch, including how often guardrails blocked content. You can set alarms on them.",
         "Running a fine-tuned model also costs more than running the base model.",
+        "**Batch inference** runs big jobs offline at a lower price. **Intelligent Prompt Routing** sends each prompt to the model in a family that should answer it well at the lowest cost.",
+        "An **inference profile** lets you track usage and cost with tags. **Cross-Region inference** spreads requests across Regions for more throughput.",
+        "**AWS Budgets** alerts you when spend passes a limit. **AWS Cost Explorer** charts past spend by service.",
       ],
       tip: "\"Lower the temperature to save money\" is a classic wrong answer. Using fewer tokens or a smaller model is what saves money.",
     },
@@ -1511,6 +1521,176 @@ export default defineDomain({
         0
       ],
       "explanation": "Agents break a task into steps, call actions and knowledge bases, and use the results to finish the job."
+    },
+
+    // ── Added: AIF-C01 exam-style practice ──
+    {
+      "id": "d2-82",
+      "domain": "d2",
+      "lesson": "d2-bedrock-costs",
+      "prompt": "A chatbot gets a mix of simple and hard questions. The team wants Bedrock to send easy prompts to a smaller model and hard ones to a larger model in the same family, to cut cost. What should they use?",
+      "options": [
+        "Bedrock Intelligent Prompt Routing",
+        "Provisioned Throughput for one model",
+        "Cross-Region inference profiles",
+        "Model distillation into one model"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Intelligent Prompt Routing uses one endpoint to pick, per request, the model in a family that should give a good answer at the lowest cost."
+    },
+    {
+      "id": "d2-83",
+      "domain": "d2",
+      "lesson": "d2-bedrock-costs",
+      "prompt": "A finance team wants an alert when monthly Bedrock spend passes a limit, and wants to see spend per team. Which options help? (Choose two.)",
+      "options": [
+        "AWS Budgets with an alert threshold",
+        "Inference profiles tagged per team",
+        "Amazon Macie sensitive data findings",
+        "A higher temperature on each model",
+        "AWS Artifact compliance reports"
+      ],
+      "answer": [
+        0,
+        1
+      ],
+      "explanation": "AWS Budgets sends alerts when spend passes a threshold. Application inference profiles can carry cost allocation tags, so spend can be split by team."
+    },
+    {
+      "id": "d2-84",
+      "domain": "d2",
+      "lesson": "d2-bedrock-costs",
+      "prompt": "Which AWS tool shows charts of past spend by service, so a team can see how its Bedrock costs changed month to month?",
+      "options": [
+        "AWS Cost Explorer",
+        "AWS Budgets",
+        "AWS Trusted Advisor",
+        "AWS Config"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Cost Explorer analyses past and current spend. Budgets watches spend against a limit and sends alerts."
+    },
+    {
+      "id": "d2-85",
+      "domain": "d2",
+      "lesson": "d2-models",
+      "type": "match",
+      "prompt": "Match each Amazon Nova model to what it does.",
+      "pairs": [
+        [
+          "Nova Micro",
+          "Text only, lowest latency and cost"
+        ],
+        [
+          "Nova Pro",
+          "Multimodal input for complex tasks"
+        ],
+        [
+          "Nova Canvas",
+          "Generates images"
+        ],
+        [
+          "Nova Reel",
+          "Generates short videos"
+        ]
+      ],
+      "explanation": "Amazon Nova is Amazon's own family of foundation models on Bedrock."
+    },
+    {
+      "id": "d2-86",
+      "domain": "d2",
+      "lesson": "d2-start-bedrock",
+      "prompt": "A company wants an open-source model it can fine-tune with full control of the instances, hosted on its own SageMaker endpoint. Which option fits?",
+      "options": [
+        "SageMaker JumpStart",
+        "Amazon Bedrock on-demand",
+        "Amazon Q Business",
+        "Amazon Comprehend"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "JumpStart deploys open and proprietary models to SageMaker endpoints that you manage. Bedrock is serverless, so you don't pick instances."
+    },
+    {
+      "id": "d2-87",
+      "domain": "d2",
+      "lesson": "d2-proscons",
+      "prompt": "A team plans to fine-tune a foundation model instead of only writing better prompts. Which trade-offs should they expect? (Choose two.)",
+      "options": [
+        "They must prepare labeled training data",
+        "Training and hosting the model add cost",
+        "The model will stop hallucinating",
+        "They no longer need to test outputs",
+        "Inference becomes free after training"
+      ],
+      "answer": [
+        0,
+        1
+      ],
+      "explanation": "Fine-tuning needs good labeled examples and costs money to train and host. It does not remove hallucinations or the need to test."
+    },
+    {
+      "id": "d2-88",
+      "domain": "d2",
+      "lesson": "d2-agents",
+      "prompt": "A team built an agent with an open-source framework. They want a managed, secure place to run it at scale, with session isolation, memory and identity. What fits?",
+      "options": [
+        "Amazon Bedrock AgentCore",
+        "Amazon Lex chatbots",
+        "AWS Step Functions",
+        "Amazon Kendra search"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "AgentCore runs agents from any framework and adds runtime, memory, gateway, identity and observability services."
+    },
+    {
+      "id": "d2-89",
+      "domain": "d2",
+      "lesson": "d2-stack",
+      "type": "match",
+      "prompt": "Match each AWS tool to what it does.",
+      "pairs": [
+        [
+          "Strands Agents",
+          "Open-source SDK for building agents in code"
+        ],
+        [
+          "Kiro",
+          "Agentic IDE that plans work from specs"
+        ],
+        [
+          "AWS Transform",
+          "Agentic AI to migrate and modernize apps"
+        ],
+        [
+          "Amazon Q Developer",
+          "AI coding help in the IDE and console"
+        ]
+      ],
+      "explanation": "These tools use generative AI to help people build and change software."
+    },
+    {
+      "id": "d2-90",
+      "domain": "d2",
+      "lesson": "d2-cloud-basics",
+      "prompt": "A team wants to run its own open-source model in containers on a Kubernetes cluster. Which AWS service fits?",
+      "options": [
+        "Amazon EKS",
+        "Amazon ECS",
+        "AWS Lambda",
+        "Amazon Lightsail"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Amazon EKS is managed Kubernetes. ECS also runs containers, but with AWS's own scheduler, not Kubernetes."
     },
   ],
 

@@ -32,10 +32,10 @@ export function PageShell({ title, subtitle, children }: { title: string; subtit
   const course = useOptionalCourse();
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-6 sm:py-10">
-      <Link href={course ? course.href() : "/"} className="text-sm text-slate-400 hover:text-white">
+      <Link href={course ? course.href() : "/"} className="text-sm text-slate-400 hover:text-white print:hidden">
         ← Back to map
       </Link>
-      <h1 className="mt-3 text-2xl sm:text-3xl font-bold text-white">{title}</h1>
+      <h1 className="mt-3 text-2xl sm:text-3xl font-bold text-white print:text-black">{title}</h1>
       {subtitle && <p className="mt-1 text-slate-400">{subtitle}</p>}
       <div className="mt-6">{children}</div>
     </main>

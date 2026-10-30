@@ -154,6 +154,7 @@ export default defineDomain({
         "If the data has no answers and you want the model to find structure, like groups of similar customers, that's **unsupervised learning**.",
         "If the model learns by trying things and getting rewards or penalties, like a robot learning not to bump into walls, that's **reinforcement learning**.",
         "Foundation models are pre-trained with **self-supervised learning**. They learn from huge amounts of unlabeled data by making up their own practice questions.",
+        "Unsupervised learning also powers **anomaly detection**: spotting records that look unlike the rest, such as an odd card payment.",
       ],
     },
     {
@@ -176,6 +177,7 @@ export default defineDomain({
         "Skip AI when a fixed rule already gives the exact answer, like adding sales tax, or when the cost is bigger than the benefit.",
         "Pick traditional ML when regulators want every decision explained and your data sits in tables.",
         "Pick a foundation model for open-ended work with language and content, like drafting replies or summarising documents.",
+        "**Interpretability** is how easily a person can see why a model made a prediction. A decision tree is easier to interpret than a deep neural network.",
       ],
     },
     {
@@ -200,6 +202,7 @@ export default defineDomain({
       points: [
         "You don't need any ML skills for these. You call the service, send your data, and get results back.",
         "**Amazon SageMaker AI** is for when you want to build, train and deploy a model of your own instead.",
+        "**Amazon Kendra** is ML-powered enterprise search. It answers natural-language questions from your documents, using built-in connectors to your data sources.",
       ],
       tip: "Polly and Transcribe are opposites. Polly reads text out loud. Transcribe writes down what people say.",
     },
@@ -223,6 +226,8 @@ export default defineDomain({
       points: [
         "A foundation model can come from three places: an open-source pre-trained model, a provider inside Amazon Bedrock, or your own training.",
         "**MLOps** means running ML like good software: repeatable experiments, automated pipelines, monitoring in production, and re-training when results slip.",
+        "SageMaker helps at each step. **Ground Truth** labels data and **Data Wrangler** prepares it. **Feature engineering** turns raw columns into useful inputs, and training tunes **hyperparameters** such as the learning rate.",
+        "**Model Registry** tracks and approves model versions, **Model Monitor** watches live models for drift, and **SageMaker Canvas** lets analysts build models with no code.",
       ],
     },
     {
@@ -244,6 +249,9 @@ export default defineDomain({
       points: [
         "Choose based on how fast you need answers and how your traffic arrives.",
         "For rare, unpredictable traffic, serverless is usually cheapest. For huge offline jobs, batch is usually cheapest.",
+        "SageMaker can serve a model four ways. **Real-time inference** answers in milliseconds from an always-on endpoint.",
+        "**Serverless inference** scales to zero for spiky traffic. It takes only small payloads (up to 4 MB) and short requests (up to 60 seconds), and can have cold starts.",
+        "**Asynchronous inference** queues large requests (up to 1 GB and up to one hour each) and writes results to S3. **Batch transform** scores a whole dataset offline. Bedrock also has **batch inference** for big jobs at a lower price.",
       ],
     },
     {
@@ -261,6 +269,8 @@ export default defineDomain({
         "The **F1 score** combines precision and recall into one number, so you can see the balance between them.",
         "Models that predict numbers are judged by how far off they are. Common measures are **RMSE**, **MAE** and **R²**.",
         "Business metrics show whether the model is worth it. Examples are return on investment, cost per user, development cost and customer feedback.",
+        "A **confusion matrix** counts true positives, false positives, true negatives and false negatives. Precision, recall and F1 all come from it. **AUC**, the area under the ROC curve, sums up how well a model separates the classes.",
+        "**Overfitting** means the model memorizes its training data and does badly on new data. **Underfitting** means it's too simple to learn the pattern. When one class is rare (**class imbalance**), accuracy alone can mislead.",
       ],
       tip: "Ask what's worse. If missing a sick patient is worse than a false alarm, you care most about **recall**. If annoying customers with false alarms is worse, you care most about **precision**.",
     },
@@ -297,6 +307,8 @@ export default defineDomain({
         "A model that **overfits** has memorised its training data. Fix it with more or more varied data, stopping training early, better hyperparameter values, or combining several models.",
         "**Hyperparameters** are settings you pick before training. SageMaker Automatic Model Tuning tries different values and keeps the ones that score best on a metric you choose.",
         "**Edge inference** runs a small model right on the device. It's very fast and works offline. A big remote model is more capable but needs a network.",
+        "Data services to know: **AWS Glue** runs serverless ETL jobs and keeps a data catalog. **AWS Glue DataBrew** cleans and prepares data visually, with no code. **Amazon EMR** runs Spark and Hadoop for big data.",
+        "**Amazon Redshift** is a data warehouse for SQL analytics. **AWS Lake Formation** builds a data lake on S3 and controls who sees which tables, columns and rows. **AWS Data Exchange** lets you find and subscribe to third-party datasets.",
       ],
       tip: "If an answer says \"add more hyperparameters\" to fix overfitting, it's wrong. You change their values, you don't add new ones.",
     },
@@ -346,6 +358,7 @@ export default defineDomain({
         "**MLflow** on SageMaker tracks your experiments and runs. The **Model Registry** keeps each model version and records which one is approved.",
         "Built-in algorithms cover common jobs: linear models, KNN, k-means, PCA (for cutting down the number of features), anomaly detection and DeepAR for time-series forecasting.",
         "**Network isolation mode** runs training with no outbound internet access at all.",
+        "**SageMaker Canvas** is no-code ML for business analysts. **SageMaker Model Monitor** watches deployed models for data and quality drift.",
       ],
     },
   ],
@@ -559,7 +572,7 @@ export default defineDomain({
       domain: "d1",
       lesson: "d1-metrics",
       prompt: "Which metrics would you use to judge a model that predicts house prices? (Choose two.)",
-      options: ["Root mean squared error (RMSE)", "F1 score", "Mean absolute error (MAE)", "Recall"],
+      options: ["Root mean squared error", "F1 score", "Mean absolute error (MAE)", "Recall"],
       answer: [0, 2],
       explanation:
         "A house price is a number, so you measure how far off the predictions are. RMSE, MAE and R-squared do that. F1 and recall are for models that predict categories.",
@@ -1419,6 +1432,151 @@ export default defineDomain({
         0
       ],
       "explanation": "Unsupervised learning, like clustering, finds patterns without labels."
+    },
+
+    // ── Added: AIF-C01 exam-style practice ──
+    {
+      "id": "d1-75",
+      "domain": "d1",
+      "lesson": "d1-data-tuning",
+      "prompt": "A data scientist wants a model to predict better without collecting more data. Which actions help most? (Choose two.)",
+      "options": [
+        "Create new input features from the existing columns",
+        "Tune hyperparameters such as the learning rate",
+        "Move the training data to a cheaper S3 storage class",
+        "Copy the dataset to an S3 bucket in another Region",
+        "Turn on S3 versioning for the training dataset"
+      ],
+      "answer": [
+        0,
+        1
+      ],
+      "explanation": "Feature engineering gives the model more useful signals, and hyperparameter tuning finds better training settings. Storage class, Region and versioning change cost or safety, not accuracy."
+    },
+    {
+      "id": "d1-76",
+      "domain": "d1",
+      "lesson": "d1-metrics",
+      "prompt": "A fraud model's test results are shown as counts of true positives, false positives, true negatives and false negatives. What is this table called?",
+      "options": [
+        "A confusion matrix",
+        "A correlation heatmap",
+        "A learning curve",
+        "A feature importance chart"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "A confusion matrix counts right and wrong predictions for each class. Precision, recall and F1 are all worked out from it."
+    },
+    {
+      "id": "d1-77",
+      "domain": "d1",
+      "lesson": "d1-metrics",
+      "prompt": "A model predicts delivery times in minutes. Which metric reports the typical error size in minutes, the same unit as the target?",
+      "options": [
+        "Root mean squared error",
+        "F1 score",
+        "Area under the ROC curve",
+        "Precision"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "RMSE is a regression metric in the same unit as the target. F1, AUC and precision are for classification."
+    },
+    {
+      "id": "d1-78",
+      "domain": "d1",
+      "lesson": "d1-data-tuning",
+      "type": "match",
+      "prompt": "Match each AWS data service to its job.",
+      "pairs": [
+        [
+          "AWS Glue",
+          "Serverless ETL and a data catalog"
+        ],
+        [
+          "AWS Glue DataBrew",
+          "Visual data prep without code"
+        ],
+        [
+          "Amazon EMR",
+          "Managed Spark and Hadoop for big data"
+        ],
+        [
+          "AWS Lake Formation",
+          "Fine-grained access to a data lake"
+        ],
+        [
+          "Amazon Redshift",
+          "Data warehouse for SQL analytics"
+        ]
+      ],
+      "explanation": "These services prepare and store the data that ML models train on."
+    },
+    {
+      "id": "d1-79",
+      "domain": "d1",
+      "lesson": "d1-data-tuning",
+      "prompt": "A team needs third-party weather data to improve a demand forecast. Which AWS service lets them find and subscribe to datasets from outside providers?",
+      "options": [
+        "AWS Data Exchange",
+        "AWS Glue DataBrew",
+        "Amazon Kinesis",
+        "AWS DataSync"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "AWS Data Exchange is a catalog of third-party data you can subscribe to and use in AWS. DataBrew cleans data you already have."
+    },
+    {
+      "id": "d1-80",
+      "domain": "d1",
+      "lesson": "d1-lifecycle",
+      "type": "order",
+      "prompt": "Put these ML project steps in order.",
+      "items": [
+        "Collect and label the data",
+        "Engineer features",
+        "Train and tune the model",
+        "Evaluate on held-out data",
+        "Deploy and monitor the model"
+      ],
+      "explanation": "The ML lifecycle moves from data, to features, to training, to evaluation, then to deployment with monitoring."
+    },
+    {
+      "id": "d1-81",
+      "domain": "d1",
+      "lesson": "d1-inference",
+      "prompt": "A model scores documents up to 500 MB, and each request can take 20 minutes. Callers don't need an instant answer. Which SageMaker inference option fits?",
+      "options": [
+        "Asynchronous inference",
+        "Real-time inference",
+        "Serverless inference",
+        "A multi-model real-time endpoint"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Asynchronous inference queues requests, takes payloads up to 1 GB, runs up to one hour, and can scale to zero. Serverless inference is limited to small payloads and short requests."
+    },
+    {
+      "id": "d1-82",
+      "domain": "d1",
+      "lesson": "d1-sagemaker-tools",
+      "prompt": "A business analyst with no coding skills wants to build a churn prediction model from a spreadsheet. Which option fits?",
+      "options": [
+        "SageMaker Canvas",
+        "SageMaker Studio notebooks",
+        "SageMaker Debugger",
+        "SageMaker Neo"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "SageMaker Canvas is a no-code, point-and-click way to build models. Studio notebooks need code."
     },
   ],
 
