@@ -341,7 +341,7 @@ export default defineDomain({
       prompt: "A small business wants to run AI software without buying and looking after its own servers. What does the cloud let it do?",
       options: [
         "Rent computing power over the internet and pay for what it uses",
-        "Get free servers delivered to its office",
+        "Get free servers delivered to its office and set up by the cloud company",
         "Run AI without any computers at all",
         "Keep all its data on one laptop",
       ],
@@ -386,7 +386,7 @@ export default defineDomain({
         "It needs more control over exactly how the app works",
         "Building is always cheaper",
         "Building is always faster",
-        "Finished apps can't answer any questions",
+        "Finished apps can't answer any of its questions",
       ],
       answer: [0],
       explanation:
@@ -457,7 +457,7 @@ export default defineDomain({
         "Gen AI is integrated across Google's products and services, and new research advances reach customers quickly",
         "Customers must use only Google's own models",
         "AI replaces all human review of business decisions",
-        "Google focuses on selling hardware rather than software",
+        "Google focuses on building its own AI hardware rather than software, so customers must run models on TPUs they buy",
       ],
       answer: [0],
       explanation: "AI-first means AI is built into Google's products, and Google's focus on new research means customers get the latest advances quickly.",
@@ -470,7 +470,7 @@ export default defineDomain({
         "A retailer worried about vendor lock-in wants to evaluate Google models alongside third-party and open-source models on one platform. Which Google Cloud strength addresses this?",
       options: [
         "Its open approach, with Model Garden offering Google, third-party, and open models",
-        "Its requirement to use a single proprietary model",
+        "Its requirement that customers use a single proprietary model family for every workload",
         "Its consumer search engine",
         "Its on-premises-only deployment model",
       ],
@@ -494,7 +494,7 @@ export default defineDomain({
       options: [
         "An integrated architecture of performance-optimised hardware, open software, and flexible consumption models for AI workloads",
         "A chatbot for Google Workspace",
-        "A single physical supercomputer customers must buy",
+        "A single physical supercomputer in one Google data center that customers must buy outright and then run on their own premises",
         "A framework for responsible AI governance",
       ],
       answer: [0],
@@ -523,7 +523,7 @@ export default defineDomain({
         "A pharmaceutical company asks whether its confidential prompts and data on Google Cloud will be used to train Google's foundation models. What is the BEST answer?",
       options: [
         "No. Customers control their data, and Google Cloud doesn't use it to train Google's models without the customer's permission",
-        "Yes. All customer data is pooled to improve public models",
+        "Yes. All customer prompts and data are pooled to improve Google's own public models, unless the company pays for a premium tier",
         "Only if the data is unstructured",
         "Only if the company uses Gemma",
       ],
@@ -555,7 +555,7 @@ export default defineDomain({
         "Gemini Nano, Google's compact model designed to run on devices",
         "Veo for video generation",
         "Conversational Insights",
-        "Grounding with Google Search",
+        "Grounding with Google Search, so answers always reflect the latest information",
       ],
       answer: [0],
       explanation: "AI on the edge runs right where the work happens, with no need for a good connection. Gemini Nano runs on the device itself, and LiteRT helps put models onto edge devices.",
@@ -655,7 +655,7 @@ export default defineDomain({
       options: [
         "Employees get gen AI help inside the apps they already use, cutting time spent on routine writing, summarising, and analysis",
         "It replaces the need for any data governance",
-        "It trains a custom foundation model on company email",
+        "It trains a private foundation model on all of the company's email, so each employee gets a model that writes exactly like them",
         "It hosts the company's contact center",
       ],
       answer: [0],
@@ -678,7 +678,7 @@ export default defineDomain({
       domain: "d2",
       lesson: "d2-cx",
       prompt: "A bank wants to analyse thousands of customer calls and chats to find common complaint topics and sentiment trends. Which offering fits?",
-      options: ["Conversational Insights", "Agent Assist", "Text-to-Speech API", "Model Garden"],
+      options: ["Conversational Insights", "Agent Assist", "Text-to-Speech voices", "Model Garden"],
       answer: [0],
       explanation: "Conversational Insights turns customer conversations into analysis, like the most common topics, trends over time and how customers feel.",
     },
@@ -698,7 +698,7 @@ export default defineDomain({
       lesson: "d2-cx",
       prompt:
         "A retailer wants to replace its ageing on-premises contact center with a cloud-native, enterprise-grade one that has AI built in. Which offering fits?",
-      options: ["Google Cloud Contact Center as a Service", "Gemini for Google Workspace", "Agent Platform AutoML", "Cloud Storage"],
+      options: ["Google Cloud Contact Center as a Service", "Gemini for Google Workspace with Gmail and Meet", "Agent Platform AutoML", "Cloud Storage"],
       answer: [0],
       explanation: "Contact Center as a Service is Google Cloud's contact center that runs in the cloud. The other customer experience tools can be built on top of it.",
     },
@@ -778,7 +778,7 @@ export default defineDomain({
       lesson: "d2-platform",
       prompt:
         "An experienced data science team wants full control, training its own models at scale with its preferred ML framework on Google Cloud. Which option fits?",
-      options: ["Custom training with Model Builder on Agent Platform", "Agent Platform AutoML", "A Gem in the Gemini app", "Agent Assist"],
+      options: ["Custom training with Model Builder on Agent Platform", "Agent Platform AutoML", "A Gem in the Gemini app with custom instructions for the data scientists", "Agent Assist"],
       answer: [0],
       explanation: "Model Builder is for training your own models. You can go fully custom with your own ML framework, or use AutoML when you want less effort.",
     },
@@ -847,7 +847,7 @@ export default defineDomain({
       prompt: "Which description of a gen AI agent is MOST accurate?",
       options: [
         "An application that tries to achieve a goal by observing the world and acting on it with the tools available to it",
-        "A static FAQ page generated once by a model",
+        "A static FAQ page that a model generates once from company documents and then publishes on the website for customers",
         "A database that stores model weights",
         "A dashboard that charts model accuracy",
       ],
