@@ -72,3 +72,14 @@ export function completeScenario(store: { addXp: (n: number) => void }, base: nu
   store.addXp(xp);
   return xp;
 }
+
+/** Runs `fn` at most once per key (guards against double-award from Next, re-renders or StrictMode). */
+export function makeOnce() {
+  const done = new Set<string>();
+  return (key: string, fn: () => void) => {
+    if (done.has(key)) return false;
+    done.add(key);
+    fn();
+    return true;
+  };
+}

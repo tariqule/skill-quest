@@ -24,9 +24,19 @@ import {
 import type { LessonSource } from "@/engine/types";
 
 /** Plays one scenario item. `onDone(share)` fires once the player has seen the feedback, with a 0-1 score. */
-export function ScenarioPlay({ courseId, item, onDone, doneLabel = "Next" }: { courseId: string; item: ScenarioItem; onDone: (share: number) => void; doneLabel?: string }) {
+/**
+ * Plays one scenario item. `onResult(share)` fires exactly once, the moment the score is shown (so leaving from the
+ * result screen still counts); `onDone(share)` fires when the player presses the Next/Finish button.
+ */
+export function ScenarioPlay({ courseId, item, onDone, onResult, doneLabel = "Next" }: { courseId: string; item: ScenarioItem; onDone: (share: number) => void; onResult?: (share: number) => void; doneLabel?: string }) {
   const [revealed, setRevealed] = useState(false);
-  const p = { onDone, doneLabel, onReveal: () => setRevealed(true) };
+  const recorded = useRef(false);
+  const report = (share: number) => {
+    if (recorded.current) return;
+    recorded.current = true;
+    onResult?.(share);
+  };
+  const p = { onDone, doneLabel, onReveal: () => setRevealed(true), report };
   return (
     <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-5 sm:p-7">
       {/* Interview titles are the question itself, so the question is shown once, as the heading. */}
@@ -40,7 +50,7 @@ export function ScenarioPlay({ courseId, item, onDone, doneLabel = "Next" }: { c
   );
 }
 
-type Props<T> = { item: T; onDone: (share: number) => void; doneLabel: string; onReveal: () => void };
+type Props<T> = { item: T; onDone: (share: number) => void; doneLabel: string; onReveal: () => void; report: (share: number) => void };
 
 const btn = "flex min-h-11 flex-col justify-center rounded-xl border px-3 py-2 text-left text-base transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-300";
 const primary = "min-h-11 rounded-2xl bg-sky-400 px-5 py-2.5 text-base font-black text-slate-950 hover:bg-sky-300 disabled:opacity-50";
@@ -86,7 +96,7 @@ function Done({ share, onDone, label }: { share: number; onDone: (s: number) => 
 
 // ───────────── Architecture Builder ─────────────
 
-function Architect({ item, onDone, doneLabel, onReveal }: Props<ArchItem>) {
+function Architect({ item, onDone, doneLabel, onReveal, report }: Props<ArchItem>) {
   const tiles = useMemo(() => shuffled(item.tiles), [item]);
   const [slot, setSlot] = useState(item.slots[0].id);
   const [picks, setPicks] = useState<Record<string, string | undefined>>({});
@@ -149,6 +159,8 @@ function Architect({ item, onDone, doneLabel, onReveal }: Props<ArchItem>) {
         <button type="button" className={`${primary} mt-4`} disabled={item.slots.some((s) => !picks[s.id])} onClick={() => {
             setChecked(true);
             onReveal();
+            const sc = scoreArch(item, picks);
+            report(sc.right.length / sc.total);
           }}
         >
           Check design
@@ -167,7 +179,7 @@ function Architect({ item, onDone, doneLabel, onReveal }: Props<ArchItem>) {
 
 // ───────────── Scenario Chains ─────────────
 
-function Chain({ item, onDone, doneLabel, onReveal }: Props<ChainItem>) {
+function Chain({ item, onDone, doneLabel, onReveal, report }: Props<ChainItem>) {
   const [at, setAt] = useState<string | null>(item.start);
   const [taken, setTaken] = useState<{ step: string; choice: ChainChoice }[]>([]);
   const [pending, setPending] = useState<ChainChoice | null>(null);
@@ -224,7 +236,9 @@ function Chain({ item, onDone, doneLabel, onReveal }: Props<ChainItem>) {
                 type="button"
                 className={`${primary} mt-3`}
                 onClick={() => {
-                  setTaken([...taken, { step: at!, choice: pending }]);
+                  const all = [...taken, { step: at!, choice: pending }];
+                  setTaken(all);
+                  if (!pending.next) report(chainShare(all.map((t) => t.choice)));
                   setAt(pending.next ?? null);
                   setPending(null);
                 }}
@@ -260,7 +274,7 @@ function StrongCall({ step }: { step: ChainStep }) {
 
 // ───────────── Service Matcher ─────────────
 
-function Matcher({ item, onDone, doneLabel, onReveal }: Props<MatcherItem>) {
+function Matcher({ item, onDone, doneLabel, onReveal, report }: Props<MatcherItem>) {
   const rights = useMemo(() => shuffled(item.pairs.map((_, i) => i)), [item]);
   const [left, setLeft] = useState<number | null>(0);
   const [picks, setPicks] = useState<Record<number, number | undefined>>({});
@@ -334,6 +348,7 @@ function Matcher({ item, onDone, doneLabel, onReveal }: Props<MatcherItem>) {
         <button type="button" className={`${primary} mt-4`} disabled={item.pairs.some((_, i) => picks[i] === undefined)} onClick={() => {
             setChecked(true);
             onReveal();
+            report(matcherRight(item, picks).filter(Boolean).length / item.pairs.length);
           }}
         >
           Check matches
@@ -362,7 +377,7 @@ function Badge({ n, dim }: { n: number; dim?: boolean }) {
 
 const MARKS = ["Missing", "Partly", "Clearly"];
 
-function Interview({ item, onDone, doneLabel, onReveal }: Props<InterviewItem>) {
+function Interview({ item, onDone, doneLabel, onReveal, report }: Props<InterviewItem>) {
   const [started, setStarted] = useState(false);
   const [left, setLeft] = useState(item.minutes * 60);
   const [answer, setAnswer] = useState("");
@@ -427,6 +442,22 @@ function Interview({ item, onDone, doneLabel, onReveal }: Props<InterviewItem>) 
       {revealed && (
         <div className="mt-5 space-y-5" aria-live="polite">
           <section>
+            <h3 className="text-base font-black text-white">Key points you covered</h3>
+            <p className="text-sm text-slate-300">Tick these first: your score is saved once every rubric line is marked.</p>
+            <ul className="mt-2 space-y-1">
+              {item.keyPoints.map((k, i) => (
+                <li key={k}>
+                  <label className="flex min-h-11 cursor-pointer items-center gap-3 text-base text-slate-100">
+                    <input type="checkbox" className="h-5 w-5" disabled={scored} checked={ticks[i]} onChange={() => setTicks(ticks.map((t, j) => (j === i ? !t : t)))} />
+                    <span>
+                      <RichText text={k} />
+                    </span>
+                  </label>
+                </li>
+              ))}
+            </ul>
+          </section>
+          <section>
             <h3 className="text-base font-black text-white">Score yourself</h3>
             {item.rubric.map((r, i) => (
               <fieldset key={r.name} className="mt-3">
@@ -436,28 +467,17 @@ function Interview({ item, onDone, doneLabel, onReveal }: Props<InterviewItem>) 
                 </p>
                 <div className="mt-2 grid grid-cols-3 gap-2">
                   {MARKS.map((m, v) => (
-                    <button key={m} type="button" aria-pressed={marks[i] === v} onClick={() => setMarks(marks.map((x, j) => (j === i ? v : x)))} className={`${btn} text-center ${marks[i] === v ? "border-sky-300 bg-sky-400/20 text-white" : "border-white/15 bg-white/5 text-slate-200"}`}>
+                    <button key={m} type="button" aria-pressed={marks[i] === v} onClick={() => {
+                      const nm = marks.map((x, j) => (j === i ? v : x));
+                      setMarks(nm);
+                      if (nm.every((m) => m !== undefined)) report(interviewShare(item, nm.map((m) => m ?? 0), ticks.filter(Boolean).length));
+                    }} className={`${btn} text-center ${marks[i] === v ? "border-sky-300 bg-sky-400/20 text-white" : "border-white/15 bg-white/5 text-slate-200"}`}>
                       {m}
                     </button>
                   ))}
                 </div>
               </fieldset>
             ))}
-          </section>
-          <section>
-            <h3 className="text-base font-black text-white">Key points you covered</h3>
-            <ul className="mt-2 space-y-1">
-              {item.keyPoints.map((k, i) => (
-                <li key={k}>
-                  <label className="flex min-h-11 cursor-pointer items-center gap-3 text-base text-slate-100">
-                    <input type="checkbox" className="h-5 w-5" checked={ticks[i]} onChange={() => setTicks(ticks.map((t, j) => (j === i ? !t : t)))} />
-                    <span>
-                      <RichText text={k} />
-                    </span>
-                  </label>
-                </li>
-              ))}
-            </ul>
           </section>
           <section>
             <h3 className="text-base font-black text-white">Model answer</h3>

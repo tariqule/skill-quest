@@ -9,7 +9,7 @@ import { useCourse } from "@/engine/course-context";
 import { gameText, gradeFor, SCENARIO_GAME_BY_ID, type ScenarioGameId, type ScenarioItem } from "@/engine/scenarios";
 import { itemKey } from "@/engine/srs";
 import { getSrs, gradeItem } from "@/engine/srs-store";
-import { completeScenario } from "@/engine/scenario-progress";
+import { completeScenario, makeOnce } from "@/engine/scenario-progress";
 import { scenariosFor } from "@/scenarios";
 
 /** Unplayed items first, then the ones due soonest. */
@@ -28,6 +28,7 @@ export function ScenarioGame() {
   const [i, setI] = useState(0);
   const [scores, setScores] = useState<number[]>([]);
   const [xp, setXp] = useState(0);
+  const [once] = useState(makeOnce);
   if (!info) notFound();
   if (!all.length) {
     return (
@@ -59,11 +60,16 @@ export function ScenarioGame() {
             courseId={course.id}
             item={q[i]}
             doneLabel={i + 1 < q.length ? "Next scenario" : "Finish"}
-            onDone={(share) => {
-              gradeItem(itemKey(course.id, "sc", q[i].id), gradeFor(share));
-              const gained = completeScenario(store, course.config.xp.scenarioComplete, course.id, q[i].id, share);
-              setXp((n) => n + gained);
-              setScores((s) => [...s, share]);
+            onResult={(share) => {
+              const it = q[i];
+              once(`${i}:${it.id}`, () => {
+                gradeItem(itemKey(course.id, "sc", it.id), gradeFor(share));
+                const gained = completeScenario(store, course.config.xp.scenarioComplete, course.id, it.id, share);
+                setXp((n) => n + gained);
+                setScores((s) => [...s, share]);
+              });
+            }}
+            onDone={() => {
               setI((n) => n + 1);
               window.scrollTo({ top: 0 });
             }}

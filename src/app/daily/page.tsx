@@ -10,7 +10,7 @@ import { usePlan } from "@/engine/plan-store";
 import { reviewNote, type ReviewGrade } from "@/engine/srs";
 import { getSrs, gradeItem } from "@/engine/srs-store";
 import { buildQueue } from "@/engine/daily-queue";
-import { completeScenario } from "@/engine/scenario-progress";
+import { completeScenario, makeOnce } from "@/engine/scenario-progress";
 import { getCourseStore } from "@/engine/store";
 import { GameItem } from "@/components/code-games/GameItem";
 import { isChoice, type Card, type ChoiceQuestion, type Course } from "@/engine/types";
@@ -41,6 +41,7 @@ function Session() {
   const [queue] = useState(() => buildQueue(plan));
   const [i, setI] = useState(0);
   const [right, setRight] = useState(0);
+  const [once] = useState(makeOnce);
 
   if (queue.length === 0) {
     return (
@@ -69,9 +70,12 @@ function Session() {
 
   const item = queue[i];
   const note = (ok: boolean) => reviewNote(getSrs()[item.key], ok ? "good" : "again", new Date());
-  const next = (grade: ReviewGrade) => {
+  const record = (grade: ReviewGrade) => {
     gradeItem(item.key, grade);
     if (grade !== "again") setRight((n) => n + 1);
+  };
+  const next = (grade: ReviewGrade) => {
+    record(grade);
     setI((n) => n + 1);
   };
 
@@ -89,10 +93,14 @@ function Session() {
         <div className="h-full rounded-full bg-emerald-400 transition-all" style={{ width: `${(i / queue.length) * 100}%` }} />
       </div>
       {item.kind === "card" ? <CardItem key={item.key} card={item.card} onGrade={next} /> : item.kind === "sc" ? (
-          <ScenarioPlay key={item.key} courseId={item.course.id} item={item.sc} onDone={(share) => {
-            completeScenario(getCourseStore(item.course), item.course.config.xp.scenarioComplete, item.course.id, item.sc.id, share);
-            next(gradeFor(share));
-          }} />
+          <ScenarioPlay key={item.key} courseId={item.course.id} item={item.sc} onResult={(share) =>
+              once(item.key, () => {
+                completeScenario(getCourseStore(item.course), item.course.config.xp.scenarioComplete, item.course.id, item.sc.id, share);
+                record(gradeFor(share));
+              })
+            }
+            onDone={() => setI((n) => n + 1)}
+          />
         ) : isChoice(item.q) ? (
           <QuestionItem key={item.key} course={item.course} q={item.q} fresh={item.fresh} note={note} onGrade={next} />
         ) : (
