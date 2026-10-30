@@ -244,7 +244,7 @@ export default defineDomain({
       options: [
         "So each customer's details are stored once, and every order points to them",
         "Because a table can't hold text",
-        "To make the orders table as large as possible",
+        "To make the orders table as large as possible on the server's disk",
         "Because SQL can't read names",
       ],
       answer: [0],
@@ -259,7 +259,7 @@ export default defineDomain({
       prompt: "What does a join do?",
       options: [
         "Puts matching rows from two tables side by side in one result",
-        "Copies every row of one table into another table",
+        "Copies every row of one table into another, new table",
         "Deletes the rows that appear in both tables",
         "Turns two tables into one new permanent table",
       ],
@@ -345,7 +345,7 @@ export default defineDomain({
       prompt: "In `JOIN orders o ON o.customer_id = c.id`, what does the ON clause do?",
       options: [
         "Decides which pairs of rows from the two tables belong together",
-        "Chooses which columns appear in the result",
+        "Chooses which of the columns appear in the final result",
         "Sorts the joined rows",
         "Creates an index on customer_id",
       ],
@@ -381,7 +381,7 @@ export default defineDomain({
         CROSS JOIN colors c;
       `,
       codeLang: "sql",
-      options: ["12", "7", "4", "3"],
+      options: ["12", "7", "4", "16"],
       answer: [0],
       explanation: "A CROSS JOIN pairs every row with every row (a Cartesian product), so 3 times 4 gives 12. It's useful for generating combinations and dangerous when it happens by accident.",
     },
@@ -671,7 +671,7 @@ export default defineDomain({
         "Aggregate each child table in its own subquery or CTE (one row per order) before joining them to orders",
         "Change it to `SUM(DISTINCT o.total)`",
         "Use LEFT JOIN instead of JOIN",
-        "Add `ORDER BY o.id` so duplicates are grouped",
+        "Add `ORDER BY o.id` so that the duplicated rows are grouped together and each sum is then only counted once",
       ],
       answer: [0],
       explanation:
@@ -788,7 +788,7 @@ export default defineDomain({
       options: [
         "Declare columns NOT NULL (with sensible defaults) unless \"unknown\" is a genuine state the business needs to record",
         "Wrap every column in COALESCE in every query",
-        "Replace NULL with magic values like -1 or 'N/A'",
+        "Replace NULL with magic values like -1 or 'N/A' in every column, so that comparisons never return UNKNOWN anywhere",
         "Avoid outer joins entirely",
       ],
       answer: [0],
