@@ -12,6 +12,7 @@ import { courseCopy } from "@/engine/copy";
 import { useCourse, useLevelPool } from "@/engine/course-context";
 import { answerText, challengeDeck, isCorrect, pct, prepare, type PreparedQuestion } from "@/engine/game";
 import { buildPath } from "@/engine/path";
+import { rememberLesson } from "@/engine/last-opened";
 
 /**
  * teach → check → done when every check is right.
@@ -31,6 +32,8 @@ export function LessonPlay() {
   if (!lesson) notFound();
   const domain = domainById[lesson.domain];
   const worldLessons = course.lessons[lesson.domain];
+
+  useEffect(() => rememberLesson({ courseId: course.id, lessonId: lesson.id, title: lesson.title }), [course.id, lesson.id, lesson.title]);
 
   const [phase, setPhase] = useState<Phase>("teach");
   const [queue, setQueue] = useState<PreparedQuestion[]>([]);

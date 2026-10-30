@@ -15,8 +15,9 @@ import { isChoice, type Card, type ChoiceQuestion, type Course } from "@/engine/
 
 const SESSION = 30;
 const NEW_CARDS = 5;
+const NEW_QUESTIONS = 3;
 
-type Item = { key: string; course: Course } & ({ kind: "card"; card: Card } | { kind: "q"; q: ChoiceQuestion });
+type Item = { key: string; course: Course; fresh?: boolean } & ({ kind: "card"; card: Card } | { kind: "q"; q: ChoiceQuestion });
 
 const progressOf = (c: Course) => getCourseStore(c).get();
 const noop = () => () => {};
@@ -53,7 +54,27 @@ function buildQueue(plan: ReturnType<typeof usePlan>): Item[] {
     }
     if (fresh.length === 0) break;
   }
-  return [...items, ...fresh].slice(0, SESSION + NEW_CARDS);
+  // And a few quiz questions the player hasn't met, so day one isn't only flashcards.
+  const freshQs: Item[] = [];
+  const seen = new Set(items.map((x) => x.key));
+  for (let round = 0; freshQs.length < NEW_QUESTIONS && round < 3; round++) {
+    for (const id of pool) {
+      const course = getCourse(id);
+      if (!course || freshQs.length >= NEW_QUESTIONS) continue;
+      const q = course.questions.filter(isChoice).find((x) => {
+        const k = itemKey(id, "q", x.id);
+        return !srs[k] && !seen.has(k);
+      });
+      if (q) {
+        const k = itemKey(id, "q", q.id);
+        seen.add(k);
+        freshQs.push({ key: k, course, kind: "q", q, fresh: true });
+      }
+    }
+  }
+  const mixed = [...fresh];
+  freshQs.forEach((q, n) => mixed.splice(Math.min(mixed.length, n * 2 + 1), 0, q));
+  return [...items, ...mixed].slice(0, SESSION + NEW_CARDS + NEW_QUESTIONS);
 }
 
 export default function DailyReview() {
@@ -67,7 +88,7 @@ export default function DailyReview() {
         </Link>
         <h1 className="mt-2 text-3xl font-black text-white">🔁 Daily Review</h1>
         <p className="mt-1 text-base text-slate-300">
-          Questions you missed and flashcards from all your courses, mixed together. Each one comes back just before you&apos;d forget it.
+          Questions you missed, a few new questions, and flashcards from all your courses, mixed together. Each one comes back just before you&apos;d forget it.
         </p>
         {mounted ? <Session /> : <div className="mt-6 h-64 rounded-3xl bg-slate-900/40" aria-hidden />}
       </main>
@@ -126,7 +147,7 @@ function Session() {
       <div className="mb-4 h-1.5 rounded-full bg-white/10">
         <div className="h-full rounded-full bg-emerald-400 transition-all" style={{ width: `${(i / queue.length) * 100}%` }} />
       </div>
-      {item.kind === "card" ? <CardItem key={item.key} card={item.card} onGrade={next} /> : <QuestionItem key={item.key} course={item.course} q={item.q} onGrade={next} />}
+      {item.kind === "card" ? <CardItem key={item.key} card={item.card} onGrade={next} /> : <QuestionItem key={item.key} course={item.course} q={item.q} fresh={item.fresh} onGrade={next} />}
     </div>
   );
 }
@@ -150,6 +171,7 @@ function CardItem({ card, onGrade }: { card: Card; onGrade: (g: ReviewGrade) => 
             <RichText text={card.definition} />
           </p>
           <p className="mt-5 text-sm text-slate-300">How well did you remember it?</p>
+          <p className="mt-1 text-sm text-slate-400">Again: forgot it, see it soon. Hard: got it with effort. Good: recalled it. Easy: instant, so it waits longer.</p>
           <div className="mt-2 grid grid-cols-4 gap-2">
             {GRADES.map((g) => (
               <button key={g.id} type="button" onClick={() => onGrade(g.id)} className={`rounded-xl px-2 py-3 text-base font-black text-slate-950 ${g.cls}`}>
@@ -167,7 +189,7 @@ function CardItem({ card, onGrade }: { card: Card; onGrade: (g: ReviewGrade) => 
   );
 }
 
-function QuestionItem({ course, q, onGrade }: { course: Course; q: ChoiceQuestion; onGrade: (g: ReviewGrade) => void }) {
+function QuestionItem({ course, q, fresh, onGrade }: { course: Course; q: ChoiceQuestion; fresh?: boolean; onGrade: (g: ReviewGrade) => void }) {
   const multi = q.answer.length > 1;
   const [picked, setPicked] = useState<number[]>([]);
   const [done, setDone] = useState(false);
@@ -182,7 +204,7 @@ function QuestionItem({ course, q, onGrade }: { course: Course; q: ChoiceQuestio
 
   return (
     <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-5 sm:p-7">
-      <div className="text-sm font-bold uppercase tracking-wider text-slate-400">{multi ? `Choose ${q.answer.length}` : "Question"} · you missed this before</div>
+      <div className="text-sm font-bold uppercase tracking-wider text-slate-400">{multi ? `Choose ${q.answer.length}` : "Question"} · {fresh ? "new for you" : "you missed this before"}</div>
       <h2 className="mt-2 text-lg font-semibold leading-snug text-white sm:text-xl">
         <RichText text={q.prompt} />
       </h2>

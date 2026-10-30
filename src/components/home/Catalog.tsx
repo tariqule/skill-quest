@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Tilt } from "@/components/fx";
 import { LifecycleBadges } from "@/components/Lifecycle";
 import { Bar } from "@/components/ui";
@@ -35,14 +35,21 @@ function matches(c: Course, q: string) {
 }
 
 /** Sectioned course catalog with search and section filters. */
-export function Catalog() {
+export function Catalog({ onFilteringChange }: { onFilteringChange?: (filtering: boolean) => void }) {
   const [q, setQ] = useState("");
   const [section, setSection] = useState<Section>("all");
+  const filtering = q.trim() !== "" || section !== "all";
+  useEffect(() => onFilteringChange?.(filtering), [filtering, onFilteringChange]);
+  const clear = () => {
+    setQ("");
+    setSection("all");
+  };
   const show = (s: Section) => section === "all" || section === s;
   const certs = CERTS.filter((c) => matches(c, q));
   const providers = [...new Set(certs.map((c) => c.provider.name))];
   const interview = INTERVIEW.filter((c) => matches(c, q));
-  const bundles = BUNDLES.filter((b) => !q || `${b.title} ${b.line}`.toLowerCase().includes(q.toLowerCase()));
+  // Role bundles are a browsing aid: hidden while searching so results read as filtered.
+  const bundles = q.trim() ? [] : BUNDLES;
   const fundamentals = FUNDAMENTALS.filter((c) => matches(c, q));
   const none = certs.length + interview.length + bundles.length + fundamentals.length === 0;
 
@@ -51,31 +58,42 @@ export function Catalog() {
       <h2 id="catalog-h" className="text-2xl font-black text-white">
         All courses
       </h2>
-      <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center">
-        <label htmlFor="catalog-q" className="sr-only">
-          Search courses
-        </label>
-        <input
-          id="catalog-q"
-          type="search"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Search: AWS, React, SQL, Kubernetes…"
-          className="w-full rounded-xl border border-white/20 bg-slate-950 px-4 py-3 text-base text-white placeholder:text-slate-400 sm:max-w-sm"
-        />
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by section">
-          {FILTERS.map((f) => (
-            <button
-              key={f.id}
-              type="button"
-              aria-pressed={section === f.id}
-              onClick={() => setSection(f.id)}
-              className={`rounded-full border px-3 py-1.5 text-sm font-bold ${section === f.id ? "border-sky-400 bg-sky-400/20 text-white" : "border-white/15 text-slate-200 hover:border-white/35"}`}
-            >
-              {f.label}
+      <div className="mt-3 flex flex-col gap-3">
+        <div className="flex gap-2">
+          <label htmlFor="catalog-q" className="sr-only">
+            Search courses
+          </label>
+          <input
+            id="catalog-q"
+            type="search"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search: AWS, React, SQL, Kubernetes…"
+            className="min-w-0 flex-1 rounded-xl border border-white/20 bg-slate-950 px-4 py-3 text-base text-white placeholder:text-slate-400 sm:max-w-md"
+          />
+          {filtering && (
+            <button type="button" onClick={clear} className="shrink-0 rounded-xl border border-white/25 px-3 py-2 text-sm font-bold text-white hover:border-white/50">
+              ✕ Clear search
             </button>
-          ))}
+          )}
         </div>
+        <div className="relative -mx-4 sm:mx-0">
+          <div className="flex gap-2 overflow-x-auto px-4 pb-1 sm:flex-wrap sm:overflow-visible sm:px-0" role="group" aria-label="Filter by section">
+            {FILTERS.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                aria-pressed={section === f.id}
+                onClick={() => setSection(f.id)}
+                className={`shrink-0 whitespace-nowrap rounded-full border px-3 py-1.5 text-sm font-bold ${section === f.id ? "border-sky-400 bg-sky-400/20 text-white" : "border-white/15 text-slate-200 hover:border-white/35"}`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+          <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-slate-950 sm:hidden" />
+        </div>
+        {filtering && <p className="text-sm text-slate-300">Showing filtered results.</p>}
       </div>
 
       {none && <p className="mt-6 text-base text-slate-300">No courses match “{q}”.</p>}

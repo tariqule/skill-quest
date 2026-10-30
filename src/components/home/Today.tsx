@@ -11,6 +11,7 @@ import { dueCount } from "@/engine/srs";
 import { syncFromProgress, useSrs } from "@/engine/srs-store";
 import { getCourseStore, todayKey } from "@/engine/store";
 import type { Course } from "@/engine/types";
+import { lastLesson } from "@/engine/last-opened";
 import { PlanWizard } from "./PlanWizard";
 
 const progressOf = (c: Course) => getCourseStore(c).get();
@@ -126,6 +127,8 @@ export function Today({ plan }: { plan: StudyPlan | null }) {
         </button>
       </div>
 
+      <ContinueButton first={s.items[0] ? itemLink(s.items[0]) : null} />
+
       <h3 className="mt-5 text-base font-black text-white">
         Today&apos;s plan · about {minutes} min
       </h3>
@@ -167,5 +170,22 @@ function QuickLinks({ due, recent, streak }: { due: number; recent: Course | nul
       )}
       {streak !== null && streak > 0 && <span className="self-center text-base text-slate-300">🔥 {streak}-day streak</span>}
     </div>
+  );
+}
+
+/** One obvious next step: the last lesson opened, else the first plan item. */
+function ContinueButton({ first }: { first: ReturnType<typeof itemLink> | null }) {
+  const last = lastLesson();
+  const course = last ? getCourse(last.courseId) : null;
+  const target = course && last ? { href: `/c/${course.id}/lesson/${last.lessonId}`, title: last.title, sub: course.shortTitle } : first;
+  if (!target) return null;
+  return (
+    <Link href={target.href} className="mt-5 flex items-center gap-3 rounded-2xl bg-emerald-400 px-4 py-3 text-slate-950 hover:bg-emerald-300">
+      <span className="text-lg font-black">▶ Continue</span>
+      <span className="min-w-0 flex-1 truncate text-base font-bold">
+        {target.title} · {target.sub}
+      </span>
+      <span aria-hidden className="text-lg font-black">→</span>
+    </Link>
   );
 }
