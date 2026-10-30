@@ -221,7 +221,7 @@ export default defineDomain({
       prompt: "What makes a hash map useful?",
       options: [
         "It finds a value by its key quickly, without checking every entry",
-        "It keeps every value sorted from smallest to largest",
+        "It keeps every value sorted from the smallest to the largest",
         "It can only hold numbers, which keeps it small",
         "It always uses less memory than an array",
       ],
@@ -310,7 +310,7 @@ export default defineDomain({
       prompt: "Why can `array.shift()` be a poor dequeue for a large queue?",
       options: [
         "It removes index 0, so the remaining elements may all have to move: O(n)",
-        "It removes from the end, which breaks FIFO order",
+        "It removes from the end of the array, which breaks the FIFO order",
         "It throws on an empty array",
         "It sorts the array first",
       ],
@@ -323,7 +323,7 @@ export default defineDomain({
       level: "senior",
       lesson: "ds-queue",
       prompt: "A queue is built from two stacks. You push to `inbox`. To dequeue, if `outbox` is empty you move everything from `inbox` to `outbox`, then pop `outbox`. What is the amortized cost of a dequeue?",
-      options: ["O(1): each element is moved at most once", "O(n) every time", "O(log n)", "O(n²)"],
+      options: ["O(1): each element is moved at most once", "O(n) every time, because it copies the whole stack", "O(log n)", "O(n²)"],
       answer: [0],
       explanation: "Each item is pushed to the inbox once, moved once and popped once. A single dequeue can take O(n), but the total over n operations is O(n), so the average is O(1).",
     },
@@ -488,7 +488,7 @@ export default defineDomain({
       options: [
         "Map keys can be any value, compared by identity, and it tracks `size` directly",
         "Objects can't hold more than 100 keys",
-        "Map lookups are guaranteed O(1) even in the worst case",
+        "Map lookups are guaranteed to be O(1), even in the very worst case",
         "Objects don't support deleting keys",
       ],
       answer: [0],
@@ -541,7 +541,7 @@ export default defineDomain({
       prompt: "A public API stores user-supplied strings as keys in an in-memory hash table. A security review flags \"hash flooding\". What is the risk, and the standard mitigation?",
       options: [
         "Attackers send keys crafted to collide, so lookups degrade to O(n) and CPU spikes; use a seeded or randomised hash function and cap input sizes",
-        "Attackers can read the table's contents; encrypt every key",
+        "Attackers can read the table's contents through timing differences; encrypt every key before it's hashed so that the stored values stay private",
         "Hash tables leak memory; restart the server every hour",
         "Collisions corrupt values; switch from a map to a set",
       ],
@@ -567,7 +567,7 @@ export default defineDomain({
       options: [
         "Bound it: evict least-recently-used entries past a size limit (delete and re-set on hit to refresh order) and add a TTL so stale users expire",
         "Switch the Map to a plain object",
-        "Raise the heap limit so it can keep growing",
+        "Raise the heap limit so that the cache can keep growing, and restart the service each night to clear out old entries before memory runs out again",
         "Clear the whole cache on every request",
       ],
       answer: [0],
@@ -583,7 +583,7 @@ export default defineDomain({
         "Move to a durable, shared queue (a message broker or database-backed queue) with acknowledgements and retries",
         "Call `shift()` less often",
         "Replace the array with a linked list",
-        "Run the service on one bigger server",
+        "Run the service on one bigger server with more memory and CPU, so the in-process queue never fills up or loses jobs",
       ],
       answer: [0],
       explanation: "The problem is keeping jobs safe and sharing them, not Big-O. A message broker saves jobs to disk, gives each one to a single worker, and sends it again if the worker never confirms. Plan for jobs that may run more than once, and make the handlers safe to repeat.",
@@ -596,7 +596,7 @@ export default defineDomain({
       prompt: "A distributed cache picks a node with `hash(key) % N`. Adding one node remaps almost every key, and the database is flooded with misses. What should the design use instead?",
       options: [
         "Consistent hashing (a hash ring, usually with virtual nodes), so adding a node moves only about 1/N of the keys",
-        "Choose a very large N on day one and never change it",
+        "Choose a very large N on day one and never change it, so that `hash(key) % N` stays stable as the cluster grows",
         "Switch the formula to `hash(key) % (N + 1)`",
         "Store every key on every node",
       ],
