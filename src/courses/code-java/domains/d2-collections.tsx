@@ -312,7 +312,7 @@ export default defineDomain({
         "The array can't grow; you'd need a new, bigger array or an `ArrayList`",
         "It grows to 4 slots automatically",
         "Writing to `scores[3]` quietly does nothing",
-        "You can call `scores.add(...)` to add a slot",
+        "You can call `scores.add(...)` to add another slot at the end",
       ],
       answer: [0],
       explanation:
@@ -413,7 +413,7 @@ export default defineDomain({
       level: "junior",
       lesson: "d2-lists",
       prompt: "What does `list.add(0, x)` cost on an `ArrayList` holding n elements?",
-      options: ["O(n), because every element shifts one slot right", "O(1), like adding at the end", "O(log n)", "O(n²)"],
+      options: ["O(n), because every element shifts one slot right", "O(1), just like adding at the end of the list", "O(log n)", "O(n²)"],
       answer: [0],
       explanation:
         "An `ArrayList` is one block of memory, so putting something at the front means moving all n items along by one. Adding at the end is O(1) on average. If you need cheap inserts at the front, use an `ArrayDeque`.",
@@ -424,7 +424,7 @@ export default defineDomain({
       level: "junior",
       lesson: "d2-lists",
       prompt: "You need a stack in new code. What do the JDK docs recommend instead of `java.util.Stack`?",
-      options: ["`ArrayDeque` (through the `Deque` interface)", "`Vector`", "`Hashtable`", "`TreeSet`"],
+      options: ["`ArrayDeque` (through the `Deque` interface)", "`Vector`", "`Hashtable`, keyed by position, since it's synchronized and fast", "`TreeSet`"],
       answer: [0],
       explanation:
         "The `Deque` docs recommend it over the old `Stack` class. `ArrayDeque` is documented as likely faster than `Stack` when used as a stack, and faster than `LinkedList` when used as a queue. `Stack` is built on the synchronized `Vector`.",
@@ -520,7 +520,7 @@ export default defineDomain({
       prompt: "In Java 8 and later, what does `HashMap` do when one bucket collects many colliding keys?",
       options: [
         "Past 8 entries (in a table of at least 64 buckets), the bucket's linked list becomes a red-black tree, so lookups in it are O(log n)",
-        "It throws an exception once a bucket holds more than 8 keys",
+        "It throws an exception once a single bucket holds more than 8 keys, so the map has to be resized by hand with a bigger initial capacity",
         "It rehashes every key with a new random seed",
         "Nothing: the chain keeps growing and lookups stay O(n)",
       ],
@@ -584,7 +584,7 @@ export default defineDomain({
       options: [
         "Reads don't lock and writes lock only one bucket, so threads rarely block each other; it also has atomic `compute` and `merge`",
         "It allows null keys and values",
-        "Its iterators throw `ConcurrentModificationException` to catch races early",
+        "Its iterators throw `ConcurrentModificationException` to catch races early, so threads find out about conflicts sooner",
         "It keeps keys in sorted order",
       ],
       answer: [0],
@@ -655,7 +655,7 @@ export default defineDomain({
         "`src` only produces Ts and `dest` only consumes them: Producer Extends, Consumer Super",
         "Wildcards make the method run faster",
         "So that `dest` and `src` must be exactly the same type",
-        "Because generic methods can't use plain `List<T>` parameters",
+        "Because generic methods can't use plain `List<T>` parameters for copying",
       ],
       answer: [0],
       explanation:
@@ -715,7 +715,7 @@ export default defineDomain({
       options: [
         "`a.set` works; `b.set` throws `UnsupportedOperationException`",
         "Both calls work",
-        "Both calls throw `UnsupportedOperationException`",
+        "Both of the calls throw `UnsupportedOperationException`",
         "`a.set` throws; `b.set` works",
       ],
       answer: [0],
@@ -741,7 +741,7 @@ export default defineDomain({
       prompt: "A public endpoint puts user-supplied strings into a `HashMap`. An attacker sends thousands of different keys that share one `hashCode`. What limits the damage on Java 8 and later, and what else should you do?",
       options: [
         "Long buckets become red-black trees (String is Comparable), so lookups slow to O(log n) rather than O(n); still cap request size and key count at the edge",
-        "Nothing is needed: HashMap picks a random hash seed per JVM, so collisions can't be forced",
+        "Nothing is needed: HashMap picks a random hash seed per JVM, so collisions can't be forced by a client that sends crafted string keys",
         "Switch to `Hashtable`, which is immune to collisions",
         "Switch to `IdentityHashMap`, which ignores `hashCode`",
       ],
@@ -787,7 +787,7 @@ export default defineDomain({
         "Change the parameter to `List<? extends Number>`: it erases to the same `List` signature, and Integer or Double lists now work",
         "Add an overload `double total(List<Integer> xs)`",
         "Change the parameter to the raw type `List`",
-        "Change the parameter to `Collection<? extends Number>`",
+        "Change the parameter to `Collection<? extends Number>`, which keeps the same erased signature and also accepts Sets and Queues",
       ],
       answer: [0],
       explanation:

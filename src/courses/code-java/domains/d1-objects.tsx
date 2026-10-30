@@ -371,7 +371,7 @@ export default defineDomain({
       options: [
         "Checks the code and turns it into a `Main.class` file the JVM can run",
         "Runs the program and prints its output",
-        "Deletes the source file once it has run",
+        "Deletes the source file from the disk once it has run successfully",
         "Downloads Java onto your computer",
       ],
       answer: [0],
@@ -441,7 +441,7 @@ export default defineDomain({
       options: [
         "A class is the blueprint; an object is one thing built from it with `new`",
         "They're two words for exactly the same thing",
-        "An object is the blueprint; a class is built from it",
+        "An object is the blueprint; a class is the thing built from it",
         "A class can only ever produce one object",
       ],
       answer: [0],
@@ -600,7 +600,7 @@ export default defineDomain({
       prompt: "When is an abstract class a better fit than an interface?",
       options: [
         "When subclasses share state and constructor logic, such as a base entity holding an id and a creation time",
-        "When unrelated classes like `Car` and `Phone` both need a `charge()` capability",
+        "When unrelated classes like `Car` and `Phone` both need a `charge()` capability and its logic",
         "When a class needs to inherit behaviour from several types at once",
         "When you want callers to implement the type with a lambda",
       ],
@@ -776,7 +776,7 @@ export default defineDomain({
       prompt: "Why is `String` immutable in Java?",
       options: [
         "So strings can be shared from the pool, used safely as hash keys, and passed between threads without copying",
-        "Because the JVM stores all strings on the thread stack",
+        "Because the JVM stores all strings on the thread stack, and stack memory is read-only once a method has started running",
         "So that `==` always works for comparing strings",
         "Because Java has no mutable character sequences",
       ],
@@ -849,7 +849,7 @@ export default defineDomain({
       prompt: "A widely shared `Money` class has setters and is used as a key in caches across many services. Keys sometimes \"disappear\" from those caches. What's the best long-term fix?",
       options: [
         "Make `Money` an immutable value type (final fields, or a record), deprecate the setters, and move callers to copy-with methods like `withAmount(...)`",
-        "Document \"never mutate a key\" on the class and rely on code review",
+        "Document \"never mutate a key\" on the class and rely on code review to catch it, and override `hashCode` to return a constant so that a mutated key still lands in the same bucket",
         "Override `hashCode()` to return a constant so lookups never miss",
         "Switch every cache to `IdentityHashMap`",
       ],
@@ -866,7 +866,7 @@ export default defineDomain({
       options: [
         "Add `refund` as a `default` method (with a safe default or `UnsupportedOperationException`), then let teams override it on their own schedule",
         "Add `refund` as an abstract method and announce it in the release notes",
-        "Convert `PaymentGateway` into an abstract class with a concrete `refund`",
+        "Convert `PaymentGateway` into an abstract class with a concrete `refund`, and ask every team to change `implements` to `extends` in the same release so it all still compiles",
         "Copy the interface into `PaymentGateway2` and ask every team to migrate",
       ],
       answer: [0],
@@ -900,7 +900,7 @@ export default defineDomain({
         "Request changes: it only works because of the -128 to 127 cache. Use `equals` (or primitive `long`/`int`), and add a test with an id above 127",
         "Approve: the JVM caches every `Integer`, so `==` is safe",
         "Approve, but ask them to add `-XX:AutoBoxCacheMax` to production flags",
-        "Request changes: wrap the ids in `String.valueOf` and compare with `==`",
+        "Request changes: wrap both of the ids in `String.valueOf` and compare them with `==`, since string literals are interned and the pool makes the comparison safe for any value",
       ],
       answer: [0],
       explanation:

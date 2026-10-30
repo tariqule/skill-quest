@@ -371,7 +371,7 @@ export default defineDomain({
       options: [
         "The program stops and prints a stack trace describing the error",
         "Java skips the bad line and carries on",
-        "Java fixes the problem and runs the line again",
+        "Java fixes the problem itself and runs the line again",
         "Nothing happens until the program finishes",
       ],
       answer: [0],
@@ -800,7 +800,7 @@ export default defineDomain({
         "`Shape` is sealed, so the compiler knows `Circle` and `Square` are the only cases and can prove the switch is exhaustive",
         "Switch expressions never need a `default` branch",
         "Records can't be null, so no other case is possible",
-        "The compiler silently returns 0 for any other shape",
+        "The compiler silently returns 0 for any other shape that's added later, so the switch never needs a `default` branch at all",
       ],
       answer: [0],
       explanation:
@@ -830,7 +830,7 @@ export default defineDomain({
       prompt: "The data layer throws checked `SQLException`, and it has spread into the signatures of services and controllers across the codebase. What's the standard fix?",
       options: [
         "Catch it at the repository boundary and rethrow a domain-specific unchecked exception that keeps the original as its cause",
-        "Declare `throws Exception` on every method so signatures stop changing",
+        "Declare `throws Exception` on every method in the service so that the signatures stop changing over time",
         "Catch it in the repository, log it, and return null",
         "Catch `Throwable` around every call site",
       ],
@@ -847,7 +847,7 @@ export default defineDomain({
       options: [
         "JPA entities, which need a no-arg constructor, mutable fields, and subclass proxies",
         "Immutable API response DTOs",
-        "Value objects such as `Money(amount, currency)`",
+        "Value objects such as `Money(amount, currency)` in the core domain model",
         "Event payloads published on a message bus",
       ],
       answer: [0],
@@ -880,7 +880,7 @@ export default defineDomain({
       options: [
         "Each of those switches fails to compile until it handles `Refund`, so the compiler lists every place that needs a decision",
         "They compile, and `Refund` silently falls into the first case",
-        "They compile, and the compiler inserts a branch that returns null",
+        "They compile, and the compiler inserts a hidden branch that returns null for `Refund`, so the bug shows up only at runtime",
         "Nothing changes: sealed hierarchies can't gain new subtypes",
       ],
       answer: [0],
