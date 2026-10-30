@@ -1304,12 +1304,17 @@ export default defineDomain({
       "id": "d2-68",
       "domain": "d2",
       "lesson": "d2-tokens",
-      "prompt": "What is the context window of a model?",
-      "options": ["The most tokens it can handle in one request","The time it takes to train the model from scratch","The number of users who can call it at once","The AWS Region where the model is hosted"],
+      "prompt": "In a very long chat, a model starts ignoring details from the first messages. What is the most likely cause?",
+      "options": [
+        "The chat no longer fits in the model's context window",
+        "The temperature was set too low for long chats",
+        "The model was retrained between two of the messages",
+        "The AWS Region ran out of capacity for the model"
+      ],
       "answer": [
         0
       ],
-      "explanation": "The context window covers the prompt and the reply together. Text beyond it can't be used."
+      "explanation": "The context window caps how many tokens fit in one request, and the chat history counts toward it. Once a chat outgrows it, the earliest messages get cut off or summarised."
     },
     {
       "id": "d2-69",

@@ -1230,17 +1230,17 @@ export default defineDomain({
       "id": "d4-62",
       "domain": "d4",
       "lesson": "d4-bias",
-      "prompt": "A loan dataset has 9,000 records for one age group and 1,000 for another. Which pre-training bias metric flags this?",
+      "prompt": "SageMaker Clarify reports high class imbalance for one region in a fraud dataset. What is the main risk if the team trains on it unchanged?",
       "options": [
-        "Class imbalance (CI)",
-        "Difference in proportions of labels (DPL)",
-        "Recall difference",
-        "Accuracy difference"
+        "The model may work worse for the smaller group",
+        "Training will take far longer than usual",
+        "The model can no longer be deployed to an endpoint",
+        "The endpoint will need extra GPUs to serve it"
       ],
       "answer": [
         0
       ],
-      "explanation": "Class imbalance compares how many samples each group has. DPL compares positive labels between groups. Recall and accuracy difference need a trained model."
+      "explanation": "With few examples from one group, the model learns less about it and can make more mistakes for those people. Collecting more data or rebalancing it helps."
     },
     {
       "id": "d4-63",
@@ -1264,17 +1264,17 @@ export default defineDomain({
       "id": "d4-64",
       "domain": "d4",
       "lesson": "d4-legal",
-      "prompt": "A generated image closely copies a famous artist's protected work. Which risk is this?",
+      "prompt": "A company wants to lower the risk that its image model copies protected work. Which data practice helps most?",
       "options": [
-        "Copyright infringement",
-        "Model drift over time",
-        "Data residency rules",
-        "Overfitting to training data"
+        "Train on data from trusted sources, collected with consent",
+        "Scrape as many public images from the web as possible",
+        "Raise the temperature so the outputs vary more",
+        "Remove all image captions from the training data"
       ],
       "answer": [
         0
       ],
-      "explanation": "Generated content can copy protected work, which is an intellectual property risk."
+      "explanation": "Copyright problems are mostly fixed at the source. Data from trusted, licensed sources that was collected with consent is far less likely to lead to IP claims than scraped content."
     },
   ],
 

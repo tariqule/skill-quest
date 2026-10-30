@@ -1536,15 +1536,15 @@ export default defineDomain({
       "domain": "d1",
       "lesson": "d1-lifecycle",
       "type": "order",
-      "prompt": "Put these ML project steps in order.",
+      "prompt": "A live model's results start to slip. Put the MLOps steps that fix it in order.",
       "items": [
-        "Collect and label the data",
-        "Engineer features",
-        "Train and tune the model",
-        "Evaluate on held-out data",
-        "Deploy and monitor the model"
+        "Model Monitor detects drift in production",
+        "Collect and label fresh data",
+        "Re-train the model",
+        "Register and approve the new version",
+        "Redeploy the model"
       ],
-      "explanation": "The ML lifecycle moves from data, to features, to training, to evaluation, then to deployment with monitoring."
+      "explanation": "Monitoring spots the drift first. You then gather newer data, re-train, approve the new version in Model Registry and redeploy it. Running this loop well is MLOps."
     },
     {
       "id": "d1-81",

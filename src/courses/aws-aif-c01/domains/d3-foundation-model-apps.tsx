@@ -1326,19 +1326,19 @@ export default defineDomain({
       "id": "d3-71",
       "domain": "d3",
       "lesson": "d3-rag",
-      "prompt": "Which AWS services can be the vector store for a Bedrock knowledge base? (Choose two.)",
+      "prompt": "When a Bedrock knowledge base syncs a data source, what does it do? (Choose two.)",
       "options": [
-        "Amazon OpenSearch Serverless",
-        "Amazon Aurora PostgreSQL",
-        "Amazon SQS",
-        "Amazon Route 53",
-        "AWS Lambda"
+        "Splits the documents into chunks",
+        "Turns each chunk into an embedding and stores it in the vector store",
+        "Fine-tunes the foundation model on the documents",
+        "Deletes the source files from Amazon S3",
+        "Creates a guardrail for each document"
       ],
       "answer": [
         0,
         1
       ],
-      "explanation": "OpenSearch Serverless is the quick-create default. Aurora PostgreSQL with pgvector also works. Queues, DNS and functions don't store vectors."
+      "explanation": "Syncing reads your documents, splits them into chunks, embeds each chunk and stores the vectors. The model's weights don't change, and your source files stay where they are."
     },
     {
       "id": "d3-72",
@@ -1721,17 +1721,17 @@ export default defineDomain({
       "id": "d3-95",
       "domain": "d3",
       "lesson": "d3-params",
-      "prompt": "A legal summary tool gives a different answer every run. The team wants consistent, focused output. What should they change?",
+      "prompt": "A summary tool keeps stopping mid-sentence on long reports. Which setting should the team raise?",
       "options": [
-        "Lower the temperature",
-        "Raise the temperature",
-        "Raise top-p to 1.0",
-        "Increase the max tokens"
+        "Max tokens",
+        "Temperature",
+        "Top-k",
+        "Top-p"
       ],
       "answer": [
         0
       ],
-      "explanation": "Low temperature makes the model pick the most likely words, so answers vary less."
+      "explanation": "Max tokens caps how long the answer can be, so a low limit cuts the reply off. Temperature, top-k and top-p change which words the model picks, not how long it writes."
     },
     {
       "id": "d3-96",
@@ -1810,19 +1810,19 @@ export default defineDomain({
       "id": "d3-100",
       "domain": "d3",
       "lesson": "d3-eval",
-      "prompt": "Which are ways Amazon Bedrock can evaluate models? (Choose two.)",
+      "prompt": "A team wants to rate how helpful and polite chatbot answers are, which a fixed metric can't judge well. Which Bedrock evaluation options fit? (Choose two.)",
       "options": [
-        "Automatic evaluation with built-in metrics",
-        "Human evaluation with a review team",
+        "A judge model that scores and explains each response",
+        "Human workers from your own team who rate the answers",
+        "A programmatic job scored only on ROUGE",
         "Rules in AWS Config",
-        "CloudTrail event history",
         "Amazon Inspector scans"
       ],
       "answer": [
         0,
         1
       ],
-      "explanation": "Bedrock Evaluations offers automatic jobs with built-in metrics and human jobs where people rate outputs. It can also use a model as a judge."
+      "explanation": "Helpfulness and tone are matters of judgment. Bedrock can use a second model as a judge or bring in your own human reviewers. ROUGE only measures word overlap with a reference."
     },
     {
       "id": "d3-101",
