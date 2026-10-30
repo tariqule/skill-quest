@@ -1185,6 +1185,333 @@ export default defineDomain({
       answer: [0],
       explanation: "Action groups tell the agent which operations exist and how to call them. Knowledge bases are the other half: they supply documents for RAG.",
     },
+
+    // ── Added: AIF-C01 coverage gaps ──
+    {
+      "id": "d2-62",
+      "domain": "d2",
+      "lesson": "d2-bedrock-costs",
+      "prompt": "A team has steady, high Bedrock traffic and needs guaranteed capacity for a custom model. What should it buy?",
+      "options": [
+        "Provisioned Throughput",
+        "On-demand pricing",
+        "Batch inference",
+        "A global inference profile"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Provisioned Throughput reserves model units for a set term. Custom models need it to run, and inference profiles don't support it."
+    },
+    {
+      "id": "d2-63",
+      "domain": "d2",
+      "lesson": "d2-bedrock-costs",
+      "prompt": "Which Bedrock option can save about 10% compared with standard pricing when you don't need data to stay in one geography?",
+      "options": [
+        "Global cross-Region inference",
+        "Geographic cross-Region inference",
+        "Provisioned Throughput",
+        "Model customisation"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "AWS lists global cross-Region inference at roughly 10% savings. Geographic profiles keep standard pricing but stay inside a geography."
+    },
+    {
+      "id": "d2-64",
+      "domain": "d2",
+      "lesson": "d2-bedrock-costs",
+      "prompt": "Which choices lower the cost of using a foundation model? (Choose two.)",
+      "options": [
+        "Use a smaller model that meets the need",
+        "Shorten prompts and cap the reply length",
+        "Always pick the largest model",
+        "Send every request twice",
+        "Raise max tokens to the limit"
+      ],
+      "answer": [
+        0,
+        1
+      ],
+      "explanation": "You pay per token on demand, so fewer tokens and smaller models cost less."
+    },
+    {
+      "id": "d2-65",
+      "domain": "d2",
+      "lesson": "d2-bedrock-costs",
+      "prompt": "A company must summarise a million documents overnight and doesn't need instant replies. Which Bedrock option is cheapest?",
+      "options": [
+        "Batch inference",
+        "Real-time on-demand calls",
+        "Provisioned Throughput for a year",
+        "Streaming responses"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Batch inference runs many prompts as one job, at a lower price than on-demand requests."
+    },
+    {
+      "id": "d2-66",
+      "domain": "d2",
+      "lesson": "d2-bedrock-costs",
+      "type": "match",
+      "prompt": "Match each Bedrock pricing option to when it fits.",
+      "pairs": [
+        [
+          "On-demand",
+          "Uneven traffic, pay per token"
+        ],
+        [
+          "Batch",
+          "Large offline jobs at a lower price"
+        ],
+        [
+          "Provisioned Throughput",
+          "Steady traffic or custom models"
+        ],
+        [
+          "Cross-Region inference",
+          "Bursts that need more throughput"
+        ]
+      ],
+      "explanation": "Pick the pricing model that matches how your traffic behaves."
+    },
+    {
+      "id": "d2-67",
+      "domain": "d2",
+      "lesson": "d2-tokens",
+      "prompt": "Roughly what is a token?",
+      "options": ["A piece of a word, often a few characters","A single full sentence of text, end to end","One whole page of a document at a time","One user's login session with the model"],
+      "answer": [
+        0
+      ],
+      "explanation": "Models read and write tokens. A token is often part of a word, so long words can be several tokens."
+    },
+    {
+      "id": "d2-68",
+      "domain": "d2",
+      "lesson": "d2-tokens",
+      "prompt": "What is the context window of a model?",
+      "options": ["The most tokens it can handle in one request","The time it takes to train the model from scratch","The number of users who can call it at once","The AWS Region where the model is hosted"],
+      "answer": [
+        0
+      ],
+      "explanation": "The context window covers the prompt and the reply together. Text beyond it can't be used."
+    },
+    {
+      "id": "d2-69",
+      "domain": "d2",
+      "lesson": "d2-embeddings",
+      "prompt": "Two sentences mean almost the same thing. What's true about their embeddings?",
+      "options": [
+        "Their vectors are close together",
+        "Their vectors are always identical",
+        "Their vectors have different lengths",
+        "Their vectors point in opposite ways"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Embeddings place similar meanings close together, which is why vector search finds related text."
+    },
+    {
+      "id": "d2-70",
+      "domain": "d2",
+      "lesson": "d2-embeddings",
+      "prompt": "Which tasks use embeddings? (Choose two.)",
+      "options": [
+        "Semantic search over documents",
+        "Recommending similar products",
+        "Encrypting data at rest",
+        "Billing by the hour",
+        "Creating IAM users"
+      ],
+      "answer": [
+        0,
+        1
+      ],
+      "explanation": "Embeddings turn meaning into numbers, so you can find and compare similar things."
+    },
+    {
+      "id": "d2-71",
+      "domain": "d2",
+      "lesson": "d2-models",
+      "prompt": "Which kind of model creates images from a text description?",
+      "options": [
+        "A diffusion model",
+        "A linear regression model",
+        "A k-means clustering model",
+        "A decision tree model"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Diffusion models learn to turn random noise into an image step by step, guided by the text prompt."
+    },
+    {
+      "id": "d2-72",
+      "domain": "d2",
+      "lesson": "d2-models",
+      "prompt": "Which model type can take both an image and a question about it as input?",
+      "options": [
+        "A multimodal model",
+        "A text-only language model",
+        "A regression model",
+        "A clustering model"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Multimodal models accept more than one kind of input, like text and images together."
+    },
+    {
+      "id": "d2-73",
+      "domain": "d2",
+      "lesson": "d2-models",
+      "type": "match",
+      "prompt": "Match each model type to what it does best.",
+      "pairs": [
+        [
+          "Large language model",
+          "Writes and understands text"
+        ],
+        [
+          "Diffusion model",
+          "Creates images from noise"
+        ],
+        [
+          "Embeddings model",
+          "Turns text into vectors"
+        ],
+        [
+          "Multimodal model",
+          "Handles text and images together"
+        ]
+      ],
+      "explanation": "Knowing the model types helps you pick the right one in the Bedrock model catalog."
+    },
+    {
+      "id": "d2-74",
+      "domain": "d2",
+      "lesson": "d2-proscons",
+      "prompt": "Why can a GenAI model give a different answer to the same question each time?",
+      "options": [
+        "It's nondeterministic and samples its words",
+        "It forgets its training every hour",
+        "It always reads a random web page first",
+        "It runs on a different model each time"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Models pick words with some randomness. Lower temperature makes answers more consistent."
+    },
+    {
+      "id": "d2-75",
+      "domain": "d2",
+      "lesson": "d2-proscons",
+      "prompt": "Which are known limits of generative AI? (Choose two.)",
+      "options": [
+        "Hallucinations that sound confident",
+        "Answers that are hard to explain",
+        "It never needs any data",
+        "It always costs nothing",
+        "It's never wrong about facts"
+      ],
+      "answer": [
+        0,
+        1
+      ],
+      "explanation": "Models can make things up and their reasoning is hard to inspect. That's why you add grounding, checks and human review."
+    },
+    {
+      "id": "d2-76",
+      "domain": "d2",
+      "lesson": "d2-stack",
+      "prompt": "Which AWS service lets you try and deploy open models like Llama with a few clicks inside SageMaker?",
+      "options": [
+        "SageMaker JumpStart",
+        "SageMaker Ground Truth",
+        "SageMaker Clarify",
+        "SageMaker Canvas"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "JumpStart is a hub of pre-trained models and solutions you can deploy and fine-tune in SageMaker."
+    },
+    {
+      "id": "d2-77",
+      "domain": "d2",
+      "lesson": "d2-stack",
+      "prompt": "Which statement about Amazon Bedrock is true?",
+      "options": ["You call many models through one API, with no servers to run","You must buy GPUs and install each model yourself first","It only offers foundation models that Amazon built itself","It can only be used by clicking in the AWS console"],
+      "answer": [
+        0
+      ],
+      "explanation": "Bedrock is serverless. It offers models from Amazon and other providers through one API."
+    },
+    {
+      "id": "d2-78",
+      "domain": "d2",
+      "lesson": "d2-lifecycle",
+      "prompt": "After a GenAI app goes live, what should the team keep doing?",
+      "options": ["Monitor quality and collect feedback","Delete the evaluation results to save storage","Stop logging model calls so it runs faster","Freeze the prompts so they never change again"],
+      "answer": [
+        0
+      ],
+      "explanation": "Live use shows problems tests missed. Monitoring and feedback tell you when to improve prompts, data or the model."
+    },
+    {
+      "id": "d2-79",
+      "domain": "d2",
+      "lesson": "d2-lifecycle",
+      "type": "order",
+      "prompt": "Put the stages of a foundation model's life in order.",
+      "items": [
+        "Collect and prepare data",
+        "Pre-train the model",
+        "Fine-tune and evaluate it",
+        "Deploy it",
+        "Collect feedback and improve"
+      ],
+      "explanation": "The lifecycle loops: feedback from live use drives the next round of improvements."
+    },
+    {
+      "id": "d2-80",
+      "domain": "d2",
+      "lesson": "d2-cloud-basics",
+      "prompt": "A startup wants to try GenAI without upfront hardware costs. Which cloud benefit helps most?",
+      "options": [
+        "Pay only for what you use",
+        "Fixed yearly hardware contracts",
+        "Running your own data centre",
+        "Buying GPUs for every developer"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Cloud services let you start small and pay as you go, then scale up if the idea works."
+    },
+    {
+      "id": "d2-81",
+      "domain": "d2",
+      "lesson": "d2-agents",
+      "prompt": "What does a Bedrock agent add on top of a plain model call?",
+      "options": [
+        "It plans steps and calls tools or APIs",
+        "It makes the model's weights smaller",
+        "It encrypts data with your KMS key",
+        "It removes the need for any prompt"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Agents break a task into steps, call actions and knowledge bases, and use the results to finish the job."
+    },
   ],
 
   cards: [

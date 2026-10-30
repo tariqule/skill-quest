@@ -1,6 +1,6 @@
 import { Flow, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
-import { GuardrailsLab } from "../labs";
+import { GuardrailsLab, SortLab } from "../labs";
 import { BiasVariance, GuardrailsPipeline, TradeoffSlider } from "../visuals";
 
 /**
@@ -744,6 +744,416 @@ export default defineDomain({
       answer: [0],
       explanation: "A board drawn from several teams sets the roles, policies and review steps for the whole life of an AI system. No single team sees every risk.",
     },
+
+    // ── Added: AIF-C01 coverage gaps ──
+    {
+      "id": "aif-b4-05",
+      "domain": "d4",
+      "lesson": "d4-start-open",
+      "prompt": "A company writes a short document that says what its model is for, what data trained it and where it shouldn't be used. What is that document called?",
+      "options": [
+        "A model card",
+        "A price list",
+        "A service quota",
+        "A billing alarm"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "A model card is like the label on a medicine box. It tells people what the model is meant for, how it was tested and its known limits. SageMaker Model Cards gives you a template for it.",
+      "level": "beginner"
+    },
+    {
+      "id": "aif-b4-06",
+      "domain": "d4",
+      "lesson": "d4-start-fair",
+      "prompt": "Which training data is most likely to give a fair model?",
+      "options": [
+        "Data that covers all the groups who will use it",
+        "Data collected from a single city in one week",
+        "Data copied from one customer's old records",
+        "Data that only includes the most common case"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "A model learns from the examples it sees. If every group that will use it shows up in the data, it's less likely to fail for some of them.",
+      "level": "beginner"
+    },
+    {
+      "id": "d4-36",
+      "domain": "d4",
+      "lesson": "d4-explain",
+      "prompt": "A team wants people outside the company to see a model's intended uses, training details and evaluation results in one place. Which SageMaker feature fits?",
+      "options": [
+        "SageMaker Model Cards",
+        "SageMaker Feature Store",
+        "SageMaker Model Monitor",
+        "SageMaker Data Wrangler"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "SageMaker Model Cards records a model's purpose, risk rating, training details and evaluation results, so everyone reads the same facts."
+    },
+    {
+      "id": "d4-37",
+      "domain": "d4",
+      "lesson": "d4-explain",
+      "prompt": "A model card should be updated when the model is retrained. Why?",
+      "options": [
+        "The facts about its data and results have changed",
+        "Model cards expire after thirty days by default",
+        "A card is needed to turn on the endpoint",
+        "Retraining deletes the old card automatically"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "A model card is only useful if it's true. New training data or new evaluation results mean the card needs a new version."
+    },
+    {
+      "id": "d4-38",
+      "domain": "d4",
+      "lesson": "d4-guardrails",
+      "prompt": "An app sends low-confidence predictions from a custom model to people for review. Which AWS service sets up that human review workflow?",
+      "options": [
+        "Amazon Augmented AI (A2I)",
+        "Amazon SageMaker Clarify",
+        "Amazon Comprehend",
+        "AWS Audit Manager"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Amazon A2I builds human review loops. It has built-in workflows for Amazon Textract and Amazon Rekognition, and a custom task type for any other model."
+    },
+    {
+      "id": "d4-39",
+      "domain": "d4",
+      "lesson": "d4-guardrails",
+      "prompt": "Which services have a built-in Amazon A2I human review task type? (Choose two.)",
+      "options": [
+        "Amazon Textract",
+        "Amazon Rekognition",
+        "Amazon Polly",
+        "Amazon Lex",
+        "Amazon Kendra"
+      ],
+      "answer": [
+        0,
+        1
+      ],
+      "explanation": "A2I's two built-in task types are Textract key-value extraction and Rekognition image moderation. For anything else you use a custom task type."
+    },
+    {
+      "id": "d4-40",
+      "domain": "d4",
+      "lesson": "d4-guardrails",
+      "prompt": "With a built-in A2I workflow, when does a document go to a human reviewer?",
+      "options": ["When the activation conditions you set are met, such as low confidence","Every time the model runs, with no way to filter which ones","Only when the end user clicks a report problem button","Only once a month, during a scheduled batch review job"],
+      "answer": [
+        0
+      ],
+      "explanation": "You set activation conditions, for example a confidence below a threshold. Only predictions that meet them start a human loop."
+    },
+    {
+      "id": "d4-41",
+      "domain": "d4",
+      "lesson": "d4-guardrails",
+      "prompt": "A chatbot must never talk about a competitor's products. Which Bedrock Guardrails setting handles this?",
+      "options": [
+        "A denied topic",
+        "A contextual grounding check",
+        "A sensitive information filter",
+        "A word count limit"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Denied topics let you describe subjects the app must refuse, in plain language. The guardrail blocks prompts and replies that match."
+    },
+    {
+      "id": "d4-42",
+      "domain": "d4",
+      "lesson": "d4-guardrails",
+      "prompt": "Which Bedrock Guardrails feature checks that a RAG answer is supported by the retrieved source text?",
+      "options": ["Contextual grounding check","Prompt attack filter on input","Denied topic list for the app","Profanity word filter on replies"],
+      "answer": [
+        0
+      ],
+      "explanation": "The contextual grounding check scores whether an answer is grounded in the source and relevant to the question. It catches answers the documents don't back up."
+    },
+    {
+      "id": "d4-43",
+      "domain": "d4",
+      "lesson": "d4-dimensions",
+      "prompt": "Which are core dimensions of responsible AI on AWS? (Choose three.)",
+      "options": [
+        "Fairness",
+        "Explainability",
+        "Privacy and security",
+        "Lowest possible latency",
+        "Largest model size"
+      ],
+      "answer": [
+        0,
+        1,
+        2
+      ],
+      "explanation": "AWS lists fairness, explainability, privacy and security, safety, controllability, veracity and robustness, governance and transparency. Speed and size aren't on that list."
+    },
+    {
+      "id": "d4-44",
+      "domain": "d4",
+      "lesson": "d4-dimensions",
+      "type": "match",
+      "prompt": "Match each responsible AI dimension to what it means.",
+      "pairs": [
+        [
+          "Veracity",
+          "Outputs are true and correct"
+        ],
+        [
+          "Controllability",
+          "People can steer and correct the system"
+        ],
+        [
+          "Transparency",
+          "Users know they're dealing with AI and how it's used"
+        ],
+        [
+          "Robustness",
+          "It keeps working with odd or noisy input"
+        ]
+      ],
+      "explanation": "These words show up on the exam a lot. Veracity is about truth, controllability is about steering, transparency is about openness and robustness is about staying reliable."
+    },
+    {
+      "id": "d4-45",
+      "domain": "d4",
+      "lesson": "d4-bias",
+      "prompt": "A hiring model keeps rating applicants lower when they went to certain schools, because past hiring favoured other schools. What kind of problem is this?",
+      "options": [
+        "Bias learned from historical data",
+        "Underfitting caused by too few features",
+        "A token limit in the prompt",
+        "A network timeout during inference"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "If past decisions were unfair, a model trained on them learns the same pattern. Checking results by subgroup helps you catch it."
+    },
+    {
+      "id": "d4-46",
+      "domain": "d4",
+      "lesson": "d4-bias",
+      "prompt": "Which SageMaker Clarify metric compares how often each group is in the training data?",
+      "options": [
+        "Class imbalance",
+        "Mean squared error",
+        "BLEU score",
+        "Perplexity"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Class imbalance is a pre-training bias metric. It shows when one group has far fewer examples than another."
+    },
+    {
+      "id": "d4-47",
+      "domain": "d4",
+      "lesson": "d4-bias",
+      "type": "order",
+      "prompt": "Put these steps for finding and fixing bias in order.",
+      "items": [
+        "Choose the groups and outcomes to check",
+        "Measure bias in the training data",
+        "Train the model and measure bias in its predictions",
+        "Fix the data or model and measure again"
+      ],
+      "explanation": "Decide what fair means for your case first, then check the data, then the model, then repeat after each fix."
+    },
+    {
+      "id": "d4-48",
+      "domain": "d4",
+      "lesson": "d4-legal",
+      "prompt": "A company uses an image model and later learns it may copy artists' work. Which risk is this?",
+      "options": [
+        "Intellectual property infringement",
+        "Model drift over time",
+        "Overfitting the test set",
+        "Provisioned throughput limits"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Generated content can look a lot like copyrighted work. That can lead to IP claims, so check the model's licence and training data terms."
+    },
+    {
+      "id": "d4-49",
+      "domain": "d4",
+      "lesson": "d4-legal",
+      "prompt": "Which are legal or business risks of generative AI? (Choose two.)",
+      "options": [
+        "Loss of customer trust after a harmful answer",
+        "Claims that output infringes copyright",
+        "Lower cost from on-demand pricing",
+        "Faster replies with smaller models",
+        "Fewer tokens in each prompt"
+      ],
+      "answer": [
+        0,
+        1
+      ],
+      "explanation": "Harmful answers damage trust, and copied content can bring IP claims. Lower cost and speed are benefits, not risks."
+    },
+    {
+      "id": "d4-50",
+      "domain": "d4",
+      "lesson": "d4-explain",
+      "prompt": "A bank needs a model whose every decision a regulator can follow step by step. Which choice fits best?",
+      "options": [
+        "A simple, transparent model like a decision tree",
+        "The largest deep neural network available",
+        "A model with the highest temperature setting",
+        "Any model with a long context window"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Simple models are easier to explain. You may give up some accuracy, which is the interpretability and performance trade-off."
+    },
+    {
+      "id": "d4-51",
+      "domain": "d4",
+      "lesson": "d4-explain",
+      "type": "match",
+      "prompt": "Match each tool to what it helps with.",
+      "pairs": [
+        [
+          "SageMaker Clarify",
+          "Bias metrics and SHAP explanations"
+        ],
+        [
+          "SageMaker Model Cards",
+          "Documenting a model's purpose and limits"
+        ],
+        [
+          "Amazon A2I",
+          "Human review of predictions"
+        ],
+        [
+          "Bedrock Guardrails",
+          "Filtering prompts and replies"
+        ]
+      ],
+      "explanation": "Clarify measures and explains, model cards document, A2I brings in people and Guardrails filters content."
+    },
+    {
+      "id": "d4-52",
+      "domain": "d4",
+      "lesson": "d4-explain",
+      "prompt": "What does a SHAP value tell you about one prediction?",
+      "options": ["How much each input feature pushed the result up or down","How long the model took to return that single result","How many tokens the prompt used from start to finish","How much the prediction cost to run on the endpoint"],
+      "answer": [
+        0
+      ],
+      "explanation": "SHAP splits a prediction into each feature's contribution, so you can say which inputs mattered most."
+    },
+    {
+      "id": "d4-53",
+      "domain": "d4",
+      "lesson": "d4-compliance",
+      "prompt": "Which Bedrock evaluation type uses people to rate answers for things like style and brand voice?",
+      "options": [
+        "Human-based model evaluation",
+        "Automatic evaluation with built-in datasets",
+        "Provisioned Throughput testing",
+        "Cross-Region inference"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Some qualities are hard to score with a number. Human evaluation jobs let your own team or subject experts rate the answers."
+    },
+    {
+      "id": "d4-54",
+      "domain": "d4",
+      "lesson": "d4-dimensions",
+      "prompt": "Choosing a smaller model that meets the need, instead of the biggest one, helps most with which responsible AI goal?",
+      "options": [
+        "Environmental sustainability",
+        "Prompt injection defence",
+        "Data residency",
+        "Model explainability"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Bigger models use more energy to train and run. Picking the smallest model that does the job cuts both cost and environmental impact."
+    },
+    {
+      "id": "d4-55",
+      "domain": "d4",
+      "lesson": "d4-compliance",
+      "prompt": "Which actions make a GenAI app more transparent to users? (Choose two.)",
+      "options": [
+        "Tell users they're talking to an AI",
+        "Show the sources behind an answer",
+        "Hide which model is in use",
+        "Remove the feedback button",
+        "Turn off logging of replies"
+      ],
+      "answer": [
+        0,
+        1
+      ],
+      "explanation": "Being open that it's AI and citing sources helps people judge the answer. A feedback button lets them flag problems too."
+    },
+    {
+      "id": "d4-56",
+      "domain": "d4",
+      "lesson": "d4-compliance",
+      "prompt": "Why add a thumbs up and thumbs down button to a GenAI app?",
+      "options": ["To collect feedback that helps improve the system","To lower the price charged for each model request","To make the model's replies arrive more quickly","To stop the model from using up so many tokens"],
+      "answer": [
+        0
+      ],
+      "explanation": "Feedback is part of human-centred design. It shows where answers go wrong so you can fix prompts, data or the model."
+    },
+    {
+      "id": "d4-57",
+      "domain": "d4",
+      "lesson": "d4-compliance",
+      "type": "order",
+      "prompt": "Order the parts of a responsible model lifecycle.",
+      "items": [
+        "Define the use case and its risks",
+        "Collect and check diverse data",
+        "Train and evaluate, including bias tests",
+        "Document the model in a model card",
+        "Deploy and monitor with human review"
+      ],
+      "explanation": "Responsibility runs through every step, from scoping the risks to monitoring in production."
+    },
+    {
+      "id": "d4-58",
+      "domain": "d4",
+      "lesson": "d4-legal",
+      "prompt": "A legal assistant sometimes invents court cases that don't exist. What should the team do first?",
+      "options": [
+        "Ground answers in real sources with RAG and check them",
+        "Raise the temperature so answers vary more often",
+        "Remove the system prompt from every request",
+        "Switch to a model with a shorter context window"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Invented facts are hallucinations. Grounding answers in trusted documents and checking citations cuts them down."
+    },
   ],
 
   cards: [
@@ -756,6 +1166,21 @@ export default defineDomain({
     { id: "c-measurement", domain: "d4", kind: "concept", term: "Measurement bias", definition: "Faulty tools or methods skew the data" },
     { id: "c-pdp", domain: "d4", kind: "concept", term: "Partial dependence plot", definition: "Shows one input's effect on predictions while the others stay fixed" },
     { id: "c-regulated", domain: "d4", kind: "concept", term: "Regulated workload", definition: "Work with extra audit, record-keeping and reporting rules, like finance or health" },
+    {"id":"s-modelcards-use","domain":"d4","kind":"concept","term":"Model card contents","definition":"Intended use, risk rating, training details and evaluation results"},
+    {"id":"s-a2i-builtin","domain":"d4","kind":"concept","term":"A2I built-in task types","definition":"Amazon Textract key-value extraction and Amazon Rekognition image moderation"},
+    {"id":"c-activation","domain":"d4","kind":"concept","term":"A2I activation condition","definition":"A rule, like low confidence, that sends a prediction to a human"},
+    {"id":"c-denied-topic","domain":"d4","kind":"concept","term":"Denied topic","definition":"A Guardrails rule that refuses a subject you describe"},
+    {"id":"c-grounding","domain":"d4","kind":"concept","term":"Contextual grounding check","definition":"A Guardrails check that an answer is backed by the source text"},
+    {"id":"c-veracity","domain":"d4","kind":"concept","term":"Veracity","definition":"Outputs are true and correct"},
+    {"id":"c-controllability","domain":"d4","kind":"concept","term":"Controllability","definition":"People can steer and correct an AI system"},
+    {"id":"c-robustness","domain":"d4","kind":"concept","term":"Robustness","definition":"The system keeps working with odd or noisy input"},
+    {"id":"c-transparency","domain":"d4","kind":"concept","term":"Transparency","definition":"Users know AI is involved and how it's used"},
+    {"id":"c-class-imbalance","domain":"d4","kind":"concept","term":"Class imbalance","definition":"A Clarify metric for one group having far fewer examples"},
+    {"id":"c-shap","domain":"d4","kind":"concept","term":"SHAP values","definition":"Show how much each feature pushed a prediction up or down"},
+    {"id":"c-interp-tradeoff","domain":"d4","kind":"concept","term":"Interpretability trade-off","definition":"Simpler models are easier to explain but may be less accurate"},
+    {"id":"c-human-eval","domain":"d4","kind":"concept","term":"Human model evaluation","definition":"People rate model answers for qualities a metric can't score"},
+    {"id":"c-ip-risk","domain":"d4","kind":"concept","term":"IP risk","definition":"Generated content may copy someone else's protected work"},
+    {"id":"c-sustain","domain":"d4","kind":"concept","term":"Sustainable model choice","definition":"Use the smallest model that meets the need"},
   ],
 
   challenges: [
@@ -768,6 +1193,57 @@ export default defineDomain({
       hint: "Each risky prompt needs a different filter: a denied topic, the prompt attack filter, or the personal data filter.",
       takeaway: "Bedrock Guardrails combines several filters, and each one targets a different risk.",
       render: (onSolved) => <GuardrailsLab goal="protect" onSolved={onSolved} />,
+    },
+      {
+      id: "ch-pick-the-tool",
+      domain: "d4",
+      lesson: "d4-explain",
+      title: "Pick the right tool",
+      goal: "Send each job to the AWS tool built for it, and get all six right.",
+      hint: "Clarify measures and explains. Model cards document. A2I brings in people. Guardrails filters content.",
+      takeaway: "Responsible AI on AWS uses several tools together, each for a different job.",
+      render: (onSolved) => (
+        <SortLab
+          goal="allCorrect"
+          onSolved={onSolved}
+          title="Which tool does this job?"
+          hint="Tap a tool for each job."
+          buckets={["Clarify", "Model Cards", "A2I", "Guardrails"]}
+          items={[
+            { t: "Measure bias in training data", b: 0 },
+            { t: "Explain which features drove a prediction", b: 0 },
+            { t: "Record a model's intended use and limits", b: 1 },
+            { t: "Send low-confidence predictions to a person", b: 2 },
+            { t: "Block a denied topic in chatbot replies", b: 3 },
+            { t: "Mask personal data in model output", b: 3 },
+          ]}
+        />
+      ),
+    },
+    {
+      id: "ch-name-the-bias",
+      domain: "d4",
+      lesson: "d4-bias",
+      title: "Name the problem",
+      goal: "Sort each story into the right problem, and get all five right.",
+      hint: "Ask: is the data lopsided, is the model too simple or too clingy, or is the answer made up?",
+      takeaway: "Spotting the kind of problem tells you which fix to try first.",
+      render: (onSolved) => (
+        <SortLab
+          goal="allCorrect"
+          onSolved={onSolved}
+          title="What went wrong?"
+          hint="Tap a problem for each story."
+          buckets={["Sampling bias", "Overfitting", "Underfitting", "Hallucination"]}
+          items={[
+            { t: "Trained mostly on photos of one group, fails on others", b: 0 },
+            { t: "Perfect on training data, poor on new data", b: 1 },
+            { t: "Poor on training data and on new data", b: 2 },
+            { t: "Confidently cites a court case that doesn't exist", b: 3 },
+            { t: "Survey data came only from one city's residents", b: 0 },
+          ]}
+        />
+      ),
     },
   ],
 });

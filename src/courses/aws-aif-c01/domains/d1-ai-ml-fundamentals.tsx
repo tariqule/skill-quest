@@ -1247,6 +1247,179 @@ export default defineDomain({
       ],
       explanation: "Built-in algorithms let you train common kinds of model without writing the algorithm yourself.",
     },
+
+    // ── Added: AIF-C01 coverage gaps ──
+    {
+      "id": "d1-65",
+      "domain": "d1",
+      "lesson": "d1-sagemaker-tools",
+      "prompt": "Several teams keep rebuilding the same customer features for their models. Which SageMaker feature lets them store and share features?",
+      "options": [
+        "SageMaker Feature Store",
+        "SageMaker Model Registry",
+        "SageMaker Debugger",
+        "SageMaker Neo"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Feature Store keeps features in one place, for training and for low-latency lookup at inference time, so teams reuse them."
+    },
+    {
+      "id": "d1-66",
+      "domain": "d1",
+      "lesson": "d1-sagemaker-tools",
+      "prompt": "Feature Store has an online store and an offline store. What is the online store for?",
+      "options": [
+        "Fast lookups when the model makes live predictions",
+        "Long-term history for building training sets",
+        "Saving trained model files for later",
+        "Holding the logs of each training job"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "The online store gives low-latency reads for real-time inference. The offline store keeps history for training."
+    },
+    {
+      "id": "d1-67",
+      "domain": "d1",
+      "lesson": "d1-sagemaker-tools",
+      "type": "match",
+      "prompt": "Match each SageMaker feature to its job.",
+      "pairs": [
+        [
+          "Feature Store",
+          "Store and share ML features"
+        ],
+        [
+          "Model Registry",
+          "Track and approve model versions"
+        ],
+        [
+          "Model Monitor",
+          "Watch live models for drift"
+        ],
+        [
+          "Ground Truth",
+          "Label training data"
+        ]
+      ],
+      "explanation": "These tools cover the ML lifecycle from data to production."
+    },
+    {
+      "id": "d1-68",
+      "domain": "d1",
+      "lesson": "d1-services",
+      "prompt": "Which AWS service pulls text, forms and tables out of scanned documents?",
+      "options": [
+        "Amazon Textract",
+        "Amazon Comprehend",
+        "Amazon Translate",
+        "Amazon Polly"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Textract reads documents. Comprehend then finds meaning in text, such as sentiment or entities."
+    },
+    {
+      "id": "d1-69",
+      "domain": "d1",
+      "lesson": "d1-services",
+      "prompt": "A company wants staff to search internal documents by asking questions in plain English. Which service is built for this?",
+      "options": [
+        "Amazon Kendra",
+        "Amazon Personalize",
+        "Amazon Forecast",
+        "Amazon Lex"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Kendra is an intelligent search service that understands natural language questions."
+    },
+    {
+      "id": "d1-70",
+      "domain": "d1",
+      "lesson": "d1-services",
+      "prompt": "Which AWS AI services work with speech? (Choose two.)",
+      "options": [
+        "Amazon Transcribe",
+        "Amazon Polly",
+        "Amazon Rekognition",
+        "Amazon Textract",
+        "Amazon Forecast"
+      ],
+      "answer": [
+        0,
+        1
+      ],
+      "explanation": "Transcribe turns speech into text and Polly turns text into speech."
+    },
+    {
+      "id": "d1-71",
+      "domain": "d1",
+      "lesson": "d1-lifecycle",
+      "type": "order",
+      "prompt": "Put the ML pipeline steps in order.",
+      "items": [
+        "Collect data",
+        "Prepare data and features",
+        "Train the model",
+        "Evaluate the model",
+        "Deploy and monitor"
+      ],
+      "explanation": "Each step feeds the next, and monitoring often sends you back to collect better data."
+    },
+    {
+      "id": "d1-72",
+      "domain": "d1",
+      "lesson": "d1-metrics",
+      "prompt": "A fraud model must catch as many real fraud cases as possible, even with some false alarms. Which metric matters most?",
+      "options": [
+        "Recall",
+        "Precision",
+        "Mean absolute error",
+        "R squared"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Recall measures how many real positives you caught. Precision measures how many alarms were real."
+    },
+    {
+      "id": "d1-73",
+      "domain": "d1",
+      "lesson": "d1-inference",
+      "prompt": "A model scores a whole day's transactions once each night. Which inference type fits?",
+      "options": [
+        "Batch inference",
+        "Real-time inference",
+        "Serverless streaming",
+        "Edge inference"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "When nobody waits for the answer, batch inference is simpler and cheaper."
+    },
+    {
+      "id": "d1-74",
+      "domain": "d1",
+      "lesson": "d1-learning",
+      "prompt": "Which learning type finds groups in data that has no labels?",
+      "options": [
+        "Unsupervised learning",
+        "Supervised learning",
+        "Reinforcement learning",
+        "Transfer learning"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Unsupervised learning, like clustering, finds patterns without labels."
+    },
   ],
 
   cards: [
