@@ -24,16 +24,26 @@ function read(): SrsFile {
   } catch {
     cache = EMPTY;
   }
-  // Once per page load, pull in missed questions and studied flashcards from every
-  // course's saved progress (including progress saved before Daily Review existed).
+  sync(cache!);
+  return cache!;
+}
+
+/** Pull in missed questions and studied flashcards from every course's saved progress
+ * (including progress saved before Daily Review existed). Never overwrites a scheduled item. */
+function sync(file: SrsFile) {
   const now = new Date();
   let added: SrsState = {};
   for (const c of COURSES) {
     const p = peekProgress(c.storageKey);
-    if (p) added = { ...added, ...migrateProgress(c.id, p, cache!.items, now) };
+    if (p) added = { ...added, ...migrateProgress(c.id, p, file.items, now) };
   }
-  if (Object.keys(added).length > 0) write({ ...cache!, items: { ...cache!.items, ...added } });
-  return cache!;
+  if (Object.keys(added).length > 0) write({ ...file, items: { ...file.items, ...added } });
+}
+
+/** Re-sync from course progress (call before building a review session). */
+export function syncFromProgress() {
+  if (typeof window === "undefined") return;
+  sync(read());
 }
 
 function write(next: SrsFile) {

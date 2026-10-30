@@ -141,6 +141,7 @@ kubectl describe pod web-7d4b9`}
       task: "1.1",
       title: "Cluster architecture: control plane and nodes",
       check: ["d1-01", "d1-02"],
+      sources: [{ title: "Kubernetes docs: Cluster Architecture", url: "https://kubernetes.io/docs/concepts/architecture/", license: "CC BY 4.0" }],
       visual: <ClusterMap />,
       points: [
         "The **control plane** makes the decisions. It's made of kube-apiserver (the only way in), etcd (where state is stored), kube-scheduler (picks where Pods run) and kube-controller-manager (runs the control loops).",
@@ -199,6 +200,10 @@ status:                  # observed state (Kubernetes writes)
       task: "1.1",
       title: "Pods and workload controllers",
       check: ["d1-21", "d1-22"],
+      sources: [
+        { title: "Kubernetes docs: Pods", url: "https://kubernetes.io/docs/concepts/workloads/pods/", license: "CC BY 4.0" },
+        { title: "Kubernetes docs: Workload Management", url: "https://kubernetes.io/docs/concepts/workloads/controllers/", license: "CC BY 4.0" },
+      ],
       visual: (
         <div className="grid gap-4">
           <Flow

@@ -137,6 +137,7 @@ request → app-3 ┘   or a signed token (JWT)` }}
       task: "1.2",
       title: "Load balancers",
       check: ["d1-10", "d1-11"],
+      sources: [{ title: "System Design Primer: Load balancer", url: "https://github.com/donnemartin/system-design-primer#load-balancer", license: "CC BY 4.0" }],
       visual: (
         <div className="grid gap-3">
           <Flow
@@ -171,6 +172,10 @@ request → app-3 ┘   or a signed token (JWT)` }}
       task: "1.3",
       title: "Caching and CDNs",
       check: ["d1-15", "d1-16"],
+      sources: [
+        { title: "System Design Primer: Cache", url: "https://github.com/donnemartin/system-design-primer#cache", license: "CC BY 4.0" },
+        { title: "MDN: HTTP caching", url: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching", license: "CC BY-SA 2.5" },
+      ],
       visual: (
         <div className="grid gap-3">
           <CacheStrategies />

@@ -1,5 +1,6 @@
 "use client";
 
+import { SourcesFooter } from "@/components/learn/Sources";
 import { RichText } from "@/components/learn/code";
 import Link from "next/link";
 import { notFound, useParams, useRouter } from "next/navigation";
@@ -160,6 +161,7 @@ export function LessonPlay() {
               </MascotSays>
             </div>
           )}
+          <SourcesFooter sources={lesson.sources} />
           <div className="sticky bottom-0 -mx-4 mt-6 border-t border-white/10 bg-slate-950/90 px-4 py-4 backdrop-blur">
             <button type="button" onClick={startCheck} className="btn-3d w-full rounded-2xl bg-emerald-400 py-3.5 text-lg font-black uppercase tracking-wide text-slate-950" style={{ "--edge": "#047857" } as React.CSSProperties}>
               Check my understanding
@@ -231,6 +233,7 @@ export function LessonPlay() {
               </li>
             )}
           </ul>
+          <SourcesFooter sources={lesson.sources} />
 
           {missed.length > 0 && (
             <>
