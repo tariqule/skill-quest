@@ -1,4 +1,5 @@
 import { codeGameOf } from "./code-games";
+import { scenariosFor } from "@/scenarios";
 import type { Progress } from "./store";
 import type { Course, ModeId } from "./types";
 
@@ -18,6 +19,17 @@ export interface ModeInfo {
 }
 
 export const ALL_MODES: ModeInfo[] = [
+  {
+    id: "scenarios",
+    name: "Scenario games",
+    icon: "🏗️",
+    to: "/scenarios",
+    status: (_p, c) => {
+      const items = scenariosFor(c.id);
+      const games = new Set(items.map((x) => x.type)).size;
+      return `${items.length} scenarios · ${games} game${games === 1 ? "" : "s"}`;
+    },
+  },
   {
     id: "codegames",
     name: "Code games",

@@ -6,6 +6,8 @@ import { interleaveDue, itemKey, parseKey } from "./srs";
 import { getSrs, syncFromProgress } from "./srs-store";
 import { getCourseStore } from "./store";
 import { codeGameOf } from "./code-games";
+import { scenarioById } from "@/scenarios";
+import type { ScenarioItem } from "./scenarios";
 import { isChoice, type Card, type Course, type Question } from "./types";
 
 /** Daily Review shows choice questions and the code games (Parsons, Spot the Bug, Predict the Output). */
@@ -15,7 +17,7 @@ export const SESSION = 30;
 export const NEW_CARDS = 5;
 export const NEW_QUESTIONS = 3;
 
-export type Item = { key: string; course: Course; fresh?: boolean } & ({ kind: "card"; card: Card } | { kind: "q"; q: Question });
+export type Item = { key: string; course: Course; fresh?: boolean } & ({ kind: "card"; card: Card } | { kind: "q"; q: Question } | { kind: "sc"; sc: ScenarioItem });
 
 const progressOf = (c: Course) => getCourseStore(c).get();
 
@@ -32,6 +34,10 @@ export function buildQueue(plan: StudyPlan | null): Item[] {
     if (k.kind === "card") {
       const card = course.cards.find((c) => c.id === k.id);
       return card ? { key, course, kind: "card", card } : null;
+    }
+    if (k.kind === "sc") {
+      const sc = scenarioById(k.courseId, k.id);
+      return sc ? { key, course, kind: "sc", sc } : null;
     }
     const q = course.questions.find((x) => x.id === k.id);
     return q && reviewable(q) ? { key, course, kind: "q", q } : null;

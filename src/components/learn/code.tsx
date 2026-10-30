@@ -133,6 +133,9 @@ export function dedent(code: string) {
 }
 
 /** Text with `inline code` spans and **bold** key terms (code spans are never bolded inside). */
+/** Single-asterisk emphasis (*word*), not touching arithmetic like a * b or pointer types like *T. */
+const EM = /(?<![\w*])\*([^*\s](?:[^*]*[^*\s])?)\*(?![\w*])/g;
+
 export function RichText({ text }: { text: string }) {
   const parts = text.split(/(`[^`]+`)/g);
   return (
@@ -150,7 +153,17 @@ export function RichText({ text }: { text: string }) {
                   {b.slice(2, -2)}
                 </strong>
               ) : (
-                <Fragment key={k}>{b}</Fragment>
+                <Fragment key={k}>
+                  {b.split(EM).map((e, m) =>
+                    m % 2 === 1 ? (
+                      <em key={m} className="italic">
+                        {e}
+                      </em>
+                    ) : (
+                      <Fragment key={m}>{e}</Fragment>
+                    ),
+                  )}
+                </Fragment>
               ),
             )}
           </Fragment>
