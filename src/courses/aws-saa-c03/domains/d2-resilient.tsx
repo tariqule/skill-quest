@@ -226,6 +226,7 @@ export default defineDomain({
         "Fargate takes server management away for containers. The EC2 launch type gives you control over instance types, GPUs and pricing options.",
         "Pick EKS when the team already uses Kubernetes or needs to move between clouds. ECS is simpler when you just want containers on AWS.",
         "API Gateway in front of Lambda, with DynamoDB for data, is the classic serverless back end. There are no servers, it scales to zero, and you pay per use.",
+        "**AWS Elastic Beanstalk** lets you upload application code and handles the capacity, load balancing and scaling for you, while you keep access to the underlying resources.",
       ],
       tip: "A job that runs longer than 15 minutes rules out Lambda. Look for ECS on Fargate, AWS Batch, or Step Functions to split the work.",
     },
