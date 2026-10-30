@@ -124,6 +124,7 @@ export default defineDomain({
         "**The cloud** means renting computing power over the internet instead. It's like getting electricity from the grid rather than building your own generator.",
         "**Amazon Bedrock** is the AWS service that gives you ready-trained models from Amazon and other companies. Your app sends a prompt and gets the answer back.",
         "You pay for what you use, so you can try an idea cheaply before committing to it.",
+        "If you want full control, **SageMaker JumpStart** deploys open and proprietary models to SageMaker endpoints you manage, and you can **fine-tune** them on your data.",
       ],
       tip: "When a question says \"use a foundation model without managing servers\", the answer is usually Amazon Bedrock.",
     },
@@ -216,6 +217,8 @@ export default defineDomain({
         "Generative AI answers. **Agentic AI** acts: it makes a plan, calls tools, checks the results and repeats until the job is done.",
         "**Context engineering** means choosing what the model gets to see: instructions, retrieved data, memory and tool results, all within its token limit.",
         "The **Model Context Protocol (MCP)** is an open standard for plugging agents into tools and data, a bit like USB for AI.",
+        "On AWS, **Bedrock Agents** are managed agents that call your APIs, often through **AWS Lambda**, and look things up in knowledge bases.",
+        "**Amazon Bedrock AgentCore** runs agents built with any framework and adds runtime, memory, gateway, identity and observability. **Strands Agents** is an open-source SDK for building agents in code.",
       ],
     },
     {
@@ -246,6 +249,7 @@ export default defineDomain({
       points: [
         "When you choose a model, weigh its type, how capable it is, cost, speed, compliance needs and how complex it is to run.",
         "Show the value with business numbers: return on investment, time saved, conversion rate, revenue per user and customer lifetime value.",
+        "Bedrock also adds safety tools such as **Guardrails**, which filter harmful content in prompts and replies.",
       ],
     },
     {
@@ -265,6 +269,8 @@ export default defineDomain({
       points: [
         "Managed services make starting easy. There are no servers to run, you can experiment quickly, and you pay as you go.",
         "The big cost choices are paying per token on demand or reserving Provisioned Throughput, which custom models need. Region and redundancy also change the bill.",
+        "Bedrock's building blocks include **Knowledge Bases** for RAG, **batch inference** for big offline jobs, and **IAM** to control who can call which model.",
+        "For developers, **Amazon Q Developer** helps write, explain and fix code in the IDE and console, and can scan code for security issues.",
       ],
     },
     {
@@ -297,6 +303,7 @@ export default defineDomain({
         "You also get the provider's economies of scale, no guessing about capacity, speed, and the ability to go global in minutes.",
         "AI apps lean on a few core services: **S3** stores data, **EC2** gives you servers, **Lambda** runs code without servers, and **IAM** controls access.",
         "S3 has storage classes for every need, from Standard for everyday data down to Glacier Deep Archive for data you almost never read.",
+        "Containers run on **Amazon ECS**, AWS's own orchestrator, or **Amazon EKS**, which is managed Kubernetes. **AWS Lambda** runs short functions with no servers to manage.",
       ],
       tip: "If a question says \"data must stay in the EU\", pick an EU Region. Keeping data in one place is called data residency, and it's a Region decision.",
     },
@@ -327,6 +334,9 @@ export default defineDomain({
         "**Model invocation logging** saves every prompt and response to CloudWatch Logs, S3 or both, so you can audit and analyse them later.",
         "Bedrock sends metrics to CloudWatch, including how often guardrails blocked content. You can set alarms on them.",
         "Running a fine-tuned model also costs more than running the base model.",
+        "**Batch inference** runs big jobs offline at a lower price. **Intelligent Prompt Routing** sends each prompt to the model in a family that should answer it well at the lowest cost.",
+        "An **inference profile** lets you track usage and cost with tags. **Cross-Region inference** spreads requests across Regions for more throughput.",
+        "**AWS Budgets** alerts you when spend passes a limit. **AWS Cost Explorer** charts past spend by service.",
       ],
       tip: "\"Lower the temperature to save money\" is a classic wrong answer. Using fewer tokens or a smaller model is what saves money.",
     },
@@ -342,8 +352,8 @@ export default defineDomain({
       prompt: "What makes generative AI different from older kinds of AI?",
       options: [
         "It creates new content, such as text or images",
-        "It only sorts things into categories",
-        "It never needs any data",
+        "It only sorts existing things into fixed categories",
+        "It follows rules that people write by hand",
         "It only works with numbers in spreadsheets",
       ],
       answer: [0],
@@ -356,7 +366,12 @@ export default defineDomain({
       level: "beginner",
       lesson: "d2-start-genai",
       prompt: "You type \"Summarise this email in two sentences\" into an AI assistant. What is that instruction called?",
-      options: ["A prompt", "A token", "A label", "A model"],
+      options: [
+        "A prompt",
+        "A token",
+        "A label",
+        "A parameter",
+      ],
       answer: [0],
       explanation:
         "The instruction you give a generative model is a prompt. The model reads it and writes a reply. Clear prompts usually get better answers.",
@@ -380,9 +395,9 @@ export default defineDomain({
       prompt: "Which job is generative AI best suited for?",
       options: [
         "Drafting a first version of a product description",
-        "Working out exact tax from a fixed formula",
-        "Storing a bank's account balances",
-        "Counting the rows in a spreadsheet",
+        "Working out exact tax owed from a fixed formula",
+        "Storing a bank's account balances for each customer",
+        "Counting the rows in a spreadsheet of orders",
       ],
       answer: [0],
       explanation:
@@ -395,10 +410,10 @@ export default defineDomain({
       lesson: "d2-start-bedrock",
       prompt: "What does \"using the cloud\" mean for a company?",
       options: [
-        "Renting computing power over the internet and paying for what you use",
-        "Storing files only on office laptops",
-        "Buying and running all your own servers",
-        "Using AI only when the weather is cloudy",
+        "Renting computing power over the internet and paying for use",
+        "Storing all company files only on office laptops and drives",
+        "Buying and running all your own servers in your own building",
+        "Paying a fixed yearly fee for servers whether you use them or not",
       ],
       answer: [0],
       explanation:
@@ -410,7 +425,12 @@ export default defineDomain({
       level: "beginner",
       lesson: "d2-start-bedrock",
       prompt: "Which AWS service gives you ready-trained AI models from Amazon and other companies, without managing servers?",
-      options: ["Amazon Bedrock", "Amazon S3", "Amazon EC2", "AWS Lambda"],
+      options: [
+        "Amazon Bedrock",
+        "Amazon SageMaker AI",
+        "Amazon Comprehend",
+        "Amazon Lex",
+      ],
       answer: [0],
       explanation:
         "Amazon Bedrock is a shelf of ready-trained models you reach through one service. S3 stores files, EC2 rents servers and Lambda runs small pieces of code.",
@@ -423,10 +443,10 @@ export default defineDomain({
       lesson: "d2-tokens",
       prompt: "What is a token, when we talk about large language models?",
       options: [
-        "A security credential for calling the model API",
-        "A unit of text, such as a word or part of a word, that the model processes",
-        "A single neuron in the network",
-        "A cryptocurrency used to pay for inference",
+        "A security credential used to call the model's API",
+        "A unit of text, such as a word or part of a word",
+        "A single neuron inside the model's neural network",
+        "A prepaid credit used to pay for each inference call",
       ],
       answer: [1],
       explanation:
@@ -438,10 +458,10 @@ export default defineDomain({
       lesson: "d2-embeddings",
       prompt: "What are embeddings?",
       options: [
-        "Numerical vector representations that capture semantic meaning",
-        "Images embedded inside a prompt",
-        "Encrypted copies of training data",
-        "Hard-coded rules inside a model",
+        "Number vectors that capture the meaning of text or images",
+        "Images placed inside a prompt so that the model can see them",
+        "Encrypted copies of the training data kept by the model",
+        "Fixed rules stored inside a model to guide its answers",
       ],
       answer: [0],
       explanation:
@@ -472,12 +492,12 @@ export default defineDomain({
       lesson: "d2-models",
       prompt: "What is a foundation model (FM)?",
       options: [
-        "A small model trained for one narrow task",
-        "A large model pre-trained on broad data that can be adapted to many tasks",
-        "A rules engine used as a base for chatbots",
-        "Any model hosted on AWS",
+        "A large model pre-trained on broad data and adapted to many tasks",
+        "A small model trained for one narrow task, such as filtering spam email",
+        "A rules engine that other chatbots are built on top of",
+        "Any machine learning model that is hosted and managed on AWS",
       ],
-      answer: [1],
+      answer: [0],
       explanation:
         "Foundation models are pre-trained on huge, broad, mostly unlabeled data using self-supervised learning. You then adapt them with prompting, RAG or fine-tuning.",
     },
@@ -487,12 +507,12 @@ export default defineDomain({
       lesson: "d2-proscons",
       prompt: "What is a hallucination in generative AI?",
       options: [
-        "When a model refuses to answer",
-        "When a model generates confident-sounding but false or fabricated content",
-        "When a model runs out of tokens",
-        "When the model produces images instead of text",
+        "When a model states false or made-up content as if it were true",
+        "When a model refuses to answer because a guardrail blocked the request",
+        "When a model runs out of tokens and stops mid-sentence",
+        "When a model returns an image even though text was requested",
       ],
-      answer: [1],
+      answer: [0],
       explanation: "A hallucination is an answer that sounds right but is wrong or made up. You can reduce them with RAG, a lower temperature, guardrails and clear prompts.",
     },
     {
@@ -511,10 +531,10 @@ export default defineDomain({
       lesson: "d2-models",
       prompt: "What is a multimodal model?",
       options: [
-        "A model deployed in multiple Regions",
-        "A model that can process or generate more than one data type, such as text and images",
-        "A model with multiple hyperparameters",
-        "An ensemble of several classification models",
+        "A model deployed across several AWS Regions for resilience",
+        "A model that can take in or produce more than one data type",
+        "A model with several hyperparameters tuned at the same time",
+        "An ensemble that combines several classification models",
       ],
       answer: [1],
       explanation: "A multimodal model handles more than one kind of data, such as text, images, audio and video. For example, it can look at a photo and describe it in words.",
@@ -525,10 +545,10 @@ export default defineDomain({
       lesson: "d2-tokens",
       prompt: "What is the context window of an LLM?",
       options: [
-        "The UI window where users type prompts",
-        "The maximum number of tokens the model can consider in one request, including input and output",
-        "The time window before a model is retrained",
-        "The list of AWS Regions where the model runs",
+        "The box in the app where users type their prompts",
+        "The most tokens the model can consider in one request",
+        "The time between each scheduled retraining of the model",
+        "The list of AWS Regions where the model can be called",
       ],
       answer: [1],
       explanation: "The context window is the limit on how much fits into one call. Your prompt, the chat history, any retrieved documents and the reply all count toward it.",
@@ -540,13 +560,13 @@ export default defineDomain({
       prompt: "How are you charged when you call a model in Amazon Bedrock on demand?",
       options: [
         "You pay per input and output token processed",
-        "A fixed monthly license per user",
-        "You pay only for model training hours",
-        "Bedrock on demand is free",
+        "A fixed monthly licence for each named user",
+        "You pay only for the hours spent training it",
+        "A flat fee per model, no matter how much you use",
       ],
       answer: [0],
       explanation:
-        "On-demand Bedrock pricing is per token, for both input and output. Provisioned Throughput is different: it reserves capacity for a set term, and custom fine-tuned models need it.",
+        "On-demand Bedrock pricing is per token, for both input and output. Provisioned Throughput is different: it reserves capacity for a set term. Custom models can use it, and some newer ones can also be deployed for on-demand use.",
     },
     {
       id: "d2-11",
@@ -615,7 +635,12 @@ export default defineDomain({
       domain: "d2",
       lesson: "d2-stack",
       prompt: "Which AWS chips are built specifically for low-cost, high-performance deep learning inference?",
-      options: ["AWS Inferentia", "AWS Graviton", "AWS Nitro", "AWS Outposts"],
+      options: [
+        "AWS Inferentia",
+        "AWS Graviton4 CPUs",
+        "AWS Trainium",
+        "AWS Nitro",
+      ],
       answer: [0],
       explanation: "AWS Inferentia speeds up inference, as the name hints. AWS Trainium is for training. Graviton is a general-purpose Arm processor.",
     },
@@ -625,10 +650,10 @@ export default defineDomain({
       lesson: "d2-proscons",
       prompt: "Which business metric would best show the value of a GenAI customer support assistant?",
       options: [
-        "Reduction in average handle time and improved customer satisfaction",
-        "Number of GPUs used",
-        "Size of the model in parameters",
-        "The model's training loss",
+        "Lower average handle time and higher customer satisfaction",
+        "More GPUs in use and a larger model size in parameters",
+        "A lower training loss and a higher BLEU score on test data",
+        "More tokens generated per reply and a longer context window",
       ],
       answer: [0],
       explanation:
@@ -640,10 +665,10 @@ export default defineDomain({
       lesson: "d2-agents",
       prompt: "What is the Model Context Protocol (MCP)?",
       options: [
-        "An open standard for connecting AI agents to external tools and data sources",
-        "An AWS encryption algorithm",
-        "A metric for translation quality",
-        "A type of GPU",
+        "An open standard for connecting AI agents to tools and data",
+        "An AWS encryption method for protecting prompts while in transit",
+        "A metric that scores how well a model translates text",
+        "A hardware interface for linking GPUs inside a server",
       ],
       answer: [0],
       explanation:
@@ -655,10 +680,10 @@ export default defineDomain({
       lesson: "d2-agents",
       prompt: "What is context engineering in an FM application?",
       options: [
-        "Deciding what information goes into the model's context window (instructions, retrieved data, memory, tool results) so it can do the task well",
-        "Replacing the model's weights",
-        "Buying more GPUs",
-        "Encrypting the prompt",
+        "Choosing what goes in the context: instructions, data, memory, tool results",
+        "Changing the model's weights by training it on new labeled examples each week",
+        "Buying more GPUs so the model can process longer prompts faster",
+        "Encrypting the prompt so that other users can't read the context",
       ],
       answer: [0],
       explanation:
@@ -669,7 +694,12 @@ export default defineDomain({
       domain: "d2",
       lesson: "d2-agents",
       prompt: "A company wants several specialist agents for research, writing and review, coordinated by a supervisor agent. What is this pattern called?",
-      options: ["A multi-agent system", "Batch transform", "Transfer learning", "Data augmentation"],
+      options: [
+        "A multi-agent system",
+        "A batch transform job",
+        "A transfer learning setup",
+        "A mixture-of-experts model",
+      ],
       answer: [0],
       explanation:
         "A multi-agent system splits a big job among specialist agents. Common patterns are a supervisor with workers, agents handing work along in sequence, and agents working side by side.",
@@ -679,7 +709,12 @@ export default defineDomain({
       domain: "d2",
       lesson: "d2-agents",
       prompt: "A team has built an agent and now needs a secure, serverless place to run it at scale, with memory, identity and tool access built in. Which AWS service fits?",
-      options: ["Amazon Bedrock AgentCore", "Amazon Polly", "AWS Artifact", "Amazon Textract"],
+      options: [
+        "Amazon Bedrock AgentCore",
+        "Amazon SageMaker AI endpoints",
+        "AWS Step Functions",
+        "Amazon Lex",
+      ],
       answer: [0],
       explanation:
         "Amazon Bedrock AgentCore gives you the pieces to run agents in production: Runtime, Memory, Gateway (which turns APIs into tools), Identity, Policy and observability. It works with any agent framework, Strands Agents included.",
@@ -747,7 +782,12 @@ export default defineDomain({
       domain: "d2",
       lesson: "d2-proscons",
       prompt: "An online store wants product descriptions written automatically from a list of product details. Which approach fits?",
-      options: ["Text generation with a large language model", "K-means clustering", "Linear regression", "Amazon Inspector"],
+      options: [
+        "Text generation with a large language model",
+        "K-means clustering of the product details list",
+        "Linear regression on past product prices",
+        "Classification of products into categories",
+      ],
       answer: [0],
       explanation: "Turning a list of facts into smooth, readable text is exactly what large language models are good at.",
     },
@@ -758,9 +798,9 @@ export default defineDomain({
       prompt: "Which task is LEAST suited to generative AI?",
       options: [
         "Calculating exact tax owed using fixed legal formulas",
-        "Drafting marketing email copy",
-        "Summarising meeting notes",
-        "Brainstorming product names",
+        "Drafting several different versions of marketing email copy",
+        "Summarising long meeting notes into action items",
+        "Brainstorming new names for an upcoming product",
       ],
       answer: [0],
       explanation: "When you need one precise answer every time, a formula or rules engine is more reliable and cheaper than a generative model.",
@@ -772,9 +812,9 @@ export default defineDomain({
       prompt: "Users notice the same prompt gives slightly different answers each time. Why?",
       options: [
         "Sampling during generation makes outputs nondeterministic",
-        "The model is retrained after every request",
-        "The prompt is encrypted differently each time",
-        "Tokens are billed randomly",
+        "The model is retrained on the prompt after every request",
+        "The prompt is encrypted with a different key each time",
+        "A different foundation model answers each request at random",
       ],
       answer: [0],
       explanation: "An LLM picks each next token by sampling from a list of likely options, so results can vary. Lowering the temperature makes answers more consistent.",
@@ -785,10 +825,10 @@ export default defineDomain({
       lesson: "d2-proscons",
       prompt: "Why is it hard to explain exactly why an LLM gave a particular answer?",
       options: [
-        "Its behaviour comes from billions of learned parameters, so interpretability is low",
-        "LLMs don't use any data",
-        "LLMs follow a short list of hand-written rules",
-        "LLM answers are always random",
+        "Its behaviour comes from billions of learned parameters",
+        "It follows a short list of hand-written rules it hides",
+        "It doesn't use any training data, so there is nothing to trace",
+        "Its answers are fully random, so no reason exists at all",
       ],
       answer: [0],
       explanation: "An LLM's behaviour is spread across billions of learned numbers, so there's no simple reason to point at. That matters in regulated work, where decisions must be explained.",
@@ -799,10 +839,10 @@ export default defineDomain({
       lesson: "d2-embeddings",
       prompt: "In generative AI, what is a vector?",
       options: [
-        "An ordered list of numbers that represents data, such as an embedding",
-        "A type of encryption key",
-        "A single word in a prompt",
-        "A billing unit for model training",
+        "An ordered list of numbers that represents data",
+        "A type of key used to encrypt the model's weights",
+        "A single word or token taken from a prompt",
+        "A billing unit used to price model training",
       ],
       answer: [0],
       explanation: "An embedding is a vector, an ordered list of numbers. Things with similar meanings end up with vectors close together, which is how search by meaning works.",
@@ -813,10 +853,10 @@ export default defineDomain({
       lesson: "d2-lifecycle",
       prompt: "A model doesn't know about a product your company launched last month. What's the most likely reason?",
       options: [
-        "Its training data stops at a knowledge cutoff; use RAG to supply fresh information",
-        "The temperature is too low",
-        "The model is multimodal",
-        "The context window is too large",
+        "Its training data ends at a knowledge cutoff; use RAG for new facts",
+        "The temperature is set too low, so it won't mention any newer products",
+        "The model is multimodal, so it ignores text about new launches",
+        "The context window is too large, so new facts get pushed out",
       ],
       answer: [0],
       explanation: "A foundation model only knows what was in its training data, which stops at a cutoff date. RAG hands it current documents when the question comes in, with no retraining.",
@@ -853,7 +893,12 @@ export default defineDomain({
       domain: "d2",
       lesson: "d2-proscons",
       prompt: "An internal GenAI tool cut report writing from 4 hours to 1 hour. What kind of business value is this?",
-      options: ["Efficiency (productivity gain)", "Model accuracy", "Data residency", "Lower latency of the network"],
+      options: [
+        "Efficiency (productivity gain)",
+        "Higher model accuracy",
+        "Better data residency",
+        "Lower latency on the company network",
+      ],
       answer: [0],
       explanation: "Saving people's time is an efficiency gain. It's one of the business metrics companies use to justify spending on GenAI.",
     },
@@ -862,7 +907,12 @@ export default defineDomain({
       domain: "d2",
       lesson: "d2-stack",
       prompt: "A team wants to deploy an open-source foundation model into its own account, choosing the instance type and managing the endpoint. Which option fits?",
-      options: ["Amazon SageMaker JumpStart", "Amazon Quick", "Amazon Polly", "AWS Artifact"],
+      options: [
+        "Amazon SageMaker JumpStart",
+        "Amazon Bedrock on-demand models",
+        "Amazon Bedrock Agents",
+        "Amazon Q Business",
+      ],
       answer: [0],
       explanation: "JumpStart deploys pre-trained models to SageMaker AI endpoints that you control. Bedrock is serverless, so AWS looks after the hosting for you.",
     },
@@ -880,7 +930,12 @@ export default defineDomain({
       domain: "d2",
       lesson: "d2-agents",
       prompt: "An AI agent must remember a customer's preferences across separate conversations, days apart. What does it need?",
-      options: ["Long-term memory, such as AgentCore Memory", "A higher temperature", "A smaller context window", "Batch inference"],
+      options: [
+        "Long-term memory, such as AgentCore Memory",
+        "A larger context window for each new session",
+        "A higher temperature so it recalls more",
+        "Batch inference over past conversations",
+      ],
       answer: [0],
       explanation: "Short-term memory only lasts for one conversation. Long-term memory keeps facts and preferences from one conversation to the next.",
     },
@@ -890,10 +945,10 @@ export default defineDomain({
       lesson: "d2-agents",
       prompt: "How does an AI agent check live stock levels before answering a customer?",
       options: [
-        "It calls a tool or API (for example through MCP) and uses the result",
-        "It guesses from its training data",
-        "It raises its temperature",
-        "It retrains itself on the spot",
+        "It calls a tool or API, for example through MCP, and uses the result",
+        "It works out the stock level from what it saw in its training data last year",
+        "It raises its temperature so it can guess a more likely number",
+        "It retrains itself on the latest stock data before it answers",
       ],
       answer: [0],
       explanation: "Tools let an agent fetch live data and take actions. MCP gives agents a standard way to connect to those tools.",
@@ -974,7 +1029,12 @@ export default defineDomain({
       domain: "d2",
       lesson: "d2-cloud-basics",
       prompt: "Renting virtual servers, storage and networking that you set up yourself, such as Amazon EC2, is which cloud type?",
-      options: ["Infrastructure as a Service (IaaS)", "Software as a Service (SaaS)", "Platform as a Service (PaaS)", "On-premises hosting"],
+      options: [
+        "Infrastructure as a Service (IaaS)",
+        "Software as a Service (SaaS)",
+        "Platform as a Service (PaaS)",
+        "On-premises hosting in your own data center",
+      ],
       answer: [0],
       explanation: "IaaS gives you the most freedom. The provider runs the hardware and you manage the operating system and apps on top.",
     },
@@ -983,7 +1043,12 @@ export default defineDomain({
       domain: "d2",
       lesson: "d2-cloud-basics",
       prompt: "A new GenAI feature isn't available in the AWS Region a company uses. What's the most likely reason?",
-      options: ["New services and features roll out to Regions at different times", "Regions share every service at the same moment", "Availability Zones control service availability", "Edge locations host the service instead"],
+      options: [
+        "New services and features reach Regions at different times",
+        "Each Availability Zone chooses which services it will offer",
+        "Every Region gets each feature on the same day by design",
+        "Edge locations host new features before any Region does",
+      ],
       answer: [0],
       explanation: "Each Region gets new services on its own timeline. Check which services a Region offers before you decide where to deploy.",
     },
@@ -992,7 +1057,12 @@ export default defineDomain({
       domain: "d2",
       lesson: "d2-cloud-basics",
       prompt: "Which of these is an advantage of cloud computing?",
-      options: ["Trade up-front capital expense for pay-as-you-go operating expense", "You must buy hardware for peak demand", "Capacity has to be planned years ahead", "Every Region has identical prices"],
+      options: [
+        "Trade up-front capital expense for pay-as-you-go spending",
+        "You buy hardware up front so that you can always cover peak demand",
+        "You plan capacity years ahead to avoid running short",
+        "Every Region charges the same price for every service",
+      ],
       answer: [0],
       explanation: "Instead of buying hardware up front, you pay as you go. Other advantages are economies of scale, no guessing about capacity, speed, and going global in minutes.",
     },
@@ -1028,7 +1098,12 @@ export default defineDomain({
       domain: "d2",
       lesson: "d2-bedrock-costs",
       prompt: "How are embedding models billed in Amazon Bedrock on demand?",
-      options: ["Per input token processed", "Per image generated", "Per hour of GPU time", "A flat monthly fee"],
+      options: [
+        "Per input token processed",
+        "Per output token generated",
+        "Per hour of GPU time used",
+        "A flat fee for each model",
+      ],
       answer: [0],
       explanation: "Text models bill for input and output tokens. Embedding models only bill for input tokens, because they return numbers, not text. Image models bill per image.",
     },
@@ -1055,7 +1130,12 @@ export default defineDomain({
       domain: "d2",
       lesson: "d2-bedrock-costs",
       prompt: "An operations team wants an alarm when Bedrock Guardrails start blocking lots of responses. What should they use?",
-      options: ["Amazon CloudWatch metrics published by Bedrock, with a CloudWatch alarm", "AWS Artifact", "Amazon Polly", "S3 Lifecycle rules"],
+      options: [
+        "CloudWatch metrics from Bedrock with a CloudWatch alarm",
+        "AWS CloudTrail management events with an S3 lifecycle rule",
+        "AWS Config rules that run each time a guardrail changes",
+        "AWS Trusted Advisor checks reviewed once a week",
+      ],
       answer: [0],
       explanation: "Bedrock sends metrics to CloudWatch, including a count of blocked content, and you can set an alarm on them. Invocation logging adds the full detail of each request and response.",
     },
@@ -1064,7 +1144,12 @@ export default defineDomain({
       domain: "d2",
       lesson: "d2-stack",
       prompt: "Employees want Amazon Quick to answer only from documents they're allowed to see. What makes this work?",
-      options: ["Users sign in through IAM Identity Center, and answers respect each user's document access", "Every user shares one admin login", "Answers are always generated from public internet data", "Temperature is set to 0"],
+      options: [
+        "Users sign in through IAM Identity Center and answers respect their access",
+        "All users share one admin login so that the assistant can see every single file",
+        "The assistant answers from public internet data instead of company files",
+        "The temperature is set to 0 so it never mentions restricted documents",
+      ],
       answer: [0],
       explanation: "Quick signs each user in, often through IAM Identity Center connected to your company's login system. It then answers only from content that person is allowed to see.",
     },
@@ -1087,7 +1172,12 @@ export default defineDomain({
       domain: "d2",
       lesson: "d2-models",
       prompt: "A company wants natural, real-time spoken conversations with customers using an Amazon model. Which Nova 2 model fits?",
-      options: ["Nova 2 Sonic (speech-to-speech)", "Nova 2 Multimodal Embeddings", "Amazon Neptune", "Amazon Textract"],
+      options: [
+        "Nova 2 Sonic (speech-to-speech)",
+        "Nova 2 Multimodal Embeddings",
+        "Nova 2 Lite (text and images)",
+        "Amazon Transcribe with Amazon Polly",
+      ],
       answer: [0],
       explanation: "Nova 2 Sonic handles live voice conversations. Nova 2 Lite is a fast, low-cost reasoning model, Multimodal Embeddings powers search by meaning, and Omni mixes multimodal reasoning with image generation.",
     },
@@ -1096,9 +1186,511 @@ export default defineDomain({
       domain: "d2",
       lesson: "d2-agents",
       prompt: "How does a Bedrock agent know which company APIs it can call to look up orders?",
-      options: ["You define action groups, described with an OpenAPI schema and often backed by Lambda functions", "The agent searches the internet for APIs", "The temperature setting lists them", "AWS Artifact registers them"],
+      options: [
+        "You define action groups with an OpenAPI schema, often backed by Lambda",
+        "The agent searches the internet for public APIs that look like a good match",
+        "The model's system prompt lists every API URL and the agent guesses",
+        "AWS Artifact registers the APIs and grants the agent access to them",
+      ],
       answer: [0],
       explanation: "Action groups tell the agent which operations exist and how to call them. Knowledge bases are the other half: they supply documents for RAG.",
+    },
+
+    // ── Added: AIF-C01 coverage gaps ──
+    {
+      "id": "d2-62",
+      "domain": "d2",
+      "lesson": "d2-bedrock-costs",
+      "prompt": "A team has steady, high Bedrock traffic and needs guaranteed capacity for a custom model. What should it buy?",
+      "options": [
+        "Provisioned Throughput",
+        "On-demand pricing",
+        "Batch inference",
+        "A global inference profile"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Provisioned Throughput reserves model units for a set term. It gives a custom model guaranteed capacity, though some newer custom models can also run on demand. Inference profiles don't support it."
+    },
+    {
+      "id": "d2-63",
+      "domain": "d2",
+      "lesson": "d2-bedrock-costs",
+      "prompt": "Which Bedrock option can save about 10% compared with standard pricing when you don't need data to stay in one geography?",
+      "options": [
+        "Global cross-Region inference",
+        "Geographic cross-Region inference",
+        "Provisioned Throughput",
+        "Model customisation"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "AWS lists global cross-Region inference at roughly 10% savings. Geographic profiles keep standard pricing but stay inside a geography."
+    },
+    {
+      "id": "d2-64",
+      "domain": "d2",
+      "lesson": "d2-bedrock-costs",
+      "prompt": "Which choices lower the cost of using a foundation model? (Choose two.)",
+      "options": [
+        "Use a smaller model that meets the need",
+        "Shorten prompts and cap the reply length",
+        "Always pick the largest model",
+        "Send every request twice",
+        "Raise max tokens to the limit"
+      ],
+      "answer": [
+        0,
+        1
+      ],
+      "explanation": "You pay per token on demand, so fewer tokens and smaller models cost less."
+    },
+    {
+      "id": "d2-65",
+      "domain": "d2",
+      "lesson": "d2-bedrock-costs",
+      "prompt": "A company must summarise a million documents overnight and doesn't need instant replies. Which Bedrock option is cheapest?",
+      "options": [
+        "Batch inference",
+        "Real-time on-demand calls",
+        "Provisioned Throughput for a year",
+        "Streaming responses"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Batch inference runs many prompts as one job, at a lower price than on-demand requests."
+    },
+    {
+      "id": "d2-66",
+      "domain": "d2",
+      "lesson": "d2-bedrock-costs",
+      "type": "match",
+      "prompt": "Match each Bedrock pricing option to when it fits.",
+      "pairs": [
+        [
+          "On-demand",
+          "Uneven traffic, pay per token"
+        ],
+        [
+          "Batch",
+          "Large offline jobs at a lower price"
+        ],
+        [
+          "Provisioned Throughput",
+          "Steady traffic or custom models"
+        ],
+        [
+          "Cross-Region inference",
+          "Bursts that need more throughput"
+        ]
+      ],
+      "explanation": "Pick the pricing model that matches how your traffic behaves."
+    },
+    {
+      "id": "d2-67",
+      "domain": "d2",
+      "lesson": "d2-tokens",
+      "prompt": "Roughly what is a token?",
+      "options": ["A piece of a word, often a few characters","A single full sentence of text, end to end","One whole page of a document at a time","One user's login session with the model"],
+      "answer": [
+        0
+      ],
+      "explanation": "Models read and write tokens. A token is often part of a word, so long words can be several tokens."
+    },
+    {
+      "id": "d2-68",
+      "domain": "d2",
+      "lesson": "d2-tokens",
+      "prompt": "What is the context window of a model?",
+      "options": ["The most tokens it can handle in one request","The time it takes to train the model from scratch","The number of users who can call it at once","The AWS Region where the model is hosted"],
+      "answer": [
+        0
+      ],
+      "explanation": "The context window covers the prompt and the reply together. Text beyond it can't be used."
+    },
+    {
+      "id": "d2-69",
+      "domain": "d2",
+      "lesson": "d2-embeddings",
+      "prompt": "Two sentences mean almost the same thing. What's true about their embeddings?",
+      "options": [
+        "Their vectors are close together",
+        "Their vectors are always identical",
+        "Their vectors have different lengths",
+        "Their vectors point in opposite ways"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Embeddings place similar meanings close together, which is why vector search finds related text."
+    },
+    {
+      "id": "d2-70",
+      "domain": "d2",
+      "lesson": "d2-embeddings",
+      "prompt": "Which tasks use embeddings? (Choose two.)",
+      "options": [
+        "Semantic search over documents",
+        "Recommending similar products",
+        "Encrypting data at rest",
+        "Billing by the hour",
+        "Creating IAM users"
+      ],
+      "answer": [
+        0,
+        1
+      ],
+      "explanation": "Embeddings turn meaning into numbers, so you can find and compare similar things."
+    },
+    {
+      "id": "d2-71",
+      "domain": "d2",
+      "lesson": "d2-models",
+      "prompt": "Which kind of model creates images from a text description?",
+      "options": [
+        "A diffusion model",
+        "A linear regression model",
+        "A k-means clustering model",
+        "A decision tree model"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Diffusion models learn to turn random noise into an image step by step, guided by the text prompt."
+    },
+    {
+      "id": "d2-72",
+      "domain": "d2",
+      "lesson": "d2-models",
+      "prompt": "Which model type can take both an image and a question about it as input?",
+      "options": [
+        "A multimodal model",
+        "A text-only language model",
+        "A regression model",
+        "A clustering model"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Multimodal models accept more than one kind of input, like text and images together."
+    },
+    {
+      "id": "d2-73",
+      "domain": "d2",
+      "lesson": "d2-models",
+      "type": "match",
+      "prompt": "Match each model type to what it does best.",
+      "pairs": [
+        [
+          "Large language model",
+          "Writes and understands text"
+        ],
+        [
+          "Diffusion model",
+          "Creates images from noise"
+        ],
+        [
+          "Embeddings model",
+          "Turns text into vectors"
+        ],
+        [
+          "Multimodal model",
+          "Handles text and images together"
+        ]
+      ],
+      "explanation": "Knowing the model types helps you pick the right one in the Bedrock model catalog."
+    },
+    {
+      "id": "d2-74",
+      "domain": "d2",
+      "lesson": "d2-proscons",
+      "prompt": "Why can a GenAI model give a different answer to the same question each time?",
+      "options": [
+        "It's nondeterministic and samples its words",
+        "It forgets its training every hour",
+        "It always reads a random web page before it answers",
+        "It runs on a different model each time"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Models pick words with some randomness. Lower temperature makes answers more consistent."
+    },
+    {
+      "id": "d2-75",
+      "domain": "d2",
+      "lesson": "d2-proscons",
+      "prompt": "Which are known limits of generative AI? (Choose two.)",
+      "options": [
+        "Hallucinations that sound confident",
+        "Answers that are hard to explain",
+        "It never needs any data",
+        "It always costs nothing",
+        "It's never wrong about facts"
+      ],
+      "answer": [
+        0,
+        1
+      ],
+      "explanation": "Models can make things up and their reasoning is hard to inspect. That's why you add grounding, checks and human review."
+    },
+    {
+      "id": "d2-76",
+      "domain": "d2",
+      "lesson": "d2-stack",
+      "prompt": "Which AWS service lets you try and deploy open models like Llama with a few clicks inside SageMaker?",
+      "options": [
+        "SageMaker JumpStart",
+        "SageMaker Ground Truth",
+        "SageMaker Clarify",
+        "SageMaker Canvas"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "JumpStart is a hub of pre-trained models and solutions you can deploy and fine-tune in SageMaker."
+    },
+    {
+      "id": "d2-77",
+      "domain": "d2",
+      "lesson": "d2-stack",
+      "prompt": "Which statement about Amazon Bedrock is true?",
+      "options": ["You call many models through one API, with no servers to run","You must buy GPUs and install each model yourself first","It only offers foundation models that Amazon built and trained itself","It can only be used by clicking in the AWS console"],
+      "answer": [
+        0
+      ],
+      "explanation": "Bedrock is serverless. It offers models from Amazon and other providers through one API."
+    },
+    {
+      "id": "d2-78",
+      "domain": "d2",
+      "lesson": "d2-lifecycle",
+      "prompt": "After a GenAI app goes live, what should the team keep doing?",
+      "options": ["Monitor quality and collect feedback","Delete the evaluation results to save storage","Stop logging model calls so it runs faster","Freeze the prompts so they never change again"],
+      "answer": [
+        0
+      ],
+      "explanation": "Live use shows problems tests missed. Monitoring and feedback tell you when to improve prompts, data or the model."
+    },
+    {
+      "id": "d2-79",
+      "domain": "d2",
+      "lesson": "d2-lifecycle",
+      "type": "order",
+      "prompt": "Put the stages of a foundation model's life in order.",
+      "items": [
+        "Collect and prepare data",
+        "Pre-train the model",
+        "Fine-tune and evaluate it",
+        "Deploy it",
+        "Collect feedback and improve"
+      ],
+      "explanation": "The lifecycle loops: feedback from live use drives the next round of improvements."
+    },
+    {
+      "id": "d2-80",
+      "domain": "d2",
+      "lesson": "d2-cloud-basics",
+      "prompt": "A startup wants to try GenAI without upfront hardware costs. Which cloud benefit helps most?",
+      "options": [
+        "Pay only for what you use",
+        "Fixed yearly hardware contracts",
+        "Running your own data centre",
+        "Buying GPUs for every developer"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Cloud services let you start small and pay as you go, then scale up if the idea works."
+    },
+    {
+      "id": "d2-81",
+      "domain": "d2",
+      "lesson": "d2-agents",
+      "prompt": "What does a Bedrock agent add on top of a plain model call?",
+      "options": [
+        "It plans steps and calls tools or APIs",
+        "It makes the model's weights smaller and faster to load",
+        "It encrypts data with your KMS key",
+        "It removes the need for any prompt"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Agents break a task into steps, call actions and knowledge bases, and use the results to finish the job."
+    },
+
+    // ── Added: AIF-C01 exam-style practice ──
+    {
+      "id": "d2-82",
+      "domain": "d2",
+      "lesson": "d2-bedrock-costs",
+      "prompt": "A chatbot gets a mix of simple and hard questions. The team wants Bedrock to send easy prompts to a smaller model and hard ones to a larger model in the same family, to cut cost. What should they use?",
+      "options": [
+        "Bedrock Intelligent Prompt Routing",
+        "Provisioned Throughput for one model",
+        "Cross-Region inference profiles",
+        "Model distillation into one model"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Intelligent Prompt Routing uses one endpoint to pick, per request, the model in a family that should give a good answer at the lowest cost."
+    },
+    {
+      "id": "d2-83",
+      "domain": "d2",
+      "lesson": "d2-bedrock-costs",
+      "prompt": "A finance team wants an alert when monthly Bedrock spend passes a limit, and wants to see spend per team. Which options help? (Choose two.)",
+      "options": [
+        "AWS Budgets with an alert threshold",
+        "Inference profiles tagged per team",
+        "Amazon Macie sensitive data findings",
+        "A higher temperature on each model",
+        "AWS Artifact compliance reports"
+      ],
+      "answer": [
+        0,
+        1
+      ],
+      "explanation": "AWS Budgets sends alerts when spend passes a threshold. Application inference profiles can carry cost allocation tags, so spend can be split by team."
+    },
+    {
+      "id": "d2-84",
+      "domain": "d2",
+      "lesson": "d2-bedrock-costs",
+      "prompt": "Which AWS tool shows charts of past spend by service, so a team can see how its Bedrock costs changed month to month?",
+      "options": [
+        "AWS Cost Explorer",
+        "AWS Budgets",
+        "AWS Trusted Advisor",
+        "AWS Config"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Cost Explorer analyses past and current spend. Budgets watches spend against a limit and sends alerts."
+    },
+    {
+      "id": "d2-85",
+      "domain": "d2",
+      "lesson": "d2-models",
+      "type": "match",
+      "prompt": "Match each Amazon Nova model to what it does.",
+      "pairs": [
+        [
+          "Nova Micro",
+          "Text only, lowest latency and cost"
+        ],
+        [
+          "Nova Pro",
+          "Multimodal input for complex tasks"
+        ],
+        [
+          "Nova Canvas",
+          "Generates images"
+        ],
+        [
+          "Nova Reel",
+          "Generates short videos"
+        ]
+      ],
+      "explanation": "Amazon Nova is Amazon's own family of foundation models on Bedrock."
+    },
+    {
+      "id": "d2-86",
+      "domain": "d2",
+      "lesson": "d2-start-bedrock",
+      "prompt": "A company wants an open-source model it can fine-tune with full control of the instances, hosted on its own SageMaker endpoint. Which option fits?",
+      "options": [
+        "SageMaker JumpStart",
+        "Amazon Bedrock on-demand",
+        "Amazon Q Business",
+        "Amazon Comprehend"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "JumpStart deploys open and proprietary models to SageMaker endpoints that you manage. Bedrock is serverless, so you don't pick instances."
+    },
+    {
+      "id": "d2-87",
+      "domain": "d2",
+      "lesson": "d2-proscons",
+      "prompt": "A team plans to fine-tune a foundation model instead of only writing better prompts. Which trade-offs should they expect? (Choose two.)",
+      "options": [
+        "They must prepare labeled training data",
+        "Training and hosting the model add cost",
+        "The model will stop hallucinating",
+        "They no longer need to test outputs",
+        "Inference becomes free after training"
+      ],
+      "answer": [
+        0,
+        1
+      ],
+      "explanation": "Fine-tuning needs good labeled examples and costs money to train and host. It does not remove hallucinations or the need to test."
+    },
+    {
+      "id": "d2-88",
+      "domain": "d2",
+      "lesson": "d2-agents",
+      "prompt": "A team built an agent with an open-source framework. They want a managed, secure place to run it at scale, with session isolation, memory and identity. What fits?",
+      "options": [
+        "Amazon Bedrock AgentCore",
+        "Amazon Lex chatbots",
+        "AWS Step Functions workflows",
+        "Amazon Kendra search"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "AgentCore runs agents from any framework and adds runtime, memory, gateway, identity and observability services."
+    },
+    {
+      "id": "d2-89",
+      "domain": "d2",
+      "lesson": "d2-stack",
+      "type": "match",
+      "prompt": "Match each AWS tool to what it does.",
+      "pairs": [
+        [
+          "Strands Agents",
+          "Open-source SDK for building agents in code"
+        ],
+        [
+          "Kiro",
+          "Agentic IDE that plans work from specs"
+        ],
+        [
+          "AWS Transform",
+          "Agentic AI to migrate and modernize apps"
+        ],
+        [
+          "Amazon Q Developer",
+          "AI coding help in the IDE and console"
+        ]
+      ],
+      "explanation": "These tools use generative AI to help people build and change software."
+    },
+    {
+      "id": "d2-90",
+      "domain": "d2",
+      "lesson": "d2-cloud-basics",
+      "prompt": "A team wants to run its own open-source model in containers on a Kubernetes cluster. Which AWS service fits?",
+      "options": [
+        "Amazon EKS",
+        "Amazon ECS",
+        "AWS Lambda",
+        "Amazon Lightsail"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Amazon EKS is managed Kubernetes. ECS also runs containers, but with AWS's own scheduler, not Kubernetes."
     },
   ],
 

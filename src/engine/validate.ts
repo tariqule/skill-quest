@@ -163,3 +163,23 @@ export function validateCourse(course: Course): string[] {
 
   return errors;
 }
+
+/** How much longer than every distractor the correct option may be before the "longest option" lint flags it. */
+export const LONGEST_OPTION_RATIO = 1.2;
+
+/**
+ * Flags single-answer choice questions whose correct option is clearly the longest, which lets
+ * players guess by length. Returns warnings (empty when every question passes). Courses opt in
+ * through `LONGEST_OPTION_STRICT` in validate.test.ts; other courses only see it as advice.
+ */
+export function longestOptionWarnings(course: Course, ratio = LONGEST_OPTION_RATIO): string[] {
+  const out: string[] = [];
+  for (const q of course.questions) {
+    if (!(q.type === undefined || q.type === "choice") || q.answer.length !== 1) continue;
+    const right = q.options[q.answer[0]]?.length ?? 0;
+    const longestWrong = Math.max(0, ...q.options.filter((_, i) => i !== q.answer[0]).map((o) => o.length));
+    if (longestWrong > 0 && right > longestWrong * ratio)
+      out.push(`[${course.id}] question "${q.id}": the correct option (${right} chars) is more than ${Math.round((ratio - 1) * 100)}% longer than the longest distractor (${longestWrong} chars)`);
+  }
+  return out;
+}

@@ -65,7 +65,7 @@ export function QuestionCard({ q, submitted, onSubmit, reveal = true, showDomain
       {q.kind === "output" && <OutputBody q={q} submitted={submitted} onSubmit={onSubmit} reveal={reveal} />}
 
       {locked && reveal && explain && (
-        <div className="mt-5 rounded-xl border border-white/10 bg-slate-950/60 p-4 text-sm leading-relaxed text-slate-300">
+        <div className="mt-5 rounded-xl border border-white/10 bg-slate-950/60 p-4 text-base leading-relaxed text-slate-300">
           <span className="font-semibold text-white">Why: </span>
           <RichText text={q.explanation} />
           <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
@@ -81,7 +81,7 @@ export function QuestionCard({ q, submitted, onSubmit, reveal = true, showDomain
           {concept && showConcept && (
             <div className="pop-in mt-3 rounded-xl border border-white/10 bg-slate-900/80 p-3 sm:p-4">
               {concept.visual}
-              <ul className="mt-3 grid gap-1 text-sm text-slate-300">
+              <ul className="mt-3 grid gap-1 text-base text-slate-300">
                 {concept.points.map((p) => (
                   <li key={p}>• <RichText text={p} /></li>
                 ))}
@@ -186,7 +186,7 @@ function OrderBody({ q, submitted, onSubmit, reveal }: BodyProps) {
           const item = sequence[slot];
           const filled = item !== undefined;
           const right = filled && item === q.correct[slot];
-          let tone = "border-dashed border-white/15 bg-white/[0.02] text-slate-500";
+          let tone = "border-dashed border-white/15 bg-white/[0.02] text-slate-400";
           if (filled) tone = "border-sky-400/60 bg-sky-400/10 text-slate-100";
           if (locked && reveal) tone = right ? "border-emerald-400 bg-emerald-400/15 text-slate-100" : "border-rose-400 bg-rose-400/15 text-slate-100";
           return (
@@ -217,7 +217,7 @@ function OrderBody({ q, submitted, onSubmit, reveal }: BodyProps) {
               key={i}
               type="button"
               onClick={() => setPlaced((p) => [...p, i])}
-              className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-slate-100 transition hover:border-sky-400/60 hover:bg-sky-400/10"
+              className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-base text-slate-100 transition hover:border-sky-400/60 hover:bg-sky-400/10"
             >
               ＋ {q.shuffled[i]}
             </button>
@@ -257,7 +257,7 @@ function MatchBody({ q, submitted, onSubmit, reveal }: BodyProps) {
                   n[i] = e.target.value === "" ? null : Number(e.target.value);
                   setChoice(n);
                 }}
-                className="w-full rounded-lg border border-white/15 bg-slate-950 px-3 py-2 text-sm text-slate-100 disabled:opacity-90"
+                className="w-full rounded-lg border border-white/15 bg-slate-950 px-3 py-2 text-base text-slate-100 disabled:opacity-90"
               >
                 <option value="">Choose…</option>
                 {q.shuffled.map((r, j) => (
@@ -296,7 +296,7 @@ function LinesBody({ q, submitted, onSubmit, reveal }: BodyProps) {
         </p>
       )}
       <div className="mt-4 overflow-hidden rounded-xl border border-white/10 bg-slate-950">
-        {q.codeLang && <div className="border-b border-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">{q.codeLang}</div>}
+        {q.codeLang && <div className="border-b border-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">{q.codeLang}</div>}
         <div className="overflow-x-auto py-1">
           {q.shuffled.map((line, i) => {
             const isPicked = chosen.includes(i);
@@ -312,7 +312,7 @@ function LinesBody({ q, submitted, onSubmit, reveal }: BodyProps) {
                 onClick={() => toggle(i)}
                 className={`flex w-full min-w-max items-start gap-3 px-3 py-0.5 text-left font-mono text-[13px] leading-relaxed transition ${tone}`}
               >
-                <span className="w-6 shrink-0 select-none text-right text-slate-500">{i + 1}</span>
+                <span className="w-6 shrink-0 select-none text-right text-slate-400">{i + 1}</span>
                 <span className="whitespace-pre text-slate-100">{line || " "}</span>
                 {locked && reveal && isRight && <span className="ml-auto pl-3 text-emerald-300">✓</span>}
                 {locked && reveal && isPicked && !isRight && <span className="ml-auto pl-3 text-rose-300">✗</span>}
@@ -339,7 +339,7 @@ function FillBody({ q, submitted, onSubmit, reveal }: BodyProps) {
     <>
       {!locked && <p className="mt-2 text-sm text-amber-300">Pick the right piece for each blank, then Submit.</p>}
       <div className="mt-4 overflow-hidden rounded-xl border border-white/10 bg-slate-950">
-        {q.codeLang && <div className="border-b border-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">{q.codeLang}</div>}
+        {q.codeLang && <div className="border-b border-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">{q.codeLang}</div>}
         <pre className="overflow-x-auto p-3 font-mono text-[13px] leading-8 text-slate-100">
           {parts.map((part, i) => {
             if (i % 2 === 0) return <Tokens key={i} code={part} lang={q.codeLang} />;
@@ -371,7 +371,7 @@ function FillBody({ q, submitted, onSubmit, reveal }: BodyProps) {
         </pre>
       </div>
       {locked && reveal && (
-        <ul className="mt-3 grid gap-1 text-sm">
+        <ul className="mt-3 grid gap-1 text-base">
           {q.correct.map((flat, k) =>
             chosen[k] === flat ? null : (
               <li key={k} className="text-emerald-300">
@@ -413,7 +413,7 @@ function OutputBody({ q, submitted, onSubmit, reveal }: BodyProps) {
           autoCapitalize="off"
           autoCorrect="off"
           aria-label="Your output"
-          className={`mt-3 w-full rounded-xl border p-3 font-mono text-sm text-white outline-none transition ${tone}`}
+          className={`mt-3 w-full rounded-xl border p-3 font-mono text-base text-white outline-none transition ${tone}`}
         />
       ) : (
         <input
@@ -429,7 +429,7 @@ function OutputBody({ q, submitted, onSubmit, reveal }: BodyProps) {
           autoCorrect="off"
           aria-label="Your output"
           placeholder="Type the output…"
-          className={`mt-3 w-full rounded-xl border px-3 py-2.5 font-mono text-sm text-white outline-none transition ${tone}`}
+          className={`mt-3 w-full rounded-xl border px-3 py-2.5 font-mono text-base text-white outline-none transition ${tone}`}
         />
       )}
       {locked && reveal && !right && (

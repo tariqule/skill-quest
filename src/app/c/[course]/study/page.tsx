@@ -45,7 +45,7 @@ export default function StudyHub() {
                   <span>⏱️ {p.studyMinutes[d.id] ?? 0} min studied</span>
                 </div>
                 <Bar value={lessons.length ? seen / lessons.length : 0} color={d.color} className="mt-3 h-1.5" />
-                <div className="mt-1 text-xs text-slate-500">
+                <div className="mt-1 text-xs text-slate-400">
                   {seen}/{lessons.length} concepts opened
                 </div>
               </Link>

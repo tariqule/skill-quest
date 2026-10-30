@@ -11,7 +11,7 @@ import { QuestionCard } from "@/components/QuestionCard";
 import { Bar } from "@/components/ui";
 import { courseCopy } from "@/engine/copy";
 import { useCourse, useLevelPool, useProgress } from "@/engine/course-context";
-import { answerText, isCorrect, levelDeck, pct, pickedText, shuffle, type PreparedQuestion } from "@/engine/game";
+import { answerText, isCorrect, levelDeck, pct, pickedText, shuffle, taughtPool, type PreparedQuestion } from "@/engine/game";
 import type { Card, Challenge, Lesson } from "@/engine/types";
 
 /** setup → study (one concept at a time, then key terms; no questions) → ready → play (questions + challenges) → report */
@@ -90,7 +90,8 @@ export function StudySession() {
 
   function startPlay() {
     store.recordStudy(domain.id, Math.floor(elapsed / 60));
-    const qs = levelDeck(course, level, domainPool, questionCount);
+    const taught = taughtPool(domainPool, viewed);
+    const qs = levelDeck(course, level, taught, Math.min(questionCount, taught.length));
     const cs = shuffle(challenges);
     const built: PlayItem[] = [];
     qs.forEach((q, i) => {
@@ -329,7 +330,7 @@ export function StudySession() {
                 </button>
               </div>
             )}
-            {phase === "study" && <p className="mt-3 hidden text-center text-xs text-slate-500 lg:block">Tip: use the ← and → keys to move between concepts.</p>}
+            {phase === "study" && <p className="mt-3 hidden text-center text-xs text-slate-400 lg:block">Tip: use the ← and → keys to move between concepts.</p>}
           </div>
         </div>
 
@@ -465,7 +466,7 @@ export function StudySession() {
           const ok = mine.filter((x) => x.correct).length;
           return (
             <div key={l.id} className="flex flex-wrap items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm">
-              <span className={viewed.includes(l.id) ? "text-emerald-300" : "text-slate-500"}>{viewed.includes(l.id) ? "✓ studied" : "○ not opened"}</span>
+              <span className={viewed.includes(l.id) ? "text-emerald-300" : "text-slate-400"}>{viewed.includes(l.id) ? "✓ studied" : "○ not opened"}</span>
               <span className="min-w-0 flex-1 text-slate-100">{l.title}</span>
               {mine.length > 0 && (
                 <span className={ok === mine.length ? "text-emerald-300" : "text-amber-300"}>
@@ -582,7 +583,7 @@ function ConceptList({
 }) {
   return (
     <nav aria-label="Concepts in this world">
-      <div className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">
+      <div className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-400">
         Concepts · {viewed.length}/{lessons.length} seen
       </div>
       <ol className="grid gap-1.5">
@@ -662,7 +663,7 @@ function ConceptView({
       </section>
 
       <section className="mt-5">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">What to remember</h3>
+        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">What to remember</h3>
         <ul className="mt-2 grid gap-2">
           {lesson.points.map((p, i) => (
             <li key={i} className="flex gap-3 rounded-xl border border-white/5 bg-white/[0.03] p-3 leading-relaxed text-slate-200">
@@ -688,7 +689,7 @@ function ConceptView({
 
       {terms.length > 0 && (
         <section className="mt-5">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">Terms in this concept · tap to reveal</h3>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Terms in this concept · tap to reveal</h3>
           <div className="mt-2 grid gap-2 sm:grid-cols-2">
             {terms.map((c) => (
               <TermCard key={c.id} term={c.term} definition={c.definition} />
@@ -819,7 +820,7 @@ function TermCard({ term, definition }: { term: string; definition: string }) {
       className={`rounded-xl border p-3 text-left transition ${open ? "border-sky-400/50 bg-sky-400/10" : "border-white/10 bg-white/5 hover:bg-white/10"}`}
     >
       <div className="font-bold text-white"><RichText text={term} /></div>
-      <div className={`mt-1 text-sm ${open ? "text-slate-200" : "text-slate-500"}`}>{open ? <RichText text={definition} /> : "Tap to reveal"}</div>
+      <div className={`mt-1 text-sm ${open ? "text-slate-200" : "text-slate-400"}`}>{open ? <RichText text={definition} /> : "Tap to reveal"}</div>
     </button>
   );
 }

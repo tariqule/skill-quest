@@ -6,7 +6,7 @@ import { QuizSession } from "@/components/QuizSession";
 import { PageShell } from "@/components/ui";
 import { useCourse, useLevelPool } from "@/engine/course-context";
 import { courseCopy } from "@/engine/copy";
-import { levelDeck, starsFor } from "@/engine/game";
+import { levelDeck, starsFor, taughtPool } from "@/engine/game";
 import { LEVEL_BY_ID, levelSplit } from "@/engine/levels";
 
 export function QuestPlay() {
@@ -29,7 +29,10 @@ export function QuestPlay() {
         hearts={hearts}
         baseXp={course.config.xp.questCorrect}
         startLabel="Begin trial"
-        buildDeck={() => levelDeck(course, level, pool, length)}
+        buildDeck={() => {
+          const s = store.get();
+          return levelDeck(course, level, taughtPool(pool, [...s.lessonsDone, ...s.studied]), length);
+        }}
         onComplete={({ correct, total, failed }) => {
           if (failed) return 0;
           const stars = starsFor(course, correct, total);
@@ -49,7 +52,7 @@ export function QuestPlay() {
               </li>
               <li>⌨️ Press 1-4 or A-D to answer, Enter for next.</li>
             </ul>
-            <p className="mt-4 text-sm text-slate-500">
+            <p className="mt-4 text-sm text-slate-400">
               {split.borrowed > 0 ? (
                 <>
                   {LEVEL_BY_ID[level].icon} {split.size} random questions: {split.atLevel} at {LEVEL_BY_ID[level].name} level, the other {split.borrowed} from the

@@ -245,7 +245,7 @@ export default function ExamPage() {
           <div className="mx-auto mt-3 h-3 max-w-md overflow-hidden rounded-full bg-white/10">
             <div className="relative h-full rounded-full bg-gradient-to-r from-rose-400 via-amber-400 to-emerald-400" style={{ width: pct((score - min) / (max - min)) }} />
           </div>
-          <div className="mx-auto mt-1 flex max-w-md justify-between text-[10px] text-slate-500">
+          <div className="mx-auto mt-1 flex max-w-md justify-between text-[10px] text-slate-400">
             <span>{min}</span>
             <span>{pass} pass</span>
             <span>{max}</span>
@@ -261,7 +261,7 @@ export default function ExamPage() {
         </div>
 
         <h3 className="mt-8 text-lg font-black text-white">Performance by domain</h3>
-        <p className="text-xs text-slate-500">Like the official score report, this counts scored questions only.</p>
+        <p className="text-xs text-slate-400">Like the official score report, this counts scored questions only.</p>
         <div className="mt-3 grid gap-3">
           {course.domains.map((d) => {
             const mine = scoredIdx.filter((i) => deck[i].domain === d.id);
@@ -404,7 +404,7 @@ export default function ExamPage() {
         </div>
       </div>
       <div className="mt-3 text-right">
-        <button type="button" onClick={() => setPhase("review")} className="text-xs text-slate-500 underline hover:text-slate-300">
+        <button type="button" onClick={() => setPhase("review")} className="text-xs text-slate-400 underline hover:text-slate-300">
           End exam early
         </button>
       </div>

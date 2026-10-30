@@ -226,7 +226,7 @@ export function LessonPlay() {
               </li>
             ))}
             {lesson.tip && (
-              <li className="rounded-xl border border-amber-400/30 bg-amber-400/10 p-3 text-sm text-amber-100">
+              <li className="rounded-xl border border-amber-400/30 bg-amber-400/10 p-3 text-base text-amber-100">
                 <b>{copy.tip}:</b> <RichText text={lesson.tip} />
               </li>
             )}
@@ -239,7 +239,7 @@ export function LessonPlay() {
                 {missed.map((qid) => {
                   const q = QUESTION_BY_ID[qid];
                   return (
-                    <div key={qid} className="rounded-xl border border-rose-400/30 bg-rose-400/5 p-3 text-sm">
+                    <div key={qid} className="rounded-xl border border-rose-400/30 bg-rose-400/5 p-3 text-base">
                       <div className="font-semibold text-white">{q.prompt}</div>
                       <div className="mt-1 text-emerald-300">✓ {answerText(q)}</div>
                       <div className="mt-1 text-slate-400">{q.explanation}</div>

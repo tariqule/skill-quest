@@ -154,6 +154,7 @@ export default defineDomain({
         "If the data has no answers and you want the model to find structure, like groups of similar customers, that's **unsupervised learning**.",
         "If the model learns by trying things and getting rewards or penalties, like a robot learning not to bump into walls, that's **reinforcement learning**.",
         "Foundation models are pre-trained with **self-supervised learning**. They learn from huge amounts of unlabeled data by making up their own practice questions.",
+        "Unsupervised learning also powers **anomaly detection**: spotting records that look unlike the rest, such as an odd card payment.",
       ],
     },
     {
@@ -176,6 +177,7 @@ export default defineDomain({
         "Skip AI when a fixed rule already gives the exact answer, like adding sales tax, or when the cost is bigger than the benefit.",
         "Pick traditional ML when regulators want every decision explained and your data sits in tables.",
         "Pick a foundation model for open-ended work with language and content, like drafting replies or summarising documents.",
+        "**Interpretability** is how easily a person can see why a model made a prediction. A decision tree is easier to interpret than a deep neural network.",
       ],
     },
     {
@@ -200,6 +202,7 @@ export default defineDomain({
       points: [
         "You don't need any ML skills for these. You call the service, send your data, and get results back.",
         "**Amazon SageMaker AI** is for when you want to build, train and deploy a model of your own instead.",
+        "**Amazon Kendra** is ML-powered enterprise search. It answers natural-language questions from your documents, using built-in connectors to your data sources.",
       ],
       tip: "Polly and Transcribe are opposites. Polly reads text out loud. Transcribe writes down what people say.",
     },
@@ -223,6 +226,8 @@ export default defineDomain({
       points: [
         "A foundation model can come from three places: an open-source pre-trained model, a provider inside Amazon Bedrock, or your own training.",
         "**MLOps** means running ML like good software: repeatable experiments, automated pipelines, monitoring in production, and re-training when results slip.",
+        "SageMaker helps at each step. **Ground Truth** labels data and **Data Wrangler** prepares it. **Feature engineering** turns raw columns into useful inputs, and training tunes **hyperparameters** such as the learning rate.",
+        "**Model Registry** tracks and approves model versions, **Model Monitor** watches live models for drift, and **SageMaker Canvas** lets analysts build models with no code.",
       ],
     },
     {
@@ -244,6 +249,9 @@ export default defineDomain({
       points: [
         "Choose based on how fast you need answers and how your traffic arrives.",
         "For rare, unpredictable traffic, serverless is usually cheapest. For huge offline jobs, batch is usually cheapest.",
+        "SageMaker can serve a model four ways. **Real-time inference** answers in milliseconds from an always-on endpoint.",
+        "**Serverless inference** scales to zero for spiky traffic. It takes only small payloads (up to 4 MB) and short requests (up to 60 seconds), and can have cold starts.",
+        "**Asynchronous inference** queues large requests (up to 1 GB and up to one hour each) and writes results to S3. **Batch transform** scores a whole dataset offline. Bedrock also has **batch inference** for big jobs at a lower price.",
       ],
     },
     {
@@ -261,6 +269,8 @@ export default defineDomain({
         "The **F1 score** combines precision and recall into one number, so you can see the balance between them.",
         "Models that predict numbers are judged by how far off they are. Common measures are **RMSE**, **MAE** and **R²**.",
         "Business metrics show whether the model is worth it. Examples are return on investment, cost per user, development cost and customer feedback.",
+        "A **confusion matrix** counts true positives, false positives, true negatives and false negatives. Precision, recall and F1 all come from it. **AUC**, the area under the ROC curve, sums up how well a model separates the classes.",
+        "**Overfitting** means the model memorizes its training data and does badly on new data. **Underfitting** means it's too simple to learn the pattern. When one class is rare (**class imbalance**), accuracy alone can mislead.",
       ],
       tip: "Ask what's worse. If missing a sick patient is worse than a false alarm, you care most about **recall**. If annoying customers with false alarms is worse, you care most about **precision**.",
     },
@@ -297,6 +307,8 @@ export default defineDomain({
         "A model that **overfits** has memorised its training data. Fix it with more or more varied data, stopping training early, better hyperparameter values, or combining several models.",
         "**Hyperparameters** are settings you pick before training. SageMaker Automatic Model Tuning tries different values and keeps the ones that score best on a metric you choose.",
         "**Edge inference** runs a small model right on the device. It's very fast and works offline. A big remote model is more capable but needs a network.",
+        "Data services to know: **AWS Glue** runs serverless ETL jobs and keeps a data catalog. **AWS Glue DataBrew** cleans and prepares data visually, with no code. **Amazon EMR** runs Spark and Hadoop for big data.",
+        "**Amazon Redshift** is a data warehouse for SQL analytics. **AWS Lake Formation** builds a data lake on S3 and controls who sees which tables, columns and rows. **AWS Data Exchange** lets you find and subscribe to third-party datasets.",
       ],
       tip: "If an answer says \"add more hyperparameters\" to fix overfitting, it's wrong. You change their values, you don't add new ones.",
     },
@@ -346,6 +358,7 @@ export default defineDomain({
         "**MLflow** on SageMaker tracks your experiments and runs. The **Model Registry** keeps each model version and records which one is approved.",
         "Built-in algorithms cover common jobs: linear models, KNN, k-means, PCA (for cutting down the number of features), anomaly detection and DeepAR for time-series forecasting.",
         "**Network isolation mode** runs training with no outbound internet access at all.",
+        "**SageMaker Canvas** is no-code ML for business analysts. **SageMaker Model Monitor** watches deployed models for data and quality drift.",
       ],
     },
   ],
@@ -360,9 +373,9 @@ export default defineDomain({
       prompt: "In machine learning, how does the computer learn to recognise dogs in photos?",
       options: [
         "It studies lots of example photos and works out the pattern",
-        "A programmer writes a rule for every possible dog",
-        "It searches the internet each time for the word dog",
-        "It asks a person to check every photo",
+        "A programmer writes a separate rule for every kind of dog there is",
+        "It looks up the word dog online each time it sees a photo",
+        "It stores every photo and asks a person to check each one",
       ],
       answer: [0],
       explanation:
@@ -377,8 +390,8 @@ export default defineDomain({
       options: [
         "Machine learning is one way of building AI",
         "AI is one small part of machine learning",
-        "They are completely unrelated",
-        "Machine learning never uses data",
+        "AI and machine learning mean exactly the same",
+        "Machine learning works without using any data",
       ],
       answer: [0],
       explanation:
@@ -419,9 +432,9 @@ export default defineDomain({
       prompt: "A small shop wants to turn its product descriptions into spoken audio and has nobody with ML skills. What's the easiest choice on AWS?",
       options: [
         "Use a pre-built AI service such as Amazon Polly",
-        "Train a speech model from scratch",
-        "Hire a team to write speech rules by hand",
-        "Buy servers and build a data center",
+        "Train a new speech model from scratch on SageMaker",
+        "Hire a team to write the speech rules by hand",
+        "Record a person reading each description aloud",
       ],
       answer: [0],
       explanation:
@@ -435,9 +448,9 @@ export default defineDomain({
       prompt: "When would you reach for Amazon SageMaker AI instead of a pre-built AI service?",
       options: [
         "When you need to build and train a model of your own",
-        "When you only want to translate a sentence",
-        "When you have no data at all",
-        "When you want to avoid using AWS",
+        "When you only want to translate a few product sentences",
+        "When you want text read aloud in a natural voice",
+        "When you need to pull printed text out of scanned forms",
       ],
       answer: [0],
       explanation:
@@ -462,7 +475,12 @@ export default defineDomain({
       lesson: "d1-learning",
       prompt:
         "A marketing team wants to group customers into segments, but nobody has defined the segments yet. Which technique should they use?",
-      options: ["Linear regression", "Clustering (unsupervised learning)", "Binary classification", "Reinforcement learning"],
+      options: [
+        "Linear regression on spend",
+        "Clustering (unsupervised learning)",
+        "Binary classification of buyers",
+        "Reinforcement learning with rewards",
+      ],
       answer: [1],
       explanation:
         "There are no labels to learn from, so the model has to find the groups itself. Grouping unlabeled data by similarity is clustering, an unsupervised technique. k-means is a common example.",
@@ -472,7 +490,12 @@ export default defineDomain({
       domain: "d1",
       lesson: "d1-learning",
       prompt: "A robot learns to move around a warehouse. It gets a reward for reaching a target and a penalty for hitting things. What kind of learning is this?",
-      options: ["Supervised learning", "Unsupervised learning", "Reinforcement learning", "Transfer learning"],
+      options: [
+        "Supervised learning",
+        "Unsupervised learning",
+        "Reinforcement learning",
+        "Self-supervised learning",
+      ],
       answer: [2],
       explanation:
         "Learning by trial and error, with rewards and penalties from its surroundings, is reinforcement learning. AWS DeepRacer, a small self-driving race car, is the classic AWS example.",
@@ -549,7 +572,7 @@ export default defineDomain({
       domain: "d1",
       lesson: "d1-metrics",
       prompt: "Which metrics would you use to judge a model that predicts house prices? (Choose two.)",
-      options: ["Root mean squared error (RMSE)", "F1 score", "Mean absolute error (MAE)", "Recall"],
+      options: ["Root mean squared error", "F1 score", "Mean absolute error (MAE)", "Recall"],
       answer: [0, 2],
       explanation:
         "A house price is a number, so you measure how far off the predictions are. RMSE, MAE and R-squared do that. F1 and recall are for models that predict categories.",
@@ -559,7 +582,12 @@ export default defineDomain({
       domain: "d1",
       lesson: "d1-services",
       prompt: "A company wants to find objects and faces in images without building a model. Which AWS service should it use?",
-      options: ["Amazon Comprehend", "Amazon Rekognition", "Amazon Textract", "Amazon Polly"],
+      options: [
+        "Amazon Comprehend",
+        "Amazon Rekognition",
+        "Amazon Textract",
+        "Amazon SageMaker AI",
+      ],
       answer: [1],
       explanation:
         "Amazon Rekognition is the ready-made computer vision service for images and video. It finds objects, faces and labels, and can spot unsafe content.",
@@ -589,7 +617,12 @@ export default defineDomain({
       domain: "d1",
       lesson: "d1-services",
       prompt: "A call center needs to turn recorded calls into text so it can analyse them. Which service?",
-      options: ["Amazon Polly", "Amazon Transcribe", "Amazon Translate", "Amazon Lex"],
+      options: [
+        "Amazon Polly",
+        "Amazon Transcribe",
+        "Amazon Translate",
+        "Amazon Comprehend",
+      ],
       answer: [1],
       explanation:
         "Amazon Transcribe turns speech into text. Amazon Polly does the reverse, turning text into speech. Transcribe Call Analytics adds extra insights made for phone calls.",
@@ -618,10 +651,10 @@ export default defineDomain({
       lesson: "d1-lifecycle",
       prompt: "What's the right order for the core ML development lifecycle?",
       options: [
-        "Deploy, then train, then collect data, then monitor",
+        "Collect data, train and evaluate, define the problem, deploy, then monitor",
         "Define the problem, collect and prepare data, train and evaluate, deploy, monitor",
-        "Train, then define the problem, then deploy, then collect data",
-        "Collect data, then deploy, then train, then define the problem",
+        "Define the problem, train and evaluate, collect and prepare data, monitor, then deploy",
+        "Collect and prepare data, deploy, train and evaluate, define the problem",
       ],
       answer: [1],
       explanation:
@@ -632,7 +665,12 @@ export default defineDomain({
       domain: "d1",
       lesson: "d1-lifecycle",
       prompt: "Which SageMaker feature notices when a deployed model's input data or prediction quality drifts over time?",
-      options: ["SageMaker Clarify", "SageMaker Model Monitor", "SageMaker Ground Truth", "SageMaker Canvas"],
+      options: [
+        "SageMaker Clarify",
+        "SageMaker Model Monitor",
+        "SageMaker Ground Truth",
+        "SageMaker Model Registry",
+      ],
       answer: [1],
       explanation:
         "SageMaker Model Monitor keeps watching models in production. It flags drift in the data, in model quality, in bias and in which features drive the predictions.",
@@ -674,9 +712,9 @@ export default defineDomain({
       prompt: "When is AI or ML a poor fit for a problem?",
       options: [
         "When the outcome must be exactly determined by simple, fixed rules",
-        "When there is lots of historical data",
-        "When patterns are too complex to code by hand",
-        "When predictions need to scale to millions of users",
+        "When there are years of labeled historical data for the model to learn from",
+        "When the patterns are too complex to write down as rules by hand",
+        "When predictions have to scale to millions of users each day",
       ],
       answer: [0],
       explanation:
@@ -688,10 +726,10 @@ export default defineDomain({
       lesson: "d1-lifecycle",
       prompt: "What is a hyperparameter?",
       options: [
-        "A value the model learns from data during training, such as a weight",
-        "A setting chosen before training that controls how the model learns, such as learning rate",
-        "The final prediction output of a model",
-        "A label in the training dataset",
+        "A value the model learns from the data during training, such as a weight",
+        "A setting chosen before training that controls how the model learns",
+        "The prediction a trained model returns for a new input record",
+        "A label attached to each example in the training dataset",
       ],
       answer: [1],
       explanation:
@@ -703,10 +741,10 @@ export default defineDomain({
       lesson: "d1-rings",
       prompt: "What best describes agentic AI?",
       options: [
-        "AI systems that plan steps, use tools, and take actions toward a goal with limited human input",
-        "Any model that generates images",
-        "A rules engine with fixed if/then logic",
-        "A database that stores embeddings",
+        "AI that plans steps, uses tools and takes actions toward a goal",
+        "AI that generates images or video from a short text description",
+        "A rules engine that follows fixed if/then logic written by people",
+        "A model that answers one question at a time with no tools at all",
       ],
       answer: [0],
       explanation:
@@ -717,7 +755,12 @@ export default defineDomain({
       domain: "d1",
       lesson: "d1-inference",
       prompt: "A model has to process large video files that take several minutes each, and callers don't need an instant reply. Which SageMaker AI inference option fits?",
-      options: ["Asynchronous inference", "Real-time inference", "Batch transform", "Serverless inference"],
+      options: [
+        "Asynchronous inference",
+        "Real-time inference endpoint",
+        "Batch transform jobs",
+        "Serverless inference",
+      ],
       answer: [0],
       explanation:
         "Asynchronous inference puts large or slow requests in a queue and tells you when the result is ready. It can also scale down to zero when nothing is waiting.",
@@ -782,10 +825,10 @@ export default defineDomain({
       prompt:
         "A bank must explain every credit decision to regulators and has years of clean data in tables. Which approach usually fits best?",
       options: [
-        "A traditional, interpretable ML model such as a decision tree or linear model",
-        "A large multimodal foundation model",
-        "An image generation model",
-        "A chatbot with high temperature",
+        "A traditional, interpretable model such as a decision tree",
+        "A large multimodal foundation model fine-tuned on the tables",
+        "An image generation model trained on scanned statements",
+        "A chatbot that writes each decision at high temperature",
       ],
       answer: [0],
       explanation:
@@ -813,9 +856,9 @@ export default defineDomain({
       prompt: "A startup wants to use a foundation model without looking after any servers or GPUs. Which way of using the model fits best?",
       options: [
         "Call it through a managed API such as Amazon Bedrock",
-        "Self-host it on EC2 GPU instances",
-        "Train a new model from scratch",
-        "Run it on employee laptops",
+        "Self-host it on Amazon EC2 GPU instances that you manage",
+        "Train a new model from scratch on SageMaker AI",
+        "Run it on a fleet of employee laptops overnight",
       ],
       answer: [0],
       explanation:
@@ -826,7 +869,12 @@ export default defineDomain({
       domain: "d1",
       lesson: "d1-metrics",
       prompt: "Which of these is a BUSINESS metric for judging an ML solution, rather than a model metric?",
-      options: ["Return on investment (ROI)", "F1 score", "Recall", "Precision"],
+      options: [
+        "Return on investment (ROI)",
+        "F1 score on the held-out test set",
+        "Recall on the fraud class",
+        "Precision on the test set",
+      ],
       answer: [0],
       explanation: "Model metrics like accuracy, precision, recall and F1 tell you how good the predictions are. Business metrics like ROI, cost per user, customer feedback and development cost tell you whether it's worth the money.",
     },
@@ -845,7 +893,12 @@ export default defineDomain({
       domain: "d1",
       lesson: "d1-learning",
       prompt: "A security team wants to spot unusual network traffic, but it has no labeled examples of attacks. Which approach fits best?",
-      options: ["Unsupervised anomaly detection", "Supervised classification", "Reinforcement learning", "Text-to-speech"],
+      options: [
+        "Unsupervised anomaly detection",
+        "Supervised classification of attacks",
+        "Reinforcement learning agent",
+        "Linear regression on traffic",
+      ],
       answer: [0],
       explanation: "Without labels, you can't teach the model what an attack looks like. Unsupervised methods learn what normal traffic looks like instead, then flag anything that doesn't fit.",
     },
@@ -871,9 +924,9 @@ export default defineDomain({
       prompt: "What does inference mean in machine learning?",
       options: [
         "Using a trained model to make predictions on new data",
-        "Collecting data for training",
-        "Labeling images by hand",
-        "Choosing which algorithm to use",
+        "Collecting and cleaning the data used for training",
+        "Labeling images by hand so a model can learn from them",
+        "Choosing which algorithm and settings to train with",
       ],
       answer: [0],
       explanation: "Training is when the model learns. Inference is when you use the trained model to get predictions or outputs for new data.",
@@ -894,10 +947,10 @@ export default defineDomain({
       prompt:
         "Only 1% of transactions are fraud. A model that labels everything 'not fraud' scores 99% accuracy. What's the problem?",
       options: [
-        "Class imbalance makes accuracy misleading; use precision, recall, or F1",
-        "The model is underfitting because accuracy is too high",
-        "The data has too many features",
-        "Accuracy is the only metric that matters here",
+        "Class imbalance makes accuracy misleading; use precision, recall or F1",
+        "The model is underfitting, because its accuracy is far too high to be real",
+        "The data has too many features, so accuracy can't be trusted",
+        "Accuracy is the right metric here, so the model is ready to ship",
       ],
       answer: [0],
       explanation: "When one class is rare, accuracy can look great while the model catches nothing. This model finds zero fraud, and recall and F1 would show that straight away.",
@@ -909,9 +962,9 @@ export default defineDomain({
       prompt: "Why do you keep back a test dataset that the model never sees during training?",
       options: [
         "To estimate how the model will perform on new, unseen data",
-        "To make training faster",
-        "To increase the number of features",
-        "To store the model's weights",
+        "To give the model extra examples to learn from in training",
+        "To choose the learning rate while the model is training",
+        "To keep a backup copy of the data in case training fails",
       ],
       answer: [0],
       explanation: "A held-back test set works like a surprise exam. It gives an honest idea of how the model will do in the real world. A separate validation set is used for tuning along the way.",
@@ -939,7 +992,12 @@ export default defineDomain({
       domain: "d1",
       lesson: "d1-lifecycle",
       prompt: "An MLOps team needs one place to list model versions and track which version is approved for production. Which feature fits?",
-      options: ["SageMaker Model Registry", "Amazon Translate", "SageMaker Ground Truth", "Amazon Polly"],
+      options: [
+        "SageMaker Model Registry",
+        "SageMaker Model Monitor",
+        "SageMaker Ground Truth",
+        "SageMaker Feature Store groups",
+      ],
       answer: [0],
       explanation: "The Model Registry keeps every model version with its details and approval status. That makes deployments repeatable and easy to audit.",
     },
@@ -1009,10 +1067,10 @@ export default defineDomain({
       lesson: "d1-rings",
       prompt: "What is a neural network?",
       options: [
-        "A model made of layers of connected nodes whose weights are learned from data",
-        "A database of hand-written rules",
-        "A physical network cable between servers",
-        "A spreadsheet formula",
+        "Layers of connected nodes whose weights are learned from data",
+        "A database of if/then rules written and updated by subject experts",
+        "A chain of decision trees that each vote on the answer",
+        "A table of averages computed from the training data",
       ],
       answer: [0],
       explanation: "A neural network passes data through layers of small connected units. Training adjusts the strength of each connection, called a weight. Deep learning just means using many layers.",
@@ -1023,7 +1081,12 @@ export default defineDomain({
       domain: "d1",
       lesson: "d1-data-tuning",
       prompt: "A team has 500 labeled images and 50,000 unlabeled ones. The model learns from the labeled set, labels the rest itself, then retrains on everything. What is this?",
-      options: ["Semi-supervised learning", "Reinforcement learning", "Unsupervised clustering", "Transfer learning"],
+      options: [
+        "Semi-supervised learning",
+        "Reinforcement learning",
+        "Unsupervised clustering",
+        "Transfer learning with fine-tuning",
+      ],
       answer: [0],
       explanation: "Semi-supervised learning mixes a small amount of labeled data with a lot of unlabeled data. The labels the model makes for itself are called pseudo-labels.",
     },
@@ -1032,7 +1095,12 @@ export default defineDomain({
       domain: "d1",
       lesson: "d1-data-tuning",
       prompt: "How are large language models usually pre-trained on huge amounts of text without human labels?",
-      options: ["Self-supervised learning: the model predicts parts of the text it hides from itself", "Fully supervised learning with hand-labeled sentences", "Reinforcement learning from rewards only", "K-means clustering"],
+      options: [
+        "Self-supervised learning: it predicts words hidden from the text",
+        "Supervised learning on sentences labeled one by one by human annotators",
+        "Reinforcement learning with rewards from human reviewers",
+        "Unsupervised clustering of documents into similar topics",
+      ],
       answer: [0],
       explanation: "In self-supervised learning the data provides its own answers. The model hides a word, or the next word, and practises guessing it. No person has to label anything.",
     },
@@ -1041,7 +1109,12 @@ export default defineDomain({
       domain: "d1",
       lesson: "d1-data-tuning",
       prompt: "Before building a model, a data scientist charts distributions and correlations to understand the data and find problems. Which phase is this?",
-      options: ["Exploratory data analysis (EDA)", "Model deployment", "Hyperparameter tuning", "Inference"],
+      options: [
+        "Exploratory data analysis (EDA)",
+        "Model deployment and monitoring",
+        "Hyperparameter tuning jobs",
+        "Inference on a test endpoint",
+      ],
       answer: [0],
       explanation: "Exploratory data analysis uses statistics and charts to check data quality, patterns and relationships before any modeling starts.",
     },
@@ -1068,7 +1141,12 @@ export default defineDomain({
       domain: "d1",
       lesson: "d1-data-tuning",
       prompt: "Which hyperparameter controls how many times the model goes through the whole training dataset?",
-      options: ["Number of epochs", "Batch size", "Learning rate", "Regularization"],
+      options: [
+        "Number of epochs",
+        "Batch size",
+        "Learning rate",
+        "Number of layers",
+      ],
       answer: [0],
       explanation: "One epoch is one full pass over the training data. Too few epochs can leave the model underfit. Too many can make it overfit.",
     },
@@ -1077,7 +1155,12 @@ export default defineDomain({
       domain: "d1",
       lesson: "d1-data-tuning",
       prompt: "A factory needs AI predictions on machines with patchy internet, and the answers must come back almost instantly. What fits best?",
-      options: ["A small model running on the edge device", "A large model called over the internet", "Batch transform overnight", "A bigger context window"],
+      options: [
+        "A small model running on the edge device",
+        "A large model called over the internet each time",
+        "A batch transform job run every night",
+        "A bigger context window on the model",
+      ],
       answer: [0],
       explanation: "Running a small model right on the device, called edge inference, is very fast and works offline. The trade-off is that a small model is less capable than a big one.",
     },
@@ -1086,7 +1169,12 @@ export default defineDomain({
       domain: "d1",
       lesson: "d1-metrics",
       prompt: "Two classifiers are compared across every possible cutoff. Model A has an AUC-ROC of 0.89 and model B has 0.52. What does this tell you?",
-      options: ["Model A separates the classes much better; B is close to random guessing", "Model B is more accurate", "Both models are equally good", "AUC-ROC only applies to regression"],
+      options: [
+        "Model A separates the classes much better; B is close to random",
+        "Model B is more accurate, because a lower AUC means fewer errors",
+        "Both models are equally good, since both are above 0.5",
+        "Model A is overfitting, so model B will do better in production",
+      ],
       answer: [0],
       explanation: "AUC-ROC runs from 0 to 1. A score around 0.5 is no better than flipping a coin, and the closer to 1, the better the model tells the classes apart.",
     },
@@ -1149,7 +1237,12 @@ export default defineDomain({
       domain: "d1",
       lesson: "d1-sagemaker-tools",
       prompt: "An ML team already tracks experiments with open-source MLflow and wants it managed inside SageMaker. What should they use?",
-      options: ["MLflow tracking servers on Amazon SageMaker AI", "Amazon Lex", "AWS Config", "Amazon Translate"],
+      options: [
+        "MLflow tracking servers on Amazon SageMaker AI",
+        "SageMaker Model Monitor with a data baseline",
+        "Amazon CloudWatch dashboards for each training job",
+        "SageMaker Ground Truth with a private workforce",
+      ],
       answer: [0],
       explanation: "SageMaker can run managed MLflow tracking servers for you. They work with SageMaker Studio and keep a record of your runs and experiments.",
     },
@@ -1166,6 +1259,324 @@ export default defineDomain({
         ["Linear learner", "Predict a number or a class"],
       ],
       explanation: "Built-in algorithms let you train common kinds of model without writing the algorithm yourself.",
+    },
+
+    // ── Added: AIF-C01 coverage gaps ──
+    {
+      "id": "d1-65",
+      "domain": "d1",
+      "lesson": "d1-sagemaker-tools",
+      "prompt": "Several teams keep rebuilding the same customer features for their models. Which SageMaker feature lets them store and share features?",
+      "options": [
+        "SageMaker Feature Store",
+        "SageMaker Model Registry",
+        "SageMaker Debugger",
+        "SageMaker Neo"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Feature Store keeps features in one place, for training and for low-latency lookup at inference time, so teams reuse them."
+    },
+    {
+      "id": "d1-66",
+      "domain": "d1",
+      "lesson": "d1-sagemaker-tools",
+      "prompt": "Feature Store has an online store and an offline store. What is the online store for?",
+      "options": [
+        "Fast lookups when the model makes live predictions",
+        "Long-term offline history for building new training datasets",
+        "Saving trained model files for later",
+        "Holding the logs of each training job"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "The online store gives low-latency reads for real-time inference. The offline store keeps history for training."
+    },
+    {
+      "id": "d1-67",
+      "domain": "d1",
+      "lesson": "d1-sagemaker-tools",
+      "type": "match",
+      "prompt": "Match each SageMaker feature to its job.",
+      "pairs": [
+        [
+          "Feature Store",
+          "Store and share ML features"
+        ],
+        [
+          "Model Registry",
+          "Track and approve model versions"
+        ],
+        [
+          "Model Monitor",
+          "Watch live models for drift"
+        ],
+        [
+          "Ground Truth",
+          "Label training data"
+        ]
+      ],
+      "explanation": "These tools cover the ML lifecycle from data to production."
+    },
+    {
+      "id": "d1-68",
+      "domain": "d1",
+      "lesson": "d1-services",
+      "prompt": "Which AWS service pulls text, forms and tables out of scanned documents?",
+      "options": [
+        "Amazon Textract",
+        "Amazon Comprehend",
+        "Amazon Translate",
+        "Amazon Polly"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Textract reads documents. Comprehend then finds meaning in text, such as sentiment or entities."
+    },
+    {
+      "id": "d1-69",
+      "domain": "d1",
+      "lesson": "d1-services",
+      "prompt": "A company wants staff to search internal documents by asking questions in plain English. Which service is built for this?",
+      "options": [
+        "Amazon Kendra",
+        "Amazon Personalize",
+        "Amazon Forecast",
+        "Amazon Lex"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Kendra is an intelligent search service that understands natural language questions. Kendra is closed to new customers, but still in the exam guide."
+    },
+    {
+      "id": "d1-70",
+      "domain": "d1",
+      "lesson": "d1-services",
+      "prompt": "Which AWS AI services work with speech? (Choose two.)",
+      "options": [
+        "Amazon Transcribe",
+        "Amazon Polly",
+        "Amazon Rekognition",
+        "Amazon Textract",
+        "Amazon Forecast"
+      ],
+      "answer": [
+        0,
+        1
+      ],
+      "explanation": "Transcribe turns speech into text and Polly turns text into speech."
+    },
+    {
+      "id": "d1-71",
+      "domain": "d1",
+      "lesson": "d1-lifecycle",
+      "type": "order",
+      "prompt": "Put the ML pipeline steps in order.",
+      "items": [
+        "Collect data",
+        "Prepare data and features",
+        "Train the model",
+        "Evaluate the model",
+        "Deploy and monitor"
+      ],
+      "explanation": "Each step feeds the next, and monitoring often sends you back to collect better data."
+    },
+    {
+      "id": "d1-72",
+      "domain": "d1",
+      "lesson": "d1-metrics",
+      "prompt": "A fraud model must catch as many real fraud cases as possible, even with some false alarms. Which metric matters most?",
+      "options": [
+        "Recall",
+        "Precision",
+        "Mean absolute error",
+        "R squared"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Recall measures how many real positives you caught. Precision measures how many alarms were real."
+    },
+    {
+      "id": "d1-73",
+      "domain": "d1",
+      "lesson": "d1-inference",
+      "prompt": "A model scores a whole day's transactions once each night. Which inference type fits?",
+      "options": [
+        "Batch inference",
+        "Real-time inference",
+        "Serverless streaming",
+        "Edge inference"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "When nobody waits for the answer, batch inference is simpler and cheaper."
+    },
+    {
+      "id": "d1-74",
+      "domain": "d1",
+      "lesson": "d1-learning",
+      "prompt": "Which learning type finds groups in data that has no labels?",
+      "options": [
+        "Unsupervised learning",
+        "Supervised learning",
+        "Reinforcement learning",
+        "Transfer learning"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Unsupervised learning, like clustering, finds patterns without labels."
+    },
+
+    // ── Added: AIF-C01 exam-style practice ──
+    {
+      "id": "d1-75",
+      "domain": "d1",
+      "lesson": "d1-data-tuning",
+      "prompt": "A data scientist wants a model to predict better without collecting more data. Which actions help most? (Choose two.)",
+      "options": [
+        "Create new input features from the existing columns",
+        "Tune hyperparameters such as the learning rate",
+        "Move the training data to a cheaper S3 storage class",
+        "Copy the dataset to an S3 bucket in another Region",
+        "Turn on S3 versioning for the training dataset"
+      ],
+      "answer": [
+        0,
+        1
+      ],
+      "explanation": "Feature engineering gives the model more useful signals, and hyperparameter tuning finds better training settings. Storage class, Region and versioning change cost or safety, not accuracy."
+    },
+    {
+      "id": "d1-76",
+      "domain": "d1",
+      "lesson": "d1-metrics",
+      "prompt": "A fraud model's test results are shown as counts of true positives, false positives, true negatives and false negatives. What is this table called?",
+      "options": [
+        "A confusion matrix",
+        "A correlation heatmap",
+        "A learning curve",
+        "A feature importance chart"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "A confusion matrix counts right and wrong predictions for each class. Precision, recall and F1 are all worked out from it."
+    },
+    {
+      "id": "d1-77",
+      "domain": "d1",
+      "lesson": "d1-metrics",
+      "prompt": "A model predicts delivery times in minutes. Which metric reports the typical error size in minutes, the same unit as the target?",
+      "options": [
+        "Root mean squared error",
+        "F1 score",
+        "Area under the ROC curve",
+        "Precision"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "RMSE is a regression metric in the same unit as the target. F1, AUC and precision are for classification."
+    },
+    {
+      "id": "d1-78",
+      "domain": "d1",
+      "lesson": "d1-data-tuning",
+      "type": "match",
+      "prompt": "Match each AWS data service to its job.",
+      "pairs": [
+        [
+          "AWS Glue",
+          "Serverless ETL and a data catalog"
+        ],
+        [
+          "AWS Glue DataBrew",
+          "Visual data prep without code"
+        ],
+        [
+          "Amazon EMR",
+          "Managed Spark and Hadoop for big data"
+        ],
+        [
+          "AWS Lake Formation",
+          "Fine-grained access to a data lake"
+        ],
+        [
+          "Amazon Redshift",
+          "Data warehouse for SQL analytics"
+        ]
+      ],
+      "explanation": "These services prepare and store the data that ML models train on."
+    },
+    {
+      "id": "d1-79",
+      "domain": "d1",
+      "lesson": "d1-data-tuning",
+      "prompt": "A team needs third-party weather data to improve a demand forecast. Which AWS service lets them find and subscribe to datasets from outside providers?",
+      "options": [
+        "AWS Data Exchange",
+        "AWS Glue DataBrew",
+        "Amazon Kinesis",
+        "AWS DataSync"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "AWS Data Exchange is a catalog of third-party data you can subscribe to and use in AWS. DataBrew cleans data you already have."
+    },
+    {
+      "id": "d1-80",
+      "domain": "d1",
+      "lesson": "d1-lifecycle",
+      "type": "order",
+      "prompt": "Put these ML project steps in order.",
+      "items": [
+        "Collect and label the data",
+        "Engineer features",
+        "Train and tune the model",
+        "Evaluate on held-out data",
+        "Deploy and monitor the model"
+      ],
+      "explanation": "The ML lifecycle moves from data, to features, to training, to evaluation, then to deployment with monitoring."
+    },
+    {
+      "id": "d1-81",
+      "domain": "d1",
+      "lesson": "d1-inference",
+      "prompt": "A model scores documents up to 500 MB, and each request can take 20 minutes. Callers don't need an instant answer. Which SageMaker inference option fits?",
+      "options": [
+        "Asynchronous inference",
+        "Real-time inference",
+        "Serverless inference",
+        "A multi-model real-time endpoint"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "Asynchronous inference queues requests, takes payloads up to 1 GB, runs up to one hour, and can scale to zero. Serverless inference is limited to small payloads and short requests."
+    },
+    {
+      "id": "d1-82",
+      "domain": "d1",
+      "lesson": "d1-sagemaker-tools",
+      "prompt": "A business analyst with no coding skills wants to build a churn prediction model from a spreadsheet. Which option fits?",
+      "options": [
+        "SageMaker Canvas",
+        "SageMaker Studio notebooks",
+        "SageMaker Debugger",
+        "SageMaker Neo"
+      ],
+      "answer": [
+        0
+      ],
+      "explanation": "SageMaker Canvas is a no-code, point-and-click way to build models. Studio notebooks need code."
     },
   ],
 

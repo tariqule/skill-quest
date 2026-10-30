@@ -595,3 +595,61 @@ export function ResponsibilityLab({ goal, onSolved }: GoalProps<"allCorrect">) {
     </div>
   );
 }
+
+/** Sort each item into the right bucket. Solved when every item is placed correctly. */
+export function SortLab({
+  title,
+  hint,
+  buckets,
+  items,
+  goal,
+  onSolved,
+}: GoalProps<"allCorrect"> & { title: string; hint: string; buckets: string[]; items: { t: string; b: number }[] }) {
+  const [picks, setPicks] = useState<Record<number, number>>({});
+  const done = Object.keys(picks).length === items.length;
+  const right = items.filter((it, i) => picks[i] === it.b).length;
+
+  return (
+    <div>
+      <LabHeader title={title} hint={hint} />
+      <div className="grid gap-2">
+        {items.map((it, i) => {
+          const p = picks[i];
+          const placed = p !== undefined;
+          const ok = p === it.b;
+          return (
+            <div key={it.t} className={`flex flex-wrap items-center gap-2 rounded-xl border p-2 ${placed ? (ok ? "border-emerald-400/50 bg-emerald-400/10" : "border-rose-400/50 bg-rose-400/10") : "border-white/10 bg-white/5"}`}>
+              <span className="min-w-0 flex-1 text-sm text-slate-100">{it.t}</span>
+              {buckets.map((b, k) => (
+                <button
+                  key={b}
+                  type="button"
+                  disabled={placed}
+                  onClick={() => {
+                    const next = { ...picks, [i]: k };
+                    setPicks(next);
+                    if (goal === "allCorrect" && items.every((x, j) => next[j] === x.b)) onSolved?.();
+                  }}
+                  className={`rounded-lg px-3 py-1 text-sm font-bold ${p === k ? (ok ? "bg-emerald-400 text-slate-950" : "bg-rose-400 text-slate-950") : "bg-slate-800 text-slate-200"} disabled:cursor-default`}
+                >
+                  {b}
+                </button>
+              ))}
+              {placed && !ok && <span className="w-full text-xs text-rose-200">It belongs under {buckets[it.b]}.</span>}
+            </div>
+          );
+        })}
+      </div>
+      {done && (
+        <div className="pop-in mt-3 flex items-center justify-between rounded-xl bg-white/5 p-3 text-sm">
+          <span className="text-white">
+            {right}/{items.length} correct
+          </span>
+          <button type="button" onClick={() => setPicks({})} className="text-sky-300 underline">
+            Try again
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}

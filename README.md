@@ -6,7 +6,7 @@ The app is a **course engine**. Each certification is a self-contained content p
 
 | Course | Status |
 | --- | --- |
-| ☁️ AWS Certified AI Practitioner (AIF-C01) | ✅ Full course: 5 worlds, 40 missions, 7 labs, 10 hands-on challenges, 267 questions, 111 flashcards. Follows the [exam guide v1.2](https://docs.aws.amazon.com/aws-certification/latest/ai-practitioner-01/ai-practitioner-01.html) (October 2026). |
+| ☁️ AWS Certified AI Practitioner (AIF-C01) | ✅ Full course: 5 worlds, 40 missions, 8 labs, 13 hands-on challenges, 443 questions, 126 flashcards. Follows the [exam guide v1.2](https://docs.aws.amazon.com/aws-certification/latest/ai-practitioner-01/ai-practitioner-01.html) (October 2026). |
 | ☁️ AWS Certified Developer – Associate (DVA-C03) | ✅ Full course: 4 worlds, 29 missions, 4 labs, 7 hands-on challenges, 192 questions, 97 flashcards, including AI-assisted development and calling Amazon Bedrock from code. Follows the [DVA-C03 exam guide](https://docs.aws.amazon.com/aws-certification/latest/developer-associate-03/developer-associate-03.html). Registration opens December 1, 2026. |
 | ☁️ AWS Certified Developer – Associate (DVA-C02) | ✅ Full course: 4 worlds, 24 missions, 3 labs, 5 hands-on challenges, 160 questions, 82 flashcards. Follows the [exam guide v2.1](https://docs.aws.amazon.com/aws-certification/latest/developer-associate-02/developer-associate-02.html). DVA-C02 can be taken until November 30, 2026; DVA-C03 opens December 1, 2026. |
 | 🔷 Google Cloud Generative AI Leader | ✅ Full course: 4 worlds, 22 missions, 2 labs, 2 hands-on challenges, 137 questions, 54 flashcards. Follows the [official exam guide](https://services.google.com/fh/files/misc/generative_ai_leader_exam_guide_english.pdf) (current product names). |
@@ -81,6 +81,7 @@ Open http://localhost:3000.
 ```bash
 npm test        # validate every course's content
 npm run lint
+npm run typecheck   # next typegen (route types like LayoutProps) then tsc --noEmit; works on a fresh clone
 npm run build
 ```
 
