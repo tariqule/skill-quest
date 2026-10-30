@@ -171,7 +171,7 @@ export function warmupPicks(courses: Course[], seen: (courseId: string, question
   }));
   for (let k = 0; pools.length && out.length < size && k < size * 6; k++) {
     const p = pools[k % pools.length];
-    const q = p.byGame[(Math.floor(k / pools.length) + k) % CODE_GAMES.length].shift();
+    const q = p.byGame[(Math.floor(k / pools.length) + (k % pools.length)) % CODE_GAMES.length].shift();
     if (q) out.push({ course: p.c, q });
   }
   return out;

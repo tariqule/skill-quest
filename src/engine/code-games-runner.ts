@@ -57,7 +57,7 @@ for line in src.splitlines(True):
                 print("|".join("" if v is None else str(v) for v in row))
 `;
 
-function exec(cmd: string, args: string[], cwd: string, env: NodeJS.ProcessEnv = {}): RunResult {
+function exec(cmd: string, args: string[], cwd: string, env: Record<string, string> = {}): RunResult {
   const r = spawnSync(cmd, args, { cwd, encoding: "utf8", timeout: 30_000, env: { ...process.env, ...env } });
   const out = (r.stdout ?? "") + (r.status === 0 ? "" : r.stderr ?? "");
   return r.status === 0 ? { status: "ok", out } : { status: "error", out: out || String(r.error ?? "failed") };
