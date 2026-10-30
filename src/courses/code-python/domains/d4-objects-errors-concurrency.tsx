@@ -387,7 +387,7 @@ export default defineDomain({
         "It raises a `ValueError` and the program stops with a traceback",
         "It returns `0`",
         "It returns `None`",
-        "It quietly skips the line",
+        "It quietly skips the bad line and carries on with the next line of input",
       ],
       answer: [0],
       explanation:
@@ -873,7 +873,7 @@ export default defineDomain({
         "Only one thread runs Python bytecode at a time in a process, but threads can still overlap while waiting on I/O",
         "It makes `counter += 1` from many threads safe without a lock",
         "It stops a Python program from starting more than one thread",
-        "It also limits how many processes `multiprocessing` can start",
+        "It also limits how many processes `multiprocessing` can start at any one time on the whole machine",
       ],
       answer: [0],
       explanation:
@@ -888,7 +888,7 @@ export default defineDomain({
       options: [
         "Run it in a process pool (`await loop.run_in_executor(process_pool, fn, ...)`) or hand it to a separate worker queue",
         "Add `await asyncio.sleep(0)` before the call",
-        "Mark the function `async def` without other changes",
+        "Mark the function `async def` without any other changes, so the event loop can switch to other requests while it's running",
         "Start a second event loop in the same thread",
       ],
       answer: [0],
@@ -921,7 +921,7 @@ export default defineDomain({
         "A small family of exceptions (`PaymentError`, `CardDeclined(PaymentError)`, and so on) that SDK errors are translated into with `raise ... from err`",
         "Let every SDK exception leak through unchanged",
         "Return `None` on any failure",
-        "Raise a plain `Exception(\"failed\")` for every problem",
+        "Raise a plain `Exception(\"failed\")` for every problem, and put the SDK's original error message in the text so callers can parse it with a regex to work out what happened",
       ],
       answer: [0],
       explanation:
@@ -937,7 +937,7 @@ export default defineDomain({
         "A base class built on `abc.ABC` with `@abstractmethod def run(self)`",
         "A note in the README",
         "`hasattr(plugin, \"run\")` checks in every caller",
-        "A metaclass that silently adds an empty `run()`",
+        "A metaclass that silently adds an empty `run()` method to it",
       ],
       answer: [0],
       explanation:

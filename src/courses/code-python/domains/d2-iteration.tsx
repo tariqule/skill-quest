@@ -537,7 +537,7 @@ export default defineDomain({
         "An iterable's `__iter__` returns an iterator; an iterator has `__next__`, returns itself from `__iter__`, and only goes through once",
         "They're the same thing; the names are interchangeable",
         "Iterators can be indexed with `[]`; iterables can't",
-        "An iterable is always a list; an iterator is always a generator",
+        "An iterable is always a list and an iterator is always a generator; no other types can be used in a `for` loop",
       ],
       answer: [0],
       explanation:
@@ -638,7 +638,7 @@ export default defineDomain({
       prompt: "What happens when you call a generator function, as in `g = numbers()`?",
       options: [
         "It returns a generator object; none of the body runs until the first `next()`",
-        "It runs the whole body and stores every yielded value in a list",
+        "It runs the whole body and stores every yielded value in a list for later",
         "It runs up to the first `yield` straight away",
         "It starts a background thread that produces values",
       ],
@@ -756,7 +756,7 @@ export default defineDomain({
         "Turn it into a streaming pipeline of generators (read, then transform, then write) so only a few rows are in memory at once",
         "Add swap space so the list fits",
         "Sort the rows first with `sorted()`",
-        "Convert the list of rows to a tuple",
+        "Convert the list of rows to a tuple before transforming it, since tuples use less memory per item and are faster to loop over in CPython",
       ],
       answer: [0],
       explanation:
@@ -770,7 +770,7 @@ export default defineDomain({
       prompt: "A widely used library function `records()` returns a `list`. You want it to become a lazy generator without breaking hundreds of callers. What's the safest migration?",
       options: [
         "Add a new `iter_records()` generator, reimplement `records()` as `list(iter_records())`, and move callers over gradually",
-        "Change `records()` to return a generator in place, since callers that loop over it will still work",
+        "Change `records()` to return a generator in place, since callers that loop over it will still work fine",
         "Return a generator but wrap the body in `try/except`",
         "Make `records()` return a tuple instead",
       ],

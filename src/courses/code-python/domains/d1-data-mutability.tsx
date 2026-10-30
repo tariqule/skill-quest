@@ -272,7 +272,7 @@ export default defineDomain({
       prompt: "In what order does Python run the lines in a simple script?",
       options: [
         "From the top line to the bottom line, one at a time",
-        "From the bottom line to the top line",
+        "From the bottom line up to the very top line",
         "All lines at the same moment",
         "In alphabetical order",
       ],
@@ -423,7 +423,7 @@ export default defineDomain({
       prompt: "Which statement about `is` and `==` is correct?",
       options: [
         "`==` compares values (using `__eq__`), while `is` checks whether both sides are the very same object",
-        "`is` is a faster `==` and gives the same answer for every type",
+        "`is` is a faster version of `==` and it gives the same answer for every type of value",
         "`==` compares memory addresses, while `is` compares values",
         "`is` is the right way to compare strings and numbers",
       ],
@@ -552,7 +552,7 @@ export default defineDomain({
       codeLang: "python",
       options: [
         "O(n) per check; build `set(names)` once for O(1) average lookups",
-        "O(1) per check; it's already as fast as it can be",
+        "O(1) per check; it's already about as fast as it can be",
         "O(log n) per check; sort the list first",
         "O(n) per check; convert it to a tuple",
       ],
@@ -717,7 +717,7 @@ export default defineDomain({
       prompt: "A service keeps 50 million user records in memory as a dict of small dicts (`{user_id: {\"name\": ..., \"plan\": ...}}`). Memory is now the bottleneck. Which change usually saves the most memory while keeping fast lookup by ID?",
       options: [
         "Store each record as an instance of a class with `__slots__` (or `@dataclass(slots=True)`) instead of a small dict per record",
-        "Replace the outer dict with a list and scan it for each lookup",
+        "Replace the outer dict with a list and scan it for each lookup, since lists use far less memory than dicts",
         "Call `copy.deepcopy` on each record when it's read",
         "Convert every user ID key to a string",
       ],
@@ -734,7 +734,7 @@ export default defineDomain({
       options: [
         "Return a fresh copy (or a read-only `types.MappingProxyType` view with immutable values) so callers can't change the shared object",
         "Document that callers must not change the returned dict",
-        "Add `global DEFAULT_CONFIG` to every function that reads it",
+        "Add `global DEFAULT_CONFIG` to every function that reads it, so each function gets its own private copy of the dict and changes can't leak out",
         "Compare configs with `is` instead of `==`",
       ],
       answer: [0],
