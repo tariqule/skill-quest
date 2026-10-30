@@ -4,7 +4,7 @@ import template from "@/courses/_template";
 import { longestOptionWarnings, validateCourse } from "./validate";
 
 /** Courses held to the "correct option isn't clearly the longest" rule. Add a course id once its bank passes. */
-const LONGEST_OPTION_STRICT = new Set(["aws-aif-c01", "aws-dva-c03", "aws-dva-c02", "aws-saa-c03", "code-docker", "code-git", "code-react", "code-nodejs", "code-go"]);
+const LONGEST_OPTION_STRICT = new Set(["aws-aif-c01", "aws-dva-c03", "aws-dva-c02", "aws-saa-c03", "code-docker", "code-git", "code-react", "code-nodejs", "code-go", "code-system-design"]);
 
 describe.each(COURSES.map((c) => [c.id, c] as const))("course %s", (_id, course) => {
   it("has valid content", () => {
