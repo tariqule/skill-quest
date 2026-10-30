@@ -197,7 +197,7 @@ export default defineDomain({
       options: [
         "Packs the app and everything it needs into a container that runs the same on any computer",
         "Writes the app's code for you",
-        "Makes your internet connection faster",
+        "Makes the app run faster by giving it the server's whole CPU and memory directly, with no limits at all",
         "Backs up your files to the cloud",
       ],
       answer: [0],
@@ -213,7 +213,7 @@ export default defineDomain({
         "The app ships in a container that carries its own copy of the library, so the server runs exactly what your laptop ran",
         "Docker finds and fixes the bug in your code",
         "Docker copies your laptop's whole hard drive to the server",
-        "Docker upgrades every library on the server to the newest version",
+        "Docker upgrades every library on the server to the newest version before the app is allowed to start",
       ],
       answer: [0],
       explanation: "The container brings its own libraries and settings with it. The server only needs Docker, so differences between machines stop mattering.",
@@ -240,7 +240,7 @@ export default defineDomain({
         "An image is the recipe, a container is what you get when you run it, and one image can make many containers",
         "A container is the recipe, and an image is what runs",
         "Each image can only ever run one container",
-        "Image and container are two words for the same thing",
+        "Image and container are two words for the same thing; Docker uses them interchangeably across all of its docs",
       ],
       answer: [0],
       explanation: "You download or build an image once, then run it as many times as you like. Each run is a separate container with its own space to work in.",
@@ -265,7 +265,7 @@ export default defineDomain({
       prompt: "What is a container?",
       options: [
         "An isolated process with its own filesystem, network and limits, sharing the host's kernel",
-        "A small virtual machine with its own kernel",
+        "A small virtual machine with its own kernel, booted from the image by a hypervisor such as KVM",
         "A zip file of source code",
         "A rented cloud server",
       ],
@@ -282,7 +282,7 @@ export default defineDomain({
         "The app ships with everything it needs, so it runs the same on a laptop, in CI and in production",
         "It makes code execute faster",
         "It replaces version control",
-        "It removes the need for an operating system",
+        "It removes the need for an operating system on the server, since each container brings its own full one",
       ],
       answer: [0],
       explanation: "The image bundles the runtime, libraries and config defaults. The environment travels with the app instead of being rebuilt by hand on every machine.",
@@ -327,7 +327,7 @@ export default defineDomain({
       options: [
         "The Linux kernel of a lightweight VM that Docker Desktop runs",
         "macOS's kernel, directly",
-        "A kernel bundled inside the image",
+        "A kernel bundled inside the image by `docker build`",
         "No kernel at all",
       ],
       answer: [0],
@@ -342,7 +342,7 @@ export default defineDomain({
       options: [
         "An image is a read-only template; a container is a running (or stopped) instance of it with its own writable layer",
         "They're the same thing",
-        "A container is the template and an image is the running instance",
+        "A container is the read-only template and an image is the running instance that gets created from it",
         "Images only exist on Docker Hub",
       ],
       answer: [0],
@@ -380,7 +380,7 @@ export default defineDomain({
       codeLang: "bash",
       options: [
         "Pulls the image from the registry, creates a container from it, and starts it",
-        "Fails because the image isn't on your machine",
+        "Fails, because the image isn't on your machine yet and must be built first",
         "Builds the image from a Dockerfile",
         "Asks you to create an account first",
       ],
@@ -414,7 +414,7 @@ export default defineDomain({
       options: [
         "Keeps input open and attaches a terminal, so you get an interactive bash prompt",
         "Installs extra tools",
-        "Runs it in the background",
+        "Runs it in the background as a detached daemon and prints the new container ID, so it keeps going",
         "Skips TLS verification",
       ],
       answer: [0],
@@ -440,7 +440,7 @@ export default defineDomain({
       codeLang: "bash",
       options: [
         "Starts a shell inside the already-running container `api`",
-        "Creates a new container named `api`",
+        "Creates a new container named `api` and opens bash",
         "Restarts `api`",
         "Copies `sh` into the image",
       ],
@@ -478,7 +478,7 @@ export default defineDomain({
       options: [
         "Sends SIGTERM to the main process, waits a grace period (10 seconds by default), then sends SIGKILL",
         "Sends SIGKILL immediately",
-        "Pauses the container's processes",
+        "Pauses the container's processes with the freezer cgroup, so `docker start` resumes them right where they were",
         "Deletes the container",
       ],
       answer: [0],
@@ -495,7 +495,7 @@ export default defineDomain({
       options: [
         "The process was killed with SIGKILL (128 + 9): a kill, a stop that timed out, or the out-of-memory killer",
         "It exited normally",
-        "The image couldn't be found",
+        "A service that discovers your on-premises servers and migrates the virtual machines to Amazon EC2 automatically, with no planning",
         "The port was already in use",
       ],
       answer: [0],
@@ -510,7 +510,7 @@ export default defineDomain({
       options: [
         "Yes: stopping keeps the container and its writable layer; only removing it deletes them",
         "No: stopping wipes the writable layer",
-        "Only if the container was started with `--rm`",
+        "Only if the container was started with `--rm`; otherwise the changes are lost",
         "Only on Linux hosts",
       ],
       answer: [0],
@@ -547,7 +547,7 @@ export default defineDomain({
       options: [
         "Node runs as PID 1, and Linux ignores signals with no handler for PID 1, so SIGTERM does nothing until Docker sends SIGKILL",
         "Node is slow to start",
-        "The image is too big to stop quickly",
+        "The image is too big to stop quickly, so Docker has to page its layers out of memory first and runs out of time before SIGTERM gets delivered",
         "`CMD` should have been `RUN`",
       ],
       answer: [0],
@@ -563,7 +563,7 @@ export default defineDomain({
         "They all share the image's read-only layers; each adds only a thin copy-on-write layer",
         "Docker compresses each container to 25 MB",
         "Containers don't need the image's files",
-        "Each container downloads only the parts it uses",
+        "Each container downloads only the parts of the image it actually uses at runtime",
       ],
       answer: [0],
       explanation: "Copy-on-write means a file is copied into a container's layer only when that container modifies it.",
@@ -576,7 +576,7 @@ export default defineDomain({
       prompt: "A platform will run untrusted code from many customers on shared hosts. Are plain containers enough isolation between customers?",
       options: [
         "Not on their own: containers share the host kernel, so a kernel exploit can cross them. Add a sandbox layer such as gVisor, Kata Containers or Firecracker microVMs",
-        "Yes: containers are as isolated as separate physical machines",
+        "Yes: containers are as isolated as separate physical machines, since each one gets its own private kernel and memory space from the container runtime when it starts up",
         "Yes, as long as the code runs as root inside",
         "Yes, if you add `--privileged`",
       ],
