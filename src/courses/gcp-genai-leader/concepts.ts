@@ -36,7 +36,7 @@ export const CONCEPTS: [string, RegExp][] = [
   ["structured data", /structured data/i],
   ["unstructured data", /unstructured/i],
   ["data quality", /data quality|quality data/i],
-  ["labeled data", /labell?ed/i],
+  ["labeled data", /labell?ed (data|examples)/i],
   ["speech to text", /speech to text|speech-to-text|transcrib(e|es|ing|ed)\b/i],
   ["text to speech", /text to speech|text-to-speech/i],
   ["sentiment analysis", /sentiment/i],
