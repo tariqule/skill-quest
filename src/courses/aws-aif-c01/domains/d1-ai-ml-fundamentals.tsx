@@ -1285,7 +1285,7 @@ export default defineDomain({
       "prompt": "Feature Store has an online store and an offline store. What is the online store for?",
       "options": [
         "Fast lookups when the model makes live predictions",
-        "Long-term history for building training sets",
+        "Long-term offline history for building new training datasets",
         "Saving trained model files for later",
         "Holding the logs of each training job"
       ],
@@ -1350,7 +1350,7 @@ export default defineDomain({
       "answer": [
         0
       ],
-      "explanation": "Kendra is an intelligent search service that understands natural language questions."
+      "explanation": "Kendra is an intelligent search service that understands natural language questions. Kendra is closed to new customers, but still in the exam guide."
     },
     {
       "id": "d1-70",

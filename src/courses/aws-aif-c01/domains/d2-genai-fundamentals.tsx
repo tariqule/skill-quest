@@ -497,7 +497,7 @@ export default defineDomain({
         "A rules engine that other chatbots are built on top of",
         "Any machine learning model that is hosted and managed on AWS",
       ],
-      answer: [1],
+      answer: [0],
       explanation:
         "Foundation models are pre-trained on huge, broad, mostly unlabeled data using self-supervised learning. You then adapt them with prompting, RAG or fine-tuning.",
     },
@@ -512,7 +512,7 @@ export default defineDomain({
         "When a model runs out of tokens and stops mid-sentence",
         "When a model returns an image even though text was requested",
       ],
-      answer: [1],
+      answer: [0],
       explanation: "A hallucination is an answer that sounds right but is wrong or made up. You can reduce them with RAG, a lower temperature, guardrails and clear prompts.",
     },
     {
@@ -566,7 +566,7 @@ export default defineDomain({
       ],
       answer: [0],
       explanation:
-        "On-demand Bedrock pricing is per token, for both input and output. Provisioned Throughput is different: it reserves capacity for a set term, and custom fine-tuned models need it.",
+        "On-demand Bedrock pricing is per token, for both input and output. Provisioned Throughput is different: it reserves capacity for a set term. Custom models can use it, and some newer ones can also be deployed for on-demand use.",
     },
     {
       id: "d2-11",
@@ -637,7 +637,7 @@ export default defineDomain({
       prompt: "Which AWS chips are built specifically for low-cost, high-performance deep learning inference?",
       options: [
         "AWS Inferentia",
-        "AWS Graviton4",
+        "AWS Graviton4 CPUs",
         "AWS Trainium",
         "AWS Nitro",
       ],
@@ -897,7 +897,7 @@ export default defineDomain({
         "Efficiency (productivity gain)",
         "Higher model accuracy",
         "Better data residency",
-        "Lower latency on the network",
+        "Lower latency on the company network",
       ],
       answer: [0],
       explanation: "Saving people's time is an efficiency gain. It's one of the business metrics companies use to justify spending on GenAI.",
@@ -1033,7 +1033,7 @@ export default defineDomain({
         "Infrastructure as a Service (IaaS)",
         "Software as a Service (SaaS)",
         "Platform as a Service (PaaS)",
-        "On-premises data center hosting",
+        "On-premises hosting in your own data center",
       ],
       answer: [0],
       explanation: "IaaS gives you the most freedom. The provider runs the hardware and you manage the operating system and apps on top.",
@@ -1146,7 +1146,7 @@ export default defineDomain({
       prompt: "Employees want Amazon Quick to answer only from documents they're allowed to see. What makes this work?",
       options: [
         "Users sign in through IAM Identity Center and answers respect their access",
-        "All users share one admin login so that the assistant can see every file",
+        "All users share one admin login so that the assistant can see every single file",
         "The assistant answers from public internet data instead of company files",
         "The temperature is set to 0 so it never mentions restricted documents",
       ],
@@ -1211,7 +1211,7 @@ export default defineDomain({
       "answer": [
         0
       ],
-      "explanation": "Provisioned Throughput reserves model units for a set term. Custom models need it to run, and inference profiles don't support it."
+      "explanation": "Provisioned Throughput reserves model units for a set term. It gives a custom model guaranteed capacity, though some newer custom models can also run on demand. Inference profiles don't support it."
     },
     {
       "id": "d2-63",
@@ -1411,7 +1411,7 @@ export default defineDomain({
       "options": [
         "It's nondeterministic and samples its words",
         "It forgets its training every hour",
-        "It always reads a random web page first",
+        "It always reads a random web page before it answers",
         "It runs on a different model each time"
       ],
       "answer": [
@@ -1458,7 +1458,7 @@ export default defineDomain({
       "domain": "d2",
       "lesson": "d2-stack",
       "prompt": "Which statement about Amazon Bedrock is true?",
-      "options": ["You call many models through one API, with no servers to run","You must buy GPUs and install each model yourself first","It only offers foundation models that Amazon built itself","It can only be used by clicking in the AWS console"],
+      "options": ["You call many models through one API, with no servers to run","You must buy GPUs and install each model yourself first","It only offers foundation models that Amazon built and trained itself","It can only be used by clicking in the AWS console"],
       "answer": [
         0
       ],
@@ -1513,7 +1513,7 @@ export default defineDomain({
       "prompt": "What does a Bedrock agent add on top of a plain model call?",
       "options": [
         "It plans steps and calls tools or APIs",
-        "It makes the model's weights smaller",
+        "It makes the model's weights smaller and faster to load",
         "It encrypts data with your KMS key",
         "It removes the need for any prompt"
       ],
@@ -1642,7 +1642,7 @@ export default defineDomain({
       "options": [
         "Amazon Bedrock AgentCore",
         "Amazon Lex chatbots",
-        "AWS Step Functions",
+        "AWS Step Functions workflows",
         "Amazon Kendra search"
       ],
       "answer": [

@@ -320,7 +320,7 @@ export default defineDomain({
       prompt: "A GenAI app must block hate speech, refuse certain topics and hide personal data in its replies. Which feature does this?",
       options: [
         "Amazon Bedrock Guardrails",
-        "AWS WAF managed rules",
+        "AWS WAF managed rule groups",
         "Amazon Macie",
         "Amazon Comprehend",
       ],
@@ -413,7 +413,7 @@ export default defineDomain({
       prompt: "Which legal risk comes specifically from generative AI output?",
       options: [
         "Intellectual property infringement from generated content",
-        "Slow network speeds between the app and the hosted model",
+        "Slow network speeds between the app and the hosted model endpoint",
         "Running out of S3 storage for the generated files",
         "Having too many IAM users with access to the model",
       ],
@@ -776,7 +776,7 @@ export default defineDomain({
       "prompt": "Which training data is most likely to give a fair model?",
       "options": [
         "Data that covers all the groups who will use it",
-        "Data collected from a single city in one week",
+        "Data collected from a single city during one week in summer",
         "Data copied from one customer's old records",
         "Data that only includes the most common case"
       ],
@@ -809,7 +809,7 @@ export default defineDomain({
       "prompt": "A model card should be updated when the model is retrained. Why?",
       "options": [
         "The facts about its data and results have changed",
-        "Model cards expire after thirty days by default",
+        "Model cards expire after thirty days by default in SageMaker",
         "A card is needed to turn on the endpoint",
         "Retraining deletes the old card automatically"
       ],
@@ -825,7 +825,7 @@ export default defineDomain({
       "prompt": "An app sends low-confidence predictions from a custom model to people for review. Which AWS service sets up that human review workflow?",
       "options": [
         "Amazon Augmented AI (A2I)",
-        "Amazon SageMaker Clarify",
+        "Amazon SageMaker Clarify bias reports",
         "Amazon Comprehend",
         "AWS Audit Manager"
       ],
@@ -857,7 +857,7 @@ export default defineDomain({
       "domain": "d4",
       "lesson": "d4-guardrails",
       "prompt": "With a built-in A2I workflow, when does a document go to a human reviewer?",
-      "options": ["When the activation conditions you set are met, such as low confidence","Every time the model runs, with no way to filter which ones","Only when the end user clicks a report problem button","Only once a month, during a scheduled batch review job"],
+      "options": ["When the activation conditions you set are met, such as low confidence","Every time the model runs, with no way to filter which predictions go to people","Only when the end user clicks a report problem button","Only once a month, during a scheduled batch review job"],
       "answer": [
         0
       ],
@@ -1023,7 +1023,7 @@ export default defineDomain({
       "options": [
         "A simple, transparent model like a decision tree",
         "The largest deep neural network available",
-        "A model with the highest temperature setting",
+        "A model with the highest temperature setting available",
         "Any model with a long context window"
       ],
       "answer": [
@@ -1062,7 +1062,7 @@ export default defineDomain({
       "domain": "d4",
       "lesson": "d4-explain",
       "prompt": "What does a SHAP value tell you about one prediction?",
-      "options": ["How much each input feature pushed the result up or down","How long the model took to return that single result","How many tokens the prompt used from start to finish","How much the prediction cost to run on the endpoint"],
+      "options": ["How much each input feature pushed the result up or down","How long the model took to return that single result to the caller","How many tokens the prompt used from start to finish","How much the prediction cost to run on the endpoint"],
       "answer": [
         0
       ],
@@ -1091,7 +1091,7 @@ export default defineDomain({
       "prompt": "Choosing a smaller model that meets the need, instead of the biggest one, helps most with which responsible AI goal?",
       "options": [
         "Environmental sustainability",
-        "Prompt injection defence",
+        "Prompt injection defence and filtering",
         "Data residency",
         "Model explainability"
       ],
@@ -1153,7 +1153,7 @@ export default defineDomain({
         "Ground answers in real sources with RAG and check them",
         "Raise the temperature so answers vary more often",
         "Remove the system prompt from every request",
-        "Switch to a model with a shorter context window"
+        "Switch to a model with a shorter context window and fewer tokens"
       ],
       "answer": [
         0
@@ -1171,7 +1171,7 @@ export default defineDomain({
         "The model's invisible watermark",
         "A higher temperature setting",
         "A larger context window",
-        "Provisioned Throughput logs"
+        "Provisioned Throughput usage logs"
       ],
       "answer": [
         0
