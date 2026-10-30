@@ -252,7 +252,7 @@ export default defineDomain({
         "A function you pass to something else so it can be run later, for example when a timer finishes",
         "A phone call Node makes to the server",
         "An error message Node prints when something goes wrong",
-        "A second copy of your program that runs alongside the first",
+        "A second copy of your program that runs alongside the first one, on its own thread",
       ],
       answer: [0],
       explanation:
@@ -268,7 +268,7 @@ export default defineDomain({
         "It starts the slow task, carries on with other work, and runs your callback when the task is done",
         "It copies your whole program onto a new computer",
         "It skips the slow task completely",
-        "It always waits; Node can only do one thing and then stops",
+        "It always waits: Node can only do one thing at a time, so it stops until the slow task is completely done",
       ],
       answer: [0],
       explanation:
@@ -304,7 +304,7 @@ export default defineDomain({
       options: [
         "One main thread, while libuv uses the OS and a small thread pool for I/O behind the scenes",
         "One thread per incoming HTTP request",
-        "One thread per CPU core, chosen automatically",
+        "One thread per CPU core, chosen automatically at startup, with requests shared between them",
         "Four threads, one for each libuv pool slot",
       ],
       answer: [0],
@@ -370,7 +370,7 @@ export default defineDomain({
       options: [
         "Either order, and it can change from run to run",
         "`timeout` then `immediate`, every time",
-        "`immediate` then `timeout`, every time",
+        "`immediate` then `timeout`, every single time",
         "Only `timeout`",
       ],
       answer: [0],
@@ -445,7 +445,7 @@ export default defineDomain({
         "`timer` never prints, because the nextTick queue never empties and the loop never reaches the timers phase",
         "`timer` prints after about 1 ms",
         "It throws `RangeError: Maximum call stack size exceeded`",
-        "Node spots the loop, prints a warning, then runs the timer",
+        "Node spots the loop, prints a warning about the recursive `nextTick` calls, and then runs the timer anyway",
       ],
       answer: [0],
       explanation:
@@ -460,7 +460,7 @@ export default defineDomain({
       options: [
         "Immediates queued during the check phase wait for the next trip around the loop, so I/O and timers get to run in between",
         "`setImmediate` runs the callback on a worker thread",
-        "`setImmediate` callbacks run before any promise callback",
+        "`setImmediate` callbacks run before any promise callback, so an immediate queued inside another immediate runs right away in the same phase",
         "`process.nextTick` is deprecated",
       ],
       answer: [0],
@@ -513,7 +513,7 @@ export default defineDomain({
       options: [
         "Set the `UV_THREADPOOL_SIZE` environment variable before the pool is first used, ideally when the process starts",
         "Call `os.setThreadCount(16)`",
-        "Start Node with `--max-old-space-size=16`",
+        "Start Node with `--max-old-space-size=16`, which raises the number of libuv pool threads to 16 along with the size of the heap",
         "Use the `cluster` module",
       ],
       answer: [0],
@@ -631,7 +631,7 @@ export default defineDomain({
         "Move exports to a background job queue handled by a separate worker deployment, so API instances only serve requests",
         "Add more `await` keywords inside the export code",
         "Raise `UV_THREADPOOL_SIZE` to 128",
-        "Increase the API's heap with `--max-old-space-size`",
+        "Increase the API's heap with `--max-old-space-size` and add more API replicas, so each export has enough memory to finish inside the request",
       ],
       answer: [0],
       explanation:
@@ -645,7 +645,7 @@ export default defineDomain({
       prompt: "You're setting up alerts for a fleet of Node services. Which signal most directly catches code that blocks the event loop?",
       options: [
         "Event loop delay (for example the p99 from `perf_hooks.monitorEventLoopDelay`) or event loop utilization",
-        "Average CPU usage across the fleet",
+        "Average CPU usage across the whole fleet over the last hour, since a blocked event loop always shows up as high CPU on that host",
         "Heap used",
         "Number of npm dependencies",
       ],
@@ -662,7 +662,7 @@ export default defineDomain({
         "Under load, a service that does lots of file I/O and password hashing also sees its outgoing HTTP calls slow down badly, even though the upstream is fast. What's the most likely cause?",
       options: [
         "`dns.lookup`, used for outgoing hostnames by default, shares the small libuv thread pool with fs and crypto, so lookups queue behind them",
-        "Each HTTP socket needs a pool thread, and the pool is full",
+        "Each outgoing HTTP socket needs its own pool thread for the whole request, and the four-thread pool is full, so new sockets wait for one to free up",
         "V8 garbage collection always pauses outgoing requests",
         "The upstream is rate limiting because of TCP keep-alive",
       ],
@@ -736,7 +736,7 @@ export default defineDomain({
       prompt: "What is libuv?",
       options: [
         "The C library under Node that provides the event loop, asynchronous I/O, and a worker thread pool",
-        "Node's JavaScript engine, which compiles JS to machine code",
+        "Node's JavaScript engine, which compiles your JS source code straight into machine code",
         "The npm package that adds promises to Node",
         "A web framework built into Node",
       ],
@@ -772,7 +772,7 @@ export default defineDomain({
       prompt: "You're writing your team's guideline for CPU work in Node services. Which rule is most accurate?",
       options: [
         "Short CPU work inline is fine, anything long goes to a worker pool or a separate service, and event loop delay is monitored in production",
-        "Never call any synchronous API, not even while loading config at startup",
+        "Never call any synchronous API, not even while loading config at startup, and split every loop into `setImmediate` chunks no matter how short it is",
         "Wrap all CPU-heavy functions in Promises so they run in the background",
         "Raise UV_THREADPOOL_SIZE whenever JavaScript code is slow",
       ],

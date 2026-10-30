@@ -282,7 +282,7 @@ export default defineDomain({
       prompt: "In `math.js` you write `module.exports = { add };`. What does that line do?",
       options: [
         "It decides what other files get when they `require('./math')`",
-        "It runs the `add` function straight away",
+        "It runs the `add` function straight away at load time",
         "It deletes `add` from the file",
         "It saves `add` to a file on disk",
       ],
@@ -511,7 +511,7 @@ export default defineDomain({
       options: [
         "An error object if something failed, otherwise `null`",
         "The result of the operation",
-        "The name of the function that was called",
+        "The name of the function that was just called",
         "A promise for the result",
       ],
       answer: [0],
@@ -539,7 +539,7 @@ export default defineDomain({
         "It prints `after`, then the process crashes with an uncaught `Error: boom`",
         "It prints `caught boom`, then `after`",
         "It prints `after`, then `caught boom`",
-        "It prints `after` and quietly ignores the error",
+        "It prints `after` and then quietly ignores the rejected `Error`",
       ],
       answer: [0],
       explanation:
@@ -618,7 +618,7 @@ export default defineDomain({
         "`Promise.all` rejects after about 50 ms with that error, and the other two calls keep running",
         "`Promise.all` waits 500 ms, then rejects",
         "The other two calls are cancelled automatically",
-        "`Promise.all` resolves with `undefined` for the failed call",
+        "`Promise.all` resolves after all three finish, with `undefined` in place of the failed call",
       ],
       answer: [0],
       explanation:
@@ -640,7 +640,7 @@ export default defineDomain({
       codeLang: "js",
       options: [
         "The process prints the error and exits with code 1, and `still alive` never prints",
-        "A warning is printed, then `still alive`",
+        "A warning is printed about the unhandled rejection, then `still alive`, and the process keeps running",
         "Nothing is printed except `still alive`",
         "`main` is retried until it succeeds",
       ],
@@ -657,7 +657,7 @@ export default defineDomain({
       options: [
         "Log the error with context, clean up what you can, then exit and let a supervisor restart the process",
         "Log the error and keep serving requests as normal",
-        "Use it instead of try/catch throughout the codebase",
+        "Use it instead of try/catch throughout the codebase, so the process logs each error and carries on running",
         "Retry the failed operation from inside the handler",
       ],
       answer: [0],
@@ -672,7 +672,7 @@ export default defineDomain({
       prompt: "Teams keep adding `process.on('unhandledRejection', () => {})` to stop crashes. What policy should you set across services?",
       options: [
         "Fail fast: log unhandled rejections with context and exit, let the orchestrator restart, and catch floating promises with a lint rule",
-        "Keep the empty handler everywhere so services never restart",
+        "Keep the empty handler everywhere so services never restart, and check the logs once a week for any rejections that were silently swallowed by it",
         "Run every service with `--unhandled-rejections=none`",
         "Wrap every function body in a try/catch that returns null",
       ],
@@ -706,7 +706,7 @@ export default defineDomain({
         "The `cluster` module: fork one worker process per core, all sharing the same port",
         "`worker_threads`, one thread per request",
         "Raise `UV_THREADPOOL_SIZE` to 8",
-        "Use `child_process.exec` to run more copies of the route handlers",
+        "Use `child_process.exec` to run more copies of all the route handlers",
       ],
       answer: [0],
       explanation:
@@ -755,7 +755,7 @@ export default defineDomain({
         "Run one Node process per container with a matching CPU request, and scale with replicas and the autoscaler",
         "Use cluster with one worker per host CPU in every pod",
         "Use worker_threads to handle incoming requests",
-        "Run one pod per CPU core, with cluster on top as well",
+        "Run one pod per CPU core, with the cluster module on top as well, so each pod forks a worker for every core on the node",
       ],
       answer: [0],
       explanation:
@@ -790,7 +790,7 @@ export default defineDomain({
         "Ship it as a semver-major release with an `exports` map that provides both `import` and `require` entry points, tested in both module systems",
         "Set `\"type\": \"module\"` in a patch release",
         "Rename every file to .mjs and keep the same version number",
-        "Publish a separate package name for ESM and stop updating the old one without notice",
+        "Publish a separate package name for ESM and stop updating the old one without notice, so existing users find out when they next try to install a fix",
       ],
       answer: [0],
       explanation:
