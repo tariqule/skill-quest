@@ -1,8 +1,8 @@
 import type { Question } from "./types";
 
 /** Seconds a type gets at minimum, before reading-length extra. */
-const TYPE_BASE: Record<string, number> = { choice: 20, multi: 30, output: 35, fill: 35, lines: 45, order: 50, match: 50 };
-const TYPE_CAP: Record<string, number> = { choice: 40, multi: 45, output: 50, fill: 50, lines: 60, order: 60, match: 60 };
+const TYPE_BASE: Record<string, number> = { choice: 20, multi: 30, output: 35, fill: 35, lines: 45, order: 50, match: 50, bug: 50, parsons: 60 };
+const TYPE_CAP: Record<string, number> = { choice: 40, multi: 45, output: 50, fill: 50, lines: 60, order: 60, match: 60, bug: 60, parsons: 75 };
 
 function kind(q: Question) {
   if (!q.type || q.type === "choice") return "answer" in q && Array.isArray(q.answer) && q.answer.length > 1 ? "multi" : "choice";
@@ -14,6 +14,8 @@ function textLength(q: Question) {
   if ("options" in q) parts.push(...q.options);
   if ("items" in q) parts.push(...q.items);
   if ("pairs" in q) for (const [a, b] of q.pairs) parts.push(a, b);
+  if (q.type === "bug") parts.push(...q.fixes);
+  if (q.type === "parsons") parts.push(...(q.distractors ?? []));
   if ("blanks" in q) for (const b of q.blanks) parts.push(...b.options);
   return parts.join(" ").length;
 }

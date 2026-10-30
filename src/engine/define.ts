@@ -3,9 +3,12 @@ import { ALL_MODES } from "./modes";
 import type { CodingChallenge, Course, CourseDefinition, DomainModule, ModeId, Question } from "./types";
 
 /** Live coding only appears for courses that have challenges; every other mode is on by default. */
-function resolveModes(modes: ModeId[] | undefined, coding: CodingChallenge[] | undefined): ModeId[] {
-  const base = modes ?? ALL_MODES.filter((m) => m.id !== "coding").map((m) => m.id);
-  return coding?.length && !base.includes("coding") ? ["coding", ...base] : base;
+function resolveModes(modes: ModeId[] | undefined, coding: CodingChallenge[] | undefined, games: boolean): ModeId[] {
+  let base = modes ?? ALL_MODES.filter((m) => m.id !== "coding" && m.id !== "codegames").map((m) => m.id);
+  if (coding?.length && !base.includes("coding")) base = ["coding", ...base];
+  // Code games appear first wherever a course has all three kinds.
+  if (games && !base.includes("codegames")) base = ["codegames", ...base];
+  return base;
 }
 
 /** Identity helper so domain files get full type checking. */
@@ -33,6 +36,6 @@ export function defineCourse(def: CourseDefinition): Course {
     challenges: domains.flatMap((m) => m.challenges ?? []),
     guide: { ...guide, tasks: Object.fromEntries(domains.map((m) => [m.domain.id, m.tasks])) },
     config: resolveConfig(def.exam, config),
-    modes: resolveModes(modes, def.coding),
+    modes: resolveModes(modes, def.coding, ["parsons", "bug", "output"].every((t) => domains.some((m) => m.questions.some((q) => q.type === t)))),
   };
 }

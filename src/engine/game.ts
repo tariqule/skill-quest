@@ -1,9 +1,10 @@
 import { effectiveLevel, levelOf, nearbyLevels, type LevelChoice } from "./levels";
 import { EXTRA_KINDS, isCodeTrack } from "./tracks";
 import type { Progress } from "./store";
+import { FIX_BASE, decodePick, parsonsCorrect, prepareParsons, type PreparedParsons } from "./code-games";
 import type { Course, Question, QuestionKind } from "./types";
 
-export type PreparedKind = "choice" | "order" | "match" | "lines" | "fill" | "output";
+export type PreparedKind = "choice" | "order" | "match" | "lines" | "fill" | "output" | "parsons" | "bug";
 
 export type PreparedQuestion = Question & {
   kind: PreparedKind;
@@ -22,6 +23,11 @@ export type PreparedQuestion = Question & {
   correct: number[];
   /** fill only: for each blank, the indexes into `shuffled` of its options. */
   groups?: number[][];
+  /** parsons only: blocks, solution and decoys. `shuffled` holds the blocks too. */
+  parsons?: PreparedParsons;
+  /** bug only: the fix options in display order, and the index of the right one. `correct` holds the 0-based buggy line. */
+  fixOptions?: string[];
+  fixCorrect?: number;
 };
 
 /**
@@ -36,14 +42,19 @@ export function decodeText(picked: number[] | null | undefined): string {
   return (picked ?? []).map((n) => String.fromCodePoint(n)).join("");
 }
 
-/** Compare typed output ignoring trailing spaces, blank edge lines, and runs of spaces. */
+/**
+ * Compare typed output: line endings are normalized, trailing whitespace on each line and blank
+ * lines at either end are dropped, and leading whitespace on a one-line answer is ignored.
+ * Spacing inside lines (and indentation in multi-line output) must match exactly, because it is part of the output.
+ */
 export function normalizeOutput(text: string) {
-  return text
-    .replace(/\r/g, "")
+  const out = text
+    .replace(/\r\n?/g, "\n")
     .split("\n")
-    .map((l) => l.trim().replace(/[ \t]+/g, " "))
+    .map((l) => l.replace(/[ \t]+$/, ""))
     .join("\n")
     .replace(/^\n+|\n+$/g, "");
+  return out.includes("\n") ? out : out.trimStart();
 }
 
 export function shuffle<T>(items: T[]): T[] {
@@ -77,6 +88,14 @@ export function prepare(q: Question): PreparedQuestion {
       correct.push(start + order.indexOf(b.answer));
     }
     return { ...q, kind: "fill", shuffled, prompts: [], correct, groups };
+  }
+  if (q.type === "parsons") {
+    const p = prepareParsons(q, shuffle);
+    return { ...q, kind: "parsons", shuffled: p.blocks, prompts: [], correct: [], parsons: p };
+  }
+  if (q.type === "bug") {
+    const order = shuffle(q.fixes.map((_, i) => i));
+    return { ...q, kind: "bug", shuffled: codeLines(q.code), prompts: [], correct: [q.line - 1], fixOptions: order.map((i) => q.fixes[i]), fixCorrect: order.indexOf(q.fix) };
   }
   if (q.type === "output") return { ...q, kind: "output", shuffled: [...q.answers], prompts: [], correct: [] };
   if (q.type === "order") {
@@ -153,7 +172,7 @@ export function allocateByWeight(course: Course, total: number): Record<string, 
 
 /** The exam format a question uses: single-answer choice counts as "choice", several answers as "multi". */
 export function questionKind(q: Question): QuestionKind {
-  if (q.type === "order" || q.type === "match" || q.type === "lines" || q.type === "fill" || q.type === "output") return q.type;
+  if (q.type !== undefined && q.type !== "choice") return q.type;
   return q.answer.length > 1 ? "multi" : "choice";
 }
 
@@ -190,6 +209,8 @@ export function weightedExamDeck(course: Course, total: number, pool: Question[]
 }
 
 export function isCorrect(q: PreparedQuestion, picked: number[]) {
+  if (q.kind === "parsons") return !!q.parsons && parsonsCorrect(q.parsons, picked);
+  if (q.kind === "bug") return picked.length === 2 && picked[0] === q.correct[0] && picked[1] - FIX_BASE === q.fixCorrect;
   if (q.kind === "output") {
     const typed = normalizeOutput(decodeText(picked));
     return typed !== "" && q.shuffled.some((a) => normalizeOutput(a) === typed);
@@ -246,6 +267,8 @@ export function starsFor(course: Course, correct: number, total: number) {
 
 /** The correct answer written out in words, for recaps and reviews. */
 export function answerText(q: Question): string {
+  if (q.type === "parsons") return q.code.trim();
+  if (q.type === "bug") return `line ${q.line}: ${q.fixes[q.fix]}`;
   if (q.type === "output") return q.answers[0];
   if (q.type === "fill") return q.blanks.map((b) => b.options[b.answer]).join(" · ");
   if (q.type === "order") return q.items.join(" → ");
@@ -269,6 +292,8 @@ export function challengeDeck(must: Question[], pool: Question[], count: number)
 export function pickedText(q: PreparedQuestion, picked: number[] | undefined): string {
   if (!picked || picked.length === 0) return "No answer";
   if (q.kind === "output") return decodeText(picked);
+  if (q.kind === "parsons") return picked.map((p) => q.shuffled[decodePick(p).block] ?? "?").join(" / ");
+  if (q.kind === "bug") return `line ${picked[0] + 1}${picked[1] !== undefined ? `, fix: ${q.fixOptions?.[picked[1] - FIX_BASE] ?? "?"}` : ""}`;
   if (q.kind === "fill") return picked.map((i) => q.shuffled[i] ?? "?").join(" · ");
   if (q.kind === "order") return picked.map((i) => q.shuffled[i]).join(" → ");
   if (q.kind === "match") return q.prompts.map((p, k) => `${p} → ${q.shuffled[picked[k]] ?? "?"}`).join(" · ");

@@ -1,3 +1,4 @@
+import { prepareParsons } from "./code-games";
 import { examQuestions, questionKind } from "./game";
 import { BEGINNER_MIN, MIN_PER_LEVEL, SENIORITY } from "./levels";
 import { EXTRA_KINDS, isCodeTrack } from "./tracks";
@@ -38,7 +39,7 @@ export function validateCourse(course: Course): string[] {
   const declared = new Set(course.exam.questionTypes.map((t) => t.id));
   for (const q of course.questions) {
     const where = `question "${q.id}"`;
-    if (!declared.has(questionKind(q)) && !(isCodeTrack(course) && EXTRA_KINDS.some((k) => k.id === questionKind(q)))) err(`${where} uses the "${questionKind(q)}" format, which exam.questionTypes doesn't list`);
+    if (!declared.has(questionKind(q)) && !(isCodeTrack(course) && (EXTRA_KINDS.some((k) => k.id === questionKind(q)) || q.type === "parsons" || q.type === "bug"))) err(`${where} uses the "${questionKind(q)}" format, which exam.questionTypes doesn't list`);
     if (!domainIds.has(q.domain)) err(`${where} has unknown domain "${q.domain}"`);
     if (!q.prompt.trim()) err(`${where} has an empty prompt`);
     if (!q.explanation.trim()) err(`${where} has no explanation`);
@@ -61,7 +62,21 @@ export function validateCourse(course: Course): string[] {
         if (new Set(b.options).size !== b.options.length) err(`${where} blank ${i + 1} has duplicate options`);
         if (b.answer < 0 || b.answer >= b.options.length) err(`${where} blank ${i + 1} has an answer index outside its options`);
       });
+    } else if (q.type === "parsons") {
+      const lines = q.code.split("\n").filter((l) => l.trim());
+      if (lines.length < 3) err(`${where} needs at least 3 solution lines`);
+      if ((q.distractors ?? []).some((d) => lines.some((l) => l.trim() === d.trim()))) err(`${where} has a decoy that is also a solution line`);
+      // The player sets indentation, so no block may show leading whitespace (it would give a decoy away).
+      if (q.indent && prepareParsons(q, (xs) => [...xs].reverse()).blocks.some((b) => /^\s/.test(b))) err(`${where} shows a line with leading whitespace though the player sets indentation`);
+    } else if (q.type === "bug") {
+      const lines = q.code.split("\n");
+      if (q.line < 1 || q.line > lines.length || !lines[q.line - 1].trim()) err(`${where} points at a line that doesn't exist or is blank`);
+      if (q.fixes.length < 3 || q.fixes.length > 4) err(`${where} needs 3 or 4 fixes`);
+      if (q.fix < 0 || q.fix >= q.fixes.length) err(`${where} has a fix index outside its fixes`);
+      if (new Set(q.fixes).size !== q.fixes.length) err(`${where} has duplicate fixes`);
+      if (q.fixes.some((f) => f.trim() === lines[q.line - 1]?.trim())) err(`${where} offers the buggy line itself as a fix`);
     } else if (q.type === "output") {
+      if (q.choices && !q.choices.some((c) => q.answers.includes(c))) err(`${where} has choices that don't include an accepted answer`);
       if (q.answers.length === 0 || q.answers.some((a) => !a.trim())) err(`${where} needs at least one non-empty accepted answer`);
       if (!q.code.trim()) err(`${where} needs code to read`);
     } else if (q.type === "order") {
@@ -146,7 +161,7 @@ export function validateCourse(course: Course): string[] {
     if (qs < BEGINNER_MIN.questionsPerDomain) err(`domain "${d.id}" has ${qs} beginner questions; needs at least ${BEGINNER_MIN.questionsPerDomain}`);
   }
   for (const q of beginnerQs) {
-    if (q.type === "order" || q.type === "match" || q.type === "lines") err(`beginner question "${q.id}" should be choice, fill, or output (keep it gentle)`);
+    if (q.type === "order" || q.type === "match" || q.type === "lines" || q.type === "bug") err(`beginner question "${q.id}" should be choice, fill, output, or parsons (keep it gentle)`);
   }
   if (course.exam.questionTypes.every((t) => t.practiceOnly)) err("at least one question type must be an official (not practiceOnly) format");
   const official = examQuestions(course).length;

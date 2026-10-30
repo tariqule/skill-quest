@@ -87,15 +87,76 @@ export interface FillQuestion extends BaseQuestion {
 
 /**
  * "Type the output": the player types what `code` prints or returns. `answers` lists every accepted
- * spelling; multi-line output joins lines with a newline. Spaces at line ends and repeated spaces are ignored.
+ * spelling; multi-line output joins lines with a newline. Line endings, spaces at line ends and blank edge lines are ignored; spacing inside lines must match.
  */
 export interface OutputQuestion extends BaseQuestion {
   type: "output";
   code: string;
   answers: string[];
+  /** Predict the Output: a few plausible outputs the player may pick from instead of typing (the first accepted answer is added if missing). */
+  choices?: string[];
+  /** Worked example: the execution traced step by step, shown with the explanation. */
+  trace?: string[];
+  /** How the answer was checked: "run" (executed by the code-games runtime test) or "reasoned" (no runtime on the box). */
+  /** Runner only: code that wraps the snippet so it runs on its own; `{{code}}` marks where the snippet goes. Never shown. */
+  harness?: string;
+  verified?: Verified;
+  /** Data the snippet works on, shown in a collapsible "Tables" panel instead of repeated in the prompt. */
+  tables?: TablePreview[];
 }
 
-export type Question = ChoiceQuestion | OrderQuestion | MatchQuestion | LinesQuestion | FillQuestion | OutputQuestion;
+/** A small table shown next to a code game (SQL). `null` cells show as NULL. */
+export interface TablePreview {
+  name: string;
+  columns: string[];
+  rows: (string | number | null)[][];
+}
+
+/** How a code game's answer was checked. */
+export type Verified = "run" | "reasoned";
+
+/**
+ * Parsons puzzle: put shuffled code lines back in order. `code` is the working solution, one block per
+ * line, indented as it should be. `distractors` are plausible lines that don't belong. With `indent`, the
+ * player also sets each line's indentation (Python, Go blocks, YAML); otherwise lines keep their own.
+ */
+export interface ParsonsQuestion extends BaseQuestion {
+  type: "parsons";
+  code: string;
+  distractors?: string[];
+  indent?: boolean;
+  /** First hint, shown before the line-by-line hints. */
+  hint?: string;
+  /** What the solution prints when run, if it was executed. */
+  expected?: string;
+  /** Runner only: code that wraps the snippet so it runs on its own; `{{code}}` marks where the snippet goes. Never shown. */
+  harness?: string;
+  verified?: Verified;
+  /** Data the snippet works on, shown in a collapsible "Tables" panel instead of repeated in the prompt. */
+  tables?: TablePreview[];
+}
+
+/**
+ * Spot the Bug: tap the buggy line in `code`, then pick the fix. `fixes[fix]` replaces line `line`
+ * (indentation is kept). `expected` is what the fixed program prints when run.
+ */
+export interface BugQuestion extends BaseQuestion {
+  type: "bug";
+  code: string;
+  /** 1-based number of the buggy line. */
+  line: number;
+  fixes: string[];
+  fix: number;
+  expected?: string;
+  trace?: string[];
+  /** Runner only: code that wraps the snippet so it runs on its own; `{{code}}` marks where the snippet goes. Never shown. */
+  harness?: string;
+  verified?: Verified;
+  /** Data the snippet works on, shown in a collapsible "Tables" panel instead of repeated in the prompt. */
+  tables?: TablePreview[];
+}
+
+export type Question = ChoiceQuestion | OrderQuestion | MatchQuestion | LinesQuestion | FillQuestion | OutputQuestion | ParsonsQuestion | BugQuestion;
 
 export function isChoice(q: Question): q is ChoiceQuestion {
   return q.type === undefined || q.type === "choice";
@@ -193,7 +254,7 @@ export interface CodingChallenge {
 
 // ───────────── Exam and guide ─────────────
 
-export type QuestionKind = "choice" | "multi" | "order" | "match" | "lines" | "fill" | "output";
+export type QuestionKind = "choice" | "multi" | "order" | "match" | "lines" | "fill" | "output" | "parsons" | "bug";
 
 export interface ExamFormat {
   /** Questions on the real exam, including unscored ones. */
@@ -319,7 +380,7 @@ export interface CourseDefinition
 
 // ───────────── Game settings ─────────────
 
-export type ModeId = "coding" | "review" | "timed" | "flashcards" | "match" | "lightning" | "boss" | "cheatsheet";
+export type ModeId = "codegames" | "coding" | "review" | "timed" | "flashcards" | "match" | "lightning" | "boss" | "cheatsheet";
 
 export interface ExamMode {
   id: string;

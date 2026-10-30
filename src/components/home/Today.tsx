@@ -12,6 +12,7 @@ import { syncFromProgress, useSrs } from "@/engine/srs-store";
 import { getCourseStore, todayKey } from "@/engine/store";
 import type { Course } from "@/engine/types";
 import { lastLesson } from "@/engine/last-opened";
+import { hasCodeGames } from "@/engine/code-games";
 import { PlanWizard } from "./PlanWizard";
 
 const progressOf = (c: Course) => getCourseStore(c).get();
@@ -159,6 +160,16 @@ export function Today({ plan }: { plan: StudyPlan | null }) {
         })}
         {s.items.length === 0 && <li className="text-base text-slate-300">All caught up. Every lesson is done. Try a mock exam or the Daily Review. 🎉</li>}
       </ol>
+      {plan.goal === "interview" && targetCourses(plan.target).some((id) => { const c = getCourse(id); return !!c && hasCodeGames(c); }) && (
+        <Link href="/warmup" className="mt-3 flex items-center gap-3 rounded-2xl border border-sky-400/40 bg-sky-400/10 p-3 transition hover:border-sky-300">
+          <span className="text-2xl" aria-hidden>⚡</span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-base font-bold text-white">Daily code warm-up</span>
+            <span className="block text-sm text-slate-400">6 mixed code games · Parsons, Spot the Bug, Predict the Output</span>
+          </span>
+          <span className="shrink-0 text-sm text-slate-300">5 min</span>
+        </Link>
+      )}
       <QuickLinks session={session} recent={recent} streak={null} review={!s.items.some((i) => i.kind === "review")} />
     </section>
   );

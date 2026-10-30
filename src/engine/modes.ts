@@ -1,3 +1,4 @@
+import { codeGameOf } from "./code-games";
 import type { Progress } from "./store";
 import type { Course, ModeId } from "./types";
 
@@ -17,6 +18,16 @@ export interface ModeInfo {
 }
 
 export const ALL_MODES: ModeInfo[] = [
+  {
+    id: "codegames",
+    name: "Code games",
+    icon: "🧱",
+    to: "/code-games",
+    status: (p, c) => {
+      const games = c.questions.filter((q) => codeGameOf(q));
+      return `${games.filter((q) => p.questions[q.id]?.lastCorrect).length}/${games.length} cleared`;
+    },
+  },
   {
     id: "coding",
     name: "Live coding",

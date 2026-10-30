@@ -3,6 +3,7 @@ import d1 from "./domains/d1-event-loop";
 import d2 from "./domains/d2-streams-events";
 import d3 from "./domains/d3-modules-errors-processes";
 import d4 from "./domains/d4-servers-security-performance";
+import { codeGames } from "./games";
 import { moreQuestions } from "./more";
 import { codingChallenges } from "./coding";
 
@@ -24,7 +25,7 @@ export default defineCourse({
   level: "Intermediate",
   storageKey: "course:code-nodejs:v1",
 
-  domains: withQuestions([d1, d2, d3, d4], moreQuestions),
+  domains: withQuestions([d1, d2, d3, d4], [...moreQuestions, ...codeGames]),
   coding: codingChallenges,
 
   exam: {

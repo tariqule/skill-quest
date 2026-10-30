@@ -37,6 +37,19 @@ export const PRACTICE_MINUTES = 10;
 export const MOCK_MINUTES = 30;
 const SECONDS_PER_REVIEW = 30;
 
+/** The date to keep when the plan's goal changes: a date set for one goal never carries over to another. */
+export interface GoalFields { goal: PlanGoal; target: string; date: string; level: string }
+
+/** Wizard goal click: re-picking the current goal keeps everything; a new goal resets target, date and level. */
+export function pickGoalFields(cur: GoalFields, next: PlanGoal, firstTarget: (g: PlanGoal) => string): GoalFields {
+  if (cur.goal === next) return cur;
+  return { goal: next, target: firstTarget(next), date: dateForGoal(cur.goal, next, cur.date), level: "beginner" };
+}
+
+export function dateForGoal(prevGoal: PlanGoal, nextGoal: PlanGoal, date: string) {
+  return prevGoal === nextGoal ? date : "";
+}
+
 /** Whole days from `today` to `date` (both YYYY-MM-DD). Negative once the date has passed. */
 export function daysLeft(date: string | null, today: string): number | null {
   if (!date) return null;

@@ -4,6 +4,7 @@ import d2 from "./domains/d2-stacks-hashing";
 import d3 from "./domains/d3-trees-heaps";
 import d4 from "./domains/d4-graphs-tries";
 import { codingChallenges } from "./coding";
+import { codeGames } from "./games";
 import { moreQuestions } from "./more";
 
 /**
@@ -23,7 +24,7 @@ export default defineCourse({
   level: "Intermediate",
   storageKey: "course:code-data-structures:v1",
 
-  domains: withQuestions([d1, d2, d3, d4], moreQuestions),
+  domains: withQuestions([d1, d2, d3, d4], [...moreQuestions, ...codeGames]),
   coding: codingChallenges,
 
   exam: {
