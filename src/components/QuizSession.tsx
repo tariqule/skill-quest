@@ -98,7 +98,8 @@ export function QuizSession({
     const finalCorrect = correct;
     const result = { correct: finalCorrect, total: deck.length, failed: outOfLives };
     const s = onComplete?.(result);
-    if (typeof s === "number") {
+    if (outOfLives) setStars(typeof s === "number" ? 0 : null);
+    if (typeof s === "number" && !outOfLives) {
       setStars(s);
       if (s > 0) {
         const bonus = s * course.config.xp.starBonus;

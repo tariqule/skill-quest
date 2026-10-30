@@ -12,7 +12,6 @@ import { courseCopy } from "@/engine/copy";
 import { useCourse, useLevelPool } from "@/engine/course-context";
 import { answerText, challengeDeck, isCorrect, pct, prepare, type PreparedQuestion } from "@/engine/game";
 import { buildPath } from "@/engine/path";
-import { rememberLesson } from "@/engine/last-opened";
 
 /**
  * teach → check → done when every check is right.
@@ -33,7 +32,6 @@ export function LessonPlay() {
   const domain = domainById[lesson.domain];
   const worldLessons = course.lessons[lesson.domain];
 
-  useEffect(() => rememberLesson({ courseId: course.id, lessonId: lesson.id, title: lesson.title }), [course.id, lesson.id, lesson.title]);
 
   const [phase, setPhase] = useState<Phase>("teach");
   const [queue, setQueue] = useState<PreparedQuestion[]>([]);
@@ -268,7 +266,7 @@ export function LessonPlay() {
               className="btn-3d w-full rounded-2xl bg-amber-400 py-3.5 text-lg font-black uppercase tracking-wide text-slate-950"
               style={{ "--edge": "#b45309" } as React.CSSProperties}
             >
-              ⏱️ Start timed challenge · {Math.max(challenge.questions, missed.length)} questions · {challenge.secondsPerQuestion}s each
+              ⏱️ Start timed challenge · {Math.max(challenge.questions, missed.length)} questions · {challenge.secondsPerQuestion}s+ each
             </button>
           </div>
         </div>

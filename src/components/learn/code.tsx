@@ -82,7 +82,7 @@ export function Tokens({ code, lang }: { code: string; lang?: string }) {
 /** A code snippet for lessons and questions. */
 export function CodeBlock({ code, lang, caption }: { code: string; lang?: string; caption?: string }) {
   return (
-    <figure className="min-w-0">
+    <figure className="min-w-0 max-w-full">
       <div className="overflow-hidden rounded-xl border border-white/10 bg-slate-950">
         {lang && <div className="border-b border-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">{lang}</div>}
         <pre className="overflow-x-auto p-3 font-mono text-[13px] leading-relaxed text-slate-100">
@@ -114,9 +114,9 @@ export function CodeCompare({
   tone?: "contrast" | "neutral";
 }) {
   return (
-    <div className="grid gap-3 md:grid-cols-2">
+    <div className="grid min-w-0 grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
       {[left, right].map((s, i) => (
-        <div key={i}>
+        <div key={i} className="min-w-0">
           <div className={`mb-1 text-xs font-bold uppercase tracking-wider ${tone === "neutral" ? "text-sky-300" : i === 0 ? "text-rose-300" : "text-emerald-300"}`}>{s.title}</div>
           <CodeBlock code={s.code} lang={lang} />
         </div>

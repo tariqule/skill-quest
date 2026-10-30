@@ -36,7 +36,7 @@ export const ALL_MODES: ModeInfo[] = [
     name: "Timed drill",
     icon: "⏱️",
     to: "/timed",
-    status: (_p, c) => `${c.config.timed.questions} questions · ${c.config.timed.secondsPerQuestion}s each`,
+    status: (_p, c) => `${c.config.timed.questions} questions · ${c.config.timed.secondsPerQuestion}s+ each`,
   },
   {
     id: "flashcards",

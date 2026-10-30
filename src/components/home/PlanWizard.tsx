@@ -3,7 +3,7 @@
 import { useState, type ReactNode } from "react";
 import { COURSES, getCourse } from "@/courses";
 import { BUNDLES, targetCourses } from "@/engine/bundles";
-import { levelOptions, type LevelChoice } from "@/engine/levels";
+import { LEVEL_BY_ID, planLevelOptions, type LevelChoice } from "@/engine/levels";
 import type { PlanGoal, StudyPlan } from "@/engine/plan";
 import { setPlan } from "@/engine/plan-store";
 import { setProfile } from "@/engine/profile";
@@ -53,7 +53,7 @@ export function PlanWizard({ initial, onDone }: { initial?: StudyPlan | null; on
   const courses = targetCourses(valid ? target : groups[0].options[0].id)
     .map((id) => getCourse(id))
     .filter((c): c is Course => !!c);
-  const levels = levelOptions(courses[0] ?? { kind: "learning" }).filter((l) => l.id !== "all");
+  const levels = planLevelOptions(courses[0] ?? { kind: "learning" });
   const today = todayKey();
 
   function pickGoal(g: PlanGoal) {
@@ -118,37 +118,7 @@ export function PlanWizard({ initial, onDone }: { initial?: StudyPlan | null; on
         {courses.length > 1 && <p className="mt-2 text-sm text-slate-300">Covers {courses.map((c) => c.shortTitle).join(", ")}.</p>}
       </Field>
 
-      <div className="grid gap-x-4 sm:grid-cols-2">
-        <Field n={3} label={goal === "skill" ? "Target date (optional)" : goal === "exam" ? "Exam date" : "Interview date"} htmlFor="plan-date">
-          <input
-            id="plan-date"
-            type="date"
-            min={today}
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="w-full rounded-xl border border-white/20 bg-slate-950 px-3 py-3 text-base text-white [color-scheme:dark]"
-          />
-          <p className="mt-1 text-sm text-slate-400">No date yet? Leave it empty and we&apos;ll keep a steady pace.</p>
-        </Field>
-        <Field n={4} label="Minutes a day" htmlFor="plan-min">
-          <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Minutes a day">
-            {MINUTES.map((m) => (
-              <button
-                key={m}
-                type="button"
-                role="radio"
-                aria-checked={minutes === m}
-                onClick={() => setMinutes(m)}
-                className={`min-w-14 rounded-xl border-2 px-3 py-2 text-base font-bold ${minutes === m ? "border-sky-400 bg-sky-400/15 text-white" : "border-white/10 text-slate-200"}`}
-              >
-                {m}
-              </button>
-            ))}
-          </div>
-        </Field>
-      </div>
-
-      <Field n={5} label="Your level">
+      <Field n={3} label="Your level">
         <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Your level">
           {levels.map((l) => (
             <button
@@ -165,8 +135,36 @@ export function PlanWizard({ initial, onDone }: { initial?: StudyPlan | null; on
             </button>
           ))}
         </div>
+        {LEVEL_BY_ID[level as LevelChoice] && <p className="mt-1 text-sm text-slate-400">{levels.find((l) => l.id === level)?.blurb}</p>}
       </Field>
 
+      <Field n={4} label={goal === "skill" ? "Target date (optional)" : goal === "exam" ? "Exam date" : "Interview date"} htmlFor="plan-date">
+        <input
+          id="plan-date"
+          type="date"
+          min={today}
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          className="w-full rounded-xl border border-white/20 bg-slate-950 px-3 py-3 text-base text-white [color-scheme:dark]"
+        />
+        <p className="mt-1 text-sm text-slate-400">No date yet? Leave it empty and we&apos;ll keep a steady pace.</p>
+      </Field>
+      <Field n={5} label="Minutes a day" htmlFor="plan-min">
+        <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Minutes a day">
+          {MINUTES.map((m) => (
+            <button
+              key={m}
+              type="button"
+              role="radio"
+              aria-checked={minutes === m}
+              onClick={() => setMinutes(m)}
+              className={`min-w-14 rounded-xl border-2 px-3 py-2 text-base font-bold ${minutes === m ? "border-sky-400 bg-sky-400/15 text-white" : "border-white/10 text-slate-200"}`}
+            >
+              {m}
+            </button>
+          ))}
+        </div>
+      </Field>
       <div className="mt-6 flex flex-wrap gap-3">
         <button type="submit" className="rounded-2xl bg-sky-400 px-6 py-3 text-base font-black text-slate-950 hover:bg-sky-300">
           {initial ? "Update my plan" : "Build my plan"}

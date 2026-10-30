@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { COURSES, getCourse } from "@/courses";
-import { BUNDLE_BY_ID } from "@/engine/bundles";
+import { BUNDLE_BY_ID, targetCourses } from "@/engine/bundles";
+import { dailySessionSize } from "@/engine/daily-queue";
 import { formatDate } from "@/engine/game";
 import { onTrack, type PlanItem, type StudyPlan } from "@/engine/plan";
-import { activeCourseIds, todaySummary } from "@/engine/plan-inputs";
-import { dueCount } from "@/engine/srs";
+import { todaySummary } from "@/engine/plan-inputs";
 import { syncFromProgress, useSrs } from "@/engine/srs-store";
 import { getCourseStore, todayKey } from "@/engine/store";
 import type { Course } from "@/engine/types";
@@ -52,10 +52,17 @@ function targetName(target: string) {
   return BUNDLE_BY_ID[target]?.title ?? getCourse(target)?.title ?? target;
 }
 
-function itemLink(item: PlanItem) {
+type SessionSize = { total: number; due: number; fresh: number };
+
+/** "12 (9 due + 3 new)": the same numbers /daily shows. */
+export function reviewLabel(s: SessionSize) {
+  return s.fresh > 0 ? `${s.total} (${s.due} due + ${s.fresh} new)` : `${s.total} due`;
+}
+
+function itemLink(item: PlanItem, session: SessionSize) {
   switch (item.kind) {
     case "review":
-      return { href: "/daily", icon: "🔁", title: `Daily Review · ${item.count} due`, sub: "Spaced repetition across all your courses" };
+      return { href: "/daily", icon: "🔁", title: `Daily Review · ${reviewLabel(session)}`, sub: "Spaced repetition across all your courses" };
     case "lesson":
       return { href: `/c/${item.courseId}/lesson/${item.lessonId}`, icon: "📘", title: item.title, sub: `Lesson · ${item.courseTitle}` };
     case "practice":
@@ -70,9 +77,9 @@ export function Today({ plan }: { plan: StudyPlan | null }) {
   const srs = useSrs();
   useEffect(() => syncFromProgress(), []);
   const [editing, setEditing] = useState(false);
-  const now = new Date();
-  const active = activeCourseIds(plan, progressOf);
-  const due = dueCount(srs, now, active);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const session = useMemo(() => dailySessionSize(plan), [plan, srs]);
+  const due = session.total;
   const recent = recentCourse();
   const streak = bestStreak();
 
@@ -86,7 +93,7 @@ export function Today({ plan }: { plan: StudyPlan | null }) {
         <div className="mt-4">
           <PlanWizard initial={plan} onDone={plan ? () => setEditing(false) : undefined} />
         </div>
-        {!plan && (due > 0 || recent) && <QuickLinks due={due} recent={recent} streak={streak} />}
+        {!plan && (due > 0 || recent) && <QuickLinks session={session} recent={recent} streak={streak} />}
       </section>
     );
   }
@@ -127,14 +134,14 @@ export function Today({ plan }: { plan: StudyPlan | null }) {
         </button>
       </div>
 
-      <ContinueButton first={s.items[0] ? itemLink(s.items[0]) : null} />
+      <ContinueButton first={s.items[0] ? itemLink(s.items[0], session) : null} planCourses={targetCourses(plan.target)} />
 
       <h3 className="mt-5 text-base font-black text-white">
         Today&apos;s plan · about {minutes} min
       </h3>
       <ol className="mt-2 grid gap-2">
         {s.items.map((item, i) => {
-          const l = itemLink(item);
+          const l = itemLink(item, session);
           return (
             <li key={i}>
               <Link href={l.href} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/50 p-3 transition hover:border-emerald-400/60">
@@ -152,17 +159,19 @@ export function Today({ plan }: { plan: StudyPlan | null }) {
         })}
         {s.items.length === 0 && <li className="text-base text-slate-300">All caught up. Every lesson is done. Try a mock exam or the Daily Review. 🎉</li>}
       </ol>
-      <QuickLinks due={due} recent={recent} streak={null} />
+      <QuickLinks session={session} recent={recent} streak={null} review={!s.items.some((i) => i.kind === "review")} />
     </section>
   );
 }
 
-function QuickLinks({ due, recent, streak }: { due: number; recent: Course | null; streak: number | null }) {
+function QuickLinks({ session, recent, streak, review = true }: { session: SessionSize; recent: Course | null; streak: number | null; review?: boolean }) {
   return (
     <div className="mt-4 flex flex-wrap gap-2">
-      <Link href="/daily" className="rounded-2xl bg-emerald-400 px-4 py-2.5 text-base font-black text-slate-950 hover:bg-emerald-300">
-        🔁 Daily Review{due > 0 ? ` · ${due} due` : ""}
-      </Link>
+      {review && (
+        <Link href="/daily" className="rounded-2xl bg-emerald-400 px-4 py-2.5 text-base font-black text-slate-950 hover:bg-emerald-300">
+          🔁 Daily Review{session.total > 0 ? ` · ${reviewLabel(session)}` : ""}
+        </Link>
+      )}
       {recent && (
         <Link href={`/c/${recent.id}`} className="rounded-2xl border border-white/20 px-4 py-2.5 text-base font-bold text-white hover:border-white/40">
           {recent.provider.icon} Continue {recent.shortTitle} →
@@ -173,9 +182,9 @@ function QuickLinks({ due, recent, streak }: { due: number; recent: Course | nul
   );
 }
 
-/** One obvious next step: the last lesson opened, else the first plan item. */
-function ContinueButton({ first }: { first: ReturnType<typeof itemLink> | null }) {
-  const last = lastLesson();
+/** One obvious next step: the last lesson opened in a plan course (else any course), else the first plan item. */
+function ContinueButton({ first, planCourses }: { first: ReturnType<typeof itemLink> | null; planCourses: string[] }) {
+  const last = lastLesson(planCourses);
   const course = last ? getCourse(last.courseId) : null;
   const target = course && last ? { href: `/c/${course.id}/lesson/${last.lessonId}`, title: last.title, sub: course.shortTitle } : first;
   if (!target) return null;

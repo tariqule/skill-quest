@@ -12,10 +12,14 @@ function rand(seed: number) {
 const GLYPHS = "{}[]()<>=;:+-*/&|!?01".split("");
 const WORDS = ["const", "=>", "async", "return", "null", "map()", "O(n)", "def", "class", "{ }", "useState", "await", "true", "0x1F", "[]", "fn"];
 
-/** Falling code columns behind Code Quest pages. Pure CSS animation, fixed precision for SSR. */
+/**
+ * Falling code columns behind Code Quest pages. Pure CSS animation, fixed precision for SSR.
+ * The glyphs live in a CSS ::before (data-rain), so they are never page text: not selectable,
+ * not found by find-in-page or copy, and not in the accessibility tree.
+ */
 export function CodeRain() {
   return (
-    <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-[#03070d]" aria-hidden>
+    <div className="pointer-events-none fixed inset-0 -z-10 select-none overflow-hidden bg-[#03070d]" aria-hidden="true" role="presentation">
       <div className="code-grid absolute inset-0 opacity-40" />
       {Array.from({ length: 28 }, (_, i) => {
         const text = Array.from({ length: 14 }, (_, k) =>
@@ -28,9 +32,7 @@ export function CodeRain() {
           opacity: Number((0.08 + rand(i + 7) * 0.18).toFixed(2)),
         } as CSSProperties;
         return (
-          <pre key={i} className="code-rain-col absolute top-0 font-mono text-[11px] leading-5 text-emerald-300" style={style}>
-            {text}
-          </pre>
+          <div key={i} data-rain={text} className="code-rain-col absolute top-0 font-mono text-[11px] leading-5 text-emerald-300" style={style} />
         );
       })}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#03070d]/40 to-[#03070d]" />

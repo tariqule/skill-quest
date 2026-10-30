@@ -104,3 +104,19 @@ export function splitLessons(lessons: Lesson[]) {
 export const MIN_PER_LEVEL = 12;
 /** Beginner content every course needs. */
 export const BEGINNER_MIN = { lessonsPerDomain: 2, questionsPerDomain: 4, questions: 16 };
+
+/**
+ * Level choices for the plan builder. Certifications only have two real tiers (basics and exam
+ * questions), so they get plain labels that say what each one means.
+ */
+export function planLevelOptions(course: Pick<Course, "kind">): LevelInfo[] {
+  const opts = levelOptions(course).filter((l) => l.id !== "all");
+  if (isCodeTrack(course)) return opts;
+  return opts.map((l) =>
+    l.id === "beginner"
+      ? { ...l, name: "New to this", blurb: "Start from the basics, then build up to exam questions." }
+      : l.id === "exam"
+        ? { ...l, name: "I know the basics", blurb: "Skip the intro lessons and go straight to exam-level questions." }
+        : l,
+  );
+}

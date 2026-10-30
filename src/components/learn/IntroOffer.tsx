@@ -1,10 +1,18 @@
 "use client";
 
 import Link from "next/link";
+import { useSyncExternalStore } from "react";
 
-/** First-visit offer of the intro briefing. Skippable, never a redirect. */
+const noop = () => () => {};
+
+/**
+ * First-visit offer of the intro briefing. Skippable, never a redirect.
+ * Renders nothing on the server and during hydration, so a returning player never sees it flash
+ * before saved progress is read from storage.
+ */
 export function IntroOffer({ show, href, onSkip }: { show: boolean; href: string; onSkip: () => void }) {
-  if (!show) return null;
+  const hydrated = useSyncExternalStore(noop, () => true, () => false);
+  if (!hydrated || !show) return null;
   return (
     <div role="region" aria-label="Course intro" className="mb-6 flex flex-wrap items-center gap-3 rounded-2xl border border-sky-400/40 bg-sky-400/10 p-4">
       <p className="min-w-0 flex-1 text-base text-slate-100">New here? A 2-minute intro shows how this course works and lets you set a daily goal.</p>

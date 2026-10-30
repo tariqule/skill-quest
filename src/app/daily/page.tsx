@@ -4,78 +4,14 @@ import Link from "next/link";
 import { useState, useSyncExternalStore } from "react";
 import { AppBar } from "@/components/Hud";
 import { CodeBlock, RichText } from "@/components/learn/code";
-import { getCourse } from "@/courses";
 import { usePlan } from "@/engine/plan-store";
-import { activeCourseIds } from "@/engine/plan-inputs";
-import { targetCourses } from "@/engine/bundles";
-import { interleaveDue, itemKey, parseKey, type ReviewGrade } from "@/engine/srs";
-import { getSrs, gradeItem, syncFromProgress } from "@/engine/srs-store";
+import { type ReviewGrade } from "@/engine/srs";
+import { gradeItem } from "@/engine/srs-store";
+import { buildQueue } from "@/engine/daily-queue";
 import { getCourseStore } from "@/engine/store";
-import { isChoice, type Card, type ChoiceQuestion, type Course } from "@/engine/types";
+import { type Card, type ChoiceQuestion, type Course } from "@/engine/types";
 
-const SESSION = 30;
-const NEW_CARDS = 5;
-const NEW_QUESTIONS = 3;
-
-type Item = { key: string; course: Course; fresh?: boolean } & ({ kind: "card"; card: Card } | { kind: "q"; q: ChoiceQuestion });
-
-const progressOf = (c: Course) => getCourseStore(c).get();
 const noop = () => () => {};
-
-/** Build today's queue once: due items interleaved across courses, then a few new cards from the plan. */
-function buildQueue(plan: ReturnType<typeof usePlan>): Item[] {
-  syncFromProgress();
-  const now = new Date();
-  const srs = getSrs();
-  const active = activeCourseIds(plan, progressOf);
-  const resolve = (key: string): Item | null => {
-    const k = parseKey(key);
-    const course = k && getCourse(k.courseId);
-    if (!k || !course) return null;
-    if (k.kind === "card") {
-      const card = course.cards.find((c) => c.id === k.id);
-      return card ? { key, course, kind: "card", card } : null;
-    }
-    const q = course.questions.find((x) => x.id === k.id);
-    return q && isChoice(q) ? { key, course, kind: "q", q } : null;
-  };
-  const items = interleaveDue(srs, now, active, SESSION * 2)
-    .map(resolve)
-    .filter((x): x is Item => !!x)
-    .slice(0, SESSION);
-  // Introduce a few cards the player hasn't seen, from the plan's courses (or the active ones).
-  const pool = plan ? targetCourses(plan.target) : active;
-  const fresh: Item[] = [];
-  for (let i = 0; fresh.length < NEW_CARDS && i < 50; i++) {
-    for (const id of pool) {
-      const course = getCourse(id);
-      const card = course?.cards.find((c) => !srs[itemKey(id, "card", c.id)] && !fresh.some((f) => f.key === itemKey(id, "card", c.id)));
-      if (course && card && fresh.length < NEW_CARDS) fresh.push({ key: itemKey(id, "card", card.id), course, kind: "card", card });
-    }
-    if (fresh.length === 0) break;
-  }
-  // And a few quiz questions the player hasn't met, so day one isn't only flashcards.
-  const freshQs: Item[] = [];
-  const seen = new Set(items.map((x) => x.key));
-  for (let round = 0; freshQs.length < NEW_QUESTIONS && round < 3; round++) {
-    for (const id of pool) {
-      const course = getCourse(id);
-      if (!course || freshQs.length >= NEW_QUESTIONS) continue;
-      const q = course.questions.filter(isChoice).find((x) => {
-        const k = itemKey(id, "q", x.id);
-        return !srs[k] && !seen.has(k);
-      });
-      if (q) {
-        const k = itemKey(id, "q", q.id);
-        seen.add(k);
-        freshQs.push({ key: k, course, kind: "q", q, fresh: true });
-      }
-    }
-  }
-  const mixed = [...fresh];
-  freshQs.forEach((q, n) => mixed.splice(Math.min(mixed.length, n * 2 + 1), 0, q));
-  return [...items, ...mixed].slice(0, SESSION + NEW_CARDS + NEW_QUESTIONS);
-}
 
 export default function DailyReview() {
   const mounted = useSyncExternalStore(noop, () => true, () => false);

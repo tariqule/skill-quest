@@ -6,7 +6,7 @@ import { QuizSession } from "@/components/QuizSession";
 import { PageShell } from "@/components/ui";
 import { useCourse, useLevelPool } from "@/engine/course-context";
 import { courseCopy } from "@/engine/copy";
-import { levelDeck, starsFor, taughtPool } from "@/engine/game";
+import { levelDeck, questStars, taughtPool } from "@/engine/game";
 import { LEVEL_BY_ID, levelSplit } from "@/engine/levels";
 
 export function QuestPlay() {
@@ -33,9 +33,8 @@ export function QuestPlay() {
           const s = store.get();
           return levelDeck(course, level, taughtPool(pool, [...s.lessonsDone, ...s.studied]), length);
         }}
-        onComplete={({ correct, total, failed }) => {
-          if (failed) return 0;
-          const stars = starsFor(course, correct, total);
+        onComplete={(r) => {
+          const stars = questStars(course, r);
           if (stars > 0) store.setQuestStars(domain.id, stars);
           return stars;
         }}

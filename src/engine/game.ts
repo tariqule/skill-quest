@@ -299,3 +299,8 @@ export function taughtPool<T extends { lesson?: string }>(pool: T[], seen: reado
   const taught = pool.filter((q) => !q.lesson || set.has(q.lesson));
   return taught.length ? taught : pool;
 }
+
+/** Stars for a finished quest: none when the player ran out of hearts, else by accuracy. */
+export function questStars(course: Course, r: { correct: number; total: number; failed: boolean }) {
+  return r.failed ? 0 : starsFor(course, r.correct, r.total);
+}

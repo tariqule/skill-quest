@@ -426,3 +426,20 @@ samp {
     text-decoration: none;
   }
 }
+
+/* Code never gets clipped: long lines scroll sideways inside their own block. */
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.grid > figure,
+.grid > div:has(> figure > div > pre) {
+  min-width: 0;
+}
+.code-rain-col {
+  user-select: none;
+  white-space: pre;
+}
+.code-rain-col::before {
+  content: attr(data-rain);
+}
