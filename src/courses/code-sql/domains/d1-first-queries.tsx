@@ -237,6 +237,8 @@ export default defineDomain({
         "DELETE removes the rows the WHERE matches. TRUNCATE empties a whole table quickly. DROP TABLE removes the table itself.",
         "PostgreSQL's RETURNING hands back the rows you just inserted, updated or deleted, such as generated ids.",
         "INSERT … ON CONFLICT (key) DO UPDATE is PostgreSQL's upsert: it inserts the row, or updates the row that already has that key. DO NOTHING skips it instead.",
+        "Aggregates summarise many rows into one value: `COUNT(*)` counts rows, `SUM(col)` adds a column up, and `AVG(col)` averages it. They are a quick way to check what an UPDATE changed.",
+        "Wrap risky changes in a **transaction**: `BEGIN;`, run the change, check it, then `COMMIT;` to keep it or `ROLLBACK;` to undo it. Nobody else sees the change until you commit.",
       ],
       tip: "Wrap risky changes in BEGIN … COMMIT. Check the row count the database reports, and ROLLBACK if it's not what you expected.",
     },

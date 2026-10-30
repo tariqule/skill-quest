@@ -153,6 +153,7 @@ export default defineDomain({
         "Constraints are rules the database enforces for every client: NOT NULL, UNIQUE, CHECK, foreign keys. A CHECK passes when its result is TRUE or NULL.",
         "Use numeric (or integer cents) for money, never real or double precision, which can't represent 0.1 exactly.",
         "Denormalizing means copying data on purpose to make reads faster. Do it deliberately, and only with a plan to keep the copies in sync.",
+        "A **composite key** is a primary key made of several columns, such as (order_id, line_no). 2NF says no other column may depend on only part of it.",
       ],
       tip: "Put rules in constraints, not just in app code. Constraints protect you from every other script, job and teammate that touches the table.",
     },
