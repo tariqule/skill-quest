@@ -6,7 +6,7 @@ import {
 } from "./code-games";
 import { buildQueue, reviewable } from "./daily-queue";
 import { encodeText, isCorrect, normalizeOutput, prepare } from "./game";
-import { dateForGoal } from "./plan";
+import { dateForGoal, pickGoalFields } from "./plan";
 import { reviewNote } from "./srs";
 import { BEGINNER_LOCKED, modesFor } from "./modes";
 import { validateCourse } from "./validate";
@@ -214,6 +214,13 @@ describe("browser-test fixes", () => {
     const now = new Date("2026-10-30T12:00:00Z");
     expect(reviewNote(undefined, "again", now)).toBe("This will come back soon.");
     expect(reviewNote(undefined, "good", now)).toMatch(/^Next review (in \d+ days?|later today)\.$/);
+  });
+  it("re-picking the current goal keeps target, date and level; a new goal resets them", () => {
+    const cur = { goal: "interview" as const, target: "backend", date: "2026-12-11", level: "mid" };
+    const first = (g: string) => `first-${g}`;
+    expect(pickGoalFields(cur, "interview", first)).toEqual(cur);
+    expect(pickGoalFields({ ...cur, date: "" }, "interview", first)).toEqual({ ...cur, date: "" });
+    expect(pickGoalFields(cur, "exam", first)).toEqual({ goal: "exam", target: "first-exam", date: "", level: "beginner" });
   });
   it("changing the plan goal clears the date", () => {
     expect(dateForGoal("exam", "exam", "2026-12-11")).toBe("2026-12-11");
