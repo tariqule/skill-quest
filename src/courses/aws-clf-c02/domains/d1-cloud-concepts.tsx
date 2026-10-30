@@ -133,6 +133,7 @@ export default defineDomain({
     {
       id: "d1-benefits",
       check: ["d1-01", "d1-02"],
+      sources: [{ title: "Overview of Amazon Web Services: Six advantages of cloud computing", url: "https://docs.aws.amazon.com/whitepapers/latest/aws-overview/six-advantages-of-cloud-computing.html", license: "AWS docs, facts only" }],
       task: "1.1",
       title: "Why the cloud: elasticity, agility, global reach",
       visual: (
@@ -163,6 +164,7 @@ export default defineDomain({
     {
       id: "d1-wellarchitected",
       check: ["d1-08", "d1-09"],
+      sources: [{ title: "AWS Well-Architected Framework: Security Pillar", url: "https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/welcome.html", license: "AWS docs, facts only" }],
       task: "1.2",
       title: "The six Well-Architected pillars",
       visual: <PillarWheel />,

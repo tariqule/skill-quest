@@ -156,6 +156,7 @@ export default defineDomain({
       ],
       tip: "Prompt engineering changes only what you type in. Prompt tuning and fine-tuning both involve training. If a question says \"no training\", the answer is prompt engineering.",
       check: ["d1-01", "d1-02"],
+      sources: [{ title: "Google Cloud: Introduction to Cloud TPU", url: "https://cloud.google.com/tpu/docs/intro-to-tpu", license: "CC BY 4.0" }],
     },
     {
       id: "d1-ml",
@@ -193,6 +194,7 @@ export default defineDomain({
         "**AutoML** trains a model for you from your data, so teams with limited ML expertise can still build custom models on Agent Platform.",
       ],
       check: ["d1-09", "d1-12"],
+      sources: [{ title: "Beginner's guide to AutoML", url: "https://cloud.google.com/vertex-ai/docs/beginner/beginners-guide", license: "CC BY 4.0" }],
     },
     {
       id: "d1-choose",
@@ -291,6 +293,7 @@ export default defineDomain({
       ],
       tip: "Pick the layer from what the people in the scenario actually do: use a finished app, build an agent, tune a model, or set up hardware.",
       check: ["d1-30", "d1-31"],
+      sources: [{ title: "Introduction to Model Registry", url: "https://cloud.google.com/vertex-ai/docs/model-registry/introduction", license: "CC BY 4.0" }],
     },
     {
       id: "d1-models",

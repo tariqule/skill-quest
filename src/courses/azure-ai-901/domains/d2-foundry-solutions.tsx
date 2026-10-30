@@ -202,6 +202,7 @@ export default defineDomain({
       id: "d2-b-first-call",
       level: "beginner",
       check: ["ai901-b2-03", "ai901-b2-04"],
+      sources: [{ title: "Managed identities for Azure resources", url: "https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview", license: "CC BY 4.0" }],
       task: "2.1",
       title: "How an app talks to a model",
       visual: (
@@ -289,6 +290,7 @@ export default defineDomain({
     {
       id: "d2-code",
       check: ["d2-12", "d2-16"],
+      sources: [{ title: "About Azure Key Vault", url: "https://learn.microsoft.com/en-us/azure/key-vault/general/overview", license: "CC BY 4.0" }],
       task: "2.1",
       title: "From the Foundry playground to code",
       visual: (
@@ -320,6 +322,7 @@ export default defineDomain({
     {
       id: "d2-agents",
       check: ["d2-25", "d2-26"],
+      sources: [{ title: "What is Foundry IQ?", url: "https://learn.microsoft.com/en-us/azure/foundry/agents/concepts/what-is-foundry-iq", license: "CC BY 4.0" }],
       task: "2.1",
       title: "Build, test, and call an agent",
       visual: (
@@ -364,6 +367,10 @@ export default defineDomain({
     {
       id: "d2-speech",
       check: ["d2-49", "d2-56"],
+      sources: [
+        { title: "Speech service: Batch transcription", url: "https://learn.microsoft.com/en-us/azure/ai-services/speech-service/batch-transcription", license: "CC BY 4.0" },
+        { title: "Azure AI Language: Language detection", url: "https://learn.microsoft.com/en-us/azure/ai-services/language-service/language-detection/overview", license: "CC BY 4.0" },
+      ],
       task: "2.2",
       title: "Speech apps and voice agents",
       visual: (
@@ -392,6 +399,7 @@ export default defineDomain({
     {
       id: "d2-vision",
       check: ["d2-60", "d2-65"],
+      sources: [{ title: "What is Azure AI Vision?", url: "https://learn.microsoft.com/en-us/azure/ai-services/computer-vision/overview", license: "CC BY 4.0" }],
       task: "2.3",
       title: "See and create: vision and generation",
       visual: (

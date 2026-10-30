@@ -138,6 +138,7 @@ export default defineDomain({
       task: "1.1",
       title: "IAM, least privilege, and the shared responsibility model",
       check: ["d1-01", "d1-04"],
+      sources: [{ title: "IAM: Security best practices (least privilege)", url: "https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html", license: "AWS docs, facts only" }],
       visual: (
         <div className="grid gap-4">
           <Tiles
@@ -180,6 +181,7 @@ export default defineDomain({
       task: "1.1",
       title: "Multi-account strategy, federation, and cross-account roles",
       check: ["d1-10", "d1-13"],
+      sources: [{ title: "AWS Organizations: Service control policies", url: "https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html", license: "AWS docs, facts only" }],
       visual: (
         <div className="grid gap-4">
           <Layers
@@ -215,6 +217,7 @@ export default defineDomain({
       task: "1.2",
       title: "VPC design: subnets, routes, security groups, and NACLs",
       check: ["d1-19", "d1-22"],
+      sources: [{ title: "AWS Firewall Manager", url: "https://docs.aws.amazon.com/waf/latest/developerguide/fms-chapter.html", license: "AWS docs, facts only" }],
       visual: (
         <div className="grid gap-6">
           <VpcBuilderLab />
@@ -309,6 +312,7 @@ export default defineDomain({
       task: "1.3",
       title: "Encryption and key management: KMS, CloudHSM, and ACM",
       check: ["d1-44", "d1-47"],
+      sources: [{ title: "AWS Certificate Manager: Supported Regions", url: "https://docs.aws.amazon.com/acm/latest/userguide/acm-regions.html", license: "AWS docs, facts only" }],
       visual: (
         <div className="grid gap-4">
           <Flow
@@ -347,6 +351,7 @@ export default defineDomain({
       task: "1.3",
       title: "Data protection: backups, replication, retention, and compliance",
       check: ["d1-52", "d1-55"],
+      sources: [{ title: "Amazon RDS: Encrypting Amazon RDS resources", url: "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.Encryption.html", license: "AWS docs, facts only" }],
       visual: (
         <div className="grid gap-4">
           <Tiles

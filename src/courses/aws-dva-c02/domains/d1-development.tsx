@@ -92,6 +92,7 @@ export default defineDomain({
       task: "1.2",
       title: "Start here: running code without a server",
       check: ["dva2-b1-03", "dva2-b1-04"],
+      sources: [{ title: "AWS Lambda Developer Guide: Lambda execution role", url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-intro-execution-role.html", license: "AWS docs, facts only" }],
       visual: (
         <Flow
           color="#38bdf8"
@@ -142,6 +143,10 @@ export default defineDomain({
       task: "1.1",
       title: "Event-driven and loosely coupled design",
       check: ["d1-01", "d1-03"],
+      sources: [
+        { title: "AWS Step Functions: Choosing workflow type", url: "https://docs.aws.amazon.com/step-functions/latest/dg/choosing-workflow-type.html", license: "AWS docs, facts only" },
+        { title: "Amazon S3: Event notifications", url: "https://docs.aws.amazon.com/AmazonS3/latest/userguide/EventNotifications.html", license: "AWS docs, facts only" },
+      ],
       visual: (
         <div className="grid gap-4">
           <Tiles
@@ -213,6 +218,7 @@ export default defineDomain({
       task: "1.1",
       title: "APIs and resilient integrations",
       check: ["d1-17", "d1-20"],
+      sources: [{ title: "Amazon DynamoDB: Troubleshooting throttling", url: "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/TroubleshootingThrottling.html", license: "AWS docs, facts only" }],
       visual: (
         <div className="grid gap-4">
           <Flow

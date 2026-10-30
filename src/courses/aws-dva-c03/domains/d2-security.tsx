@@ -186,6 +186,7 @@ export default defineDomain({
       task: "2.1",
       title: "Roles, temporary credentials, and presigned URLs",
       check: ["d2-09", "d2-10", "d2-43"],
+      sources: [{ title: "AWS SDKs and Tools: Standardized credential providers", url: "https://docs.aws.amazon.com/sdkref/latest/guide/standardized-credentials.html", license: "AWS docs, facts only" }],
       visual: (
         <div className="grid gap-4">
           <Flow

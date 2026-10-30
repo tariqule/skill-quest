@@ -117,6 +117,7 @@ export default defineDomain({
       ],
       tip: "Many exam questions are really asking which rung fits. If the scenario says \"no technical staff\" or \"as fast as possible\", pick the lowest rung that works.",
       check: ["gail-b2-03", "gail-b2-04"],
+      sources: [{ title: "Gemini API pricing", url: "https://ai.google.dev/gemini-api/docs/pricing", license: "CC BY 4.0" }],
     },
     {
       id: "d2-b-agent",
@@ -232,6 +233,10 @@ export default defineDomain({
         "Conversational Insights finds common topics and **sentiment** trends across thousands of customer calls and chats.",
       ],
       check: ["d2-16", "d2-17"],
+      sources: [
+        { title: "Topic modeling basics", url: "https://cloud.google.com/contact-center/insights/docs/topic-modeling-basics", license: "CC BY 4.0" },
+        { title: "Sentiment analysis", url: "https://docs.cloud.google.com/contact-center/insights/docs/sentiment-analysis", license: "CC BY 4.0" },
+      ],
     },
     {
       id: "d2-platform",

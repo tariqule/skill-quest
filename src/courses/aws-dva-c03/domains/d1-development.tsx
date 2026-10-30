@@ -93,6 +93,7 @@ export default defineDomain({
       task: "1.2",
       title: "Start here: running code without a server",
       check: ["dva3-b1-03", "dva3-b1-04"],
+      sources: [{ title: "AWS Lambda Developer Guide: Lambda execution role", url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-intro-execution-role.html", license: "AWS docs, facts only" }],
       visual: (
         <Flow
           color="#38bdf8"
@@ -143,6 +144,10 @@ export default defineDomain({
       task: "1.1",
       title: "Decoupled, event-driven design",
       check: ["d1-01", "d1-03", "d1-04"],
+      sources: [
+        { title: "AWS Step Functions: Choosing workflow type", url: "https://docs.aws.amazon.com/step-functions/latest/dg/choosing-workflow-type.html", license: "AWS docs, facts only" },
+        { title: "Amazon S3: Event notifications", url: "https://docs.aws.amazon.com/AmazonS3/latest/userguide/EventNotifications.html", license: "AWS docs, facts only" },
+      ],
       visual: (
         <div className="grid gap-4">
           <Tiles
@@ -225,6 +230,7 @@ export default defineDomain({
       task: "1.1",
       title: "APIs, SDKs, and resilient integrations",
       check: ["d1-17", "d1-20", "d1-60"],
+      sources: [{ title: "Amazon DynamoDB: Troubleshooting throttling", url: "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/TroubleshootingThrottling.html", license: "AWS docs, facts only" }],
       visual: (
         <div className="grid gap-4">
           <Flow
@@ -263,6 +269,7 @@ export default defineDomain({
       task: "1.1",
       title: "AI-assisted development with Kiro",
       check: ["d1-23", "d1-53", "d1-54"],
+      sources: [{ title: "Amazon Bedrock User Guide", url: "https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html", license: "AWS docs, facts only" }],
       visual: (
         <div className="grid gap-4">
           <Flow
@@ -337,6 +344,7 @@ export default defineDomain({
       task: "1.2",
       title: "Configuring Lambda and handling its events",
       check: ["d1-24", "d1-25", "d1-31", "d1-33"],
+      sources: [{ title: "AWS Lambda: Lambda execution role", url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-intro-execution-role.html", license: "AWS docs, facts only" }],
       visual: (
         <div className="grid gap-4">
           <Layers

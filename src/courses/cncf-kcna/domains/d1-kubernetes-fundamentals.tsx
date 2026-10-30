@@ -118,6 +118,10 @@ export default defineDomain({
       task: "1.2",
       title: "Start here: talking to a cluster with kubectl",
       check: ["kcna-b1-05", "kcna-b1-06"],
+      sources: [
+        { title: "kubectl explain", url: "https://kubernetes.io/docs/reference/kubectl/generated/kubectl_explain/", license: "CC BY 4.0" },
+        { title: "Kubernetes docs: Namespaces", url: "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/", license: "CC BY 4.0" },
+      ],
       visual: (
         <CodeBlock
           lang="sh"
@@ -142,7 +146,10 @@ kubectl describe pod web-7d4b9`}
       task: "1.1",
       title: "Cluster architecture: control plane and nodes",
       check: ["d1-01", "d1-02"],
-      sources: [{ title: "Kubernetes docs: Cluster Architecture", url: "https://kubernetes.io/docs/concepts/architecture/", license: "CC BY 4.0" }],
+      sources: [
+        { title: "Kubernetes docs: Cluster Architecture", url: "https://kubernetes.io/docs/concepts/architecture/", license: "CC BY 4.0" },
+        { title: "Kubernetes docs: Cloud Controller Manager", url: "https://kubernetes.io/docs/concepts/architecture/cloud-controller/", license: "CC BY 4.0" },
+      ],
       visual: <ClusterMap />,
       points: [
         "The **control plane** makes the decisions. It's made of kube-apiserver (the only way in), etcd (where state is stored), kube-scheduler (picks where Pods run) and kube-controller-manager (runs the control loops).",
@@ -161,6 +168,7 @@ kubectl describe pod web-7d4b9`}
       task: "1.1 · 1.2",
       title: "The Kubernetes API, objects, and kubectl",
       check: ["d1-11", "d1-12"],
+      sources: [{ title: "Kubernetes docs: Deployments", url: "https://kubernetes.io/docs/concepts/workloads/controllers/deployment/", license: "CC BY 4.0" }],
       visual: (
         <div className="grid gap-4">
           <CodeBlock

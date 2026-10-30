@@ -173,6 +173,7 @@ export default defineDomain({
       task: "2.1",
       title: "Services, Ingress, Gateway API, and service mesh",
       check: ["d2-11", "d2-12"],
+      sources: [{ title: "Kubernetes docs: Liveness, Readiness and Startup Probes", url: "https://kubernetes.io/docs/concepts/configuration/liveness-readiness-startup-probes/", license: "CC BY 4.0" }],
       visual: (
         <div className="grid gap-4">
           <ServiceTypeLab />
@@ -199,6 +200,7 @@ export default defineDomain({
       task: "2.2",
       title: "Security: RBAC, Pod security, and NetworkPolicy",
       check: ["d2-21", "d2-22"],
+      sources: [{ title: "Kubernetes docs: Configure a Security Context", url: "https://kubernetes.io/docs/tasks/configure-pod-container/security-context/", license: "CC BY 4.0" }],
       visual: (
         <div className="grid gap-4">
           <Layers

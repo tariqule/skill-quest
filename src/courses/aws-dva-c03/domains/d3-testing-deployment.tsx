@@ -209,6 +209,7 @@ export default defineDomain({
       task: "3.2 · 3.3",
       title: "CloudFormation, SAM, and CDK",
       check: ["d3-07", "d3-08"],
+      sources: [{ title: "AWS CloudFormation: Template anatomy", url: "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-anatomy.html", license: "AWS docs, facts only" }],
       visual: (
         <div className="grid gap-4">
           <Flow

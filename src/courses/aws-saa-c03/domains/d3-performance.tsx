@@ -239,6 +239,7 @@ export default defineDomain({
       task: "3.3",
       title: "Choosing high-performing databases",
       check: ["d3-18", "d3-19"],
+      sources: [{ title: "Amazon Aurora: Aurora Serverless v2", url: "https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless-v2.html", license: "AWS docs, facts only" }],
       visual: (
         <div className="grid gap-4">
           <Tiles
@@ -333,6 +334,10 @@ export default defineDomain({
       task: "3.5",
       title: "Data ingestion, streaming, transfer, and data lakes",
       check: ["d3-40", "d3-41"],
+      sources: [
+        { title: "AWS Glue: Using crawlers to populate the Data Catalog", url: "https://docs.aws.amazon.com/glue/latest/dg/add-crawler.html", license: "AWS docs, facts only" },
+        { title: "What is Amazon Quick?", url: "https://docs.aws.amazon.com/quick/latest/userguide/what-is.html", license: "AWS docs, facts only" },
+      ],
       visual: (
         <div className="grid gap-4">
           <Flow

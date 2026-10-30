@@ -134,6 +134,7 @@ export default defineDomain({
     {
       id: "d2-shared",
       check: ["d2-01", "d2-07"],
+      sources: [{ title: "AWS Lambda: Security in AWS Lambda", url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-security.html", license: "AWS docs, facts only" }],
       task: "2.1",
       title: "Shared responsibility, and how it shifts",
       visual: (
@@ -297,6 +298,10 @@ export default defineDomain({
     {
       id: "d2-services",
       check: ["d2-39", "d2-41"],
+      sources: [
+        { title: "AWS Config: What is AWS Config?", url: "https://docs.aws.amazon.com/config/latest/developerguide/WhatIsConfig.html", license: "AWS docs, facts only" },
+        { title: "AWS Systems Manager Session Manager", url: "https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html", license: "AWS docs, facts only" },
+      ],
       task: "2.2 · 2.4",
       title: "The security service lineup",
       visual: (

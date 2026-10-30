@@ -199,6 +199,7 @@ export default defineDomain({
       task: "2.1",
       title: "Serverless and containers",
       check: ["d2-17", "d2-18"],
+      sources: [{ title: "AWS Step Functions: Choosing workflow type", url: "https://docs.aws.amazon.com/step-functions/latest/dg/choosing-workflow-type.html", license: "AWS docs, facts only" }],
       visual: (
         <div className="grid gap-4">
           <Tiles

@@ -63,6 +63,7 @@ export default defineDomain({
       id: "d1-b-what-ai",
       level: "beginner",
       check: ["ai901-b1-01", "ai901-b1-02"],
+      sources: [{ title: "What is Microsoft Foundry?", url: "https://learn.microsoft.com/en-us/azure/ai-foundry/what-is-azure-ai-foundry", license: "CC BY 4.0" }],
       task: "1.3",
       title: "What AI actually is",
       visual: (
@@ -194,6 +195,7 @@ export default defineDomain({
     {
       id: "d1-choose",
       check: ["d1-20", "d1-24"],
+      sources: [{ title: "Foundry Models catalog", url: "https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/foundry-models-overview", license: "CC BY 4.0" }],
       task: "1.2",
       title: "Choose the right model",
       visual: (
@@ -229,6 +231,10 @@ export default defineDomain({
     {
       id: "d1-deploy",
       check: ["d1-28", "d1-33"],
+      sources: [
+        { title: "Azure OpenAI: Global Batch", url: "https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/batch", license: "CC BY 4.0" },
+        { title: "Provisioned throughput concepts", url: "https://learn.microsoft.com/en-us/azure/ai-foundry/openai/concepts/provisioned-throughput", license: "CC BY 4.0" },
+      ],
       task: "1.2",
       title: "Deployment options and parameters",
       visual: (
@@ -257,6 +263,7 @@ export default defineDomain({
     {
       id: "d1-workloads",
       check: ["d1-37", "d1-41"],
+      sources: [{ title: "Azure OpenAI: Video generation (Sora)", url: "https://learn.microsoft.com/en-us/azure/ai-foundry/openai/concepts/video-generation", license: "CC BY 4.0" }],
       task: "1.3",
       title: "Spot the AI workload",
       visual: (

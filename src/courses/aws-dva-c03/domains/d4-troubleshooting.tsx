@@ -188,6 +188,7 @@ export default defineDomain({
       task: "4.1 · 4.2",
       title: "Root cause analysis and alerting",
       check: ["d4-13", "d4-14"],
+      sources: [{ title: "AWS Lambda: Internet access for VPC functions", url: "https://docs.aws.amazon.com/lambda/latest/dg/configuration-vpc-internet.html", license: "AWS docs, facts only" }],
       visual: (
         <div className="grid gap-4">
           <Tiles
