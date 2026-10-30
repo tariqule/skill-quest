@@ -185,6 +185,21 @@ export default defineCourse({
       ],
     },
     {
+      title: "Guardrails and text and speech details",
+      items: [
+        ["Harm categories", "Hate, sexual, violence, self-harm, each scored safe, low, medium, or high"],
+        ["Strictest filter", "Block from low upward. Blocking only high is the most lenient"],
+        ["Prompt Shields", "User prompt attacks (jailbreaks) and indirect attacks hidden in documents"],
+        ["Groundedness detection", "Flags answers that drift from the source material you supplied"],
+        ["Filtered reply", "A blocked prompt returns an error. A filtered response has finish_reason content_filter"],
+        ["Sentiment labels", "Positive, neutral, negative per sentence. Mixed for a document with both"],
+        ["Summarization", "Extractive returns ranked original sentences. Abstractive writes new ones"],
+        ["Recognition accuracy", "Custom speech model or a phrase list"],
+        ["How speech sounds", "Neural voices and SSML for rate, pitch, pauses, pronunciation"],
+        ["Speech translation", "Hear one language, return text or speech in another"],
+      ],
+    },
+    {
       title: "Python quick reference",
       items: [
         ["Chat", "Create OpenAI(base_url, api_key), call client.responses.create(model=deployment, input=…), then read response.output_text"],

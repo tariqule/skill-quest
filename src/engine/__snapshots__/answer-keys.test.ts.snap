@@ -3811,6 +3811,25 @@ exports[`answer keys azure-ai-901 > match the reviewed snapshot 1`] = `
   "d1-59": [
     "It creates a new image that matches a text description",
   ],
+  "d1-61": [
+    "Mixed",
+  ],
+  "d1-62": [
+    "Abstractive summarization",
+  ],
+  "d1-63": [
+    "Train a custom speech model with the pharmacy's audio and text",
+    "Add the drug names to a phrase list",
+  ],
+  "d1-64": [
+    "Speech Synthesis Markup Language (SSML)",
+  ],
+  "d1-65": [
+    "Prompt Shields for indirect attacks",
+  ],
+  "d1-66": [
+    "Block low, medium, and high",
+  ],
   "d2-01": [
     "In the system prompt",
   ],
