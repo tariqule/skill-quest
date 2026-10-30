@@ -24,6 +24,8 @@ export function Editor({
   minLines?: number;
 }) {
   const area = useRef<HTMLTextAreaElement>(null);
+  const escaped = useRef(false);
+  const unit = lang === "python" || lang === "java" ? "    " : "  ";
   const back = useRef<HTMLDivElement>(null);
   const lines = Math.max(minLines, value.split("\n").length + 1);
 
@@ -41,27 +43,37 @@ export function Editor({
   function onKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
     const el = e.currentTarget;
     const { selectionStart: s, selectionEnd: end } = el;
+    if (e.key === "Escape") {
+      // Keyboard users press Esc, then Tab, to leave the editor (Tab otherwise indents).
+      escaped.current = true;
+      return;
+    }
+    if (e.key === "Tab" && escaped.current) {
+      escaped.current = false;
+      return;
+    }
+    escaped.current = false;
     if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
       e.preventDefault();
       onRun?.();
     } else if (e.key === "Tab") {
       e.preventDefault();
       if (e.shiftKey) {
-        // Outdent the current line by up to two spaces.
+        // Outdent the current line by up to one indent unit.
         const lineStart = value.lastIndexOf("\n", s - 1) + 1;
-        const lead = /^ {1,2}/.exec(value.slice(lineStart))?.[0].length ?? 0;
+        const lead = new RegExp(`^ {1,${unit.length}}`).exec(value.slice(lineStart))?.[0].length ?? 0;
         if (lead) edit(value.slice(0, lineStart) + value.slice(lineStart + lead), Math.max(lineStart, s - lead));
       } else {
-        edit(value.slice(0, s) + "  " + value.slice(end), s + 2);
+        edit(value.slice(0, s) + unit + value.slice(end), s + unit.length);
       }
     } else if (e.key === "Enter") {
       e.preventDefault();
       const lineStart = value.lastIndexOf("\n", s - 1) + 1;
       const indent = /^[ \t]*/.exec(value.slice(lineStart, s))?.[0] ?? "";
       const before = value.slice(0, s).trimEnd();
-      const open = /[{[(]$/.test(before);
-      const closes = /^[\s]*[}\])]/.test(value.slice(end));
-      const inner = indent + (open ? "  " : "");
+      const open = /[{[(]$/.test(before) || (lang === "python" && /:$/.test(before.replace(/#.*$/, "").trimEnd()));
+      const closes = /[{[(]$/.test(before) && /^[\s]*[}\])]/.test(value.slice(end));
+      const inner = indent + (open ? unit : "");
       if (open && closes) {
         const text = value.slice(0, s) + "\n" + inner + "\n" + indent + value.slice(end);
         edit(text, s + 1 + inner.length);
@@ -71,11 +83,11 @@ export function Editor({
     }
   }
 
-  const shared = "font-mono text-[13px] leading-6 whitespace-pre p-3";
+  const shared = "font-mono text-[14px] leading-6 whitespace-pre p-3";
 
   return (
     <div className="flex overflow-hidden rounded-xl border border-white/10 bg-slate-950 focus-within:border-sky-400/60" style={{ height: `${lines * 1.5 + 1.5}rem`, maxHeight: "28rem" }}>
-      <div aria-hidden className="select-none border-r border-white/5 bg-white/[0.02] py-3 pl-3 pr-2 text-right font-mono text-[13px] leading-6 text-slate-600">
+      <div aria-hidden className="select-none border-r border-white/5 bg-white/[0.02] py-3 pl-3 pr-2 text-right font-mono text-[14px] leading-6 text-slate-600">
         {Array.from({ length: lines }, (_, i) => (
           <div key={i}>{i + 1}</div>
         ))}
@@ -95,11 +107,15 @@ export function Editor({
           autoCapitalize="off"
           autoCorrect="off"
           autoComplete="off"
-          aria-label="Code editor"
+          aria-label={`Code editor${lang === "python" ? " (Python)" : lang === "java" ? " (Java)" : ""}`}
+          aria-describedby="editor-keys"
           wrap="off"
           className={`absolute inset-0 h-full w-full resize-none overflow-auto bg-transparent text-transparent caret-white outline-none selection:bg-sky-400/30 ${shared}`}
         />
       </div>
+      <span id="editor-keys" className="sr-only">
+        Tab indents. Shift plus Tab outdents. Press Escape, then Tab, to leave the editor. Control or Command plus Enter runs the tests.
+      </span>
     </div>
   );
 }

@@ -55,7 +55,7 @@ export default defineDomain({
       title: "Why designers count requests",
       check: ["sd-b1-03", "sd-b1-04"],
       visual: (
-        <Ladder
+        <Ladder caption="more users, more pieces to run"
           rungs={[
             { icon: "🧑", name: "A few users", text: "One server and one database handle everything easily." },
             { icon: "🏘️", name: "Thousands of users", text: "You add a cache so the database does less repeated work." },

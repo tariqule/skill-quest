@@ -181,7 +181,7 @@ export default defineDomain({
       task: "2.1",
       title: "Microsoft Foundry: your AI workshop",
       visual: (
-        <Ladder
+        <Ladder caption="each one sits inside the one below"
           rungs={[
             { icon: "🏢", name: "Foundry resource", text: "The building. It holds the models, the billing, and the security." },
             { icon: "🗂️", name: "Foundry project", text: "One workbench inside, for one job, such as a support bot." },
@@ -225,6 +225,7 @@ export default defineDomain({
         "In the code you name your deployment, not the model family. If you called your deployment my-chat, you pass my-chat.",
         "Python is the language used in AI-901 examples. You only need to read short snippets like the one shown here.",
         "Never paste an API key into shared code. Keep it somewhere safe, such as **Azure Key Vault**.",
+        "For example, a chat app sends the model a system message (\"you are a polite travel helper\") plus the user's question, and gets back one reply message.",
       ],
       tip: "Treat an API key like a house key. Don't paste it into code you share, and don't put it in a prompt.",
     },
@@ -249,6 +250,8 @@ export default defineDomain({
         "Foundry Tools are more like kitchen appliances. A toaster does one job and does it the same way every time.",
         "Azure Language handles text, Azure Speech handles voice, and Azure Content Understanding pulls named fields out of documents, images, audio, and video.",
         "When another program needs the answer in a fixed format, such as a language code, an appliance is usually the better pick.",
+        "For example, a call centre can turn recordings into text with Speech, then score each transcript's sentiment with Language, with no model training at all.",
+        "Pitfall: building a custom model for a job a prebuilt tool already does, such as reading invoices. Try the prebuilt option first.",
       ],
       tip: "Ask yourself: do I need a conversation, or the same tidy answer every time? Conversation points to a model. Tidy answers point to a Foundry Tool.",
     },
@@ -284,6 +287,8 @@ export default defineDomain({
         "The system prompt sets the assistant's behaviour, tone, tools, and limits. The user prompt is what the person actually asks.",
         "Apps keep the conversation history and send it along with each new prompt. That's how a follow-up like \"and Q4?\" makes sense.",
         "Retrieval-augmented generation (RAG) means you look up relevant data first and add it to the prompt. The answer is then grounded in your own content.",
+        "Worked example: a store bot answers \"what's your return window?\" wrongly. Adding the store's actual return policy to the prompt grounds the answer in your data.",
+        "Pitfall: putting rules only in the user prompt. The user can change that part, so rules about tone and limits belong in the system prompt.",
       ],
       tip: "If an answer is generic when it should be about your organization, the fix is usually grounding, not a bigger model.",
     },
@@ -334,9 +339,10 @@ export default defineDomain({
       points: [
         "A Foundry agent bundles a model, instructions, and tools. Tools let it take actions. Knowledge gives it information to answer from.",
         "Tools include Code Interpreter, knowledge sources, your own functions or APIs, and MCP servers. You manage them in the Foundry Tool Catalog.",
-        "Foundry IQ is a knowledge layer that respects permissions. It indexes your sources and gives answers with citations.",
         "Once you're happy with the model, instructions, and tools, save them as an agent and keep testing it in the playground.",
         "Foundry IQ gives agents a permission-aware knowledge base across sources such as Azure Blob Storage, SharePoint and OneLake, with answers backed by citations.",
+        "Worked example: a travel agent gets a flight search tool. Asked for Friday flights to Lisbon, the model decides to call the tool, reads the results, and replies with options.",
+        "Pitfall: shipping an agent you haven't tried in the playground. Test it with real questions first and check every tool call it makes.",
       ],
       tip: "A model on its own takes one prompt and gives one answer. An agent plans its steps, calls tools, and remembers what happened earlier in the conversation.",
     },
@@ -362,6 +368,8 @@ export default defineDomain({
         "detect_language() gives you the language name, its two-letter ISO 639-1 code, and a confidence score between 0 and 1.",
         "recognize_pii_entities() gives you the text with personal details blanked out, plus each detail's category and confidence score.",
         "If you have a Foundry resource, you don't need a separate Azure Language resource to use the Azure Language MCP server.",
+        "Pitfall: a prompt such as \"is this review positive?\" can word its answer differently each time. When a dashboard needs the same labels and scores every run, call Azure Language instead.",
+        "For example, a feedback app can send each comment to Azure Language and store the sentiment label next to it, so the dashboard can count negative comments by week.",
       ],
     },
     {
@@ -393,6 +401,7 @@ export default defineDomain({
         "Voice Live, in the azure-ai-voicelive package, combines speech recognition, a generative model, and speech synthesis for live voice conversations.",
         "Voice mode builds Voice Live into a Foundry agent's definition, so your client app needs less code.",
         "For thousands of recorded calls in Azure Storage, use batch transcription: point it at the files with a SAS URI and collect the transcripts asynchronously.",
+        "For example, a voice ordering kiosk turns speech into text, sends the text to a model, and speaks the reply back with text to speech.",
       ],
       tip: "A multimodal model that accepts audio can answer a spoken question directly, with no separate transcription step.",
     },
@@ -420,6 +429,8 @@ export default defineDomain({
         "To create an image with the Responses API, add tools=[{\"type\": \"image_generation\"}]. The output item of type image_generation_call holds the image as base64.",
         "Sora 2 can make video from text or an image, remix a video, and generate audio. Sora models come with responsible AI restrictions.",
         "Video generation with the Sora 2 REST API is asynchronous: send a POST request to create a video job, poll its status until it completes, then download the MP4.",
+        "Common mistake: expecting the video in the first response. That response only describes the job, so your code must keep checking its status before it can download anything.",
+        "For example, a shop could generate a product photo from the prompt \"red ceramic mug on a wooden table, soft light\" instead of booking a photo shoot.",
       ],
     },
     {
@@ -446,6 +457,8 @@ export default defineDomain({
         "An analyzer applies the same schema to every request and returns predictable JSON. You can use a prebuilt analyzer or build your own.",
         "Prebuilt analyzers include prebuilt-invoice, prebuilt-imageSearch, prebuilt-audioSearch, and prebuilt-videoSearch.",
         "Analysis runs in the background. The SDK's poller waits for you. With REST, you keep checking the Operation-Location URL yourself.",
+        "Worked example: for supplier invoices, start from prebuilt-invoice. Add a custom field such as PurchaseOrderNumber to the schema, and every invoice comes back as JSON with the same field names.",
+        "Pitfall: expecting perfect fields from a blurry scan. Check the confidence score on each field and send low-scoring ones to a person.",
       ],
       tip: "When a question talks about fields, schemas, or analyzers across documents, images, audio, or video, the answer is Azure Content Understanding in Foundry Tools.",
     },

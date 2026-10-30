@@ -7,7 +7,7 @@ import { createEmptyCard, fsrs, Rating, State, type Card as FsrsCard, type Grade
  */
 
 /** card: flashcard; q: quiz question; sc: scenario-game item (src/scenarios). */
-export type ItemKind = "card" | "q" | "sc";
+export type ItemKind = "card" | "q" | "sc" | "code";
 
 /** One scheduled item, stored as JSON (dates as ISO strings). */
 export interface SrsRecord {
@@ -36,7 +36,7 @@ export function itemKey(courseId: string, kind: ItemKind, id: string) {
 }
 
 export function parseKey(key: string): { courseId: string; kind: ItemKind; id: string } | null {
-  const m = /^([^:]+):(card|q|sc):(.+)$/.exec(key);
+  const m = /^([^:]+):(card|q|sc|code):(.+)$/.exec(key);
   return m ? { courseId: m[1], kind: m[2] as ItemKind, id: m[3] } : null;
 }
 

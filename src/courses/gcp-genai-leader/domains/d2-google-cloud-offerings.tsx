@@ -101,7 +101,7 @@ export default defineDomain({
       task: "2.4",
       title: "Three ways to get gen AI: use it, configure it, build it",
       visual: (
-        <Ladder
+        <Ladder caption="more control and more effort as you climb"
           rungs={[
             { icon: "📱", name: "Use a finished app", text: "Type into the Gemini app or use Gemini inside Gmail. Nothing to build." },
             { icon: "🧰", name: "Configure a ready-made tool", text: "Point a search or chat tool at your own documents and switch it on." },

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { LANGUAGE_LABEL, languageOf } from "@/engine/coding-langs";
 import { IntroOffer } from "@/components/learn/IntroOffer";
 import { type CSSProperties } from "react";
 import { TerminalWindow, Typewriter } from "@/components/code/ui";
@@ -13,7 +14,7 @@ import { domainMastery, overallReadiness, pct } from "@/engine/game";
 import { effectiveLevel, LEVEL_BY_ID } from "@/engine/levels";
 import { CourseLevel, LevelUpBanner } from "@/components/LevelControls";
 import { MODE_BY_ID, modesFor } from "@/engine/modes";
-import { buildPath, type PathNode } from "@/engine/path";
+import { buildPath, tileLabel, type PathNode } from "@/engine/path";
 import { levelInfo } from "@/engine/store";
 
 /** The mission map for interview tracks: a terminal hub plus an arcade level-select. */
@@ -111,7 +112,7 @@ export function CodeMap() {
               <div className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-emerald-300">New · live coding</div>
               <div className="font-mono text-xl font-black text-white">Write real code, run real tests</div>
               <p className="mt-1 text-sm text-slate-400">
-                {codingAtLevel.length} challenges at {skill.name.toLowerCase()} level: an editor, hidden tests, hints, and a reference solution. {codingSolved}/{codingAtLevel.length} solved.
+                {codingAtLevel.length} {LANGUAGE_LABEL[languageOf(codingAtLevel[0])]} challenges at {skill.name.toLowerCase()} level, run in your browser: an editor, hidden tests, hints, and a reference solution. {codingSolved}/{codingAtLevel.length} solved.
               </p>
             </div>
             <span className="btn-3d rounded-xl bg-emerald-400 px-5 py-2.5 text-center font-mono text-sm font-black uppercase tracking-wider text-slate-950" style={{ "--edge": "#065f46" } as CSSProperties}>
@@ -265,7 +266,7 @@ function Tile({ node, label, color }: { node: PathNode; label: string; color: st
     >
       <div className="flex items-center justify-between font-mono text-xs font-black" style={{ color: boss ? "#f472b6" : color }}>
         <span>{label}</span>
-        <span>{done ? "★" : locked ? "🔒" : boss ? "⚔️" : current ? "▶" : later ? "⏭" : node.basics ? "🐣" : "·"}</span>
+        <span aria-hidden="true">{done ? "★" : locked ? "🔒" : boss ? "⚔️" : current ? "▶" : later ? "⏭" : node.basics ? "🐣" : "·"}</span>
       </div>
       <div className="mt-2 line-clamp-3 text-xs leading-snug text-slate-200">{boss ? "Stage boss: prove the whole stage" : node.title}</div>
       {later && <div className="mt-1 text-[10px] text-slate-500">after the basics</div>}
@@ -281,7 +282,7 @@ function Tile({ node, label, color }: { node: PathNode; label: string; color: st
   return locked ? (
     <span aria-label={`${node.title} (locked)`}>{body}</span>
   ) : (
-    <Link href={href(node.to)} aria-label={node.title} className="block h-full">
+    <Link href={href(node.to)} aria-label={tileLabel(node)} title={tileLabel(node)} className="block h-full">
       {body}
     </Link>
   );

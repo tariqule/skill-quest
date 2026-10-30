@@ -1,0 +1,5 @@
+ecj-3.26.0.jar is the Eclipse Compiler for Java (org.eclipse.jdt:ecj:3.26.0),
+from Maven Central, unmodified. Copyright (c) Eclipse Foundation and contributors.
+Licensed under the Eclipse Public License 2.0: https://www.eclipse.org/legal/epl-2.0/
+Source: https://github.com/eclipse-jdt/eclipse.jdt.core
+It is loaded only by java.html to compile code in the browser through CheerpJ.

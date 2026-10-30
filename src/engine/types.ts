@@ -231,8 +231,20 @@ export interface CodingTest {
  * A live coding challenge: the player edits `starter` in the browser editor and runs it against
  * the tests. `fn` is the function name the tests call. Plain JavaScript, no imports.
  */
+/** Java types the harness knows how to build literals for and compare. */
+export type JavaType = string;
+
+export type CodingLanguage = "js" | "python" | "java";
+
 export interface CodingChallenge {
   id: string;
+  /** Language the player writes in; JavaScript when left out. */
+  language?: CodingLanguage;
+  /**
+   * Java only: the method `fn` lives on `class Solution` and has these parameter and return types,
+   * for example `int[]`, `String`, `List<Integer>`, `Map<String, Integer>`, `long`, `boolean`.
+   */
+  java?: { params: JavaType[]; returns: JavaType };
   domain: string;
   lesson?: string;
   level: SkillLevel;
@@ -250,6 +262,8 @@ export interface CodingChallenge {
   explanation: string;
   /** Target complexity or key idea, shown as a chip. */
   idea?: string;
+  /** Time and space notes, shown with the reference solution. */
+  complexity?: string;
 }
 
 // ───────────── Exam and guide ─────────────

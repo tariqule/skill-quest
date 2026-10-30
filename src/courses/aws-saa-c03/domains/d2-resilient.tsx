@@ -272,7 +272,7 @@ export default defineDomain({
       check: ["d2-31", "d2-32"],
       visual: (
         <div className="grid gap-6">
-          <Ladder
+          <Ladder dollars caption="more cost as you climb, and faster recovery"
             rungs={[
               { icon: "💾", name: "Backup and restore", text: "Hours. Backups sit in another Region, and you rebuild with infrastructure as code." },
               { icon: "🕯️", name: "Pilot light", text: "Tens of minutes. Data is copied live, but app servers stay off until needed." },

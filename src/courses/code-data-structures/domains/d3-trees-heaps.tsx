@@ -43,7 +43,7 @@ export default defineDomain({
       task: "3.1",
       title: "Start here: trees, like a family tree",
       visual: (
-        <Ladder
+        <Ladder caption="further from the root as you climb"
           rungs={[
             { icon: "👑", name: "Root", text: "The one node at the top. Everything else hangs below it." },
             { icon: "🌿", name: "Children", text: "The nodes directly below a node. In a binary tree, each node has at most two: left and right." },
@@ -56,6 +56,7 @@ export default defineDomain({
         "The top node is the **root**. The nodes directly below a node are its **children**, and the node above is its **parent**.",
         "In a **binary tree**, each node has at most two children, called left and right.",
         "A node with no children is a **leaf**. Your computer's folders form a tree too: folders inside folders, with files as the leaves.",
+        "For example, a company org chart is a tree. The CEO is the root, each person reports to one manager, and people with no reports are the leaves.",
       ],
       tip: "Computer science trees grow downwards. The root is drawn at the top and the leaves at the bottom.",
     },
@@ -80,6 +81,7 @@ export default defineDomain({
         "Each item has a priority. A patient with a broken arm waits while a heart attack patient is seen first, even if they came in later.",
         "The usual way to build one is a **heap**: a tree where every parent is more urgent than its children, so the most urgent item sits at the top.",
         "Grabbing the top item is instant. Adding or removing items only takes a few steps, even with millions of them.",
+        "Pitfall: a heap isn't sorted. Only the top item is sure to be the smallest (or the largest), so reading the array from start to end doesn't give sorted order.",
       ],
       tip: "A plain queue asks \"who came first?\". A priority queue asks \"who matters most right now?\".",
     },
@@ -123,6 +125,8 @@ export default defineDomain({
         "A perfect tree of height h, counted in edges, holds 2^(h+1) − 1 nodes. So a balanced tree with n nodes is only about log₂ n levels tall.",
         "Recursion fits trees well. You solve the left subtree, solve the right subtree, then combine the two answers.",
         "Always treat the empty tree (`null`) as your base case, the point where the recursion stops.",
+        "Worked example: a tree with root 1, children 2 and 3, and a child 4 under 2 has height 2 when you count edges. Count nodes instead and it is 3, so say which one you mean.",
+        "Pitfall: forgetting the empty tree. A recursive function that reads `node.left` without first checking for `null` crashes on the very first missing child.",
       ],
       tip: "Ask whether height counts edges or nodes. Interviewers use both, and the answers differ by one.",
     },
@@ -139,6 +143,8 @@ export default defineDomain({
         "**Postorder** visits left, then right, then the root, so children come before parents. That's what you want for deleting a tree or adding up subtree sizes and heights.",
         "**Level order** is breadth-first search: you use a queue and finish one level before starting the next.",
         "Every traversal takes O(n) time. Recursive depth-first versions use O(h) stack space, and breadth-first uses space for the widest level.",
+        "Worked example: for the BST with root 4, left child 2, and right child 6, in-order visits 2, 4, 6. Pre-order visits 4, 2, 6. Post-order visits 2, 6, 4.",
+        "Pitfall: a level-order traversal written with recursion. Breadth-first needs a queue, and recursion gives you depth-first order instead.",
       ],
       tip: "Asked to save a tree so you can rebuild it? Preorder with a marker for every missing child rebuilds it exactly.",
     },
@@ -156,6 +162,8 @@ export default defineDomain({
         "To delete a node with two children, copy in its in-order successor or predecessor, then delete that node instead.",
         "Self-balancing trees, like AVL and red-black trees, keep the height at O(log n). Databases use **B-trees**, which store many keys per node so the tree stays very shallow.",
         "A **skip list** is a sorted linked list with extra \"express lane\" levels picked at random. It gives O(log n) expected search, insert and delete, and Redis uses one for sorted sets.",
+        "Worked example: insert 5, 3, 8, 1 into an empty BST. 5 becomes the root, 3 goes left, 8 goes right, and 1 goes left of 3.",
+        "Pitfall: inserting keys that are already sorted, such as 1, 2, 3, 4. Each one goes right, the tree turns into a linked list, and search drops to O(n).",
       ],
       tip: "To validate a BST, pass a (min, max) range down the tree. Checking each node only against its direct children is a classic wrong answer.",
     },

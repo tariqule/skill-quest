@@ -107,7 +107,7 @@ export default defineDomain({
       title: "Hot and cold storage",
       check: ["saa-b4-03", "saa-b4-04"],
       visual: (
-        <Ladder
+        <Ladder caption="higher price to store, cheaper and faster to read as you climb"
           rungs={[
             { icon: "🧊", name: "Cold: S3 Glacier", text: "Cheapest to keep, but slower and pricier to get back. Like boxes in the attic." },
             { icon: "🌗", name: "Cool: S3 Standard-IA", text: "Cheaper to keep, with a small fee each time you read it." },
@@ -154,7 +154,7 @@ export default defineDomain({
       check: ["d4-01", "d4-02"],
       visual: (
         <div className="grid gap-6">
-          <Ladder
+          <Ladder caption="higher price to store, cheaper and faster to read as you climb"
             rungs={[
               { icon: "🕳️", name: "Glacier Deep Archive", text: "The lowest storage cost. Restores take 12 to 48 hours. You pay for at least 180 days." },
               { icon: "🏔️", name: "Glacier Flexible Retrieval", text: "Restores in minutes (expedited) up to hours. You pay for at least 90 days." },

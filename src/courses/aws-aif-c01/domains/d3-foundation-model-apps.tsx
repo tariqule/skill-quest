@@ -206,7 +206,7 @@ export default defineDomain({
       task: "3.1 · 3.3",
       title: "The customisation ladder",
       visual: (
-        <Ladder
+        <Ladder dollars caption="more cost, effort, and data as you climb"
           rungs={[
             { icon: "✍️", name: "Prompt engineering and in-context learning", text: "Instructions and examples in the prompt. No training." },
             { icon: "📚", name: "RAG", text: "Fetch fresh facts when the question comes in. The model itself doesn't change." },

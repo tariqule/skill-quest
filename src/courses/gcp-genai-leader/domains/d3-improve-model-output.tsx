@@ -140,7 +140,7 @@ export default defineDomain({
               { icon: "🧪", title: "Edge cases", text: "Rare, unusual inputs that show up the model's weak spots.", color: "#ea4335" },
             ]}
           />
-          <Ladder
+          <Ladder dollars caption="more cost and effort as you climb"
             rungs={[
               { icon: "✍️", name: "Prompt engineering", text: "Clearer instructions, examples and roles. No training." },
               { icon: "📎", name: "Grounding and RAG", text: "Tie answers to sources you can check: your own data or Google Search." },

@@ -13,6 +13,7 @@ import { buildQueue } from "@/engine/daily-queue";
 import { completeScenario, makeOnce } from "@/engine/scenario-progress";
 import { getCourseStore } from "@/engine/store";
 import { GameItem } from "@/components/code-games/GameItem";
+import { CodeReview } from "@/components/coding/CodeReview";
 import { isChoice, type Card, type ChoiceQuestion, type Course } from "@/engine/types";
 
 const noop = () => () => {};
@@ -28,7 +29,7 @@ export default function DailyReview() {
         </Link>
         <h1 className="mt-2 text-3xl font-black text-white">🔁 Daily Review</h1>
         <p className="mt-1 text-base text-slate-300">
-          Questions you missed, a few new questions, and flashcards from all your courses, mixed together. Each one comes back just before you&apos;d forget it.
+          Questions you missed, a few new questions, flashcards, and coding exercises from all your courses, mixed together. Each one comes back just before you&apos;d forget it.
         </p>
         {mounted ? <Session /> : <div className="mt-6 h-64 rounded-3xl bg-slate-900/40" aria-hidden />}
       </main>
@@ -101,6 +102,8 @@ function Session() {
             }
             onDone={() => setI((n) => n + 1)}
           />
+        ) : item.kind === "code" ? (
+          <CodeReview key={item.key} course={item.course} c={item.code} onDone={next} />
         ) : isChoice(item.q) ? (
           <QuestionItem key={item.key} course={item.course} q={item.q} fresh={item.fresh} note={note} onGrade={next} />
         ) : (

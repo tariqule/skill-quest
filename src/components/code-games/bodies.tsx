@@ -276,14 +276,14 @@ export function BugBody({ q, submitted, onSubmit, reveal }: BodyProps) {
           )}
         </div>
       )}
-      {!locked && (
+      {!locked && line !== null && onRight && (
         <button
           type="button"
-          disabled={line === null || !onRight || fix === null}
+          disabled={fix === null}
           onClick={() => onSubmit([line!, FIX_BASE + fix!, ...(missed.length ? [MISSED_LINE] : [])])}
           className="mt-5 rounded-xl bg-sky-500 px-5 py-2.5 font-semibold text-slate-950 transition hover:bg-sky-400 disabled:opacity-40"
         >
-          Check
+          {fix === null ? "Pick a fix above, then Check" : "Check"}
         </button>
       )}
     </>

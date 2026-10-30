@@ -1,4 +1,5 @@
 import { defineCourse, withQuestions } from "@/engine/define";
+import { codingChallenges } from "./coding";
 import d1 from "./domains/d1-data-mutability";
 import d2 from "./domains/d2-iteration";
 import d3 from "./domains/d3-functions-scope";
@@ -24,6 +25,7 @@ export default defineCourse({
   level: "Intermediate",
   storageKey: "course:code-python:v1",
 
+  coding: codingChallenges,
   domains: withQuestions([d1, d2, d3, d4], [...moreQuestions, ...codeGames]),
 
   exam: {
