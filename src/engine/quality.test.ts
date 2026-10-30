@@ -1,18 +1,48 @@
+import { isValidElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { COURSES } from "@/courses";
 import { qualityReport, teachBeforeTestWarnings, type ConceptList } from "./quality";
-import type { Course } from "./types";
+import type { Course, Lesson } from "./types";
+import { CONCEPTS as AIF } from "@/courses/aws-aif-c01/concepts";
+import { CONCEPTS as CLF } from "@/courses/aws-clf-c02/concepts";
+import { CONCEPTS as SAA } from "@/courses/aws-saa-c03/concepts";
+import { CONCEPTS as DVA2 } from "@/courses/aws-dva-c02/concepts";
+import { CONCEPTS as DVA3 } from "@/courses/aws-dva-c03/concepts";
+import { CONCEPTS as GCP } from "@/courses/gcp-genai-leader/concepts";
+import { CONCEPTS as AZ } from "@/courses/azure-ai-901/concepts";
+import { CONCEPTS as KCNA } from "@/courses/cncf-kcna/concepts";
 
 /**
  * Non-blocking quality report for every course. Counts are printed, not enforced:
  * AIF-C01 is held strictly in validate.test.ts and its own teach-before-test test.
- * Add a course's concept list here as it gets one (Phase 2), then make it strict.
+ * Each course with a concept list is registered here; its own teach-before-test test holds it strictly.
  */
-const CONCEPT_LISTS: Record<string, ConceptList> = {};
+const CONCEPT_LISTS: Record<string, ConceptList> = {
+  "aws-aif-c01": AIF,
+  "aws-clf-c02": CLF,
+  "aws-saa-c03": SAA,
+  "aws-dva-c02": DVA2,
+  "aws-dva-c03": DVA3,
+  "gcp-genai-leader": GCP,
+  "azure-ai-901": AZ,
+  "cncf-kcna": KCNA,
+};
+
+/** What the learner sees in a lesson, including its rendered visual. */
+function lessonText(l: Lesson) {
+  let visual = "";
+  try {
+    visual = isValidElement(l.visual) ? renderToStaticMarkup(l.visual) : String(l.visual ?? "");
+  } catch {
+    visual = "";
+  }
+  return [l.title, ...l.points, l.tip ?? "", visual.replace(/<[^>]+>/g, " ")].join(" ").replace(/\*\*|`/g, "");
+}
 
 describe("quality report (warnings only)", () => {
   it("prints longest-option and teach-before-test counts per course", () => {
-    const rows = qualityReport(COURSES, CONCEPT_LISTS);
+    const rows = qualityReport(COURSES, CONCEPT_LISTS, lessonText);
     console.table(rows);
     expect(rows).toHaveLength(COURSES.length);
   });

@@ -92,6 +92,7 @@ export default defineDomain({
       task: "1.2",
       title: "Start here: running code without a server",
       check: ["dva2-b1-03", "dva2-b1-04"],
+      sources: [{ title: "AWS Lambda Developer Guide: Lambda execution role", url: "https://docs.aws.amazon.com/lambda/latest/dg/lambda-intro-execution-role.html", license: "AWS docs, facts only" }],
       visual: (
         <Flow
           color="#38bdf8"
@@ -108,6 +109,7 @@ export default defineDomain({
         "**Serverless** means AWS looks after the machines for you. You hand over your code, and you pay only while it's actually running.",
         "**AWS Lambda** runs a small piece of your code, called a **function**, whenever an **event** happens. An event is something like a file upload, a web request, or a message in a queue.",
         "It's like a taxi instead of owning a car. You don't park, fuel, or service it. You call it when you need a ride and pay for that trip.",
+        "**Amazon S3** is AWS's object storage. An upload to an S3 bucket can send an event that starts a Lambda function, for example to make a thumbnail of each new photo.",
       ],
       tip: "When a question says \"no servers to manage\" or \"run code when something happens\", think of Lambda first.",
     },
@@ -141,6 +143,10 @@ export default defineDomain({
       task: "1.1",
       title: "Event-driven and loosely coupled design",
       check: ["d1-01", "d1-03"],
+      sources: [
+        { title: "AWS Step Functions: Choosing workflow type", url: "https://docs.aws.amazon.com/step-functions/latest/dg/choosing-workflow-type.html", license: "AWS docs, facts only" },
+        { title: "Amazon S3: Event notifications", url: "https://docs.aws.amazon.com/AmazonS3/latest/userguide/EventNotifications.html", license: "AWS docs, facts only" },
+      ],
       visual: (
         <div className="grid gap-4">
           <Tiles
@@ -173,6 +179,8 @@ export default defineDomain({
         "With asynchronous messaging the sender doesn't wait. If a receiving service crashes, its messages wait in the queue, and it catches up when it's back.",
         "**Fanout** means one event reaches many independent services. For example, one SNS topic can feed several SQS queues, or several EventBridge rules can match the same event.",
         "Step Functions has two workflow types. **Standard** workflows can run for up to a year and run each step exactly once. **Express** workflows run for up to five minutes and handle very high volumes.",
+        "Keep web servers stateless. If **Amazon EC2** instances behind a load balancer keep sessions in memory, users are logged out whenever **Auto Scaling** removes an instance. Store sessions in ElastiCache or DynamoDB instead.",
+        "Express workflows suit high-volume, short (up to 5 minutes) steps that are **idempotent**, meaning running them twice gives the same result, because asynchronous Express workflows run at least once and may repeat a step.",
       ],
       tip: "When a question says \"decouple\", \"absorb spikes\", or \"keep working if a downstream service is down\", the answer is usually a queue or an event bus between the services.",
     },
@@ -210,6 +218,7 @@ export default defineDomain({
       task: "1.1",
       title: "APIs and resilient integrations",
       check: ["d1-17", "d1-20"],
+      sources: [{ title: "Amazon DynamoDB: Troubleshooting throttling", url: "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/TroubleshootingThrottling.html", license: "AWS docs, facts only" }],
       visual: (
         <div className="grid gap-4">
           <Flow
@@ -237,6 +246,7 @@ export default defineDomain({
         "**Non-proxy** integrations use mapping templates to reshape requests and responses, so you don't have to change the backend.",
         "The AWS SDKs sign each request for you and find credentials through the default credential provider chain. They also retry throttling and 5xx errors with exponential backoff.",
         "**Amazon Q Developer** is an AI assistant in your code editor. It suggests code as you type, explains code, and can write unit tests.",
+        "On AWS, the SDK can pick up credentials from an attached **IAM role** (for example an EC2 instance profile or a Lambda execution role), so you never put keys in code.",
       ],
       tip: "Retry only temporary errors: throttling, 5xx, and timeouts. A 400 validation error will fail the same way every time.",
     },

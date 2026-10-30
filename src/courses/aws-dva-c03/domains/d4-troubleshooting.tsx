@@ -188,6 +188,7 @@ export default defineDomain({
       task: "4.1 · 4.2",
       title: "Root cause analysis and alerting",
       check: ["d4-13", "d4-14"],
+      sources: [{ title: "AWS Lambda: Internet access for VPC functions", url: "https://docs.aws.amazon.com/lambda/latest/dg/configuration-vpc-internet.html", license: "AWS docs, facts only" }],
       visual: (
         <div className="grid gap-4">
           <Tiles
@@ -217,6 +218,7 @@ export default defineDomain({
         "A **health check** regularly asks your app \"are you OK?\". Load balancer target groups and ECS container health checks use the answer to replace unhealthy targets.",
         "In Kubernetes, a **liveness probe** restarts a container that's stuck. A **readiness probe** keeps a pod out of service until it can handle traffic.",
         "To hear about a quota before you hit it, put a CloudWatch alarm on the AWS usage metric for it. Service Quotas shows these metrics.",
+        "For DynamoDB throttling (ProvisionedThroughputExceededException), retry with exponential backoff, spread writes off a hot partition key, raise provisioned capacity, or switch the table to on-demand capacity mode.",
       ],
     },
     {

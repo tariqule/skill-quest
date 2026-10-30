@@ -192,6 +192,7 @@ export default defineDomain({
       task: "2.1",
       title: "Roles, temporary credentials, and programmatic access",
       check: ["d2-09", "d2-10"],
+      sources: [{ title: "AWS SDKs and Tools: Standardized credential providers", url: "https://docs.aws.amazon.com/sdkref/latest/guide/standardized-credentials.html", license: "AWS docs, facts only" }],
       visual: (
         <div className="grid gap-4">
           <Flow
@@ -219,6 +220,7 @@ export default defineDomain({
         "The SDK looks for credentials in a fixed order, called the credential provider chain. It checks settings in your code and environment variables first, then shared config files, and container or instance metadata last.",
         "Every role has two kinds of policy. The trust policy says who may assume the role. The permission policies say what the role may do once it's assumed.",
         "Services can call each other's APIs with IAM authorization, where each request is signed with SigV4, AWS's way of signing requests. Grant the caller's role `execute-api:Invoke` on the API.",
+        "**AWS CloudTrail** records every API call and the identity that made it, so it shows you which credentials an application really used.",
       ],
       tip: "Need to reach a resource in another account? Create a role in that account whose trust policy allows yours, then call AssumeRole.",
     },

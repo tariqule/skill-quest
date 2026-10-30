@@ -186,6 +186,7 @@ export default defineDomain({
       task: "2.1",
       title: "Roles, temporary credentials, and presigned URLs",
       check: ["d2-09", "d2-10", "d2-43"],
+      sources: [{ title: "AWS SDKs and Tools: Standardized credential providers", url: "https://docs.aws.amazon.com/sdkref/latest/guide/standardized-credentials.html", license: "AWS docs, facts only" }],
       visual: (
         <div className="grid gap-4">
           <Flow
@@ -224,6 +225,7 @@ export default defineDomain({
         "Services can call each other's APIs with IAM authorization, where each request is signed with SigV4, AWS's way of signing requests. Grant the caller's role `execute-api:Invoke` on the API.",
         "An S3 presigned URL is a link that gives time-limited GET or PUT access to one object, using the signer's permissions.", "From the SDK or CLI it can last up to 7 days, but never longer than the temporary credentials that signed it.",
         "For content served through CloudFront, use CloudFront signed URLs or signed cookies with a trusted key group.", "Add origin access control so nobody can read the bucket directly and skip CloudFront.",
+        "**AWS CloudTrail** records every API call and the identity that made it, so it shows you which credentials an application really used.",
       ],
       tip: "Need to reach a resource in another account? Create a role in that account whose trust policy allows yours, then call AssumeRole.",
     },

@@ -276,7 +276,7 @@ export default defineDomain({
       domain: "d3",
       lesson: "d3-b-mistakes",
       prompt: "A chatbot confidently tells a customer about a discount code that never existed. What is this called?",
-      options: ["A hallucination", "A prompt", "A backup", "A token"],
+      options: ["A hallucination", "A prompt", "A backup of an older answer", "A token"],
       answer: [0],
       explanation:
         "A hallucination is when a model makes something up and presents it as fact. It happens because the model is built to produce likely-sounding text, not to check the truth.",
@@ -289,7 +289,7 @@ export default defineDomain({
       prompt: "You ask a model about something that happened last week, and it has no idea. What's the most likely reason?",
       options: [
         "It only knows what was in its training data, which ended before last week",
-        "It's broken and needs to be reinstalled",
+        "It's broken and needs to be reinstalled before it can read the news again",
         "It's refusing to answer on purpose",
         "Your question was too short",
       ],
@@ -307,7 +307,7 @@ export default defineDomain({
         "\"Write a polite two-sentence reply to a customer whose parcel arrived late, and offer free delivery next time.\"",
         "\"Reply.\"",
         "\"Write something.\"",
-        "\"Customer, parcel, late.\"",
+        "\"You are a world-class writer. Write the best possible reply ever written to any customer about anything at all.\"",
       ],
       answer: [0],
       explanation:
@@ -323,7 +323,7 @@ export default defineDomain({
         "Include an example of the layout in your prompt",
         "Retrain the model from scratch",
         "Use shorter words",
-        "Ask the same vague question again",
+        "Ask the same vague question again until the layout looks right",
       ],
       answer: [0],
       explanation:
@@ -350,7 +350,7 @@ export default defineDomain({
         "So answers about their own policies and products are accurate",
         "So the model runs without electricity",
         "So nobody needs to write prompts any more",
-        "So the model forgets everything else it knows",
+        "So the model forgets everything else it learned in training",
       ],
       answer: [0],
       explanation:
@@ -394,7 +394,7 @@ export default defineDomain({
       options: [
         "Knowledge cutoff; ground the model in current sources",
         "Edge case; raise the temperature",
-        "Bias; remove all examples from the prompt",
+        "Bias; remove all of the examples from the prompt",
         "Context window; switch to an image model",
       ],
       answer: [0],
@@ -453,7 +453,7 @@ export default defineDomain({
         "Human-in-the-loop review, so a clinician checks each draft before it reaches the patient",
         "A higher temperature for more varied wording",
         "Removing the system instructions to save tokens",
-        "Publishing the drafts without review to gather feedback faster",
+        "Publishing the drafts without review so patients get feedback faster and errors surface sooner",
       ],
       answer: [0],
       explanation: "In sensitive fields like healthcare, HITL gives you expert oversight. A clinician checks each draft before it reaches a patient.",
@@ -479,7 +479,7 @@ export default defineDomain({
       lesson: "d3-limits",
       prompt:
         "A manufacturer needs a model to consistently produce maintenance reports in its specialised format and terminology. Careful prompting and examples still fall short, and it has thousands of good example reports. What should it consider next?",
-      options: ["Fine-tuning the model on the example reports", "Raising the temperature", "Grounding with Google Search", "Using a smaller context window"],
+      options: ["Fine-tuning the model on the example reports", "Raising the temperature", "Grounding with Google Search", "Using a smaller context window so the output stays short"],
       answer: [0],
       explanation:
         "Fine-tuning gives a pre-trained model extra training for one task or field. It's the next step when prompting isn't enough and you have plenty of good examples to train on.",
@@ -518,7 +518,7 @@ export default defineDomain({
       options: [
         "Track key performance indicators and model metrics continuously",
         "Evaluate once at launch, then freeze the model",
-        "Skip security patches so behaviour never changes",
+        "Skip security patches so the model's behaviour never changes",
         "Avoid versioning to keep things simple",
       ],
       answer: [0],
@@ -529,7 +529,7 @@ export default defineDomain({
       domain: "d3",
       lesson: "d3-monitor",
       prompt: "After a model update, answer quality drops and the team wants to restore the previous model quickly. Which practice makes this possible?",
-      options: ["Model versioning with Model Registry", "Raising top-p", "Few-shot prompting", "Grounding with Google Search"],
+      options: ["Model versioning with Model Registry", "Raising top-p", "Few-shot prompting", "Grounding with Google Search results"],
       answer: [0],
       explanation: "Versioning keeps a record of every model version, so you can compare them and go back to the one that worked.",
     },
@@ -612,7 +612,7 @@ export default defineDomain({
         "Chain-of-thought prompting that guides the model through intermediate reasoning steps",
         "Role prompting as a famous novelist",
         "Raising the temperature",
-        "Removing all context from the prompt",
+        "Removing all context from the prompt so the model focuses only on the numbers it has to add up",
       ],
       answer: [0],
       explanation: "Chain-of-thought prompting walks the model through the problem one step at a time. That helps a lot on tasks with several stages of reasoning.",
@@ -623,7 +623,7 @@ export default defineDomain({
       lesson: "d3-prompting",
       prompt:
         "An assistant must answer \"Where is my order?\" by reasoning about the request, looking up the order in a system, reading the result, and deciding what to do next. Which prompting technique supports this?",
-      options: ["ReAct (reason and act) prompting", "Zero-shot prompting", "One-shot prompting", "Role prompting"],
+      options: ["ReAct (reason and act) prompting", "Zero-shot prompting with a longer instruction", "One-shot prompting", "Role prompting"],
       answer: [0],
       explanation: "ReAct lets a model mix thinking with actions, like calling a tool. It looks at each result before deciding what to do next.",
     },
@@ -652,7 +652,7 @@ export default defineDomain({
       options: [
         "Connecting the model's output to verifiable sources of information",
         "Lowering the temperature to zero",
-        "Training a model from scratch on company data",
+        "Training a model from scratch on company data so it only knows those facts",
         "Running the model on on-premises hardware",
       ],
       answer: [0],
@@ -724,7 +724,7 @@ export default defineDomain({
       lesson: "d3-sampling",
       prompt:
         "Which setting limits the model's word choices to the most likely tokens whose combined probability reaches a chosen threshold?",
-      options: ["Top-p (nucleus sampling)", "Output length", "Safety settings", "Context window"],
+      options: ["Top-p (nucleus sampling)", "Output length", "Safety settings for each category", "Context window"],
       answer: [0],
       explanation: "Top-p sets how much of the probability the model's choices can cover, starting from the most likely tokens. It's another way to control how random the output is.",
     },
@@ -747,7 +747,7 @@ export default defineDomain({
       domain: "d3",
       lesson: "d3-sampling",
       prompt: "A children's education app must make sure the model never returns harmful or inappropriate content. Which settings are MOST directly designed for this?",
-      options: ["Safety settings", "Top-p", "Token count", "Temperature"],
+      options: ["Safety settings", "Top-p", "Token count", "Temperature=0"],
       answer: [0],
       explanation: "Safety settings filter out content that could be harmful or inappropriate. The other settings affect randomness and length, not safety.",
     },

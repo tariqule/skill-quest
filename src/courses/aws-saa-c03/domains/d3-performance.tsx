@@ -239,6 +239,7 @@ export default defineDomain({
       task: "3.3",
       title: "Choosing high-performing databases",
       check: ["d3-18", "d3-19"],
+      sources: [{ title: "Amazon Aurora: Aurora Serverless v2", url: "https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless-v2.html", license: "AWS docs, facts only" }],
       visual: (
         <div className="grid gap-4">
           <Tiles
@@ -261,6 +262,7 @@ export default defineDomain({
         "For lots of reads, add read replicas and caching. For lots of relational writes, scale up, use Provisioned IOPS or move to Aurora. For lots of key-value writes, use DynamoDB with a well-spread partition key.",
         "In DynamoDB, one **RCU** (read capacity unit) covers one strongly consistent 4 KB read per second, or two eventually consistent ones. One **WCU** covers one 1 KB write per second.",
         "Moving to the same engine, such as MySQL to Aurora MySQL, is easy with DMS or native tools. Moving to a different engine, such as Oracle to PostgreSQL, means converting the schema first, then moving the data with DMS.",
+        "**Aurora Serverless v2** scales database capacity up and down automatically, which suits spiky or unpredictable traffic. Add Aurora Replicas in other AZs for high availability.",
       ],
       tip: "Match the data model to the database. Graphs go to Neptune, MongoDB to DocumentDB, Cassandra to Keyspaces and warehouses to Redshift.",
     },
@@ -332,6 +334,10 @@ export default defineDomain({
       task: "3.5",
       title: "Data ingestion, streaming, transfer, and data lakes",
       check: ["d3-40", "d3-41"],
+      sources: [
+        { title: "AWS Glue: Using crawlers to populate the Data Catalog", url: "https://docs.aws.amazon.com/glue/latest/dg/add-crawler.html", license: "AWS docs, facts only" },
+        { title: "What is Amazon Quick?", url: "https://docs.aws.amazon.com/quick/latest/userguide/what-is.html", license: "AWS docs, facts only" },
+      ],
       visual: (
         <div className="grid gap-4">
           <Flow
@@ -361,6 +367,8 @@ export default defineDomain({
         "**Lake Formation** manages detailed permissions on data lake data in S3, right down to the database, table, column and row.",
         "**AppFlow** moves data from SaaS apps such as Salesforce into AWS on a schedule or when an event happens, with no code.",
         "Keep ingestion secure with VPC endpoints, encryption in transit, and least-privilege roles for whatever sends the data.",
+        "**AWS Glue** crawlers discover data in S3 and fill the Glue Data Catalog. Glue ETL jobs transform it, for example into partitioned Apache Parquet, which cuts Athena scan time and cost.",
+        "A typical S3 data lake: ingest raw data (Data Firehose or DataSync), crawl it with Glue, transform it with Glue ETL, grant access with Lake Formation, then query with Athena and build dashboards in Amazon Quick (formerly QuickSight).",
       ],
       tip: "Near real-time delivery to S3 with no servers or code means Data Firehose. Ad hoc SQL on S3 means Athena. A Spark cluster means EMR.",
     },

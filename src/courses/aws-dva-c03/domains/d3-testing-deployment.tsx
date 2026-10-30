@@ -209,6 +209,7 @@ export default defineDomain({
       task: "3.2 · 3.3",
       title: "CloudFormation, SAM, and CDK",
       check: ["d3-07", "d3-08"],
+      sources: [{ title: "AWS CloudFormation: Template anatomy", url: "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-anatomy.html", license: "AWS docs, facts only" }],
       visual: (
         <div className="grid gap-4">
           <Flow
@@ -235,6 +236,7 @@ export default defineDomain({
         "**Intrinsic functions** are small helpers you call inside a template: Ref, Fn::GetAtt, Fn::Sub, Fn::Join, Fn::FindInMap, Fn::ImportValue, and Fn::If.",
         "Set DeletionPolicy to Retain or Snapshot on a data store. Then deleting the stack, or removing the resource from it, won't throw your data away.",
         "To deploy one SAM template to several environments, use configuration environments in samconfig.toml, or pass different values with --parameter-overrides.",
+        "In a CloudFormation template, Mappings are fixed lookup tables, such as one AMI ID per AWS Region. Resources is the only required section.",
       ],
       tip: "If a question asks how to see what will change before you update production, the answer is a change set.",
     },

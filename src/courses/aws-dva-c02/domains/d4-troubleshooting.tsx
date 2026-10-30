@@ -188,6 +188,7 @@ export default defineDomain({
       task: "4.1 · 4.2",
       title: "Root cause analysis and alerting",
       check: ["d4-13", "d4-14"],
+      sources: [{ title: "AWS Lambda: Internet access for VPC functions", url: "https://docs.aws.amazon.com/lambda/latest/dg/configuration-vpc-internet.html", license: "AWS docs, facts only" }],
       visual: (
         <div className="grid gap-4">
           <Tiles
@@ -216,6 +217,7 @@ export default defineDomain({
         "**CloudTrail** records API calls, so it tells you who did what and when. To also record S3 object reads and writes or Lambda invokes, turn on data events.",
         "A **health check** regularly asks your app \"are you OK?\". Load balancer target groups and ECS container health checks use the answer to replace unhealthy targets.",
         "In Kubernetes, a **readiness probe** keeps a pod out of service until it's ready to handle traffic.",
+        "For DynamoDB throttling (ProvisionedThroughputExceededException), retry with exponential backoff, spread writes off a hot partition key, raise provisioned capacity, or switch the table to on-demand capacity mode.",
       ],
     },
     {
