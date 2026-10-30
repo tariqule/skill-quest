@@ -1,5 +1,6 @@
 "use client";
 
+import { SourcesFooter } from "@/components/learn/Sources";
 import { RichText } from "@/components/learn/code";
 import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
@@ -686,6 +687,7 @@ function ConceptView({
           </span>
         </div>
       )}
+      <SourcesFooter sources={lesson.sources} />
 
       {terms.length > 0 && (
         <section className="mt-5">

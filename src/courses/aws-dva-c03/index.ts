@@ -7,7 +7,7 @@ import d4 from "./domains/d4-troubleshooting";
 /**
  * AWS Certified Developer – Associate (DVA-C03).
  * Content follows the official DVA-C03 exam guide (online edition, retrieved October 2026).
- * Registration for DVA-C03 opens December 1, 2026; the last day to take DVA-C02 is November 30, 2026.
+ * Registration for DVA-C03 opened October 27, 2026 and exam appointments start December 1, 2026; the last day to take DVA-C02 is November 30, 2026.
  * Domain content lives in ./domains; this file holds course-wide metadata.
  */
 export default defineCourse({
@@ -50,7 +50,7 @@ export default defineCourse({
       { icon: "🎲", value: "0", label: "guess penalty", detail: "A blank answer counts as wrong, and a wrong guess costs nothing extra. Always pick something." },
       { icon: "💵", value: "$150", label: "USD", detail: "You can sit it at a Pearson VUE test center or online with a proctor watching. AWS exam pricing lists other currencies." },
       { icon: "📅", value: "3", label: "years valid", detail: "To keep it, pass the latest version of this exam, or the DevOps Engineer – Professional exam." },
-      { icon: "🗓️", value: "Dec 1", label: "2026: DVA-C03 opens", detail: "Registration for DVA-C03 opens December 1, 2026. The last day to take DVA-C02 is November 30, 2026." },
+      { icon: "🗓️", value: "Dec 1", label: "2026: DVA-C03 exams start", detail: "Registration for DVA-C03 opened October 27, 2026, and exam appointments start December 1, 2026. The last day to take DVA-C02 is November 30, 2026." },
       { icon: "🤖", value: "New", label: "AI skills", detail: "C03 adds AI-assisted development, calling managed AI services from your code, and a whole task on AI security (Task 2.3)." },
     ],
     candidate: {

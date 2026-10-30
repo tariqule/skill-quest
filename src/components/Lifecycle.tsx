@@ -12,7 +12,7 @@ export function LifecycleBadges({ course }: { course: Course }) {
   return (
     <div className="mt-3 flex flex-wrap gap-2 text-xs font-bold">
       {l.retires && <span className="rounded-full bg-amber-400/15 px-2.5 py-1 text-amber-200">⏳ Last exam date {formatDate(l.retires)}</span>}
-      {l.opens && <span className="rounded-full bg-sky-400/15 px-2.5 py-1 text-sky-200">🆕 Registration opens {formatDate(l.opens)}</span>}
+      {l.opens && <span className="rounded-full bg-sky-400/15 px-2.5 py-1 text-sky-200">🆕 Exam available from {formatDate(l.opens)}</span>}
     </div>
   );
 }
@@ -34,7 +34,7 @@ export function LifecycleBanner({ course }: { course: Course }) {
             <Link href={`/c/${successor.id}`} className="font-bold underline">
               {successor.code}
             </Link>
-            {successor.lifecycle?.opens && <> (registration opens {formatDate(successor.lifecycle.opens)})</>}.
+            {successor.lifecycle?.opens && <> (available from {formatDate(successor.lifecycle.opens)})</>}.
           </>
         )}
       </div>
@@ -43,7 +43,7 @@ export function LifecycleBanner({ course }: { course: Course }) {
   if (l.opens) {
     return (
       <div className="mt-4 rounded-2xl border border-sky-400/40 bg-sky-400/10 p-4 text-sm text-sky-100">
-        🆕 <b>{course.code}</b> registration opens <b>{formatDate(l.opens)}</b>.
+        🆕 <b>{course.code}</b> exam appointments start <b>{formatDate(l.opens)}</b>.
         {predecessor && (
           <>
             {" "}

@@ -124,6 +124,15 @@ export interface Lesson {
   tip?: string;
   /** Question ids for the quick check after the lesson. */
   check: string[];
+  /** Where this lesson's material comes from or what to read next (shown as a Sources footer). */
+  sources?: LessonSource[];
+}
+
+export interface LessonSource {
+  title: string;
+  url: string;
+  /** e.g. "CC BY 4.0", "MIT", or "Official docs (link only)". */
+  license: string;
 }
 
 /**
