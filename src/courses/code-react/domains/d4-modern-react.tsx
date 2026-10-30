@@ -160,6 +160,8 @@ function Summary({ statsPromise }) {
         "`lazy` loads a component's code only when it's first needed. Declare it at the top of the file, never inside a component.",
         "A **transition** marks an update as not urgent. Updates inside one won't swap content that's already on screen for a fallback. React keeps showing the old screen until the new one is ready.",
         "You can call `use(promise)` and `use(context)` inside an `if`. Pass in promises made outside rendering, for example ones from the server or a cache.",
+        "`startTransition` (or `useTransition`, which also gives an `isPending` flag) marks a state update as non-urgent. React keeps the current UI responsive, can interrupt the render, and won't swap visible content for a Suspense fallback.",
+        "`useDeferredValue(value)` gives you a copy of a value that can lag behind. The input updates at once, while a slow list re-renders with the older value until React catches up.",
       ],
       tip: "Treat Suspense boundaries as a design choice. Ask where you want a loading state, and put a boundary there, not around every component.",
     },

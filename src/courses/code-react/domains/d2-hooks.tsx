@@ -271,6 +271,7 @@ dispatch({ type: "added", todo });`}
         "React tells hooks apart by the order you call them in. If the order changes between renders, React hands the wrong state to the wrong hook.",
         "A **custom hook** is your own function that calls other hooks. It shares logic, not state: two components that call `useOnlineStatus()` each get their own copy.",
         "`use` is the one exception. You can call it inside an `if` or a loop, though still only in components and hooks.",
+        "For a store that lives outside React, read it with `useSyncExternalStore(subscribe, getSnapshot)`. It keeps every component reading the same snapshot during concurrent rendering, which a `useState` + `useEffect` subscription can't promise.",
       ],
       tip: "Explain the reason, not just the rule. React stores each component's hooks as a list and walks through it in order on every render.",
     },

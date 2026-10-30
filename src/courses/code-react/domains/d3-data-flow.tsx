@@ -260,6 +260,7 @@ const sorted = useMemo(
         "An effect that sets state causes a second render, and for a moment the screen shows the old value.",
         "Code that runs because the user did something, like clicking Buy, belongs in that click's event handler.",
         "Think of effects as an escape hatch, for syncing with things outside React.",
+        "If a value can be computed from props or state, it's **derived** data: calculate it during render instead of storing it in state and syncing it with an effect.",
       ],
       tip: "Interviewers often show a component full of effects and ask you to clean it up. Start by deleting state you can work out from other state. Most of the effects go with it.",
     },
