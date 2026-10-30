@@ -150,6 +150,7 @@ export default defineDomain({
         "For lookup by key, use a hash map. For the next smallest or largest, use a heap. For sorted order or ranges, use a balanced BST or a sorted array.",
         "For prefixes, use a trie. To track which items are connected as edges arrive, use Union-Find.",
         "Real designs combine structures. An LRU cache is a hash map plus a doubly linked list, and a leaderboard is a hash map plus an ordered structure.",
+        "An **order-statistic tree** is a balanced BST where each node also stores its subtree size, so it can find an item's rank, or the k-th item, in O(log n).",
       ],
       tip: "Say the trade-off out loud: \"A hash set gives O(1) lookups but loses order. If we need ranges, I'd switch to a balanced tree.\"",
     },

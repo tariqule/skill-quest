@@ -123,6 +123,7 @@ export default defineDomain({
         "`array.shift()` removes index 0, so every other item may have to slide down. Some engines optimise this, but don't rely on that in an interview.",
         "A **deque** (double-ended queue) adds and removes at both ends in O(1). It's the tool for the sliding-window maximum problem.",
         "You can build a queue from two stacks. Refill the outbox only when it's empty. Each item moves across once, so dequeue is O(1) amortized.",
+        "A **priority queue** hands out the most urgent item first, not the oldest. It's usually built on a heap, which comes later in the course.",
       ],
       tip: "BFS needs a queue. Saying \"I'll use `shift()` here, which can be O(n). In production I'd use a head index\" shows you know the cost.",
     },
