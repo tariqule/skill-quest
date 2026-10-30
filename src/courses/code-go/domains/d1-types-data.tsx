@@ -190,6 +190,7 @@ export default defineDomain({
       level: "intermediate",
       task: "1.2",
       title: "Slices share backing arrays",
+      sources: [{ title: "Go blog: Go Slices: usage and internals", url: "https://go.dev/blog/slices-intro", license: "CC BY 4.0" }],
       check: ["d1-09", "d1-11"],
       visual: <SliceLab />,
       points: [
@@ -198,6 +199,7 @@ export default defineDomain({
         "If there's spare capacity (len < cap), `append` writes into the shared array, so other slices over it see the change. Past the capacity, it allocates a new array.",
         "Always use the result: `s = append(s, x)`. The old header may still point at the old array.",
         "`a[low:high:max]` limits the capacity, so a later append has to copy instead of overwriting `a`'s elements.",
+        "Returning an internal slice shares its backing array, even if you `defer` an unlock first. Callers who modify it race with you, and `go test -race` (the race detector) will flag it. Return a copy with `slices.Clone`.",
       ],
       tip: "Draw the backing array, then two brackets for the two slices. Saying \"len is less than cap, so append overwrites the shared slot\" is exactly what interviewers want to hear.",
     },

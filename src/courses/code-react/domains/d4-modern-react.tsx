@@ -119,6 +119,7 @@ const onPick = useCallback((id) => pick(id), [pick]);
       level: "senior",
       task: "4.2",
       title: "Suspense, lazy, and transitions",
+      sources: [{ title: "react.dev: Suspense", url: "https://react.dev/reference/react/Suspense", license: "CC BY 4.0" }],
       check: ["d4-08", "d4-10"],
       visual: (
         <div className="grid gap-3">

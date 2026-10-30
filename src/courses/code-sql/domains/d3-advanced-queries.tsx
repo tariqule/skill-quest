@@ -183,6 +183,7 @@ export default defineDomain({
       level: "senior",
       task: "3.2",
       title: "Window functions",
+      sources: [{ title: "PostgreSQL docs: Window Functions", url: "https://www.postgresql.org/docs/current/tutorial-window.html", license: "PostgreSQL License" }],
       check: ["d3-14", "d3-16"],
       visual: (
         <div className="grid gap-4">

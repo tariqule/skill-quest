@@ -87,6 +87,7 @@ export default defineDomain({
       level: "junior",
       task: "1.1",
       title: "Components are functions that return JSX",
+      sources: [{ title: "react.dev: Writing Markup with JSX", url: "https://react.dev/learn/writing-markup-with-jsx", license: "CC BY 4.0" }],
       check: ["d1-01", "d1-21"],
       visual: (
         <div className="grid gap-3">
@@ -140,6 +141,7 @@ export default defineDomain({
       level: "junior",
       task: "1.2",
       title: "Props vs state",
+      sources: [{ title: "react.dev: State: A Component's Memory", url: "https://react.dev/learn/state-a-components-memory", license: "CC BY 4.0" }],
       check: ["d1-05", "d1-07"],
       visual: (
         <div className="grid gap-3">

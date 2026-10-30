@@ -94,6 +94,7 @@ export default defineDomain({
       check: ["ds1-01", "ds1-02"],
       task: "1.1",
       title: "Arrays: one block of memory",
+      sources: [{ title: "Python docs: Data Structures (lists)", url: "https://docs.python.org/3/tutorial/datastructures.html", license: "PSF License" }],
       visual: <ArrayShift />,
       points: [
         "An array's items sit side by side in memory. Finding `arr[i]` is one quick address calculation, so it takes O(1) time however long the array is.",
@@ -155,6 +156,7 @@ export default defineDomain({
       check: ["ds1-09", "ds1-10"],
       task: "1.3",
       title: "Linked lists: nodes and pointers",
+      sources: [{ title: "Python docs: collections.deque", url: "https://docs.python.org/3/library/collections.html#collections.deque", license: "PSF License" }],
       visual: (
         <div className="grid gap-4 md:grid-cols-2">
           <CodeBlock

@@ -105,6 +105,7 @@ export default defineDomain({
       check: ["ds2-05", "ds2-06"],
       task: "2.1",
       title: "Queues and deques: first in, first out",
+      sources: [{ title: "Python docs: collections.deque", url: "https://docs.python.org/3/library/collections.html#collections.deque", license: "PSF License" }],
       visual: (
         <div className="grid gap-5">
           <CodeCompare

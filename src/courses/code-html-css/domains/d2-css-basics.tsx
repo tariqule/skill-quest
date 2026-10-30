@@ -153,6 +153,7 @@ p::first-line { } /* pseudo-element: a part */`}
       level: "intermediate",
       task: "2.2",
       title: "The cascade, specificity, and inheritance",
+      sources: [{ title: "MDN: Cascade", url: "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_cascade/Cascade", license: "CC BY-SA 2.5" }],
       check: ["d2-06", "d2-13"],
       visual: (
         <div className="grid gap-3">
@@ -183,6 +184,7 @@ nav li:hover a    /* (0,1,3) */
         "**Specificity** is a selector's strength, counted in three columns: IDs, then classes, attributes and pseudo-classes, then element types and pseudo-elements. One ID beats any number of classes.",
         "Some properties pass down from parent to child, like color, font, line-height and text-align. Box properties don't, like margin, padding, border, background and width.",
         "`!important` jumps the queue. Save it for small utility classes and user overrides. Using it to win style fights only starts an arms race.",
+        "**Cascade layers** (`@layer`) let you rank whole groups of styles. Rules in a later layer win over earlier layers whatever their specificity, so legacy CSS can sit in a low-priority layer.",
       ],
       tip: "When a style loses, find the crossed-out line in DevTools and compare the two selectors' specificity before you reach for !important.",
     },

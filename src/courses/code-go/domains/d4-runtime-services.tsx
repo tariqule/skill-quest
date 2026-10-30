@@ -193,6 +193,7 @@ export default defineDomain({
       level: "senior",
       task: "4.2",
       title: "The scheduler: G, M, and P",
+      sources: [{ title: "Go 1.14 Release Notes", url: "https://go.dev/doc/go1.14", license: "CC BY 4.0" }],
       check: ["d4-07", "d4-11"],
       visual: <SchedulerBoard />,
       points: [
@@ -201,6 +202,7 @@ export default defineDomain({
         "A P with nothing to do steals goroutines from other Ps' queues, and checks the global queue too.",
         "When a goroutine makes a blocking system call, it keeps its M and the P moves to another M. Network I/O is different: the goroutine is parked on the netpoller and frees its thread.",
         "Since Go 1.14, the runtime can interrupt a goroutine at almost any point, so a tight loop can't hog a P and starve the others.",
+        "Since Go 1.14 the runtime can preempt goroutines asynchronously, so a tight loop with no function calls can't starve other goroutines or stall the garbage collector.",
       ],
       tip: "Explain Go's scheduling in one breath: \"many goroutines share a few threads, each P has its own queue, and idle Ps steal work to balance the load\".",
     },

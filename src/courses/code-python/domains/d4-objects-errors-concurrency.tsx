@@ -260,6 +260,7 @@ export default defineDomain({
       level: "senior",
       task: "4.4",
       title: "The GIL: threads, processes, asyncio",
+      sources: [{ title: "Python docs: contextvars", url: "https://docs.python.org/3/library/contextvars.html", license: "PSF License" }],
       check: ["d4-19", "d4-22"],
       visual: (
         <div className="grid gap-4">
@@ -298,6 +299,7 @@ export default defineDomain({
         "The GIL doesn't make your code thread-safe. `counter += 1` is several steps, and two threads can interleave and lose an update. Use `threading.Lock` or a queue.",
         "`concurrent.futures` gives you one API for both: `ThreadPoolExecutor` and `ProcessPoolExecutor`.",
         "Recent CPython versions also offer an optional free-threaded build without the GIL. The standard build still has it.",
+        "In standard CPython the GIL lets one thread run Python bytecode at a time. For CPU-heavy pure-Python work, use `multiprocessing` or `ProcessPoolExecutor`; use threading or asyncio for waiting on I/O.",
       ],
       tip: "Answer \"threads or processes?\" by first sorting the work. Is it waiting on I/O, or busy using the CPU? Then pick the tool.",
     },

@@ -98,6 +98,7 @@ export default defineDomain({
       level: "intermediate",
       task: "3.1",
       title: "Fetch on the server, in parallel",
+      sources: [{ title: "Next.js docs: Caching", url: "https://nextjs.org/docs/app/guides/caching", license: "Official docs (link only)" }],
       check: ["d3-01", "d3-03"],
       visual: (
         <CodeCompare
@@ -121,6 +122,7 @@ const albums = await getAlbums(id)`,
         "`fetch` isn't cached by default. But identical `fetch` calls during one render are shared, so you can fetch right where the data is needed without paying twice.",
         "For database calls, wrap the function in React's `cache()`. Then calls with the same arguments during one request run only once.",
         "A **waterfall** is when requests wait for each other one by one. Start requests that don't depend on each other together, then `await Promise.all` to wait for both.",
+        "`fetch` requests are deduplicated within a render, but database or ORM calls aren't. Wrap a shared loader in React's `cache()` so `generateMetadata` (which builds the page's title and other metadata) and the page query it once per request.",
       ],
       tip: "When you see two `await`s in a row in an interview snippet, ask whether the second needs the first. If it doesn't, point out the waterfall.",
     },

@@ -112,6 +112,7 @@ export default defineDomain({
       check: ["algo4-05", "algo4-06"],
       task: "4.1",
       title: "Classic DP patterns",
+      sources: [{ title: "Python docs: functools.cache", url: "https://docs.python.org/3/library/functools.html#functools.cache", license: "PSF License" }],
       visual: (
         <div className="grid gap-4">
           <Tiles
@@ -155,6 +156,7 @@ export default defineDomain({
       check: ["algo4-09", "algo4-10"],
       task: "4.2",
       title: "Greedy: take the best move now",
+      sources: [{ title: "Python docs: heapq", url: "https://docs.python.org/3/library/heapq.html", license: "PSF License" }],
       visual: (
         <div className="grid gap-4 md:grid-cols-2">
           <div className="rounded-xl border border-emerald-400/30 bg-emerald-400/5 p-3">

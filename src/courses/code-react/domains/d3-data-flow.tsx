@@ -224,6 +224,7 @@ function Button() {
       level: "senior",
       task: "3.3",
       title: "You might not need an effect",
+      sources: [{ title: "react.dev: You Might Not Need an Effect", url: "https://react.dev/learn/you-might-not-need-an-effect", license: "CC BY 4.0" }],
       check: ["d3-17", "d3-18"],
       visual: (
         <div className="grid gap-3">

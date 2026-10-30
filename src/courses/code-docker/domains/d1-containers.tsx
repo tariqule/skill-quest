@@ -100,6 +100,7 @@ export default defineDomain({
       level: "junior",
       task: "1.1",
       title: "What a container is (and isn't)",
+      sources: [{ title: "Docker docs: What is a container?", url: "https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-a-container/", license: "Official docs (link only)" }],
       check: ["d1-01", "d1-02"],
       visual: <ContainerVsVm />,
       points: [
@@ -107,6 +108,7 @@ export default defineDomain({
         "Linux **namespaces** give the container its own private view of the system, like its own list of processes. **cgroups** cap how much CPU and memory it can use.",
         "There's no separate operating system to boot, so containers start fast and stay small. The trade-off is that they share one kernel, so they're less isolated than a virtual machine (VM).",
         "The big win is consistency. The image carries the app and everything it needs, so if it works on your machine, it works everywhere else too.",
+        "An image is a stack of read-only **layers**. A container adds a thin writable layer on top. Containers share the host kernel, so they isolate less than virtual machines.",
       ],
       tip: "If someone calls containers \"lightweight VMs\", the correction interviewers and senior engineers look for is: no, they're processes sharing the host's kernel.",
     },
@@ -143,6 +145,7 @@ export default defineDomain({
       level: "junior",
       task: "1.3",
       title: "Running containers",
+      sources: [{ title: "Docker docs: docker container run", url: "https://docs.docker.com/reference/cli/docker/container/run/", license: "Official docs (link only)" }],
       check: ["d1-10", "d1-12"],
       visual: (
         <CodeBlock
@@ -166,6 +169,7 @@ export default defineDomain({
         "Docker's own options go before the image name. Anything after the image name is passed to the container's command instead.",
         "`docker logs` shows what the main process printed to its normal output and error output (stdout and stderr). That's why apps in containers should log there.",
         "`docker exec` runs an extra command inside a container that's already running. It's the easiest way to poke around while you debug.",
+        "Common `docker run` options: `-d` runs detached, `--name` names the container, `-p 8080:80` publishes container port 80 on host port 8080, `--rm` deletes it on exit. `docker ps` lists running containers (`-a` shows all).",
       ],
       tip: "Give your containers a `--name`. Typing `docker logs api` is much nicer than copying `3f1d9a0c2b7e` around.",
     },
@@ -174,6 +178,7 @@ export default defineDomain({
       level: "intermediate",
       task: "1.3",
       title: "Container lifecycle and cleanup",
+      sources: [{ title: "Docker docs: docker container run", url: "https://docs.docker.com/reference/cli/docker/container/run/", license: "Official docs (link only)" }],
       check: ["d1-16", "d1-18"],
       visual: <LifecycleLab />,
       points: [
@@ -182,6 +187,7 @@ export default defineDomain({
         "Exit code 137 is 128 plus 9, which means SIGKILL ended the process. That happens on a kill, a stop that timed out, or the out-of-memory killer.",
         "The writable layer survives stop and start, but `docker rm` deletes it. Data you care about belongs in a volume.",
         "Your app runs as PID 1, the first process in the container. Make it handle SIGTERM (or use `docker run --init`) so it shuts down cleanly.",
+        "`--restart unless-stopped` or `always` makes Docker restart a container after a crash or reboot. `docker system prune` removes stopped containers, unused networks, dangling images and unused build cache.",
       ],
       tip: "Treat containers as disposable. You should be able to `docker rm -f` one and start a fresh one at any moment without losing anything important.",
     },

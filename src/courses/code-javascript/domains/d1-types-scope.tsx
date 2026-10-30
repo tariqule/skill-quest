@@ -123,6 +123,7 @@ console.log(add(2, 3)); // 5`}
       check: ["d1-01", "d1-02"],
       task: "1.1",
       title: "Seven primitives and one typeof surprise",
+      sources: [{ title: "MDN: JavaScript data types", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures", license: "CC BY-SA 2.5" }],
       visual: (
         <div className="grid gap-4">
           <Tiles
@@ -209,6 +210,7 @@ let b = 1;
       check: ["d1-14", "d1-15"],
       task: "1.3",
       title: "Closures: functions that remember",
+      sources: [{ title: "MDN: Closures", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Closures", license: "CC BY-SA 2.5" }],
       visual: (
         <div className="grid gap-4">
           <CodeBlock

@@ -191,6 +191,7 @@ export default defineDomain({
       level: "intermediate",
       task: "3.3",
       title: "Tags and releases",
+      sources: [{ title: "Pro Git: Tagging", url: "https://git-scm.com/book/en/v2/Git-Basics-Tagging", license: "CC BY-NC-SA 3.0" }],
       check: ["d3-17", "d3-18"],
       visual: (
         <div className="grid gap-4">
@@ -218,6 +219,7 @@ export default defineDomain({
         "Annotated tags (`-a`) are full objects with a tagger, date and message, and can be signed. Prefer them for releases.",
         "`git push` doesn't send tags. Push one with `git push origin v1.4.0`, or use `--follow-tags`.",
         "`git describe` names a commit relative to the nearest annotated tag: `v1.1-1-gfa38738` is one commit after v1.1.",
+        "To ship a fix on older releases, keep release branches and `git cherry-pick` the fix commit onto each, then tag the new patch versions.",
       ],
       tip: "Never move or delete a release tag others may have fetched. If a release is bad, ship a new patch version instead.",
     },

@@ -30,6 +30,7 @@ export default defineDomain({
       check: ["js-b2-01", "js-b2-02"],
       task: "2.3",
       title: "Objects: one name, many labelled facts",
+      sources: [{ title: "MDN: Working with objects", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Working_with_objects", license: "CC BY-SA 2.5" }],
       visual: (
         <div className="grid gap-4">
           <Tiles
@@ -121,6 +122,7 @@ console.log(dog.speak()); // "Rex says woof"`}
       check: ["d2-01", "d2-03"],
       task: "2.1",
       title: "Who is this? Ask how it was called",
+      sources: [{ title: "MDN: this", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this", license: "CC BY-SA 2.5" }],
       visual: <ThisBinderLab />,
       points: [
         "`this` is decided by how a function is called, not by where it was written. The place it's called from is the call site.",
@@ -137,6 +139,7 @@ console.log(dog.speak()); // "Rex says woof"`}
       check: ["d2-04", "d2-05"],
       task: "2.1",
       title: "call, apply, bind, and the priority ladder",
+      sources: [{ title: "MDN: Function.prototype.bind", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind", license: "CC BY-SA 2.5" }],
       visual: (
         <div className="grid gap-4">
           <Flow
@@ -206,6 +209,7 @@ const rex = new Dog("Rex");` }}
       check: ["d2-15", "d2-17"],
       task: "2.3",
       title: "References, copies, and immutability",
+      sources: [{ title: "MDN: structuredClone()", url: "https://developer.mozilla.org/en-US/docs/Web/API/Window/structuredClone", license: "CC BY-SA 2.5" }],
       visual: (
         <div className="grid gap-4">
           <Tiles

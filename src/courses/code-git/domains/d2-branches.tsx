@@ -154,6 +154,7 @@ export default defineDomain({
       level: "intermediate",
       task: "2.3",
       title: "Merge or rebase?",
+      sources: [{ title: "Pro Git: Rebasing", url: "https://git-scm.com/book/en/v2/Git-Branching-Rebasing", license: "CC BY-NC-SA 3.0" }],
       check: ["d2-13", "d2-15"],
       visual: <MergeVsRebase />,
       points: [
@@ -161,6 +162,7 @@ export default defineDomain({
         "Rebase replays your commits on top of another branch as brand-new commits. You get a straight line of history, but every replayed commit has a new ID.",
         "The golden rule: don't rebase commits other people already have. Only rebase branches that are yours alone.",
         "A squash merge turns a whole branch into one new commit on the target branch.",
+        "Rebasing creates new commits with new IDs. The originals remain reachable through `git reflog` until garbage collection removes them.",
       ],
       tip: "A common team setup: rebase your own feature branch on main to stay current, then merge it through a pull request.",
     },

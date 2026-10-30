@@ -188,6 +188,7 @@ type Values = Config[keyof Config];   // number | string | { enabled: boolean }`
       check: ["d3-09", "d3-08"],
       task: "3.3",
       title: "The utility-type toolbox",
+      sources: [{ title: "TS Handbook: Utility Types", url: "https://www.typescriptlang.org/docs/handbook/utility-types.html", license: "Official docs (link only)" }],
       visual: (
         <div className="grid gap-4">
           <Tiles
@@ -212,6 +213,7 @@ type Values = Config[keyof Config];   // number | string | { enabled: boolean }`
         "Derive your variants, such as create, update and public versions, from one source type. Then a change in one place reaches all of them.",
         "The function utilities take a function type, so you write `ReturnType<typeof fn>`, not `ReturnType<fn>`.",
         "`Pick` checks that its keys exist. `Omit` accepts any string, so a typo slips through.",
+        "`Record<K, V>` builds an object type whose keys are `K` and whose values are `V`, for example `Record<\"a\" | \"b\", number>`.",
       ],
       tip: "Be ready to write `Pick` or `Partial` yourself: `{ [P in K]: T[P] }` and `{ [P in keyof T]?: T[P] }`.",
     },

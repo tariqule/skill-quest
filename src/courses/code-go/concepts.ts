@@ -1,0 +1,46 @@
+/**
+ * Key Go concepts, used by the "teach before test" check.
+ * If a question's prompt or correct answer mentions a concept, some lesson at or
+ * before the question's lesson must mention it too. Add an entry when you add a
+ * question about something new, then teach it in a lesson.
+ */
+export const CONCEPTS: [string, RegExp][] = [
+  ["zero value", /zero value/i],
+  ["short declaration :=", /:=/],
+  ["slice", /slice/i],
+  ["array", /array/i],
+  ["append", /append/],
+  ["capacity", /capacity|cap\(/i],
+  ["map", /\bmap/i],
+  ["nil", /\bnil\b/],
+  ["string / rune", /rune|UTF-8|byte/i],
+  ["struct", /struct/i],
+  ["pointer", /pointer|\*\w+\b|&\w+/i],
+  ["method", /method/i],
+  ["pointer receiver", /receiver/i],
+  ["interface", /interface/i],
+  ["implicit interface", /implicit|implement/i],
+  ["error", /\berror/i],
+  ["errors.Is / As", /errors\.(Is|As)/],
+  ["wrapping %w", /%w|wrap/i],
+  ["panic / recover", /panic|recover/i],
+  ["defer", /defer/i],
+  ["goroutine", /goroutine/i],
+  ["channel", /channel|chan\b/i],
+  ["buffered channel", /buffer/i],
+  ["close", /close/i],
+  ["select", /select/i],
+  ["deadlock", /deadlock/i],
+  ["WaitGroup", /WaitGroup/],
+  ["Mutex", /Mutex/i],
+  ["race detector", /-race|race/i],
+  ["context", /context/i],
+  ["generics", /generic|\[T /i],
+  ["type constraint", /constraint|comparable|any\b/i],
+  ["go mod", /go mod|go\.mod|module/i],
+  ["go vet / fmt", /go vet|gofmt|go fmt/],
+  ["scheduler", /scheduler|GOMAXPROCS/i],
+  ["escape analysis", /escape/i],
+  ["garbage collector", /garbage|\bGC\b/i],
+  ["net/http", /net\/http|http\.Handle|ServeMux/],
+];

@@ -99,6 +99,7 @@ export default defineDomain({
       check: ["algo2-05", "algo2-06"],
       task: "2.1",
       title: "Variants: bounds, rotations, and searching on the answer",
+      sources: [{ title: "Python docs: bisect", url: "https://docs.python.org/3/library/bisect.html", license: "PSF License" }],
       visual: (
         <div className="grid gap-4 md:grid-cols-2">
           <CodeBlock

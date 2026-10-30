@@ -168,6 +168,7 @@ export default defineDomain({
       level: "senior",
       task: "4.2",
       title: "Races, locks, and visibility",
+      sources: [{ title: "Java SE API: Thread", url: "https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Thread.html", license: "Official docs (link only)" }],
       check: ["d4-07", "d4-09"],
       visual: (
         <div className="grid gap-6">
@@ -202,6 +203,7 @@ export default defineDomain({
         "`volatile` makes reads and writes of one variable visible to every thread, in order. It doesn't make multi-step actions like `count++` safe.",
         "Check-then-act, as in `if (!map.containsKey(k)) map.put(k, v)`, is a race even on a thread-safe map. Use `computeIfAbsent`.",
         "**Deadlock** needs threads waiting on each other in a circle. Always take multiple locks in one fixed order, or use `tryLock` with a timeout.",
+        "For a simple shared counter, `AtomicInteger.incrementAndGet()` is thread-safe without a lock. `AtomicReference` does the same for swapping a whole object reference.",
       ],
       tip: "When you spot shared data that can change in an interview problem, say so out loud and pick a strategy: keep it on one thread, make it immutable, or guard it with a lock.",
     },

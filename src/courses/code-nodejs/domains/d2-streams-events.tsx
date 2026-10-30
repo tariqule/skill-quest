@@ -103,6 +103,7 @@ export default defineDomain({
       level: "junior",
       task: "2.1",
       title: "Four kinds of stream",
+      sources: [{ title: "Node.js docs: Stream", url: "https://nodejs.org/api/stream.html", license: "Official docs (link only)" }],
       check: ["d2-02", "d2-01"],
       visual: (
         <div className="grid gap-4">
@@ -145,6 +146,7 @@ export default defineDomain({
         "Readable streams start out paused. Adding a `'data'` listener or calling `pipe()` switches them to flowing mode.",
         "`pipeline()` connects streams and handles backpressure for you. It also passes on the first error and destroys every stream if something fails.",
         "Readable streams work with `for await (const chunk of stream)`. That reads chunks only as fast as your loop body finishes.",
+        "A stream that fails emits an `'error'` event. If no listener handles it, the process crashes. `.pipe()` doesn't forward errors; `stream.pipeline()` does and cleans up all streams.",
       ],
       tip: "If you're asked how you'd process a 10 GB file, say streams with `pipeline()`. Then mention that memory stays constant and backpressure is handled.",
     },

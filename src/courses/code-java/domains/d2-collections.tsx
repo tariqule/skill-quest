@@ -45,6 +45,7 @@ export default defineDomain({
       level: "beginner",
       task: "2.1",
       title: "Arrays: a row of numbered boxes",
+      sources: [{ title: "dev.java: Arrays", url: "https://dev.java/learn/language-basics/arrays/", license: "Official docs (link only)" }],
       check: ["java-b2-01", "java-b2-02"],
       visual: (
         <CodeBlock
@@ -63,6 +64,7 @@ export default defineDomain({
         "You write the type with square brackets: `int[]` is an array of ints. `{90, 75, 60}` fills it in one go.",
         "Slots are numbered from 0, so `scores[0]` is the first value. The last one is at `scores.length - 1`.",
         "An array's size is fixed when you create it. You can change what's in a slot, but you can't add a new slot.",
+        "An array's length is fixed when you create it. For a list that grows, use an `ArrayList`.",
       ],
       tip: "Asking for a slot that doesn't exist, like `scores[3]` here, throws `ArrayIndexOutOfBoundsException`. It's one of the first errors everyone meets.",
     },

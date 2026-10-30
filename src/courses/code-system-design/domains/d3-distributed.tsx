@@ -79,6 +79,7 @@ export default defineDomain({
       level: "intermediate",
       task: "3.1",
       title: "Queues and streams",
+      sources: [{ title: "System Design Primer: Message queues", url: "https://github.com/donnemartin/system-design-primer#message-queues", license: "CC BY 4.0" }],
       check: ["d3-01", "d3-03"],
       visual: (
         <div className="grid gap-3">
@@ -113,6 +114,7 @@ export default defineDomain({
       level: "senior",
       task: "3.2",
       title: "CAP, PACELC and consistency models",
+      sources: [{ title: "System Design Primer: CAP theorem", url: "https://github.com/donnemartin/system-design-primer#cap-theorem", license: "CC BY 4.0" }],
       check: ["d3-07", "d3-08"],
       visual: (
         <div className="grid gap-3">
@@ -181,6 +183,7 @@ relay: outbox → broker (at-least-once)` }}
       level: "intermediate",
       task: "3.4",
       title: "Rate limiting",
+      sources: [{ title: "System Design Primer: Back pressure", url: "https://github.com/donnemartin/system-design-primer#back-pressure", license: "CC BY 4.0" }],
       check: ["d3-18", "d3-19"],
       visual: (
         <div className="grid gap-3">

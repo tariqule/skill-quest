@@ -40,6 +40,7 @@ export default defineDomain({
       level: "beginner",
       task: "1.1",
       title: "What Git is, in plain words",
+      sources: [{ title: "Pro Git: What is Git?", url: "https://git-scm.com/book/en/v2/Getting-Started-What-is-Git%3F", license: "CC BY-NC-SA 3.0" }],
       check: ["git-b1-01", "git-b1-02"],
       visual: (
         <Flow
@@ -56,6 +57,7 @@ export default defineDomain({
         "Each save point is called a **commit**. It's a snapshot of every file in the project at that moment, plus a short note saying what changed.",
         "Git keeps all your commits in order. That list is the project's **history**, and you can read it, compare any two commits, or go back to one.",
         "Git runs on your own computer and works without the internet. Websites like GitHub are a separate thing: places to store and share Git projects.",
+        "`git status` shows what has changed and what's staged for the next commit. It never changes anything, so run it often.",
       ],
       tip: "You don't need to understand everything to start. If you can save a commit and read the history, you already have Git's most useful feature.",
     },
@@ -64,6 +66,7 @@ export default defineDomain({
       level: "beginner",
       task: "1.2",
       title: "Your first commit: add, then commit",
+      sources: [{ title: "Pro Git: Recording Changes to the Repository", url: "https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository", license: "CC BY-NC-SA 3.0" }],
       check: ["git-b1-03", "git-b1-04"],
       visual: (
         <div className="grid gap-4">
@@ -94,6 +97,7 @@ export default defineDomain({
         "`git add <file>` puts a file in the box. Git calls the box the **staging area**: it holds what your next commit will contain.",
         "`git commit -m \"message\"` seals the box. The message is the label, a short note like \"Add shopping list\" that says what changed.",
         "`git status` tells you what's going on at any moment: which files are new, which have changed, and which are ready to commit.",
+        "`git log` lists commits, newest first. `git log --oneline` or `--format=%s` shows a shorter line per commit.",
       ],
       tip: "When you feel lost, run `git status`. It's always safe, it never changes anything, and it often tells you which command to run next.",
     },
@@ -102,6 +106,7 @@ export default defineDomain({
       level: "junior",
       task: "1.1",
       title: "What version control is (and why Git)",
+      sources: [{ title: "Pro Git: What is Git?", url: "https://git-scm.com/book/en/v2/Getting-Started-What-is-Git%3F", license: "CC BY-NC-SA 3.0" }],
       check: ["d1-01", "d1-02"],
       visual: (
         <Tiles
@@ -119,6 +124,7 @@ export default defineDomain({
         "Each commit knows its author, its date, its message, and the commit that came before it.",
         "Git is **distributed**. Your copy of a project, called a **clone**, holds the full history, so it doesn't need a server to work.",
         "GitHub is a hosting service built around Git. You can use Git with no hosting at all.",
+        "Git is distributed: every clone has the full history, so you can commit, branch and read the log offline. GitHub hosts Git repositories and adds pull requests for review.",
       ],
       tip: "Commit early and often on your own machine. Commits are cheap and local until you push, so they're the best undo button you'll ever have.",
     },
@@ -161,6 +167,7 @@ export default defineDomain({
       level: "junior",
       task: "1.2",
       title: "Working tree, index, and commits",
+      sources: [{ title: "Pro Git: Recording Changes to the Repository", url: "https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository", license: "CC BY-NC-SA 3.0" }],
       check: ["d1-08", "d1-10"],
       visual: <ThreeAreasLab />,
       points: [
@@ -170,6 +177,7 @@ export default defineDomain({
         "`git commit` records whatever is in the index, not whatever is on disk.",
         "`git restore <file>` throws away the edits in your working tree. `git restore --staged <file>` takes the file out of the index but keeps your edits.",
         "Commits are full snapshots. Unchanged files are shared between commits, so a commit only stores what changed.",
+        "`git restore --staged file` unstages a file, resetting its index entry to the last commit while keeping your edits. Each commit stores a snapshot tree plus a pointer to its parent commit.",
       ],
       tip: "The index is what lets you make focused commits: stage only the lines that belong together (`git add -p`), commit, then stage the next group.",
     },
@@ -178,6 +186,7 @@ export default defineDomain({
       level: "intermediate",
       task: "1.3",
       title: "Good commits and reading history",
+      sources: [{ title: "Pro Git: Viewing the Commit History", url: "https://git-scm.com/book/en/v2/Git-Basics-Viewing-the-Commit-History", license: "CC BY-NC-SA 3.0" }],
       check: ["d1-13", "d1-14"],
       visual: (
         <div className="grid gap-4">
@@ -204,6 +213,7 @@ export default defineDomain({
         "A good commit holds one logical change. Give it a short summary written as a command, like \"Fix crash when cart is empty\", and add a body explaining why when it isn't obvious.",
         "`.gitignore` only affects untracked files. A file Git already tracks stays tracked until you `git rm --cached` it.",
         "`git commit --amend` replaces the last commit with a new one. Only do it before you've pushed.",
+        "Small, focused commits pay off later: `git bisect` can find the commit that broke something, and `git revert` can undo one change cleanly.",
       ],
       tip: "Write the summary line so it completes the sentence \"If applied, this commit will…\". Future you (and `git log --oneline`) will thank you.",
     },

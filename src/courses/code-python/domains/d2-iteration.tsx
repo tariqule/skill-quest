@@ -185,6 +185,7 @@ export default defineDomain({
       level: "intermediate",
       task: "2.2",
       title: "The iterator protocol",
+      sources: [{ title: "Python docs: Iterator types", url: "https://docs.python.org/3/library/stdtypes.html#iterator-types", license: "PSF License" }],
       check: ["d2-06", "d2-09"],
       visual: (
         <div className="grid gap-4">
@@ -216,6 +217,7 @@ export default defineDomain({
         "An iterator is the thing that keeps your place. It has `__next__` to give the next item, and its `__iter__` returns itself.",
         "Iterators only go through once. `map`, `filter`, `zip`, `enumerate`, files and generators are all used up after one loop.",
         "`zip` stops at the shortest input. Use `itertools.zip_longest` or `zip(..., strict=True)` when the lengths matter.",
+        "A generator is **lazy**: it produces each value only when asked. `list(gen)` forces all values at once, which is how you keep an old list-returning API working.",
       ],
       tip: "\"Why is my second loop empty?\" is almost always a used-up iterator. If you need the items twice, turn them into a list with `list()` first.",
     },

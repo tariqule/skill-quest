@@ -188,6 +188,7 @@ id 125 → base62 "21"   (2 × 62 + 1)`}
       level: "staff",
       task: "4.3",
       title: "News feeds and chat",
+      sources: [{ title: "System Design Primer: Design the Twitter timeline", url: "https://github.com/donnemartin/system-design-primer/blob/master/solutions/system_design/twitter/README.md", license: "CC BY 4.0" }],
       check: ["d4-19", "d4-20"],
       visual: (
         <div className="grid gap-3">

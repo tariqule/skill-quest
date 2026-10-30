@@ -199,6 +199,7 @@ export default defineDomain({
       level: "intermediate",
       task: "3.2",
       title: "Lambdas and lazy streams",
+      sources: [{ title: "dev.java: The Stream API", url: "https://dev.java/learn/api/streams/", license: "Official docs (link only)" }],
       check: ["d3-08", "d3-12"],
       visual: (
         <div className="grid gap-5">
@@ -220,6 +221,7 @@ export default defineDomain({
         "You can only use a stream once. Using it again throws `IllegalStateException`.",
         "A lambda can only use local variables that are final, or **effectively final**, meaning they're never reassigned.",
         "Parallel streams all share one common thread pool. Measure before using them, and never block inside them.",
+        "A `record` such as `record Person(String name, int age)` gives you accessor methods `name()` and `age()`, which work well as method references in streams: `.map(Person::name)`.",
       ],
       tip: "Read a stream pipeline aloud as a sentence: \"take the people, keep the adults, turn them into names, sort, and join with commas\". It shows you understand the order of operations.",
     },
@@ -271,6 +273,7 @@ export default defineDomain({
       level: "intermediate",
       task: "3.3",
       title: "Records, sealed types, and pattern matching",
+      sources: [{ title: "dev.java: Records", url: "https://dev.java/learn/records/", license: "Official docs (link only)" }],
       check: ["d3-19", "d3-21"],
       visual: (
         <CodeBlock
@@ -299,6 +302,7 @@ export default defineDomain({
         "Records are final and only shallowly immutable. A record that holds a `List` should copy it with `List.copyOf` in the compact constructor.",
         "`sealed ... permits` fixes the exact list of subtypes. Each permitted subclass must be `final`, `sealed` or `non-sealed`.",
         "Pattern matching (`o instanceof Point p`, and `switch` with type and record patterns) is final in Java 21. A switch over a sealed type can cover every case with no `default`.",
+        "`var` lets the compiler infer a local variable's type, as in `var list = new ArrayList<String>()`. The variable is still statically typed.",
       ],
       tip: "Records are the modern answer to \"write an immutable value class\". Mention that they also solve the equals and hashCode question for free.",
     },

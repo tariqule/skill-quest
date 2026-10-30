@@ -201,6 +201,7 @@ export default defineDomain({
       level: "intermediate",
       task: "1.4",
       title: "INSERT, UPDATE and DELETE",
+      sources: [{ title: "PostgreSQL docs: UPDATE", url: "https://www.postgresql.org/docs/current/sql-update.html", license: "PostgreSQL License" }],
       check: ["d1-20", "d1-21"],
       visual: (
         <div className="grid gap-4">

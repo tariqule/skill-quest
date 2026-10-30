@@ -224,6 +224,7 @@ dispatch({ type: "added", todo });`}
       level: "intermediate",
       task: "2.4",
       title: "Rules of hooks and custom hooks",
+      sources: [{ title: "react.dev: StrictMode", url: "https://react.dev/reference/react/StrictMode", license: "CC BY 4.0" }],
       check: ["d2-22", "d2-25"],
       visual: (
         <div className="grid gap-3">

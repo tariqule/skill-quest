@@ -148,6 +148,7 @@ export default defineDomain({
       check: ["ds3-09", "ds3-10"],
       task: "3.2",
       title: "Binary search trees",
+      sources: [{ title: "Python docs: bisect", url: "https://docs.python.org/3/library/bisect.html", license: "PSF License" }],
       visual: <BstLab />,
       points: [
         "The **BST property**: every key in a node's left subtree is smaller than the node, and every key in its right subtree is larger.",
@@ -164,6 +165,7 @@ export default defineDomain({
       check: ["ds3-13", "ds3-14"],
       task: "3.3",
       title: "Heaps and priority queues",
+      sources: [{ title: "Python docs: heapq", url: "https://docs.python.org/3/library/heapq.html", license: "PSF License" }],
       visual: <HeapPlayground />,
       points: [
         "In a **min-heap**, every parent is less than or equal to its children, so the smallest item is at index 0. The tree is complete, so it fits neatly in an array.",

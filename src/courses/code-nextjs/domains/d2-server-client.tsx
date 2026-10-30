@@ -89,6 +89,7 @@ export default function LikeButton() {
       level: "junior",
       task: "2.1",
       title: "Server by default",
+      sources: [{ title: "Next.js docs: Environment Variables", url: "https://nextjs.org/docs/app/guides/environment-variables", license: "Official docs (link only)" }],
       check: ["d2-02", "d2-10"],
       visual: (
         <div className="grid gap-4">
@@ -109,6 +110,8 @@ export default function LikeButton() {
         "Pages and layouts are **Server Components** unless the file starts with `\"use client\"`. They run on the server and send the finished result to the browser.",
         "Use **Client Components** for state, event handlers, effects, browser features like `window`, and custom hooks that rely on any of those.",
         "Use Server Components to fetch data close to where it lives, keep secrets away from the browser, and send less JavaScript to visitors.",
+        "On first load, the server sends HTML for a fast, non-interactive preview. Then **hydration** happens: React attaches event handlers to that HTML so Client Components respond to input.",
+        "Environment variables stay on the server unless their names start with `NEXT_PUBLIC_`. Those are inlined into the browser bundle at build time, so never put secrets in them.",
       ],
       tip: "A clear answer: \"Server Components render on the server and send results, not code. Client Components are the interactive bits. They're still turned into HTML first, then made interactive in the browser.\"",
     },

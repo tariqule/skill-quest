@@ -132,6 +132,7 @@ export default defineDomain({
       level: "intermediate",
       task: "2.1",
       title: "Outer joins and anti-joins",
+      sources: [{ title: "PostgreSQL docs: Joins Between Tables", url: "https://www.postgresql.org/docs/current/tutorial-join.html", license: "PostgreSQL License" }],
       check: ["d2-06", "d2-08"],
       visual: (
         <div className="grid gap-4">
@@ -177,6 +178,7 @@ export default defineDomain({
       level: "intermediate",
       task: "2.2",
       title: "GROUP BY and HAVING",
+      sources: [{ title: "PostgreSQL docs: Aggregate Functions", url: "https://www.postgresql.org/docs/current/tutorial-agg.html", license: "PostgreSQL License" }],
       check: ["d2-14", "d2-16"],
       visual: (
         <div className="grid gap-4">
@@ -210,6 +212,7 @@ export default defineDomain({
       level: "intermediate",
       task: "2.3",
       title: "NULL and three-valued logic",
+      sources: [{ title: "PostgreSQL docs: Comparison Functions and Operators", url: "https://www.postgresql.org/docs/current/functions-comparison.html", license: "PostgreSQL License" }],
       check: ["d2-22", "d2-26"],
       visual: (
         <div className="grid gap-4">

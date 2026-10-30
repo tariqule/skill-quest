@@ -178,6 +178,7 @@ export default defineDomain({
       level: "intermediate",
       task: "1.4",
       title: "Accessible forms, buttons, and images",
+      sources: [{ title: "MDN: ARIA", url: "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA", license: "CC BY-SA 2.5" }],
       check: ["d1-19", "d1-20"],
       visual: (
         <div className="grid gap-3">
@@ -214,6 +215,7 @@ export default defineDomain({
         "Buttons do things and links go places. Use `<button>` for actions, like Save, and `<a href>` for moving to another page.",
         "Inside a `<form>`, a `<button>` submits the form unless you say otherwise. Give buttons that shouldn't submit `type=\"button\"`.",
         "Placeholder text isn't a label. It disappears as soon as you type, and it's often pale and hard to read.",
+        "Use ARIA only when HTML has no native way to say something. For example, `aria-label=\"Close\"` names an icon-only button, and `aria-expanded` says whether a menu is open.",
       ],
       tip: "Put your mouse away for five minutes and use your page with Tab, Shift+Tab, Enter and Space. You'll find most accessibility problems yourself.",
     },

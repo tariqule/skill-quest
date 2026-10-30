@@ -105,6 +105,7 @@ bandwidth    12 k QPS × 100 KB         = 1.2 GB/s ≈ 10 Gbps`}
       level: "junior",
       task: "1.2",
       title: "Scale up, then scale out",
+      sources: [{ title: "System Design Primer: Scalability", url: "https://github.com/donnemartin/system-design-primer#scalability", license: "CC BY 4.0" }],
       check: ["d1-06", "d1-07"],
       visual: (
         <div className="grid gap-3">

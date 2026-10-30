@@ -171,6 +171,7 @@ export default defineDomain({
       level: "intermediate",
       task: "3.4",
       title: "Responsive, mobile-first design",
+      sources: [{ title: "MDN: Viewport meta element", url: "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meta/name/viewport", license: "CC BY-SA 2.5" }],
       check: ["d3-21", "d3-22"],
       visual: (
         <div className="grid gap-3">
@@ -192,6 +193,7 @@ export default defineDomain({
         "Work **mobile-first**. Write your base styles for small screens, then add `@media (min-width: …)` blocks, smallest first, as the screen gets wider.",
         "Fluid values like `clamp(1.5rem, 5vw, 3rem)` grow smoothly with the screen but never go below the minimum or above the maximum.",
         "`srcset` and `sizes` let the browser download an image of the right size. `width` and `height` save its space, so content doesn't jump when it loads. That jump is called **layout shift**.",
+        "**Container queries** (`@container`) style a component based on the size of its container rather than the viewport, so the same card adapts in a sidebar or a main column.",
       ],
       tip: "Don't pick breakpoints from lists of devices. Drag your browser narrower until the layout looks wrong, and put a breakpoint there.",
     },

@@ -258,6 +258,7 @@ export default defineDomain({
       level: "senior",
       task: "3.4",
       title: "Mutexes, atomics, and data races",
+      sources: [{ title: "Go docs: package sync", url: "https://pkg.go.dev/sync", license: "CC BY 4.0" }],
       check: ["d3-18", "d3-21"],
       visual: (
         <CodeCompare
@@ -295,6 +296,7 @@ export default defineDomain({
         "A `sync.Mutex` lets one goroutine at a time into a section of code. Never copy a struct that contains one, so use pointer receivers. Locking it twice from the same goroutine deadlocks.",
         "`sync.RWMutex` helps when reads far outnumber writes. `sync.Once` runs setup code exactly once. `sync/atomic` types like `atomic.Int64` suit simple counters.",
         "Go's motto is \"share memory by communicating\". Channels hand data from one goroutine to another, and mutexes guard shared data. Both are fine, so pick whichever is simpler.",
+        "Never copy a `sync.Mutex`: a value receiver copies the struct and its lock. `go vet` reports copied locks.",
       ],
       tip: "If you see `count++` inside a goroutine, say \"data race\" before anything else, then offer a mutex or an `atomic.Int64`.",
     },

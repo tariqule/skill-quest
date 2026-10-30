@@ -97,6 +97,7 @@ export default defineDomain({
       level: "intermediate",
       task: "3.1",
       title: "Volumes and bind mounts",
+      sources: [{ title: "Docker docs: Storage", url: "https://docs.docker.com/engine/storage/", license: "Official docs (link only)" }],
       check: ["d3-01", "d3-02"],
       visual: (
         <div className="grid gap-4">
@@ -125,6 +126,7 @@ export default defineDomain({
         "Docker creates and manages **named volumes** for you. A **bind mount** instead maps a specific folder on the host into the container.",
         "`-v /some/path` with no name creates an anonymous volume: a new, empty one for every new container.",
         "An empty named volume is pre-filled with the image's files at that path. A bind mount hides them instead.",
+        "A `tmpfs` mount (`--tmpfs /tmp`) lives only in host memory: fast scratch space that disappears when the container stops.",
       ],
       tip: "Name every volume that holds real data. `docker volume ls` full of random hashes is how databases get lost during cleanup.",
     },
@@ -184,6 +186,7 @@ export default defineDomain({
       level: "intermediate",
       task: "3.3",
       title: "Docker Compose",
+      sources: [{ title: "Docker docs: Compose file reference", url: "https://docs.docker.com/reference/compose-file/", license: "Official docs (link only)" }],
       check: ["d3-17", "d3-19"],
       visual: (
         <CodeBlock
@@ -218,6 +221,7 @@ export default defineDomain({
         "Compose puts every service on a shared project network, so services reach each other by service name.",
         "`depends_on` alone only orders start-up. Add a healthcheck and `condition: service_healthy` to wait for readiness.",
         "`docker compose down` removes the containers and the network but keeps named volumes. `down -v` deletes the volumes too.",
+        "Moving from Compose to Kubernetes: each service becomes a Deployment plus a Service, named volumes become PersistentVolumeClaims, and `depends_on` gives way to readiness probes and retries.",
       ],
       tip: "Commit `compose.yaml` to the repo. A new teammate going from `git clone` to a running stack with one command is the best onboarding there is.",
     },

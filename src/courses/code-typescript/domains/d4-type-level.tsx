@@ -169,6 +169,7 @@ type E = ElementOf<string[]>;       // string`}
       check: ["d4-09", "d4-12"],
       task: "4.3",
       title: "strict and the flags beyond it",
+      sources: [{ title: "TSConfig: strict", url: "https://www.typescriptlang.org/tsconfig/strict.html", license: "Official docs (link only)" }],
       visual: (
         <Tiles
           cols={2}
@@ -185,6 +186,7 @@ type E = ElementOf<string[]>;       // string`}
         "`strictNullChecks` matters most. Without it, `null` and `undefined` can be assigned to every type.",
         "`noUncheckedIndexedAccess` and `exactOptionalPropertyTypes` are not part of `strict`. You turn them on separately.",
         "Roll out strictness one flag or one folder at a time, with CI blocking any new errors.",
+        "`strict: true` enables a family of flags, including `noImplicitAny` (error when a type would silently become `any`), `strictNullChecks` and `strictFunctionTypes`.",
       ],
       tip: "If someone asks which flag matters most, say `strictNullChecks` and give an example of the bugs it prevents.",
     },

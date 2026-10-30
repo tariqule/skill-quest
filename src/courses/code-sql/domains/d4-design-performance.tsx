@@ -112,6 +112,7 @@ export default defineDomain({
       level: "intermediate",
       task: "4.1",
       title: "Designing tables that stay correct",
+      sources: [{ title: "PostgreSQL docs: CREATE TABLE", url: "https://www.postgresql.org/docs/current/sql-createtable.html", license: "PostgreSQL License" }],
       check: ["d4-01", "d4-02"],
       visual: (
         <div className="grid gap-4">

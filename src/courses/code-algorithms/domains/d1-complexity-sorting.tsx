@@ -98,6 +98,7 @@ export default defineDomain({
       check: ["algo1-05", "algo1-06"],
       task: "1.1",
       title: "Counting the work",
+      sources: [{ title: "MDN: Array.prototype.sort", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort", license: "CC BY-SA 2.5" }],
       visual: (
         <div className="grid gap-4">
           <CodeCompare
@@ -130,6 +131,7 @@ export default defineDomain({
       check: ["algo1-09", "algo1-10"],
       task: "1.2",
       title: "Merge sort and quicksort",
+      sources: [{ title: "Python docs: Sorting Techniques", url: "https://docs.python.org/3/howto/sorting.html", license: "PSF License" }],
       visual: (
         <div className="grid gap-4 md:grid-cols-2">
           <div>
@@ -172,6 +174,7 @@ export default defineDomain({
       check: ["algo1-13", "algo1-14"],
       task: "1.2",
       title: "Heap sort, stability, and picking a sort",
+      sources: [{ title: "MDN: Array.prototype.sort", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort", license: "CC BY-SA 2.5" }],
       visual: (
         <Tiles
           cols={3}

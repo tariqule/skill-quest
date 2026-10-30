@@ -100,6 +100,7 @@ export default defineDomain({
       level: "junior",
       task: "2.1",
       title: "Your first Dockerfile",
+      sources: [{ title: "Docker docs: Dockerfile reference", url: "https://docs.docker.com/reference/dockerfile/", license: "Official docs (link only)" }],
       check: ["d2-01", "d2-02"],
       visual: (
         <div className="grid gap-4">
@@ -131,6 +132,7 @@ export default defineDomain({
         "`RUN` happens while the image is being built. `CMD` is what a container runs when it starts.",
         "`ENV` values exist during the build and in every container. `ARG` values exist only during the build.",
         "Prefer `COPY`. `ADD` also downloads URLs and auto-extracts local tar archives, which can surprise you.",
+        "`EXPOSE 3000` only documents the port the app listens on. It publishes nothing; you still need `-p` at `docker run`.",
       ],
       tip: "Start from an official image with a specific version tag (`node:22-slim`, `python:3.13-slim`), never a bare name that silently means `latest`.",
     },

@@ -140,6 +140,7 @@ LIMIT 20;` }}
       level: "intermediate",
       task: "2.3",
       title: "Replication and lag",
+      sources: [{ title: "System Design Primer: Replication", url: "https://github.com/donnemartin/system-design-primer#replication", license: "CC BY 4.0" }],
       check: ["d2-11", "d2-12"],
       visual: (
         <div className="grid gap-3">

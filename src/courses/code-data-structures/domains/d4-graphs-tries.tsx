@@ -144,6 +144,7 @@ export default defineDomain({
       check: ["ds4-13", "ds4-14"],
       task: "4.3",
       title: "Choosing the right structure",
+      sources: [{ title: "Python docs: Data Structures", url: "https://docs.python.org/3/tutorial/datastructures.html", license: "PSF License" }],
       visual: <BigOTable />,
       points: [
         "List the operations the problem uses most, then pick the structure that makes those cheap.",

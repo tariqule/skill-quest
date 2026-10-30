@@ -100,6 +100,7 @@ export default defineDomain({
       level: "junior",
       task: "4.1",
       title: "An HTTP server from scratch",
+      sources: [{ title: "Node.js docs: HTTP", url: "https://nodejs.org/api/http.html", license: "Official docs (link only)" }],
       check: ["d4-01", "d4-22"],
       visual: (
         <div className="grid gap-4">
@@ -138,6 +139,7 @@ export default defineDomain({
         "Every request has to finish with `res.end()`, or a framework helper that calls it. Otherwise the client waits until it times out.",
         "Frameworks like Express and Fastify add routing, body parsing and middleware on top of this same API.",
         "A graceful shutdown works like this: on SIGTERM, stop taking new connections, let running requests finish, close resources, then exit.",
+        "`http.createServer((req, res) => ...)` calls your function per request. `req` is a readable stream (IncomingMessage) and `res` is a writable stream (ServerResponse).",
       ],
       tip: "Being able to write a server with only `node:http` shows you understand what frameworks do for you.",
     },

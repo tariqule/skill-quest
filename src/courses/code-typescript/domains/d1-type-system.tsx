@@ -111,6 +111,7 @@ function greet(user: User) {
       check: ["d1-01", "d1-15"],
       task: "1.1",
       title: "If it fits the shape, it compiles",
+      sources: [{ title: "TS Handbook: Type Compatibility", url: "https://www.typescriptlang.org/docs/handbook/type-compatibility.html", license: "Official docs (link only)" }],
       visual: (
         <CodeCompare
           lang="ts"
@@ -129,6 +130,8 @@ const b: Point = { x: 3, y: 4, z: 5 };
         "There's one exception. If you write an object literal straight into a typed spot, extra properties are flagged, because they're probably typos. This is the excess property check.",
         "Classes with `private` or `protected` members are compared by where they were declared, not just by shape.",
         "To stop two same-shaped values getting mixed up, like a user ID and an order ID, you can use a branded type.",
+        "With `strict: true` in tsconfig, TypeScript turns on its strictest checks, including `strictNullChecks` and `noImplicitAny`. New projects should start strict; old codebases can tighten flags gradually.",
+        "A type alias is only a name: `type UserId = string` accepts any string. A **branded** type adds a fake tag with an intersection, `string & { readonly __brand: \"UserId\" }`, so other strings no longer fit.",
       ],
       tip: "Interviewers like the phrase \"duck typing at compile time\". Say it, then mention the excess property check straight after.",
     },

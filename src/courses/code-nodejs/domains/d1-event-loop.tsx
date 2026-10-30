@@ -91,6 +91,7 @@ export default defineDomain({
       level: "intermediate",
       task: "1.1",
       title: "The phases of the event loop",
+      sources: [{ title: "Node.js: The Event Loop, Timers, and process.nextTick()", url: "https://nodejs.org/en/learn/asynchronous-work/event-loop-timers-and-nexttick", license: "Official docs (link only)" }],
       check: ["d1-06", "d1-04"],
       visual: <LoopPhases />,
       points: [
@@ -99,6 +100,8 @@ export default defineDomain({
         "Inside an I/O callback, `setImmediate` always runs before `setTimeout(fn, 0)`. That's because the check phase comes straight after poll.",
         "In the main script, the order of `setTimeout(fn, 0)` and `setImmediate` isn't guaranteed. It depends on whether 1 ms has passed when the loop starts.",
         "The process exits once there's nothing left to wait for: no timers, no pending I/O and no other open handles.",
+        "Your JavaScript runs on one main thread. libuv runs the event loop and uses OS async I/O plus a small **thread pool** for work like file access, DNS lookups and crypto. Blocking code freezes everything.",
+        "Examples here use **CommonJS** scripts (`require`, `.js` without `\"type\": \"module\"`). Ordering can differ slightly in ES modules, which are loaded asynchronously.",
       ],
       tip: "Draw the loop as a circle with the phases around it. Then show the nextTick and microtask queues being emptied between every callback. Interviewers love that picture.",
     },
@@ -128,6 +131,7 @@ export default defineDomain({
       level: "senior",
       task: "1.3",
       title: "libuv and the thread pool",
+      sources: [{ title: "libuv docs: Thread pool", url: "https://docs.libuv.org/en/v1.x/threadpool.html", license: "Official docs (link only)" }],
       check: ["d1-25", "d1-11"],
       visual: (
         <div className="grid gap-4">
@@ -152,6 +156,7 @@ export default defineDomain({
         "Network I/O uses the operating system's non-blocking APIs. That's how one thread can look after thousands of sockets at once.",
         "Work the OS can't do asynchronously runs on the thread pool. That covers files, `dns.lookup`, heavy crypto and compression.",
         "The pool has 4 threads by default. To change that, set `UV_THREADPOOL_SIZE` before the pool is first used.",
+        "The thread pool has 4 threads by default. Set the `UV_THREADPOOL_SIZE` environment variable at startup to change it. `fs`, `crypto` and `dns.lookup` all share it, and streams of file I/O can queue behind hashing.",
       ],
       tip: "\"Node is single-threaded\" is only half true. Say this instead: \"Your JavaScript runs on one thread, and libuv uses the OS and a thread pool for I/O.\"",
     },

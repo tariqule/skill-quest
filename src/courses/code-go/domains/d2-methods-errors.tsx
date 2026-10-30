@@ -270,6 +270,7 @@ export default defineDomain({
       level: "intermediate",
       task: "2.4",
       title: "defer, panic, and recover",
+      sources: [{ title: "Go blog: Defer, Panic, and Recover", url: "https://go.dev/blog/defer-panic-and-recover", license: "CC BY 4.0" }],
       check: ["d2-19", "d2-21"],
       visual: <DeferLab />,
       points: [
@@ -278,6 +279,7 @@ export default defineDomain({
         "A deferred closure can change **named** results after `return` has set them.",
         "`recover()` only stops a panic when it's called directly in a deferred function, in the same goroutine that panicked.",
         "Defers run when the function exits, not at the end of each loop pass. Don't `defer f.Close()` inside a long loop.",
+        "`recover` only works inside a deferred function in the panicking goroutine. net/http recovers panics in a handler's own goroutine, but a panic in a goroutine the handler starts crashes the whole process.",
       ],
       tip: "For panics in goroutines, remember that an unrecovered panic in any goroutine crashes the whole program. Recover inside the goroutine itself.",
     },

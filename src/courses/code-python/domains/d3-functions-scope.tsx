@@ -212,6 +212,7 @@ export default defineDomain({
       level: "senior",
       task: "3.3",
       title: "LEGB, closures, and late binding",
+      sources: [{ title: "Python docs: Scopes and Namespaces", url: "https://docs.python.org/3/tutorial/classes.html#python-scopes-and-namespaces", license: "PSF License" }],
       check: ["d3-12", "d3-14"],
       visual: (
         <div className="grid gap-6">
@@ -240,6 +241,7 @@ export default defineDomain({
         "If a function assigns to a name anywhere in its body, that name is local for the whole function. Reading it before the assignment raises `UnboundLocalError`.",
         "`global` lets a function reassign a name at module level. `nonlocal` lets it reassign a name in the nearest enclosing function.",
         "A **closure** is an inner function that remembers variables from the function around it. It remembers the variable itself, not its value, so it reads the value at the moment it runs.",
+        "A module-level global is shared by every thread or async task on the server. Per-request data belongs in function arguments or a `contextvars.ContextVar`, which keeps a separate value per thread and per asyncio task.",
       ],
       tip: "Changing a global list, as in `items.append(x)`, needs no `global` statement. You only need `global` to point the name at something new, as in `items = []`.",
     },

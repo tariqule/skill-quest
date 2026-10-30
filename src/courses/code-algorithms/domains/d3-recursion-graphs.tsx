@@ -111,6 +111,7 @@ export default defineDomain({
       check: ["algo3-05", "algo3-06"],
       task: "3.1",
       title: "Backtracking: choose, explore, un-choose",
+      sources: [{ title: "Python docs: itertools", url: "https://docs.python.org/3/library/itertools.html", license: "PSF License" }],
       visual: (
         <div className="grid gap-4 md:grid-cols-2">
           <SubsetTree />
@@ -148,6 +149,7 @@ export default defineDomain({
       check: ["algo3-09", "algo3-10"],
       task: "3.2",
       title: "BFS: ripples in a pond",
+      sources: [{ title: "Python docs: collections.deque", url: "https://docs.python.org/3/library/collections.html#collections.deque", license: "PSF License" }],
       visual: <BfsGrid />,
       points: [
         "BFS uses a queue to explore nodes in order of distance. So the first time it reaches a node, it got there by a shortest path, counted in edges.",

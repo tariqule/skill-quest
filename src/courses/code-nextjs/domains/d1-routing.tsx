@@ -91,6 +91,7 @@ export default defineDomain({
       level: "junior",
       task: "1.1",
       title: "Folders are routes",
+      sources: [{ title: "Next.js docs: Route Groups", url: "https://nextjs.org/docs/app/api-reference/file-conventions/route-groups", license: "Official docs (link only)" }],
       check: ["d1-01", "d1-21"],
       visual: (
         <div className="grid gap-3">
@@ -120,6 +121,7 @@ export default defineDomain({
         "Each folder inside `app` adds a piece to the web address. A `page.tsx` file in a folder makes that address something visitors can open.",
         "Square brackets make a **dynamic segment**, a part of the address that can change. `[slug]` matches one piece, `[...slug]` matches one or more, and `[[...slug]]` matches zero or more.",
         "Other files, like components and helpers, can sit next to your routes. Only `page` and `route` files can be opened by visitors.",
+        "A folder in parentheses, like `app/(marketing)/about`, is a **route group**: it organises files and can share a layout, but its name stays out of the URL, so that page serves `/about`.",
       ],
       tip: "Interviewers often ask how you'd structure an app. Sketch the folder tree first, then say which folders are groups, which are dynamic, and where the layouts go.",
     },
@@ -128,6 +130,7 @@ export default defineDomain({
       level: "intermediate",
       task: "1.2",
       title: "Layouts, templates, and the special-file stack",
+      sources: [{ title: "Next.js docs: Route Groups", url: "https://nextjs.org/docs/app/api-reference/file-conventions/route-groups", license: "Official docs (link only)" }],
       check: ["d1-06", "d1-08"],
       visual: <FileStack />,
       points: [
@@ -135,6 +138,8 @@ export default defineDomain({
         "Layouts stay put when you move between pages, so their state is kept. A **template** looks similar but is rebuilt on every navigation, so its state resets.",
         "`error.tsx` must be a Client Component. It doesn't catch errors from the layout in its own folder. The parent folder's error boundary catches those.",
         "`loading.tsx` wraps the page in `<Suspense>` to show a loading state. It doesn't cover the layout in the same folder.",
+        "Other special files in a segment: `not-found.tsx` renders when you call `notFound()`, `template.tsx` is a layout that remounts on navigation, and `route.ts` is a **Route Handler** that answers HTTP methods like `GET` and `POST`.",
+        "Several root layouts are possible with route groups, such as `app/(shop)/layout.tsx` and `app/(admin)/layout.tsx`. Moving between pages that use different root layouts triggers a full page load.",
       ],
       tip: "Asked how a layout differs from a template? They sit in the same place in the tree, but a template gets a new key for each page. So its state resets and its effects run again.",
     },

@@ -83,6 +83,7 @@ describe("hi");   // "HI"`}
       check: ["d2-01", "d2-02"],
       task: "2.1",
       title: "Unions: one of several types",
+      sources: [{ title: "TS Handbook: Everyday Types", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html", license: "Official docs (link only)" }],
       visual: (
         <CodeBlock
           lang="ts"
@@ -100,6 +101,7 @@ describe("hi");   // "HI"`}
         "A union `A | B` accepts a value of either type. Until you narrow it, you can only use the members both types share.",
         "Narrowing is a check the compiler understands. Inside the branch, the type is smaller.",
         "Literal unions like `\"sm\" | \"md\" | \"lg\"` are a light alternative to enums, and they disappear when compiled.",
+        "Besides `typeof`, you can narrow with `x instanceof Date` (is the class's prototype on the chain?), the `in` operator (`\"email\" in x` checks for a property key), and `Array.isArray(x)`.",
       ],
       tip: "When someone asks why a line doesn't compile, point at the member of the union that's missing the property.",
     },
@@ -139,6 +141,7 @@ describe("hi");   // "HI"`}
       check: ["d2-07", "d2-09"],
       task: "2.2",
       title: "Discriminated unions and exhaustiveness",
+      sources: [{ title: "TS Handbook: Narrowing", url: "https://www.typescriptlang.org/docs/handbook/2/narrowing.html", license: "Official docs (link only)" }],
       visual: (
         <CodeBlock
           lang="ts"
@@ -163,6 +166,7 @@ function area(s: Shape): number {
         "Give every member of the union a shared property with a different literal value, like `kind`, `type` or `status`. Checking it narrows to exactly one member.",
         "If every member is handled, the value left in the `default` branch is `never`. Pass it to `assertNever`, and adding a new member becomes a compile error there.",
         "Model states as a union, like loading, error and success, so combinations that make no sense can't be written at all.",
+        "Optional properties like `error?: Error; data?: T` allow impossible combinations. A discriminated union, one member per `status`, makes each state carry exactly the fields it needs.",
       ],
       tip: "Offer the `assertNever` pattern without being asked when you switch over a union. It shows you've done this in real code.",
     },
@@ -172,6 +176,7 @@ function area(s: Shape): number {
       check: ["d2-10", "d2-12"],
       task: "2.3",
       title: "Type predicates and assertion functions",
+      sources: [{ title: "TS Handbook: Narrowing", url: "https://www.typescriptlang.org/docs/handbook/2/narrowing.html", license: "Official docs (link only)" }],
       visual: (
         <CodeCompare
           lang="ts"
@@ -191,6 +196,7 @@ user.name; // user is non-null from here on` }}
         "Since TypeScript 5.5, simple arrow callbacks like `x => x != null` are inferred as predicates, so `filter` narrows on its own.",
         "An assertion function, written `asserts x is T`, throws when the check fails. If it returns, `x` is narrowed for the rest of the scope.",
         "Where untrusted data comes in, such as JSON, queues or forms, build predicates from a runtime schema instead of writing partial checks by hand.",
+        "An assertion function returns `asserts v is NonNullable<T>`, a generic type that removes `null` and `undefined`. If the call returns normally, `v` is non-nullable for the rest of the scope; otherwise it throws.",
       ],
       tip: "Point out that a wrong predicate is worse than none. It makes the compiler confidently wrong.",
     },

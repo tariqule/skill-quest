@@ -151,6 +151,7 @@ export default defineDomain({
       level: "intermediate",
       task: "1.2",
       title: "Shallow and deep copies",
+      sources: [{ title: "Python docs: copy", url: "https://docs.python.org/3/library/copy.html", license: "PSF License" }],
       check: ["d1-08", "d1-10"],
       visual: (
         <div className="grid gap-4">
@@ -196,6 +197,7 @@ export default defineDomain({
         "So if the items are lists, changing one of those inner lists shows up in both the copy and the original.",
         "`copy.deepcopy` copies everything, all the way down through nested containers. It even copes with objects that refer back to themselves.",
         "`[x] * n` repeats a reference to the same `x`, n times. That's fine when `x` is a number, but a trap when `x` is a list.",
+        "Three ways to make a shallow copy of a list: slicing with `a[:]`, `list(a)`, and `a.copy()`. Each gives a new outer list that still shares the same inner objects.",
       ],
       tip: "Interviewers love the grid trap. Explain that `*` repeats references, so every row is really the same list, then offer the list comprehension fix.",
     },
@@ -204,6 +206,7 @@ export default defineDomain({
       level: "intermediate",
       task: "1.3",
       title: "Pick the right collection",
+      sources: [{ title: "Python docs: collections", url: "https://docs.python.org/3/library/collections.html", license: "PSF License" }],
       check: ["d1-12", "d1-15"],
       visual: <ComplexityExplorer />,
       points: [
@@ -211,6 +214,8 @@ export default defineDomain({
         "Lists are fast at the end and slow at the front, because adding at the front shifts everything along. For a queue, use `collections.deque`.",
         "Dict keys and set items must be **hashable**. Immutable built-ins like ints, strings and tuples of them work. Lists and dicts don't.",
         "Dicts remember the order you inserted keys. Updating a key that's already there keeps it in its original position.",
+        "Looking up a missing key with `d[key]` raises a `KeyError` exception. Use `d.get(key)` or `key in d` when the key might be absent.",
+        "For many small records, a class with `__slots__` (or `@dataclass(slots=True)`, Python 3.10+) uses much less memory than a dict per record, because instances drop their per-object `__dict__`.",
       ],
       tip: "Before you optimise, name the operation that happens most (a lookup, adding at the front, finding the smallest). Then choose the structure that makes that operation O(1) or O(log n).",
     },

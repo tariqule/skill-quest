@@ -111,6 +111,7 @@ console.log("serving other tables");`}
       check: ["d3-01", "d3-02"],
       task: "3.1",
       title: "The event loop, step by step",
+      sources: [{ title: "MDN: The event loop", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Event_loop", license: "CC BY-SA 2.5" }],
       visual: (
         <div className="grid gap-5">
           <Flow
@@ -141,6 +142,7 @@ console.log("serving other tables");`}
       check: ["d3-03", "d3-07"],
       task: "3.2",
       title: "Promises and their combinators",
+      sources: [{ title: "MDN: Using promises", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises", license: "CC BY-SA 2.5" }],
       visual: (
         <div className="grid gap-4">
           <Tiles
@@ -180,6 +182,7 @@ console.log("serving other tables");`}
       check: ["d3-04", "d3-12"],
       task: "3.3",
       title: "async and await: one after another, or all at once",
+      sources: [{ title: "MDN: async function", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function", license: "CC BY-SA 2.5" }],
       visual: (
         <CodeCompare
           lang="js"
