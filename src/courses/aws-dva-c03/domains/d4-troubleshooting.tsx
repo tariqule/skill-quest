@@ -217,6 +217,7 @@ export default defineDomain({
         "A **health check** regularly asks your app \"are you OK?\". Load balancer target groups and ECS container health checks use the answer to replace unhealthy targets.",
         "In Kubernetes, a **liveness probe** restarts a container that's stuck. A **readiness probe** keeps a pod out of service until it can handle traffic.",
         "To hear about a quota before you hit it, put a CloudWatch alarm on the AWS usage metric for it. Service Quotas shows these metrics.",
+        "For DynamoDB throttling (ProvisionedThroughputExceededException), retry with exponential backoff, spread writes off a hot partition key, raise provisioned capacity, or switch the table to on-demand capacity mode.",
       ],
     },
     {
