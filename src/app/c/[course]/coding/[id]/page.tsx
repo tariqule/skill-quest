@@ -12,6 +12,7 @@ import { runChallenge, warmRuntime, type LiveRun } from "@/engine/runners";
 import { codingGrade, runStatusChips } from "@/engine/coding-review";
 import { makeOnce } from "@/engine/scenario-progress";
 import { itemKey } from "@/engine/srs";
+import { readDraft, writeDraft } from "@/engine/drafts";
 import { gradeItem } from "@/engine/srs-store";
 import { useCourse, useLevelPool } from "@/engine/course-context";
 import { LEVEL_BY_ID } from "@/engine/levels";
@@ -27,23 +28,13 @@ export default function CodingPlay() {
   // Drafts live in localStorage, so the workspace only mounts in the browser (no hydration mismatch).
   const mounted = useSyncExternalStore(noop, () => true, () => false);
   if (!mounted) return <main className="mx-auto w-full max-w-6xl px-4 py-10 font-mono text-slate-500">Loading editor…</main>;
-  return <Workspace key={challenge.id} challenge={challenge} />;
-}
-
-const draftKey = (id: string) => `cq-draft:${id}`;
-
-function readDraft(c: CodingChallenge) {
-  try {
-    return window.localStorage.getItem(draftKey(c.id)) ?? c.starter;
-  } catch {
-    return c.starter;
-  }
+  return <Workspace key={`${course.id}:${challenge.id}`} challenge={challenge} />;
 }
 
 function Workspace({ challenge: c }: { challenge: CodingChallenge }) {
   const { course, store, href } = useCourse();
   const { level } = useLevelPool();
-  const [code, setCode] = useState(() => readDraft(c));
+  const [code, setCode] = useState(() => readDraft(window.localStorage, course.id, c));
   const [result, setResult] = useState<LiveRun | null>(null);
   const [status, setStatus] = useState("");
   const [attempted, setAttempted] = useState(false);
@@ -69,11 +60,7 @@ function Workspace({ challenge: c }: { challenge: CodingChallenge }) {
 
   function change(next: string) {
     setCode(next);
-    try {
-      window.localStorage.setItem(draftKey(c.id), next);
-    } catch {
-      // Drafts are a convenience; ignore storage errors.
-    }
+    writeDraft(window.localStorage, course.id, c, next);
   }
 
   async function run() {

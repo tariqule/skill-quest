@@ -48,6 +48,7 @@ export function CodeReview({ course, c, onDone }: { course: Course; c: CodingCha
       <p className="mt-2 text-base text-slate-200">
         <RichText text={c.prompt} />
       </p>
+      <p className="mt-1 text-sm text-slate-300">Review starts fresh from the starter code. Your saved draft on the exercise page stays as it was.</p>
       <div
         className="mt-3"
         onFocus={() => {
