@@ -11,7 +11,8 @@ import { BADGES } from "@/engine/badges";
 import { courseCopy } from "@/engine/copy";
 import { useCourse, useProgress } from "@/engine/course-context";
 import { domainMastery, overallReadiness } from "@/engine/game";
-import { effectiveLevel } from "@/engine/levels";
+import { effectiveLevel, hasBeginnerLessons } from "@/engine/levels";
+import { BeginnerMap } from "@/components/learn/BeginnerMap";
 import { MODE_BY_ID, modesFor } from "@/engine/modes";
 import { CourseLevel, LevelUpBanner } from "@/components/LevelControls";
 import { buildPath, type PathNode, type PathWorld } from "@/engine/path";
@@ -25,6 +26,9 @@ const ZIGZAG = [0, 56, 84, 56, 0, -56, -84, -56];
 /** Certification courses get the planet map; interview tracks get the Code Quest arcade. */
 export default function CoursePage() {
   const { course } = useCourse();
+  const p = useProgress();
+  // Beginners get one simple numbered path; everyone else gets the full map.
+  if (effectiveLevel(course, p.level) === "beginner" && hasBeginnerLessons(course)) return <BeginnerMap />;
   return isCodeTrack(course) ? <CodeMap /> : <MissionMap />;
 }
 

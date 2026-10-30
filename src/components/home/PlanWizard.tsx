@@ -1,13 +1,15 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { COURSES, getCourse } from "@/courses";
 import { BUNDLES, targetCourses } from "@/engine/bundles";
 import { LEVEL_BY_ID, planLevelOptions, type LevelChoice } from "@/engine/levels";
+import { nextStep } from "@/engine/next-step";
 import { pickGoalFields, type PlanGoal, type StudyPlan } from "@/engine/plan";
 import { setPlan } from "@/engine/plan-store";
 import { setProfile } from "@/engine/profile";
-import { todayKey } from "@/engine/store";
+import { getCourseStore, todayKey } from "@/engine/store";
 import { setSharedLevel } from "@/engine/track-level";
 import { isCodeTrack } from "@/engine/tracks";
 import type { Course } from "@/engine/types";
@@ -42,6 +44,7 @@ function targetsFor(goal: PlanGoal): { group: string; options: { id: string; lab
 }
 
 export function PlanWizard({ initial, onDone }: { initial?: StudyPlan | null; onDone?: () => void }) {
+  const router = useRouter();
   const [goal, setGoal] = useState<PlanGoal>(initial?.goal ?? "exam");
   const groups = targetsFor(goal);
   const [target, setTarget] = useState<string>(initial?.target ?? groups[0].options[0].id);
@@ -70,6 +73,11 @@ export function PlanWizard({ initial, onDone }: { initial?: StudyPlan | null; on
     setProfile({ goal: goal === "exam" ? "cert" : goal === "interview" ? "interview" : "code", level: level as LevelChoice });
     setSharedLevel(courses, level as LevelChoice);
     onDone?.();
+    // A first-time beginner goes straight into lesson 1: teach first, no dashboard to decode.
+    if (!initial && level === "beginner") {
+      const step = nextStep(plan, (c) => getCourseStore(c).get());
+      if (step?.isFirst) router.push(step.href);
+    }
   }
 
   return (

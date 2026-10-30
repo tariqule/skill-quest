@@ -80,8 +80,8 @@ describe("labels", () => {
     expect(blankPlaceholder(1, 1)).toBe("Choose…");
     expect(blankPlaceholder(2, 3)).toBe("Blank 2: choose…");
   });
-  it("labels the review session as due + new, matching /daily's queue length", () => {
-    expect(reviewLabel({ total: 15, due: 7, fresh: 8 })).toBe("15 (7 due + 8 new)");
-    expect(reviewLabel({ total: 4, due: 4, fresh: 0 })).toBe("4 due");
+  it("labels the refresher with the same question count /daily shows (due and new together)", () => {
+    expect(reviewLabel({ total: 15, due: 7, fresh: 8 })).toBe("15 questions");
+    expect(reviewLabel({ total: 1, due: 1, fresh: 0 })).toBe("1 question");
   });
 });

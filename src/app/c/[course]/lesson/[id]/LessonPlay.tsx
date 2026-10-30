@@ -1,5 +1,6 @@
 "use client";
 
+import { LessonReader } from "@/components/learn/LessonReader";
 import { SourcesFooter } from "@/components/learn/Sources";
 import { RichText } from "@/components/learn/code";
 import Link from "next/link";
@@ -9,7 +10,8 @@ import { Confetti, MascotSays } from "@/components/fx";
 import { QuestionCard } from "@/components/QuestionCard";
 import { TimedQuiz, type TimedResult } from "@/components/TimedQuiz";
 import { courseCopy } from "@/engine/copy";
-import { useCourse, useLevelPool } from "@/engine/course-context";
+import { useCourse, useLevelPool, useProgress } from "@/engine/course-context";
+import { effectiveLevel, pathLessons } from "@/engine/levels";
 import { answerText, challengeDeck, isCorrect, pct, prepare, type PreparedQuestion } from "@/engine/game";
 import { buildPath } from "@/engine/path";
 
@@ -31,6 +33,13 @@ export function LessonPlay() {
   if (!lesson) notFound();
   const domain = domainById[lesson.domain];
   const worldLessons = course.lessons[lesson.domain];
+  const progress = useProgress();
+  // Gentle mode: a beginner (or a "Start here" lesson) reads one idea per screen, with no timer or recap loop.
+  const gentle = lesson.level === "beginner" || effectiveLevel(course, progress.level) === "beginner";
+  // On the beginner path the count runs across the whole course (Lesson 3 of 8), matching the path list.
+  const beginnerPath = pathLessons(course, "beginner");
+  const pathIndex = beginnerPath.findIndex((l) => l.id === lesson.id);
+  const lessonLabel = gentle && pathIndex >= 0 ? `Lesson ${pathIndex + 1} of ${beginnerPath.length}` : `Lesson ${lesson.index + 1} of ${worldLessons.length}`;
 
 
   const [phase, setPhase] = useState<Phase>("teach");
@@ -44,7 +53,7 @@ export function LessonPlay() {
   const [timedDeck, setTimedDeck] = useState<PreparedQuestion[]>([]);
   const [timedRuns, setTimedRuns] = useState<TimedResult[]>([]);
 
-  const challenge = course.config.lesson.timedChallenge;
+  const challenge = gentle ? { ...course.config.lesson.timedChallenge, enabled: false } : course.config.lesson.timedChallenge;
   const lastRun = timedRuns[timedRuns.length - 1];
   const checksDone = lesson.check.length - queue.length + (submitted ? 1 : 0);
   const stepProgress = { teach: 0.1, check: 0.1 + 0.4 * (checksDone / lesson.check.length), recap: 0.6, timed: 0.75, done: 1 }[phase];
@@ -111,7 +120,9 @@ export function LessonPlay() {
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key !== "Enter") return;
-      if (phase === "teach") startCheck();
+      if (phase === "teach") {
+        if (!gentle) startCheck(); // the reader handles Enter itself
+      }
       else if (phase === "check" && submitted) next();
       else if (phase === "recap") startTimed();
       else if (phase === "done") router.push(nextHref);
@@ -133,12 +144,16 @@ export function LessonPlay() {
 
       <div className="mt-4 flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider">
         <span style={{ color: domain.color }}>
-          {domain.emoji} World {domain.number} · Lesson {lesson.index + 1} of {worldLessons.length}
+          {gentle ? `${domain.emoji} ${lessonLabel}` : `${domain.emoji} World ${domain.number} · ${lessonLabel}`}
         </span>
-        <span className="rounded-full bg-white/10 px-2 py-0.5 text-slate-300">{copy.task} {lesson.task}</span>
+        {!gentle && <span className="rounded-full bg-white/10 px-2 py-0.5 text-slate-300">{copy.task} {lesson.task}</span>}
       </div>
 
-      {phase === "teach" && (
+      {phase === "teach" && gentle && (
+        <LessonReader lesson={lesson} color={domain.color} tipLabel={copy.tip} questionCount={lesson.check.length} onDone={startCheck} />
+      )}
+
+      {phase === "teach" && !gentle && (
         <div className="card-in">
           <h1 className="mt-2 text-2xl sm:text-3xl font-black text-white">{lesson.title}</h1>
           <div className="mt-5 rounded-2xl border border-white/10 bg-slate-900/70 p-4 sm:p-6 shadow-2xl" style={{ boxShadow: `0 20px 60px -30px ${domain.color}` }}>
@@ -179,21 +194,25 @@ export function LessonPlay() {
                 ? "Nice! Exactly right."
                 : challenge.enabled
                   ? "Not quite. Read why. We'll recap, then you'll beat the clock."
-                  : "Not quite. Read why, and you'll see it again at the end."
-              : "Quick check. You've got this!"}
+                  : gentle
+                    ? "Not quite, and that's fine. That's how it sticks. Here's why:"
+                    : "Not quite. Read why, and you'll see it again at the end."
+              : gentle
+                ? "Two quick questions about what you just read. Take your time."
+                : "Quick check. You've got this!"}
           </MascotSays>
           <div className="mt-4">
             <QuestionCard key={`${queue[0].id}-${queue.length}-${retried.length}`} q={queue[0]} submitted={submitted} onSubmit={submit} />
           </div>
           {submitted && (
-            <div className={`sticky bottom-0 -mx-4 mt-5 border-t px-4 py-4 backdrop-blur ${lastOk ? "border-emerald-400/30 bg-emerald-950/80" : "border-rose-400/30 bg-rose-950/80"}`}>
+            <div className={`sticky bottom-0 -mx-4 mt-5 border-t px-4 py-4 backdrop-blur ${lastOk ? "border-emerald-400/30 bg-emerald-950/80" : gentle ? "border-amber-400/30 bg-amber-950/80" : "border-rose-400/30 bg-rose-950/80"}`}>
               <div className="flex items-center justify-between gap-3">
-                <span className={`text-lg font-black ${lastOk ? "text-emerald-300" : "text-rose-300"}`}>{lastOk ? `✓ Correct! +${xp.lessonCheck} XP` : "✗ Keep going"}</span>
+                <span className={`text-lg font-black ${lastOk ? "text-emerald-300" : gentle ? "text-amber-300" : "text-rose-300"}`}>{lastOk ? (gentle ? "✓ Correct!" : `✓ Correct! +${xp.lessonCheck} XP`) : gentle ? "Not quite" : "✗ Keep going"}</span>
                 <button
                   type="button"
                   onClick={next}
-                  className={`btn-3d rounded-2xl px-8 py-3 font-black uppercase text-slate-950 ${lastOk ? "bg-emerald-400" : "bg-rose-400"}`}
-                  style={{ "--edge": lastOk ? "#047857" : "#9f1239" } as React.CSSProperties}
+                  className={`btn-3d rounded-2xl px-8 py-3 font-black uppercase text-slate-950 ${lastOk ? "bg-emerald-400" : gentle ? "bg-amber-400" : "bg-rose-400"}`}
+                  style={{ "--edge": lastOk ? "#047857" : gentle ? "#b45309" : "#9f1239" } as React.CSSProperties}
                 >
                   Continue
                 </button>

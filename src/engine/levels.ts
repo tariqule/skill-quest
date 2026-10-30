@@ -120,3 +120,18 @@ export function planLevelOptions(course: Pick<Course, "kind">): LevelInfo[] {
         : l,
   );
 }
+
+/** Lessons on the learner's path for a course: the "Start here" basics on Beginner, the rest otherwise. */
+export function pathLessons(course: Course, level: LevelChoice) {
+  const beginner = effectiveLevel(course, level) === "beginner";
+  const lists = course.domains.map((d) => splitLessons(course.lessons[d.id] ?? []));
+  const basics = lists.flatMap((l) => l.basics);
+  const rest = lists.flatMap((l) => l.rest);
+  // A course with no beginner lessons falls back to its full path.
+  return beginner ? (basics.length ? basics : rest) : rest.length ? rest : basics;
+}
+
+/** True when at least one lesson in the course is a "Start here" beginner lesson. */
+export function hasBeginnerLessons(course: Pick<Course, "domains" | "lessons">) {
+  return course.domains.some((d) => (course.lessons[d.id] ?? []).some((l) => l.level === "beginner"));
+}

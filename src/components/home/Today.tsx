@@ -6,8 +6,9 @@ import { COURSES, getCourse } from "@/courses";
 import { BUNDLE_BY_ID, targetCourses } from "@/engine/bundles";
 import { dailySessionSize } from "@/engine/daily-queue";
 import { formatDate } from "@/engine/game";
-import { onTrack, type PlanItem, type StudyPlan } from "@/engine/plan";
-import { todaySummary } from "@/engine/plan-inputs";
+import { EASE_IN_LESSONS, onTrack, type PlanItem, type StudyPlan } from "@/engine/plan";
+import { nextStep } from "@/engine/next-step";
+import { planCourses, todaySummary } from "@/engine/plan-inputs";
 import { syncFromProgress, useSrs } from "@/engine/srs-store";
 import { getCourseStore, todayKey } from "@/engine/store";
 import type { Course } from "@/engine/types";
@@ -56,15 +57,15 @@ function targetName(target: string) {
 
 type SessionSize = { total: number; due: number; fresh: number };
 
-/** "12 (9 due + 3 new)": the same numbers /daily shows. */
+/** "12 questions": the same count /daily shows (due and new together). */
 export function reviewLabel(s: SessionSize) {
-  return s.fresh > 0 ? `${s.total} (${s.due} due + ${s.fresh} new)` : `${s.total} due`;
+  return `${s.total} ${s.total === 1 ? "question" : "questions"}`;
 }
 
 function itemLink(item: PlanItem, session: SessionSize) {
   switch (item.kind) {
     case "review":
-      return { href: "/daily", icon: "🔁", title: `Daily Review · ${reviewLabel(session)}`, sub: "Spaced repetition across all your courses" };
+      return { href: "/daily", icon: "🔁", title: `Quick refresher · ${reviewLabel(session)}`, sub: "Short questions about things you've already learned" };
     case "lesson":
       return { href: `/c/${item.courseId}/lesson/${item.lessonId}`, icon: "📘", title: item.title, sub: `Lesson · ${item.courseTitle}` };
     case "practice":
@@ -101,6 +102,8 @@ export function Today({ plan }: { plan: StudyPlan | null }) {
   }
 
   const s = todaySummary(plan, progressOf, todayKey(), due);
+  // A brand-new beginner gets one calm next step, not a dashboard of reviews, games and stats.
+  if (s.newLearner) return <FirstSteps plan={plan} onEdit={() => setEditing(true)} />;
   const minutes = s.items.reduce((n, i) => n + i.minutes, 0);
   const good = onTrack(s.forecast);
   return (
@@ -136,6 +139,12 @@ export function Today({ plan }: { plan: StudyPlan | null }) {
         </button>
       </div>
 
+      {plan.level === "beginner" && s.done >= EASE_IN_LESSONS && s.done < EASE_IN_LESSONS + 2 && (
+        <p className="mt-3 rounded-xl border border-emerald-400/30 bg-emerald-400/10 px-3 py-2 text-base text-emerald-100">
+          🎉 Nice work. Quick refreshers, practice games and your progress are unlocked now.
+        </p>
+      )}
+
       <ContinueButton first={s.items[0] ? itemLink(s.items[0], session) : null} planCourses={targetCourses(plan.target)} />
 
       <h3 className="mt-5 text-base font-black text-white">
@@ -159,7 +168,7 @@ export function Today({ plan }: { plan: StudyPlan | null }) {
             </li>
           );
         })}
-        {s.items.length === 0 && <li className="text-base text-slate-300">All caught up. Every lesson is done. Try a mock exam or the Daily Review. 🎉</li>}
+        {s.items.length === 0 && <li className="text-base text-slate-300">All caught up. Every lesson is done. Try a practice exam or the quick refresher. 🎉</li>}
       </ol>
       {plan.goal === "interview" && targetCourses(plan.target).some((id) => { const c = getCourse(id); return !!c && hasCodeGames(c); }) && (
         <Link href="/warmup" className="mt-3 flex items-center gap-3 rounded-2xl border border-sky-400/40 bg-sky-400/10 p-3 transition hover:border-sky-300">
@@ -177,12 +186,47 @@ export function Today({ plan }: { plan: StudyPlan | null }) {
   );
 }
 
+/** What a brand-new beginner sees: one lesson, one button, no tests until they've read something. */
+function FirstSteps({ plan, onEdit }: { plan: StudyPlan; onEdit: () => void }) {
+  const step = nextStep(plan, progressOf);
+  const course = planCourses(plan)[0];
+  return (
+    <section aria-labelledby="first-h" className="mt-6 rounded-3xl border-2 border-emerald-400/30 bg-slate-900/70 p-5 sm:p-8">
+      <div className="flex items-start gap-3">
+        <div className="min-w-0 flex-1">
+          <h2 id="first-h" className="text-sm font-black uppercase tracking-[0.2em] text-emerald-300">
+            {step?.isFirst === false ? "Your next lesson" : "Your first lesson"}
+          </h2>
+          <div className="mt-1 text-2xl font-black text-white sm:text-3xl">{step?.title ?? targetName(plan.target)}</div>
+          <p className="mt-1 text-base text-slate-400">
+            {targetName(plan.target)}
+            {step ? ` · Lesson ${step.number} of ${step.total}` : ""}
+          </p>
+        </div>
+        <button type="button" onClick={onEdit} className="shrink-0 rounded-xl border border-white/20 px-3 py-2 text-sm font-bold text-slate-200 hover:border-white/40">
+          Edit plan
+        </button>
+      </div>
+      <p className="mt-4 text-lg leading-relaxed text-slate-200">
+        We&apos;ll go one small idea at a time. You read a little first, and there are no tests until you&apos;ve read it.
+      </p>
+      <Link
+        href={step?.href ?? (course ? `/c/${course.id}` : "/")}
+        className="mt-5 flex items-center justify-center gap-2 rounded-2xl bg-emerald-400 px-5 py-4 text-xl font-black text-slate-950 hover:bg-emerald-300"
+      >
+        ▶ Start lesson <span aria-hidden>→</span>
+      </Link>
+      <p className="mt-3 text-center text-sm text-slate-500">About 5 minutes. You can stop any time and come back.</p>
+    </section>
+  );
+}
+
 function QuickLinks({ session, recent, streak, review = true }: { session: SessionSize; recent: Course | null; streak: number | null; review?: boolean }) {
   return (
     <div className="mt-4 flex flex-wrap gap-2">
       {review && (
         <Link href="/daily" className="rounded-2xl bg-emerald-400 px-4 py-2.5 text-base font-black text-slate-950 hover:bg-emerald-300">
-          🔁 Daily Review{session.total > 0 ? ` · ${reviewLabel(session)}` : ""}
+          🔁 Quick refresher{session.total > 0 ? ` · ${reviewLabel(session)}` : ""}
         </Link>
       )}
       {recent && (

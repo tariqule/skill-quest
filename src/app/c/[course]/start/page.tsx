@@ -7,7 +7,8 @@ import { Core3D, Mascot, MascotSays, Tilt } from "@/components/fx";
 import { LevelPicker } from "@/components/code/ui";
 import { courseCopy } from "@/engine/copy";
 import { useCourse, useProgress } from "@/engine/course-context";
-import { effectiveLevel, LEVEL_BY_ID, levelOptions, questionsForLevel, type LevelChoice } from "@/engine/levels";
+import { effectiveLevel, hasBeginnerLessons, LEVEL_BY_ID, levelOptions, questionsForLevel, type LevelChoice } from "@/engine/levels";
+import { buildPath } from "@/engine/path";
 import type { QuestionKind } from "@/engine/types";
 import { isCodeTrack } from "@/engine/tracks";
 
@@ -20,7 +21,10 @@ export default function StartPage() {
   const levelCounts = Object.fromEntries(levelChoices.map((l) => [l.id, questionsForLevel(course, l.id).length])) as Record<LevelChoice, number>;
   const shownLevel = LEVEL_BY_ID[effectiveLevel(course, progress.level)];
   const GOALS = course.config.dailyGoals;
-  const firstLesson = allLessons[0];
+  // The first lesson comes from the same path the map and Home use, so they always agree.
+  const beginner = effectiveLevel(course, progress.level) === "beginner" && hasBeginnerLessons(course);
+  const now = buildPath(course, progress).current;
+  const firstLesson = now?.type === "lesson" ? { id: now.key, title: now.title } : allLessons[0];
   const biggest = course.domains.reduce((a, b) => (b.weight > a.weight ? b : a));
   const [step, setStep] = useState(0);
   const [goal, setGoal] = useState(GOALS[Math.min(1, GOALS.length - 1)].xp);
@@ -35,7 +39,7 @@ export default function StartPage() {
     router.push(href(`/study/${course.domains[0].id}`));
   }
 
-  const slides: { title: string; body: ReactNode }[] = [
+  const allSlides: { title: string; body: ReactNode }[] = [
     {
       title: "Hi! Let's get you started",
       body: (
@@ -219,10 +223,10 @@ export default function StartPage() {
       },
 
     {
-      title: "Pick your pace",
+      title: beginner ? "Ready for your first lesson?" : "Pick your pace",
       body: (
         <div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className={`grid grid-cols-2 gap-3 sm:grid-cols-4 ${beginner ? "hidden" : ""}`}>
             {GOALS.map((g) => (
               <button
                 key={g.xp}
@@ -242,8 +246,16 @@ export default function StartPage() {
           <div className="mt-6 flex items-center gap-4 rounded-2xl border border-emerald-400/30 bg-emerald-400/5 p-4">
             <Mascot mood="happy" />
             <div className="text-slate-200">
-              Your first lesson: <b className="text-white">&quot;{firstLesson?.title}&quot;</b>. It takes about 3 minutes. Rather read a whole world before any
-              questions? Pick <b className="text-violet-200">Study first</b>.
+              {beginner ? (
+                <>
+                  Your first lesson is <b className="text-white">&quot;{firstLesson?.title}&quot;</b>. You read a little, then answer two easy questions. It takes about 5 minutes.
+                </>
+              ) : (
+                <>
+                  Your first lesson: <b className="text-white">&quot;{firstLesson?.title}&quot;</b>. It takes about 3 minutes. Rather read a whole world before any
+                  questions? Pick <b className="text-violet-200">Study first</b>.
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -251,6 +263,8 @@ export default function StartPage() {
     },
   ];
 
+  // A beginner gets just two short slides: a welcome, then straight to lesson 1.
+  const slides = beginner ? [allSlides[0], allSlides[allSlides.length - 1]] : allSlides;
   const last = step === slides.length - 1;
 
   useEffect(() => {
@@ -304,7 +318,7 @@ export default function StartPage() {
             ←
           </button>
         )}
-        {last && (
+        {last && !beginner && (
           <button
             type="button"
             onClick={studyFirst}
@@ -320,7 +334,7 @@ export default function StartPage() {
           className="btn-3d flex-1 rounded-2xl bg-sky-400 py-3 text-lg font-black uppercase tracking-wide text-slate-950"
           style={{ "--edge": "#0369a1" } as CSSProperties}
         >
-          {last ? "🚀 Launch first mission" : step === 0 ? "Let's go" : "Next"}
+          {last ? (beginner ? "▶ Start lesson 1" : "▶ Start my first lesson") : step === 0 ? "Let's go" : "Next"}
         </button>
       </div>
     </main>

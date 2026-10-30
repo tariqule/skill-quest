@@ -38,9 +38,10 @@ export default function Home() {
       <main className="mx-auto w-full max-w-5xl px-4 py-6 text-base sm:py-10">
         <section className="grid items-center gap-4 md:grid-cols-[1.4fr_1fr]">
           <div className="min-w-0">
-            <h1 className="text-3xl font-black leading-tight text-white sm:text-4xl">Get ready for your exam or interview.</h1>
+            <h1 className="text-3xl font-black leading-tight text-white sm:text-4xl">Learn tech skills, one small step at a time.</h1>
             <p className="mt-2 max-w-xl text-base text-slate-300 sm:text-lg">
-              Pick what&apos;s coming up and when. You get a few minutes of lessons, games and spaced reviews each day, plus a forecast of how ready you&apos;ll be.
+              Tell us what you want to learn and how much you already know. New to it? We start from zero, with short lessons you read first. Preparing for an exam or
+              interview? We plan your days.
             </p>
           </div>
           {/* The 3D galaxy is decoration: only on wider screens, loaded after hydration. */}

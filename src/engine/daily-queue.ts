@@ -21,6 +21,17 @@ export type Item = { key: string; course: Course; fresh?: boolean } & ({ kind: "
 
 const progressOf = (c: Course) => getCourseStore(c).get();
 
+/**
+ * What the learner has been taught in a course: lessons they finished, and the sections
+ * (domains) those lessons belong to. New review items only come from this, so Daily Review
+ * never asks about something nobody has explained yet.
+ */
+export function taughtIn(course: Course, p: { lessonsDone: string[] }) {
+  const lessons = new Set(p.lessonsDone);
+  const domains = new Set(course.domains.filter((d) => (course.lessons[d.id] ?? []).some((l) => lessons.has(l.id))).map((d) => d.id));
+  return { lessons, domains };
+}
+
 /** Build today's queue once: due items interleaved across courses, then a few new cards from the plan. */
 export function buildQueue(plan: StudyPlan | null): Item[] {
   syncFromProgress();
@@ -56,7 +67,8 @@ export function buildQueue(plan: StudyPlan | null): Item[] {
   for (let i = 0; fresh.length < NEW_CARDS && i < 50; i++) {
     for (const id of pool) {
       const course = getCourse(id);
-      const card = course?.cards.find((c) => !srs[itemKey(id, "card", c.id)] && !fresh.some((f) => f.key === itemKey(id, "card", c.id)));
+      const taught = course ? taughtIn(course, progressOf(course)) : null;
+      const card = course?.cards.find((c) => taught?.domains.has(c.domain) && !srs[itemKey(id, "card", c.id)] && !fresh.some((f) => f.key === itemKey(id, "card", c.id)));
       if (course && card && fresh.length < NEW_CARDS) fresh.push({ key: itemKey(id, "card", card.id), course, kind: "card", card });
     }
     if (fresh.length === 0) break;
@@ -68,9 +80,10 @@ export function buildQueue(plan: StudyPlan | null): Item[] {
     for (const id of pool) {
       const course = getCourse(id);
       if (!course || freshQs.length >= NEW_QUESTIONS) continue;
+      const taught = taughtIn(course, progressOf(course));
       const q = course.questions.filter(reviewable).find((x) => {
         const k = itemKey(id, "q", x.id);
-        return !srs[k] && !seen.has(k);
+        return taught.lessons.has(x.lesson) && !srs[k] && !seen.has(k);
       });
       if (q) {
         const k = itemKey(id, "q", q.id);

@@ -71,7 +71,7 @@ export function LevelUpBanner() {
         <div className="min-w-0 flex-1">
           <div className="font-black text-white">Beginner path</div>
           <p className="text-sm text-slate-300">
-            Finish the &quot;Start here&quot; lessons and get most beginner questions right to unlock {next.name}. No rush: hearts are extra forgiving here.
+            Finish the &quot;Start here&quot; lessons and get most of the easy questions right to unlock {next.name}. No rush, and there&apos;s no timer.
           </p>
         </div>
       </div>

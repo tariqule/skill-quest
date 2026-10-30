@@ -27,7 +27,7 @@ export default function DailyReview() {
         <Link href="/" className="text-sm font-bold text-sky-300 hover:text-sky-200">
           ← Home
         </Link>
-        <h1 className="mt-2 text-3xl font-black text-white">🔁 Daily Review</h1>
+        <h1 className="mt-2 text-3xl font-black text-white">🔁 Quick refresher</h1>
         <p className="mt-1 text-base text-slate-300">
           Questions you missed, a few new questions, flashcards, and coding exercises from all your courses, mixed together. Each one comes back just before you&apos;d forget it.
         </p>
@@ -47,10 +47,10 @@ function Session() {
   if (queue.length === 0) {
     return (
       <div className="mt-6 rounded-3xl border-2 border-emerald-400/30 bg-slate-900/70 p-6">
-        <div className="text-xl font-black text-white">Nothing due right now 🎉</div>
-        <p className="mt-1 text-base text-slate-300">Play a lesson or a quiz. Anything you miss and every flashcard you study shows up here when it&apos;s time.</p>
+        <div className="text-xl font-black text-white">Nothing to review yet</div>
+        <p className="mt-1 text-base text-slate-300">A refresher asks about things you&apos;ve already learned. Finish a lesson and it will show up here when it&apos;s time.</p>
         <Link href="/" className="mt-4 inline-block rounded-2xl bg-sky-400 px-5 py-2.5 font-black text-slate-950">
-          Back to today&apos;s plan
+          Back to today&apos;s lesson
         </Link>
       </div>
     );
