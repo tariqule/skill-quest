@@ -4,6 +4,8 @@ import { useEffect, useState, type CSSProperties } from "react";
 import { MascotSays } from "@/components/fx";
 import type { Lesson } from "@/engine/types";
 import { RichText } from "./code";
+import { quickQuestions } from "./copy";
+import { SourcesFooter } from "./Sources";
 
 /** The cards of a lesson, in reading order: the picture, each point on its own, then the tip. */
 export type ReaderStep = { kind: "picture" } | { kind: "point"; index: number; text: string } | { kind: "tip"; text: string };
@@ -19,7 +21,7 @@ export function readerSteps(lesson: Pick<Lesson, "points" | "tip">): ReaderStep[
 /**
  * Teach one small idea at a time. Beginners get a calm card per idea instead of a long page:
  * the picture first, then each point alone in large type, then the tip. The very last screen
- * asks if they're ready for the two quick questions (or want to read it again), so a question
+ * asks if they're ready for the quiz (or want to read it again), so a question
  * never appears until they've been through everything.
  */
 export function LessonReader({
@@ -29,7 +31,7 @@ export function LessonReader({
   onDone,
   questionCount,
 }: {
-  lesson: Pick<Lesson, "title" | "visual" | "points" | "tip">;
+  lesson: Pick<Lesson, "title" | "visual" | "points" | "tip" | "sources">;
   color: string;
   tipLabel: string;
   onDone: () => void;
@@ -110,11 +112,14 @@ export function LessonReader({
             <div className="text-5xl">🙌</div>
             <h2 className="mt-3 text-2xl font-black text-white">That&apos;s the lesson!</h2>
             <p className="mt-2 text-lg text-slate-300">
-              Ready for {questionCount === 1 ? "one quick question" : `${questionCount} quick questions`}? They&apos;re short, there&apos;s no timer, and you can see why after each one.
+              Ready for {quickQuestions(questionCount)}? They&apos;re short, there&apos;s no timer, and you can see why after each one.
             </p>
           </div>
         )}
       </div>
+
+      {/* Credits stay in view on every card, not only at the end. */}
+      <SourcesFooter sources={lesson.sources} />
 
       {/* Buttons stay within thumb reach at the bottom of the screen. */}
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-white/10 bg-slate-950/95 px-4 pt-3 backdrop-blur" style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 0.75rem)" }}>

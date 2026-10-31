@@ -5,6 +5,7 @@ import { BADGES, type BadgeId } from "./badges";
 import type { LevelChoice } from "./levels";
 import { getProfile } from "./profile";
 import type { Course } from "./types";
+import { migrateLessonIds } from "./practice/migration";
 import { pushToast } from "./ui-state";
 
 export interface QuestionStat {
@@ -34,6 +35,8 @@ export interface Progress {
   examAttempts: number;
   /** Lesson ids finished on the learning path. */
   lessonsDone: string[];
+  /** Last `Course.lessonMigration.version` applied to this progress. */
+  lessonIdVersion?: number;
   /** Minutes spent in study sessions, per domain id. */
   studyMinutes: Record<string, number>;
   /** Lessons opened in a study session. */
@@ -142,6 +145,8 @@ function buildStore(course: Course) {
     loaded = true;
     // A brand-new course starts at the level the player picked on the home page.
     state = peekProgress(key) ?? { ...INITIAL_PROGRESS, level: getProfile().level ?? INITIAL_PROGRESS.level };
+    // Renamed or merged lessons keep their progress under the new id.
+    if (course.lessonMigration) state = migrateLessonIds(state, course.lessonMigration);
     // Roll over daily counters so render code never has to read the clock.
     const day = todayKey();
     if (state.today.day !== day) state = { ...state, today: { day, xp: 0 } };

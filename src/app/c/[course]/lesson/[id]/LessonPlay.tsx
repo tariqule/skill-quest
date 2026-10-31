@@ -1,6 +1,7 @@
 "use client";
 
 import { LessonReader } from "@/components/learn/LessonReader";
+import { quizIntro } from "@/components/learn/copy";
 import { SourcesFooter } from "@/components/learn/Sources";
 import { RichText } from "@/components/learn/code";
 import Link from "next/link";
@@ -198,7 +199,7 @@ export function LessonPlay() {
                     ? "Not quite, and that's fine. That's how it sticks. Here's why:"
                     : "Not quite. Read why, and you'll see it again at the end."
               : gentle
-                ? "Two quick questions about what you just read. Take your time."
+                ? quizIntro(lesson.check.length)
                 : "Quick check. You've got this!"}
           </MascotSays>
           <div className="mt-4">

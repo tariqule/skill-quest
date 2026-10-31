@@ -1,3 +1,4 @@
+import { startHereLessons } from "./practice/map";
 import { isCodeTrack } from "./tracks";
 import type { Course, Lesson, Question, SkillLevel } from "./types";
 
@@ -125,10 +126,44 @@ export function planLevelOptions(course: Pick<Course, "kind">): LevelInfo[] {
 export function pathLessons(course: Course, level: LevelChoice) {
   const beginner = effectiveLevel(course, level) === "beginner";
   const lists = course.domains.map((d) => splitLessons(course.lessons[d.id] ?? []));
-  const basics = lists.flatMap((l) => l.basics);
+  const basics = basicsLessons(course);
   const rest = lists.flatMap((l) => l.rest);
   // A course with no beginner lessons falls back to its full path.
   return beginner ? (basics.length ? basics : rest) : rest.length ? rest : basics;
+}
+
+/**
+ * The "Start here" lessons. A course with a topic syllabus starts on its first module, so the
+ * beginner path, the level-up check and the course map all count the same lessons.
+ */
+export function basicsLessons(course: Pick<Course, "domains" | "lessons" | "topics">): Lesson[] {
+  const all = course.domains.flatMap((d) => course.lessons[d.id] ?? []);
+  if (!course.topics?.length) return all.filter((l) => l.level === "beginner");
+  const byId = new Map(all.map((l) => [l.id, l]));
+  return startHereLessons(course.topics, new Set(byId.keys())).flatMap((id) => byId.get(id) ?? []);
+}
+
+/**
+ * The beginner questions the "Start here" lessons teach. With a topic syllabus that is only the
+ * first module, so the level picker and the level-up check agree with the course map.
+ */
+export function basicsQuestions(course: Course): Question[] {
+  const beginner = course.questions.filter((q) => q.level === "beginner");
+  if (!course.topics?.length) return beginner;
+  const ids = new Set(basicsLessons(course).map((l) => l.id));
+  return beginner.filter((q) => ids.has(q.lesson));
+}
+
+/** Question count and what it counts, for each level the picker offers. */
+export function levelCounts(course: Course, options: LevelInfo[]): Partial<Record<LevelChoice, { count: number; label: string }>> {
+  const startHere = Boolean(course.topics?.length);
+  return Object.fromEntries(
+    options.map((l) =>
+      l.id === "beginner" && startHere
+        ? [l.id, { count: basicsQuestions(course).length, label: "Module 1 questions" }]
+        : [l.id, { count: questionsForLevel(course, l.id).length, label: "questions" }],
+    ),
+  );
 }
 
 /** True when at least one lesson in the course is a "Start here" beginner lesson. */

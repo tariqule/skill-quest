@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { Core3D, Mascot, MascotSays, Tilt } from "@/components/fx";
 import { LevelPicker } from "@/components/code/ui";
+import { useLevelCounts } from "@/components/levels/useLevelCounts";
 import { courseCopy } from "@/engine/copy";
 import { useCourse, useProgress } from "@/engine/course-context";
-import { effectiveLevel, hasBeginnerLessons, LEVEL_BY_ID, levelOptions, questionsForLevel, type LevelChoice } from "@/engine/levels";
+import { effectiveLevel, hasBeginnerLessons, LEVEL_BY_ID, levelOptions } from "@/engine/levels";
 import { buildPath } from "@/engine/path";
 import type { QuestionKind } from "@/engine/types";
 import { isCodeTrack } from "@/engine/tracks";
@@ -18,7 +19,7 @@ export default function StartPage() {
   const copy = courseCopy(course);
   const progress = useProgress();
   const levelChoices = levelOptions(course);
-  const levelCounts = Object.fromEntries(levelChoices.map((l) => [l.id, questionsForLevel(course, l.id).length])) as Record<LevelChoice, number>;
+  const { counts: levelCounts, labels: levelLabels } = useLevelCounts(course);
   const shownLevel = LEVEL_BY_ID[effectiveLevel(course, progress.level)];
   const GOALS = course.config.dailyGoals;
   // The first lesson comes from the same path the map and Home use, so they always agree.
@@ -214,7 +215,7 @@ export default function StartPage() {
                 : "Never studied this before? Pick Beginner and we'll start with the basics."}{" "}
               Lessons, practice and the {copy.simulator} follow your choice. You can change it any time from the map.
             </p>
-            <LevelPicker value={shownLevel.id} onChange={(l) => store.setLevel(l)} counts={levelCounts} options={levelChoices} />
+            <LevelPicker value={shownLevel.id} onChange={(l) => store.setLevel(l)} counts={levelCounts} countLabels={levelLabels} options={levelChoices} />
             <p className="mt-3 text-sm" style={{ color: shownLevel.color }}>
               {shownLevel.icon} {shownLevel.name}: {shownLevel.blurb}
             </p>

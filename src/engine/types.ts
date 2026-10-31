@@ -46,6 +46,11 @@ interface BaseQuestion {
   /** Language label for `code`, e.g. "js", "ts", "python", "java". */
   codeLang?: string;
   explanation: string;
+  /**
+   * Topic (concept lesson) ids this question tests. On courses with `topics`, adaptive practice
+   * only offers a question once every one of these topics is done.
+   */
+  concepts?: string[];
 }
 
 export interface ChoiceQuestion extends BaseQuestion {
@@ -53,6 +58,8 @@ export interface ChoiceQuestion extends BaseQuestion {
   options: string[];
   /** Indexes of the correct options. More than one means "choose N". */
   answer: number[];
+  /** True/false statement: options are exactly ["True", "False"], shown in that order (never shuffled). */
+  tf?: true;
 }
 
 export interface OrderQuestion extends BaseQuestion {
@@ -360,6 +367,55 @@ export interface Course {
   matchLabel?: string;
   /** Titles for levels 1, 2, 3, … (the last one repeats). */
   levelTitles?: string[];
+  /**
+   * Concept topics for adaptive practice, in study order. Practice questions unlock per topic as
+   * the learner finishes the lesson that teaches it.
+   */
+  topics?: Topic[];
+  /** Extra practice-only questions (not in quizzes or the exam), each tagged with `concepts`. */
+  practice?: Question[];
+  /** Design prompts and cross-track references, unlocked like practice questions. */
+  designPrompts?: DesignPrompt[];
+  /** Renamed or merged lesson ids, applied once to saved progress. */
+  lessonMigration?: LessonIdMigration;
+}
+
+/**
+ * "ready": a lesson teaches it now (its own id, or a stand-in lesson).
+ * "planned": on the syllabus, no lesson yet, so nothing tagged with it can unlock.
+ */
+export type TopicStatus = "ready" | "planned";
+
+/** One concept topic on a course's syllabus. */
+export interface Topic {
+  id: string;
+  title: string;
+  /** Module (block) title, e.g. "Fundamentals". */
+  module: string;
+  status: TopicStatus;
+  /** Topic ids to finish first. Planned prerequisites never block. */
+  prereqs: string[];
+  /** Existing lessons that also count as finishing this topic. */
+  standIns?: string[];
+  /** Spots this topic in a question's text when tagging older questions. */
+  match: RegExp;
+}
+
+/** Old lesson id → new lesson id. Bump `version` whenever `aliases` changes. */
+export interface LessonIdMigration {
+  version: number;
+  aliases: Readonly<Record<string, string>>;
+}
+
+export interface DesignPrompt {
+  id: string;
+  title: string;
+  prompt: string;
+  /** Topic ids this prompt needs. */
+  concepts: string[];
+  /** App-absolute link, e.g. "/c/code-system-design/scenarios/architect". */
+  href: string;
+  linkLabel: string;
 }
 
 // ───────────── Authoring ─────────────
@@ -394,7 +450,7 @@ export interface CourseDefinition
 
 // ───────────── Game settings ─────────────
 
-export type ModeId = "codegames" | "scenarios" | "coding" | "review" | "timed" | "flashcards" | "match" | "lightning" | "boss" | "cheatsheet";
+export type ModeId = "practice" | "codegames" | "scenarios" | "coding" | "review" | "timed" | "flashcards" | "match" | "lightning" | "boss" | "cheatsheet";
 
 export interface ExamMode {
   id: string;

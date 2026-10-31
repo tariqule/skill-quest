@@ -8338,6 +8338,96 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
   "sd-b4-03": [
     "It sets how long to wait for an answer before giving up",
   ],
+  "t-availability-q1": [
+    "About 8.8 hours",
+  ],
+  "t-availability-q2": [
+    "An SLO",
+  ],
+  "t-availability-q3": [
+    "99.8%",
+  ],
+  "t-availability-q4": [
+    "True",
+  ],
+  "t-availability-q5": [
+    "False",
+  ],
+  "t-estimation-q1": [
+    "About 10,000",
+  ],
+  "t-estimation-q2": [
+    "About 10,000 QPS",
+  ],
+  "t-estimation-q3": [
+    "1 GB",
+  ],
+  "t-estimation-q4": [
+    "True",
+  ],
+  "t-estimation-q5": [
+    "False",
+  ],
+  "t-intro-q1": [
+    "The server",
+  ],
+  "t-intro-q2": [
+    "In the database",
+  ],
+  "t-intro-q3": [
+    "A request",
+  ],
+  "t-intro-q4": [
+    "True",
+  ],
+  "t-intro-q5": [
+    "False",
+  ],
+  "t-latency-q1": [
+    "Requests completed each second",
+  ],
+  "t-latency-q2": [
+    "About a million times",
+  ],
+  "t-latency-q3": [
+    "10",
+  ],
+  "t-latency-q4": [
+    "False",
+  ],
+  "t-latency-q5": [
+    "True",
+  ],
+  "t-network-q1": [
+    "Turns a name into an IP address",
+  ],
+  "t-network-q2": [
+    "TLS",
+  ],
+  "t-network-q3": [
+    "200 ms",
+  ],
+  "t-network-q4": [
+    "True",
+  ],
+  "t-network-q5": [
+    "False",
+  ],
+  "t-scaling-q1": [
+    "Vertical scaling",
+  ],
+  "t-scaling-q2": [
+    "Spreads requests across servers",
+  ],
+  "t-scaling-q3": [
+    "Make servers stateless with shared sessions",
+  ],
+  "t-scaling-q4": [
+    "True",
+  ],
+  "t-scaling-q5": [
+    "False",
+  ],
 }
 `;
 

@@ -6,12 +6,15 @@ import { decodeText, encodeText, normalizeOutput, type PreparedQuestion } from "
 import type { TablePreview } from "@/engine/types";
 import { setGuideOpen } from "@/engine/ui-state";
 import { BugBody, OutputChoices, ParsonsBody, TraceSteps } from "./code-games/bodies";
+import { isTyping } from "./keyboard";
 import { CodeBlock, RichText, Tokens } from "./learn/code";
+import { TrueFalse } from "./practice/TrueFalse";
 
 const LETTERS = ["A", "B", "C", "D", "E", "F", "G"];
 
 const KIND_LABEL = {
   choice: "🔘 Multiple choice",
+  tf: "⚖️ True or false",
   multi: "☑️ Multiple response",
   order: "🔢 Ordering",
   match: "🔗 Matching",
@@ -39,7 +42,8 @@ export function QuestionCard({ q, submitted, onSubmit, reveal = true, showDomain
   const concept = lessonForQuestion[q.id];
   const [showConcept, setShowConcept] = useState(false);
   const locked = submitted !== null;
-  const label = q.kind === "choice" ? (q.correct.length > 1 ? KIND_LABEL.multi : KIND_LABEL.choice) : KIND_LABEL[q.kind];
+  const tf = q.kind === "choice" && "tf" in q && q.tf === true;
+  const label = q.kind === "choice" ? (tf ? KIND_LABEL.tf : q.correct.length > 1 ? KIND_LABEL.multi : KIND_LABEL.choice) : KIND_LABEL[q.kind];
 
   return (
     <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-5 sm:p-7 shadow-xl">
@@ -61,7 +65,8 @@ export function QuestionCard({ q, submitted, onSubmit, reveal = true, showDomain
         </div>
       )}
 
-      {q.kind === "choice" && <ChoiceBody q={q} submitted={submitted} onSubmit={onSubmit} reveal={reveal} />}
+      {tf && <TrueFalse correct={q.correct[0]} submitted={submitted} onSubmit={onSubmit} reveal={reveal} />}
+      {q.kind === "choice" && !tf && <ChoiceBody q={q} submitted={submitted} onSubmit={onSubmit} reveal={reveal} />}
       {q.kind === "order" && <OrderBody q={q} submitted={submitted} onSubmit={onSubmit} reveal={reveal} />}
       {q.kind === "match" && <MatchBody q={q} submitted={submitted} onSubmit={onSubmit} reveal={reveal} />}
       {q.kind === "lines" && <LinesBody q={q} submitted={submitted} onSubmit={onSubmit} reveal={reveal} />}
@@ -468,11 +473,6 @@ function SubmitButton({ disabled, onClick }: { disabled: boolean; onClick: () =>
       Submit
     </button>
   );
-}
-
-function isTyping(e: KeyboardEvent) {
-  const t = e.target as HTMLElement | null;
-  return !!t && (t.tagName === "INPUT" || t.tagName === "SELECT" || t.tagName === "TEXTAREA");
 }
 
 /** Placeholder for a fill-in-the-blank dropdown: "Choose…", or "Blank 2: choose…" when there are several. */

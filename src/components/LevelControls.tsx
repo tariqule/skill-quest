@@ -4,23 +4,24 @@ import { useState } from "react";
 import { LevelPicker } from "@/components/code/ui";
 import { Confetti } from "@/components/fx";
 import { Bar } from "@/components/ui";
+import { useLevelCounts } from "@/components/levels/useLevelCounts";
 import { useCourse, useProgress } from "@/engine/course-context";
 import { levelUpStatus } from "@/engine/levelup";
-import { effectiveLevel, LEVEL_BY_ID, levelOptions, questionsForLevel, type LevelChoice } from "@/engine/levels";
+import { effectiveLevel, LEVEL_BY_ID, levelOptions } from "@/engine/levels";
 
 /** "How much do you know?" for the current course. Works on certification and Code Quest maps. */
 export function CourseLevel({ title = "How much do you know?", note }: { title?: string; note?: string }) {
   const { course, store } = useCourse();
   const p = useProgress();
   const options = levelOptions(course);
-  const counts = Object.fromEntries(options.map((l) => [l.id, questionsForLevel(course, l.id).length])) as Record<LevelChoice, number>;
+  const { counts, labels } = useLevelCounts(course);
   const current = effectiveLevel(course, p.level);
   return (
     <section className="mt-8">
       <h2 className="text-lg font-black text-white sm:text-xl">{title}</h2>
       <p className="mt-1 text-sm text-slate-400">{note ?? "Pick the level that fits you. Lessons, practice and tests follow your choice. You can change it any time."}</p>
       <div className="mt-4">
-        <LevelPicker value={current} onChange={(l) => store.setLevel(l)} counts={counts} options={options} />
+        <LevelPicker value={current} onChange={(l) => store.setLevel(l)} counts={counts} countLabels={labels} options={options} />
       </div>
     </section>
   );

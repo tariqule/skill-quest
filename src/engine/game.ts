@@ -107,7 +107,8 @@ export function prepare(q: Question): PreparedQuestion {
     const shuffled = scramble(responses);
     return { ...q, kind: "match", shuffled, prompts: q.pairs.map(([p]) => p), correct: responses.map((r) => shuffled.indexOf(r)) };
   }
-  const order = shuffle(q.options.map((_, i) => i));
+  // True/false keeps "True" first so the two buttons never swap places.
+  const order = q.tf ? q.options.map((_, i) => i) : shuffle(q.options.map((_, i) => i));
   return {
     ...q,
     kind: "choice",
