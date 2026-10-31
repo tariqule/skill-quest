@@ -1,3 +1,4 @@
+import { startHereLessons } from "./practice/map";
 import { isCodeTrack } from "./tracks";
 import type { Course, Lesson, Question, SkillLevel } from "./types";
 
@@ -125,10 +126,21 @@ export function planLevelOptions(course: Pick<Course, "kind">): LevelInfo[] {
 export function pathLessons(course: Course, level: LevelChoice) {
   const beginner = effectiveLevel(course, level) === "beginner";
   const lists = course.domains.map((d) => splitLessons(course.lessons[d.id] ?? []));
-  const basics = lists.flatMap((l) => l.basics);
+  const basics = basicsLessons(course);
   const rest = lists.flatMap((l) => l.rest);
   // A course with no beginner lessons falls back to its full path.
   return beginner ? (basics.length ? basics : rest) : rest.length ? rest : basics;
+}
+
+/**
+ * The "Start here" lessons. A course with a topic syllabus starts on its first module, so the
+ * beginner path, the level-up check and the course map all count the same lessons.
+ */
+export function basicsLessons(course: Pick<Course, "domains" | "lessons" | "topics">): Lesson[] {
+  const all = course.domains.flatMap((d) => course.lessons[d.id] ?? []);
+  if (!course.topics?.length) return all.filter((l) => l.level === "beginner");
+  const byId = new Map(all.map((l) => [l.id, l]));
+  return startHereLessons(course.topics, new Set(byId.keys())).flatMap((id) => byId.get(id) ?? []);
 }
 
 /** True when at least one lesson in the course is a "Start here" beginner lesson. */

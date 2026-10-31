@@ -1,4 +1,4 @@
-import { effectiveLevel, splitLessons } from "./levels";
+import { basicsLessons, effectiveLevel } from "./levels";
 import type { Progress } from "./store";
 import type { Course } from "./types";
 
@@ -12,8 +12,10 @@ export const LEVEL_UP_MASTERY = 0.8;
  */
 export function levelUpStatus(course: Course, p: Progress) {
   if (effectiveLevel(course, p.level) !== "beginner") return null;
-  const basics = course.domains.flatMap((d) => splitLessons(course.lessons[d.id] ?? []).basics);
-  const questions = course.questions.filter((q) => q.level === "beginner");
+  const basics = basicsLessons(course);
+  const ids = new Set(basics.map((l) => l.id));
+  // With a topic syllabus, only the questions those lessons teach count toward levelling up.
+  const questions = course.questions.filter((q) => q.level === "beginner" && (!course.topics?.length || ids.has(q.lesson)));
   if (!basics.length || !questions.length) return null;
   const lessonsDone = basics.filter((l) => p.lessonsDone.includes(l.id)).length;
   const mastered = questions.filter((q) => p.questions[q.id]?.lastCorrect).length;
