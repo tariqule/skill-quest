@@ -1,4 +1,8 @@
 @import "tailwindcss";
+@import "../styles/tokens.css";
+
+/* coss ui components use `dark:`; the app is dark-first, light opt-in via data-theme. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 :root {
   --background: #020617;
