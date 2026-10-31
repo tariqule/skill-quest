@@ -123,6 +123,7 @@ const topic: TopicContent = {
   practiceNeeds: ["t-kafka-2"],
   sources: [
     { title: "Apache Kafka documentation: Log compaction", url: "https://kafka.apache.org/documentation/#compaction", license: "Link only" },
+    { title: "Apache Kafka upgrade notes: 4.0 removes ZooKeeper mode", url: "https://kafka.apache.org/42/getting-started/upgrade/", license: "Link only" },
     { title: "KIP-500: Replace ZooKeeper with a Self-Managed Metadata Quorum", url: "https://cwiki.apache.org/confluence/display/KAFKA/KIP-500%3A+Replace+ZooKeeper+with+a+Self-Managed+Metadata+Quorum", license: "Link only" },
     { title: "Amazon SQS Developer Guide", url: "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html", license: "Link only" },
     { title: "RabbitMQ tutorials", url: "https://www.rabbitmq.com/tutorials", license: "Link only" },

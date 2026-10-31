@@ -21,7 +21,7 @@ const topic: TopicContent = {
     { kind: "idea", text: "**DNS-based discovery** returns instance addresses for a name like `payments.internal`. Every client understands DNS, but caching can keep dead addresses around." },
     { kind: "idea", text: "**Consul** is a popular registry with health checks and a DNS interface. etcd is a consistent key-value store that Kubernetes uses to hold cluster state." },
     { kind: "idea", text: "A **Kubernetes Service** gives a set of pods one stable name and virtual IP. Kubernetes tracks which pods are ready and routes traffic only to them." },
-    { kind: "idea", text: "ZooKeeper, from 2010, offered an **ephemeral node**: an entry tied to a client's session. If the client dies and its session expires, the node is deleted automatically." },
+    { kind: "idea", text: "ZooKeeper offers an **ephemeral node**: an entry tied to a client's session. If the client dies and its session expires, the node is deleted automatically." },
     { kind: "idea", text: "Clients could set a **watch** on a ZooKeeper path and be notified when it changed, so they learned about new or vanished instances without polling." },
     {
       kind: "example",

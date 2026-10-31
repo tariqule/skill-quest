@@ -127,6 +127,7 @@ const topic: TopicContent = {
   sources: [
     { title: "Kafka: a Distributed Messaging System for Log Processing (Kreps, Narkhede, Rao, 2011)", url: "https://www.microsoft.com/en-us/research/wp-content/uploads/2017/09/Kafka.pdf", license: "Link only" },
     { title: "Apache Kafka documentation", url: "https://kafka.apache.org/documentation/", license: "Link only" },
+    { title: "Apache Kafka 4.2 upgrade notes", url: "https://kafka.apache.org/42/getting-started/upgrade/", license: "Link only" },
     { title: "KIP-932: Queues for Kafka", url: "https://cwiki.apache.org/confluence/display/KAFKA/KIP-932%3A+Queues+for+Kafka", license: "Link only" },
     { title: "Kafka: The Definitive Guide (Shapira, Palino, Sivaram, Petty)", url: "https://www.oreilly.com/library/view/kafka-the-definitive/9781492043072/", license: "Link only" },
   ],
