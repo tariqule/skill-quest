@@ -1,6 +1,8 @@
 "use client";
 
 import { LessonReader } from "@/components/learn/LessonReader";
+import { SoftGate } from "@/components/learn/SoftGate";
+import { useCourseMap } from "@/components/map/useCourseMap";
 import { quizIntro } from "@/components/learn/copy";
 import { SourcesFooter } from "@/components/learn/Sources";
 import { RichText } from "@/components/learn/code";
@@ -15,6 +17,7 @@ import { useCourse, useLevelPool, useProgress } from "@/engine/course-context";
 import { effectiveLevel, pathLessons } from "@/engine/levels";
 import { answerText, challengeDeck, isCorrect, pct, prepare, type PreparedQuestion } from "@/engine/game";
 import { buildPath } from "@/engine/path";
+import { lessonGate, moduleLessonLabel } from "@/engine/practice";
 
 /**
  * teach → check → done when every check is right.
@@ -40,10 +43,15 @@ export function LessonPlay() {
   // On the beginner path the count runs across the whole course (Lesson 3 of 8), matching the path list.
   const beginnerPath = pathLessons(course, "beginner");
   const pathIndex = beginnerPath.findIndex((l) => l.id === lesson.id);
-  const lessonLabel = gentle && pathIndex >= 0 ? `Lesson ${pathIndex + 1} of ${beginnerPath.length}` : `Lesson ${lesson.index + 1} of ${worldLessons.length}`;
+  const map = useCourseMap();
+  // Topic courses number lessons by module, matching the map's "2-1" tiles.
+  const moduleLabel = map && moduleLessonLabel(map, lesson.id);
+  const lessonLabel = moduleLabel ? moduleLabel : gentle && pathIndex >= 0 ? `Lesson ${pathIndex + 1} of ${beginnerPath.length}` : `Lesson ${lesson.index + 1} of ${worldLessons.length}`;
 
 
   const [phase, setPhase] = useState<Phase>("teach");
+  const [gateDismissed, setGateDismissed] = useState(false);
+  const gateNeeds = map && !gateDismissed ? lessonGate(map, lesson.id) : [];
   const [queue, setQueue] = useState<PreparedQuestion[]>([]);
   const [retried, setRetried] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState<number[] | null>(null);
@@ -74,13 +82,25 @@ export function LessonPlay() {
     else setMissed((m) => (m.includes(q.id) ? m : [...m, q.id]));
     setLastOk(ok);
     setSubmitted(picked);
+    // Record completion as soon as the final answer is in, so leaving before Continue still counts.
+    const anyMissed = missed.length > 0 || !ok;
+    if (queue.length === 1 && !requeues(q.id, ok) && !(challenge.enabled && anyMissed)) recordCompletion();
+  }
+
+  /** Without the timed challenge, a missed question comes back once at the end. */
+  function requeues(qid: string, ok: boolean) {
+    return !ok && !challenge.enabled && course.config.lesson.retryMissed && !retried.includes(qid);
+  }
+
+  /** Idempotent: the first call records the lesson; later calls keep its first-time flag. */
+  function recordCompletion() {
+    if (store.completeLesson(lesson.id)) setFirstTime(true);
   }
 
   function next() {
     const [q, ...rest] = queue;
     let nextQueue = rest;
-    // Without the timed challenge, missed questions come back once at the end.
-    if (!lastOk && !challenge.enabled && course.config.lesson.retryMissed && !retried.includes(q.id)) {
+    if (requeues(q.id, lastOk)) {
       nextQueue = [...rest, prepare(QUESTION_BY_ID[q.id])];
       setRetried([...retried, q.id]);
     }
@@ -112,7 +132,7 @@ export function LessonPlay() {
   }
 
   function finish() {
-    setFirstTime(store.completeLesson(lesson.id));
+    recordCompletion();
     const { current } = buildPath(course, store.get());
     setNextHref(href(current?.to));
     setPhase("done");
@@ -121,6 +141,7 @@ export function LessonPlay() {
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key !== "Enter") return;
+      if (phase === "teach" && gateNeeds.length > 0) return;
       if (phase === "teach") {
         if (!gentle) startCheck(); // the reader handles Enter itself
       }
@@ -145,16 +166,20 @@ export function LessonPlay() {
 
       <div className="mt-4 flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider">
         <span style={{ color: domain.color }}>
-          {gentle ? `${domain.emoji} ${lessonLabel}` : `${domain.emoji} World ${domain.number} · ${lessonLabel}`}
+          {gentle || moduleLabel ? `${domain.emoji} ${lessonLabel}` : `${domain.emoji} World ${domain.number} · ${lessonLabel}`}
         </span>
         {!gentle && <span className="rounded-full bg-white/10 px-2 py-0.5 text-slate-300">{copy.task} {lesson.task}</span>}
       </div>
 
-      {phase === "teach" && gentle && (
+      {phase === "teach" && gateNeeds.length > 0 && (
+        <SoftGate needs={gateNeeds} hrefFor={(l) => href(`/lesson/${l}`)} color={domain.color} onContinue={() => setGateDismissed(true)} />
+      )}
+
+      {phase === "teach" && gentle && gateNeeds.length === 0 && (
         <LessonReader lesson={lesson} color={domain.color} tipLabel={copy.tip} questionCount={lesson.check.length} onDone={startCheck} />
       )}
 
-      {phase === "teach" && !gentle && (
+      {phase === "teach" && !gentle && gateNeeds.length === 0 && (
         <div className="card-in">
           <h1 className="mt-2 text-2xl sm:text-3xl font-black text-white">{lesson.title}</h1>
           <div className="mt-5 rounded-2xl border border-white/10 bg-slate-900/70 p-4 sm:p-6 shadow-2xl" style={{ boxShadow: `0 20px 60px -30px ${domain.color}` }}>

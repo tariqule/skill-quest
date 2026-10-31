@@ -12,7 +12,7 @@ export function topicTileLabel(node: Pick<MapTopic, "label" | "state" | "needs">
     case "open":
       return name;
     case "locked":
-      return `${name} (locked: finish ${node.needs.map((n) => n.title).join(", ")} first)`;
+      return `${name} (best after ${node.needs.map((n) => n.title).join(", ")})`;
     case "planned":
       return `${name} (coming soon)`;
     default:

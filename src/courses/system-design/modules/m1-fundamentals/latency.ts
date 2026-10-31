@@ -60,7 +60,7 @@ const topic: TopicContent = {
     {
       kind: "tf",
       id: "t-latency-q4",
-      statement: "A good average latency guarantees that almost every user gets a fast response.",
+      statement: "A good average latency means almost every user gets a fast response.",
       answer: false,
       explanation: "A few very slow requests barely move the average. Percentiles like p99 show the slow tail.",
     },

@@ -84,16 +84,33 @@ export function validateTopic(t: TopicContent): string[] {
   return out;
 }
 
+/** True/false wording that tends to give the answer away. */
+const ABSOLUTE = /\b(always|never)\b/i;
+
+/**
+ * Softer checks than `validateTopic`: wording worth a second look rather than a hard rule.
+ * "Always" and "never" usually signal a false statement, so they make true/false too easy.
+ */
+export function topicWarnings(t: TopicContent): string[] {
+  return [...t.quiz, ...t.practice].flatMap((q) =>
+    q.kind === "tf" && ABSOLUTE.test(q.statement) ? [`topic "${t.id}": true/false "${q.id}" says always or never, which gives the answer away`] : [],
+  );
+}
+
 /**
  * The reader screens one content screen becomes. A worked example gets one screen per step so
  * each stays short. Only the first step carries the title, so the steps don't read as repeats.
+ * The "Step k of N" lead is what the reader keys on to drop its card-number badge (see `exampleStep`).
  */
 export function readerScreens(s: Screen): string[] {
   switch (s.kind) {
     case "idea":
       return [s.text];
     case "example":
-      return s.steps.map((step, i) => (i === 0 ? `**Worked example: ${s.title}.** ${step}` : `**Step ${i + 1}.** ${step}`));
+      return s.steps.map((step, i) => {
+        const lead = `Step ${i + 1} of ${s.steps.length}.`;
+        return i === 0 ? `**Worked example: ${s.title}. ${lead}** ${step}` : `**${lead}** ${step}`;
+      });
     default:
       return assertNever(s);
   }

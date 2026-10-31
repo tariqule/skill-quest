@@ -30,7 +30,11 @@ export interface PracticeSummary {
   available: number;
   /** Unlocked design prompts. */
   prompts: DesignPrompt[];
-  /** The first unfinished ready topic whose prerequisites are done. Null when none is left. */
+  /**
+   * The unfinished ready topic, prerequisites done, to study next: one a finished topic still
+   * builds on comes first (so a lesson taken early points back at what it needs), then syllabus
+   * order. Null when none is left.
+   */
   next: NextTopic | null;
   /** Ready topics still waiting on prerequisites. */
   locked: LockedTopic[];
@@ -50,7 +54,9 @@ export function practiceSummary(course: Course, p: Pick<Progress, "lessonsDone">
   const available = unlockedQuestions(pool, done);
   const ready = topics.filter((t) => t.status === "ready");
   const open = ready.filter((t) => !done.has(t.id));
-  const nextTopic = open.find((t) => missingPrereqs(t, byId, done).length === 0);
+  const candidates = open.filter((t) => missingPrereqs(t, byId, done).length === 0);
+  const owed = owedPrereqs(topics.filter((t) => done.has(t.id)), byId, done);
+  const nextTopic = candidates.find((t) => owed.has(t.id)) ?? candidates[0];
   return {
     total: topics.length,
     done: topics.filter((t) => done.has(t.id)),
@@ -65,6 +71,20 @@ export function practiceSummary(course: Course, p: Pick<Progress, "lessonsDone">
     planned: topics.length - ready.length,
     full: ready.length > 0 && open.length === 0,
   };
+}
+
+/** Every unfinished prerequisite, direct or deeper, that the `from` topics still rest on. */
+function owedPrereqs(from: readonly Topic[], byId: ReadonlyMap<string, Topic>, done: ReadonlySet<string>): Set<string> {
+  const owed = new Set<string>();
+  const stack = [...from];
+  for (let t = stack.pop(); t; t = stack.pop()) {
+    for (const pre of missingPrereqs(t, byId, done)) {
+      if (owed.has(pre.id)) continue;
+      owed.add(pre.id);
+      stack.push(pre);
+    }
+  }
+  return owed;
 }
 
 /**

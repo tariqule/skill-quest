@@ -37,7 +37,7 @@ const topic: TopicContent = {
       kind: "mcq",
       id: "t-network-q1",
       prompt: "What does DNS do?",
-      options: ["Encrypts traffic between two machines", "Turns a name into an IP address", "Resends any bytes that get lost", "Stores user accounts on disk"],
+      options: ["Encrypts traffic between two machines", "Turns a name into an IP address", "Resends any bytes that get lost", "Splits traffic across servers"],
       answer: 1,
       explanation: "DNS maps names like example.com to IP addresses. TLS encrypts, TCP resends lost data, and a database stores accounts.",
     },

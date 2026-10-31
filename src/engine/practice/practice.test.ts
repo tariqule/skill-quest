@@ -31,6 +31,21 @@ describe("practiceSummary", () => {
     expect(s.next).toEqual({ topic: TOPICS[2], unlocks: { questions: 2, prompts: 0 } });
   });
 
+  it("after a lesson taken early, points back at the prerequisite it still needs", () => {
+    expect(practiceSummary(fixture, progress(["c"])).next?.topic.id).toBe("a");
+    expect(practiceSummary(fixture, progress(["a", "c"])).next?.topic.id).toBe("b");
+  });
+
+  it("on the real course, after Load balancers is taken early, names its prerequisite rather than the next syllabus topic", () => {
+    const s = practiceSummary(course, progress(["t-intro", "t-lb"]));
+    expect(s.next?.topic.id).toBe("t-scaling");
+    expect(course.topics?.find((t) => t.id === "t-lb")?.prereqs).toContain("t-scaling");
+  });
+
+  it("follows syllabus order when nothing was taken early", () => {
+    expect(practiceSummary(course, progress(["t-intro"])).next?.topic.id).toBe(course.topics?.[1].id);
+  });
+
   it("skips planned topics and doesn't let them block", () => {
     const s = practiceSummary(fixture, progress(["a", "b", "c"]));
     expect(s.next?.topic.id).toBe("e");

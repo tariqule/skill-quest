@@ -50,7 +50,7 @@ const topic: TopicContent = {
       kind: "mcq",
       id: "t-scaling-q3",
       prompt: "Users get logged out whenever their request lands on a different server. What's the best fix?",
-      options: ["Buy one much bigger server for everyone", "Make servers stateless with shared sessions", "Add more servers behind the balancer", "Turn off the load balancer entirely"],
+      options: ["Buy one much bigger server for everyone", "Make servers stateless with shared sessions", "Add more servers behind the balancer", "Add a second load balancer"],
       answer: 1,
       explanation: "Moving sessions out of server memory (shared store or signed token) lets any server handle any request.",
     },

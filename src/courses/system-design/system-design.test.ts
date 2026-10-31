@@ -1,9 +1,10 @@
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
+import { exampleStep } from "@/components/learn/copy";
 import { describe, expect, it } from "vitest";
 import { CURRICULUM, MODULE_TITLES } from "./curriculum";
 import { TOPIC_CONTENT } from "./registry";
-import { MODULE_IDS, QUIZ_SHAPE, readerScreens, validateTopic, type TopicContent } from "./schema";
+import { MODULE_IDS, QUIZ_SHAPE, readerScreens, topicWarnings, validateTopic, type TopicContent } from "./schema";
 
 const MODULES_DIR = join(__dirname, "modules");
 const topicFiles = readdirSync(MODULES_DIR, { withFileTypes: true })
@@ -44,16 +45,30 @@ describe("registry", () => {
     }
   });
 
-  it("writes all of module 1, in curriculum order", () => {
-    const m1 = CURRICULUM.filter((t) => t.module === "m1").map((t) => t.id);
-    expect(TOPIC_CONTENT.filter((t) => t.module === "m1").map((t) => t.id)).toEqual(m1);
-    expect(m1).toHaveLength(6);
+  it.each([
+    ["m1", 6],
+    ["m2", 4],
+    ["m3", 2],
+  ] as const)("writes all of module %s (%i topics), in curriculum order", (module, n) => {
+    const ids = CURRICULUM.filter((t) => t.module === module).map((t) => t.id);
+    expect(TOPIC_CONTENT.filter((t) => t.module === module).map((t) => t.id)).toEqual(ids);
+    expect(ids).toHaveLength(n);
+  });
+
+  it("lists written topics in curriculum order", () => {
+    const order = CURRICULUM.map((t) => t.id);
+    const written = TOPIC_CONTENT.map((t) => order.indexOf(t.id));
+    expect(written).toEqual([...written].sort((a, b) => a - b));
   });
 });
 
 describe.each(TOPIC_CONTENT.map((t) => [t.id, t] as const))("topic %s", (_, t) => {
   it("passes boundary validation", () => {
     expect(validateTopic(t)).toEqual([]);
+  });
+
+  it("has no wording warnings, such as always or never in a true/false statement", () => {
+    expect(topicWarnings(t)).toEqual([]);
   });
 
   it(`mixes ${QUIZ_SHAPE.mcq} multiple choice and ${QUIZ_SHAPE.tf} true/false, one true and one false`, () => {
@@ -65,6 +80,15 @@ describe.each(TOPIC_CONTENT.map((t) => [t.id, t] as const))("topic %s", (_, t) =
   it("only needs earlier topics for its practice items", () => {
     const before = CURRICULUM.slice(0, CURRICULUM.findIndex((o) => o.id === t.id)).map((o) => o.id);
     for (const need of t.practiceNeeds ?? []) expect(before).toContain(need);
+  });
+});
+
+describe("topicWarnings", () => {
+  it("flags always or never in a true/false statement, and nothing else", () => {
+    const tf = (statement: string) => ({ kind: "tf" as const, id: "t-x-q9", statement, answer: false, explanation: "x" });
+    expect(topicWarnings({ ...valid, quiz: [tf("Caches never go stale.")], practice: [] })).toHaveLength(1);
+    expect(topicWarnings({ ...valid, quiz: [tf("ALWAYS wins.")], practice: [tf("Caches can go stale.")] })).toHaveLength(1);
+    expect(topicWarnings({ ...valid, quiz: [tf("Caches can go stale.")], practice: [] })).toEqual([]);
   });
 });
 
@@ -114,6 +138,8 @@ describe("validateTopic error paths", () => {
   });
 
   it("labels only the first worked-example step with the title", () => {
-    expect(readerScreens({ kind: "example", title: "T", steps: ["one", "two"] })).toEqual(["**Worked example: T.** one", "**Step 2.** two"]);
+    expect(readerScreens({ kind: "example", title: "T", steps: ["one", "two"] })).toEqual(["**Worked example: T. Step 1 of 2.** one", "**Step 2 of 2.** two"]);
+    expect(readerScreens({ kind: "example", title: "T", steps: ["one", "two"] }).every(exampleStep)).toBe(true);
+    expect(exampleStep("**Steps** matter")).toBe(false);
   });
 });
