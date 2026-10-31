@@ -21,6 +21,8 @@ derives each topic's status, and tags older questions with concepts.
 3. Add one import and one entry to `TOPIC_CONTENT` in `registry.ts`, in study order.
 4. Run `npx vitest run src/courses/system-design src/courses/code-system-design`. The tests check
    the schema, the registry, teach-before-test, answer balance and giveaway options.
+5. Run `npx vitest run src/engine/answer-keys.test.ts`, check the new answers in the diff, then
+   accept them with `-u`.
 
 Practice questions unlock once every topic they're tagged with is finished, so tag with the
 fewest topics that are really needed (`practiceNeeds`).
