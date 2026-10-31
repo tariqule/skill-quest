@@ -26,7 +26,7 @@ export function validateCourse(course: Course): string[] {
   const lessons = Object.values(course.lessons).flat();
 
   dupes("domain", course.domains.map((d) => d.id));
-  dupes("question", course.questions.map((q) => q.id));
+  dupes("question", [...course.questions, ...(course.practice ?? [])].map((q) => q.id));
   dupes("card", course.cards.map((c) => c.id));
   dupes("lesson", lessons.map((l) => l.id));
 
@@ -38,7 +38,7 @@ export function validateCourse(course: Course): string[] {
   if (course.exam.unscored >= course.exam.questions) err("exam.unscored must be less than exam.questions");
 
   const declared = new Set(course.exam.questionTypes.map((t) => t.id));
-  for (const q of course.questions) {
+  for (const q of [...course.questions, ...(course.practice ?? [])]) {
     const where = `question "${q.id}"`;
     if (!declared.has(questionKind(q)) && !(isCodeTrack(course) && (EXTRA_KINDS.some((k) => k.id === questionKind(q)) || q.type === "parsons" || q.type === "bug"))) err(`${where} uses the "${questionKind(q)}" format, which exam.questionTypes doesn't list`);
     if (!domainIds.has(q.domain)) err(`${where} has unknown domain "${q.domain}"`);
@@ -87,7 +87,10 @@ export function validateCourse(course: Course): string[] {
       if (q.pairs.length < 3) err(`${where} needs at least 3 pairs`);
       if (new Set(q.pairs.map(([, r]) => r)).size !== q.pairs.length) err(`${where} has duplicate responses`);
     } else {
-      if (q.options.length < 3) err(`${where} needs at least 3 options`);
+      if (q.tf) {
+        if (q.options.length !== 2 || q.options[0] !== "True" || q.options[1] !== "False") err(`${where} is true/false, so its options must be exactly ["True", "False"]`);
+        if (q.answer.length !== 1) err(`${where} is true/false and needs exactly one answer`);
+      } else if (q.options.length < 3) err(`${where} needs at least 3 options`);
       if (q.answer.length === 0) err(`${where} has no correct answer`);
       if (q.answer.some((i) => i < 0 || i >= q.options.length)) err(`${where} has an answer index outside its options`);
       if (new Set(q.answer).size !== q.answer.length) err(`${where} repeats an answer index`);
@@ -179,7 +182,51 @@ export function validateCourse(course: Course): string[] {
     if (!(t.passShare > 0 && t.passShare <= 1)) err(`${name}.passShare must be between 0 and 1`);
   }
 
+  errors.push(...topicProblems(course).map((m) => `[${course.id}] ${m}`));
   return errors;
+}
+
+/**
+ * Checks adaptive-practice wiring: ready topics resolve to real lessons, planned ones don't yet,
+ * prerequisites point backwards, every concept tag names a topic, and lesson migrations point at
+ * live lessons.
+ */
+export function topicProblems(course: Course): string[] {
+  const out: string[] = [];
+  const lessonIds = new Set(Object.values(course.lessons).flat().map((l) => l.id));
+  const migration = course.lessonMigration;
+  if (migration) {
+    if (!(Number.isInteger(migration.version) && migration.version >= 1)) out.push("lessonMigration.version must be a whole number from 1");
+    for (const [from, to] of Object.entries(migration.aliases)) {
+      if (!lessonIds.has(to)) out.push(`lesson alias "${from}" points at unknown lesson "${to}"`);
+      if (lessonIds.has(from)) out.push(`lesson alias "${from}" is still a live lesson id`);
+    }
+  }
+  const topics = course.topics ?? [];
+  if (!topics.length) {
+    if (course.practice?.length || course.designPrompts?.length) out.push("has practice content but no topics");
+    return out;
+  }
+  const seen = new Set<string>();
+  for (const t of topics) {
+    if (seen.has(t.id)) out.push(`topic "${t.id}" is listed twice`);
+    for (const pre of t.prereqs) if (!seen.has(pre)) out.push(`topic "${t.id}" needs "${pre}", which isn't an earlier topic`);
+    seen.add(t.id);
+    const missing = (t.standIns ?? []).filter((id) => !lessonIds.has(id));
+    for (const id of missing) out.push(`topic "${t.id}" stand-in "${id}" isn't a lesson`);
+    if (t.status === "ready" && !lessonIds.has(t.id) && !t.standIns?.length) out.push(`topic "${t.id}" is ready but no lesson teaches it`);
+    if (t.status === "planned" && (lessonIds.has(t.id) || t.standIns?.length)) out.push(`topic "${t.id}" has a lesson, so mark it ready`);
+  }
+  for (const q of [...course.questions, ...(course.practice ?? [])]) {
+    if (!q.concepts?.length) out.push(`question "${q.id}" has no concept tags`);
+    for (const c of q.concepts ?? []) if (!seen.has(c)) out.push(`question "${q.id}" is tagged with unknown topic "${c}"`);
+  }
+  for (const d of course.designPrompts ?? []) {
+    if (!d.concepts.length) out.push(`design prompt "${d.id}" has no concept tags`);
+    for (const c of d.concepts) if (!seen.has(c)) out.push(`design prompt "${d.id}" is tagged with unknown topic "${c}"`);
+    if (!d.href.startsWith("/")) out.push(`design prompt "${d.id}" href must start with "/"`);
+  }
+  return out;
 }
 
 /** How much longer than every distractor the correct option may be before the "longest option" lint flags it. */
@@ -192,8 +239,8 @@ export const LONGEST_OPTION_RATIO = 1.2;
  */
 export function longestOptionWarnings(course: Course, ratio = LONGEST_OPTION_RATIO): string[] {
   const out: string[] = [];
-  for (const q of course.questions) {
-    if (!(q.type === undefined || q.type === "choice") || q.answer.length !== 1) continue;
+  for (const q of [...course.questions, ...(course.practice ?? [])]) {
+    if (!(q.type === undefined || q.type === "choice") || q.answer.length !== 1 || q.tf) continue; // True/False is fixed-length by design
     const right = q.options[q.answer[0]]?.length ?? 0;
     const longestWrong = Math.max(0, ...q.options.filter((_, i) => i !== q.answer[0]).map((o) => o.length));
     if (longestWrong > 0 && right > longestWrong * ratio)
