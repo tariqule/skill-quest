@@ -2,10 +2,24 @@ import { BANNED_CHARACTERS, MAX_POINT_WORDS, PROSE_SHORTHAND } from "@/engine/vo
 
 
 /**
- * How many characters the right option may run past the longest wrong one. Tighter than the
- * engine-wide ratio: the browser tests showed a 20% lead is still easy to spot on short options.
+ * How many characters the right option may run past the longest wrong one: none. The PR 4
+ * browser test showed even a 3-character lead is easy to spot, so the right option may tie the
+ * longest wrong one but never be the single longest.
  */
-export const LONGEST_MARGIN = 3;
+export const LONGEST_MARGIN = 0;
+
+/** True when the right option is at least as long as every wrong one (ties count). */
+export function rightIsLongest(options: readonly string[], answer: number): boolean {
+  return options.every((o, i) => i === answer || options[answer].length >= o.length);
+}
+
+/**
+ * How many of `items` may have the right option as (joint) longest: what guessing "pick the
+ * longest" would hit by chance, one in n per item, rounded up.
+ */
+export function longestChanceLimit(items: readonly { options: readonly string[] }[]): number {
+  return Math.ceil(items.reduce((sum, q) => sum + 1 / q.options.length, 0));
+}
 /**
  * The shape of one topic's content. Topic files are plain data (no React), so they can be
  * validated, counted and tested without rendering anything.
@@ -83,6 +97,12 @@ export function validateTopic(t: TopicContent): string[] {
   if (tfAnswers.length && !(tfAnswers.includes(true) && tfAnswers.includes(false))) out.push(`${where}: quiz true/false needs one true and one false`);
 
   const ids = new Set<string>();
+  for (const [name, items] of [["quiz", t.quiz], ["practice", t.practice]] as const) {
+    const mcq = items.flatMap((q) => (q.kind === "mcq" ? [q] : []));
+    const longest = mcq.filter((q) => rightIsLongest(q.options, q.answer)).length;
+    const limit = longestChanceLimit(mcq);
+    if (longest > limit) out.push(`${where}: ${name} has the right option longest in ${longest} of ${mcq.length} multiple choice items; chance allows ${limit}`);
+  }
   for (const q of [...t.quiz, ...t.practice]) {
     if (ids.has(q.id)) out.push(`${where}: item id "${q.id}" is repeated`);
     ids.add(q.id);
@@ -157,7 +177,7 @@ function itemProblems(q: QuizItem): string[] {
       if (new Set(q.options).size !== q.options.length) out.push("has duplicate options");
       const right = q.options[q.answer].length;
       const longestWrong = Math.max(...q.options.filter((_, i) => i !== q.answer).map((o) => o.length));
-      if (right > longestWrong + LONGEST_MARGIN) out.push(`gives itself away: the right option is the longest by more than ${LONGEST_MARGIN} characters (${right} vs ${longestWrong})`);
+      if (right > longestWrong + LONGEST_MARGIN) out.push(`gives itself away: the right option is the single longest (${right} vs ${longestWrong} characters)`);
       return out;
     }
     case "tf":

@@ -8342,7 +8342,7 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
     "Cursor pagination",
   ],
   "t-api-2-q2": [
-    "GET",
+    "GET and HEAD",
   ],
   "t-api-2-q3": [
     "Ship v2 and deprecate v1 on a date",

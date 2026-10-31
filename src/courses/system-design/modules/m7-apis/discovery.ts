@@ -95,7 +95,7 @@ const topic: TopicContent = {
       kind: "mcq",
       id: "t-discovery-p3",
       prompt: "What does a service registry hold?",
-      options: ["Live addresses of healthy instances", "Every request's full response body", "User passwords", "Old schema versions"],
+      options: ["Live addresses of healthy instances", "A copy of every request's response body", "User passwords", "Old schema versions"],
       answer: 0,
       explanation: "It's the live list callers look up to find working copies of a service.",
     },

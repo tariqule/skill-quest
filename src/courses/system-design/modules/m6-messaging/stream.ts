@@ -96,7 +96,7 @@ const topic: TopicContent = {
       kind: "mcq",
       id: "t-stream-p3",
       prompt: "How does a stream job avoid losing its counts when it restarts?",
-      options: ["It recounts from last week", "It checkpoints state and offsets", "It switches to processing time", "It doubles the window size"],
+      options: ["It recounts from last week", "It checkpoints state and offsets", "It switches from event time to processing time", "It doubles the window size"],
       answer: 1,
       explanation: "Restoring the checkpoint with matching offsets resumes the counts where they stopped.",
     },

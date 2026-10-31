@@ -18,6 +18,7 @@ import { buildPath, tileLabel, type PathNode, type PathWorld } from "@/engine/pa
 import { levelInfo } from "@/engine/store";
 import { ModuleMap } from "@/components/map/ModuleMap";
 import { useCourseMap } from "@/components/map/useCourseMap";
+import { useHydrated } from "@/engine/hydrated";
 import { PracticeTile } from "@/components/practice/PracticeTile";
 
 /** The mission map for interview tracks: a terminal hub plus an arcade level-select. */
@@ -28,6 +29,7 @@ export function CodeMap() {
   const { worlds, current } = buildPath(course, p);
   // A topic syllabus replaces the per-stage lesson grid, so "next" follows the syllabus too.
   const map = useCourseMap();
+  const hydrated = useHydrated();
   const nextTopic = map?.current?.lesson ? { to: `/lesson/${map.current.lesson}`, title: map.current.topic.title } : null;
   const readiness = Math.round(overallReadiness(course, p));
   const skill = LEVEL_BY_ID[p.level];
@@ -132,7 +134,7 @@ export function CodeMap() {
         <>
           <section aria-labelledby="modules-heading" className="mt-10">
             <h2 id="modules-heading" className="font-mono text-lg font-black uppercase tracking-wider text-white">
-              <span className="text-emerald-300">&gt;</span> {map.modules.length} modules · {map.done}/{map.total} topics
+              <span className="text-emerald-300">&gt;</span> {map.modules.length} modules · {hydrated ? map.done : "–"}/{map.total} topics
             </h2>
             <div className="mt-4">
               <PracticeTile />

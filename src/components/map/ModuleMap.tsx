@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { memo } from "react";
 import { useCourse } from "@/engine/course-context";
+import { useHydrated } from "@/engine/hydrated";
 import type { CourseMap, MapModule, MapTopic, TopicState } from "@/engine/practice";
 import { topicTileLabel } from "./labels";
 
@@ -26,6 +27,7 @@ export function ModuleMap({ map, color, startHere }: { map: CourseMap; color: st
 
 const ModuleSection = memo(function ModuleSection({ module: m, color, startHere }: { module: MapModule; color: string; startHere?: boolean }) {
   const headingId = `module-${m.number}`;
+  const hydrated = useHydrated();
   return (
     <li aria-labelledby={headingId} className="rounded-2xl border border-white/10 bg-slate-900/50 p-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -34,7 +36,7 @@ const ModuleSection = memo(function ModuleSection({ module: m, color, startHere 
           {startHere && <span className="ml-2 rounded-full bg-rose-300/15 px-2 py-0.5 align-middle text-xs font-bold text-rose-200">🐣 Start here</span>}
         </h3>
         <span className="text-xs text-slate-400">
-          {m.done}/{m.topics.length} topics
+          {hydrated ? m.done : "–"}/{m.topics.length} topics
         </span>
       </div>
       <ul className="mt-3 grid grid-cols-1 gap-2 min-[375px]:grid-cols-2 sm:grid-cols-3">

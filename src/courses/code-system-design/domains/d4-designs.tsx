@@ -293,7 +293,7 @@ id 125 → base62 "21"   (2 × 62 + 1)`}
         "Pass `?cursor=eyJpZCI6OTgyMX0` back unchanged; no `next_cursor` means the last page",
         "Decode the cursor and add 20 to the id",
         "Send `?page=2`",
-        "Repeat the same request as before; the server remembers where each client got to",
+        "Repeat the same request as before; the server remembers where each client last got to",
       ],
       answer: [0],
       explanation: "A cursor is a token the client passes back without changing it. The server packs the last position inside, here the last id, and can change that format later without breaking any client.",
@@ -307,7 +307,7 @@ id 125 → base62 "21"   (2 × 62 + 1)`}
       options: [
         "gRPC with Protobuf contracts and streaming over HTTP/2",
         "REST with hand-written JSON parsing",
-        "GraphQL subscriptions over one public HTTP endpoint",
+        "GraphQL subscriptions over one shared public HTTP endpoint",
         "SOAP over SMTP",
       ],
       answer: [0],

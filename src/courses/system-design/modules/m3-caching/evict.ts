@@ -52,7 +52,7 @@ const topic: TopicContent = {
       kind: "mcq",
       id: "t-cache-evict-q3",
       prompt: "A hot key expires and the database is flooded with identical queries. What is this called?",
-      options: ["Eviction", "Write-back", "Replication lag", "A cache stampede"],
+      options: ["Eviction", "Write-back", "Cache replication lag", "A cache stampede"],
       answer: 3,
       explanation: "Many simultaneous misses on one hot key stampede the database.",
     },

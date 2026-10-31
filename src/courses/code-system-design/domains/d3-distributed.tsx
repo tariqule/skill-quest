@@ -441,7 +441,7 @@ consumers_in_group: 8`,
       options: [
         "The server saves each key with its result and returns that stored result for any repeat",
         "The server encrypts the request with the key",
-        "The load balancer pins a key to one server, which then drops duplicates from memory",
+        "The load balancer pins a key to one server, which then drops any duplicates it holds in memory",
         "The key sets the HTTP cache TTL for the response",
       ],
       answer: [0],

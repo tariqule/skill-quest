@@ -91,7 +91,7 @@ const topic: TopicContent = {
       kind: "mcq",
       id: "t-denorm-p3",
       prompt: "A dashboard runs the same heavy sales-by-region query hundreds of times a minute. What's a good fix?",
-      options: ["Add a column family", "Shard by region name", "A materialised view of it", "Switch to async replicas"],
+      options: ["Add a column family", "Shard by region name", "A materialised view of it", "Switch the database to async replicas"],
       answer: 2,
       explanation: "Saving the result once and reading it many times avoids rerunning the heavy query.",
     },

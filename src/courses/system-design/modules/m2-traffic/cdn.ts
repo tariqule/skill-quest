@@ -45,7 +45,7 @@ const topic: TopicContent = {
       kind: "mcq",
       id: "t-cdn-q2",
       prompt: "Which of these is the worst fit for edge caching?",
-      options: ["A shared product photo", "The site's logo image", "A popular video trailer", "A user's account balance"],
+      options: ["A shared product photo", "The site's logo image", "A popular movie trailer video", "A user's account balance"],
       answer: 3,
       explanation: "A balance is private to one user and changes often. Shared, slow-changing files are what edges are for.",
     },

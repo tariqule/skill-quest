@@ -38,7 +38,7 @@ const topic: TopicContent = {
       kind: "mcq",
       id: "t-encoding-q1",
       prompt: "New consumers must read events written by old producers. Which property is that?",
-      options: ["Forward compatibility", "Backward compatibility", "Idempotency", "Log compaction"],
+      options: ["Forward compatibility", "Backward compatibility", "Idempotency", "Exactly-once processing"],
       answer: 1,
       explanation: "Backward compatibility is new code reading old data.",
     },
