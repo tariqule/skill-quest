@@ -1,0 +1,110 @@
+import type { TopicContent } from "../../schema";
+
+const topic: TopicContent = {
+  id: "t-api-2",
+  module: "m7",
+  title: "Pagination, idempotency, versioning",
+  visual: {
+    kind: "code",
+    lang: "http",
+    code: "POST /payments\nIdempotency-Key: 5f1c-77a2\n{ \"amount\": 4200 }\n\n# retry with the same key\nPOST /payments\nIdempotency-Key: 5f1c-77a2\n# returns the first result, no second charge",
+    caption: "Same key, same answer: a retry can't charge twice",
+  },
+  screens: [
+    { kind: "idea", text: "Lists can be huge, so APIs return them a page at a time. **Offset pagination** asks for `?offset=200&limit=50`: skip 200 rows, return the next 50." },
+    { kind: "idea", text: "Offsets get slow deep in a list, since the database still walks every skipped row. If a row is inserted meanwhile, items shift and the next page repeats or skips one." },
+    { kind: "idea", text: "**Cursor pagination** returns a token pointing at the last item seen. The next request says \"after this cursor\", so inserts don't shift pages." },
+    { kind: "idea", text: "Under the hood that is often **keyset pagination**: `WHERE id > 1050 ORDER BY id LIMIT 50`. An index jumps straight there, so page 1,000 is as fast as page 1." },
+    { kind: "idea", text: "A **safe method** doesn't change anything on the server. GET and HEAD are safe, so crawlers, caches and prefetchers can call them freely." },
+    { kind: "idea", text: "An **idempotent** request has the same effect whether it runs once or five times. PUT and DELETE are idempotent by definition. POST is not." },
+    { kind: "idea", text: "Networks drop replies, so clients retry. Retrying \"charge $42\" by POST could charge twice. The fix is an **idempotency key**: a unique id the client sends with the request." },
+    { kind: "idea", text: "The server stores each key with its result. A repeat with a known key gets the stored result back instead of running again. Keys expire after a day or so." },
+    { kind: "idea", text: "APIs change, but old clients keep calling. **Versioning** lets both live: `/v1/orders` and `/v2/orders`, or a version header, with breaking changes only in the new version." },
+    { kind: "idea", text: "Adding an optional field isn't breaking. Renaming or removing one is. Retire an old version with **deprecation**: announce a date, warn in headers, watch traffic, then switch it off." },
+    {
+      kind: "example",
+      title: "A payment retried safely",
+      steps: [
+        "The app generates key 5f1c-77a2 and sends POST /payments for $42 with that Idempotency-Key header.",
+        "The server charges the card and saves the result under the key. The reply is lost when the phone switches networks.",
+        "The app times out and retries the same POST with the same key.",
+        "The server finds the key, skips the charge, and returns the saved result. The user is charged once and sees \"Paid\".",
+        "A second checkout makes a new key, so a genuinely new payment still goes through.",
+      ],
+    },
+  ],
+  tip: "For any endpoint that moves money or creates something, mention an idempotency key before the interviewer asks about retries.",
+  quiz: [
+    {
+      kind: "mcq",
+      id: "t-api-2-q1",
+      prompt: "A feed paginated by offset shows duplicate posts when new posts arrive. What fixes it?",
+      options: ["A larger page size", "Cursor pagination", "Caching each page", "Sorting by random order"],
+      answer: 1,
+      explanation: "A cursor points after the last item seen, so new inserts at the top don't shift the next page.",
+    },
+    {
+      kind: "mcq",
+      id: "t-api-2-q2",
+      prompt: "Which HTTP method is both safe and idempotent?",
+      options: ["POST", "GET", "PATCH", "DELETE"],
+      answer: 1,
+      explanation: "GET changes nothing and can repeat freely. DELETE is idempotent but not safe.",
+    },
+    {
+      kind: "mcq",
+      id: "t-api-2-q3",
+      prompt: "A v1 field is renamed for v2. What's the least disruptive rollout?",
+      options: ["Rename the field in v1 straight away", "Ship v2 and deprecate v1 on a date", "Remove v1 the same day", "Accept both names randomly"],
+      answer: 1,
+      explanation: "Renaming breaks old clients, so it goes in a new version while v1 is retired on an announced schedule.",
+    },
+    {
+      kind: "tf",
+      id: "t-api-2-q4",
+      statement: "Keyset pagination stays fast on deep pages because an index can jump to the starting key.",
+      answer: true,
+      explanation: "No rows are skipped one by one, unlike a large offset.",
+    },
+    {
+      kind: "tf",
+      id: "t-api-2-q5",
+      statement: "Retrying a POST is harmless by default, since POST is an idempotent method.",
+      answer: false,
+      explanation: "POST isn't idempotent. A retry can create or charge twice unless you add an idempotency key.",
+    },
+  ],
+  practice: [
+    {
+      kind: "mcq",
+      id: "t-api-2-p1",
+      prompt: "What does the server do with a repeated idempotency key?",
+      options: ["Runs the request again", "Returns the saved result", "Rejects the client forever", "Creates a new key for it"],
+      answer: 1,
+      explanation: "It returns the first result without repeating the work.",
+    },
+    {
+      kind: "tf",
+      id: "t-api-2-p2",
+      statement: "Adding a new optional field to a response is usually not a breaking change.",
+      answer: true,
+      explanation: "Old clients ignore fields they don't know. Removing or renaming is what breaks them.",
+    },
+    {
+      kind: "mcq",
+      id: "t-api-2-p3",
+      prompt: "Why do large offsets get slow?",
+      options: ["It reads every skipped row", "Cursors expire too quickly", "HTTP limits URL length", "Indexes can't sort by id"],
+      answer: 0,
+      explanation: "OFFSET 100000 still reads and throws away 100,000 rows before returning any.",
+    },
+  ],
+  practiceNeeds: ["t-api", "t-index"],
+  sources: [
+    { title: "Stripe API: Idempotent requests", url: "https://docs.stripe.com/api/idempotent_requests", license: "Link only" },
+    { title: "RFC 9110: HTTP Semantics, method properties", url: "https://www.rfc-editor.org/rfc/rfc9110#name-method-definitions", license: "Link only" },
+    { title: "Slack Engineering: Evolving API pagination at Slack", url: "https://slack.engineering/evolving-api-pagination-at-slack/", license: "Link only" },
+  ],
+};
+
+export default topic;
