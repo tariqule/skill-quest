@@ -44,10 +44,20 @@ describe("registry", () => {
     }
   });
 
-  it("writes all of module 1, in curriculum order", () => {
-    const m1 = CURRICULUM.filter((t) => t.module === "m1").map((t) => t.id);
-    expect(TOPIC_CONTENT.filter((t) => t.module === "m1").map((t) => t.id)).toEqual(m1);
-    expect(m1).toHaveLength(6);
+  it.each([
+    ["m1", 6],
+    ["m2", 4],
+    ["m3", 2],
+  ] as const)("writes all of module %s (%i topics), in curriculum order", (module, n) => {
+    const ids = CURRICULUM.filter((t) => t.module === module).map((t) => t.id);
+    expect(TOPIC_CONTENT.filter((t) => t.module === module).map((t) => t.id)).toEqual(ids);
+    expect(ids).toHaveLength(n);
+  });
+
+  it("lists written topics in curriculum order", () => {
+    const order = CURRICULUM.map((t) => t.id);
+    const written = TOPIC_CONTENT.map((t) => order.indexOf(t.id));
+    expect(written).toEqual([...written].sort((a, b) => a - b));
   });
 });
 
