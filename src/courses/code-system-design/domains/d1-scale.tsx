@@ -1,4 +1,4 @@
-import { CodeBlock, CodeCompare, Flow, Ladder, Tiles } from "@/components/learn/blocks";
+import { CodeBlock, CodeCompare, Flow, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { CapacityLab } from "../labs";
 import { CacheStrategies, LatencyLadder } from "../visuals";
@@ -23,55 +23,6 @@ export default defineDomain({
   ],
 
   lessons: [
-    {
-      id: "d1-start-what",
-      level: "beginner",
-      task: "1.2",
-      title: "What is system design?",
-      check: ["sd-b1-01", "sd-b1-02"],
-      visual: (
-        <Flow
-          color="#2dd4bf"
-          steps={[
-            { icon: "📱", label: "Client", sub: "Your phone or browser asks for something" },
-            { icon: "🖥️", label: "Server", sub: "A computer that runs the app's code" },
-            { icon: "🗄️", label: "Database", sub: "Where the data is kept safely" },
-            { icon: "📨", label: "Response", sub: "The answer travels back to you" },
-          ]}
-        />
-      ),
-      points: [
-        "**System design** is planning how the pieces of a big app fit together, so it keeps working when millions of people use it.",
-        "Think of a restaurant. Customers are the **clients**, the kitchen is the **server** that does the work, and the pantry is the **database** where ingredients are stored.",
-        "A **request** is one question a client sends, like \"show me my inbox\". The server sends back a **response** with the answer.",
-        "One cook can feed a few tables. Feeding a stadium needs more cooks, more counters and a plan. That plan is the system design.",
-      ],
-      tip: "In an interview, start by drawing the simplest path: client, server, database. Then improve the part that would break first.",
-    },
-    {
-      id: "d1-start-numbers",
-      level: "beginner",
-      task: "1.1",
-      title: "Why designers count requests",
-      check: ["sd-b1-03", "sd-b1-04"],
-      visual: (
-        <Ladder caption="more users, more pieces to run"
-          rungs={[
-            { icon: "🧑", name: "A few users", text: "One server and one database handle everything easily." },
-            { icon: "🏘️", name: "Thousands of users", text: "You add a cache so the database does less repeated work." },
-            { icon: "🏙️", name: "Millions of users", text: "You run many servers and spread traffic across them." },
-            { icon: "🌍", name: "Users worldwide", text: "You copy content to places near people so it loads fast." },
-          ]}
-        />
-      ),
-      points: [
-        "Before choosing parts, designers count: how many people, how many requests, how much data. The numbers tell you what will break.",
-        "**QPS** means queries per second: how many requests arrive each second. It's like counting customers walking into a shop every second.",
-        "A day has 86,400 seconds, which people round to about 100,000. So 1 million requests a day is only about 12 every second.",
-        "**Latency** is how long one request takes, start to finish. Users notice when a page takes more than a few hundred milliseconds.",
-      ],
-      tip: "Rough numbers are fine. Saying \"about 10,000 requests a second\" is more useful than staying quiet because you don't know the exact figure.",
-    },
     {
       id: "d1-estimates",
       level: "junior",
@@ -207,7 +158,7 @@ request → app-3 ┘   or a signed token (JWT)` }}
     {
       id: "sd-b1-01",
       domain: "d1",
-      lesson: "d1-start-what",
+      lesson: "t-intro",
       level: "beginner",
       prompt: "In the restaurant picture of an app, which part plays the role of the kitchen that does the work?",
       options: ["The server", "The client", "The database", "The internet cable"],
@@ -217,7 +168,7 @@ request → app-3 ┘   or a signed token (JWT)` }}
     {
       id: "sd-b1-02",
       domain: "d1",
-      lesson: "d1-start-what",
+      lesson: "t-intro",
       level: "beginner",
       prompt: "Your phone asks a server \"show me my messages\". What is that question called?",
       options: ["A request", "A response", "A database", "A cache"],
@@ -227,7 +178,7 @@ request → app-3 ┘   or a signed token (JWT)` }}
     {
       id: "sd-b1-03",
       domain: "d1",
-      lesson: "d1-start-numbers",
+      lesson: "t-estimation",
       level: "beginner",
       prompt: "What does QPS stand for?",
       options: ["Queries per second", "Quality per server", "Queue processing speed", "Quick page size"],
@@ -237,7 +188,7 @@ request → app-3 ┘   or a signed token (JWT)` }}
     {
       id: "sd-b1-04",
       domain: "d1",
-      lesson: "d1-start-numbers",
+      lesson: "t-estimation",
       level: "beginner",
       type: "output",
       prompt: "A small site gets 100,000 requests a day. Using about 100,000 seconds in a day, type the average requests per second (number only).",

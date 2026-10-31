@@ -5,6 +5,12 @@ import d1 from "./domains/d1-scale";
 import d2 from "./domains/d2-data";
 import d3 from "./domains/d3-distributed";
 import d4 from "./domains/d4-designs";
+import { TOPIC_CONTENT } from "../system-design/registry";
+import { CODE_QUEST_LINKS, scenarioPrompts } from "./prompts";
+import { courseTopics, LESSON_MIGRATION, practiceQuestions, tagQuestions, withTopics } from "./topics";
+
+const topics = courseTopics(TOPIC_CONTENT);
+const domains = withTopics(withQuestions([d1, d2, d3, d4], [...moreQuestions, ...codeGames]), TOPIC_CONTENT).map((m) => ({ ...m, questions: tagQuestions(m.questions, topics) }));
 
 /**
  * System Design Interview Quest. Vendor-neutral: concepts are taught with
@@ -23,7 +29,11 @@ export default defineCourse({
   level: "Advanced",
   storageKey: "course:code-system-design:v1",
 
-  domains: withQuestions([d1, d2, d3, d4], [...moreQuestions, ...codeGames]),
+  domains,
+  topics,
+  practice: TOPIC_CONTENT.flatMap(practiceQuestions),
+  designPrompts: [...scenarioPrompts(topics), ...CODE_QUEST_LINKS],
+  lessonMigration: LESSON_MIGRATION,
 
   exam: {
     questions: 30,
