@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { taughtPool } from "@/engine/game";
-import { buildPracticeDeck, courseMap, finishedTopicPool, lessonsFor, nextMapLesson, practiceSummary } from "@/engine/practice";
+import { buildPracticeDeck, courseMap, finishedTopicPool, lessonsFor, studySessionPool, nextMapLesson, practiceSummary } from "@/engine/practice";
 import { INITIAL_PROGRESS, type Progress } from "@/engine/store";
 import course from ".";
 
@@ -53,5 +53,20 @@ describe("code-system-design gating regression", () => {
       expect(next).toBe(lessonIds.has(current.topic.id) ? current.topic.id : lessonsFor(current.topic).find((l) => lessonIds.has(l)));
       expect(next).toBe("t-intro");
     }
+  });
+
+  it("study sessions serve only studied topics, never the rest of the world", () => {
+    const d2 = course.questions.filter((q) => q.domain === "d2");
+    const legacy = (all: typeof d2) => taughtPool(all, []);
+    // Nothing finished or read: empty, not the whole world.
+    expect(studySessionPool(course, d2, at([]), [], legacy)).toEqual([]);
+    // Reading t-replication in the session unlocks only questions tagged t-replication alone.
+    const read = studySessionPool(course, d2, at([]), ["t-replication"], legacy);
+    expect(read.length).toBeGreaterThan(0);
+    expect(new Set(read.flatMap((q) => q.concepts ?? []))).toEqual(new Set(["t-replication"]));
+    // A finished topic plus a session read combine; unstudied d2 topics stay out.
+    const both = studySessionPool(course, d2, at(["t-sharding"]), ["t-replication"], legacy);
+    expect(both.every((q) => q.concepts!.every((c) => c === "t-replication" || c === "t-sharding"))).toBe(true);
+    expect(both.length).toBeLessThan(d2.length);
   });
 });

@@ -11,6 +11,7 @@ import { SectionGame } from "@/components/three/games/SectionGame";
 import { QuestionCard } from "@/components/QuestionCard";
 import { Bar } from "@/components/ui";
 import { courseCopy } from "@/engine/copy";
+import { studySessionPool } from "@/engine/practice";
 import { useCourse, useLevelPool, useProgress } from "@/engine/course-context";
 import { answerText, isCorrect, levelDeck, pct, pickedText, shuffle, taughtPool, type PreparedQuestion } from "@/engine/game";
 import type { Card, Challenge, Lesson } from "@/engine/types";
@@ -91,7 +92,7 @@ export function StudySession() {
 
   function startPlay() {
     store.recordStudy(domain.id, Math.floor(elapsed / 60));
-    const taught = taughtPool(domainPool, viewed);
+    const taught = studySessionPool(course, domainPool, progress, viewed, (all) => taughtPool(all, viewed));
     const qs = levelDeck(course, level, taught, Math.min(questionCount, taught.length));
     const cs = shuffle(challenges);
     const built: PlayItem[] = [];
@@ -100,6 +101,15 @@ export function StudySession() {
       if ((i + 1) % cfg.challengeEvery === 0 && cs.length) built.push({ kind: "challenge", c: cs.shift()! });
     });
     built.push(...cs.map((c) => ({ kind: "challenge" as const, c })));
+    // Nothing studied yet in a topic course: there is nothing fair to ask, so go straight to the report.
+    if (!built.length) {
+      setItems([]);
+      setLog([]);
+      setChallengeLog([]);
+      setPhase("report");
+      scrollTop();
+      return;
+    }
     setItems(built);
     setStep(0);
     setSubmitted(null);
