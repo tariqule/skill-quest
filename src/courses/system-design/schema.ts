@@ -87,13 +87,17 @@ export function validateTopic(t: TopicContent): string[] {
 /**
  * The reader screens one content screen becomes. A worked example gets one screen per step so
  * each stays short. Only the first step carries the title, so the steps don't read as repeats.
+ * The "Step k of N" lead is what the reader keys on to drop its card-number badge (see `exampleStep`).
  */
 export function readerScreens(s: Screen): string[] {
   switch (s.kind) {
     case "idea":
       return [s.text];
     case "example":
-      return s.steps.map((step, i) => (i === 0 ? `**Worked example: ${s.title}.** ${step}` : `**Step ${i + 1}.** ${step}`));
+      return s.steps.map((step, i) => {
+        const lead = `Step ${i + 1} of ${s.steps.length}.`;
+        return i === 0 ? `**Worked example: ${s.title}. ${lead}** ${step}` : `**${lead}** ${step}`;
+      });
     default:
       return assertNever(s);
   }

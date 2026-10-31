@@ -4,7 +4,7 @@ import { useEffect, useState, type CSSProperties } from "react";
 import { MascotSays } from "@/components/fx";
 import type { Lesson } from "@/engine/types";
 import { RichText } from "./code";
-import { quickQuestions } from "./copy";
+import { exampleStep, quickQuestions } from "./copy";
 import { SourcesFooter } from "./Sources";
 
 /** The cards of a lesson, in reading order: the picture, each point on its own, then the tip. */
@@ -86,10 +86,12 @@ export function LessonReader({
 
         {step?.kind === "point" && (
           <div className="flex min-h-56 flex-col justify-center rounded-3xl border border-white/10 bg-slate-900/70 p-6 sm:p-10" style={{ boxShadow: `0 20px 60px -30px ${color}` }}>
-            <span className="flex h-9 w-9 items-center justify-center rounded-full text-base font-black text-slate-950" style={{ background: color }}>
-              {step.index + 1}
-            </span>
-            <p className="mt-4 text-xl leading-relaxed text-white sm:text-2xl sm:leading-relaxed">
+            {!exampleStep(step.text) && (
+              <span className="mb-4 flex h-9 w-9 items-center justify-center rounded-full text-base font-black text-slate-950" style={{ background: color }}>
+                {step.index + 1}
+              </span>
+            )}
+            <p className=" text-xl leading-relaxed text-white sm:text-2xl sm:leading-relaxed">
               <RichText text={step.text} />
             </p>
           </div>
@@ -118,8 +120,8 @@ export function LessonReader({
         )}
       </div>
 
-      {/* Credits stay in view on every card, not only at the end. */}
-      <SourcesFooter sources={lesson.sources} />
+      {/* Credits once, with the recap, so they don't repeat under every card. */}
+      {ready && <SourcesFooter sources={lesson.sources} />}
 
       {/* Buttons stay within thumb reach at the bottom of the screen. */}
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-white/10 bg-slate-950/95 px-4 pt-3 backdrop-blur" style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 0.75rem)" }}>

@@ -1,5 +1,6 @@
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
+import { exampleStep } from "@/components/learn/copy";
 import { describe, expect, it } from "vitest";
 import { CURRICULUM, MODULE_TITLES } from "./curriculum";
 import { TOPIC_CONTENT } from "./registry";
@@ -124,6 +125,8 @@ describe("validateTopic error paths", () => {
   });
 
   it("labels only the first worked-example step with the title", () => {
-    expect(readerScreens({ kind: "example", title: "T", steps: ["one", "two"] })).toEqual(["**Worked example: T.** one", "**Step 2.** two"]);
+    expect(readerScreens({ kind: "example", title: "T", steps: ["one", "two"] })).toEqual(["**Worked example: T. Step 1 of 2.** one", "**Step 2 of 2.** two"]);
+    expect(readerScreens({ kind: "example", title: "T", steps: ["one", "two"] }).every(exampleStep)).toBe(true);
+    expect(exampleStep("**Steps** matter")).toBe(false);
   });
 });
