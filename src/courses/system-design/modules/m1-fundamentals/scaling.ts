@@ -12,7 +12,8 @@ const topic: TopicContent = {
     ],
   },
   screens: [
-    { kind: "idea", text: "When one server can't keep up, you have two moves. **Vertical** scaling (scaling up) gives it a bigger machine. **Horizontal** scaling (scaling out) adds more machines." },
+    { kind: "idea", text: "When one server can't keep up, the first move is **vertical** scaling, or scaling up: give it a bigger machine with more CPU and memory." },
+    { kind: "idea", text: "The second move is **horizontal** scaling, or scaling out: add more machines and split the work between them." },
     { kind: "idea", text: "Scaling up is the easy first step: no code changes. But the biggest machine has a limit, costs climb steeply near the top, and it's still a single box that can fail." },
     { kind: "idea", text: "Scaling out spreads requests over many servers. A **load balancer** sits in front, picks a server for each request, and stops sending to any server that stops answering." },
     { kind: "idea", text: "Scaling out only works cleanly if servers are **stateless**: they keep no user data in their own memory between requests, so any server can handle any request." },

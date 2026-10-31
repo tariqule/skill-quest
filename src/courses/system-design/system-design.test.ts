@@ -4,7 +4,7 @@ import { exampleStep } from "@/components/learn/copy";
 import { describe, expect, it } from "vitest";
 import { CURRICULUM, MODULE_TITLES } from "./curriculum";
 import { TOPIC_CONTENT } from "./registry";
-import { boldTerms, MAX_TERMS_PER_CARD, MODULE_IDS, ONE_IDEA_FROM, QUIZ_SHAPE, readerScreens, topicWarnings, validateTopic, type TopicContent } from "./schema";
+import { boldTerms, MAX_TERMS_PER_CARD, MODULE_IDS, QUIZ_SHAPE, readerScreens, topicWarnings, validateTopic, type TopicContent } from "./schema";
 
 const MODULES_DIR = join(__dirname, "modules");
 const topicFiles = readdirSync(MODULES_DIR, { withFileTypes: true })
@@ -152,15 +152,14 @@ describe("one idea per card", () => {
     expect(boldTerms("**synchronous** vs **asynchronous**")).toEqual(["synchronous", "asynchronous"]);
     expect(boldTerms("plain text")).toEqual([]);
   });
-  it("flags a card that bolds two new terms (from module 4 on)", () => {
+  it("flags a card that bolds two new terms", () => {
     const t = TOPIC_CONTENT.find((x) => x.id === "t-replication")!;
     const bad = { ...t, screens: [...t.screens, { kind: "idea" as const, text: "**Last-write-wins** drops data. A **CRDT** merges it." }] };
     expect(validateTopic(bad).join("\n")).toMatch(/teaches 2 ideas/);
   });
-  it("earlier modules don't gain multi-idea cards (ratchet: 13 today)", () => {
-    const early = TOPIC_CONTENT.filter((t) => MODULE_IDS.indexOf(t.module) < MODULE_IDS.indexOf(ONE_IDEA_FROM));
-    const multi = early.flatMap((t) => t.screens.filter((s) => s.kind === "idea" && boldTerms(s.text).length > MAX_TERMS_PER_CARD));
-    expect(multi.length).toBeLessThanOrEqual(13);
+  it("holds in every module: no card bolds two terms", () => {
+    const multi = TOPIC_CONTENT.flatMap((t) => t.screens.flatMap((s) => (s.kind === "idea" && boldTerms(s.text).length > MAX_TERMS_PER_CARD ? [`${t.id}: ${s.text}`] : [])));
+    expect(multi).toEqual([]);
   });
   it("shows the LWW vs CRDT picture on the CRDT card", () => {
     const t = TOPIC_CONTENT.find((x) => x.id === "t-replication")!;

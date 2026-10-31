@@ -16,7 +16,8 @@ const topic: TopicContent = {
   screens: [
     { kind: "idea", text: "**Rate limiting** caps how many requests one caller can make in a period of time. It protects your servers from floods, buggy clients and abuse, and keeps one heavy user from crowding out the rest." },
     { kind: "idea", text: "You first choose what to count by: an API key, a user id or an IP address. Then you choose a limit, like 100 requests per minute for each key." },
-    { kind: "idea", text: "A request over the limit is turned away with HTTP status **429 Too Many Requests**, usually with a **Retry-After** header saying how long to wait. Well-behaved clients back off." },
+    { kind: "idea", text: "A request over the limit is turned away with HTTP status **429 Too Many Requests**, so the client knows it was refused for going too fast." },
+    { kind: "idea", text: "The reply usually carries a **Retry-After** header saying how long to wait. Well-behaved clients back off until then." },
     { kind: "idea", text: "A **token bucket** holds up to N tokens and refills at a steady rate. Each request spends one token, and a request finding the bucket empty is refused. A full bucket allows a short burst." },
     { kind: "idea", text: "A **fixed window** counts per clock minute and resets at the top of each minute. It's simple, but a caller can send a full minute's quota just before and just after the reset." },
     {

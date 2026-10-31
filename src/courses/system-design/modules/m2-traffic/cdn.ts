@@ -14,8 +14,10 @@ const topic: TopicContent = {
   },
   screens: [
     { kind: "idea", text: "Light in fibre takes time. A round trip from Sydney to a server in Virginia is around 200 milliseconds before any work is done, and a page may need dozens of files." },
-    { kind: "idea", text: "A **CDN** (content delivery network) is many servers, called **edges**, spread around the world. Each edge keeps copies of files, so users fetch them from somewhere nearby." },
-    { kind: "idea", text: "Your own server is called the **origin**. On a **cache hit** the edge answers straight away. On a **miss** it fetches from the origin, keeps a copy, then answers." },
+    { kind: "idea", text: "A **CDN** (content delivery network) is many servers spread around the world that keep copies of your files, so users fetch them from somewhere nearby." },
+    { kind: "idea", text: "Each of those nearby servers is called an **edge**. A user in Tokyo talks to a Tokyo edge instead of your server far away." },
+    { kind: "idea", text: "Your own server, where the real files live, is called the **origin**. Edges only copy what it serves." },
+    { kind: "idea", text: "On a **cache hit** the edge already has the file and answers straight away. On a miss it fetches from the origin, keeps a copy, then answers." },
     { kind: "idea", text: "The origin tells edges how long to keep a file with the **Cache-Control** header. For example, `max-age=86400` means a copy is fresh for one day." },
     { kind: "idea", text: "Changing a cached file is the hard part. The common trick is to put a version or hash in the file name, like `app.3f9a.js`. A new build gets a new name, so no stale copy is ever served." },
     {

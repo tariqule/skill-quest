@@ -69,7 +69,7 @@ export function validateTopic(t: TopicContent): string[] {
   if (t.screens.length < MIN_SCREENS) out.push(`${where}: needs at least ${MIN_SCREENS} screens`);
   if (!t.screens.some((s) => s.kind === "example")) out.push(`${where}: needs a worked example screen`);
   for (const s of t.screens) if (s.kind === "example" && s.steps.length < 2) out.push(`${where}: example "${s.title}" needs at least 2 steps`);
-  if (MODULE_IDS.indexOf(t.module) >= MODULE_IDS.indexOf(ONE_IDEA_FROM)) for (const s of t.screens) if (s.kind === "idea") {
+  for (const s of t.screens) if (s.kind === "idea") {
     const terms = boldTerms(s.text);
     if (terms.length > MAX_TERMS_PER_CARD) out.push(`${where}: card "${s.text.slice(0, 40)}…" teaches ${terms.length} ideas (${terms.join(", ")}); split it so each card has one`);
   }
@@ -113,8 +113,6 @@ export function topicWarnings(t: TopicContent): string[] {
  */
 /** One idea per card: a card may bold one new term (plus forms of it, like "leader" in "leader-follower"). */
 export const MAX_TERMS_PER_CARD = 1;
-/** The one-idea rule is enforced from this module on; earlier modules are held by a ratchet test. */
-export const ONE_IDEA_FROM: ModuleId = "m4";
 
 /**
  * The distinct bolded terms on a card, a cheap stand-in for "how many ideas does this teach".
