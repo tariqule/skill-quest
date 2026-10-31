@@ -189,6 +189,8 @@ export interface Lesson {
   title: string;
   visual: ReactNode;
   points: string[];
+  /** Optional small picture shown on one point's card, keyed by the point's index. */
+  pointVisuals?: Record<number, ReactNode>;
   tip?: string;
   /** Question ids for the quick check after the lesson. */
   check: string[];

@@ -15,7 +15,7 @@ const topic: TopicContent = {
   screens: [
     { kind: "idea", text: "The simple way to spread keys over N nodes is **hash mod N**: hash the key, divide by N, and the remainder picks the node. It's even and fast." },
     { kind: "idea", text: "The problem is changing N. Going from 4 nodes to 5 changes the remainder for most keys, so nearly everything moves. For a cache, that's a sudden flood of misses." },
-    { kind: "idea", text: "**Consistent hashing** places nodes and keys on the same **hash ring**, a circle of hash values. Each key belongs to the first node you meet going clockwise from the key's spot." },
+    { kind: "idea", text: "**Consistent hashing** places nodes and keys on the same hash ring, a circle of hash values. Each key belongs to the first node you meet going clockwise from the key's spot." },
     { kind: "idea", text: "Adding a node only takes the keys between it and the node before it. Removing one hands its keys to the next node. Either way, only about **1/N** of the keys move." },
     { kind: "idea", text: "With only a few points on the ring, some nodes get much bigger arcs than others. **Virtual nodes** fix this: each server sits at many points, so its share evens out." },
     { kind: "idea", text: "Virtual nodes also help with uneven machines: a bigger server gets more points and so more keys. Cassandra's token ring and Memcached client libraries both use this idea." },

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { CodeBlock, Flow, Ladder, Tiles } from "@/components/learn/blocks";
 import { inferConcepts } from "@/engine/practice";
 import type { ChoiceQuestion, DomainModule, Lesson, LessonIdMigration, Question, Topic } from "@/engine/types";
@@ -46,6 +47,17 @@ function VisualView({ visual }: { visual: Visual }) {
   }
 }
 
+/** Card pictures: an idea screen's own visual, keyed by where its text lands in the points list. */
+function screenVisuals(t: TopicContent): Record<number, ReactNode> | undefined {
+  const out: Record<number, ReactNode> = {};
+  let at = 0;
+  for (const s of t.screens) {
+    if (s.kind === "idea" && s.visual) out[at] = <VisualView visual={s.visual} />;
+    at += readerScreens(s).length;
+  }
+  return Object.keys(out).length ? out : undefined;
+}
+
 export function topicLesson(t: TopicContent): Lesson {
   return {
     id: t.id,
@@ -54,6 +66,7 @@ export function topicLesson(t: TopicContent): Lesson {
     title: t.title,
     visual: <VisualView visual={t.visual} />,
     points: t.screens.flatMap(readerScreens),
+    pointVisuals: screenVisuals(t),
     tip: t.tip,
     check: t.quiz.map((q) => q.id),
     sources: t.sources.map((s) => ({ ...s })),

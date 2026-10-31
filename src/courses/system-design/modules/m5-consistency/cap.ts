@@ -14,8 +14,9 @@ const topic: TopicContent = {
   },
   screens: [
     { kind: "idea", text: "A **network partition** is when some replicas can't reach others, though each is still running. Across many machines and racks it will happen, so a distributed database must plan for it." },
-    { kind: "idea", text: "The **CAP theorem** says that during a partition, a replicated store has to choose. It can stay **consistent**, so no read returns stale data, or stay **available**, so every request gets an answer. Not both." },
-    { kind: "idea", text: "Partition tolerance isn't something you can opt out of. So CAP is really a choice between **CP** (refuse some requests during a partition) and **AP** (answer, even if some answers are stale)." },
+    { kind: "idea", text: "The **CAP theorem** says that during a partition, a replicated store has to choose. It can stay consistent, so no read returns stale data, or stay available, so every request gets an answer. Not both." },
+    { kind: "idea", text: "Partition tolerance isn't something you can opt out of. A **CP** system picks consistency: during a partition it refuses some requests rather than return stale data." },
+    { kind: "idea", text: "An **AP** system picks availability: during a partition every node keeps answering, even if some answers are stale. The copies catch up once the network heals." },
     { kind: "idea", text: "Pick by what a wrong answer costs. A bank balance or a seat booking should be CP: better to fail than to double-spend. A like count can be AP: a stale number for a minute hurts nobody." },
     { kind: "idea", text: "**PACELC** adds the normal case. If there's a Partition, choose Availability or Consistency. Else, when all is well, choose Latency or Consistency, because waiting for replicas to agree takes time." },
     { kind: "idea", text: "Real databases rarely fit one label. Many let you set the level per query, and their behaviour depends on configuration. Martin Kleppmann argues we should describe the actual guarantees instead of calling a database CP or AP." },

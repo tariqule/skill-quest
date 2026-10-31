@@ -77,7 +77,7 @@ const topic: TopicContent = {
       kind: "mcq",
       id: "t-network-p1",
       prompt: "A response comes back with status 404. What does that tell the client?",
-      options: ["Everything worked", "The server crashed", "The thing asked for wasn't found", "The connection was encrypted"],
+      options: ["Everything worked", "The server crashed while answering", "The thing asked for wasn't found", "The connection was encrypted"],
       answer: 2,
       explanation: "404 means Not Found. 200 means OK, and 5xx codes mean the server failed.",
     },

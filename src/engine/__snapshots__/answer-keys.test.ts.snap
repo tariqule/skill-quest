@@ -8182,7 +8182,7 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
     "4",
   ],
   "d2-15": [
-    "Model the cart as a mergeable structure, such as a CRDT of added and removed items, so concurrent edits merge",
+    "Model the cart as a CRDT, so adds and removes from both regions merge",
   ],
   "d2-16": [
     "Splitting a dataset across several databases so each holds and serves only part of the keys",

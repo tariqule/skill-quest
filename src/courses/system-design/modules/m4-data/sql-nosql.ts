@@ -14,12 +14,12 @@ const topic: TopicContent = {
     ],
   },
   screens: [
-    { kind: "idea", text: "A **relational** (SQL) database stores data in tables of rows and columns. Each table has a **schema**: the columns and their types are declared up front, and every row follows them." },
+    { kind: "idea", text: "A **relational** (SQL) database stores data in tables of rows and columns. Each table has a schema: the columns and their types are declared up front, and every row follows them." },
     { kind: "idea", text: "A **join** combines rows from two tables that share a value, such as orders and customers by customer id. Joins let you store each fact once and combine facts when you read." },
     { kind: "idea", text: "**NoSQL** is a loose name for databases that aren't relational tables. Most give up joins or a fixed schema in exchange for simpler scaling across many machines." },
     { kind: "idea", text: "A **key-value** store keeps one value per key, like a giant dictionary. Reads and writes by key are very fast, but you can't easily ask \"which keys have this value?\" Redis and DynamoDB work this way." },
     { kind: "idea", text: "A **document** store keeps each record as a nested JSON-like document. Related data lives inside one document, so one read fetches it all. Documents in one collection can have different fields. MongoDB is the usual example." },
-    { kind: "idea", text: "A **wide-column** store, first described in Google's Bigtable paper, sorts rows by a **row key**. Columns are grouped into **column families**, and each cell can keep several versions by timestamp. Cassandra and HBase follow this model." },
+    { kind: "idea", text: "A **wide-column** store, first described in Google's Bigtable paper, sorts rows by a row key. Columns are grouped into column families, and each cell can keep several versions by timestamp. Cassandra and HBase follow this model." },
     { kind: "idea", text: "A **graph** database stores nodes and the edges between them. Questions like \"friends of my friends\" follow edges directly instead of running many joins. Neo4j is a well-known one." },
     {
       kind: "example",

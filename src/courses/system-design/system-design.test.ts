@@ -4,7 +4,7 @@ import { exampleStep } from "@/components/learn/copy";
 import { describe, expect, it } from "vitest";
 import { CURRICULUM, MODULE_TITLES } from "./curriculum";
 import { TOPIC_CONTENT } from "./registry";
-import { MODULE_IDS, QUIZ_SHAPE, readerScreens, topicWarnings, validateTopic, type TopicContent } from "./schema";
+import { boldTerms, MAX_TERMS_PER_CARD, MODULE_IDS, ONE_IDEA_FROM, QUIZ_SHAPE, readerScreens, topicWarnings, validateTopic, type TopicContent } from "./schema";
 
 const MODULES_DIR = join(__dirname, "modules");
 const topicFiles = readdirSync(MODULES_DIR, { withFileTypes: true })
@@ -123,7 +123,7 @@ describe("validateTopic error paths", () => {
       }
     });
     const msg = problems({ quiz }).join("\n");
-    expect(msg).toMatch(/much the longest/);
+    expect(msg).toMatch(/gives itself away/);
     expect(msg).toMatch(/duplicate options/);
     expect(msg).toMatch(/not a question/);
     expect(msg).toMatch(/must start with "t-intro-"/);
@@ -143,5 +143,28 @@ describe("validateTopic error paths", () => {
     expect(readerScreens({ kind: "example", title: "T", steps: ["one", "two"] })).toEqual(["**Worked example: T. Step 1 of 2.** one", "**Step 2 of 2.** two"]);
     expect(readerScreens({ kind: "example", title: "T", steps: ["one", "two"] }).every(exampleStep)).toBe(true);
     expect(exampleStep("**Steps** matter")).toBe(false);
+  });
+});
+
+describe("one idea per card", () => {
+  it("counts distinct bolded terms, folding plurals and contained forms", () => {
+    expect(boldTerms("The **leader-follower** setup has a **leader** and **followers**.")).toEqual(["leader-follower"]);
+    expect(boldTerms("**synchronous** vs **asynchronous**")).toEqual(["synchronous", "asynchronous"]);
+    expect(boldTerms("plain text")).toEqual([]);
+  });
+  it("flags a card that bolds two new terms (from module 4 on)", () => {
+    const t = TOPIC_CONTENT.find((x) => x.id === "t-replication")!;
+    const bad = { ...t, screens: [...t.screens, { kind: "idea" as const, text: "**Last-write-wins** drops data. A **CRDT** merges it." }] };
+    expect(validateTopic(bad).join("\n")).toMatch(/teaches 2 ideas/);
+  });
+  it("earlier modules don't gain multi-idea cards (ratchet: 13 today)", () => {
+    const early = TOPIC_CONTENT.filter((t) => MODULE_IDS.indexOf(t.module) < MODULE_IDS.indexOf(ONE_IDEA_FROM));
+    const multi = early.flatMap((t) => t.screens.filter((s) => s.kind === "idea" && boldTerms(s.text).length > MAX_TERMS_PER_CARD));
+    expect(multi.length).toBeLessThanOrEqual(13);
+  });
+  it("shows the LWW vs CRDT picture on the CRDT card", () => {
+    const t = TOPIC_CONTENT.find((x) => x.id === "t-replication")!;
+    const crdt = t.screens.find((s) => s.kind === "idea" && s.text.includes("**CRDT**"));
+    expect(crdt && crdt.kind === "idea" && crdt.visual?.kind).toBe("tiles");
   });
 });
