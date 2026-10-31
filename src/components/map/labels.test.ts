@@ -9,7 +9,7 @@ describe("topicTileLabel", () => {
     expect(topicTileLabel(node("done"))).toBe("1-2 How a request travels (done)");
     expect(topicTileLabel(node("current"))).toBe("1-2 How a request travels (start here)");
     expect(topicTileLabel(node("open"))).toBe("1-2 How a request travels");
-    expect(topicTileLabel(node("locked", [{ title: "What is system design?" }]))).toBe("1-2 How a request travels (locked: finish What is system design? first)");
+    expect(topicTileLabel(node("locked", [{ title: "What is system design?" }]))).toBe("1-2 How a request travels (best after What is system design?)");
     expect(topicTileLabel(node("planned"))).toBe("1-2 How a request travels (coming soon)");
   });
 });

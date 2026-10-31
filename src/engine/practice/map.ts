@@ -1,5 +1,5 @@
 import type { Topic } from "../types";
-import { entryLesson, missingPrereqs, topicsDone, type LessonProgress } from "./gating";
+import { entryLesson, lessonsFor, missingPrereqs, topicsDone, type LessonProgress } from "./gating";
 
 /** Where a topic stands on the course map. Exactly one topic, the next to study, is "current". */
 export type TopicState = "done" | "current" | "open" | "locked" | "planned";
@@ -56,4 +56,31 @@ export function courseMap(topics: readonly Topic[], lessonIds: ReadonlySet<strin
 export function startHereLessons(topics: readonly Topic[], lessonIds: ReadonlySet<string>): string[] {
   const first = topics[0]?.module;
   return topics.filter((t) => t.module === first && lessonIds.has(t.id)).map((t) => t.id);
+}
+
+/** The map node a lesson belongs to: the topic it teaches, or the topic it stands in for. */
+export function topicForLesson(map: CourseMap, lessonId: string): { module: MapModule; node: MapTopic; index: number } | null {
+  for (const m of map.modules) {
+    const index = m.topics.findIndex((n) => lessonsFor(n.topic).includes(lessonId));
+    if (index >= 0) return { module: m, node: m.topics[index], index };
+  }
+  return null;
+}
+
+/**
+ * The soft gate for a lesson opened out of order: the unfinished prerequisites, as map nodes so
+ * they can link to their lessons. Empty when the lesson's topic isn't locked. The gate only
+ * advises; finishing the lesson still counts, the same as on the map and in practice.
+ */
+export function lessonGate(map: CourseMap, lessonId: string): MapTopic[] {
+  const hit = topicForLesson(map, lessonId);
+  if (hit?.node.state !== "locked") return [];
+  const nodes = map.modules.flatMap((m) => m.topics);
+  return hit.node.needs.flatMap((t) => nodes.filter((n) => n.topic.id === t.id));
+}
+
+/** "Module 2 · Lesson 1 of 4": numbered the same way as the map's "2-1" tiles. Null off the syllabus. */
+export function moduleLessonLabel(map: CourseMap, lessonId: string): string | null {
+  const hit = topicForLesson(map, lessonId);
+  return hit ? `Module ${hit.module.number} · Lesson ${hit.index + 1} of ${hit.module.topics.length}` : null;
 }

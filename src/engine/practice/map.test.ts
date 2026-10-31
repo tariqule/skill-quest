@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { TOPICS, progress, seeded } from "./fixtures";
-import { courseMap, startHereLessons } from "./map";
+import { courseMap, lessonGate, moduleLessonLabel, startHereLessons } from "./map";
 
 const LESSONS = new Set(["a", "old-b", "c", "e"]);
 const states = (lessonsDone: string[]) =>
@@ -41,5 +41,35 @@ describe("courseMap", () => {
   it("starts beginners on the written lessons of the first module", () => {
     expect(startHereLessons(TOPICS, LESSONS)).toEqual(["a", "c"]);
     expect(startHereLessons([], LESSONS)).toEqual([]);
+  });
+});
+
+describe("lessonGate", () => {
+  it("names the unfinished prerequisites of a lesson opened early, with their lessons", () => {
+    const map = courseMap(TOPICS, LESSONS, progress(["a"]));
+    expect(lessonGate(map, "c").map((n) => [n.topic.id, n.lesson])).toEqual([["b", "old-b"]]);
+  });
+
+  it("is empty for open, done and off-syllabus lessons", () => {
+    const map = courseMap(TOPICS, LESSONS, progress(["a"]));
+    expect(lessonGate(map, "a")).toEqual([]);
+    expect(lessonGate(map, "old-b")).toEqual([]);
+    expect(lessonGate(map, "nope")).toEqual([]);
+  });
+
+  it("lets a lesson finished out of order count as done", () => {
+    const map = courseMap(TOPICS, LESSONS, progress(["c"]));
+    expect(lessonGate(map, "c")).toEqual([]);
+    expect(map.modules[0].topics[2].state).toBe("done");
+  });
+});
+
+describe("moduleLessonLabel", () => {
+  it("numbers a lesson within its module, like the map tiles, stand-ins included", () => {
+    const map = courseMap(TOPICS, LESSONS, progress([]));
+    expect(moduleLessonLabel(map, "c")).toBe("Module 1 · Lesson 3 of 3");
+    expect(moduleLessonLabel(map, "old-b")).toBe("Module 1 · Lesson 2 of 3");
+    expect(moduleLessonLabel(map, "e")).toBe("Module 2 · Lesson 2 of 2");
+    expect(moduleLessonLabel(map, "nope")).toBeNull();
   });
 });

@@ -49,7 +49,7 @@ function TopicTile({ node, color }: { node: MapTopic; color: string }) {
   const label = topicTileLabel(node);
   const body = (
     <span
-      className={`flex h-full flex-col rounded-xl p-3 transition ${state === "locked" || state === "planned" ? "opacity-50" : "hover:-translate-y-0.5"}`}
+      className={`flex h-full flex-col rounded-xl p-3 transition ${state === "planned" ? "opacity-50" : state === "locked" ? "opacity-60 hover:-translate-y-0.5" : "hover:-translate-y-0.5"}`}
       style={{
         background: state === "done" ? `${color}30` : "rgb(255 255 255 / 0.04)",
         boxShadow: state === "current" ? `inset 0 0 0 2px ${color}, 0 0 22px -4px ${color}` : `inset 0 0 0 1px ${state === "done" ? color : "rgb(255 255 255 / 0.1)"}`,
@@ -64,7 +64,8 @@ function TopicTile({ node, color }: { node: MapTopic; color: string }) {
       {state === "planned" && <span className="mt-1 text-[11px] text-slate-400">Coming soon</span>}
     </span>
   );
-  if (!node.lesson || state === "locked") return <span aria-label={label} className="block h-full">{body}</span>;
+  // Locked tiles still link: the lesson opens with a soft gate rather than a wall.
+  if (!node.lesson) return <span aria-label={label} className="block h-full">{body}</span>;
   return (
     <Link href={href(`/lesson/${node.lesson}`)} aria-label={label} aria-current={state === "current" ? "step" : undefined} className="block h-full rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300">
       {body}
