@@ -1,6 +1,7 @@
 "use client";
 
-import Link from "next/link";
+import { ArrowRight, CheckCircle2, Code2, RotateCcw, Zap } from "lucide-react";
+import { NextSteps, PageIntro, PageSkeleton } from "@/components/shell/PageIntro";
 import { ScenarioPlay } from "@/components/scenarios/ScenarioPlay";
 import { gradeFor } from "@/engine/scenarios";
 import { useState, useSyncExternalStore } from "react";
@@ -23,15 +24,11 @@ export default function DailyReview() {
   return (
     <>
       <AppBar />
-      <main className="mx-auto w-full max-w-2xl px-4 py-6 text-base sm:py-10">
-        <Link href="/" className="text-sm font-bold text-sky-300 hover:text-sky-200">
-          ← Home
-        </Link>
-        <h1 className="mt-2 text-3xl font-black text-white">🔁 Quick refresher</h1>
-        <p className="mt-1 text-base text-slate-300">
-          Questions you missed, a few new questions, flashcards, and coding exercises from all your courses, mixed together. Each one comes back just before you&apos;d forget it.
-        </p>
-        {mounted ? <Session /> : <div className="mt-6 h-64 rounded-3xl bg-slate-900/40" aria-hidden />}
+      <main className="mx-auto w-full max-w-5xl px-4 py-6 text-base sm:py-10">
+        <PageIntro icon={RotateCcw} title="Quick refresher">
+          Questions you missed, a few new ones, flashcards and coding exercises from all your courses, mixed together. Each comes back just before you&apos;d forget it.
+        </PageIntro>
+        {mounted ? <Session /> : <PageSkeleton />}
       </main>
     </>
   );
@@ -46,26 +43,27 @@ function Session() {
 
   if (queue.length === 0) {
     return (
-      <div className="mt-6 rounded-3xl border-2 border-emerald-400/30 bg-slate-900/70 p-6">
-        <div className="text-xl font-black text-white">Nothing to review yet</div>
-        <p className="mt-1 text-base text-slate-300">A refresher asks about things you&apos;ve already learned. Finish a lesson and it will show up here when it&apos;s time.</p>
-        <Link href="/" className="mt-4 inline-block rounded-2xl bg-sky-400 px-5 py-2.5 font-black text-slate-950">
-          Back to today&apos;s lesson
-        </Link>
-      </div>
+      <NextSteps
+        icon={CheckCircle2}
+        title="Nothing due right now"
+        line="A refresher asks about things you've already learned, right before they fade. Learn something new today and it will show up here when it's time."
+        primary={{ href: "/", label: "Go to today's plan", icon: ArrowRight }}
+        more={[
+          { href: "/warmup", label: "Daily code warm-up", icon: Zap, line: "Six quick code games, about 5 minutes." },
+          { href: "/code", label: "Browse code tracks", icon: Code2, line: "Pick a language or interview topic." },
+        ]}
+      />
     );
   }
   if (i >= queue.length) {
     return (
-      <div className="mt-6 rounded-3xl border-2 border-emerald-400/30 bg-slate-900/70 p-6">
-        <div className="text-xl font-black text-white">Review done ✅</div>
-        <p className="mt-1 text-base text-slate-300">
-          {queue.length} items reviewed, {right} remembered. They&apos;re scheduled to come back when they&apos;re about to fade.
-        </p>
-        <Link href="/" className="mt-4 inline-block rounded-2xl bg-sky-400 px-5 py-2.5 font-black text-slate-950">
-          Back to today&apos;s plan
-        </Link>
-      </div>
+      <NextSteps
+        icon={CheckCircle2}
+        title="Review done. Nice steady work."
+        line={`${queue.length} items reviewed, ${right} remembered. Each one is scheduled to come back right before it fades.`}
+        primary={{ href: "/", label: "Back to today's plan", icon: ArrowRight }}
+        more={[{ href: "/warmup", label: "Daily code warm-up", icon: Zap, line: "Six quick code games, about 5 minutes." }]}
+      />
     );
   }
 
@@ -81,8 +79,8 @@ function Session() {
   };
 
   return (
-    <div className="mt-6">
-      <div className="mb-2 flex items-center justify-between text-sm text-slate-300">
+    <div className="mt-6 max-w-3xl">
+      <div className="mb-2 flex items-center justify-between text-sm text-muted-foreground">
         <span>
           {i + 1} / {queue.length}
         </span>
