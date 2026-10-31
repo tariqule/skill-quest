@@ -34,15 +34,15 @@ export function BrandLink({ compact = false }: { compact?: boolean }) {
 }
 
 export const NAV = [
-  { href: "/", label: "Courses" },
-  { href: "/code", label: "Code" },
-  { href: "/daily", label: "Review" },
+  { href: "/", label: "Courses", match: ["/", "/c", "/credits"] },
+  { href: "/code", label: "Code", match: ["/code"] },
+  { href: "/daily", label: "Practice", match: ["/daily", "/warmup"] },
 ] as const;
 
-/** Which nav item is current for a path. */
+/** Which nav item is current for a path: every top-level route maps to one item. */
 export function activeNav(path: string): string | null {
-  if (path === "/") return "/";
-  const hit = NAV.find((n) => n.href !== "/" && (path === n.href || path.startsWith(`${n.href}/`)));
+  const clean = path.split(/[?#]/)[0].replace(/\/+$/, "") || "/";
+  const hit = NAV.find((n) => n.match.some((m) => (m === "/" ? clean === "/" : clean === m || clean.startsWith(`${m}/`))));
   return hit?.href ?? null;
 }
 
