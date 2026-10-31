@@ -79,7 +79,7 @@ describe("design tokens", () => {
 });
 
 /** Token-usage guard for redesigned code: no raw hex colours or sub-14px text. */
-const GUARDED_DIRS = ["../components/ui", "../components/providers", "../lib"];
+const GUARDED_DIRS = ["../components/ui", "../components/providers", "../lib", "../components/home", "../components/shell"];
 function files(dir: string): string[] {
   return readdirSync(dir).flatMap((f) => {
     const p = join(dir, f);
@@ -98,3 +98,22 @@ describe("token usage in redesigned code", () => {
     expect(bad).toEqual([]);
   });
 });
+
+/** PR B: the shell and home use Lucide icons and calm surfaces. */
+const PR_B_FILES = ["../components/Hud.tsx", "../app/page.tsx", "../components/Lifecycle.tsx"];
+describe("shell and home stay calm", () => {
+  const all = [...GUARDED_DIRS.slice(3).flatMap((d) => files(join(__dirname, d))), ...PR_B_FILES.map((f) => join(__dirname, f))];
+  const EMOJI = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{23F0}-\u{23FF}]/u;
+  it("uses icons, not emoji", () => {
+    expect(all.filter((f) => EMOJI.test(readFileSync(f, "utf8")))).toEqual([]);
+  });
+  it("has no text-xs or sub-14px text", () => {
+    expect(all.filter((f) => /\btext-(?:xs|\[(?:[0-9]|1[0-3])px\])\b/.test(readFileSync(f, "utf8")))).toEqual([]);
+  });
+  it("retires code rain, glitch, the blinking cursor and the starfield", () => {
+    const app = files(join(__dirname, "../app")).concat(files(join(__dirname, "../components/code")));
+    const bad = app.filter((f) => /<CodeRain|<Starfield|\bglitch\b|cursor-blink/.test(readFileSync(f, "utf8")));
+    expect(bad).toEqual([]);
+  });
+});
+
