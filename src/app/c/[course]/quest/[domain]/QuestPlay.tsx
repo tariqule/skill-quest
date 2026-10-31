@@ -8,6 +8,7 @@ import { useCourse, useLevelPool } from "@/engine/course-context";
 import { courseCopy } from "@/engine/copy";
 import { levelDeck, questStars, taughtPool } from "@/engine/game";
 import { LEVEL_BY_ID, levelSplit } from "@/engine/levels";
+import { finishedTopicPool } from "@/engine/practice";
 
 export function QuestPlay() {
   const { domain: domainId } = useParams<{ domain: string }>();
@@ -29,9 +30,10 @@ export function QuestPlay() {
         hearts={hearts}
         baseXp={course.config.xp.questCorrect}
         startLabel="Begin trial"
+        emptyMessage={<p>No questions here yet. Trials only ask about topics you have finished, so finish a lesson in this world first.</p>}
         buildDeck={() => {
           const s = store.get();
-          return levelDeck(course, level, taughtPool(pool, [...s.lessonsDone, ...s.studied]), length);
+          return levelDeck(course, level, finishedTopicPool(course, pool, s, (all) => taughtPool(all, [...s.lessonsDone, ...s.studied])), length);
         }}
         onComplete={(r) => {
           const stars = questStars(course, r);

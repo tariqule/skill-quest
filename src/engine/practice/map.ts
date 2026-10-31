@@ -84,3 +84,12 @@ export function moduleLessonLabel(map: CourseMap, lessonId: string): string | nu
   const hit = topicForLesson(map, lessonId);
   return hit ? `Module ${hit.module.number} · Lesson ${hit.index + 1} of ${hit.module.topics.length}` : null;
 }
+
+/**
+ * Where "Continue" goes after a lesson in a topic course: the lesson of the map's current topic
+ * (the next one to study), or null when none is open. Following the map, not the older
+ * domain path, keeps the learner on the syllabus instead of sending them into a stand-in lesson.
+ */
+export function nextMapLesson(topics: readonly Topic[], lessonIds: ReadonlySet<string>, p: LessonProgress): string | null {
+  return courseMap(topics, lessonIds, p).current?.lesson ?? null;
+}

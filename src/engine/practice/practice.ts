@@ -96,3 +96,14 @@ export function buildPracticeDeck(course: Course, p: Pick<Progress, "lessonsDone
   const pool = unlockedQuestions(practicePool(course), new Set(order));
   return weightedSample(pool, (q) => practiceWeight(q, p, order), size, rand);
 }
+
+/**
+ * The questions a learner may be asked outside a lesson. A topic course gates by tags: only
+ * questions whose every tagged topic is finished, and nothing when none is (no fallback to the
+ * whole pool). Courses without a syllabus keep the older lesson-based rule from `legacy`.
+ */
+export function finishedTopicPool(course: Course, pool: readonly Question[], p: Pick<Progress, "lessonsDone">, legacy: (pool: Question[]) => Question[]): Question[] {
+  const topics = course.topics ?? [];
+  if (!topics.length) return legacy([...pool]);
+  return unlockedQuestions(pool, new Set(topicsDone(topics, p)));
+}

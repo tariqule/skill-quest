@@ -17,7 +17,7 @@ import { useCourse, useLevelPool, useProgress } from "@/engine/course-context";
 import { effectiveLevel, pathLessons } from "@/engine/levels";
 import { answerText, challengeDeck, isCorrect, pct, prepare, type PreparedQuestion } from "@/engine/game";
 import { buildPath } from "@/engine/path";
-import { lessonGate, moduleLessonLabel } from "@/engine/practice";
+import { lessonGate, moduleLessonLabel, nextMapLesson } from "@/engine/practice";
 
 /**
  * teach → check → done when every check is right.
@@ -133,8 +133,16 @@ export function LessonPlay() {
 
   function finish() {
     recordCompletion();
-    const { current } = buildPath(course, store.get());
-    setNextHref(href(current?.to));
+    const p = store.get();
+    if (course.topics?.length) {
+      // Topic courses follow the map, so Continue never lands in an older stand-in lesson.
+      const lessonIds = new Set(Object.values(course.lessons).flat().map((l) => l.id));
+      const nextId = nextMapLesson(course.topics, lessonIds, p);
+      setNextHref(nextId ? href(`/lesson/${nextId}`) : href());
+    } else {
+      const { current } = buildPath(course, p);
+      setNextHref(href(current?.to));
+    }
     setPhase("done");
   }
 
