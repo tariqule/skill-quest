@@ -1,68 +1,33 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState, useSyncExternalStore } from "react";
 import { AppBar } from "@/components/Hud";
 import { Catalog } from "@/components/home/Catalog";
-import { Today } from "@/components/home/Today";
-import { Galaxy3D } from "@/components/three";
-import { COURSES } from "@/courses";
+import { Hero } from "@/components/home/Hero";
+import { Today, TodaySkeleton } from "@/components/home/Today";
 import { usePlan } from "@/engine/plan-store";
 
 const noop = () => () => {};
-const WIDE = "(min-width: 768px)";
-
-function useWide() {
-  return useSyncExternalStore(
-    (l) => {
-      const m = window.matchMedia(WIDE);
-      m.addEventListener("change", l);
-      return () => m.removeEventListener("change", l);
-    },
-    () => window.matchMedia(WIDE).matches,
-    () => false,
-  );
-}
 
 export default function Home() {
-  const router = useRouter();
   const plan = usePlan();
   const mounted = useSyncExternalStore(noop, () => true, () => false);
-  const wide = useWide();
   const [filtering, setFiltering] = useState(false);
 
   return (
     <>
       <AppBar />
-      <main className="mx-auto w-full max-w-5xl px-4 py-6 text-base sm:py-10">
-        <section className="grid items-center gap-4 md:grid-cols-[1.4fr_1fr]">
-          <div className="min-w-0">
-            <h1 className="text-3xl font-black leading-tight text-white sm:text-4xl">Learn tech skills, one small step at a time.</h1>
-            <p className="mt-2 max-w-xl text-base text-slate-300 sm:text-lg">
-              Tell us what you want to learn and how much you already know. New to it? We start from zero, with short lessons you read first. Preparing for an exam or
-              interview? We plan your days.
-            </p>
-          </div>
-          {/* The 3D galaxy is decoration: only on wider screens, loaded after hydration. */}
-          {wide && (
-            <div className="min-w-0">
-              <Galaxy3D
-                items={COURSES.map((c) => ({ id: c.id, label: c.shortTitle, icon: c.provider.icon, color: c.provider.color }))}
-                onSelect={(id) => router.push(`/c/${id}`)}
-                coreColor="#38bdf8"
-                className="h-48 w-full lg:h-56"
-              />
-            </div>
-          )}
-        </section>
+      <main className="mx-auto w-full max-w-5xl px-4 py-8 text-base sm:py-12">
+        {/* Until local progress is read we can't know if there's a plan: keep the full hero and a skeleton of the card. */}
+        <Hero compact={mounted && !!plan} />
 
-        {filtering ? null : mounted ? <Today plan={plan} /> : <div className="mt-6 h-64 rounded-3xl bg-slate-900/40" aria-hidden />}
+        {filtering ? null : mounted ? <Today plan={plan} /> : <TodaySkeleton />}
 
         <Catalog onFilteringChange={setFiltering} />
 
-        <footer className="mt-12 border-t border-white/10 pt-4 text-sm text-slate-400">
-          <Link href="/credits" className="underline hover:text-slate-200">
+        <footer className="mt-12 border-t border-border pt-4 text-sm text-muted-foreground">
+          <Link href="/credits" className="underline underline-offset-4 hover:text-foreground">
             Credits and licenses
           </Link>
         </footer>

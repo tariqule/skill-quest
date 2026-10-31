@@ -1,7 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ComponentType } from "react";
+import {
+  ArrowRight,
+  BookOpen,
+  Boxes,
+  CircleCheck,
+  ClipboardCheck,
+  Flame,
+  Info,
+  Pencil,
+  Play,
+  RotateCcw,
+  Target,
+  Zap,
+  type LucideProps,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { COURSES, getCourse } from "@/courses";
 import { BUNDLE_BY_ID, targetCourses } from "@/engine/bundles";
 import { dailySessionSize } from "@/engine/daily-queue";
@@ -15,21 +33,34 @@ import type { Course } from "@/engine/types";
 import { lastLesson } from "@/engine/last-opened";
 import { hasCodeGames } from "@/engine/code-games";
 import { hasScenarios, scenariosFor } from "@/scenarios";
+import { cn } from "@/lib/utils";
 import { PlanWizard } from "./PlanWizard";
+import { effortLine, levelRingDash, paceCopy, reviewFirst, streakLabel, totalMinutes } from "./today-model";
 
 const progressOf = (c: Course) => getCourseStore(c).get();
+type Icon = ComponentType<LucideProps>;
 
-export function ReadinessRing({ value, forecast, size = 112 }: { value: number; forecast?: number; size?: number }) {
+export function ReadinessRing({ value, forecast, size = 96 }: { value: number; forecast?: number; size?: number }) {
   const r = 42;
-  const c = 2 * Math.PI * r;
-  const ring = (v: number) => `${(Math.max(0, Math.min(100, v)) / 100) * c} ${c}`;
   return (
-    <svg viewBox="0 0 100 100" width={size} height={size} role="img" aria-label={`${value}% ready${forecast !== undefined ? `, forecast ${forecast}% by exam day` : ""}`}>
-      <circle cx="50" cy="50" r={r} fill="none" stroke="#ffffff1a" strokeWidth="10" />
-      {forecast !== undefined && <circle cx="50" cy="50" r={r} fill="none" stroke="#38bdf855" strokeWidth="10" strokeDasharray={ring(forecast)} transform="rotate(-90 50 50)" strokeLinecap="round" />}
-      <circle cx="50" cy="50" r={r} fill="none" stroke="#34d399" strokeWidth="10" strokeDasharray={ring(value)} transform="rotate(-90 50 50)" strokeLinecap="round" />
-      <text x="50" y="50" textAnchor="middle" dominantBaseline="central" fill="#fff" fontSize="22" fontWeight="900">
+    <svg
+      viewBox="0 0 100 100"
+      width={size}
+      height={size}
+      className="shrink-0"
+      role="img"
+      aria-label={`${value}% ready${forecast !== undefined ? `, forecast ${forecast}% by your date` : ""}`}
+    >
+      <circle cx="50" cy="50" r={r} fill="none" strokeWidth="9" className="stroke-muted" />
+      {forecast !== undefined && (
+        <circle cx="50" cy="50" r={r} fill="none" strokeWidth="9" strokeLinecap="round" transform="rotate(-90 50 50)" className="stroke-primary/30" strokeDasharray={levelRingDash(forecast / 100, r)} />
+      )}
+      <circle cx="50" cy="50" r={r} fill="none" strokeWidth="9" strokeLinecap="round" transform="rotate(-90 50 50)" className="stroke-primary" strokeDasharray={levelRingDash(value / 100, r)} />
+      <text x="50" y="47" textAnchor="middle" dominantBaseline="central" className="fill-foreground" fontSize="22" fontWeight="700">
         {value}%
+      </text>
+      <text x="50" y="67" textAnchor="middle" dominantBaseline="central" className="fill-muted-foreground" fontSize="11">
+        ready
       </text>
     </svg>
   );
@@ -62,20 +93,22 @@ export function reviewLabel(s: SessionSize) {
   return `${s.total} ${s.total === 1 ? "question" : "questions"}`;
 }
 
-function itemLink(item: PlanItem, session: SessionSize) {
+type ItemLink = { href: string; icon: Icon; title: string; sub: string };
+
+function itemLink(item: PlanItem, session: SessionSize): ItemLink {
   switch (item.kind) {
     case "review":
-      return { href: "/daily", icon: "🔁", title: `Quick refresher · ${reviewLabel(session)}`, sub: "Short questions about things you've already learned" };
+      return { href: "/daily", icon: RotateCcw, title: `Review · ${reviewLabel(session)}`, sub: "Recall what you learned before. This is what makes it stick." };
     case "lesson":
-      return { href: `/c/${item.courseId}/lesson/${item.lessonId}`, icon: "📘", title: item.title, sub: `Lesson · ${item.courseTitle}` };
+      return { href: `/c/${item.courseId}/lesson/${item.lessonId}`, icon: BookOpen, title: item.title, sub: `Lesson · ${item.courseTitle}` };
     case "practice":
-      return { href: `/c/${item.courseId}/study`, icon: "🎯", title: `Practice your weak spots`, sub: item.courseTitle };
+      return { href: `/c/${item.courseId}/study`, icon: Target, title: "Practise the topics you find hardest", sub: item.courseTitle };
     case "mock":
-      return { href: `/c/${item.courseId}/exam`, icon: "📝", title: "Mock exam", sub: `${item.courseTitle} · final stretch` };
+      return { href: `/c/${item.courseId}/exam`, icon: ClipboardCheck, title: "Mock exam", sub: `${item.courseTitle} · final stretch` };
   }
 }
 
-/** The "Today" dashboard: countdown, readiness ring, today's plan, review due, streak, continue. */
+/** The "Today" panel: one primary action, review first, then the rest of today's plan. */
 export function Today({ plan }: { plan: StudyPlan | null }) {
   const srs = useSrs();
   useEffect(() => syncFromProgress(), []);
@@ -88,11 +121,15 @@ export function Today({ plan }: { plan: StudyPlan | null }) {
 
   if (!plan || editing) {
     return (
-      <section aria-labelledby="plan-h" className="mt-6">
-        <h2 id="plan-h" className="text-2xl font-black text-white">
-          {plan ? "Edit your plan" : "Get a plan in 30 seconds"}
+      <section aria-labelledby="plan-h" id="plan" className="mt-8 scroll-mt-20">
+        <h2 id="plan-h" className="font-heading text-h3 font-semibold text-foreground">
+          {plan ? "Edit your plan" : "Start a plan"}
         </h2>
-        {!plan && <p className="mt-1 text-base text-slate-300">Tell us what&apos;s coming up. We&apos;ll split it into a few minutes a day, with reviews timed so you remember it.</p>}
+        {!plan && (
+          <p className="mt-1 max-w-[65ch] text-base text-muted-foreground">
+            Three quick questions. We split it into a few minutes a day, with reviews timed so you remember it.
+          </p>
+        )}
         <div className="mt-4">
           <PlanWizard initial={plan} onDone={plan ? () => setEditing(false) : undefined} />
         </div>
@@ -104,85 +141,118 @@ export function Today({ plan }: { plan: StudyPlan | null }) {
   const s = todaySummary(plan, progressOf, todayKey(), due);
   // A brand-new beginner gets one calm next step, not a dashboard of reviews, games and stats.
   if (s.newLearner) return <FirstSteps plan={plan} onEdit={() => setEditing(true)} />;
-  const minutes = s.items.reduce((n, i) => n + i.minutes, 0);
-  const good = onTrack(s.forecast);
+  const items = reviewFirst(s.items);
+  const minutes = totalMinutes(items);
+  const pace = paceCopy(s.days, s.forecast, onTrack(s.forecast));
+  const courses = targetCourses(plan.target);
+  const streakText = streakLabel(streak);
+
   return (
-    <section aria-labelledby="today-h" className="mt-6 rounded-3xl border-2 border-emerald-400/30 bg-slate-900/70 p-4 sm:p-6">
-      <div className="flex flex-wrap items-start gap-4">
+    <Card render={<section aria-labelledby="today-h" />} className="mt-8 gap-0 p-4 sm:p-6">
+      <div className="flex items-start gap-4">
         <ReadinessRing value={s.readiness} forecast={plan.date ? s.forecast : undefined} />
         <div className="min-w-0 flex-1">
-          <h2 id="today-h" className="text-sm font-black uppercase tracking-[0.2em] text-emerald-300">
+          <h2 id="today-h" className="text-sm font-semibold uppercase tracking-wider text-primary">
             Today
           </h2>
-          <div className="mt-1 text-xl font-black text-white sm:text-2xl">{targetName(plan.target)}</div>
-          <p className="mt-1 text-base text-slate-300">
-            {s.days === null
-              ? "No date set · steady pace"
-              : s.days < 0
-                ? `Your date (${formatDate(plan.date!)}) has passed. Set a new one?`
-                : s.days === 0
-                  ? "It's today. Good luck! 🍀"
-                  : `${s.days} day${s.days === 1 ? "" : "s"} to go · ${formatDate(plan.date!)}`}
+          <p className="mt-1 font-heading text-h4 font-semibold text-foreground">{targetName(plan.target)}</p>
+          <p className="mt-1 text-base text-muted-foreground">
+            {pace.line}
+            {plan.date && s.days !== null && s.days > 0 ? ` · ${formatDate(plan.date)}` : ""}
           </p>
-          {plan.date && s.days !== null && s.days > 0 && (
-            <p className={`mt-1 text-base font-bold ${good ? "text-emerald-300" : "text-amber-300"}`}>
-              {good ? "✅ On track" : "⚠️ Behind"} · forecast {s.forecast}% ready by then
-              {!good && " · try more minutes a day"}
+          {pace.pace && (
+            <p className={cn("mt-1 flex items-start gap-1.5 text-sm", pace.tone === "good" ? "text-success-foreground" : "text-info-foreground")}>
+              {pace.tone === "good" ? <CircleCheck className="mt-0.5 size-4 shrink-0" aria-hidden /> : <Info className="mt-0.5 size-4 shrink-0" aria-hidden />}
+              {pace.pace}
             </p>
           )}
-          <p className="mt-1 text-sm text-slate-400">
-            {s.total - s.remaining}/{s.total} lessons done · 🔥 {streak}-day streak
-          </p>
         </div>
-        <button type="button" onClick={() => setEditing(true)} className="rounded-xl border border-white/20 px-3 py-2 text-sm font-bold text-slate-200 hover:border-white/40">
+        <Button variant="ghost" size="sm" onClick={() => setEditing(true)} className="hidden sm:inline-flex">
+          <Pencil aria-hidden />
           Edit plan
-        </button>
+        </Button>
       </div>
 
       {plan.level === "beginner" && s.done >= EASE_IN_LESSONS && s.done < EASE_IN_LESSONS + 2 && (
-        <p className="mt-3 rounded-xl border border-emerald-400/30 bg-emerald-400/10 px-3 py-2 text-base text-emerald-100">
-          🎉 Nice work. Quick refreshers, practice games and your progress are unlocked now.
+        <p className="mt-4 rounded-md border border-success/30 bg-success/10 px-3 py-2 text-sm text-foreground">
+          You&apos;ve read {s.done} lessons. Reviews, practice games and your progress are open now.
         </p>
       )}
 
-      <ContinueButton first={s.items[0] ? itemLink(s.items[0], session) : null} planCourses={targetCourses(plan.target)} />
+      <ContinueButton first={items[0] ? itemLink(items[0], session) : null} planCourses={courses} />
 
-      <h3 className="mt-5 text-base font-black text-white">
-        Today&apos;s plan · about {minutes} min
-      </h3>
+      <div className="mt-6 flex items-baseline justify-between gap-2">
+        <h3 className="text-base font-semibold text-foreground">Today&apos;s plan</h3>
+        <span className="text-sm text-muted-foreground">about {minutes} min</span>
+      </div>
       <ol className="mt-2 grid gap-2">
-        {s.items.map((item, i) => {
-          const l = itemLink(item, session);
-          return (
-            <li key={i}>
-              <Link href={l.href} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/50 p-3 transition hover:border-emerald-400/60">
-                <span className="text-2xl" aria-hidden>
-                  {l.icon}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-base font-bold text-white">{l.title}</span>
-                  <span className="block truncate text-sm text-slate-400">{l.sub}</span>
-                </span>
-                <span className="shrink-0 text-sm text-slate-300">{item.minutes} min</span>
-              </Link>
+        {items.map((item, i) => (
+          <li key={i}>
+            <PlanRow link={itemLink(item, session)} minutes={item.minutes} highlight={item.kind === "review"} />
+          </li>
+        ))}
+        {items.length === 0 && <li className="text-base text-muted-foreground">Every lesson in your plan is done. A mock exam or a review keeps it fresh.</li>}
+        {plan.goal === "interview" &&
+          courses.some((id) => {
+            const c = getCourse(id);
+            return !!c && hasCodeGames(c);
+          }) && (
+            <li>
+              <PlanRow link={{ href: "/warmup", icon: Zap, title: "Daily code warm-up", sub: "6 mixed code games: Parsons, Spot the Bug, Predict the Output" }} minutes={5} />
             </li>
-          );
-        })}
-        {s.items.length === 0 && <li className="text-base text-slate-300">All caught up. Every lesson is done. Try a practice exam or the quick refresher. 🎉</li>}
+          )}
+        <ScenarioRow courseIds={courses} />
       </ol>
-      {plan.goal === "interview" && targetCourses(plan.target).some((id) => { const c = getCourse(id); return !!c && hasCodeGames(c); }) && (
-        <Link href="/warmup" className="mt-3 flex items-center gap-3 rounded-2xl border border-sky-400/40 bg-sky-400/10 p-3 transition hover:border-sky-300">
-          <span className="text-2xl" aria-hidden>⚡</span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-base font-bold text-white">Daily code warm-up</span>
-            <span className="block text-sm text-slate-400">6 mixed code games · Parsons, Spot the Bug, Predict the Output</span>
+
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4 text-sm text-muted-foreground">
+        <span>{effortLine(s.done, s.total)}</span>
+        {streakText && (
+          <span className="flex items-center gap-1 text-reward">
+            <Flame className="size-4" aria-hidden />
+            {streakText}
           </span>
-          <span className="shrink-0 text-sm text-slate-300">5 min</span>
-        </Link>
+        )}
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {!items.some((i) => i.kind === "review") && session.total > 0 && (
+          <Button variant="outline" render={<Link href="/daily" />}>
+            <RotateCcw aria-hidden />
+            Review · {reviewLabel(session)}
+          </Button>
+        )}
+        {recent && !courses.includes(recent.id) && (
+          <Button variant="outline" render={<Link href={`/c/${recent.id}`} />}>
+            Continue {recent.shortTitle}
+          </Button>
+        )}
+        <Button variant="ghost" onClick={() => setEditing(true)} className="sm:hidden">
+          <Pencil aria-hidden />
+          Edit plan
+        </Button>
+      </div>
+    </Card>
+  );
+}
+
+function PlanRow({ link, minutes, highlight = false }: { link: ItemLink; minutes: number; highlight?: boolean }) {
+  const Icon = link.icon;
+  return (
+    <Link
+      href={link.href}
+      className={cn(
+        "flex min-h-14 items-center gap-3 rounded-card border p-3 outline-none transition-colors duration-150 hover:border-primary/60 hover:bg-accent/40 focus-visible:ring-2 focus-visible:ring-ring",
+        highlight ? "border-primary/40 bg-primary/5" : "border-border",
       )}
-      <ScenarioCard courseIds={targetCourses(plan.target)} />
-      <QuickLinks session={session} recent={recent} streak={null} review={!s.items.some((i) => i.kind === "review")} />
-    </section>
+    >
+      <span className={cn("flex size-9 shrink-0 items-center justify-center rounded-md", highlight ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground")}>
+        <Icon className="size-5" aria-hidden />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-base font-medium text-foreground">{link.title}</span>
+        <span className="block truncate text-sm text-muted-foreground">{link.sub}</span>
+      </span>
+      <span className="shrink-0 text-sm text-muted-foreground">{minutes} min</span>
+    </Link>
   );
 }
 
@@ -191,86 +261,115 @@ function FirstSteps({ plan, onEdit }: { plan: StudyPlan; onEdit: () => void }) {
   const step = nextStep(plan, progressOf);
   const course = planCourses(plan)[0];
   return (
-    <section aria-labelledby="first-h" className="mt-6 rounded-3xl border-2 border-emerald-400/30 bg-slate-900/70 p-5 sm:p-8">
+    <Card render={<section aria-labelledby="first-h" />} className="mt-8 p-5 sm:p-8">
       <div className="flex items-start gap-3">
         <div className="min-w-0 flex-1">
-          <h2 id="first-h" className="text-sm font-black uppercase tracking-[0.2em] text-emerald-300">
+          <h2 id="first-h" className="text-sm font-semibold uppercase tracking-wider text-primary">
             {step?.isFirst === false ? "Your next lesson" : "Your first lesson"}
           </h2>
-          <div className="mt-1 text-2xl font-black text-white sm:text-3xl">{step?.title ?? targetName(plan.target)}</div>
-          <p className="mt-1 text-base text-slate-400">
+          <p className="mt-1 font-heading text-h3 font-semibold text-foreground">{step?.title ?? targetName(plan.target)}</p>
+          <p className="mt-1 text-base text-muted-foreground">
             {targetName(plan.target)}
             {step ? ` · Lesson ${step.number} of ${step.total}` : ""}
           </p>
         </div>
-        <button type="button" onClick={onEdit} className="shrink-0 rounded-xl border border-white/20 px-3 py-2 text-sm font-bold text-slate-200 hover:border-white/40">
-          Edit plan
-        </button>
+        <Button variant="ghost" size="sm" onClick={onEdit}>
+          <Pencil aria-hidden />
+          <span className="hidden sm:inline">Edit plan</span>
+          <span className="sr-only sm:hidden">Edit plan</span>
+        </Button>
       </div>
-      <p className="mt-4 text-lg leading-relaxed text-slate-200">
+      <p className="mt-4 max-w-[65ch] text-body text-foreground/90">
         We&apos;ll go one small idea at a time. You read a little first, and there are no tests until you&apos;ve read it.
       </p>
-      <Link
-        href={step?.href ?? (course ? `/c/${course.id}` : "/")}
-        className="mt-5 flex items-center justify-center gap-2 rounded-2xl bg-emerald-400 px-5 py-4 text-xl font-black text-slate-950 hover:bg-emerald-300"
-      >
-        ▶ Start lesson <span aria-hidden>→</span>
-      </Link>
-      <p className="mt-3 text-center text-sm text-slate-500">About 5 minutes. You can stop any time and come back.</p>
-    </section>
+      <Button size="xl" className="mt-5 w-full sm:w-auto" render={<Link href={step?.href ?? (course ? `/c/${course.id}` : "/")} />}>
+        <Play aria-hidden />
+        {step?.isFirst === false ? "Continue lesson" : "Start lesson"}
+        <ArrowRight aria-hidden />
+      </Button>
+      <p className="mt-3 text-sm text-muted-foreground">About 5 minutes. You can stop any time and pick up where you left off.</p>
+    </Card>
   );
 }
 
-function QuickLinks({ session, recent, streak, review = true }: { session: SessionSize; recent: Course | null; streak: number | null; review?: boolean }) {
+function QuickLinks({ session, recent, streak }: { session: SessionSize; recent: Course | null; streak: number }) {
+  const streakText = streakLabel(streak);
   return (
-    <div className="mt-4 flex flex-wrap gap-2">
-      {review && (
-        <Link href="/daily" className="rounded-2xl bg-emerald-400 px-4 py-2.5 text-base font-black text-slate-950 hover:bg-emerald-300">
-          🔁 Quick refresher{session.total > 0 ? ` · ${reviewLabel(session)}` : ""}
-        </Link>
+    <div className="mt-4 flex flex-wrap items-center gap-2">
+      {session.total > 0 && (
+        <Button variant="outline" render={<Link href="/daily" />}>
+          <RotateCcw aria-hidden />
+          Review · {reviewLabel(session)}
+        </Button>
       )}
       {recent && (
-        <Link href={`/c/${recent.id}`} className="rounded-2xl border border-white/20 px-4 py-2.5 text-base font-bold text-white hover:border-white/40">
-          {recent.provider.icon} Continue {recent.shortTitle} →
-        </Link>
+        <Button variant="outline" render={<Link href={`/c/${recent.id}`} />}>
+          Continue {recent.shortTitle}
+          <ArrowRight aria-hidden />
+        </Button>
       )}
-      {streak !== null && streak > 0 && <span className="self-center text-base text-slate-300">🔥 {streak}-day streak</span>}
+      {streakText && (
+        <span className="flex items-center gap-1 text-sm text-reward">
+          <Flame className="size-4" aria-hidden />
+          {streakText}
+        </span>
+      )}
     </div>
   );
 }
 
-/** One obvious next step: the last lesson opened in a plan course (else any course), else the first plan item. */
-function ContinueButton({ first, planCourses }: { first: ReturnType<typeof itemLink> | null; planCourses: string[] }) {
+/** The single primary action: the last lesson opened in a plan course, else the first plan item (review first). */
+function ContinueButton({ first, planCourses }: { first: ItemLink | null; planCourses: string[] }) {
   const last = lastLesson(planCourses);
   const course = last ? getCourse(last.courseId) : null;
   const target = course && last ? { href: `/c/${course.id}/lesson/${last.lessonId}`, title: last.title, sub: course.shortTitle } : first;
   if (!target) return null;
   return (
-    <Link href={target.href} className="mt-5 flex items-center gap-3 rounded-2xl bg-emerald-400 px-4 py-3 text-slate-950 hover:bg-emerald-300">
-      <span className="text-lg font-black">▶ Continue</span>
-      <span className="min-w-0 flex-1 truncate text-base font-bold">
+    <Button size="xl" className="mt-5 h-auto min-h-12 w-full justify-start py-2 text-left" render={<Link href={target.href} />}>
+      <Play aria-hidden />
+      <span className="font-semibold">Continue</span>
+      <span className="min-w-0 flex-1 truncate font-normal opacity-90">
         {target.title} · {target.sub}
       </span>
-      <span aria-hidden className="text-lg font-black">→</span>
-    </Link>
+      <ArrowRight aria-hidden />
+    </Button>
   );
 }
 
-/** Home plan card for the Phase 4 scenario games, pointing at the first planned course that has them. */
-function ScenarioCard({ courseIds }: { courseIds: string[] }) {
+/** Plan row for the scenario games, pointing at the first planned course that has them. */
+function ScenarioRow({ courseIds }: { courseIds: string[] }) {
   const id = courseIds.find(hasScenarios);
   const course = id ? getCourse(id) : undefined;
   if (!id || !course) return null;
   const kinds = new Set(scenariosFor(id).map((x) => x.type));
-  const names = [kinds.has("architect") && "Architecture Builder", kinds.has("chain") && "Scenario Chains", kinds.has("matcher") && "Service Matcher", kinds.has("interview") && "Mock Interview"].filter(Boolean).join(", ");
+  const names = [kinds.has("architect") && "Architecture Builder", kinds.has("chain") && "Scenario Chains", kinds.has("matcher") && "Service Matcher", kinds.has("interview") && "Mock Interview"]
+    .filter(Boolean)
+    .join(", ");
   return (
-    <Link href={`/c/${id}/scenarios`} className="mt-3 flex items-center gap-3 rounded-2xl border border-emerald-400/40 bg-emerald-400/10 p-3 transition hover:border-emerald-300">
-      <span className="text-2xl" aria-hidden>🏗️</span>
-      <span className="min-w-0 flex-1">
-        <span className="block text-base font-bold text-white">Scenario games · {course.shortTitle}</span>
-        <span className="block text-sm text-slate-400">{names}</span>
-      </span>
-      <span className="shrink-0 text-sm text-slate-300">10 min</span>
-    </Link>
+    <li>
+      <PlanRow link={{ href: `/c/${id}/scenarios`, icon: Boxes, title: `Scenario games · ${course.shortTitle}`, sub: names }} minutes={10} />
+    </li>
+  );
+}
+
+/** Same footprint as the plan card, shown until local progress is read (no empty-box flash). */
+export function TodaySkeleton() {
+  return (
+    <div className="mt-8 rounded-2xl border border-border p-4 sm:p-6" aria-busy="true" aria-label="Loading your plan">
+      <div className="flex items-start gap-4">
+        <Skeleton className="size-24 rounded-full" />
+        <div className="flex-1 space-y-2 pt-1">
+          <Skeleton className="h-4 w-16" />
+          <Skeleton className="h-6 w-3/4" />
+          <Skeleton className="h-4 w-1/2" />
+        </div>
+      </div>
+      <Skeleton className="mt-5 h-12 w-full rounded-lg" />
+      <div className="mt-6 space-y-2">
+        <Skeleton className="h-14 w-full rounded-card" />
+        <Skeleton className="h-14 w-full rounded-card" />
+        <Skeleton className="h-14 w-full rounded-card" />
+      </div>
+    </div>
   );
 }
