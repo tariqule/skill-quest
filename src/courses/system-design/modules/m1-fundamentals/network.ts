@@ -16,7 +16,8 @@ const topic: TopicContent = {
   screens: [
     { kind: "idea", text: "Computers find each other by **IP address**, a number like 203.0.113.7. People type names like example.com instead." },
     { kind: "idea", text: "**DNS** is the internet's phone book. It turns a name into an IP address, and the answer is remembered for a while so the lookup isn't repeated every time." },
-    { kind: "idea", text: "**TCP** opens a connection that delivers bytes in order and resends anything lost. Opening it costs one **round trip**: a message there and a reply back." },
+    { kind: "idea", text: "**TCP** opens a connection that delivers bytes in order and resends anything lost, so the app never sees gaps or shuffled data." },
+    { kind: "idea", text: "A **round trip** is a message there and a reply back. Opening a TCP connection costs one, before any real data moves." },
     { kind: "idea", text: "**TLS** encrypts the connection so nobody in between can read or change it. That's the S in HTTPS, and it adds at least one more round trip to set up." },
     { kind: "idea", text: "**HTTP** is the language of the request itself: a method like GET or POST, a path like /messages, headers, and a status code such as 200 OK or 404 Not Found in the response." },
     {
@@ -77,7 +78,7 @@ const topic: TopicContent = {
       kind: "mcq",
       id: "t-network-p1",
       prompt: "A response comes back with status 404. What does that tell the client?",
-      options: ["Everything worked", "The server crashed", "The thing asked for wasn't found", "The connection was encrypted"],
+      options: ["Everything worked", "The server crashed while answering", "The thing asked for wasn't found", "The connection was encrypted"],
       answer: 2,
       explanation: "404 means Not Found. 200 means OK, and 5xx codes mean the server failed.",
     },

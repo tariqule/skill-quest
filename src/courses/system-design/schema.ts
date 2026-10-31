@@ -1,6 +1,11 @@
-import { LONGEST_OPTION_RATIO } from "@/engine/validate";
 import { BANNED_CHARACTERS, MAX_POINT_WORDS, PROSE_SHORTHAND } from "@/engine/voice";
 
+
+/**
+ * How many characters the right option may run past the longest wrong one. Tighter than the
+ * engine-wide ratio: the browser tests showed a 20% lead is still easy to spot on short options.
+ */
+export const LONGEST_MARGIN = 3;
 /**
  * The shape of one topic's content. Topic files are plain data (no React), so they can be
  * validated, counted and tested without rendering anything.
@@ -14,7 +19,7 @@ export type Visual =
   | { kind: "code"; lang: string; code: string; caption?: string };
 
 /** One screen teaches one idea. A worked example walks through a calculation or a trace. */
-export type Screen = { kind: "idea"; text: string } | { kind: "example"; title: string; steps: readonly string[] };
+export type Screen = { kind: "idea"; text: string; visual?: Visual } | { kind: "example"; title: string; steps: readonly string[] };
 
 /** One end-of-topic quiz item or practice item. */
 export type QuizItem =
@@ -64,6 +69,10 @@ export function validateTopic(t: TopicContent): string[] {
   if (t.screens.length < MIN_SCREENS) out.push(`${where}: needs at least ${MIN_SCREENS} screens`);
   if (!t.screens.some((s) => s.kind === "example")) out.push(`${where}: needs a worked example screen`);
   for (const s of t.screens) if (s.kind === "example" && s.steps.length < 2) out.push(`${where}: example "${s.title}" needs at least 2 steps`);
+  for (const s of t.screens) if (s.kind === "idea") {
+    const terms = boldTerms(s.text);
+    if (terms.length > MAX_TERMS_PER_CARD) out.push(`${where}: card "${s.text.slice(0, 40)}…" teaches ${terms.length} ideas (${terms.join(", ")}); split it so each card has one`);
+  }
   for (const text of t.screens.flatMap(readerScreens)) out.push(...proseProblems(text).map((m) => `${where}: screen "${text.slice(0, 40)}…" ${m}`));
   if (!t.sources.length) out.push(`${where}: credit at least one source`);
   for (const s of t.sources) if (!s.url.startsWith("https://")) out.push(`${where}: source "${s.title}" needs an https link`);
@@ -102,6 +111,23 @@ export function topicWarnings(t: TopicContent): string[] {
  * each stays short. Only the first step carries the title, so the steps don't read as repeats.
  * The "Step k of N" lead is what the reader keys on to drop its card-number badge (see `exampleStep`).
  */
+/** One idea per card: a card may bold one new term (plus forms of it, like "leader" in "leader-follower"). */
+export const MAX_TERMS_PER_CARD = 1;
+
+/**
+ * The distinct bolded terms on a card, a cheap stand-in for "how many ideas does this teach".
+ * Plurals and terms contained in another bolded term count once.
+ */
+/**
+ * Distinct bold spans on a card. Every span counts as its own term; only an exact repeat of the
+ * same term (case, spacing and a plural "s" aside) counts once. "leader-follower", "leader" and
+ * "followers" are three terms, not one: a word inside a longer term is still a separate idea.
+ */
+export function boldTerms(text: string): string[] {
+  const raw = [...text.matchAll(/\*\*([^*]+)\*\*/g)].map((m) => m[1].toLowerCase().trim().replace(/\s+/g, " ").replace(/([^su])s$/, "$1"));
+  return [...new Set(raw)];
+}
+
 export function readerScreens(s: Screen): string[] {
   switch (s.kind) {
     case "idea":
@@ -131,7 +157,7 @@ function itemProblems(q: QuizItem): string[] {
       if (new Set(q.options).size !== q.options.length) out.push("has duplicate options");
       const right = q.options[q.answer].length;
       const longestWrong = Math.max(...q.options.filter((_, i) => i !== q.answer).map((o) => o.length));
-      if (right > longestWrong * LONGEST_OPTION_RATIO) out.push("gives itself away: the right option is much the longest");
+      if (right > longestWrong + LONGEST_MARGIN) out.push(`gives itself away: the right option is the longest by more than ${LONGEST_MARGIN} characters (${right} vs ${longestWrong})`);
       return out;
     }
     case "tf":

@@ -16,7 +16,8 @@ const topic: TopicContent = {
   screens: [
     { kind: "idea", text: "**System design** is deciding which parts a large app needs and how they talk, so it keeps working as more people use it." },
     { kind: "idea", text: "A **client** is the thing a person holds: a phone app or a browser tab. It asks for things but keeps little data of its own." },
-    { kind: "idea", text: "A **server** is a computer that runs the app's code. It receives a **request**, does the work, and sends back a **response**." },
+    { kind: "idea", text: "A **server** is a computer that runs the app's code. It waits for work from users' phones and browsers." },
+    { kind: "idea", text: "A **request** is a message asking the server to do something, like \"show me this profile\". The server does the work, then replies with a response." },
     { kind: "idea", text: "A **database** stores data that must outlive any one request, like accounts and messages. Servers come and go; the database remembers." },
     {
       kind: "example",

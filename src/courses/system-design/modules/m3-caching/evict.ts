@@ -44,7 +44,7 @@ const topic: TopicContent = {
       kind: "mcq",
       id: "t-cache-evict-q2",
       prompt: "What does a TTL of 5 minutes on a cached copy mean?",
-      options: ["The copy expires 5 minutes after it's stored", "The cache restarts every 5 minutes", "Writes reach the database in 5 minutes", "Each key is read once per 5 minutes"],
+      options: ["The copy expires 5 minutes after it's stored", "The cache restarts every 5 minutes", "Writes reach the database within 5 minutes", "Each key can be read at most once per 5 minutes"],
       answer: 0,
       explanation: "After 5 minutes the copy expires, which caps how stale it can be.",
     },

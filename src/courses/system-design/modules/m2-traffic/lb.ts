@@ -14,10 +14,12 @@ const topic: TopicContent = {
   },
   screens: [
     { kind: "idea", text: "A **load balancer** is one address that clients talk to. Behind it sits a pool of servers, and for each request it picks which server should do the work." },
-    { kind: "idea", text: "It needs a rule for picking. **Round robin** takes turns, A then B then C, and suits servers that are alike. **Weighted round robin** gives a bigger machine more turns, say two for every one." },
+    { kind: "idea", text: "It needs a rule for picking. **Round robin** takes turns, A then B then C, and suits servers that are alike." },
+    { kind: "idea", text: "When servers differ in size, **weighted round robin** gives a bigger machine more turns, say two for every one, so each gets work in proportion to its capacity." },
     { kind: "idea", text: "**Least connections** sends each request to the server handling the fewest right now. It suits requests that vary a lot in cost, because it notices which servers are already busy." },
     { kind: "idea", text: "A **health check** is a small request the balancer sends every few seconds. A server that fails a few checks in a row stops getting traffic until it passes again." },
-    { kind: "idea", text: "A **layer 4** balancer only looks at addresses and ports, so it is fast but blind to the request. A **layer 7** balancer reads the HTTP request, so it can route by path or header." },
+    { kind: "idea", text: "A **layer 4** balancer only looks at addresses and ports. It's fast, but blind to what the request asks for." },
+    { kind: "idea", text: "A **layer 7** balancer reads the HTTP request itself, so it can route by path or header, like sending /api to one group of servers." },
     {
       kind: "example",
       title: "One slow server",

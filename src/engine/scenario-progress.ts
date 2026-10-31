@@ -16,13 +16,29 @@ const EMPTY: File = { v: 1, items: {} };
 let cache: File | null = null;
 const listeners = new Set<() => void>();
 
+/** Re-read when another tab changed or cleared this key, so a stale cache is never written back. */
+let cacheRaw: string | null = null;
+const rawNow = () => {
+  try {
+    return window.localStorage.getItem(KEY);
+  } catch {
+    return cacheRaw;
+  }
+};
+if (typeof window !== "undefined")
+  window.addEventListener("storage", (e) => {
+    if (e.key === null || e.key === KEY) listeners.forEach((l) => l());
+  });
+
 const keyOf = (courseId: string, id: string) => `${courseId}:${id}`;
 
 function read(): File {
-  if (cache) return cache;
   if (typeof window === "undefined") return EMPTY;
+  const now = rawNow();
+  if (cache && now === cacheRaw) return cache;
+  cacheRaw = now;
   try {
-    const raw = JSON.parse(window.localStorage.getItem(KEY) ?? "{}");
+    const raw = JSON.parse(now ?? "{}");
     cache = { v: 1, items: raw && typeof raw.items === "object" ? raw.items : {} };
   } catch {
     cache = { ...EMPTY };
@@ -40,7 +56,9 @@ export function recordScenario(courseId: string, id: string, share: number) {
   const f = read();
   cache = { v: 1, items: withResult(f.items, keyOf(courseId, id), share) };
   try {
-    window.localStorage.setItem(KEY, JSON.stringify(cache));
+    const raw = JSON.stringify(cache);
+    window.localStorage.setItem(KEY, raw);
+    cacheRaw = raw;
   } catch {
     // Storage blocked: keep it in memory.
   }

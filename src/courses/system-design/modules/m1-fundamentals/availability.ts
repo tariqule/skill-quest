@@ -15,11 +15,15 @@ const topic: TopicContent = {
     ],
   },
   screens: [
-    { kind: "idea", text: "**Availability** is the share of time a system works for its users. It's quoted in **nines**: 99.9% is \"three nines\" and allows about 8.8 hours of downtime a year." },
+    { kind: "idea", text: "**Availability** is the share of time a system works for its users. It's usually quoted as a percentage over a month or a year." },
+    { kind: "idea", text: "Availability is counted in **nines**: 99.9% is \"three nines\" and allows about 8.8 hours of downtime a year. Each extra nine cuts that tenfold." },
     { kind: "idea", text: "Each extra nine cuts allowed downtime by ten, and usually costs a lot more: more spare machines, more automation, more careful releases." },
-    { kind: "idea", text: "Teams agree targets in three words. An **SLI** is what you measure, say the share of requests that succeed. An **SLO** is the target for it, like 99.9% over 30 days." },
+    { kind: "idea", text: "Teams start with an **SLI**, a service level indicator: what you measure, say the share of requests that succeed." },
+    { kind: "idea", text: "An **SLO**, a service level objective, is the target for that measure, like 99.9% of requests succeeding over 30 days." },
     { kind: "idea", text: "An **SLA** is a promise to customers, with a penalty if you miss it. Keep the SLO stricter than the SLA so you notice trouble before customers are owed anything." },
-    { kind: "idea", text: "A **single point of failure** is any part whose failure takes everything down. Remove it with **redundancy**: run two or more copies, and use **failover** to switch to a healthy one automatically." },
+    { kind: "idea", text: "A **single point of failure** is any part whose failure takes everything down, like one database with no copy." },
+    { kind: "idea", text: "**Redundancy** removes it: run two or more copies of each part, so losing one leaves another still working." },
+    { kind: "idea", text: "**Failover** is switching to a healthy copy automatically when one fails, so users don't wait for a person to notice." },
     {
       kind: "example",
       title: "Parts in a chain multiply",

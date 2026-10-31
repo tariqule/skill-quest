@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCourse } from "@/engine/course-context";
+import { useHydrated } from "@/engine/hydrated";
 import { Bar } from "../ui";
 import { usePracticeSummary } from "./usePracticeSummary";
 
@@ -9,6 +10,7 @@ import { usePracticeSummary } from "./usePracticeSummary";
 export function PracticeTile() {
   const { href } = useCourse();
   const { covered, total } = usePracticeSummary();
+  const ready = useHydrated();
   if (!total) return null;
   return (
     <Link
@@ -19,10 +21,10 @@ export function PracticeTile() {
       <div className="min-w-0 flex-1">
         <div className="font-black text-white">Topic practice</div>
         <div className="text-sm text-slate-300">
-          Covers {covered.length} of {total} topics
+          {ready ? `Covers ${covered.length} of ${total} topics` : "Checking your topics…"}
         </div>
         <div className="mt-2" aria-hidden="true">
-          <Bar value={covered.length / total} color="#2dd4bf" className="h-1.5" />
+          <Bar value={ready ? covered.length / total : 0} color="#2dd4bf" className="h-1.5" />
         </div>
       </div>
       <span className="shrink-0 font-bold text-teal-200" aria-hidden="true">→</span>

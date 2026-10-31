@@ -31,7 +31,7 @@ export function LessonReader({
   onDone,
   questionCount,
 }: {
-  lesson: Pick<Lesson, "title" | "visual" | "points" | "tip" | "sources">;
+  lesson: Pick<Lesson, "title" | "visual" | "points" | "pointVisuals" | "tip" | "sources">;
   color: string;
   tipLabel: string;
   onDone: () => void;
@@ -95,6 +95,7 @@ export function LessonReader({
             <p className=" text-xl leading-relaxed text-white sm:text-2xl sm:leading-relaxed">
               <RichText text={step.text} />
             </p>
+            {lesson.pointVisuals?.[step.index] && <div className="mt-5">{lesson.pointVisuals[step.index]}</div>}
           </div>
         )}
 

@@ -8182,7 +8182,7 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
     "4",
   ],
   "d2-15": [
-    "Model the cart as a mergeable structure, such as a CRDT of added and removed items, so concurrent edits merge",
+    "Model the cart as a CRDT, so adds and removes from both regions merge",
   ],
   "d2-16": [
     "Splitting a dataset across several databases so each holds and serves only part of the keys",
@@ -8383,6 +8383,21 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
   "t-cache-q5": [
     "False",
   ],
+  "t-cap-q1": [
+    "AP",
+  ],
+  "t-cap-q2": [
+    "Latency traded against consistency",
+  ],
+  "t-cap-q3": [
+    "Seat bookings on a flight",
+  ],
+  "t-cap-q4": [
+    "True",
+  ],
+  "t-cap-q5": [
+    "False",
+  ],
   "t-cdn-q1": [
     "The edge fetches the file from the origin",
   ],
@@ -8398,6 +8413,51 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
   "t-cdn-q5": [
     "False",
   ],
+  "t-chash-q1": [
+    "The first node clockwise from the key",
+  ],
+  "t-chash-q2": [
+    "To even out each server's share",
+  ],
+  "t-chash-q3": [
+    "About 1/11",
+  ],
+  "t-chash-q4": [
+    "True",
+  ],
+  "t-chash-q5": [
+    "False",
+  ],
+  "t-consistency-q1": [
+    "W = 3, R = 3",
+  ],
+  "t-consistency-q2": [
+    "Causal consistency",
+  ],
+  "t-consistency-q3": [
+    "A test of the promise under real failures",
+  ],
+  "t-consistency-q4": [
+    "True",
+  ],
+  "t-consistency-q5": [
+    "False",
+  ],
+  "t-denorm-q1": [
+    "Updating every post's copy",
+  ],
+  "t-denorm-q2": [
+    "By function, like users and orders",
+  ],
+  "t-denorm-q3": [
+    "Reads far outnumber writes",
+  ],
+  "t-denorm-q4": [
+    "True",
+  ],
+  "t-denorm-q5": [
+    "False",
+  ],
   "t-estimation-q1": [
     "About 10,000",
   ],
@@ -8411,6 +8471,21 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
     "True",
   ],
   "t-estimation-q5": [
+    "False",
+  ],
+  "t-index-q1": [
+    "Filter by created_at only",
+  ],
+  "t-index-q2": [
+    "It appends writes and merges files later",
+  ],
+  "t-index-q3": [
+    "It holds every column the query needs",
+  ],
+  "t-index-q4": [
+    "True",
+  ],
+  "t-index-q5": [
     "False",
   ],
   "t-intro-q1": [
@@ -8503,6 +8578,21 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
   "t-ratelimit-q5": [
     "False",
   ],
+  "t-replication-q1": [
+    "Replication lag on a follower",
+  ],
+  "t-replication-q2": [
+    "A CRDT counter that merges them",
+  ],
+  "t-replication-q3": [
+    "Recent writes may be lost",
+  ],
+  "t-replication-q4": [
+    "True",
+  ],
+  "t-replication-q5": [
+    "False",
+  ],
   "t-scaling-q1": [
     "Vertical scaling",
   ],
@@ -8516,6 +8606,51 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
     "True",
   ],
   "t-scaling-q5": [
+    "False",
+  ],
+  "t-sharding-q1": [
+    "Today's writes all hit one hot shard",
+  ],
+  "t-sharding-q2": [
+    "All orders for product 99",
+  ],
+  "t-sharding-q3": [
+    "Writes update two places",
+  ],
+  "t-sharding-q4": [
+    "True",
+  ],
+  "t-sharding-q5": [
+    "False",
+  ],
+  "t-sql-nosql-q1": [
+    "A key-value store",
+  ],
+  "t-sql-nosql-q2": [
+    "The row key",
+  ],
+  "t-sql-nosql-q3": [
+    "Joins between tables",
+  ],
+  "t-sql-nosql-q4": [
+    "True",
+  ],
+  "t-sql-nosql-q5": [
+    "False",
+  ],
+  "t-transactions-q1": [
+    "A lost update",
+  ],
+  "t-transactions-q2": [
+    "It checks a version at commit and retries",
+  ],
+  "t-transactions-q3": [
+    "Write skew",
+  ],
+  "t-transactions-q4": [
+    "True",
+  ],
+  "t-transactions-q5": [
     "False",
   ],
 }

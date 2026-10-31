@@ -17,11 +17,27 @@ const EMPTY: Profile = { goal: null, level: null };
 let cache: Profile | null = null;
 const listeners = new Set<() => void>();
 
-export function getProfile(): Profile {
-  if (cache) return cache;
-  if (typeof window === "undefined") return EMPTY;
+/** Re-read when another tab changed or cleared this key, so a stale cache is never written back. */
+let cacheRaw: string | null = null;
+const rawNow = () => {
   try {
-    cache = { ...EMPTY, ...JSON.parse(window.localStorage.getItem(KEY) ?? "{}") };
+    return window.localStorage.getItem(KEY);
+  } catch {
+    return cacheRaw;
+  }
+};
+if (typeof window !== "undefined")
+  window.addEventListener("storage", (e) => {
+    if (e.key === null || e.key === KEY) listeners.forEach((l) => l());
+  });
+
+export function getProfile(): Profile {
+  if (typeof window === "undefined") return EMPTY;
+  const raw = rawNow();
+  if (cache && raw === cacheRaw) return cache;
+  cacheRaw = raw;
+  try {
+    cache = { ...EMPTY, ...JSON.parse(raw ?? "{}") };
   } catch {
     cache = EMPTY;
   }
@@ -31,7 +47,9 @@ export function getProfile(): Profile {
 export function setProfile(patch: Partial<Profile>) {
   cache = { ...getProfile(), ...patch };
   try {
-    window.localStorage.setItem(KEY, JSON.stringify(cache));
+    const raw = JSON.stringify(cache);
+    window.localStorage.setItem(KEY, raw);
+    cacheRaw = raw;
   } catch {
     // Keep it in memory if storage is blocked.
   }

@@ -102,8 +102,9 @@ export const moreQuestions: Question[] = [
     level: "junior",
     lesson: "d1-estimates",
     prompt: "Estimate the average load. Using 100,000 seconds in a day, type the requests per second (number only).",
-    code: "daily_requests = 50_000_000   # 50 million per day\nseconds_per_day = 100_000     # rounded\nqps = daily_requests / seconds_per_day",
+    code: "daily_requests = 50_000_000   # 50 million per day\nseconds_per_day = 100_000     # rounded\nqps = daily_requests // seconds_per_day\nprint(qps)",
     codeLang: "python",
+    verified: "run",
     answers: ["500"],
     explanation:
       "50,000,000 divided by 100,000 is 500 requests per second on average. With the exact 86,400 seconds it's about 579, which is close enough for sizing. Then ask about peaks: if the peak is 5 times the average, plan for about 2,500 QPS.",
@@ -115,8 +116,9 @@ export const moreQuestions: Question[] = [
     level: "intermediate",
     lesson: "d1-cache",
     prompt: "Type how many reads per second reach the database (number only).",
-    code: "reads_per_second = 1000\ncache_hit_ratio  = 0.90\n# every cache miss goes to the database",
+    code: "reads_per_second = 1000\ncache_hit_ratio  = 0.90\n# every cache miss goes to the database\nprint(round(reads_per_second * (1 - cache_hit_ratio)))",
     codeLang: "python",
+    verified: "run",
     answers: ["100"],
     explanation:
       "A 90% hit ratio means 10% of the 1,000 reads miss the cache. 10% of 1,000 is 100, so 100 reads a second reach the database. At 99% it would drop to 10, which is why small gains in hit rate matter so much when the database is the bottleneck.",
@@ -129,8 +131,9 @@ export const moreQuestions: Question[] = [
     lesson: "d2-replication",
     prompt:
       "A quorum store keeps N of 5 replicas, and writes wait for W of 2 confirmations. Type the smallest read quorum R (number only) that guarantees a read sees the latest write.",
-    code: "N = 5   # replicas\nW = 2   # write quorum\n# strong consistency requires R + W > N",
+    code: "N = 5   # replicas\nW = 2   # write quorum\n# strong consistency requires R + W > N\nR = N - W + 1   # the smallest R that still overlaps\nprint(R)",
     codeLang: "python",
+    verified: "run",
     answers: ["4"],
     explanation:
       "The replicas you read and the replicas that confirmed the write must share at least one, so R plus W must be more than N. That means R must be more than 5 minus 2, which is 3, so the smallest R is 4. A common balanced choice is 3 replicas with W and R both 2. Quorums alone don't fix every problem: sloppy quorums and clocks that disagree can still cause trouble.",
@@ -142,8 +145,9 @@ export const moreQuestions: Question[] = [
     level: "intermediate",
     lesson: "d2-sharding",
     prompt: "Type the minimum number of shards needed (number only). Count 1 TB as 1,000 GB.",
-    code: "users           = 200_000_000\nbytes_per_user  = 10_000        # 10 KB each\nmax_per_shard   = 250   # GB",
+    code: "users           = 200_000_000\nbytes_per_user  = 10_000        # 10 KB each\nmax_per_shard   = 250   # GB\ntotal_gb = users * bytes_per_user // 1_000_000_000\nprint(-(-total_gb // max_per_shard))   # round up",
     codeLang: "python",
+    verified: "run",
     answers: ["8"],
     explanation:
       "200 million users times 10 KB each is 2,000 GB, which is 2 TB. At 250 GB per shard, 2,000 divided by 250 is 8 shards. In practice you'd add room for growth and copies, and pick a shard key, such as the user id, that spreads the load evenly.",
@@ -156,8 +160,9 @@ export const moreQuestions: Question[] = [
     lesson: "d3-rate-limit",
     prompt:
       "A token bucket holds at most 10 tokens, starts full, and refills 5 tokens a second. Each request costs one token. 25 requests arrive at once at the start, and another 25 arrive at once 2 seconds later. Type the total number of requests allowed (number only).",
-    code: "capacity = 10\nrefill_per_second = 5\n# burst of 25 at t=0, burst of 25 at t=2s",
+    code: "capacity = 10\nrefill_per_second = 5\n# burst of 25 at t=0, burst of 25 at t=2s\nfirst = min(25, capacity)                        # bucket starts full\nsecond = min(25, min(capacity, refill_per_second * 2))\nprint(first + second)",
     codeLang: "python",
+    verified: "run",
     answers: ["20"],
     explanation:
       "At the start, the full bucket lets 10 through and rejects the other 15, leaving it empty. Two seconds of refilling add 10 tokens, exactly the capacity, so 10 more get through. That's 20 in total. The capacity sets how big a burst can be, and the refill rate sets the long-run average.",
@@ -170,8 +175,9 @@ export const moreQuestions: Question[] = [
     lesson: "d4-reliability",
     prompt:
       "The SLO is 99.95% availability over a 30-day month. Type the error budget as minutes of full downtime (number only).",
-    code: "minutes_in_month = 30 * 24 * 60   # 43_200\nslo = 0.9995",
+    code: "minutes_in_month = 30 * 24 * 60   # 43_200\nslo = 0.9995\nprint(round(minutes_in_month * (1 - slo), 1))",
     codeLang: "python",
+    verified: "run",
     answers: ["21.6"],
     explanation:
       "The budget is the share of time you're allowed to fail: 0.05% of the month. A 30-day month has 43,200 minutes, and 0.05% of 43,200 is 21.6 minutes. Teams spend this on deploys and experiments, and pause risky changes once it runs out. For comparison, 99.9% allows 43.2 minutes and 99.99% only about 4.3.",

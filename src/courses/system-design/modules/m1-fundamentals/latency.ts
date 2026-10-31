@@ -15,8 +15,10 @@ const topic: TopicContent = {
     ],
   },
   screens: [
-    { kind: "idea", text: "**Latency** is how long one request takes, start to finish. **Throughput** is how many requests the system finishes per second. They're different: a highway can be slow per car yet carry many cars." },
-    { kind: "idea", text: "Averages hide pain. Look at **percentiles**: p50 is the time half of requests beat; **p99** is the time 99% beat. The slowest 1% are often your busiest users." },
+    { kind: "idea", text: "**Latency** is how long one request takes, start to finish. Users feel it as the wait after they tap." },
+    { kind: "idea", text: "**Throughput** is how many requests the system finishes per second. It differs from latency: a highway can be slow per car yet carry many cars." },
+    { kind: "idea", text: "Averages hide pain, so look at **percentiles**. The p50 is the time half of requests beat, and p90 is the time 90% beat." },
+    { kind: "idea", text: "The **p99** is the time 99% of requests beat. The slowest 1% are often your busiest users, so teams watch p99 closely." },
     { kind: "idea", text: "Learn the rough speed ladder: memory about 100 ns, SSD about 100 µs, a round trip inside a data centre about 0.5 ms, across an ocean about 100 ms. Each rung is roughly a thousand times the one below." },
     { kind: "idea", text: "**Little's Law** links them: requests in flight equals arrival rate × time each one takes. It tells you how many workers or connections you need." },
     {

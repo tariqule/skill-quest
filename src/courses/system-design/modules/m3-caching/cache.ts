@@ -35,7 +35,7 @@ const topic: TopicContent = {
       kind: "mcq",
       id: "t-cache-q1",
       prompt: "In cache-aside, what does the app do on a cache miss?",
-      options: ["Returns an error to the user", "Reads the database, then fills the cache", "Waits for the cache to fill itself", "Asks the database to fill the cache"],
+      options: ["Returns an error to the user", "Reads the database, then fills the cache", "Waits for the cache to load the row by itself", "Asks the database to push the row into the cache"],
       answer: 1,
       explanation: "The app loads the data from the database, stores it in the cache for next time, and answers.",
     },
