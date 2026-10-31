@@ -20,6 +20,20 @@ import sqlNosql from "./modules/m4-data/sql-nosql";
 import transactions from "./modules/m4-data/transactions";
 import cap from "./modules/m5-consistency/cap";
 import consistency from "./modules/m5-consistency/consistency";
+import batch from "./modules/m6-messaging/batch";
+import kafkaLog from "./modules/m6-messaging/kafka-log";
+import kafkaReliability from "./modules/m6-messaging/kafka-reliability";
+import kafkaRetention from "./modules/m6-messaging/kafka-retention";
+import queues from "./modules/m6-messaging/queues";
+import stream from "./modules/m6-messaging/stream";
+import api from "./modules/m7-apis/api";
+import api2 from "./modules/m7-apis/api-2";
+import discovery from "./modules/m7-apis/discovery";
+import encoding from "./modules/m7-apis/encoding";
+import micro from "./modules/m7-apis/micro";
+import realtime from "./modules/m7-apis/realtime";
+import security from "./modules/m7-apis/security";
+import appsec from "./modules/m7-apis/appsec";
 
 /** Every written topic. Adding a topic = one file under `modules/` plus one line here. */
 export const TOPIC_CONTENT: readonly TopicContent[] = [
@@ -28,4 +42,6 @@ export const TOPIC_CONTENT: readonly TopicContent[] = [
   cache, cacheEvict,
   sqlNosql, indexes, transactions, replication, sharding, denorm, chash,
   cap, consistency,
+  queues, kafkaLog, kafkaReliability, kafkaRetention, batch, stream,
+  api, api2, encoding, realtime, micro, discovery, security, appsec,
 ];

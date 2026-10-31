@@ -58,7 +58,7 @@ const topic: TopicContent = {
       kind: "mcq",
       id: "t-consistency-q3",
       prompt: "A database's docs promise strong consistency. What does a Jepsen analysis add?",
-      options: ["A test of the promise under real failures", "A faster way to reach strong consistency", "A formal proof that the docs are correct", "A setting that switches on quorum reads"],
+      options: ["A test of the promise under real failures", "A faster way to reach strong consistency", "A formal proof that the docs are fully correct", "A setting that switches on quorum reads"],
       answer: 0,
       explanation: "Jepsen injects partitions and crashes and checks what the store really does, which can differ from the docs.",
     },

@@ -18,6 +18,9 @@ import { effectiveLevel, pathLessons } from "@/engine/levels";
 import { answerText, challengeDeck, isCorrect, pct, prepare, type PreparedQuestion } from "@/engine/game";
 import { buildPath } from "@/engine/path";
 import { lessonGate, moduleLessonLabel, nextMapLesson } from "@/engine/practice";
+import { readingKey } from "@/engine/reading";
+import { useHydrated } from "@/engine/hydrated";
+import { afterAnswer, clearQuiz, gateKey, quizKey, readGateDismissed, readQuiz, writeGateDismissed, writeQuiz } from "@/engine/lesson-session";
 
 /**
  * teach → check → done when every check is right.
@@ -62,6 +65,29 @@ export function LessonPlay() {
   const [timedDeck, setTimedDeck] = useState<PreparedQuestion[]>([]);
   const [timedRuns, setTimedRuns] = useState<TimedResult[]>([]);
 
+  const savedQuizKey = quizKey(course.id, lesson.id);
+  // A reload keeps "Continue anyway" and the quiz position. Restored on the first hydrated render
+  // (state set during render, not in an effect), so server and client render the same first frame.
+  const hydrated = useHydrated();
+  const [restoredFor, setRestoredFor] = useState<string | null>(null);
+  if (hydrated && restoredFor !== lesson.id) {
+    setRestoredFor(lesson.id);
+    if (readGateDismissed(localStorage, gateKey(course.id, lesson.id))) setGateDismissed(true);
+    const saved = readQuiz(localStorage, savedQuizKey, lesson.check);
+    if (saved) {
+      setQueue(saved.queue.map((qid) => prepare(QUESTION_BY_ID[qid])));
+      setRetried(saved.retried);
+      setMissed(saved.missed);
+      setGateDismissed(true);
+      setPhase("check");
+    }
+  }
+
+  function dismissGate() {
+    writeGateDismissed(localStorage, gateKey(course.id, lesson.id));
+    setGateDismissed(true);
+  }
+
   const challenge = gentle ? { ...course.config.lesson.timedChallenge, enabled: false } : course.config.lesson.timedChallenge;
   const lastRun = timedRuns[timedRuns.length - 1];
   const checksDone = lesson.check.length - queue.length + (submitted ? 1 : 0);
@@ -69,6 +95,7 @@ export function LessonPlay() {
 
   function startCheck() {
     setQueue(lesson.check.map((qid) => prepare(QUESTION_BY_ID[qid])));
+    writeQuiz(localStorage, savedQuizKey, { queue: [...lesson.check], retried: [], missed: [] });
     setSubmitted(null);
     setPhase("check");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -82,6 +109,8 @@ export function LessonPlay() {
     else setMissed((m) => (m.includes(q.id) ? m : [...m, q.id]));
     setLastOk(ok);
     setSubmitted(picked);
+    // Save where Continue will land, so a reload never asks this question again.
+    writeQuiz(localStorage, savedQuizKey, afterAnswer({ queue: queue.map((x) => x.id), retried, missed }, ok, requeues(q.id, ok)));
     // Record completion as soon as the final answer is in, so leaving before Continue still counts.
     const anyMissed = missed.length > 0 || !ok;
     if (queue.length === 1 && !requeues(q.id, ok) && !(challenge.enabled && anyMissed)) recordCompletion();
@@ -106,6 +135,7 @@ export function LessonPlay() {
     }
     setSubmitted(null);
     if (nextQueue.length === 0) {
+      clearQuiz(localStorage, savedQuizKey);
       const anyMissed = missed.length > 0 || !lastOk;
       return challenge.enabled && anyMissed ? goTo("recap") : finish();
     }
@@ -132,6 +162,7 @@ export function LessonPlay() {
   }
 
   function finish() {
+    clearQuiz(localStorage, savedQuizKey);
     recordCompletion();
     const p = store.get();
     if (course.topics?.length) {
@@ -180,11 +211,11 @@ export function LessonPlay() {
       </div>
 
       {phase === "teach" && gateNeeds.length > 0 && (
-        <SoftGate needs={gateNeeds} hrefFor={(l) => href(`/lesson/${l}`)} color={domain.color} onContinue={() => setGateDismissed(true)} />
+        <SoftGate needs={gateNeeds} hrefFor={(l) => href(`/lesson/${l}`)} color={domain.color} onContinue={dismissGate} />
       )}
 
       {phase === "teach" && gentle && gateNeeds.length === 0 && (
-        <LessonReader lesson={lesson} color={domain.color} tipLabel={copy.tip} questionCount={lesson.check.length} onDone={startCheck} />
+        <LessonReader lesson={lesson} color={domain.color} tipLabel={copy.tip} questionCount={lesson.check.length} onDone={startCheck} resumeKey={readingKey(course.id, lesson.id)} />
       )}
 
       {phase === "teach" && !gentle && gateNeeds.length === 0 && (

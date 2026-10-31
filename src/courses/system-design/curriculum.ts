@@ -26,7 +26,7 @@ export const MODULE_TITLES: Record<ModuleId, string> = {
   m10: "Interview method",
 };
 
-/** The full 48-topic syllabus, in study order. Prerequisites always point at earlier topics. */
+/** The full 49-topic syllabus, in study order. Prerequisites always point at earlier topics. */
 export const CURRICULUM: readonly TopicOutline[] = [
   { id: "t-intro", title: "What is system design?", module: "m1", prereqs: [], match: /\bclient|\bserver\b|request|response/i },
   { id: "t-network", title: "How a request travels", module: "m1", prereqs: ["t-intro"], match: /\bDNS\b|\bTCP\b|\bTLS\b|\bHTTP|\bIP address/i },
@@ -54,20 +54,21 @@ export const CURRICULUM: readonly TopicOutline[] = [
   { id: "t-cap", title: "CAP and PACELC", module: "m5", prereqs: ["t-replication"], match: /\bCAP\b|PACELC|network partition/i, standIns: ["d3-cap"] },
   { id: "t-consistency", title: "Consistency models", module: "m5", prereqs: ["t-cap"], match: /consisten|linearizab|read-your-writes|stale/i },
 
-  { id: "t-queues", title: "Message queues", module: "m6", prereqs: ["t-scaling"], match: /queue|consumer|producer|dead.letter|at-least-once|at-most-once/i, standIns: ["d3-start-queues", "d3-queues"] },
-  { id: "t-kafka-1", title: "Kafka: logs and partitions", module: "m6", prereqs: ["t-queues"], match: /kafka|event log|offset|partition/i },
-  { id: "t-kafka-2", title: "Kafka: consumer groups and ordering", module: "m6", prereqs: ["t-kafka-1"], match: /consumer group|rebalanc|ordering/i },
-  { id: "t-kafka-3", title: "Kafka: delivery guarantees", module: "m6", prereqs: ["t-kafka-2"], match: /exactly-once|idempotent producer|acks/i },
-  { id: "t-batch", title: "Batch processing", module: "m6", prereqs: ["t-queues"], match: /batch|map ?reduce|\bETL\b/i },
-  { id: "t-stream", title: "Stream processing", module: "m6", prereqs: ["t-kafka-1"], match: /stream processing|window|watermark/i },
+  { id: "t-queues", title: "Message queues and pub/sub", module: "m6", prereqs: ["t-scaling"], match: /queue|producer|consumer|dead.letter|pub\/sub|visibility timeout/i, standIns: ["d3-start-queues", "d3-queues"] },
+  { id: "t-kafka-1", title: "Kafka: the log", module: "m6", prereqs: ["t-queues", "t-sharding"], match: /kafka|offset|consumer group|rebalanc|consumer lag/i },
+  { id: "t-kafka-2", title: "Kafka: reliability", module: "m6", prereqs: ["t-kafka-1", "t-replication"], match: /\bISR\b|in-sync replica|\backs\b|min\.insync|exactly-once|at-least-once|at-most-once|idempotent producer/i },
+  { id: "t-kafka-3", title: "Kafka: retention and choosing", module: "m6", prereqs: ["t-kafka-2"], match: /retention|log compaction|compacted|tombstone|KRaft|replay/i },
+  { id: "t-batch", title: "Batch processing and analytics", module: "m6", prereqs: ["t-sql-nosql", "t-index"], match: /batch|map ?reduce|\bETL\b|\bOLAP\b|warehouse|column storage/i },
+  { id: "t-stream", title: "Stream processing basics", module: "m6", prereqs: ["t-kafka-3"], match: /stream processing|tumbling|sliding window|event time|watermark/i },
 
-  { id: "t-api", title: "API design", module: "m7", prereqs: ["t-network"], match: /\bAPI\b|REST|endpoint|idempoten|pagination|versioning/i, standIns: ["d4-start-api", "d4-api", "d3-idempotency"] },
-  { id: "t-api-2", title: "gRPC and GraphQL", module: "m7", prereqs: ["t-api"], match: /grpc|graphql|protobuf/i },
-  { id: "t-encoding", title: "Encoding and schema evolution", module: "m7", prereqs: ["t-api"], match: /encoding|avro|schema evolution|backward compat/i },
-  { id: "t-realtime", title: "Real-time delivery", module: "m7", prereqs: ["t-api"], match: /websocket|long poll|server-sent|push|real-time/i, standIns: ["d4-feed-chat"] },
-  { id: "t-micro", title: "Microservices", module: "m7", prereqs: ["t-api"], match: /microservice|monolith|service boundar/i },
-  { id: "t-discovery", title: "Service discovery", module: "m7", prereqs: ["t-micro"], match: /service discovery|registry|service mesh|sidecar/i },
-  { id: "t-security", title: "Authentication and security", module: "m7", prereqs: ["t-api"], match: /auth|OAuth|JWT|TLS|encrypt/i },
+  { id: "t-api", title: "REST, GraphQL, gRPC", module: "m7", prereqs: ["t-network"], match: /\bAPI\b|REST|endpoint|grpc|graphql|over-fetch|under-fetch/i, standIns: ["d4-start-api", "d4-api", "d3-idempotency"] },
+  { id: "t-api-2", title: "Pagination, idempotency, versioning", module: "m7", prereqs: ["t-api", "t-index"], match: /idempoten|paginat|cursor|keyset|versioning|deprecat/i },
+  { id: "t-encoding", title: "Encoding and schema evolution", module: "m7", prereqs: ["t-api"], match: /encoding|protobuf|avro|schema evolution|schema registry|backward compat|forward compat/i },
+  { id: "t-realtime", title: "Real-time delivery", module: "m7", prereqs: ["t-api"], match: /websocket|long poll|server-sent|push notification|real-time/i, standIns: ["d4-feed-chat"] },
+  { id: "t-micro", title: "Monoliths vs microservices", module: "m7", prereqs: ["t-api"], match: /microservice|monolith|strangler|service boundar/i },
+  { id: "t-discovery", title: "Service discovery", module: "m7", prereqs: ["t-micro", "t-lb"], match: /service discovery|service registry|consul|etcd/i },
+  { id: "t-security", title: "Security basics for designs", module: "m7", prereqs: ["t-api", "t-proxy"], match: /auth|OAuth|JWT|TLS|encrypt|certificate/i },
+  { id: "t-appsec", title: "Security: least privilege and input", module: "m7", prereqs: ["t-security", "t-sql-nosql"], match: /SQL injection|least privilege|input validation|parameteri[sz]ed/i },
 
   { id: "t-fault", title: "Retries, timeouts and circuit breakers", module: "m8", prereqs: ["t-availability"], match: /retr|timeout|backoff|jitter|circuit breaker/i, standIns: ["d3-start-retries"] },
   { id: "t-overload", title: "Overload and backpressure", module: "m8", prereqs: ["t-fault"], match: /overload|backpressure|load shed|bulkhead/i, standIns: ["d4-reliability"] },

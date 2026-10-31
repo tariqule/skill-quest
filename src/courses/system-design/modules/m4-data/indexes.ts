@@ -94,7 +94,7 @@ const topic: TopicContent = {
       kind: "mcq",
       id: "t-index-p3",
       prompt: "What does a B-tree do when a page it needs to insert into is already full?",
-      options: ["It splits the page into two", "It starts a new SSTable", "It rejects the insert", "It moves the row to a log"],
+      options: ["It splits the page into two", "It starts a new SSTable", "It rejects the insert", "It moves the new row to an overflow log"],
       answer: 0,
       explanation: "A full B-tree page is split in two, and the parent page gets a pointer to the new one.",
     },

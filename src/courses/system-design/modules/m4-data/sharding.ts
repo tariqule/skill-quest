@@ -56,7 +56,7 @@ const topic: TopicContent = {
       kind: "mcq",
       id: "t-sharding-q3",
       prompt: "What's the trade-off of a global secondary index compared with local ones?",
-      options: ["Reads ask every shard", "Writes update two places", "It only works for ranges", "It can't be sharded"],
+      options: ["Reads ask every shard", "Writes update two places", "It only works for range queries", "It can't be sharded"],
       answer: 1,
       explanation: "Reads can go to one index partition, but each write updates the row's shard and the index's partition.",
     },

@@ -20,17 +20,32 @@ const LESSON = {
   sources: [{ title: "A source", url: "https://example.com", license: "CC BY 4.0" }],
 };
 
-function mount() {
+function mount(resumeKey?: string) {
   const div = document.createElement("div");
   document.body.appendChild(div);
   root = createRoot(div);
-  act(() => root!.render(<LessonReader lesson={LESSON} color="#fff" tipLabel="Tip" questionCount={5} onDone={vi.fn()} />));
+  act(() => root!.render(<LessonReader lesson={LESSON} color="#fff" tipLabel="Tip" questionCount={5} onDone={vi.fn()} resumeKey={resumeKey} />));
   const next = () => act(() => { window.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight" })); });
   const badge = () => div.querySelector(".rounded-full.h-9");
   return { div, next, badge };
 }
 
 describe("LessonReader", () => {
+  it("resumes on the same card after a reload when given a resume key", () => {
+    localStorage.clear();
+    const first = mount("cq-reading:test:t-x");
+    first.next();
+    first.next();
+    expect(first.div.textContent).toContain("Step 1 of 2");
+    act(() => root?.unmount());
+    document.body.innerHTML = "";
+    const again = mount("cq-reading:test:t-x");
+    expect(again.div.textContent).toContain("Step 1 of 2");
+    act(() => root?.unmount());
+    document.body.innerHTML = "";
+    expect(mount().div.textContent).not.toContain("Step 1 of 2");
+  });
+
   it("badges idea cards but not worked-example steps, which number themselves", () => {
     const { div, next, badge } = mount();
     next();

@@ -44,7 +44,7 @@ const topic: TopicContent = {
       kind: "mcq",
       id: "t-proxy-q2",
       prompt: "Which job fits best in an API gateway?",
-      options: ["Checking each caller's token", "Working out an order's tax", "Storing the user table", "Rendering the app's screens"],
+      options: ["Checking each caller's token", "Working out an order's tax", "Storing the user table", "Rendering each app screen's HTML"],
       answer: 0,
       explanation: "Token checks are shared by every service, so the gateway does them once. Tax rules belong in a service.",
     },

@@ -34,11 +34,21 @@ export const LESSON_MIGRATION: LessonIdMigration = {
 };
 
 function VisualView({ visual }: { visual: Visual }) {
+  if (!visual.preview) return <VisualBody visual={visual} />;
+  return (
+    <figure>
+      <figcaption className="mb-3 text-xs font-bold uppercase tracking-wider text-slate-400">Preview: you&apos;ll meet these in this lesson</figcaption>
+      <VisualBody visual={visual} />
+    </figure>
+  );
+}
+
+function VisualBody({ visual }: { visual: Visual }) {
   switch (visual.kind) {
     case "flow":
       return <Flow color={COLOR} steps={[...visual.steps]} />;
     case "ladder":
-      return <Ladder caption={visual.caption} rungs={[...visual.rungs]} />;
+      return <Ladder list caption={visual.caption} rungs={[...visual.rungs]} />;
     case "tiles":
       return <Tiles tiles={visual.tiles.map((t) => ({ ...t, color: COLOR }))} />;
     case "code":

@@ -1,0 +1,118 @@
+import type { TopicContent } from "../../schema";
+
+const topic: TopicContent = {
+  id: "t-realtime",
+  module: "m7",
+  title: "Real-time delivery",
+  visual: {
+    kind: "ladder",
+    caption: "From simplest to most live",
+    rungs: [
+      { icon: "🔁", name: "Short polling", text: "Ask every few seconds. Simple, wasteful." },
+      { icon: "⏳", name: "Long polling", text: "Ask and wait until there's news." },
+      { icon: "📡", name: "Server push", text: "Server sends news down one open response." },
+      { icon: "🔌", name: "Two-way line", text: "Both sides send any time on one open connection." },
+    ],
+  },
+  screens: [
+    { kind: "idea", text: "HTTP is request and reply: the server can't speak first. Real-time features need a way for the server to tell the client something new happened." },
+    { kind: "idea", text: "**Short polling** asks \"anything new?\" every few seconds. It's easy, but most replies say no, and updates arrive up to one interval late." },
+    { kind: "idea", text: "**Long polling** sends the request and the server holds it open until there's news or a timeout. The client then asks again at once." },
+    { kind: "idea", text: "**Server-sent events**, or SSE, keep one HTTP response open and the server writes events into it. It's one-way, server to client, and browsers reconnect automatically." },
+    { kind: "idea", text: "A **socket** is one open network connection between a client and a server. While it stays open, either end can send data down it." },
+    { kind: "idea", text: "A **WebSocket** upgrades an HTTP connection into a two-way channel. Either side can send small messages any time, which suits chat, games and live cursors." },
+    { kind: "idea", text: "When the app is closed there is no connection, so phones use **push notifications** through Apple's and Google's push services to wake the user." },
+    { kind: "idea", text: "Each WebSocket is one socket, and it stays open for as long as the user is online. A busy chat app can hold millions at once." },
+    { kind: "idea", text: "Millions of open sockets need dedicated servers. A **connection gateway** is a server whose only job is to hold sockets and pass messages down them." },
+    { kind: "idea", text: "A **presence map** records which gateway each online user is on, like Ana on gateway 3. Other services look a user up there to route a message to them." },
+    { kind: "idea", text: "Gateways pass messages to each other through a **pub/sub channel**: one gateway publishes a message to a named channel, and every gateway subscribed to it gets a copy." },
+    { kind: "idea", text: "Gateways should stay thin: no business logic, just sockets and routing. Then restarting one loses nothing important." },
+    { kind: "idea", text: "When a gateway restarts, its clients simply reconnect, maybe to another gateway. Each sends the id of the last message it got, and **resumes** from there." },
+    {
+      kind: "example",
+      title: "A chat typing indicator",
+      steps: [
+        "Ana and Ben each hold a WebSocket to a gateway. A presence map records Ana on gateway 3 and Ben on gateway 8.",
+        "Ana types. Her app sends a small \"typing\" message, at most once every 3 seconds, over her socket.",
+        "Gateway 3 looks up Ben, finds gateway 8, and forwards the event through a pub/sub channel.",
+        "Gateway 8 pushes it down Ben's socket and his screen shows \"Ana is typing\". If no update comes for 5 seconds, it hides.",
+        "Typing events aren't stored. Losing one is harmless, so they skip the database that real messages go through.",
+      ],
+    },
+  ],
+  tip: "Match the tool to the direction: SSE for server-to-client feeds, WebSockets for two-way chat, push notifications when the app is closed.",
+  quiz: [
+    {
+      kind: "mcq",
+      id: "t-realtime-q1",
+      prompt: "A live sports score page only needs updates from server to browser. Which is simplest?",
+      options: ["Server-sent events", "A WebSocket per player", "Short polling every 100 ms", "Push notifications"],
+      answer: 0,
+      explanation: "SSE is one-way server to client over plain HTTP, with built-in reconnect.",
+    },
+    {
+      kind: "mcq",
+      id: "t-realtime-q2",
+      prompt: "How does a chat service find which server holds a user's socket?",
+      options: ["Broadcast to every gateway", "A map of user to gateway", "The load balancer's routing table", "Long polling each gateway"],
+      answer: 1,
+      explanation: "The presence map records which gateway each user is on, so messages go straight there instead of to every gateway.",
+    },
+    {
+      kind: "mcq",
+      id: "t-realtime-q3",
+      prompt: "The user closed the app. How do you tell them about a new message?",
+      options: ["A WebSocket message", "Long polling", "A push notification", "Server-sent events"],
+      answer: 2,
+      explanation: "Without an open connection, the phone's push service is the way to reach the user.",
+    },
+    {
+      kind: "tf",
+      id: "t-realtime-q4",
+      statement: "In long polling, the server holds the request open until it has news or times out.",
+      answer: true,
+      explanation: "That avoids most empty replies compared with short polling.",
+    },
+    {
+      kind: "tf",
+      id: "t-realtime-q5",
+      statement: "Server-sent events let the browser send messages to the server on the same stream.",
+      answer: false,
+      explanation: "SSE is one-way. Two-way messaging is what WebSockets add.",
+    },
+  ],
+  practice: [
+    {
+      kind: "mcq",
+      id: "t-realtime-p1",
+      prompt: "Which fits a multiplayer game sending moves both ways many times a second?",
+      options: ["Short polling", "Server-sent events", "WebSockets", "Long polling"],
+      answer: 2,
+      explanation: "WebSockets give a two-way, low-overhead channel that either side can use at any time.",
+    },
+    {
+      kind: "tf",
+      id: "t-realtime-p2",
+      statement: "Short polling can deliver an update up to one polling interval late.",
+      answer: true,
+      explanation: "The client only learns of news at its next check.",
+    },
+    {
+      kind: "mcq",
+      id: "t-realtime-p3",
+      prompt: "Why keep connection gateways free of business logic?",
+      options: ["So restarts only cause reconnects", "So they can push to closed apps", "So they store all messages", "So they need no load balancer at all"],
+      answer: 0,
+      explanation: "A thin gateway holds sockets and routes. Restarting one just makes clients reconnect and resume.",
+    },
+  ],
+  practiceNeeds: ["t-api"],
+  sources: [
+    { title: "MDN: The WebSocket API", url: "https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API", license: "Link only" },
+    { title: "MDN: Server-sent events", url: "https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events", license: "Link only" },
+    { title: "Slack Engineering: Real-time messaging", url: "https://slack.engineering/real-time-messaging/", license: "Link only" },
+    { title: "MDN: HTTP/2 glossary", url: "https://developer.mozilla.org/en-US/docs/Glossary/HTTP_2", license: "Link only" },
+  ],
+};
+
+export default topic;

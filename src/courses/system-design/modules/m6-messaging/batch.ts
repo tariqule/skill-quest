@@ -1,0 +1,116 @@
+import type { TopicContent } from "../../schema";
+
+const topic: TopicContent = {
+  id: "t-batch",
+  module: "m6",
+  title: "Batch processing and analytics",
+  visual: {
+    kind: "flow",
+    steps: [
+      { icon: "🗄️", label: "App database", sub: "Many small reads and writes" },
+      { icon: "🚚", label: "Nightly job", sub: "Copies the data over" },
+      { icon: "📊", label: "Report store", sub: "Big scans for reports" },
+    ],
+  },
+  screens: [
+    { kind: "idea", text: "Your app database handles **OLTP**, online transaction processing: many small queries that each touch a few rows, like \"load order 981\" or \"add item to cart\"." },
+    { kind: "idea", text: "Reports need **OLAP**, online analytical processing: few queries that each scan millions of rows, like \"revenue per country last quarter\". Running those on the app database slows every user." },
+    { kind: "idea", text: "So analytics data is copied to a **data warehouse**, such as BigQuery, Snowflake or Redshift, built for big scans and kept apart from the app's traffic." },
+    { kind: "idea", text: "Copying is often an **ETL** job: extract rows from the sources, transform them into a tidy shape, and load them into the warehouse, typically on a schedule." },
+    { kind: "idea", text: "Warehouses use **column storage**: each column is stored together. A query summing price reads only the price column, and similar values compress very well." },
+    { kind: "idea", text: "**Batch processing** runs a job over a bounded pile of data, such as yesterday's logs, and produces output when it finishes. Results are hours old, but the work is simple and cheap." },
+    { kind: "idea", text: "Google's **MapReduce** (2004) splits one huge batch job across thousands of machines. It works in three steps, called map, shuffle and reduce, explained on the next cards." },
+    { kind: "idea", text: "The steps pass around **key-value pairs**: a label plus a number or other value, like (shoes, 2) for \"2 pairs of shoes sold\"." },
+    { kind: "idea", text: "The **map** step reads each input record on its own and turns it into key-value pairs. One order line becomes (product_id, quantity)." },
+    { kind: "idea", text: "The **shuffle** step moves pairs between machines so that every pair with the same key ends up on the same machine." },
+    { kind: "idea", text: "The **reduce** step then combines all the values for one key, such as adding up every quantity sold for one product." },
+    { kind: "idea", text: "If a machine dies mid-job, MapReduce reruns just its piece. Inputs are read-only and outputs are written fresh, so a rerun is safe." },
+    { kind: "idea", text: "**Apache Spark** does the same kind of work but keeps data in memory between steps, so multi-step jobs run much faster than MapReduce writing to disk each time." },
+    { kind: "idea", text: "Totals that pages need often can be computed ahead of time and saved as a small table, a **precomputed aggregate**, like daily sales per product. A dashboard reads it instead of scanning raw rows." },
+    {
+      kind: "example",
+      title: "Nightly sales-rank job",
+      steps: [
+        "At 2 a.m. a job extracts yesterday's 40 million order lines from a read-only copy of the app database into the warehouse.",
+        "Map: each order line becomes (product_id, quantity). Shuffle: all pairs for one product go to the same worker.",
+        "Reduce: each worker sums quantity per product. The job then sorts products by total within each category.",
+        "It writes a small table of rank per product. The product page reads its rank from that table in one quick lookup.",
+        "A worker died halfway. Only its slice was rerun, and the ranks were ready by 3 a.m. Being a few hours old is fine for this.",
+      ],
+    },
+  ],
+  tip: "Separate the paths out loud: user requests hit the OLTP database, and reports run on a warehouse fed by batch jobs. Say how fresh the reports need to be.",
+  quiz: [
+    {
+      kind: "mcq",
+      id: "t-batch-q1",
+      prompt: "Analysts run heavy revenue reports on the app database and checkout slows down. What's the usual fix?",
+      options: ["Add an index for each report", "Copy data to a warehouse for reports", "Run the reports only at night", "Move the database to a bigger server"],
+      answer: 1,
+      explanation: "Big analytical scans belong on a warehouse, so they don't compete with the app's small, fast queries. Night runs and bigger servers only delay or soften the clash.",
+    },
+    {
+      kind: "mcq",
+      id: "t-batch-q2",
+      prompt: "Why does column storage speed up \"sum of price over a year\"?",
+      options: ["It reads only the price column", "It keeps every row of the year in memory", "It sorts rows by customer id", "It stores each row twice"],
+      answer: 0,
+      explanation: "Values of one column sit together, so the query skips every other column and compresses well.",
+    },
+    {
+      kind: "mcq",
+      id: "t-batch-q3",
+      prompt: "In MapReduce, what does the reduce step do?",
+      options: ["Splits input into files", "Combines all values for a key", "Turns each record into key-value pairs", "Groups pairs by key across machines"],
+      answer: 1,
+      explanation: "Map turns records into key-value pairs and the shuffle groups them by key. Reduce receives every value for one key and combines them, such as summing.",
+    },
+    {
+      kind: "tf",
+      id: "t-batch-q4",
+      statement: "Spark often beats MapReduce on multi-step jobs because it keeps data in memory between steps.",
+      answer: true,
+      explanation: "MapReduce writes to disk between steps. Spark avoids much of that.",
+    },
+    {
+      kind: "tf",
+      id: "t-batch-q5",
+      statement: "Batch jobs are the natural fit when results must update within a second of each event.",
+      answer: false,
+      explanation: "Batch output is hours old, from the last run. Second-level freshness calls for stream processing.",
+    },
+  ],
+  practice: [
+    {
+      kind: "mcq",
+      id: "t-batch-p1",
+      prompt: "Which query is OLTP?",
+      options: ["Revenue by month for 5 years", "Load the cart for user 42", "Top products per country", "Average order size per year"],
+      answer: 1,
+      explanation: "OLTP queries touch a few rows for one user action. The others scan large ranges.",
+    },
+    {
+      kind: "tf",
+      id: "t-batch-p2",
+      statement: "ETL means extract data from sources, transform it, and load it into a target such as a warehouse.",
+      answer: true,
+      explanation: "It's the classic pipeline that feeds a warehouse on a schedule.",
+    },
+    {
+      kind: "mcq",
+      id: "t-batch-p3",
+      prompt: "A dashboard shows daily sales per product and is slow. What helps most?",
+      options: ["A precomputed daily totals table", "A bigger app database", "More web servers", "An index on the product id column"],
+      answer: 0,
+      explanation: "Precomputing the daily totals lets the dashboard read a small table instead of raw orders.",
+    },
+  ],
+  practiceNeeds: ["t-sql-nosql", "t-index"],
+  sources: [
+    { title: "MapReduce: Simplified Data Processing on Large Clusters (Dean, Ghemawat, 2004)", url: "https://research.google/pubs/mapreduce-simplified-data-processing-on-large-clusters/", license: "Link only" },
+    { title: "Apache Spark documentation", url: "https://spark.apache.org/docs/latest/", license: "Link only" },
+    { title: "Designing Data-Intensive Applications (Kleppmann): batch processing", url: "https://dataintensive.net/", license: "Link only" },
+  ],
+};
+
+export default topic;

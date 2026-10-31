@@ -119,14 +119,14 @@ export function Layers({ layers }: { layers: { name: string; color: string; item
  * A climbing ladder: the first rung is at the bottom. Rungs only show $ marks when `dollars` is set, and the
  * caption is whatever the lesson says the climb means, so non-cost ladders don't claim to be about cost.
  */
-export function Ladder({ rungs, caption, dollars = false }: { rungs: { icon: string; name: string; text: string }[]; caption?: string; dollars?: boolean }) {
+export function Ladder({ rungs, caption, dollars = false, list = false }: { rungs: { icon: string; name: string; text: string }[]; caption?: string; dollars?: boolean; /** Plain numbered list, 1 at the top, aligned, no climb arrow. */ list?: boolean }) {
   return (
-    <div className="flex flex-col-reverse gap-2">
+    <div className={`flex gap-2 ${list ? "flex-col" : "flex-col-reverse"}`}>
       {rungs.map((r, i) => (
         <div
           key={r.name}
           className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950/60 p-3"
-          style={{ marginLeft: `${i * 6}%`, boxShadow: `inset 4px 0 0 0 hsl(${140 - i * 40} 70% 55%)` }}
+          style={{ marginLeft: list ? 0 : `${i * 6}%`, boxShadow: `inset 4px 0 0 0 hsl(${140 - i * 40} 70% 55%)` }}
         >
           <span className="text-2xl" aria-hidden="true">{r.icon}</span>
           <div className="min-w-0">
@@ -143,7 +143,7 @@ export function Ladder({ rungs, caption, dollars = false }: { rungs: { icon: str
           </div>
         </div>
       ))}
-      {caption && <div className="text-sm text-slate-200">⬆ {caption}</div>}
+      {caption && <div className={`text-sm text-slate-200 ${list ? "order-first" : ""}`}>{list ? caption : `⬆ ${caption}`}</div>}
     </div>
   );
 }

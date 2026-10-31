@@ -51,7 +51,7 @@ const topic: TopicContent = {
       kind: "mcq",
       id: "t-cache-q3",
       prompt: "Why can a small cache answer most of the reads?",
-      options: ["Cached items never expire at all", "Reads are much cheaper than writes", "A few popular items get most requests", "Caches store every row"],
+      options: ["Cached items never expire at all", "Reads are always much cheaper than writes", "A few popular items get most requests", "Caches store every row"],
       answer: 2,
       explanation: "Reads cluster on popular items, so caching those few covers most traffic.",
     },

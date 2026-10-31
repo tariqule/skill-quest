@@ -47,4 +47,20 @@ export const LEGACY_RETAGS: Readonly<Record<string, readonly string[]>> = {
   // Feed fan-out is the classic pattern, not real-time delivery.
   "d4-19": ["t-patterns"], // celebrity fan-out on write
   "d4-22": ["t-patterns"], // cache timelines as lists of post ids
+  "sd-out-06": ["t-patterns"], // fan-out on write output
+  // Kafka: consumer groups, partition keys, replication and delivery guarantees.
+  "d3-04": ["t-kafka-1"], // consumers in a group beyond the partition count
+  "d3-05": ["t-kafka-1"], // key by order_id for per-order ordering
+  "d3-17": ["t-kafka-2"], // "exactly-once" still needs an idempotent consumer
+  "sd-fx-06": ["t-kafka-2"], // min.insync.replicas and acks=all
+  // Pagination, idempotency and versioning, not API styles.
+  "sd-b3-03": ["t-api-2"], // which action is safe to repeat
+  "d3-12": ["t-api-2"], // idempotency key on POST /payments
+  "d3-13": ["t-api-2"], // save the key before charging
+  "d3-14": ["t-api-2"], // PUT and DELETE are idempotent
+  "sd-fx-05": ["t-api-2"], // unique key insert blocks a double charge
+  "sd-pz-07": ["t-api-2"], // idempotent payment handler
+  "d4-02": ["t-api-2"], // follow next_cursor
+  "sd-out-05": ["t-api-2"], // keyset pagination output
+  "d4-04": ["t-api-2"], // rename a field without breaking integrations
 };

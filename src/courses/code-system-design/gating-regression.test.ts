@@ -69,4 +69,21 @@ describe("code-system-design gating regression", () => {
     expect(both.every((q) => q.concepts!.every((c) => c === "t-replication" || c === "t-sharding"))).toBe(true);
     expect(both.length).toBeLessThan(d2.length);
   });
+
+  it("PR 4 browser test: kafka-1, kafka-2 and api-2 finished count as 3 and serve only their own tags", () => {
+    const three = ["t-kafka-1", "t-kafka-2", "t-api-2"];
+    const p = at(three);
+    expect(courseMap(topics, lessonIds, p).done).toBe(3);
+    const summary = practiceSummary(course, p);
+    expect(summary.covered.map((t) => t.id).sort()).toEqual([...three].sort());
+    const allowed = new Set(three);
+    const onlyThree = (qs: { concepts?: readonly string[] }[]) => qs.every((q) => q.concepts!.every((c) => allowed.has(c)));
+    for (let i = 0; i < 20; i++) expect(onlyThree(buildPracticeDeck(course, p, 20))).toBe(true);
+    expect(onlyThree(finishedTopicPool(course, course.questions, p, (all) => all))).toBe(true);
+    // Replication, CAP and Sharding stay closed; Kafka delivery (6-4) is the only newly open tile.
+    const states = new Map(courseMap(topics, lessonIds, p).modules.flatMap((m) => m.topics).map((n) => [n.topic.id, n.state]));
+    expect(states.get("t-replication")).not.toBe("done");
+    expect(states.get("t-cap")).toBe("locked");
+    expect(states.get("t-kafka-3")).toBe("open");
+  });
 });

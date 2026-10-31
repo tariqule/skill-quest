@@ -8155,7 +8155,7 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
   ],
   "d2-05": [
     "Extra storage for the index structure",
-    "Slower inserts and updates, because each write must also update the index",
+    "Slower writes, since every write updates the index too",
   ],
   "d2-07": [
     "\`SELECT * FROM posts WHERE id < :last_seen_id ORDER BY id DESC LIMIT 20\`",
@@ -8203,17 +8203,17 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
     "Faster reads with no join, but a name change must update many post rows",
   ],
   "d3-01": [
-    "The API can reply immediately while workers process jobs at their own pace, soaking up bursts and retrying failures",
+    "The API replies at once while workers drain jobs at their own pace and retry failures",
   ],
   "d3-04": [
     "6, and 2 sit idle",
   ],
   "d3-05": [
-    "Use order_id as the message key so all events for one order go to the same partition",
+    "Key events by order_id so each order stays on one partition",
   ],
   "d3-06": [
     "Add consumers, up to the partition count, and add partitions if needed",
-    "Alert on lag and push back: slow down or shed producers, or pause non-essential work",
+    "Alert on lag and push back: slow producers or pause non-essential work",
   ],
   "d3-07": [
     "Consistency and availability",
@@ -8229,11 +8229,11 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
     "It needs a majority of 3, so it still survives only 1 failure, just like 3 nodes, while adding cost and write latency; use 3 or 5",
   ],
   "d3-12": [
-    "The client sends a unique key per action; the server records the key with the result and returns the stored result for any repeat",
+    "The server saves each key with its result and returns that stored result for any repeat",
   ],
   "d3-14": [
-    "PUT",
-    "DELETE",
+    "PUT /users/42",
+    "DELETE /users/42",
   ],
   "d3-15": [
     "Transactional outbox: insert the event into an outbox table in the same transaction and have a relay publish it",
@@ -8257,10 +8257,10 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
     "\`GET /users/7/orders/42\`",
   ],
   "d4-02": [
-    "Send the same request with \`?cursor=eyJpZCI6OTgyMX0\`; a missing \`next_cursor\` means there are no more pages",
+    "Pass \`?cursor=eyJpZCI6OTgyMX0\` back unchanged; no \`next_cursor\` means the last page",
   ],
   "d4-03": [
-    "gRPC: Protocol Buffer contracts over HTTP/2 with built-in streaming",
+    "gRPC with Protobuf contracts and streaming over HTTP/2",
   ],
   "d4-04": [
     "Add \`username\`, keep returning \`user_name\`, announce a deprecation window, and remove the old field only in a new major version",
@@ -8287,14 +8287,14 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
     "302 Found, because browsers don't cache it by default, so every click reaches the server",
   ],
   "d4-17": [
-    "Each server reserves a block of ids, such as a million at a time, from a coordination service and hands them out locally",
-    "Snowflake-style ids built from a timestamp, a machine id and a per-machine sequence, generated locally",
+    "Each server leases a block of ids, say a million, from a coordinator and hands them out",
+    "Snowflake-style ids from a timestamp, a machine id and a per-machine sequence",
   ],
   "d4-18": [
     "4,096",
   ],
   "d4-19": [
-    "A mix: don't fan out posts from very high-follower accounts; merge them into followers' feeds when the feed loads",
+    "A mix: skip fan-out for huge accounts and merge their posts into feeds at read time",
   ],
   "d4-20": [
     "About 100 gateways; a connection registry maps each online user to their gateway, and the chat service routes (or publishes) the message to Bo's gateway",
@@ -8338,6 +8338,51 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
   "sd-b4-03": [
     "It sets how long to wait for an answer before giving up",
   ],
+  "t-api-2-q1": [
+    "Cursor pagination",
+  ],
+  "t-api-2-q2": [
+    "GET and HEAD",
+  ],
+  "t-api-2-q3": [
+    "Ship v2 and deprecate v1 on a date",
+  ],
+  "t-api-2-q4": [
+    "True",
+  ],
+  "t-api-2-q5": [
+    "False",
+  ],
+  "t-api-q1": [
+    "GraphQL with one nested query",
+  ],
+  "t-api-q2": [
+    "gRPC with Protobuf",
+  ],
+  "t-api-q3": [
+    "POST",
+  ],
+  "t-api-q4": [
+    "True",
+  ],
+  "t-api-q5": [
+    "False",
+  ],
+  "t-appsec-q1": [
+    "Parameterized queries",
+  ],
+  "t-appsec-q2": [
+    "Least privilege",
+  ],
+  "t-appsec-q3": [
+    "On the server, before it's used",
+  ],
+  "t-appsec-q4": [
+    "True",
+  ],
+  "t-appsec-q5": [
+    "False",
+  ],
   "t-availability-q1": [
     "About 8.8 hours",
   ],
@@ -8351,6 +8396,21 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
     "True",
   ],
   "t-availability-q5": [
+    "False",
+  ],
+  "t-batch-q1": [
+    "Copy data to a warehouse for reports",
+  ],
+  "t-batch-q2": [
+    "It reads only the price column",
+  ],
+  "t-batch-q3": [
+    "Combines all values for a key",
+  ],
+  "t-batch-q4": [
+    "True",
+  ],
+  "t-batch-q5": [
     "False",
   ],
   "t-cache-evict-q1": [
@@ -8458,6 +8518,36 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
   "t-denorm-q5": [
     "False",
   ],
+  "t-discovery-q1": [
+    "Client-side discovery",
+  ],
+  "t-discovery-q2": [
+    "Cached answers go stale",
+  ],
+  "t-discovery-q3": [
+    "Failed health checks remove it",
+  ],
+  "t-discovery-q4": [
+    "True",
+  ],
+  "t-discovery-q5": [
+    "False",
+  ],
+  "t-encoding-q1": [
+    "Backward compatibility",
+  ],
+  "t-encoding-q2": [
+    "Adding an optional field",
+  ],
+  "t-encoding-q3": [
+    "Field numbers replace names",
+  ],
+  "t-encoding-q4": [
+    "True",
+  ],
+  "t-encoding-q5": [
+    "False",
+  ],
   "t-estimation-q1": [
     "About 10,000",
   ],
@@ -8503,6 +8593,51 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
   "t-intro-q5": [
     "False",
   ],
+  "t-kafka-1-q1": [
+    "Each group reads the full log itself",
+  ],
+  "t-kafka-1-q2": [
+    "Key every event by order id",
+  ],
+  "t-kafka-1-q3": [
+    "Consumers can't keep up with producers",
+  ],
+  "t-kafka-1-q4": [
+    "True",
+  ],
+  "t-kafka-1-q5": [
+    "False",
+  ],
+  "t-kafka-2-q1": [
+    "One",
+  ],
+  "t-kafka-2-q2": [
+    "At-most-once",
+  ],
+  "t-kafka-2-q3": [
+    "Each user's events in order",
+  ],
+  "t-kafka-2-q4": [
+    "True",
+  ],
+  "t-kafka-2-q5": [
+    "False",
+  ],
+  "t-kafka-3-q1": [
+    "Reset offsets and replay 3 days",
+  ],
+  "t-kafka-3-q2": [
+    "A job queue like SQS",
+  ],
+  "t-kafka-3-q3": [
+    "A KRaft controller quorum",
+  ],
+  "t-kafka-3-q4": [
+    "True",
+  ],
+  "t-kafka-3-q5": [
+    "False",
+  ],
   "t-latency-q1": [
     "Requests completed each second",
   ],
@@ -8532,6 +8667,21 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
   ],
   "t-lb-q5": [
     "True",
+  ],
+  "t-micro-q1": [
+    "A strangler fig with a router",
+  ],
+  "t-micro-q2": [
+    "The scheduler",
+  ],
+  "t-micro-q3": [
+    "A distributed monolith",
+  ],
+  "t-micro-q4": [
+    "True",
+  ],
+  "t-micro-q5": [
+    "False",
   ],
   "t-network-q1": [
     "Turns a name into an IP address",
@@ -8563,6 +8713,21 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
   "t-proxy-q5": [
     "False",
   ],
+  "t-queues-q1": [
+    "Pub/sub with three subscribers",
+  ],
+  "t-queues-q2": [
+    "It reappears after the timeout",
+  ],
+  "t-queues-q3": [
+    "Capping the queue and returning 503",
+  ],
+  "t-queues-q4": [
+    "True",
+  ],
+  "t-queues-q5": [
+    "False",
+  ],
   "t-ratelimit-q1": [
     "429 Too Many Requests",
   ],
@@ -8576,6 +8741,21 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
     "True",
   ],
   "t-ratelimit-q5": [
+    "False",
+  ],
+  "t-realtime-q1": [
+    "Server-sent events",
+  ],
+  "t-realtime-q2": [
+    "A map of user to gateway",
+  ],
+  "t-realtime-q3": [
+    "A push notification",
+  ],
+  "t-realtime-q4": [
+    "True",
+  ],
+  "t-realtime-q5": [
     "False",
   ],
   "t-replication-q1": [
@@ -8608,6 +8788,21 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
   "t-scaling-q5": [
     "False",
   ],
+  "t-security-q1": [
+    "Authorization",
+  ],
+  "t-security-q2": [
+    "The site's certificate",
+  ],
+  "t-security-q3": [
+    "Server-side sessions",
+  ],
+  "t-security-q4": [
+    "True",
+  ],
+  "t-security-q5": [
+    "False",
+  ],
   "t-sharding-q1": [
     "Today's writes all hit one hot shard",
   ],
@@ -8636,6 +8831,21 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
     "True",
   ],
   "t-sql-nosql-q5": [
+    "False",
+  ],
+  "t-stream-q1": [
+    "A sliding window",
+  ],
+  "t-stream-q2": [
+    "Event time",
+  ],
+  "t-stream-q3": [
+    "The watermark passing 12:01",
+  ],
+  "t-stream-q4": [
+    "True",
+  ],
+  "t-stream-q5": [
     "False",
   ],
   "t-transactions-q1": [

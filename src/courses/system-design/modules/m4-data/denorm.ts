@@ -5,6 +5,7 @@ const topic: TopicContent = {
   module: "m4",
   title: "Denormalisation",
   visual: {
+    preview: true,
     kind: "tiles",
     tiles: [
       { icon: "🏢", title: "Federation", text: "One database per function: users, orders, products." },
@@ -76,7 +77,7 @@ const topic: TopicContent = {
       kind: "mcq",
       id: "t-denorm-p1",
       prompt: "After federating users and orders into separate databases, where does \"orders with buyer names\" get joined?",
-      options: ["Inside the orders database", "In the application code", "In the load balancer", "In the CDN"],
+      options: ["Inside the orders database", "In the application code", "In the load balancer", "In a read replica"],
       answer: 1,
       explanation: "The databases can't join across each other, so the app fetches from both and combines them.",
     },
@@ -91,7 +92,7 @@ const topic: TopicContent = {
       kind: "mcq",
       id: "t-denorm-p3",
       prompt: "A dashboard runs the same heavy sales-by-region query hundreds of times a minute. What's a good fix?",
-      options: ["Add a column family", "Shard by region name", "A materialised view of it", "Switch to async replicas"],
+      options: ["Add a column family", "Shard by region name", "A materialised view of it", "Switch the database to async replicas"],
       answer: 2,
       explanation: "Saving the result once and reading it many times avoids rerunning the heavy query.",
     },
