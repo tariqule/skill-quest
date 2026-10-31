@@ -155,3 +155,18 @@
 
   --font-heading: var(--font-inter), var(--font-geist-sans), system-ui, sans-serif;
 }
+
+/* Loader shimmer for coss Skeleton (loaders are the only allowed looping animation). */
+@theme {
+  --animate-skeleton: skeleton 2s -1s infinite linear;
+  @keyframes skeleton {
+    to {
+      background-position: -200% 0;
+    }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-slot="skeleton"] {
+    animation: none;
+  }
+}

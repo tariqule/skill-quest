@@ -1,47 +1,8 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import { type CSSProperties, type ReactNode } from "react";
 import { LEVELS, type LevelChoice, type LevelInfo } from "@/engine/levels";
 
-/** Deterministic pseudo-random so server and client render the same rain. */
-function rand(seed: number) {
-  const x = Math.sin(seed * 12.9898 + 78.233) * 43758.5453;
-  return x - Math.floor(x);
-}
-
-const GLYPHS = "{}[]()<>=;:+-*/&|!?01".split("");
-const WORDS = ["const", "=>", "async", "return", "null", "map()", "O(n)", "def", "class", "{ }", "useState", "await", "true", "0x1F", "[]", "fn"];
-
-/**
- * Falling code columns behind Code Quest pages. Pure CSS animation, fixed precision for SSR.
- * The glyphs live in a CSS ::before (data-rain), so they are never page text: not selectable,
- * not found by find-in-page or copy, and not in the accessibility tree.
- */
-export function CodeRain() {
-  return (
-    <div className="pointer-events-none fixed inset-0 -z-10 select-none overflow-hidden bg-[#03070d]" aria-hidden="true" role="presentation">
-      <div className="code-grid absolute inset-0 opacity-40" />
-      {Array.from({ length: 28 }, (_, i) => {
-        const text = Array.from({ length: 14 }, (_, k) =>
-          rand(i * 31 + k) > 0.7 ? WORDS[Math.floor(rand(i * 17 + k) * WORDS.length)] : GLYPHS[Math.floor(rand(i * 7 + k) * GLYPHS.length)],
-        ).join("\n");
-        const style = {
-          left: `${((i / 28) * 100 + rand(i) * 2).toFixed(2)}%`,
-          animationDuration: `${(14 + rand(i + 50) * 16).toFixed(2)}s`,
-          animationDelay: `${(-rand(i + 99) * 20).toFixed(2)}s`,
-          opacity: Number((0.08 + rand(i + 7) * 0.18).toFixed(2)),
-        } as CSSProperties;
-        return (
-          <div key={i} data-rain={text} className="code-rain-col absolute top-0 font-mono text-[11px] leading-5 text-emerald-300" style={style} />
-        );
-      })}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#03070d]/40 to-[#03070d]" />
-      <div className="scanlines absolute inset-0" />
-    </div>
-  );
-}
-
-/** A terminal window frame with traffic-light dots and a title bar. */
 export function TerminalWindow({ title, children, className = "", glow = "#34d399" }: { title: string; children: ReactNode; className?: string; glow?: string }) {
   return (
     <div className={`overflow-hidden rounded-2xl border border-white/10 bg-[#07111c]/90 backdrop-blur ${className}`} style={{ boxShadow: `0 0 0 1px ${glow}22, 0 20px 60px -30px ${glow}` }}>
@@ -56,20 +17,12 @@ export function TerminalWindow({ title, children, className = "", glow = "#34d39
   );
 }
 
-/** Types lines out one character at a time, with a blinking cursor. */
-export function Typewriter({ lines, speed = 22 }: { lines: string[]; speed?: number }) {
-  const full = lines.join("\n");
-  const [n, setN] = useState(0);
-  useEffect(() => {
-    const t = setInterval(() => setN((x) => (x >= full.length ? x : x + 1)), speed);
-    return () => clearInterval(t);
-  }, [full, speed]);
-  return (
-    <pre className="whitespace-pre-wrap font-mono text-sm leading-relaxed text-emerald-200 sm:text-base">
-      {full.slice(0, n)}
-      <span className="cursor-blink">▍</span>
-    </pre>
-  );
+/**
+ * Terminal-style lines, shown in full. The type-out effect and blinking cursor are retired
+ * (no ambient motion: the redesign's seductive-details rule).
+ */
+export function Typewriter({ lines }: { lines: string[]; speed?: number }) {
+  return <pre className="whitespace-pre-wrap font-mono text-sm leading-relaxed text-emerald-200 sm:text-base">{lines.join("\n")}</pre>;
 }
 
 const CODE_LEVELS = LEVELS.filter((l) => l.id !== "exam");

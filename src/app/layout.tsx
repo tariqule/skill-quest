@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import { MotionProvider } from "@/components/providers/MotionProvider";
-import { Starfield } from "@/components/fx";
+import { Backdrop } from "@/components/shell/Backdrop";
 import { Toaster } from "@/components/Hud";
 import "./globals.css";
 
@@ -31,7 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="en" data-theme="dark" className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <MotionProvider>
-          <Starfield />
+          <Backdrop />
           {children}
           <Toaster />
         </MotionProvider>

@@ -48,7 +48,7 @@ export function CodeMap() {
             <div className="font-mono text-xs font-bold uppercase tracking-[0.25em]" style={{ color: course.provider.color }}>
               {course.provider.icon} {course.code} · {learning ? "learning quest" : "interview quest"}
             </div>
-            <h1 className="glitch mt-2 text-3xl font-black text-white sm:text-4xl">{course.title}</h1>
+            <h1 className="mt-2 text-3xl font-black text-white sm:text-4xl">{course.title}</h1>
             <div className="mt-4">
               <Typewriter
                 key={`${p.level}-${lvl.level}`}

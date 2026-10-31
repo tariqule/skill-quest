@@ -1,6 +1,7 @@
 "use client";
 
-import Link from "next/link";
+import { ArrowRight, CheckCircle2, Code2, RotateCcw, Zap } from "lucide-react";
+import { NextSteps, PageIntro, PageSkeleton } from "@/components/shell/PageIntro";
 import { useState, useSyncExternalStore } from "react";
 import { AppBar } from "@/components/Hud";
 import { GameItem } from "@/components/code-games/GameItem";
@@ -24,13 +25,11 @@ export default function WarmupPage() {
   return (
     <>
       <AppBar />
-      <main className="mx-auto w-full max-w-3xl px-4 py-6 text-base sm:py-10">
-        <Link href="/" className="text-sm font-bold text-sky-300 hover:text-sky-200">
-          ← Home
-        </Link>
-        <h1 className="mt-2 text-3xl font-black text-white">⚡ Daily code warm-up</h1>
-        <p className="mt-1 text-base text-slate-300">Six quick code games across your interview tracks: put lines in order, spot the bug, predict the output. Misses come back in Daily Review.</p>
-        {mounted ? <Warmup /> : <div className="mt-6 h-64 rounded-3xl bg-slate-900/40" aria-hidden />}
+      <main className="mx-auto w-full max-w-5xl px-4 py-6 text-base sm:py-10">
+        <PageIntro icon={Zap} title="Daily code warm-up">
+          Six quick code games from your tracks: put lines in order, spot the bug, predict the output. Anything you miss comes back in your review.
+        </PageIntro>
+        {mounted ? <Warmup /> : <PageSkeleton />}
       </main>
     </>
   );
@@ -42,20 +41,34 @@ function Warmup() {
   const [i, setI] = useState(0);
   const [right, setRight] = useState(0);
   if (picks.length === 0) {
-    return <p className="mt-6 text-slate-300">Your plan has no code tracks with games yet. Pick an interview plan with a code track on the home page.</p>;
+    return (
+      <NextSteps
+        icon={Code2}
+        title="No code games in your plan yet"
+        line="Warm-ups come from code tracks. Add one to your plan, or open any code track to play its games there."
+        primary={{ href: "/#plan", label: plan ? "Change my plan" : "Start a plan", icon: ArrowRight }}
+        more={[
+          { href: "/code", label: "Browse code tracks", icon: Code2, line: "JavaScript, React, SQL, system design and more." },
+          { href: "/daily", label: "Quick refresher", icon: RotateCcw, line: "Review what you've already learned." },
+        ]}
+      />
+    );
   }
   if (i >= picks.length) {
     return (
-      <div className="mt-6 rounded-3xl border-2 border-emerald-400/30 bg-slate-900/70 p-6">
-        <div className="text-xl font-black text-white">Warm-up done ✅ {right}/{picks.length}</div>
-        <Link href="/" className="mt-4 inline-block rounded-2xl bg-sky-400 px-5 py-2.5 font-black text-slate-950">Back to today&apos;s plan</Link>
-      </div>
+      <NextSteps
+        icon={CheckCircle2}
+        title="Warm-up done. Good effort."
+        line={`${right} of ${picks.length} right. Anything you missed will come back in your review.`}
+        primary={{ href: "/", label: "Back to today's plan", icon: ArrowRight }}
+        more={[{ href: "/daily", label: "Quick refresher", icon: RotateCcw, line: "Review what's due." }]}
+      />
     );
   }
   const { course, q } = picks[i];
   return (
-    <div className="mt-6">
-      <div className="mb-2 text-sm text-slate-400" aria-live="polite">{i + 1} of {picks.length}</div>
+    <div className="mt-6 max-w-3xl">
+      <div className="mb-2 text-sm text-muted-foreground" aria-live="polite">{i + 1} of {picks.length}</div>
       <GameItem key={`${course.id}-${q.id}`} course={course} q={q} onDone={(ok) => { if (ok) setRight((r) => r + 1); setI((n) => n + 1); }} />
     </div>
   );

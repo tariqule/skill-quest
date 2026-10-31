@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import { CodeRain, LevelPicker, TerminalWindow, Typewriter } from "@/components/code/ui";
+import { LevelPicker, TerminalWindow, Typewriter } from "@/components/code/ui";
 import { Tilt } from "@/components/fx";
+import { AppBar } from "@/components/Hud";
 import { Galaxy3D } from "@/components/three";
 import { COURSES } from "@/courses";
 import { overallReadiness, pct } from "@/engine/game";
@@ -58,22 +59,12 @@ export default function CodeHub() {
 
   return (
     <div className="code-theme flex min-h-full flex-1 flex-col">
-      <CodeRain />
-      <header className="sticky top-0 z-20 border-b border-emerald-400/20 bg-[#03070d]/90 font-mono backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-2.5 text-sm">
-          <span className="font-black text-emerald-300">&lt;/&gt;</span>
-          <span className="font-bold text-white">code-quest</span>
-          <Link href="/" className="ml-auto text-slate-400 hover:text-white">
-            🎓 certifications →
-          </Link>
-        </div>
-      </header>
-
+      <AppBar />
       <main className="mx-auto w-full min-w-0 max-w-6xl px-4 py-8 sm:py-10">
         <TerminalWindow title="~/code-quest — zsh">
           <div className="grid items-center gap-4 lg:grid-cols-[1fr_1.1fr]">
             <div className="min-w-0">
-              <h1 className="glitch text-4xl font-black text-white sm:text-5xl">Code Quests</h1>
+              <h1 className="text-4xl font-black text-white sm:text-5xl">Code Quests</h1>
               <p className="mt-2 max-w-xl text-slate-300">
                 Learn a skill from scratch or prep for the interview. Every concept comes with code you can poke at, labs that react as you play, bug hunts,
                 and a timed challenge at your level.
@@ -88,10 +79,7 @@ export default function CodeHub() {
                   ]}
                 />
               </div>
-              <p className="mt-4 font-mono text-xs text-slate-500">
-                <span className="hidden pointer-fine:inline">↗ Move your pointer over the galaxy. Click a planet to jump into its track.</span>
-                <span className="pointer-fine:hidden">👆 Tap a planet to name it, tap again to jump into its track.</span>
-              </p>
+              <p className="mt-4 text-sm text-muted-foreground">Select a planet to open its track, or browse every track below.</p>
             </div>
             <Galaxy3D
               items={galaxy}
@@ -119,9 +107,25 @@ export default function CodeHub() {
           </div>
         </section>
 
-        <section className="z-10 sm:sticky sm:top-[45px] -mx-4 mt-8 border-y border-white/5 bg-[#03070d]/85 px-4 py-3 backdrop-blur">
-          <div className="flex flex-wrap items-center gap-3">
-            <label className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-white/10 bg-[#07111c] px-3 py-2 font-mono text-sm focus-within:border-emerald-400/60 sm:max-w-md">
+        <section aria-label="Level and filters" className="sticky top-14 z-10 -mx-4 mt-8 border-y border-border bg-background/90 px-4 py-3 backdrop-blur">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <label className="flex min-h-11 shrink-0 items-center gap-2 text-sm text-muted-foreground">
+              <span className="sr-only sm:not-sr-only">Level</span>
+              <select
+                value={level === "mixed" ? "" : level}
+                onChange={(e) => setSharedLevel(COURSES_ONLY, e.target.value as LevelChoice)}
+                className="h-10 rounded-lg border border-input bg-background px-2 text-base font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring sm:text-sm"
+                aria-label="Level for every track"
+              >
+                {level === "mixed" && <option value="">Mixed</option>}
+                {levelOptions({ kind: "interview" }).map((l) => (
+                  <option key={l.id} value={l.id}>
+                    {l.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="flex min-h-10 min-w-0 flex-1 items-center gap-2 rounded-xl border border-white/10 bg-[#07111c] px-3 py-2 font-mono text-sm focus-within:border-emerald-400/60 sm:max-w-md">
               <span className="text-emerald-300">$ grep</span>
               <input
                 ref={search}
@@ -139,6 +143,10 @@ export default function CodeHub() {
                 <kbd className="rounded border border-white/15 px-1.5 text-[10px] text-slate-500">/</kbd>
               )}
             </label>
+          </div>
+        </section>
+        <section aria-label="Track filters" className="mt-4">
+          <div className="flex flex-wrap items-center gap-3">
             <div className="flex rounded-xl border border-white/10 bg-[#07111c] p-1 font-mono text-xs" role="tablist" aria-label="Track type">
               {TRACK_FOCUSES.map((f) => {
                 const on = focus === f.id;

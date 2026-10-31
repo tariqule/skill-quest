@@ -2,7 +2,6 @@
 
 import { notFound, useParams } from "next/navigation";
 import type { ReactNode } from "react";
-import { CodeRain } from "@/components/code/ui";
 import { GuideDrawer } from "@/components/Guide";
 import { Hud } from "@/components/Hud";
 import { getCourse } from "@/courses";
@@ -18,7 +17,6 @@ export function CourseShell({ children }: { children: ReactNode }) {
   return (
     <CourseProvider courseId={course}>
       <div className={`flex min-h-full flex-1 flex-col ${code ? "code-theme" : ""}`}>
-        {code && <CodeRain />}
         <Hud />
         {children}
         <GuideDrawer />

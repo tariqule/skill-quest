@@ -1,6 +1,7 @@
 "use client";
 
 import { RichText } from "@/components/learn/code";
+import { BookOpen, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { courseCopy } from "@/engine/copy";
@@ -20,17 +21,19 @@ const TABS = [
 
 type TabId = (typeof TABS)[number]["id"];
 
-export function GuideContent({ compact = false, initialTab = "exam" }: { compact?: boolean; initialTab?: TabId }) {
+export function GuideContent({ initialTab = "exam" }: { compact?: boolean; initialTab?: TabId }) {
   const [tab, setTab] = useState<TabId>(initialTab);
   return (
     <div>
-      <div className={`flex gap-1.5 overflow-x-auto pb-2 ${compact ? "" : "flex-wrap"}`}>
+      <div role="tablist" aria-label="Guide sections" className="flex flex-wrap gap-2 pb-2">
         {TABS.map((t) => (
           <button
             key={t.id}
             type="button"
+            role="tab"
+            aria-selected={tab === t.id}
             onClick={() => setTab(t.id)}
-            className={`shrink-0 rounded-full border px-3 py-1.5 text-sm font-semibold transition ${tab === t.id ? "border-sky-400 bg-sky-400/20 text-white" : "border-white/10 text-slate-300 hover:bg-white/10"}`}
+            className={`min-h-10 rounded-full border px-3.5 text-sm font-medium outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-ring ${tab === t.id ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground hover:bg-accent hover:text-foreground"}`}
           >
             {t.label}
           </button>
@@ -294,23 +297,23 @@ export function GuideDrawer() {
 
   return (
     <div className={`fixed inset-0 z-30 ${open ? "" : "pointer-events-none"}`} aria-hidden={!open}>
-      <div className={`absolute inset-0 bg-slate-950/60 backdrop-blur-sm transition-opacity ${open ? "opacity-100" : "opacity-0"}`} onClick={() => setGuideOpen(false)} />
+      <div className={`absolute inset-0 bg-background/70 backdrop-blur-sm transition-opacity motion-reduce:transition-none ${open ? "opacity-100" : "opacity-0"}`} onClick={() => setGuideOpen(false)} />
       <aside
         role="dialog"
         aria-label="Study guide"
-        className={`absolute right-0 top-0 flex h-full w-full max-w-lg flex-col border-l border-white/10 bg-slate-900 shadow-2xl transition-transform duration-300 ${open ? "translate-x-0" : "translate-x-full"}`}
+        className={`absolute inset-y-0 right-0 flex w-full min-w-0 flex-col overflow-hidden bg-popover shadow-elevation-3 transition-transform duration-300 motion-reduce:transition-none sm:max-w-lg sm:border-l sm:border-border ${open ? "translate-x-0" : "translate-x-full"}`}
       >
-        <div className="flex items-center gap-3 border-b border-white/10 px-4 py-3" style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 0.75rem)" }}>
-          <span className="text-xl">📖</span>
-          <span className="flex-1 font-black text-white">Study guide</span>
-          <Link href={href("/guide")} onClick={() => setGuideOpen(false)} className="text-xs text-sky-300 underline">
+        <div className="flex items-center gap-2 border-b border-border px-4 py-2" style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 0.5rem)" }}>
+          <BookOpen className="size-5 text-primary" aria-hidden />
+          <span className="flex-1 font-heading text-lg font-semibold text-foreground">Study guide</span>
+          <Link href={href("/guide")} onClick={() => setGuideOpen(false)} className="flex min-h-11 items-center px-2 text-sm text-foreground underline underline-offset-4">
             Full page
           </Link>
-          <button type="button" onClick={() => setGuideOpen(false)} aria-label="Close guide" className="rounded-lg px-2 py-1 text-xl text-slate-400 hover:bg-white/10 hover:text-white">
-            ✕
+          <button type="button" onClick={() => setGuideOpen(false)} aria-label="Close guide" className="flex size-11 items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring">
+            <X className="size-5" aria-hidden />
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto p-4">{open && <GuideContent compact />}</div>
+        <div className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden p-4">{open && <GuideContent />}</div>
       </aside>
     </div>
   );
