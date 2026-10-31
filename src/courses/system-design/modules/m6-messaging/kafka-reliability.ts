@@ -129,6 +129,7 @@ const topic: TopicContent = {
     { title: "Apache Kafka documentation: Design", url: "https://kafka.apache.org/documentation/#design", license: "Link only" },
     { title: "KIP-98: Exactly Once Delivery and Transactional Messaging", url: "https://cwiki.apache.org/confluence/display/KAFKA/KIP-98+-+Exactly+Once+Delivery+and+Transactional+Messaging", license: "Link only" },
     { title: "Kafka: The Definitive Guide (Shapira, Palino, Sivaram, Petty)", url: "https://www.oreilly.com/library/view/kafka-the-definitive/9781492043072/", license: "Link only" },
+    { title: "Apache Kafka documentation: Configuration (acks, min.insync.replicas, replica.lag.time.max.ms)", url: "https://kafka.apache.org/documentation/#configuration", license: "Link only" },
   ],
 };
 

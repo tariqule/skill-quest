@@ -120,6 +120,8 @@ const topic: TopicContent = {
     { title: "RabbitMQ tutorials", url: "https://www.rabbitmq.com/tutorials", license: "Link only" },
     { title: "Celery documentation", url: "https://docs.celeryq.dev/", license: "Link only" },
     { title: "System Design Primer: Asynchronism", url: "https://github.com/donnemartin/system-design-primer#asynchronism", license: "CC BY 4.0" },
+    { title: "Amazon SQS: Visibility timeout", url: "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-visibility-timeout.html", license: "Link only" },
+    { title: "Amazon SQS: Dead-letter queues", url: "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html", license: "Link only" },
   ],
 };
 

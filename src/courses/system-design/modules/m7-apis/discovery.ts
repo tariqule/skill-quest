@@ -22,14 +22,14 @@ const topic: TopicContent = {
     { kind: "idea", text: "**Consul** is a popular service registry with built-in health checks. Callers look services up through its API or through plain DNS." },
     { kind: "idea", text: "In Kubernetes, a **pod** is one running copy of a service. Pods are created and replaced all the time, and each new one gets a new IP address." },
     { kind: "idea", text: "A **Kubernetes Service** gives a set of pods one stable name and virtual IP. Kubernetes tracks which pods are ready and routes traffic only to them." },
-    { kind: "idea", text: "Kubernetes keeps that list of ready pods in **etcd**, a key-value store that stays consistent across machines. So etcd acts as the registry behind Kubernetes discovery." },
+    { kind: "idea", text: "Kubernetes stores its Services and their lists of ready pod addresses in **etcd**, a key-value store that stays consistent across machines. So etcd acts as the registry behind Kubernetes discovery." },
     {
       kind: "example",
       title: "A payments instance dies",
       steps: [
         "Three payments instances register in Consul with a health check on /health every 10 seconds.",
         "Checkout asks Consul for payments and gets all three addresses. It spreads calls across them.",
-        "Instance 2 runs out of memory. Its health check fails twice and Consul marks it critical.",
+        "Instance 2 runs out of memory. Its next health check fails, and Consul marks it critical.",
         "Checkout's next lookup returns only instances 1 and 3. A new instance starts, registers, passes its check, and joins the list.",
       ],
     },
@@ -106,6 +106,7 @@ const topic: TopicContent = {
     { title: "Kubernetes: Service", url: "https://kubernetes.io/docs/concepts/services-networking/service/", license: "Link only" },
     { title: "HashiCorp Consul documentation", url: "https://developer.hashicorp.com/consul/docs", license: "Link only" },
     { title: "System Design Primer: Service discovery", url: "https://github.com/donnemartin/system-design-primer#service-discovery", license: "CC BY 4.0" },
+    { title: "Kubernetes: Liveness, readiness and startup probes", url: "https://kubernetes.io/docs/concepts/configuration/liveness-readiness-startup-probes/", license: "Link only" },
   ],
 };
 

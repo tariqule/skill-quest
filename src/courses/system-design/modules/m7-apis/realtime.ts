@@ -109,6 +109,7 @@ const topic: TopicContent = {
     { title: "MDN: The WebSocket API", url: "https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API", license: "Link only" },
     { title: "MDN: Server-sent events", url: "https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events", license: "Link only" },
     { title: "Slack Engineering: Real-time messaging", url: "https://slack.engineering/real-time-messaging/", license: "Link only" },
+    { title: "MDN: HTTP/2 glossary", url: "https://developer.mozilla.org/en-US/docs/Glossary/HTTP_2", license: "Link only" },
   ],
 };
 

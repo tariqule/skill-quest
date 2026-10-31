@@ -19,7 +19,7 @@ const topic: TopicContent = {
     { kind: "idea", text: "Under the hood that is often **keyset pagination**: `WHERE id > 1050 ORDER BY id LIMIT 50`. An index jumps straight there, so page 1,000 is as fast as page 1." },
     { kind: "idea", text: "A **safe method** doesn't change anything on the server. GET and HEAD are safe, so crawlers, caches and prefetchers can call them freely." },
     { kind: "idea", text: "An **idempotent** request has the same effect whether it runs once or five times. Deleting order 7 twice leaves it just as deleted as once." },
-    { kind: "idea", text: "In HTTP, GET, HEAD, PUT and DELETE are idempotent by definition. POST is not: sending the same POST twice can create two orders." },
+    { kind: "idea", text: "In HTTP, every safe method is idempotent, and so are PUT and DELETE. POST is not: sending the same POST twice can create two orders." },
     { kind: "idea", text: "Networks drop replies, so clients retry. Retrying \"charge $42\" by POST could charge the card twice." },
     { kind: "idea", text: "The fix is an **idempotency key**: a unique id the client makes up for one action and sends with the request in a header." },
     { kind: "idea", text: "The server saves each key with the result it returned. A repeat with a known key gets that saved result back instead of running again." },

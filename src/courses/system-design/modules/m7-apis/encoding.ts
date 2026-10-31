@@ -107,6 +107,7 @@ const topic: TopicContent = {
     { title: "Protocol Buffers: Language guide (proto 3)", url: "https://protobuf.dev/programming-guides/proto3/", license: "Link only" },
     { title: "Apache Avro specification", url: "https://avro.apache.org/docs/", license: "Link only" },
     { title: "Designing Data-Intensive Applications (Kleppmann): encoding and evolution", url: "https://dataintensive.net/", license: "Link only" },
+    { title: "Protocol Buffers: Proto best practices", url: "https://protobuf.dev/best-practices/dos-donts/", license: "Link only" },
   ],
 };
 

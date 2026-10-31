@@ -20,9 +20,9 @@ const topic: TopicContent = {
     { kind: "idea", text: "**Authentication** proves who the caller is, with a password, a passkey or a login provider." },
     { kind: "idea", text: "**Authorization** decides what that caller may do. Being logged in as Ana doesn't mean Ana may read Ben's files." },
     { kind: "idea", text: "With **sessions**, the server stores login state and gives the browser a random id in a cookie. Logging out deletes the session, so access ends at once." },
-    { kind: "idea", text: "A **signed token** is a small piece of data plus a signature made with a secret key. Changing even one character breaks the signature, so a forged token is caught." },
+    { kind: "idea", text: "A **signed token** is a small piece of data plus a signature made with a key only the issuer holds. Changing even one character breaks the signature, so a forged token is caught." },
     { kind: "idea", text: "The statements inside a token are its **claims**, like \"user id 42\" and \"expires at 10:15\". The signature proves nobody changed them." },
-    { kind: "idea", text: "A **JWT**, or JSON Web Token, is a common signed-token format. Any service with the key can check it without a lookup, but a stolen one works until it expires." },
+    { kind: "idea", text: "A **JWT**, or JSON Web Token, is a common signed-token format. Services can check it without a lookup, but a stolen one works until it expires. Its claims are readable, not encrypted, so keep secrets out." },
     { kind: "idea", text: "**OAuth 2** lets a user grant an app limited access to their data elsewhere, like \"read my calendar\", without handing over their password. The app gets an access token." },
     { kind: "idea", text: "Refusing access normally returns 403 Forbidden. HTTP's rules also allow 404 Not Found instead, which hides that the resource exists at all." },
     {
@@ -108,6 +108,7 @@ const topic: TopicContent = {
     { title: "OAuth 2.0", url: "https://oauth.net/2/", license: "Link only" },
     { title: "RFC 7519: JSON Web Token", url: "https://datatracker.ietf.org/doc/html/rfc7519", license: "Link only" },
     { title: "System Design Primer: Security", url: "https://github.com/donnemartin/system-design-primer#security", license: "CC BY 4.0" },
+    { title: "RFC 6749: The OAuth 2.0 Authorization Framework", url: "https://www.rfc-editor.org/rfc/rfc6749", license: "Link only" },
   ],
 };
 

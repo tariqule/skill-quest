@@ -31,7 +31,7 @@ const topic: TopicContent = {
         "Click events flow into Kafka keyed by ad_id. Each carries the event time from the user's device.",
         "A Flink job counts clicks per ad in 1-minute tumbling windows by event time, keeping counts as state.",
         "The watermark trails the newest event time by 10 seconds. When it passes 12:01:00, the 12:00 window's count is sent to billing.",
-        "A click stamped 12:00:40 arrives at 12:03 from a phone that was offline. The job adds it as a correction to the 12:00 count.",
+        "A click stamped 12:00:40 arrives at 12:03 from a phone that was offline. The job is set to accept late events, so it sends a corrected 12:00 count. By default Flink would drop it.",
         "The job restarts after a deploy. It reloads its last checkpoint and resumes from the matching Kafka offsets, each record's position in its partition, so no click is counted twice.",
       ],
     },
