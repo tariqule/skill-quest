@@ -76,7 +76,7 @@ const topic: TopicContent = {
       kind: "mcq",
       id: "t-denorm-p1",
       prompt: "After federating users and orders into separate databases, where does \"orders with buyer names\" get joined?",
-      options: ["Inside the orders database", "In the application code", "In the load balancer", "In the CDN"],
+      options: ["Inside the orders database", "In the application code", "In the load balancer", "In a read replica"],
       answer: 1,
       explanation: "The databases can't join across each other, so the app fetches from both and combines them.",
     },

@@ -94,7 +94,7 @@ const topic: TopicContent = {
       kind: "mcq",
       id: "t-replication-p1",
       prompt: "After a failover, two nodes both accept writes as leader. What's this called?",
-      options: ["Write skew", "Split brain", "A phantom", "A hot shard key"],
+      options: ["Write skew", "Split brain", "A phantom", "Replication lag"],
       answer: 1,
       explanation: "Two leaders at once is split brain, and their writes can conflict or be lost.",
     },

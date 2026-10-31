@@ -4,6 +4,7 @@ import { exampleStep } from "@/components/learn/copy";
 import { describe, expect, it } from "vitest";
 import { CURRICULUM, MODULE_TITLES } from "./curriculum";
 import { TOPIC_CONTENT } from "./registry";
+import { prereqClosure, untaughtOptions } from "./taught";
 import { boldTerms, MAX_TERMS_PER_CARD, MODULE_IDS, QUIZ_SHAPE, readerScreens, topicWarnings, validateTopic, type TopicContent } from "./schema";
 
 const MODULES_DIR = join(__dirname, "modules");
@@ -14,9 +15,9 @@ const topicFiles = readdirSync(MODULES_DIR, { withFileTypes: true })
 const valid: TopicContent = TOPIC_CONTENT[0];
 
 describe("curriculum", () => {
-  it("has 48 unique topics across 10 titled modules", () => {
-    expect(CURRICULUM).toHaveLength(48);
-    expect(new Set(CURRICULUM.map((t) => t.id)).size).toBe(48);
+  it("has 49 unique topics across 10 titled modules", () => {
+    expect(CURRICULUM).toHaveLength(49);
+    expect(new Set(CURRICULUM.map((t) => t.id)).size).toBe(49);
     expect(new Set(CURRICULUM.map((t) => t.module))).toEqual(new Set(MODULE_IDS));
     expect(Object.keys(MODULE_TITLES)).toEqual([...MODULE_IDS]);
   });
@@ -166,5 +167,24 @@ describe("one idea per card", () => {
     const t = TOPIC_CONTENT.find((x) => x.id === "t-replication")!;
     const crdt = t.screens.find((s) => s.kind === "idea" && s.text.includes("**CRDT**"));
     expect(crdt && crdt.kind === "idea" && crdt.visual?.kind).toBe("tiles");
+  });
+});
+
+describe("untaughtOptions", () => {
+  it("finds no answer option naming a term the topic or its prerequisites never teach", () => {
+    expect(untaughtOptions(TOPIC_CONTENT)).toEqual([]);
+  });
+
+  it("flags an option whose term only a later topic teaches", () => {
+    const intro = TOPIC_CONTENT.find((t) => t.id === "t-intro")!;
+    const q = intro.quiz.find((x) => x.kind === "mcq")!;
+    const bad = { ...intro, quiz: intro.quiz.map((x) => (x === q ? { ...q, options: [q.options[0], q.options[1], q.options[2], "A Kafka watermark"] as const } : x)) };
+    const out = untaughtOptions([bad], [["watermark", /watermark/i]]);
+    expect(out).toHaveLength(1);
+    expect(out[0]).toContain("watermark");
+  });
+
+  it("follows prerequisites transitively", () => {
+    expect([...prereqClosure("t-appsec")]).toEqual(expect.arrayContaining(["t-security", "t-api", "t-sql-nosql", "t-intro"]));
   });
 });
