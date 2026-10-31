@@ -348,7 +348,7 @@ function handle(req):
         ["Round robin", "Identical servers and short, similar requests"],
         ["Least connections", "Requests that vary a lot in length, or long-lived connections"],
         ["Weighted round robin", "A group that mixes large and small machines"],
-        ["Consistent hashing on a key", "Keeping a user's requests on the same server, whose cache is already warm"],
+        ["Consistent hashing", "Keeping a user's requests on the same server, whose cache is already warm"],
       ],
       explanation: "Round robin ignores how busy servers are. Least connections reacts to it. Weights account for bigger machines. Consistent hashing keeps a key on one server and moves few keys when servers change.",
     },

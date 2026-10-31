@@ -48,7 +48,7 @@ export const CURRICULUM: readonly TopicOutline[] = [
   { id: "t-transactions", title: "Transactions and isolation", module: "m4", prereqs: ["t-sql-nosql"], match: /transaction|ACID|isolation|deadlock|lock/i },
   { id: "t-replication", title: "Replication", module: "m4", prereqs: ["t-sql-nosql", "t-availability"], match: /replica|leader|follower|replication lag|quorum/i, standIns: ["d2-start-copies", "d2-replication"] },
   { id: "t-sharding", title: "Sharding", module: "m4", prereqs: ["t-replication"], match: /shard|partition key|hot (key|partition|shard)/i, standIns: ["d2-sharding"] },
-  { id: "t-denorm", title: "Denormalisation", module: "m4", prereqs: ["t-index"], match: /denormali|join|materiali[sz]ed/i },
+  { id: "t-denorm", title: "Denormalisation", module: "m4", prereqs: ["t-index", "t-sharding"], match: /denormali|join|materiali[sz]ed/i },
   { id: "t-chash", title: "Consistent hashing", module: "m4", prereqs: ["t-sharding"], match: /consistent hashing|hash ring|virtual node/i },
 
   { id: "t-cap", title: "CAP and PACELC", module: "m5", prereqs: ["t-replication"], match: /\bCAP\b|PACELC|network partition/i, standIns: ["d3-cap"] },

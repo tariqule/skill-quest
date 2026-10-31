@@ -49,6 +49,8 @@ describe("registry", () => {
     ["m1", 6],
     ["m2", 4],
     ["m3", 2],
+    ["m4", 7],
+    ["m5", 2],
   ] as const)("writes all of module %s (%i topics), in curriculum order", (module, n) => {
     const ids = CURRICULUM.filter((t) => t.module === module).map((t) => t.id);
     expect(TOPIC_CONTENT.filter((t) => t.module === module).map((t) => t.id)).toEqual(ids);
