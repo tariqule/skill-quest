@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCourse, useProgress } from "@/engine/course-context";
 import { LEVEL_BY_ID } from "@/engine/levels";
+import { useHydrated } from "@/engine/hydrated";
 import { levelInfo } from "@/engine/store";
 import { setGuideOpen, useToasts } from "@/engine/ui-state";
 import { Bar } from "./ui";
@@ -27,6 +28,9 @@ export function Hud() {
   const { course, href } = useCourse();
   const p = useProgress();
   const lvl = levelInfo(p.xp, course.levelTitles);
+  // Placeholder until localStorage is read, so the header never flashes 0 XP / level 1.
+  const ready = useHydrated();
+  const n = (v: number) => (ready ? v : "…");
 
   if (isCodeTrack(course)) {
     const skill = LEVEL_BY_ID[p.level];
@@ -57,16 +61,16 @@ export function Hud() {
             >
               ?<span className="hidden sm:inline"> guide</span>
             </button>
-            <span className="text-orange-300">🔥{p.streak.count}</span>
+            <span className="text-orange-300">🔥{n(p.streak.count)}</span>
             <span className="hidden text-slate-400 sm:inline">
-              {p.today.xp}/{p.dailyGoal}xp
+              {n(p.today.xp)}/{p.dailyGoal}xp
             </span>
             <div className="w-16 sm:w-36">
               <div className="flex justify-between text-[10px] text-slate-500">
-                <span className="text-emerald-300">lv{lvl.level}</span>
-                <span>{p.xp}xp</span>
+                <span className="text-emerald-300">lv{n(lvl.level)}</span>
+                <span>{n(p.xp)}xp</span>
               </div>
-              <Bar value={lvl.into / lvl.needed} color="#34d399" className="h-1.5" />
+              <Bar value={ready ? lvl.into / lvl.needed : 0} color="#34d399" className="h-1.5" />
             </div>
           </div>
         </div>
@@ -95,17 +99,17 @@ export function Hud() {
             📖 <span className="hidden sm:inline">Guide</span>
           </button>
           <span title="Day streak" className="font-semibold text-orange-300">
-            🔥 {p.streak.count}
+            🔥 {n(p.streak.count)}
           </span>
           <span title="XP today vs daily goal" className="hidden sm:inline text-slate-300">
-            🎯 {p.today.xp}/{p.dailyGoal}
+            🎯 {n(p.today.xp)}/{p.dailyGoal}
           </span>
           <div className="w-28 sm:w-40">
             <div className="flex justify-between text-[11px] text-slate-400">
-              <span className="font-semibold text-sky-300">Lv {lvl.level}</span>
-              <span>{p.xp} XP</span>
+              <span className="font-semibold text-sky-300">Lv {n(lvl.level)}</span>
+              <span>{n(p.xp)} XP</span>
             </div>
-            <Bar value={lvl.into / lvl.needed} className="h-1.5" />
+            <Bar value={ready ? lvl.into / lvl.needed : 0} className="h-1.5" />
           </div>
         </div>
       </div>
