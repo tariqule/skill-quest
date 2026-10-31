@@ -65,7 +65,7 @@ const topic: TopicContent = {
     {
       kind: "tf",
       id: "t-cdn-q5",
-      statement: "With a 90% hit rate, the origin still receives 90% of the requests.",
+      statement: "With a 90% hit rate, the origin receives 90% of the requests.",
       answer: false,
       explanation: "Hits are answered at the edge. Only the 10% that miss reach the origin.",
     },

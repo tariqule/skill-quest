@@ -82,13 +82,25 @@ export function LessonPlay() {
     else setMissed((m) => (m.includes(q.id) ? m : [...m, q.id]));
     setLastOk(ok);
     setSubmitted(picked);
+    // Record completion as soon as the final answer is in, so leaving before Continue still counts.
+    const anyMissed = missed.length > 0 || !ok;
+    if (queue.length === 1 && !requeues(q.id, ok) && !(challenge.enabled && anyMissed)) recordCompletion();
+  }
+
+  /** Without the timed challenge, a missed question comes back once at the end. */
+  function requeues(qid: string, ok: boolean) {
+    return !ok && !challenge.enabled && course.config.lesson.retryMissed && !retried.includes(qid);
+  }
+
+  /** Idempotent: the first call records the lesson; later calls keep its first-time flag. */
+  function recordCompletion() {
+    if (store.completeLesson(lesson.id)) setFirstTime(true);
   }
 
   function next() {
     const [q, ...rest] = queue;
     let nextQueue = rest;
-    // Without the timed challenge, missed questions come back once at the end.
-    if (!lastOk && !challenge.enabled && course.config.lesson.retryMissed && !retried.includes(q.id)) {
+    if (requeues(q.id, lastOk)) {
       nextQueue = [...rest, prepare(QUESTION_BY_ID[q.id])];
       setRetried([...retried, q.id]);
     }
@@ -120,7 +132,7 @@ export function LessonPlay() {
   }
 
   function finish() {
-    setFirstTime(store.completeLesson(lesson.id));
+    recordCompletion();
     const { current } = buildPath(course, store.get());
     setNextHref(href(current?.to));
     setPhase("done");
