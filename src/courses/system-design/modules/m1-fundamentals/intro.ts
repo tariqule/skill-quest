@@ -36,7 +36,7 @@ const topic: TopicContent = {
       kind: "mcq",
       id: "t-intro-q1",
       prompt: "Which part runs the app's code and builds each response?",
-      options: ["The server", "The client", "The database", "The network cable"],
+      options: ["The server", "The client", "The database", "The browser"],
       answer: 0,
       explanation: "The server does the work for each request. The client asks, and the database stores data that must last.",
     },

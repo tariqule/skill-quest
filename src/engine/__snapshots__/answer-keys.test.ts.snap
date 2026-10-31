@@ -8357,7 +8357,7 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
     "The one read least recently",
   ],
   "t-cache-evict-q2": [
-    "A copy is never more than 5 minutes old",
+    "The copy expires 5 minutes after it's stored",
   ],
   "t-cache-evict-q3": [
     "A cache stampede",

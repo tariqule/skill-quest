@@ -84,6 +84,19 @@ export function validateTopic(t: TopicContent): string[] {
   return out;
 }
 
+/** True/false wording that tends to give the answer away. */
+const ABSOLUTE = /\b(always|never)\b/i;
+
+/**
+ * Softer checks than `validateTopic`: wording worth a second look rather than a hard rule.
+ * "Always" and "never" usually signal a false statement, so they make true/false too easy.
+ */
+export function topicWarnings(t: TopicContent): string[] {
+  return [...t.quiz, ...t.practice].flatMap((q) =>
+    q.kind === "tf" && ABSOLUTE.test(q.statement) ? [`topic "${t.id}": true/false "${q.id}" says always or never, which gives the answer away`] : [],
+  );
+}
+
 /**
  * The reader screens one content screen becomes. A worked example gets one screen per step so
  * each stays short. Only the first step carries the title, so the steps don't read as repeats.

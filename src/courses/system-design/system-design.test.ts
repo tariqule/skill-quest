@@ -4,7 +4,7 @@ import { exampleStep } from "@/components/learn/copy";
 import { describe, expect, it } from "vitest";
 import { CURRICULUM, MODULE_TITLES } from "./curriculum";
 import { TOPIC_CONTENT } from "./registry";
-import { MODULE_IDS, QUIZ_SHAPE, readerScreens, validateTopic, type TopicContent } from "./schema";
+import { MODULE_IDS, QUIZ_SHAPE, readerScreens, topicWarnings, validateTopic, type TopicContent } from "./schema";
 
 const MODULES_DIR = join(__dirname, "modules");
 const topicFiles = readdirSync(MODULES_DIR, { withFileTypes: true })
@@ -67,6 +67,10 @@ describe.each(TOPIC_CONTENT.map((t) => [t.id, t] as const))("topic %s", (_, t) =
     expect(validateTopic(t)).toEqual([]);
   });
 
+  it("has no wording warnings, such as always or never in a true/false statement", () => {
+    expect(topicWarnings(t)).toEqual([]);
+  });
+
   it(`mixes ${QUIZ_SHAPE.mcq} multiple choice and ${QUIZ_SHAPE.tf} true/false, one true and one false`, () => {
     expect(t.quiz.filter((q) => q.kind === "mcq")).toHaveLength(QUIZ_SHAPE.mcq);
     const tf = t.quiz.flatMap((q) => (q.kind === "tf" ? [q.answer] : []));
@@ -76,6 +80,15 @@ describe.each(TOPIC_CONTENT.map((t) => [t.id, t] as const))("topic %s", (_, t) =
   it("only needs earlier topics for its practice items", () => {
     const before = CURRICULUM.slice(0, CURRICULUM.findIndex((o) => o.id === t.id)).map((o) => o.id);
     for (const need of t.practiceNeeds ?? []) expect(before).toContain(need);
+  });
+});
+
+describe("topicWarnings", () => {
+  it("flags always or never in a true/false statement, and nothing else", () => {
+    const tf = (statement: string) => ({ kind: "tf" as const, id: "t-x-q9", statement, answer: false, explanation: "x" });
+    expect(topicWarnings({ ...valid, quiz: [tf("Caches never go stale.")], practice: [] })).toHaveLength(1);
+    expect(topicWarnings({ ...valid, quiz: [tf("ALWAYS wins.")], practice: [tf("Caches can go stale.")] })).toHaveLength(1);
+    expect(topicWarnings({ ...valid, quiz: [tf("Caches can go stale.")], practice: [] })).toEqual([]);
   });
 });
 

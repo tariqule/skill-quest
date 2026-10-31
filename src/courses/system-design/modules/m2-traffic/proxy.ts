@@ -52,7 +52,7 @@ const topic: TopicContent = {
       kind: "mcq",
       id: "t-proxy-q3",
       prompt: "Who sees only the reverse proxy and not the servers behind it?",
-      options: ["The servers' own disks", "The database admins", "The clients", "The servers themselves"],
+      options: ["The load balancer's health checks", "The database", "The clients", "The servers themselves"],
       answer: 2,
       explanation: "Clients send requests to the reverse proxy's address and never learn which server answered.",
     },
@@ -66,7 +66,7 @@ const topic: TopicContent = {
     {
       kind: "tf",
       id: "t-proxy-q5",
-      statement: "An API gateway is the best place for each service's business rules.",
+      statement: "Each service's business rules belong in the API gateway.",
       answer: false,
       explanation: "The gateway should own shared jobs only. Business rules in it make it a release bottleneck.",
     },

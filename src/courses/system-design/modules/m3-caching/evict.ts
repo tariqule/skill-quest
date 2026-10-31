@@ -43,8 +43,8 @@ const topic: TopicContent = {
     {
       kind: "mcq",
       id: "t-cache-evict-q2",
-      prompt: "What does a TTL of 5 minutes guarantee?",
-      options: ["A copy is never more than 5 minutes old", "The cache restarts every 5 minutes", "Writes reach the database in 5 minutes", "Each key is read once per 5 minutes"],
+      prompt: "What does a TTL of 5 minutes on a cached copy mean?",
+      options: ["The copy expires 5 minutes after it's stored", "The cache restarts every 5 minutes", "Writes reach the database in 5 minutes", "Each key is read once per 5 minutes"],
       answer: 0,
       explanation: "After 5 minutes the copy expires, which caps how stale it can be.",
     },
@@ -66,7 +66,7 @@ const topic: TopicContent = {
     {
       kind: "tf",
       id: "t-cache-evict-q5",
-      statement: "A longer TTL always gives users fresher data.",
+      statement: "A longer TTL means users see changes sooner.",
       answer: false,
       explanation: "A longer TTL keeps copies longer, so data can be staler. It does cut misses.",
     },
@@ -76,9 +76,9 @@ const topic: TopicContent = {
       kind: "mcq",
       id: "t-cache-evict-p1",
       prompt: "A user updates their name. What's the usual way to keep cache-aside reads correct?",
-      options: ["Restart the whole cache cluster", "Update the database, then delete the key", "Double every TTL in the cache", "Write the new name only to the cache"],
+      options: ["Wait for the key's TTL to expire", "Update the database, then delete the key", "Delete the key, then update the database", "Write the new name only to the cache"],
       answer: 1,
-      explanation: "Deleting the key makes the next read miss and load the new name from the database.",
+      explanation: "Deleting the key makes the next read miss and load the new name. Deleting before the update leaves a gap where a read can put the old name back.",
     },
     {
       kind: "tf",
