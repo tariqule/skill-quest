@@ -2,6 +2,8 @@
 
 import { useEffect, useState, type CSSProperties } from "react";
 import { MascotSays } from "@/components/fx";
+import { useHydrated } from "@/engine/hydrated";
+import { clearCard, readCard, writeCard } from "@/engine/reading";
 import type { Lesson } from "@/engine/types";
 import { RichText } from "./code";
 import { exampleStep, quickQuestions } from "./copy";
@@ -30,15 +32,30 @@ export function LessonReader({
   tipLabel,
   onDone,
   questionCount,
+  resumeKey,
 }: {
   lesson: Pick<Lesson, "title" | "visual" | "points" | "pointVisuals" | "tip" | "sources">;
   color: string;
   tipLabel: string;
   onDone: () => void;
   questionCount: number;
+  /** Storage key for the current card, so a reload resumes where the learner was. */
+  resumeKey?: string;
 }) {
   const steps = readerSteps(lesson);
-  const [i, setI] = useState(0);
+  const hydrated = useHydrated();
+  // Until the learner moves, start on the saved card (storage only exists once hydrated).
+  const [moved, setMoved] = useState<number | null>(null);
+  const i = moved ?? (hydrated && resumeKey ? readCard(window.localStorage, resumeKey, steps.length) : 0);
+  const setI = (to: number | ((n: number) => number)) => {
+    const n = typeof to === "function" ? to(i) : to;
+    setMoved(n);
+    if (resumeKey) writeCard(window.localStorage, resumeKey, Math.min(n, steps.length - 1));
+  };
+  const finish = () => {
+    if (resumeKey) clearCard(window.localStorage, resumeKey);
+    onDone();
+  };
   const ready = i >= steps.length;
   const step = steps[i];
   const next = () => setI((n) => Math.min(steps.length, n + 1));
@@ -51,7 +68,7 @@ export function LessonReader({
       if (e.metaKey || e.ctrlKey || e.altKey || (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) || t?.isContentEditable) return;
       if (e.key === "ArrowRight" || e.key === "Enter") {
         e.preventDefault();
-        if (ready) onDone();
+        if (ready) finish();
         else next();
       } else if (e.key === "ArrowLeft") back();
     }
@@ -135,7 +152,7 @@ export function LessonReader({
               </button>
               <button
                 type="button"
-                onClick={onDone}
+                onClick={finish}
                 className="btn-3d flex-1 rounded-2xl bg-emerald-400 py-3.5 text-lg font-black text-slate-950"
                 style={{ "--edge": "#047857" } as CSSProperties}
               >

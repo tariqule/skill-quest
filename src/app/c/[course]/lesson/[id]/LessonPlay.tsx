@@ -18,6 +18,7 @@ import { effectiveLevel, pathLessons } from "@/engine/levels";
 import { answerText, challengeDeck, isCorrect, pct, prepare, type PreparedQuestion } from "@/engine/game";
 import { buildPath } from "@/engine/path";
 import { lessonGate, moduleLessonLabel, nextMapLesson } from "@/engine/practice";
+import { readingKey } from "@/engine/reading";
 
 /**
  * teach → check → done when every check is right.
@@ -184,7 +185,7 @@ export function LessonPlay() {
       )}
 
       {phase === "teach" && gentle && gateNeeds.length === 0 && (
-        <LessonReader lesson={lesson} color={domain.color} tipLabel={copy.tip} questionCount={lesson.check.length} onDone={startCheck} />
+        <LessonReader lesson={lesson} color={domain.color} tipLabel={copy.tip} questionCount={lesson.check.length} onDone={startCheck} resumeKey={readingKey(course.id, lesson.id)} />
       )}
 
       {phase === "teach" && !gentle && gateNeeds.length === 0 && (
