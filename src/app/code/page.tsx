@@ -79,10 +79,7 @@ export default function CodeHub() {
                   ]}
                 />
               </div>
-              <p className="mt-4 font-mono text-xs text-slate-500">
-                <span className="hidden pointer-fine:inline">↗ Move your pointer over the galaxy. Click a planet to jump into its track.</span>
-                <span className="pointer-fine:hidden">👆 Tap a planet to name it, tap again to jump into its track.</span>
-              </p>
+              <p className="mt-4 text-sm text-muted-foreground">Select a planet to open its track, or browse every track below.</p>
             </div>
             <Galaxy3D
               items={galaxy}
@@ -110,9 +107,25 @@ export default function CodeHub() {
           </div>
         </section>
 
-        <section className="z-10 sm:sticky sm:top-14 -mx-4 mt-8 border-y border-white/5 bg-[#03070d]/85 px-4 py-3 backdrop-blur">
-          <div className="flex flex-wrap items-center gap-3">
-            <label className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-white/10 bg-[#07111c] px-3 py-2 font-mono text-sm focus-within:border-emerald-400/60 sm:max-w-md">
+        <section aria-label="Level and filters" className="sticky top-14 z-10 -mx-4 mt-8 border-y border-border bg-background/90 px-4 py-3 backdrop-blur">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <label className="flex min-h-11 shrink-0 items-center gap-2 text-sm text-muted-foreground">
+              <span className="sr-only sm:not-sr-only">Level</span>
+              <select
+                value={level === "mixed" ? "" : level}
+                onChange={(e) => setSharedLevel(COURSES_ONLY, e.target.value as LevelChoice)}
+                className="h-10 rounded-lg border border-input bg-background px-2 text-base font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring sm:text-sm"
+                aria-label="Level for every track"
+              >
+                {level === "mixed" && <option value="">Mixed</option>}
+                {levelOptions({ kind: "interview" }).map((l) => (
+                  <option key={l.id} value={l.id}>
+                    {l.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="flex min-h-10 min-w-0 flex-1 items-center gap-2 rounded-xl border border-white/10 bg-[#07111c] px-3 py-2 font-mono text-sm focus-within:border-emerald-400/60 sm:max-w-md">
               <span className="text-emerald-300">$ grep</span>
               <input
                 ref={search}
@@ -130,6 +143,10 @@ export default function CodeHub() {
                 <kbd className="rounded border border-white/15 px-1.5 text-[10px] text-slate-500">/</kbd>
               )}
             </label>
+          </div>
+        </section>
+        <section aria-label="Track filters" className="mt-4">
+          <div className="flex flex-wrap items-center gap-3">
             <div className="flex rounded-xl border border-white/10 bg-[#07111c] p-1 font-mono text-xs" role="tablist" aria-label="Track type">
               {TRACK_FOCUSES.map((f) => {
                 const on = focus === f.id;
