@@ -22,7 +22,7 @@ const topic: TopicContent = {
     { kind: "idea", text: "**Data ownership** means each service owns its database and others ask through its API. Shared tables quietly tie services back together." },
     { kind: "idea", text: "A **distributed monolith** is the worst of both: services that must be deployed together because they share a database or call each other in long chains." },
     { kind: "idea", text: "The **strangler fig** pattern replaces a monolith piece by piece. A router sends one path to a new service, the rest to the old app, until nothing is left in the old app." },
-    { kind: "idea", text: "Services run in containers on a **scheduler** that picks machines, restarts crashes and scales copies. Google's Borg did this internally, and Kubernetes grew from its lessons." },
+    { kind: "idea", text: "Each service runs as several copies on many machines. A **scheduler**, such as Kubernetes, picks a machine for each copy, restarts copies that crash, and adds copies under load." },
     {
       kind: "example",
       title: "Pulling checkout out with a strangler fig",
@@ -48,16 +48,16 @@ const topic: TopicContent = {
     {
       kind: "mcq",
       id: "t-micro-q2",
-      prompt: "What does a container scheduler such as Kubernetes do?",
-      options: ["Places and restarts containers", "Encodes events in Protobuf", "Replaces the load balancer's TLS", "Runs nightly batch reports"],
+      prompt: "One copy of the checkout service crashes at 3 a.m. What starts a new copy with no person involved?",
+      options: ["The scheduler", "The load balancer's health check", "Retries from the calling service", "The strangler fig router"],
       answer: 0,
-      explanation: "It chooses machines for containers, restarts failed ones, and scales the number of copies.",
+      explanation: "The scheduler restarts crashed copies. A health check only stops sending traffic to it, and retries only resend calls.",
     },
     {
       kind: "mcq",
       id: "t-micro-q3",
       prompt: "Five services share one database and must deploy together. What is this?",
-      options: ["A modular monolith", "A distributed monolith", "A strangler fig rollout", "A service registry"],
+      options: ["A modular monolith", "A distributed monolith", "A strangler fig rollout", "Independent deploys"],
       answer: 1,
       explanation: "They're split in name only. The shared data ties their deploys together.",
     },
@@ -105,7 +105,6 @@ const topic: TopicContent = {
   sources: [
     { title: "Martin Fowler: StranglerFigApplication", url: "https://martinfowler.com/bliki/StranglerFigApplication.html", license: "Link only" },
     { title: "Building Microservices (Newman)", url: "https://samnewman.io/books/building_microservices_2nd_edition/", license: "Link only" },
-    { title: "Large-scale cluster management at Google with Borg (Verma et al., 2015)", url: "https://research.google/pubs/large-scale-cluster-management-at-google-with-borg/", license: "Link only" },
     { title: "System Design Primer: Microservices", url: "https://github.com/donnemartin/system-design-primer#microservices", license: "CC BY 4.0" },
   ],
 };
