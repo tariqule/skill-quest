@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import { CodeRain, LevelPicker, TerminalWindow, Typewriter } from "@/components/code/ui";
+import { LevelPicker, TerminalWindow, Typewriter } from "@/components/code/ui";
 import { Tilt } from "@/components/fx";
+import { AppBar } from "@/components/Hud";
 import { Galaxy3D } from "@/components/three";
 import { COURSES } from "@/courses";
 import { overallReadiness, pct } from "@/engine/game";
@@ -58,22 +59,12 @@ export default function CodeHub() {
 
   return (
     <div className="code-theme flex min-h-full flex-1 flex-col">
-      <CodeRain />
-      <header className="sticky top-0 z-20 border-b border-emerald-400/20 bg-[#03070d]/90 font-mono backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-2.5 text-sm">
-          <span className="font-black text-emerald-300">&lt;/&gt;</span>
-          <span className="font-bold text-white">code-quest</span>
-          <Link href="/" className="ml-auto text-slate-400 hover:text-white">
-            🎓 certifications →
-          </Link>
-        </div>
-      </header>
-
+      <AppBar />
       <main className="mx-auto w-full min-w-0 max-w-6xl px-4 py-8 sm:py-10">
         <TerminalWindow title="~/code-quest — zsh">
           <div className="grid items-center gap-4 lg:grid-cols-[1fr_1.1fr]">
             <div className="min-w-0">
-              <h1 className="glitch text-4xl font-black text-white sm:text-5xl">Code Quests</h1>
+              <h1 className="text-4xl font-black text-white sm:text-5xl">Code Quests</h1>
               <p className="mt-2 max-w-xl text-slate-300">
                 Learn a skill from scratch or prep for the interview. Every concept comes with code you can poke at, labs that react as you play, bug hunts,
                 and a timed challenge at your level.
@@ -119,7 +110,7 @@ export default function CodeHub() {
           </div>
         </section>
 
-        <section className="z-10 sm:sticky sm:top-[45px] -mx-4 mt-8 border-y border-white/5 bg-[#03070d]/85 px-4 py-3 backdrop-blur">
+        <section className="z-10 sm:sticky sm:top-14 -mx-4 mt-8 border-y border-white/5 bg-[#03070d]/85 px-4 py-3 backdrop-blur">
           <div className="flex flex-wrap items-center gap-3">
             <label className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-white/10 bg-[#07111c] px-3 py-2 font-mono text-sm focus-within:border-emerald-400/60 sm:max-w-md">
               <span className="text-emerald-300">$ grep</span>
