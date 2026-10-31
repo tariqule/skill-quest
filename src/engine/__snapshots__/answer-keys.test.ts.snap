@@ -8368,6 +8368,21 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
   "t-api-q5": [
     "False",
   ],
+  "t-appsec-q1": [
+    "Parameterized queries",
+  ],
+  "t-appsec-q2": [
+    "Least privilege",
+  ],
+  "t-appsec-q3": [
+    "On the server, before it's used",
+  ],
+  "t-appsec-q4": [
+    "True",
+  ],
+  "t-appsec-q5": [
+    "False",
+  ],
   "t-availability-q1": [
     "About 8.8 hours",
   ],
@@ -8657,7 +8672,7 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
     "A strangler fig with a router",
   ],
   "t-micro-q2": [
-    "Places and restarts containers",
+    "The scheduler",
   ],
   "t-micro-q3": [
     "A distributed monolith",
@@ -8777,7 +8792,7 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
     "Authorization",
   ],
   "t-security-q2": [
-    "Parameterized queries",
+    "The site's certificate",
   ],
   "t-security-q3": [
     "Server-side sessions",

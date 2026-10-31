@@ -33,6 +33,7 @@ import encoding from "./modules/m7-apis/encoding";
 import micro from "./modules/m7-apis/micro";
 import realtime from "./modules/m7-apis/realtime";
 import security from "./modules/m7-apis/security";
+import appsec from "./modules/m7-apis/appsec";
 
 /** Every written topic. Adding a topic = one file under `modules/` plus one line here. */
 export const TOPIC_CONTENT: readonly TopicContent[] = [
@@ -42,5 +43,5 @@ export const TOPIC_CONTENT: readonly TopicContent[] = [
   sqlNosql, indexes, transactions, replication, sharding, denorm, chash,
   cap, consistency,
   queues, kafkaLog, kafkaReliability, kafkaRetention, batch, stream,
-  api, api2, encoding, realtime, micro, discovery, security,
+  api, api2, encoding, realtime, micro, discovery, security, appsec,
 ];

@@ -26,7 +26,7 @@ export const MODULE_TITLES: Record<ModuleId, string> = {
   m10: "Interview method",
 };
 
-/** The full 48-topic syllabus, in study order. Prerequisites always point at earlier topics. */
+/** The full 49-topic syllabus, in study order. Prerequisites always point at earlier topics. */
 export const CURRICULUM: readonly TopicOutline[] = [
   { id: "t-intro", title: "What is system design?", module: "m1", prereqs: [], match: /\bclient|\bserver\b|request|response/i },
   { id: "t-network", title: "How a request travels", module: "m1", prereqs: ["t-intro"], match: /\bDNS\b|\bTCP\b|\bTLS\b|\bHTTP|\bIP address/i },
@@ -66,8 +66,9 @@ export const CURRICULUM: readonly TopicOutline[] = [
   { id: "t-encoding", title: "Encoding and schema evolution", module: "m7", prereqs: ["t-api"], match: /encoding|protobuf|avro|schema evolution|schema registry|backward compat|forward compat/i },
   { id: "t-realtime", title: "Real-time delivery", module: "m7", prereqs: ["t-api"], match: /websocket|long poll|server-sent|push notification|real-time/i, standIns: ["d4-feed-chat"] },
   { id: "t-micro", title: "Monoliths vs microservices", module: "m7", prereqs: ["t-api"], match: /microservice|monolith|strangler|service boundar/i },
-  { id: "t-discovery", title: "Service discovery", module: "m7", prereqs: ["t-micro", "t-lb"], match: /service discovery|service registry|consul|ephemeral node/i },
-  { id: "t-security", title: "Security basics for designs", module: "m7", prereqs: ["t-api", "t-proxy"], match: /auth|OAuth|JWT|TLS|encrypt|SQL injection|least privilege/i },
+  { id: "t-discovery", title: "Service discovery", module: "m7", prereqs: ["t-micro", "t-lb"], match: /service discovery|service registry|consul|etcd/i },
+  { id: "t-security", title: "Security basics for designs", module: "m7", prereqs: ["t-api", "t-proxy"], match: /auth|OAuth|JWT|TLS|encrypt|certificate/i },
+  { id: "t-appsec", title: "Security: least privilege and input", module: "m7", prereqs: ["t-security", "t-sql-nosql"], match: /SQL injection|least privilege|input validation|parameteri[sz]ed/i },
 
   { id: "t-fault", title: "Retries, timeouts and circuit breakers", module: "m8", prereqs: ["t-availability"], match: /retr|timeout|backoff|jitter|circuit breaker/i, standIns: ["d3-start-retries"] },
   { id: "t-overload", title: "Overload and backpressure", module: "m8", prereqs: ["t-fault"], match: /overload|backpressure|load shed|bulkhead/i, standIns: ["d4-reliability"] },

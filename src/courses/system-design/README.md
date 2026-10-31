@@ -2,7 +2,7 @@
 
 Content for the System Design course (`src/courses/code-system-design`), kept as plain data.
 
-- `curriculum.ts`: the 48-topic syllabus in study order, with modules, prerequisites, tagging
+- `curriculum.ts`: the 49-topic syllabus in study order, with modules, prerequisites, tagging
   patterns and any older lessons that stand in until a topic is written.
 - `schema.ts`: the `TopicContent` type and `validateTopic`, which every topic must pass.
 - `modules/<module>/<topic>.ts`: one topic per file: screens (one idea each, at least one worked
