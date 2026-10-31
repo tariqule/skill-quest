@@ -118,11 +118,14 @@ export const MAX_TERMS_PER_CARD = 1;
  * The distinct bolded terms on a card, a cheap stand-in for "how many ideas does this teach".
  * Plurals and terms contained in another bolded term count once.
  */
+/**
+ * Distinct bold spans on a card. Every span counts as its own term; only an exact repeat of the
+ * same term (case, spacing and a plural "s" aside) counts once. "leader-follower", "leader" and
+ * "followers" are three terms, not one: a word inside a longer term is still a separate idea.
+ */
 export function boldTerms(text: string): string[] {
-  const raw = [...text.matchAll(/\*\*([^*]+)\*\*/g)].map((m) => m[1].toLowerCase().trim().replace(/([^su])s$/, "$1"));
-  const uniq = [...new Set(raw)];
-  const within = (a: string, b: string) => new RegExp(`(^|[^a-z])${a.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^a-z]|$)`).test(b);
-  return uniq.filter((a) => !uniq.some((b) => b !== a && within(a, b)));
+  const raw = [...text.matchAll(/\*\*([^*]+)\*\*/g)].map((m) => m[1].toLowerCase().trim().replace(/\s+/g, " ").replace(/([^su])s$/, "$1"));
+  return [...new Set(raw)];
 }
 
 export function readerScreens(s: Screen): string[] {

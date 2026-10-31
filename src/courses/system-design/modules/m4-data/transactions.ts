@@ -16,7 +16,7 @@ const topic: TopicContent = {
   screens: [
     { kind: "idea", text: "A **transaction** groups several reads and writes into one unit. Either all of them take effect or none do, so a transfer never takes money out without putting it in." },
     { kind: "idea", text: "**ACID** names a transaction's promises: atomic (all or nothing), consistent (rules hold), isolated (concurrent transactions don't interfere) and durable (committed data survives a crash)." },
-    { kind: "idea", text: "**Isolation** is the hard part. Running transactions one at a time would be perfectly safe but slow, so databases let them overlap and offer **isolation levels** that allow some anomalies in exchange for speed." },
+    { kind: "idea", text: "Isolation is the hard part. Running transactions one at a time would be perfectly safe but slow, so databases let them overlap and offer **isolation levels** that allow some anomalies in exchange for speed." },
     { kind: "idea", text: "A **dirty read** is seeing another transaction's write before it commits. If that transaction rolls back, you acted on data that never existed. Read committed, a common default, prevents it." },
     { kind: "idea", text: "A **lost update** happens when two transactions read the same value, both change it, and the second write silently overwrites the first. Two people adding to one counter can lose an increment this way." },
     { kind: "idea", text: "**Snapshot isolation** gives each transaction a consistent snapshot of the database as of its start. Rows other transactions change later stay invisible until it finishes." },

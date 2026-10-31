@@ -148,7 +148,8 @@ describe("validateTopic error paths", () => {
 
 describe("one idea per card", () => {
   it("counts distinct bolded terms, folding plurals and contained forms", () => {
-    expect(boldTerms("The **leader-follower** setup has a **leader** and **followers**.")).toEqual(["leader-follower"]);
+    expect(boldTerms("The **leader-follower** setup has a **leader** and **followers**.")).toEqual(["leader-follower", "leader", "follower"]);
+    expect(boldTerms("A **cache** in front, then a second **Caches** hit.")).toEqual(["cache"]);
     expect(boldTerms("**synchronous** vs **asynchronous**")).toEqual(["synchronous", "asynchronous"]);
     expect(boldTerms("plain text")).toEqual([]);
   });

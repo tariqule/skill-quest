@@ -14,7 +14,7 @@ const topic: TopicContent = {
   },
   screens: [
     { kind: "idea", text: "**Replication** keeps copies of the same data on several machines. It lets you survive a machine failing, serve more reads, and put data closer to users." },
-    { kind: "idea", text: "The common setup is **leader-follower**. One **leader** takes all writes and streams each change to **followers**, which apply it in the same order. Reads can go to any copy." },
+    { kind: "idea", text: "The common setup is **leader-follower**. One leader takes all writes and streams each change to followers, which apply it in the same order. Reads can go to any copy." },
     { kind: "idea", text: "With **synchronous** replication, the leader waits for a follower to confirm before telling the client the write succeeded. Safer, but every write is only as fast as that follower." },
     { kind: "idea", text: "With **asynchronous** replication, the leader confirms at once and sends the change after. Writes are faster, but if the leader crashes, the newest writes can be lost." },
     { kind: "idea", text: "Asynchronous followers run a little behind. That delay is **replication lag**, usually milliseconds, sometimes seconds. A read from a lagging follower returns old data." },
