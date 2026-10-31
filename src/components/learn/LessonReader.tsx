@@ -78,7 +78,7 @@ export function LessonReader({
 
   const total = steps.length + 1;
   return (
-    <div className="card-in pb-28">
+    <div className="card-in" style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 9rem)" }}>
       <h1 className="mt-3 text-2xl font-black leading-tight text-white sm:text-3xl">{lesson.title}</h1>
 
       {/* Dots: one per card, filled once you've seen it. */}
