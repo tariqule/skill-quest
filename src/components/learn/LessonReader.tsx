@@ -86,9 +86,10 @@ export function LessonReader({
 
         {step?.kind === "point" && (
           <div className="flex min-h-56 flex-col justify-center rounded-3xl border border-white/10 bg-slate-900/70 p-6 sm:p-10" style={{ boxShadow: `0 20px 60px -30px ${color}` }}>
+            {/* Ideas are numbered among themselves; example steps carry their own "Step k of N". */}
             {!exampleStep(step.text) && (
               <span className="mb-4 flex h-9 w-9 items-center justify-center rounded-full text-base font-black text-slate-950" style={{ background: color }}>
-                {step.index + 1}
+                {lesson.points.slice(0, step.index + 1).filter((p) => !exampleStep(p)).length}
               </span>
             )}
             <p className=" text-xl leading-relaxed text-white sm:text-2xl sm:leading-relaxed">

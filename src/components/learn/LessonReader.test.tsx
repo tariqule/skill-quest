@@ -15,7 +15,7 @@ afterEach(() => {
 const LESSON = {
   title: "T",
   visual: <div>picture</div>,
-  points: ["An idea.", "**Worked example: W. Step 1 of 2.** First.", "**Step 2 of 2.** Second."],
+  points: ["An idea.", "**Worked example: W. Step 1 of 2.** First.", "**Step 2 of 2.** Second.", "Another idea."],
   tip: "A tip.",
   sources: [{ title: "A source", url: "https://example.com", license: "CC BY 4.0" }],
 };
@@ -40,11 +40,13 @@ describe("LessonReader", () => {
     expect(div.textContent).toContain("Step 1 of 2");
     next();
     expect(badge()).toBeNull();
+    next();
+    expect(badge()?.textContent).toBe("2");
   });
 
   it("credits sources once, on the closing screen", () => {
     const { div, next } = mount();
-    for (let k = 0; k < 5; k++) {
+    for (let k = 0; k < 6; k++) {
       expect(div.textContent).not.toContain("A source");
       next();
     }
