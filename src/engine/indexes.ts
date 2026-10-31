@@ -29,10 +29,31 @@ export function indexCourse(course: Course): CourseIndex {
       lesson: byId,
       allLessons,
       lessonForQuestion: Object.fromEntries(
-        course.questions.flatMap((q) => (q.lesson && byId[q.lesson] ? [[q.id, byId[q.lesson]]] : [])),
+        course.questions.flatMap((q) => {
+          const l = revisitLesson(q, byId, course.topics);
+          return l ? [[q.id, l]] : [];
+        }),
       ),
     };
     indexes.set(course, idx);
   }
   return idx;
+}
+
+/**
+ * The lesson "Revisit the concept" opens for a question. A tagged question points at the lesson
+ * of its first (primary) tagged topic that has one (its own lesson, else its first stand-in), so retagged legacy items never send the
+ * player back to the lesson they were written for. Untagged questions keep their own lesson.
+ */
+export function revisitLesson<L>(
+  q: Question,
+  byId: Record<string, L>,
+  topics: readonly { id: string; standIns?: readonly string[] }[] = [],
+): L | undefined {
+  for (const c of q.concepts ?? []) {
+    if (byId[c]) return byId[c];
+    const standIn = topics.find((t) => t.id === c)?.standIns?.find((id) => byId[id]);
+    if (standIn) return byId[standIn];
+  }
+  return q.lesson ? byId[q.lesson] : undefined;
 }

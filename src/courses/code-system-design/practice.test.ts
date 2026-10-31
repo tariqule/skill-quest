@@ -114,3 +114,23 @@ describe("topicProblems error paths", () => {
     expect(problems({ topics: undefined })).toMatch(/practice content but no topics/);
   });
 });
+
+describe("revisit the concept", () => {
+  it("points every served question at a lesson of one of its tagged topics", async () => {
+    const { indexCourse, revisitLesson } = await import("@/engine/indexes");
+    const idx = indexCourse(course);
+    const bad: string[] = [];
+    for (const q of practicePool(course)) {
+      const target = idx.lessonForQuestion[q.id] ?? revisitLesson(q, idx.lesson, topics);
+      const allowed = new Set((q.concepts ?? []).flatMap((c) => [c, ...(topics.find((t) => t.id === c)?.standIns ?? [])]));
+      if (!target || !allowed.has(target.id)) bad.push(`${q.id} -> ${target?.id ?? "none"} (tags ${q.concepts?.join(",")})`);
+    }
+    expect(bad).toEqual([]);
+  });
+
+  it("sends the retagged Kafka items d3-04 and d3-05 to the Kafka lessons", async () => {
+    const { indexCourse } = await import("@/engine/indexes");
+    const idx = indexCourse(course);
+    for (const id of ["d3-04", "d3-05"]) expect(idx.lessonForQuestion[id]?.id).toMatch(/^t-kafka-/);
+  });
+});

@@ -1,29 +1,30 @@
 import { describe, expect, it } from "vitest";
-import { TOPIC_CONTENT } from "@/courses/system-design/registry";
+import { practicePool } from "@/engine/practice";
 import { LONGEST_MARGIN, longestChanceLimit, rightIsLongest } from "@/courses/system-design/schema";
 import type { ChoiceQuestion } from "@/engine/types";
 import course from ".";
 
 /**
- * Every single-answer choice item that topic practice can serve (all its tags are written topics)
- * must not give itself away by length: the right option may tie the longest wrong one but never
- * be the single longest.
+ * Every choice item practice can serve, topic and legacy alike, must not give itself away by
+ * length: a right option may tie the longest wrong one but never be the single longest.
  */
-const written = new Set(TOPIC_CONTENT.map((t) => t.id));
-const served = [...course.questions, ...(course.practice ?? [])].filter(
-  (q): q is ChoiceQuestion => !("type" in q && q.type) && "options" in q && !(q as ChoiceQuestion).tf && (q as ChoiceQuestion).answer.length === 1 && !!q.concepts?.length && q.concepts.every((c) => written.has(c)),
+const served = practicePool(course).filter(
+  (q): q is ChoiceQuestion => !("type" in q && q.type) && "options" in q && !(q as ChoiceQuestion).tf && !!q.concepts?.length,
 );
+const single = served.filter((q) => q.answer.length === 1);
+const topicIds = [...new Set(served.flatMap((q) => q.concepts!))];
 
 describe("served items don't give the answer away by length", () => {
   it("covers a real pool", () => expect(served.length).toBeGreaterThan(50));
+  it("covers every legacy item too", () => expect(served.some((q) => q.id === "d3-05")).toBe(true));
   it.each(served.map((q) => [q.id, q] as const))("%s", (_id, q) => {
-    const right = q.options[q.answer[0]].length;
-    const wrong = Math.max(...q.options.filter((_, i) => i !== q.answer[0]).map((o) => o.length));
+    const right = Math.max(...q.answer.map((i) => q.options[i].length));
+    const wrong = Math.max(...q.options.filter((_, i) => !q.answer.includes(i)).map((o) => o.length));
     expect(right, q.options.join(" | ")).toBeLessThanOrEqual(wrong + LONGEST_MARGIN);
   });
   it("has the right option (joint) longest no more often than chance in each topic's served pool", () => {
-    for (const topic of written) {
-      const mine = served.filter((q) => q.concepts![0] === topic);
+    for (const topic of topicIds) {
+      const mine = single.filter((q) => q.concepts![0] === topic);
       const longest = mine.filter((q) => rightIsLongest(q.options, q.answer[0])).map((q) => q.id);
       expect(longest.length, `${topic}: ${longest.join(", ")}`).toBeLessThanOrEqual(longestChanceLimit(mine));
     }

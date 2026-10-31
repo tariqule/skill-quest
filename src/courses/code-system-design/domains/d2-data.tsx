@@ -318,9 +318,9 @@ and its predecessor move
       prompt: "What do you pay for adding an index to a table? (Choose two.)",
       options: [
         "Extra storage for the index structure",
-        "Slower inserts and updates, because each write must also update the index",
+        "Slower writes, since every write updates the index too",
         "Slower point lookups on the indexed column",
-        "Weaker transaction isolation",
+        "Weaker transaction isolation for every query on that table",
       ],
       answer: [0, 1],
       explanation: "Indexes make matching reads much faster, but they take disk space and add work to every write. They don't change transaction isolation.",

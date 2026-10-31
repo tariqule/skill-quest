@@ -8155,7 +8155,7 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
   ],
   "d2-05": [
     "Extra storage for the index structure",
-    "Slower inserts and updates, because each write must also update the index",
+    "Slower writes, since every write updates the index too",
   ],
   "d2-07": [
     "\`SELECT * FROM posts WHERE id < :last_seen_id ORDER BY id DESC LIMIT 20\`",
@@ -8209,11 +8209,11 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
     "6, and 2 sit idle",
   ],
   "d3-05": [
-    "Use order_id as the message key so all events for one order go to the same partition",
+    "Key events by order_id so each order stays on one partition",
   ],
   "d3-06": [
     "Add consumers, up to the partition count, and add partitions if needed",
-    "Alert on lag and push back: slow down or shed producers, or pause non-essential work",
+    "Alert on lag and push back: slow producers or pause non-essential work",
   ],
   "d3-07": [
     "Consistency and availability",
@@ -8232,8 +8232,8 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
     "The server saves each key with its result and returns that stored result for any repeat",
   ],
   "d3-14": [
-    "PUT",
-    "DELETE",
+    "PUT /users/42",
+    "DELETE /users/42",
   ],
   "d3-15": [
     "Transactional outbox: insert the event into an outbox table in the same transaction and have a relay publish it",
@@ -8287,14 +8287,14 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
     "302 Found, because browsers don't cache it by default, so every click reaches the server",
   ],
   "d4-17": [
-    "Each server reserves a block of ids, such as a million at a time, from a coordination service and hands them out locally",
-    "Snowflake-style ids built from a timestamp, a machine id and a per-machine sequence, generated locally",
+    "Each server leases a block of ids, say a million, from a coordinator and hands them out",
+    "Snowflake-style ids from a timestamp, a machine id and a per-machine sequence",
   ],
   "d4-18": [
     "4,096",
   ],
   "d4-19": [
-    "A mix: don't fan out posts from very high-follower accounts; merge them into followers' feeds when the feed loads",
+    "A mix: skip fan-out for huge accounts and merge their posts into feeds at read time",
   ],
   "d4-20": [
     "About 100 gateways; a connection registry maps each online user to their gateway, and the chat service routes (or publishes) the message to Bo's gateway",
