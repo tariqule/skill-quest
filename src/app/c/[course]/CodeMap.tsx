@@ -14,8 +14,11 @@ import { domainMastery, overallReadiness, pct } from "@/engine/game";
 import { effectiveLevel, LEVEL_BY_ID } from "@/engine/levels";
 import { CourseLevel, LevelUpBanner } from "@/components/LevelControls";
 import { MODE_BY_ID, modesFor } from "@/engine/modes";
-import { buildPath, tileLabel, type PathNode } from "@/engine/path";
+import { buildPath, tileLabel, type PathNode, type PathWorld } from "@/engine/path";
 import { levelInfo } from "@/engine/store";
+import { ModuleMap } from "@/components/map/ModuleMap";
+import { useCourseMap } from "@/components/map/useCourseMap";
+import { PracticeTile } from "@/components/practice/PracticeTile";
 
 /** The mission map for interview tracks: a terminal hub plus an arcade level-select. */
 export function CodeMap() {
@@ -23,6 +26,9 @@ export function CodeMap() {
   const p = useProgress();
   const lvl = levelInfo(p.xp, course.levelTitles);
   const { worlds, current } = buildPath(course, p);
+  // A topic syllabus replaces the per-stage lesson grid, so "next" follows the syllabus too.
+  const map = useCourseMap();
+  const nextTopic = map?.current?.lesson ? { to: `/lesson/${map.current.lesson}`, title: map.current.topic.title } : null;
   const readiness = Math.round(overallReadiness(course, p));
   const skill = LEVEL_BY_ID[p.level];
   const codingAtLevel = (course.coding ?? []).filter((c) => p.level === "all" || c.level === p.level);
@@ -49,13 +55,13 @@ export function CodeMap() {
                 lines={[
                   `$ whoami → ${lvl.title} (lv ${lvl.level}, ${p.xp} xp)`,
                   `$ difficulty → ${skill.icon} ${skill.name}`,
-                  current ? `$ next → ${current.type === "lesson" ? lessonById[current.key]?.title : "stage boss"}` : `$ next → ${copy.simulator} unlocked`,
+                  nextTopic ? `$ next → ${nextTopic.title}` : current ? `$ next → ${current.type === "lesson" ? lessonById[current.key]?.title : "stage boss"}` : `$ next → ${copy.simulator} unlocked`,
                 ]}
               />
             </div>
             <div className="mt-5 flex flex-wrap gap-3">
               <Link
-                href={href(current?.to ?? "/exam")}
+                href={href(nextTopic?.to ?? current?.to ?? "/exam")}
                 className="btn-3d rounded-xl bg-emerald-400 px-6 py-3 font-mono text-sm font-black uppercase tracking-wider text-slate-950"
                 style={{ "--edge": "#065f46", boxShadow: "0 5px 0 0 #065f46, 0 0 28px -6px #34d399" } as CSSProperties}
               >
@@ -122,52 +128,24 @@ export function CodeMap() {
         </section>
       )}
 
-      <section className="mt-10 grid gap-6">
-        <h2 className="font-mono text-lg font-black uppercase tracking-wider text-white">
-          <span className="text-emerald-300">&gt;</span> Stages
-        </h2>
-        {worlds.map((w, wi) => {
-          const d = course.domains[wi];
-          const mastery = domainMastery(course, p, d.id);
-          return (
-            <TerminalWindow key={d.id} title={`stage_${d.number}.${d.world.toLowerCase().replace(/[^a-z0-9]+/g, "_")}`} glow={d.color}>
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="text-3xl">{d.emoji}</span>
-                <div className="min-w-0 flex-1">
-                  <div className="font-mono text-xs font-bold uppercase tracking-wider" style={{ color: d.color }}>
-                    Stage {d.number} · {d.weight}% of the {copy.noun}
-                  </div>
-                  <div className="font-mono text-xl font-black text-white">{d.world}</div>
-                  <div className="text-sm text-slate-400">{d.name}</div>
-                </div>
-                <div className="w-full font-mono text-xs text-slate-400 sm:w-48">
-                  <SegmentBar value={mastery} color={d.color} />
-                  <div className="mt-1 flex justify-between">
-                    <span>
-                      {w.lessonsDone}/{w.lessonsTotal} levels
-                    </span>
-                    <span>{Math.round(mastery * 100)}% mastered</span>
-                  </div>
-                </div>
-              </div>
-              <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-                {w.nodes.map((n, ni) => (
-                  <Tile key={n.key} node={n} label={n.type === "quest" ? "BOSS" : `${d.number}-${ni + 1}`} color={d.color} />
-                ))}
-              </div>
-              <div className="mt-4 flex flex-wrap gap-2 font-mono text-xs">
-                <Link href={href(`/study/${d.id}`)} className="rounded-lg border border-sky-400/40 bg-sky-400/10 px-2.5 py-1 font-bold text-sky-100 hover:bg-sky-400/20">
-                  📚 Study
-                </Link>
-                <Link href={href(`/game/${d.id}`)} className="rounded-lg border border-amber-300/40 bg-amber-400/10 px-2.5 py-1 font-bold text-amber-100 hover:bg-amber-400/20">
-                  🎮 Mini game{p.games[d.id] ? ` · best ${p.games[d.id].best}` : ""}
-                </Link>
-              </div>
-              {!w.unlocked && <p className="mt-3 font-mono text-xs text-slate-500">🔒 Beat the previous stage&apos;s boss to unlock.</p>}
-            </TerminalWindow>
-          );
-        })}
-      </section>
+      {map ? (
+        <>
+          <section aria-labelledby="modules-heading" className="mt-10">
+            <h2 id="modules-heading" className="font-mono text-lg font-black uppercase tracking-wider text-white">
+              <span className="text-emerald-300">&gt;</span> {map.modules.length} modules · {map.done}/{map.total} topics
+            </h2>
+            <div className="mt-4">
+              <PracticeTile />
+            </div>
+            <div className="mt-4">
+              <ModuleMap map={map} color={course.provider.color} />
+            </div>
+          </section>
+          <BossRow worlds={worlds} />
+        </>
+      ) : (
+        <StageList worlds={worlds} />
+      )}
 
       <section className="mt-10">
         <h2 className="font-mono text-lg font-black uppercase tracking-wider text-white">
@@ -175,6 +153,7 @@ export function CodeMap() {
         </h2>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {modesFor(course, effectiveLevel(course, p.level))
+            .filter((id) => !(map && id === "practice"))
             .map((id) => MODE_BY_ID[id])
             .map((m) => (
               <Link
@@ -222,6 +201,94 @@ export function CodeMap() {
         </Link>
       </footer>
     </main>
+  );
+}
+
+/** The original per-stage lesson grid, for tracks without a topic syllabus. */
+function StageList({ worlds }: { worlds: PathWorld[] }) {
+  const { course, href } = useCourse();
+  const p = useProgress();
+  const copy = courseCopy(course);
+  return (
+      <section className="mt-10 grid gap-6">
+      <h2 className="font-mono text-lg font-black uppercase tracking-wider text-white">
+        <span className="text-emerald-300">&gt;</span> Stages
+      </h2>
+      {worlds.map((w, wi) => {
+        const d = course.domains[wi];
+        const mastery = domainMastery(course, p, d.id);
+        return (
+          <TerminalWindow key={d.id} title={`stage_${d.number}.${d.world.toLowerCase().replace(/[^a-z0-9]+/g, "_")}`} glow={d.color}>
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="text-3xl">{d.emoji}</span>
+              <div className="min-w-0 flex-1">
+                <div className="font-mono text-xs font-bold uppercase tracking-wider" style={{ color: d.color }}>
+                  Stage {d.number} · {d.weight}% of the {copy.noun}
+                </div>
+                <div className="font-mono text-xl font-black text-white">{d.world}</div>
+                <div className="text-sm text-slate-400">{d.name}</div>
+              </div>
+              <div className="w-full font-mono text-xs text-slate-400 sm:w-48">
+                <SegmentBar value={mastery} color={d.color} />
+                <div className="mt-1 flex justify-between">
+                  <span>
+                    {w.lessonsDone}/{w.lessonsTotal} levels
+                  </span>
+                  <span>{Math.round(mastery * 100)}% mastered</span>
+                </div>
+              </div>
+            </div>
+            <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+              {w.nodes.map((n, ni) => (
+                <Tile key={n.key} node={n} label={n.type === "quest" ? "BOSS" : `${d.number}-${ni + 1}`} color={d.color} />
+              ))}
+            </div>
+            <div className="mt-4 flex flex-wrap gap-2 font-mono text-xs">
+              <Link href={href(`/study/${d.id}`)} className="rounded-lg border border-sky-400/40 bg-sky-400/10 px-2.5 py-1 font-bold text-sky-100 hover:bg-sky-400/20">
+                📚 Study
+              </Link>
+              <Link href={href(`/game/${d.id}`)} className="rounded-lg border border-amber-300/40 bg-amber-400/10 px-2.5 py-1 font-bold text-amber-100 hover:bg-amber-400/20">
+                🎮 Mini game{p.games[d.id] ? ` · best ${p.games[d.id].best}` : ""}
+              </Link>
+            </div>
+            {!w.unlocked && <p className="mt-3 font-mono text-xs text-slate-500">🔒 Beat the previous stage&apos;s boss to unlock.</p>}
+          </TerminalWindow>
+        );
+      })}
+    </section>
+  );
+}
+
+/** Stage bosses, study pages and mini games for a course whose lessons are laid out by module. */
+function BossRow({ worlds }: { worlds: PathWorld[] }) {
+  const { course, href, domain: domainById } = useCourse();
+  const p = useProgress();
+  return (
+    <section aria-labelledby="bosses-heading" className="mt-10">
+      <h2 id="bosses-heading" className="font-mono text-lg font-black uppercase tracking-wider text-white">
+        <span className="text-emerald-300">&gt;</span> Stage bosses
+      </h2>
+      <div className="mt-4 grid grid-cols-1 gap-3 min-[375px]:grid-cols-2 lg:grid-cols-4">
+        {worlds.map((w) => {
+          const d = domainById[w.domain];
+          const quest = w.nodes.find((n) => n.type === "quest");
+          return (
+            <div key={w.domain} className="grid gap-2">
+              {quest && <Tile node={quest} label={`${d.emoji} ${d.world}`} color={d.color} />}
+              <div className="flex flex-wrap gap-2 font-mono text-xs">
+                <Link href={href(`/study/${d.id}`)} className="rounded-lg border border-sky-400/40 bg-sky-400/10 px-2.5 py-1 font-bold text-sky-100 hover:bg-sky-400/20">
+                  📚 Study
+                </Link>
+                <Link href={href(`/game/${d.id}`)} className="rounded-lg border border-amber-300/40 bg-amber-400/10 px-2.5 py-1 font-bold text-amber-100 hover:bg-amber-400/20">
+                  🎮 Game{p.games[d.id] ? ` · best ${p.games[d.id].best}` : ""}
+                </Link>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <p className="mt-2 font-mono text-xs text-slate-500">{course.domains.length} bosses, one per stage. Each opens once the stage&apos;s lessons are done.</p>
+    </section>
   );
 }
 

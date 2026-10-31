@@ -5,12 +5,80 @@ import type { CSSProperties } from "react";
 import { CourseLevel, LevelUpBanner } from "@/components/LevelControls";
 import { useCourse, useProgress } from "@/engine/course-context";
 import { buildPath, type PathNode } from "@/engine/path";
+import type { CourseMap } from "@/engine/practice";
+import { ModuleMap } from "../map/ModuleMap";
+import { useCourseMap } from "../map/useCourseMap";
+import { PracticeTile } from "../practice/PracticeTile";
 
 /**
  * What a beginner sees instead of the full map: one numbered path, one big Continue button.
  * No worlds, XP, hearts, arcade or badges. Those come back when they level up.
  */
 export function BeginnerMap() {
+  const map = useCourseMap();
+  return map ? <BeginnerTopicMap map={map} /> : <BeginnerLessonPath />;
+}
+
+/** A course with a topic syllabus: Module 1 is the beginner path, and the later modules are shown so the whole course is visible. */
+function BeginnerTopicMap({ map }: { map: CourseMap }) {
+  const { course, href } = useCourse();
+  const first = map.modules[0];
+  return (
+    <main className="mx-auto w-full max-w-3xl px-4 py-6 pb-28 sm:py-10">
+      <BeginnerHeader />
+      <p className="mt-4 text-lg leading-relaxed text-slate-300">
+        Start with Module 1, one topic at a time. Each lesson takes about 5 minutes: you read a little, then answer a few easy questions. {first.done} of{" "}
+        {first.topics.length} Module 1 topics done, {map.done} of {map.total} in the course.
+      </p>
+      {map.current?.lesson && (
+        <Link
+          href={href(`/lesson/${map.current.lesson}`)}
+          className="btn-3d mt-5 flex items-center justify-center gap-2 rounded-2xl bg-emerald-400 px-5 py-4 text-xl font-black text-slate-950"
+          style={{ "--edge": "#047857" } as CSSProperties}
+        >
+          ▶ {map.done === 0 ? "Start lesson 1" : `Continue: ${map.current.topic.title}`} <span aria-hidden>→</span>
+        </Link>
+      )}
+      <div className="mt-4">
+        <PracticeTile />
+      </div>
+      <LevelUpBanner />
+      <section aria-labelledby="map-heading" className="mt-8">
+        <h2 id="map-heading" className="text-xl font-black text-white">
+          🗺️ {map.modules.length} modules, {map.total} topics
+        </h2>
+        <div className="mt-4">
+          <ModuleMap map={map} color={course.provider.color} startHere />
+        </div>
+      </section>
+      <ChangeLevel />
+    </main>
+  );
+}
+
+function BeginnerHeader() {
+  const { course } = useCourse();
+  return (
+    <div className="flex items-center gap-3">
+      <span className="text-4xl">{course.provider.icon}</span>
+      <div className="min-w-0">
+        <div className="text-xs font-bold uppercase tracking-[0.2em] text-rose-300">🐣 Beginner path</div>
+        <h1 className="text-2xl font-black text-white sm:text-3xl">{course.title}</h1>
+      </div>
+    </div>
+  );
+}
+
+function ChangeLevel() {
+  return (
+    <details className="mt-10 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+      <summary className="cursor-pointer text-base font-bold text-slate-200">Not a beginner? Change your level</summary>
+      <CourseLevel title="How much do you know?" />
+    </details>
+  );
+}
+
+function BeginnerLessonPath() {
   const { course, href, domain: domainById } = useCourse();
   const p = useProgress();
   const { worlds, current } = buildPath(course, p);
@@ -22,13 +90,7 @@ export function BeginnerMap() {
 
   return (
     <main className="mx-auto w-full max-w-2xl px-4 py-6 pb-28 sm:py-10">
-      <div className="flex items-center gap-3">
-        <span className="text-4xl">{course.provider.icon}</span>
-        <div className="min-w-0">
-          <div className="text-xs font-bold uppercase tracking-[0.2em] text-rose-300">🐣 Beginner path</div>
-          <h1 className="text-2xl font-black text-white sm:text-3xl">{course.title}</h1>
-        </div>
-      </div>
+      <BeginnerHeader />
       <p className="mt-4 text-lg leading-relaxed text-slate-300">
         Go through these in order, one at a time. Each lesson takes about 5 minutes: you read a little, then answer a couple of easy questions. {done} of {total} done.
       </p>
@@ -63,10 +125,7 @@ export function BeginnerMap() {
         })}
       </ol>
 
-      <details className="mt-10 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-        <summary className="cursor-pointer text-base font-bold text-slate-200">Not a beginner? Change your level</summary>
-        <CourseLevel title="How much do you know?" />
-      </details>
+      <ChangeLevel />
     </main>
   );
 }
