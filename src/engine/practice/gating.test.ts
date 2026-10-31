@@ -1,12 +1,18 @@
 import { describe, expect, it } from "vitest";
 import { PROMPTS, QUESTIONS, TOPICS, progress } from "./fixtures";
-import { isUnlocked, lessonsFor, missingPrereqs, topicsDone, unlockedPrompts, unlockedQuestions, unlocksFor } from "./gating";
+import { entryLesson, isUnlocked, lessonsFor, missingPrereqs, topicsDone, unlockedPrompts, unlockedQuestions, unlocksFor } from "./gating";
 
 const byId = new Map(TOPICS.map((t) => [t.id, t]));
 
 describe("gating", () => {
   it("counts a topic's own lesson and its stand-ins", () => {
     expect(lessonsFor(TOPICS[1])).toEqual(["b", "old-b"]);
+  });
+
+  it("opens a topic's own lesson first, then a stand-in, else nothing", () => {
+    expect(entryLesson(TOPICS[1], new Set(["b", "old-b"]))).toBe("b");
+    expect(entryLesson(TOPICS[1], new Set(["old-b"]))).toBe("old-b");
+    expect(entryLesson(TOPICS[3], new Set(["a"]))).toBeUndefined();
   });
 
   it("orders done topics by when their first counting lesson finished", () => {

@@ -15,7 +15,7 @@ describe("practicePool", () => {
 describe("practiceSummary", () => {
   it("has an empty state that points at the first topic", () => {
     const s = practiceSummary(fixture, progress([]));
-    expect(s).toMatchObject({ total: 5, available: 0, prompts: 0, planned: 1, full: false });
+    expect(s).toMatchObject({ total: 5, available: 0, prompts: [], planned: 1, full: false });
     expect(s.done).toEqual([]);
     expect(s.next?.topic.id).toBe("a");
     expect(s.next?.unlocks).toEqual({ questions: 1, prompts: 0 });
@@ -27,7 +27,7 @@ describe("practiceSummary", () => {
     expect(s.done.map((t) => t.id)).toEqual(["a", "b"]);
     expect(s.covered.map((t) => t.id)).toEqual(["a", "b"]);
     expect(s.available).toBe(3);
-    expect(s.prompts).toBe(1);
+    expect(s.prompts).toEqual(PROMPTS);
     expect(s.next).toEqual({ topic: TOPICS[2], unlocks: { questions: 2, prompts: 0 } });
   });
 

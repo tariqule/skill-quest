@@ -1,5 +1,5 @@
 import type { Progress } from "../store";
-import type { Course, Question, Topic } from "../types";
+import type { Course, DesignPrompt, Question, Topic } from "../types";
 import { missingPrereqs, topicsDone, unlockedPrompts, unlockedQuestions, unlocksFor } from "./gating";
 import { practiceWeight } from "./scoring";
 import { weightedSample, type Random } from "./selection";
@@ -28,7 +28,8 @@ export interface PracticeSummary {
   /** Done topics with at least one unlocked practice question. */
   covered: Topic[];
   available: number;
-  prompts: number;
+  /** Unlocked design prompts. */
+  prompts: DesignPrompt[];
   /** The first unfinished ready topic whose prerequisites are done. Null when none is left. */
   next: NextTopic | null;
   /** Ready topics still waiting on prerequisites. */
@@ -55,7 +56,7 @@ export function practiceSummary(course: Course, p: Pick<Progress, "lessonsDone">
     done: topics.filter((t) => done.has(t.id)),
     covered: topics.filter((t) => done.has(t.id) && available.some((q) => q.concepts?.includes(t.id))),
     available: available.length,
-    prompts: unlockedPrompts(prompts, done).length,
+    prompts: unlockedPrompts(prompts, done),
     next: nextTopic ? { topic: nextTopic, unlocks: unlocksFor(pool, prompts, done, nextTopic.id) } : null,
     locked: open.flatMap((t) => {
       const needs = missingPrereqs(t, byId, done);

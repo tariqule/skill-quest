@@ -450,7 +450,7 @@ export interface CourseDefinition
 
 // ───────────── Game settings ─────────────
 
-export type ModeId = "codegames" | "scenarios" | "coding" | "review" | "timed" | "flashcards" | "match" | "lightning" | "boss" | "cheatsheet";
+export type ModeId = "practice" | "codegames" | "scenarios" | "coding" | "review" | "timed" | "flashcards" | "match" | "lightning" | "boss" | "cheatsheet";
 
 export interface ExamMode {
   id: string;

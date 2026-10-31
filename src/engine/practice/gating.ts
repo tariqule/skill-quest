@@ -7,6 +7,11 @@ export type LessonProgress = Pick<Progress, "lessonsDone">;
 /** Lessons that count as finishing `topic`: its own lesson plus any stand-ins. */
 export const lessonsFor = (topic: Topic): string[] => [topic.id, ...(topic.standIns ?? [])];
 
+/** The lesson to open for `topic`: its own if written, else its first stand-in. Undefined for planned topics. */
+export function entryLesson(topic: Topic, lessonIds: ReadonlySet<string>): string | undefined {
+  return lessonsFor(topic).find((id) => lessonIds.has(id));
+}
+
 /**
  * Finished topic ids, in the order the learner finished them (oldest first). A topic finishes
  * when its first counting lesson does.

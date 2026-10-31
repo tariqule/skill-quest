@@ -1,4 +1,5 @@
 import { codeGameOf } from "./code-games";
+import { practiceSummary } from "./practice";
 import { scenariosFor } from "@/scenarios";
 import type { Progress } from "./store";
 import type { Course, ModeId } from "./types";
@@ -19,6 +20,16 @@ export interface ModeInfo {
 }
 
 export const ALL_MODES: ModeInfo[] = [
+  {
+    id: "practice",
+    name: "Topic practice",
+    icon: "🎯",
+    to: "/practice",
+    status: (p, c) => {
+      const s = practiceSummary(c, p);
+      return `Covers ${s.covered.length} of ${s.total} topics`;
+    },
+  },
   {
     id: "scenarios",
     name: "Scenario games",
