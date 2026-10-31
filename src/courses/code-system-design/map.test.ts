@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { levelUpStatus } from "@/engine/levelup";
-import { pathLessons } from "@/engine/levels";
+import { levelCounts, levelOptions, pathLessons, questionsForLevel } from "@/engine/levels";
 import { courseMap } from "@/engine/practice";
 import { INITIAL_PROGRESS, type Progress } from "@/engine/store";
 import course from ".";
@@ -38,5 +38,13 @@ describe("code-system-design course map", () => {
     expect(map.done).toBe(1);
     expect(map.current?.topic.id).toBe("t-network");
     expect(map.modules[0].done).toBe(1);
+  });
+
+  it("gives the level picker the Module 1 question count for beginners and says so", () => {
+    const counts = levelCounts(course, levelOptions(course));
+    const status = levelUpStatus(course, beginner());
+    expect(counts.beginner).toEqual({ count: status?.questionsTotal, label: "Module 1 questions" });
+    expect(counts.beginner?.count).toBeLessThan(questionsForLevel(course, "beginner").length);
+    expect(counts.junior).toEqual({ count: questionsForLevel(course, "junior").length, label: "questions" });
   });
 });

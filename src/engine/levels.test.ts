@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { COURSES } from "@/courses";
 import { examQuestions, levelDeck, weightedExamDeck } from "./game";
-import { levelOf, levelOptions, levelSplit, nearbyLevels, questionsForLevel } from "./levels";
+import { levelCounts, levelOf, levelOptions, levelSplit, nearbyLevels, questionsForLevel, type LevelChoice } from "./levels";
 
 const TRACKS = COURSES;
 
@@ -42,5 +42,17 @@ describe.each(TRACKS.map((c) => [c.id, c] as const))("%s at every level", (_, co
     expect(boss.every((q) => ids.has(q.id))).toBe(true);
     expect(new Set(boss.map((q) => q.id)).size).toBe(boss.length);
     expect(examQuestions(course).filter((q) => ids.has(q.id)).length).toBeGreaterThan(0);
+  });
+});
+
+describe.each(COURSES.map((c) => [c.id, c] as const))("%s level picker counts", (_, course) => {
+  it("counts every question at a level, except a topic course's beginners, who start on Module 1", () => {
+    for (const [id, c] of Object.entries(levelCounts(course, levelOptions(course)))) {
+      if (id === "beginner" && course.topics?.length) {
+        expect(c.label).toBe("Module 1 questions");
+        continue;
+      }
+      expect(c).toEqual({ count: questionsForLevel(course, id as LevelChoice).length, label: "questions" });
+    }
   });
 });
