@@ -145,7 +145,7 @@ export function PlanWizard({ initial, onDone }: { initial?: StudyPlan | null; on
     >
       <Stepper step={step} furthest={furthest} onJump={go} />
 
-      <div className="mt-6 min-h-64">
+      <div className="mt-6">
         <AnimatePresence mode="popLayout" initial={false}>
           <m.div key={step} variants={variants} initial="initial" animate="animate" exit="exit">
             {step === 0 && (

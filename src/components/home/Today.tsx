@@ -59,7 +59,7 @@ export function ReadinessRing({ value, forecast, size = 96 }: { value: number; f
       <text x="50" y="47" textAnchor="middle" dominantBaseline="central" className="fill-foreground" fontSize="22" fontWeight="700">
         {value}%
       </text>
-      <text x="50" y="67" textAnchor="middle" dominantBaseline="central" className="fill-muted-foreground" fontSize="11">
+      <text x="50" y="68" textAnchor="middle" dominantBaseline="central" className="fill-muted-foreground" fontSize="15">
         ready
       </text>
     </svg>
@@ -133,7 +133,7 @@ export function Today({ plan }: { plan: StudyPlan | null }) {
         <div className="mt-4">
           <PlanWizard initial={plan} onDone={plan ? () => setEditing(false) : undefined} />
         </div>
-        {!plan && (due > 0 || recent) && <QuickLinks session={session} recent={recent} streak={streak} />}
+        {!plan && recent && <ResumeLink course={recent} />}
       </section>
     );
   }
@@ -185,7 +185,7 @@ export function Today({ plan }: { plan: StudyPlan | null }) {
         <h3 className="text-base font-semibold text-foreground">Today&apos;s plan</h3>
         <span className="text-sm text-muted-foreground">about {minutes} min</span>
       </div>
-      <ol className="mt-2 grid gap-2">
+      <ol className="mt-2 grid min-w-0 grid-cols-1 gap-2">
         {items.map((item, i) => (
           <li key={i}>
             <PlanRow link={itemLink(item, session)} minutes={item.minutes} highlight={item.kind === "review"} />
@@ -240,7 +240,7 @@ function PlanRow({ link, minutes, highlight = false }: { link: ItemLink; minutes
     <Link
       href={link.href}
       className={cn(
-        "flex min-h-14 items-center gap-3 rounded-card border p-3 outline-none transition-colors duration-150 hover:border-primary/60 hover:bg-accent/40 focus-visible:ring-2 focus-visible:ring-ring",
+        "flex min-h-14 min-w-0 items-center gap-3 rounded-card border p-3 outline-none transition-colors duration-150 hover:border-primary/60 hover:bg-accent/40 focus-visible:ring-2 focus-visible:ring-ring",
         highlight ? "border-primary/40 bg-primary/5" : "border-border",
       )}
     >
@@ -292,29 +292,16 @@ function FirstSteps({ plan, onEdit }: { plan: StudyPlan; onEdit: () => void }) {
   );
 }
 
-function QuickLinks({ session, recent, streak }: { session: SessionSize; recent: Course | null; streak: number }) {
-  const streakText = streakLabel(streak);
+/** While the wizard is the task, prior progress gets one quiet text link, not competing buttons. */
+function ResumeLink({ course }: { course: Course }) {
   return (
-    <div className="mt-4 flex flex-wrap items-center gap-2">
-      {session.total > 0 && (
-        <Button variant="outline" render={<Link href="/daily" />}>
-          <RotateCcw aria-hidden />
-          Review · {reviewLabel(session)}
-        </Button>
-      )}
-      {recent && (
-        <Button variant="outline" render={<Link href={`/c/${recent.id}`} />}>
-          Continue {recent.shortTitle}
-          <ArrowRight aria-hidden />
-        </Button>
-      )}
-      {streakText && (
-        <span className="flex items-center gap-1 text-sm text-reward">
-          <Flame className="size-4" aria-hidden />
-          {streakText}
-        </span>
-      )}
-    </div>
+    <p className="mt-4 text-base text-muted-foreground">
+      Not ready to plan?{" "}
+      <Link href={`/c/${course.id}`} className="inline-flex min-h-11 items-center gap-1 font-medium text-foreground underline underline-offset-4 hover:text-primary">
+        Continue where you left off ({course.shortTitle})
+        <ArrowRight className="size-4" aria-hidden />
+      </Link>
+    </p>
   );
 }
 

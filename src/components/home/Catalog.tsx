@@ -86,7 +86,7 @@ export function Catalog({ onFilteringChange }: { onFilteringChange?: (filtering:
             </Button>
           )}
         </div>
-        <div className="-mx-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
+        <div className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] max-sm:[mask-image:linear-gradient(to_right,transparent,black_12px,black_calc(100%-32px),transparent)] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
           <ToggleGroup
             aria-label="Filter by section"
             value={[section]}
