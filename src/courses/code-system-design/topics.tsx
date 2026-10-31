@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { CodeBlock, Flow, Ladder, Tiles } from "@/components/learn/blocks";
 import { inferConcepts } from "@/engine/practice";
 import type { ChoiceQuestion, DomainModule, Lesson, LessonIdMigration, Question, Topic } from "@/engine/types";
+import { LEGACY_RETAGS } from "./legacy-tags";
 import { CURRICULUM, MODULE_TITLES } from "../system-design/curriculum";
 import { assertNever, readerScreens, type ModuleId, type QuizItem, type TopicContent, type Visual } from "../system-design/schema";
 
@@ -117,11 +118,13 @@ export function topicsForLesson(topics: readonly Topic[], lessonId: string): Top
 
 /**
  * Tags untagged questions with the topics their lesson teaches, narrowed by each topic's
- * pattern. Returns new objects; questions that already carry tags are kept as they are.
+ * pattern, or with its hand-reviewed tags from `LEGACY_RETAGS`. Returns new objects; questions that already carry tags are kept as they are.
  */
 export function tagQuestions(questions: readonly Question[], topics: readonly Topic[]): Question[] {
   return questions.map((q) => {
     if (q.concepts?.length) return q;
+    const reviewed = LEGACY_RETAGS[q.id];
+    if (reviewed) return { ...q, concepts: [...reviewed] };
     const text = `${q.prompt} ${q.explanation}`;
     return { ...q, concepts: inferConcepts(text, topicsForLesson(topics, q.lesson)) };
   });
