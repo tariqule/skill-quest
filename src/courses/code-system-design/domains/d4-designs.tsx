@@ -105,7 +105,7 @@ DELETE /users/7/orders/42                   204 no content`}
         </div>
       ),
       points: [
-        "Name resources with nouns and let the HTTP method say what to do. Return precise status codes, such as 201, 400, 404, 409, 429 and 503.",
+        "Name resources with nouns and let the HTTP method say what to do. Return precise status codes, such as 201 Created, 400 Bad Request, 404 Not Found, 409 Conflict, 429 Too Many Requests and 503 Service Unavailable.",
         "Split every list into pages. A **cursor** is a token that marks where the last page ended. It stays correct when new rows arrive, and the server can change how it works later.",
         "Change APIs without breaking clients. Add optional fields freely. Never rename or remove a field without a warning period, and bump the version only for breaking changes.",
         "REST with JSON suits public APIs and browsers. **gRPC**, which sends typed Protocol Buffer messages over HTTP/2, suits busy internal calls and streaming.",
@@ -141,7 +141,8 @@ every client in lock-step
         </div>
       ),
       points: [
-        "An **SLO** (service level objective) turns \"reliable\" into a number. The **error budget** is the failure the target allows, which you can spend on releases and experiments.",
+        "An **SLI** (service level indicator) is what you measure, such as the share of fast requests. An **SLO** (service level objective) is the target for it, and an **SLA** is the promise in a contract, with a penalty if missed.",
+        "An SLO turns \"reliable\" into a number. The **error budget** is the failure the target allows, which you can spend on releases and experiments.",
         "Every network call needs a timeout. Retry only actions that are safe to repeat, and only for temporary errors. Wait longer each time and add some randomness, called jitter.",
         "Retries multiply through each layer of services. Cap them with retry budgets, and use a **circuit breaker** to fail fast while a dependency is down.",
         "**Bulkheads** give each dependency its own pool of threads or connections, so one slow dependency can't use them all up.",

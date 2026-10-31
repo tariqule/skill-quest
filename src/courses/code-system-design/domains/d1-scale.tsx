@@ -342,6 +342,8 @@ function handle(req):
       level: "intermediate",
       type: "match",
       prompt: "Match each load-balancing method to when it fits best.",
+      // Consistent hashing is taught with t-chash, so this waits for that lesson.
+      concepts: ["t-lb", "t-chash"],
       pairs: [
         ["Round robin", "Identical servers and short, similar requests"],
         ["Least connections", "Requests that vary a lot in length, or long-lived connections"],

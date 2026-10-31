@@ -6,3 +6,4 @@ export { practiceWeight } from "./scoring";
 export { weightedSample, type Random } from "./selection";
 export { courseMap, lessonGate, moduleLessonLabel, startHereLessons, topicForLesson, type CourseMap, type MapModule, type MapTopic, type TopicState } from "./map";
 export { inferConcepts } from "./tagging";
+export { untaughtMatchTerms } from "./taught";

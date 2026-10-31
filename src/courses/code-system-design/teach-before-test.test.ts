@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { untaughtMatchTerms } from "@/engine/practice";
 import { teachBeforeTestWarnings } from "@/engine/quality";
 import course from ".";
 import { CONCEPTS } from "./concepts";
@@ -10,5 +11,9 @@ describe("code-system-design teach before test", () => {
 
   it("only tests concepts taught at or before the question's lesson", () => {
     expect(teachBeforeTestWarnings(course, CONCEPTS)).toEqual([]);
+  });
+
+  it("only matches terms that the tagged topics' lessons teach", () => {
+    expect(untaughtMatchTerms(course)).toEqual([]);
   });
 });

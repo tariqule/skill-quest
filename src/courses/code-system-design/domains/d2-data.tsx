@@ -90,6 +90,7 @@ export default defineDomain({
       ),
       points: [
         "Start from the **access patterns**: which reads and writes happen, how often, and what must always be correct.",
+        "NoSQL comes in four main shapes. A **key-value store** gets one value by its key. A **document store** keeps whole records whose shape can vary. A **wide-column store** holds huge, sorted, write-heavy tables. A **graph database** follows relationships.",
         "Relational databases go further than people expect. Choose NoSQL for a specific reason, such as more writes than one machine can take, a changing data shape, or one particular access pattern.",
         "**ACID** describes a safe transaction. Atomic: all of it happens or none does. Consistent: the rules still hold. Isolated: others don't see half-done work. Durable: saved data survives a crash.",
         "**Denormalising** means storing the same data in more than one place. Reads get faster, but every write must keep the copies in step.",

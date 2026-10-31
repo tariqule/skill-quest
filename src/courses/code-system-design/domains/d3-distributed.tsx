@@ -199,7 +199,7 @@ Retry-After: 30`}
       points: [
         "Rate limits protect services from overload and abuse, and keep usage fair for each user, API key or IP address.",
         "A **token bucket** has a capacity, which sets the biggest burst allowed, and a refill rate, which sets the steady rate. A **leaky bucket** lets requests out at a constant pace.",
-        "Fixed time windows are cheap, but a client can squeeze in two bursts around a window edge. Sliding windows are smoother.",
+        "A **fixed window counter** is cheap, but a client can squeeze in two bursts around a window edge. A **sliding window log** keeps each request's time, so it is smoother but uses more memory.",
         "When many servers share one limit, the counter must live in one shared place and update atomically, for example with Redis INCR or a Lua script.",
         "Rate limits are usually enforced at an **API gateway**, the entry point in front of your services. With many gateway nodes, they share counters in a fast store such as a sharded Redis cluster.",
       ],
