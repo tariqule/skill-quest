@@ -18,9 +18,10 @@ const topic: TopicContent = {
     { kind: "idea", text: "An endless stream has no \"end\" to total at, so counts are grouped into time slices called **windows**." },
     { kind: "idea", text: "A **tumbling window** is fixed-size and doesn't overlap: every click falls into exactly one 1-minute bucket." },
     { kind: "idea", text: "A **sliding window** overlaps: \"clicks in the last 5 minutes\", updated every minute. One click counts in several windows." },
-    { kind: "idea", text: "**Event time** is when the event happened on the device. Processing time is when your job saw it. A phone offline in a tunnel can send events minutes late." },
+    { kind: "idea", text: "**Event time** is when the event really happened, stamped by the device. A click at 12:00:40 has event time 12:00:40." },
+    { kind: "idea", text: "**Processing time** is when your job saw the event. A phone offline in a tunnel can send its clicks minutes late, so the two times drift apart." },
     { kind: "idea", text: "Windows should use event time, or a delay shifts clicks into the wrong minute. A **late event** is one that arrives after its window has been reported." },
-    { kind: "idea", text: "A **watermark** is the job's estimate that all events up to some time have arrived. When it passes a window's end, the window is closed and emitted." },
+    { kind: "idea", text: "A **watermark** is the job's estimate that all events up to some time have arrived. When it passes a window's end, the window is closed and its result sent on." },
     { kind: "idea", text: "Counting needs memory across events. A **stateful operator** keeps that state, like a running count per ad, and checkpoints it so a restart doesn't lose it." },
     { kind: "idea", text: "Common tools are **Kafka Streams**, a library running inside your service, and Apache Flink, a separate cluster. Both read from and write back to Kafka." },
     {
@@ -29,9 +30,9 @@ const topic: TopicContent = {
       steps: [
         "Click events flow into Kafka keyed by ad_id. Each carries the event time from the user's device.",
         "A Flink job counts clicks per ad in 1-minute tumbling windows by event time, keeping counts as state.",
-        "The watermark trails the newest event time by 10 seconds. When it passes 12:01:00, the 12:00 window is emitted to billing.",
+        "The watermark trails the newest event time by 10 seconds. When it passes 12:01:00, the 12:00 window's count is sent to billing.",
         "A click stamped 12:00:40 arrives at 12:03 from a phone that was offline. The job adds it as a correction to the 12:00 count.",
-        "The job restarts after a deploy. It reloads its last checkpoint and resumes from the matching Kafka offsets, so no click is counted twice.",
+        "The job restarts after a deploy. It reloads its last checkpoint and resumes from the matching Kafka offsets, each record's position in its partition, so no click is counted twice.",
       ],
     },
   ],
@@ -57,9 +58,9 @@ const topic: TopicContent = {
       kind: "mcq",
       id: "t-stream-q3",
       prompt: "What tells a stream job it can close the 12:00 to 12:01 window?",
-      options: ["A tombstone record", "The watermark passing 12:01", "A consumer rebalance", "The window reaching its row limit"],
+      options: ["The processing clock passing 12:01", "The watermark passing 12:01", "The first event stamped after 12:01", "The window reaching its row limit"],
       answer: 1,
-      explanation: "The watermark is the job's estimate that earlier events have arrived, so the window can be emitted.",
+      explanation: "The watermark is the job's estimate that earlier events have arrived, so the window can be closed. Clock time and one new event ignore late arrivals.",
     },
     {
       kind: "tf",
@@ -71,9 +72,9 @@ const topic: TopicContent = {
     {
       kind: "tf",
       id: "t-stream-q5",
-      statement: "A running count per ad can be computed without the job keeping any state.",
+      statement: "Filtering out bot clicks needs more state than counting clicks per ad.",
       answer: false,
-      explanation: "The count must be remembered between events, which is state the operator keeps and checkpoints.",
+      explanation: "A filter judges each click alone, so it needs no state. A count must remember totals between events.",
     },
   ],
   practice: [
