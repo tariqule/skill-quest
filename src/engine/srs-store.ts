@@ -16,11 +16,27 @@ const EMPTY: SrsFile = { v: 1, items: {} };
 let cache: SrsFile | null = null;
 const listeners = new Set<() => void>();
 
-function read(): SrsFile {
-  if (cache) return cache;
-  if (typeof window === "undefined") return EMPTY;
+/** Re-read when another tab changed or cleared this key, so a stale cache is never written back. */
+let cacheRaw: string | null = null;
+const rawNow = () => {
   try {
-    cache = { ...EMPTY, ...JSON.parse(window.localStorage.getItem(KEY) ?? "{}") };
+    return window.localStorage.getItem(KEY);
+  } catch {
+    return cacheRaw;
+  }
+};
+if (typeof window !== "undefined")
+  window.addEventListener("storage", (e) => {
+    if (e.key === null || e.key === KEY) listeners.forEach((l) => l());
+  });
+
+function read(): SrsFile {
+  if (typeof window === "undefined") return EMPTY;
+  const raw = rawNow();
+  if (cache && raw === cacheRaw) return cache;
+  cacheRaw = raw;
+  try {
+    cache = { ...EMPTY, ...JSON.parse(raw ?? "{}") };
   } catch {
     cache = EMPTY;
   }
@@ -49,7 +65,9 @@ export function syncFromProgress() {
 function write(next: SrsFile) {
   cache = next;
   try {
-    window.localStorage.setItem(KEY, JSON.stringify(next));
+    const raw = JSON.stringify(next);
+    window.localStorage.setItem(KEY, raw);
+    cacheRaw = raw;
   } catch {
     // Storage blocked: keep it in memory.
   }

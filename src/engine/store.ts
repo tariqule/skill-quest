@@ -140,11 +140,27 @@ function buildStore(course: Course) {
   let loaded = false;
   const listeners = new Set<() => void>();
 
-  function load() {
-    if (loaded || typeof window === "undefined") return;
-    loaded = true;
+  /** The raw storage string `state` was last read from or written as; null when the key was absent. */
+  let seenRaw: string | null = null;
+
+  function readRaw(): string | null {
+    try {
+      return window.localStorage.getItem(key);
+    } catch {
+      return seenRaw;
+    }
+  }
+
+  function hydrate(raw: string | null) {
+    seenRaw = raw;
+    let next: Progress | null = null;
+    try {
+      next = raw ? { ...INITIAL_PROGRESS, ...JSON.parse(raw) } : null;
+    } catch {
+      next = null;
+    }
     // A brand-new course starts at the level the player picked on the home page.
-    state = peekProgress(key) ?? { ...INITIAL_PROGRESS, level: getProfile().level ?? INITIAL_PROGRESS.level };
+    state = next ?? { ...INITIAL_PROGRESS, level: getProfile().level ?? INITIAL_PROGRESS.level };
     // Renamed or merged lessons keep their progress under the new id.
     if (course.lessonMigration) state = migrateLessonIds(state, course.lessonMigration);
     // Roll over daily counters so render code never has to read the clock.
@@ -154,10 +170,44 @@ function buildStore(course: Course) {
     if (last !== null && dayDiff(last, day) > 1) state = { ...state, streak: { count: 0, lastDay: last } };
   }
 
+  /**
+   * Storage is the source of truth, shared by every tab. If another tab wrote or cleared it since
+   * we last looked, drop our in-memory copy and re-read, so a stale tab can never write old
+   * progress back over newer or cleared storage. Returns true when state changed.
+   */
+  function syncFromStorage(): boolean {
+    if (typeof window === "undefined") return false;
+    const raw = readRaw();
+    if (raw === seenRaw) return false;
+    hydrate(raw);
+    return true;
+  }
+
+  function onStorage(e: StorageEvent) {
+    // key === null means the other tab called localStorage.clear().
+    if (e.key !== null && e.key !== key) return;
+    if (syncFromStorage()) listeners.forEach((l) => l());
+  }
+
+  function load() {
+    if (loaded || typeof window === "undefined") return;
+    loaded = true;
+    hydrate(readRaw());
+    window.addEventListener("storage", onStorage);
+  }
+
   function commit(next: Progress) {
+    // Callers build `next` from get(), which has just synced; if storage moved in between,
+    // the change is applied to stale data, so refuse it rather than overwrite.
+    if (syncFromStorage()) {
+      listeners.forEach((l) => l());
+      return;
+    }
     state = next;
     try {
-      window.localStorage.setItem(key, JSON.stringify(state));
+      const raw = JSON.stringify(state);
+      window.localStorage.setItem(key, raw);
+      seenRaw = raw;
     } catch {
       // Ignore quota or privacy-mode errors; progress lives in memory.
     }
@@ -172,6 +222,7 @@ function buildStore(course: Course) {
 
   function get() {
     load();
+    syncFromStorage();
     return state;
   }
 
