@@ -6,9 +6,14 @@ import { useCourse } from "@/engine/course-context";
 import type { CourseMap, MapModule, MapTopic, TopicState } from "@/engine/practice";
 import { topicTileLabel } from "./labels";
 
-const ICON: Record<TopicState, string> = { done: "★", current: "▶", open: "·", locked: "🔒", planned: "✎" };
+const ICON: Record<TopicState, string> = { done: "★", current: "▶", open: "·", locked: "◇", planned: "✎" };
 
-/** The course map for a topic syllabus: numbered modules, each with its numbered topics. */
+/**
+ * The course map for a topic syllabus: numbered modules, each with its numbered topics.
+ * Locked and planned tiles stay at full opacity: the lighter text sits on a dark tile and fades
+ * would drop it below AA contrast. Locked only advises an order, so it isn't drawn as a lock.
+ * Both the beginner and the full course page render this one component.
+ */
 export function ModuleMap({ map, color, startHere }: { map: CourseMap; color: string; startHere?: boolean }) {
   return (
     <ol className="grid gap-6" aria-label="Course modules">
@@ -49,7 +54,7 @@ function TopicTile({ node, color }: { node: MapTopic; color: string }) {
   const label = topicTileLabel(node);
   const body = (
     <span
-      className={`flex h-full flex-col rounded-xl p-3 transition ${state === "planned" ? "opacity-50" : state === "locked" ? "opacity-60 hover:-translate-y-0.5" : "hover:-translate-y-0.5"}`}
+      className={`flex h-full flex-col rounded-xl p-3 transition ${state === "planned" ? "" : "hover:-translate-y-0.5"}`}
       style={{
         background: state === "done" ? `${color}30` : "rgb(255 255 255 / 0.04)",
         boxShadow: state === "current" ? `inset 0 0 0 2px ${color}, 0 0 22px -4px ${color}` : `inset 0 0 0 1px ${state === "done" ? color : "rgb(255 255 255 / 0.1)"}`,
@@ -60,8 +65,8 @@ function TopicTile({ node, color }: { node: MapTopic; color: string }) {
         <span aria-hidden="true">{ICON[state]}</span>
       </span>
       <span className="mt-1.5 text-sm leading-snug text-slate-100">{node.topic.title}</span>
-      {state === "locked" && <span className="mt-1 text-[11px] text-slate-400">After {node.needs.map((n) => n.title).join(", ")}</span>}
-      {state === "planned" && <span className="mt-1 text-[11px] text-slate-400">Coming soon</span>}
+      {state === "locked" && <span className="mt-1 text-xs text-slate-300">Best after {node.needs.map((n) => n.title).join(", ")}</span>}
+      {state === "planned" && <span className="mt-1 text-xs text-slate-300">Coming soon</span>}
     </span>
   );
   // Locked tiles still link: the lesson opens with a soft gate rather than a wall.
