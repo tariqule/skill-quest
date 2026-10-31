@@ -4,7 +4,7 @@ import { exampleStep } from "@/components/learn/copy";
 import { describe, expect, it } from "vitest";
 import { CURRICULUM, MODULE_TITLES } from "./curriculum";
 import { TOPIC_CONTENT } from "./registry";
-import { prereqClosure, untaughtOptions } from "./taught";
+import { prereqClosure, untaughtOptions, untaughtPictures } from "./taught";
 import { boldTerms, MAX_TERMS_PER_CARD, MODULE_IDS, QUIZ_SHAPE, readerScreens, topicWarnings, validateTopic, type TopicContent } from "./schema";
 
 const MODULES_DIR = join(__dirname, "modules");
@@ -186,5 +186,26 @@ describe("untaughtOptions", () => {
 
   it("follows prerequisites transitively", () => {
     expect([...prereqClosure("t-appsec")]).toEqual(expect.arrayContaining(["t-security", "t-api", "t-sql-nosql", "t-intro"]));
+  });
+});
+
+describe("untaughtPictures", () => {
+  it("finds no picture naming a term before the lesson teaches it", () => {
+    expect(untaughtPictures(TOPIC_CONTENT)).toEqual([]);
+  });
+
+  it("flags a topic picture that names a term only a later card defines", () => {
+    const stream = TOPIC_CONTENT.find((t) => t.id === "t-stream")!;
+    const bad = { ...stream, visual: { kind: "tiles" as const, tiles: [{ icon: "x", title: "Watermark", text: "Close the window" }] } };
+    expect(untaughtPictures([bad], [["watermark", /watermark/i]])).toEqual(["t-stream topic picture names watermark before it is taught"]);
+  });
+
+  it("catches made-up distractors like broker time and DNS round robin", () => {
+    const stream = TOPIC_CONTENT.find((t) => t.id === "t-stream")!;
+    const q = stream.quiz.find((x) => x.kind === "mcq")!;
+    const bad = { ...stream, quiz: stream.quiz.map((x) => (x === q ? { ...q, options: [q.options[0], q.options[1], "Broker time", "DNS round robin"] as const } : x)) };
+    const out = untaughtOptions([bad]);
+    expect(out.some((m) => m.includes("broker time"))).toBe(true);
+    expect(out.some((m) => m.includes("round robin"))).toBe(true);
   });
 });

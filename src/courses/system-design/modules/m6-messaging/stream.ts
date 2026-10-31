@@ -7,9 +7,9 @@ const topic: TopicContent = {
   visual: {
     kind: "tiles",
     tiles: [
-      { icon: "🧱", title: "Tumbling window", text: "Back-to-back, no overlap: 12:00 to 12:01, then 12:01 to 12:02." },
-      { icon: "🪟", title: "Sliding window", text: "Overlapping: the last 5 minutes, recomputed every minute." },
-      { icon: "⏰", title: "Watermark", text: "\"Events up to 12:01 have probably all arrived.\" Close the window." },
+      { icon: "🌊", title: "Events keep coming", text: "Clicks arrive all day, with no last one." },
+      { icon: "🧱", title: "Count in time slices", text: "Clicks from 12:00 to 12:01, then 12:01 to 12:02." },
+      { icon: "⏰", title: "Decide when a slice is done", text: "Wait a little for stragglers, then send the count." },
     ],
   },
   screens: [
@@ -22,8 +22,10 @@ const topic: TopicContent = {
     { kind: "idea", text: "**Processing time** is when your job saw the event. A phone offline in a tunnel can send its clicks minutes late, so the two times drift apart." },
     { kind: "idea", text: "Windows should use event time, or a delay shifts clicks into the wrong minute. A **late event** is one that arrives after its window has been reported." },
     { kind: "idea", text: "A **watermark** is the job's estimate that all events up to some time have arrived. When it passes a window's end, the window is closed and its result sent on." },
-    { kind: "idea", text: "Counting needs memory across events. A **stateful operator** keeps that state, like a running count per ad, and checkpoints it so a restart doesn't lose it." },
-    { kind: "idea", text: "Common tools are **Kafka Streams**, a library running inside your service, and Apache Flink, a separate cluster. Both read from and write back to Kafka." },
+    { kind: "idea", text: "Counting needs memory across events, like a running count per ad. A **stateful operator** is a step that keeps that memory between events." },
+    { kind: "idea", text: "The job saves that memory to durable storage every few seconds, a **checkpoint**. After a crash or restart it reloads the last one instead of starting from zero." },
+    { kind: "idea", text: "You rarely build this yourself. **Kafka Streams** is a library you add to your own service: it reads events from Kafka, keeps counts, and writes results back." },
+    { kind: "idea", text: "**Apache Flink** does the same job as its own separate cluster of machines. It suits big jobs, and the worked example next uses it." },
     {
       kind: "example",
       title: "Clicks per ad per minute",
@@ -50,7 +52,7 @@ const topic: TopicContent = {
       kind: "mcq",
       id: "t-stream-q2",
       prompt: "A phone offline for 3 minutes sends its clicks late. Which time should windows use?",
-      options: ["Processing time", "Event time", "Broker time", "Commit time"],
+      options: ["Processing time", "Event time", "The server's clock", "When the window closes"],
       answer: 1,
       explanation: "Event time puts each click in the minute it really happened, however late it arrives.",
     },

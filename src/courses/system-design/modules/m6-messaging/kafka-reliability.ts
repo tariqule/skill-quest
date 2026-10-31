@@ -5,6 +5,7 @@ const topic: TopicContent = {
   module: "m6",
   title: "Kafka: reliability",
   visual: {
+    preview: true,
     kind: "ladder",
     caption: "What the producer waits for before a write counts",
     rungs: [

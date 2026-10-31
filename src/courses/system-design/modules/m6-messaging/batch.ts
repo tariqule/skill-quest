@@ -7,9 +7,9 @@ const topic: TopicContent = {
   visual: {
     kind: "flow",
     steps: [
-      { icon: "🗄️", label: "App database", sub: "OLTP: many small reads and writes" },
-      { icon: "🚚", label: "Nightly job", sub: "Extract, transform, load" },
-      { icon: "📊", label: "Warehouse", sub: "OLAP: big scans for reports" },
+      { icon: "🗄️", label: "App database", sub: "Many small reads and writes" },
+      { icon: "🚚", label: "Nightly job", sub: "Copies the data over" },
+      { icon: "📊", label: "Report store", sub: "Big scans for reports" },
     ],
   },
   screens: [

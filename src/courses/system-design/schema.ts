@@ -25,12 +25,17 @@ export function longestChanceLimit(items: readonly { options: readonly string[] 
  * validated, counted and tested without rendering anything.
  */
 
-/** The picture shown above a topic's first screen. Rendered by the course's adapter. */
-export type Visual =
+/**
+ * The picture shown above a topic's first screen. Rendered by the course's adapter.
+ * `preview` marks an overview of what the lesson is about to teach: it is captioned as a preview,
+ * and the taught-terms check lets it name terms this topic defines later.
+ */
+export type Visual = (
   | { kind: "flow"; steps: readonly { icon: string; label: string; sub: string }[] }
   | { kind: "ladder"; caption?: string; rungs: readonly { icon: string; name: string; text: string }[] }
   | { kind: "tiles"; tiles: readonly { icon: string; title: string; text: string }[] }
-  | { kind: "code"; lang: string; code: string; caption?: string };
+  | { kind: "code"; lang: string; code: string; caption?: string }
+) & { preview?: true };
 
 /** One screen teaches one idea. A worked example walks through a calculation or a trace. */
 export type Screen = { kind: "idea"; text: string; visual?: Visual } | { kind: "example"; title: string; steps: readonly string[] };

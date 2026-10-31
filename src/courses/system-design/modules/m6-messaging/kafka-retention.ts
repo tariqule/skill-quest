@@ -7,9 +7,9 @@ const topic: TopicContent = {
   visual: {
     kind: "tiles",
     tiles: [
-      { icon: "📜", title: "Kafka", text: "A retained log. Many groups, replay, order per key, huge throughput." },
-      { icon: "📬", title: "SQS", text: "A managed queue. Per-message acks, visibility timeouts, no servers to run." },
-      { icon: "🐇", title: "RabbitMQ", text: "A flexible broker. Routing rules, priorities, messages gone once acked." },
+      { icon: "⏳", title: "Delete by age", text: "Old records go after a set time, read or not." },
+      { icon: "📦", title: "Delete by size", text: "The oldest records go once a partition is full." },
+      { icon: "🔑", title: "Keep the latest", text: "Only the newest record for each key stays." },
     ],
   },
   screens: [
@@ -21,8 +21,10 @@ const topic: TopicContent = {
     { kind: "idea", text: "**Log compaction** is a different cleanup policy. Instead of deleting by age, Kafka keeps at least the latest record for each key and removes older ones in the background." },
     { kind: "idea", text: "A compacted topic works like a changelog of current values. Read it from the start and you rebuild the latest state of every key." },
     { kind: "idea", text: "To delete a key from a compacted topic, write a **tombstone**: the key with a null value. Compaction removes older values, and later the tombstone itself." },
-    { kind: "idea", text: "Kafka also has to store metadata: which topics exist, which broker leads each partition, and which replicas are in sync for each one, the ISR from the last lesson. For years that lived in a separate ZooKeeper cluster." },
-    { kind: "idea", text: "**KRaft** moved metadata into Kafka itself. A few controller nodes vote on every change, and a change counts once a majority agree. The voting rules come from a protocol called Raft." },
+    { kind: "idea", text: "Kafka also has to store **metadata**: which topics exist, which broker leads each partition, and which replicas are in sync, the ISR from the last lesson." },
+    { kind: "idea", text: "For years that metadata lived outside Kafka, in a separate cluster of a tool called **ZooKeeper**. Teams had to run and secure both systems." },
+    { kind: "idea", text: "**KRaft** moved metadata into Kafka itself. A few controller nodes vote on every change, and a change counts once a majority agree." },
+    { kind: "idea", text: "Those voting rules come from **Raft**, a well-known protocol for getting machines to agree. KRaft is Kafka's own version of it, which is where the name comes from." },
     { kind: "idea", text: "Kafka 4.0, released in 2025, removed ZooKeeper mode completely. New clusters run KRaft only, with one fewer system to deploy, secure and monitor." },
     { kind: "idea", text: "Choose Kafka when many consumers need the same events, you want replay, per-key order matters, or volume is very high. That's the **event streaming** use case." },
     { kind: "idea", text: "Choose a **job queue** like SQS or RabbitMQ when each message is a task done once, failures are retried one at a time, and history isn't needed afterwards." },
@@ -128,6 +130,7 @@ const topic: TopicContent = {
     { title: "KIP-500: Replace ZooKeeper with a Self-Managed Metadata Quorum", url: "https://cwiki.apache.org/confluence/display/KAFKA/KIP-500%3A+Replace+ZooKeeper+with+a+Self-Managed+Metadata+Quorum", license: "Link only" },
     { title: "Amazon SQS Developer Guide", url: "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html", license: "Link only" },
     { title: "RabbitMQ tutorials", url: "https://www.rabbitmq.com/tutorials", license: "Link only" },
+    { title: "Amazon SQS message quotas (retention)", url: "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/quotas-messages.html", license: "Link only" },
   ],
 };
 

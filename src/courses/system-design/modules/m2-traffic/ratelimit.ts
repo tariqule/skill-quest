@@ -5,12 +5,13 @@ const topic: TopicContent = {
   module: "m2",
   title: "Rate limiting",
   visual: {
+    preview: true,
     kind: "ladder",
     caption: "Three common ways to count",
     rungs: [
       { icon: "🪣", name: "Token bucket", text: "Tokens drip in at a steady rate; each request spends one. Allows short bursts." },
       { icon: "🪟", name: "Fixed window", text: "Count requests per clock minute. Simple, but bursty at the edges." },
-      { icon: "🎞️", name: "Sliding window", text: "Count over the last 60 seconds from now. Smoother, a bit more work." },
+      { icon: "🎞️", name: "Sliding window log", text: "Count over the last 60 seconds from now. Smoother, a bit more work." },
     ],
   },
   screens: [

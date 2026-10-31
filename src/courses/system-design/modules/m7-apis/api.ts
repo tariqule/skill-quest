@@ -22,7 +22,7 @@ const topic: TopicContent = {
     { kind: "idea", text: "On the server, each field has a **resolver**, a function that fetches that field's data." },
     { kind: "idea", text: "Naive resolvers cause the N+1 problem: 1 query loads 50 orders, then 1 more query per order loads its items, 51 queries in all. A batching loader merges them into one." },
     { kind: "idea", text: "**gRPC** lets a service call a method on another as if it were local. Requests and replies are typed messages encoded in Protobuf, a compact binary format." },
-    { kind: "idea", text: "gRPC runs over **HTTP/2**, the newer version of HTTP, which carries many calls on one connection and supports streaming in either direction, such as a server pushing a stream of updates." },
+    { kind: "idea", text: "gRPC runs over **HTTP/2**, a newer version of HTTP. It carries many calls at once on one connection, instead of opening a new one per call." },
     { kind: "idea", text: "Rough fit: REST for public APIs and anything cached, GraphQL for apps with many screens fetching varied data, gRPC for fast calls between internal services." },
     {
       kind: "example",
@@ -57,7 +57,7 @@ const topic: TopicContent = {
       kind: "mcq",
       id: "t-api-q3",
       prompt: "Which HTTP verb should create a new order in a REST API?",
-      options: ["GET", "POST", "DELETE", "HEAD"],
+      options: ["GET", "POST", "DELETE", "PATCH"],
       answer: 1,
       explanation: "POST creates a resource. GET only reads and should change nothing.",
     },

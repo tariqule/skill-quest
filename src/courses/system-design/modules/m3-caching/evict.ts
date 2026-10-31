@@ -5,6 +5,7 @@ const topic: TopicContent = {
   module: "m3",
   title: "Eviction, TTLs and stampedes",
   visual: {
+    preview: true,
     kind: "tiles",
     tiles: [
       { icon: "🧹", title: "Eviction", text: "The cache is full. Which item goes?" },

@@ -27,7 +27,7 @@ const topic: TopicContent = {
     { kind: "idea", text: "A message that keeps failing is a **poison message**. Retrying it forever blocks workers and burns money, so it needs somewhere else to go." },
     { kind: "idea", text: "A **dead-letter queue** collects messages that failed too many times, say 5 receives. The main queue keeps flowing and a person can inspect the failures later." },
     { kind: "idea", text: "A **task queue** like Celery wraps this for app code: you call a function as a background job and workers run it, with retries and schedules built in." },
-    { kind: "idea", text: "A queue that grows without limit only hides overload. **Back pressure** means pushing back: cap the queue length and, when it's full, return a \"busy, try again later\" error (HTTP 503) so callers slow down." },
+    { kind: "idea", text: "A queue that grows forever only hides overload. **Back pressure** means pushing back: when the queue is full, tell callers \"busy, try again later\" so they slow down." },
     {
       kind: "example",
       title: "Photo upload with thumbnail workers",

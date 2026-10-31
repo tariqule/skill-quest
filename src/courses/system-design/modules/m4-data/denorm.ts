@@ -5,6 +5,7 @@ const topic: TopicContent = {
   module: "m4",
   title: "Denormalisation",
   visual: {
+    preview: true,
     kind: "tiles",
     tiles: [
       { icon: "🏢", title: "Federation", text: "One database per function: users, orders, products." },

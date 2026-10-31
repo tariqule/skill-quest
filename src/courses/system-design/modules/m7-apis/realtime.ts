@@ -10,8 +10,8 @@ const topic: TopicContent = {
     rungs: [
       { icon: "🔁", name: "Short polling", text: "Ask every few seconds. Simple, wasteful." },
       { icon: "⏳", name: "Long polling", text: "Ask and wait until there's news." },
-      { icon: "📡", name: "SSE", text: "Server pushes a stream over one HTTP response." },
-      { icon: "🔌", name: "WebSocket", text: "Both sides send any time on one open connection." },
+      { icon: "📡", name: "Server push", text: "Server sends news down one open response." },
+      { icon: "🔌", name: "Two-way line", text: "Both sides send any time on one open connection." },
     ],
   },
   screens: [
@@ -19,13 +19,15 @@ const topic: TopicContent = {
     { kind: "idea", text: "**Short polling** asks \"anything new?\" every few seconds. It's easy, but most replies say no, and updates arrive up to one interval late." },
     { kind: "idea", text: "**Long polling** sends the request and the server holds it open until there's news or a timeout. The client then asks again at once." },
     { kind: "idea", text: "**Server-sent events**, or SSE, keep one HTTP response open and the server writes events into it. It's one-way, server to client, and browsers reconnect automatically." },
+    { kind: "idea", text: "A **socket** is one open network connection between a client and a server. While it stays open, either end can send data down it." },
     { kind: "idea", text: "A **WebSocket** upgrades an HTTP connection into a two-way channel. Either side can send small messages any time, which suits chat, games and live cursors." },
     { kind: "idea", text: "When the app is closed there is no connection, so phones use **push notifications** through Apple's and Google's push services to wake the user." },
-    { kind: "idea", text: "A **socket** is one open network connection between a client and a server. Each WebSocket is one socket, and it stays open for as long as the user is online." },
+    { kind: "idea", text: "Each WebSocket is one socket, and it stays open for as long as the user is online. A busy chat app can hold millions at once." },
     { kind: "idea", text: "Millions of open sockets need dedicated servers. A **connection gateway** is a server whose only job is to hold sockets and pass messages down them." },
     { kind: "idea", text: "A **presence map** records which gateway each online user is on, like Ana on gateway 3. Other services look a user up there to route a message to them." },
     { kind: "idea", text: "Gateways pass messages to each other through a **pub/sub channel**: one gateway publishes a message to a named channel, and every gateway subscribed to it gets a copy." },
-    { kind: "idea", text: "Gateways should stay thin: no business logic, just sockets and routing. Then a gateway restart only means clients reconnect, and they resume from their last message id." },
+    { kind: "idea", text: "Gateways should stay thin: no business logic, just sockets and routing. Then restarting one loses nothing important." },
+    { kind: "idea", text: "When a gateway restarts, its clients simply reconnect, maybe to another gateway. Each sends the id of the last message it got, and **resumes** from there." },
     {
       kind: "example",
       title: "A chat typing indicator",

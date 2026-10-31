@@ -8,7 +8,7 @@ const topic: TopicContent = {
     kind: "flow",
     steps: [
       { icon: "🏛️", label: "Monolith", sub: "One app, one deploy" },
-      { icon: "🌿", label: "Strangler router", sub: "Sends some paths to new services" },
+      { icon: "🔀", label: "Router", sub: "Sends some paths to new services" },
       { icon: "🧱", label: "Services", sub: "Own their data, deploy alone" },
     ],
   },
@@ -22,7 +22,8 @@ const topic: TopicContent = {
     { kind: "idea", text: "**Data ownership** means each service owns its database and others ask through its API. Shared tables quietly tie services back together." },
     { kind: "idea", text: "A **distributed monolith** is the worst of both: services that must be deployed together because they share a database or call each other in long chains." },
     { kind: "idea", text: "The **strangler fig** pattern replaces a monolith piece by piece. A router sends one path to a new service, the rest to the old app, until nothing is left in the old app." },
-    { kind: "idea", text: "Each service runs as several copies on many machines. A **scheduler**, such as Kubernetes, picks a machine for each copy, restarts copies that crash, and adds copies under load." },
+    { kind: "idea", text: "Once split, each service runs as several copies on many machines. Someone has to decide where each copy runs." },
+    { kind: "idea", text: "A **scheduler**, such as Kubernetes, picks a machine for each copy, restarts copies that crash, and adds copies under load." },
     {
       kind: "example",
       title: "Pulling checkout out with a strangler fig",
@@ -41,7 +42,7 @@ const topic: TopicContent = {
       kind: "mcq",
       id: "t-micro-q1",
       prompt: "You need to replace a legacy monolith without a risky big-bang rewrite. Which approach fits?",
-      options: ["A strangler fig with a router", "Freeze all new features for a year", "Split every table at once", "Copy the monolith per team"],
+      options: ["A strangler fig with a router", "Rewrite it all, then switch over", "Split every table at once", "Make it a modular monolith"],
       answer: 0,
       explanation: "The strangler fig moves one path at a time behind a router, so each step is small and reversible.",
     },

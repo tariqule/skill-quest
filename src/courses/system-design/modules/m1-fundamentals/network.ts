@@ -5,6 +5,7 @@ const topic: TopicContent = {
   module: "m1",
   title: "How a request travels",
   visual: {
+    preview: true,
     kind: "flow",
     steps: [
       { icon: "📖", label: "DNS", sub: "Turns a name into an IP address" },

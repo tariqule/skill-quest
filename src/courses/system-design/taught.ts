@@ -1,5 +1,5 @@
 import { CURRICULUM } from "./curriculum";
-import { readerScreens, type TopicContent } from "./schema";
+import { readerScreens, type TopicContent, type Visual } from "./schema";
 
 /**
  * Named techniques and tools a quiz option might mention. An option, right or wrong, may only name
@@ -14,7 +14,7 @@ export const OPTION_TERMS: readonly [string, RegExp][] = [
   ["visibility timeout", /visibility timeout/i],
   ["min.insync.replicas", /min\.insync/i],
   ["ISR", /\bISR\b|in-sync replica/i],
-  ["compaction", /compact/i],
+  ["compaction", /compaction|compacted/i],
   ["tombstone", /tombstone/i],
   ["KRaft", /\bKRaft\b/],
   ["Raft", /\bRaft\b/],
@@ -51,6 +51,17 @@ export const OPTION_TERMS: readonly [string, RegExp][] = [
   ["CDN", /\bCDN\b/],
   ["TTL", /\bTTL\b/],
   ["quorum", /quorum/i],
+  ["OLTP", /\bOLTP\b/],
+  ["OLAP", /\bOLAP\b/],
+  ["tumbling window", /tumbling/i],
+  ["sliding window", /sliding window(?! log)/i],
+  ["RabbitMQ", /rabbitmq/i],
+  ["SQS", /\bSQS\b/],
+  ["Flink", /\bflink\b/i],
+  ["broker time", /broker time/i],
+  ["commit time", /commit time/i],
+  ["round robin", /round.robin/i],
+  ["HEAD method", /^HEAD$/],
 ];
 
 const OUTLINE = new Map(CURRICULUM.map((o) => [o.id, o]));
@@ -87,4 +98,45 @@ export function untaughtOptions(topics: readonly TopicContent[], terms: readonly
     }
   }
   return out;
+}
+
+/** Every word a picture shows. */
+export function visualText(v: Visual): string {
+  switch (v.kind) {
+    case "flow":
+      return v.steps.map((s) => `${s.label} ${s.sub}`).join(" ");
+    case "ladder":
+      return [v.caption ?? "", ...v.rungs.map((r) => `${r.name} ${r.text}`)].join(" ");
+    case "tiles":
+      return v.tiles.map((t) => `${t.title} ${t.text}`).join(" ");
+    case "code":
+      return v.caption ?? "";
+  }
+}
+
+/**
+ * Pictures that name a term before the learner has read it. The topic picture sits above the first
+ * card, so it may use what the prerequisites and that first card teach; a card's own picture may use
+ * everything up to and including that card.
+ */
+export function untaughtPictures(topics: readonly TopicContent[], terms: readonly [string, RegExp][] = OPTION_TERMS): string[] {
+  const out: string[] = [];
+  for (const t of topics) {
+    const before = [...prereqClosure(t.id)].filter((id) => id !== t.id);
+    const prior = taughtTextOf(before, topics);
+    const cards = t.screens.map((s) => readerScreens(s).join(" "));
+    const pictures: [string, Visual, number][] = [["topic picture", t.visual, 0]];
+    t.screens.forEach((s, i) => { if (s.kind === "idea" && s.visual) pictures.push([`card ${i + 1} picture`, s.visual, i]); });
+    for (const [where, v, upTo] of pictures) {
+      const known = `${prior} ${cards.slice(0, v.preview ? cards.length : upTo + 1).join(" ")} ${v.preview ? t.tip : ""}`;
+      const shown = visualText(v);
+      for (const [label, re] of terms) if (re.test(shown) && !re.test(known)) out.push(`${t.id} ${where} names ${label} before it is taught`);
+    }
+  }
+  return out;
+}
+
+function taughtTextOf(ids: readonly string[], topics: readonly TopicContent[]): string {
+  const set = new Set(ids);
+  return topics.filter((t) => set.has(t.id)).flatMap((t) => [...t.screens.flatMap(readerScreens), t.tip]).join(" ");
 }

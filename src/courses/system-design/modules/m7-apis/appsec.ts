@@ -5,6 +5,7 @@ const topic: TopicContent = {
   module: "m7",
   title: "Security: least privilege and input",
   visual: {
+    preview: true,
     kind: "tiles",
     tiles: [
       { icon: "🔑", title: "Least privilege", text: "Each service and key gets only the access it needs." },
