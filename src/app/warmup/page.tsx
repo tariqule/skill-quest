@@ -25,7 +25,7 @@ export default function WarmupPage() {
   return (
     <>
       <AppBar />
-      <main className="mx-auto w-full max-w-5xl px-4 py-6 text-base sm:py-10">
+      <main className="mx-auto w-full max-w-page px-4 py-6 text-base sm:py-10">
         <PageIntro icon={Zap} title="Daily code warm-up">
           Six quick code games from your tracks: put lines in order, spot the bug, predict the output. Anything you miss comes back in your review.
         </PageIntro>

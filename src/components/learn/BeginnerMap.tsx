@@ -1,7 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import type { CSSProperties } from "react";
+import { CheckCircle2, Lock, Map as MapIcon, Play, Sprout } from "lucide-react";
+import { BlockIcon } from "@/components/learn/block-icons";
+import { LayoutMotion } from "@/components/motion/LayoutMotion";
+import { Button } from "@/components/ui/button";
+import { useHydrated } from "@/engine/hydrated";
 import { CourseLevel, LevelUpBanner } from "@/components/LevelControls";
 import { useCourse, useProgress } from "@/engine/course-context";
 import { buildPath, type PathNode } from "@/engine/path";
@@ -23,32 +27,33 @@ export function BeginnerMap() {
 function BeginnerTopicMap({ map }: { map: CourseMap }) {
   const { course, href } = useCourse();
   const first = map.modules[0];
+  const hydrated = useHydrated();
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-6 pb-28 sm:py-10">
       <BeginnerHeader />
-      <p className="mt-4 text-lg leading-relaxed text-slate-300">
-        Start with Module 1, one topic at a time. Each lesson takes about 5 minutes: you read a little, then answer a few easy questions. {first.done} of{" "}
-        {first.topics.length} Module 1 topics done, {map.done} of {map.total} in the course.
+      <p className="mt-4 max-w-prose text-base leading-relaxed text-muted-foreground sm:text-lg">
+        Start with Module 1, one topic at a time. Each lesson takes about 5 minutes: you read a little, then answer a few easy questions.
+        {hydrated && ` ${first.done} of ${first.topics.length} Module 1 topics done, ${map.done} of ${map.total} in the course.`}
       </p>
       {map.current?.lesson && (
-        <Link
-          href={href(`/lesson/${map.current.lesson}`)}
-          className="btn-3d mt-5 flex items-center justify-center gap-2 rounded-2xl bg-emerald-400 px-5 py-4 text-xl font-black text-slate-950"
-          style={{ "--edge": "#047857" } as CSSProperties}
-        >
-          ▶ {map.done === 0 ? "Start lesson 1" : `Continue: ${map.current.topic.title}`} <span aria-hidden>→</span>
-        </Link>
+        <Button size="xl" className="mt-5 w-full sm:w-auto" render={<Link href={href(`/lesson/${map.current.lesson}`)} />}>
+          <Play aria-hidden="true" />
+          {map.done === 0 || !hydrated ? "Start lesson 1" : `Continue: ${map.current.topic.title}`}
+        </Button>
       )}
       <div className="mt-4">
         <PracticeTile />
       </div>
       <LevelUpBanner />
       <section aria-labelledby="map-heading" className="mt-8">
-        <h2 id="map-heading" className="text-xl font-black text-white">
-          🗺️ {map.modules.length} modules, {map.total} topics
+        <h2 id="map-heading" className="flex items-center gap-2 font-heading text-h3 font-semibold text-foreground">
+          <MapIcon aria-hidden="true" className="size-5 text-primary" />
+          {map.modules.length} modules, {map.total} topics
         </h2>
         <div className="mt-4">
-          <ModuleMap map={map} color={course.provider.color} startHere />
+          <LayoutMotion>
+            <ModuleMap map={map} color={course.provider.color} startHere />
+          </LayoutMotion>
         </div>
       </section>
       <ChangeLevel />
@@ -60,10 +65,15 @@ function BeginnerHeader() {
   const { course } = useCourse();
   return (
     <div className="flex items-center gap-3">
-      <span className="text-4xl">{course.provider.icon}</span>
+      <span className="flex size-12 shrink-0 items-center justify-center rounded-card bg-muted" style={{ color: course.provider.color }}>
+        <BlockIcon icon={course.provider.icon} className="size-6" />
+      </span>
       <div className="min-w-0">
-        <div className="text-xs font-bold uppercase tracking-[0.2em] text-rose-300">🐣 Beginner path</div>
-        <h1 className="text-2xl font-black text-white sm:text-3xl">{course.title}</h1>
+        <p className="flex items-center gap-1.5 text-sm font-medium text-primary">
+          <Sprout aria-hidden="true" className="size-4" />
+          Beginner path
+        </p>
+        <h1 className="font-heading text-h2 font-semibold text-foreground">{course.title}</h1>
       </div>
     </div>
   );
@@ -71,8 +81,8 @@ function BeginnerHeader() {
 
 function ChangeLevel() {
   return (
-    <details className="mt-10 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-      <summary className="cursor-pointer text-base font-bold text-slate-200">Not a beginner? Change your level</summary>
+    <details className="mt-10 rounded-card border border-border bg-card p-4">
+      <summary className="flex min-h-11 cursor-pointer items-center text-base font-semibold text-foreground">Not a beginner? Change your level</summary>
       <CourseLevel title="How much do you know?" />
     </details>
   );
@@ -82,6 +92,7 @@ function BeginnerLessonPath() {
   const { course, href, domain: domainById } = useCourse();
   const p = useProgress();
   const { worlds, current } = buildPath(course, p);
+  const hydrated = useHydrated();
   const total = worlds.reduce((n, w) => n + w.nodes.filter((x) => x.type === "lesson" && !x.optional).length, 0);
   const done = worlds.reduce((n, w) => n + w.nodes.filter((x) => x.type === "lesson" && !x.optional && x.state === "done").length, 0);
   // Lesson numbers run across sections: 1, 2, 3 … (section checks aren't numbered).
@@ -91,18 +102,16 @@ function BeginnerLessonPath() {
   return (
     <main className="mx-auto w-full max-w-2xl px-4 py-6 pb-28 sm:py-10">
       <BeginnerHeader />
-      <p className="mt-4 text-lg leading-relaxed text-slate-300">
-        Go through these in order, one at a time. Each lesson takes about 5 minutes: you read a little, then answer a couple of easy questions. {done} of {total} done.
+      <p className="mt-4 max-w-prose text-base leading-relaxed text-muted-foreground sm:text-lg">
+        Go through these in order, one at a time. Each lesson takes about 5 minutes: you read a little, then answer a couple of easy questions.
+        {hydrated && ` ${done} of ${total} done.`}
       </p>
 
       {current && (
-        <Link
-          href={href(current.to)}
-          className="btn-3d mt-5 flex items-center justify-center gap-2 rounded-2xl bg-emerald-400 px-5 py-4 text-xl font-black text-slate-950"
-          style={{ "--edge": "#047857" } as CSSProperties}
-        >
-          ▶ {done === 0 ? "Start lesson 1" : current.type === "quest" ? "Take the short check" : "Continue"} <span aria-hidden>→</span>
-        </Link>
+        <Button size="xl" className="mt-5 w-full sm:w-auto" render={<Link href={href(current.to)} />}>
+          <Play aria-hidden="true" />
+          {done === 0 || !hydrated ? "Start lesson 1" : current.type === "quest" ? "Take the short check" : "Continue"}
+        </Button>
       )}
 
       <LevelUpBanner />
@@ -114,11 +123,12 @@ function BeginnerLessonPath() {
           if (nodes.length === 0) return null;
           return (
             <li key={w.domain} className="contents">
-              <div className="mt-4 text-sm font-black uppercase tracking-wider" style={{ color: d.color }}>
-                {d.emoji} {d.name}
-              </div>
+              <h2 className="mt-4 flex items-center gap-2 text-base font-semibold text-foreground">
+                <BlockIcon icon={d.emoji} className="size-4 text-muted-foreground" />
+                {d.name}
+              </h2>
               {nodes.map((n) => (
-                <Row key={n.key} node={n} label={String(numbers.get(n.key) ?? "✓")} color={d.color} />
+                <Row key={n.key} node={n} label={String(numbers.get(n.key) ?? "")} />
               ))}
             </li>
           );
@@ -130,7 +140,7 @@ function BeginnerLessonPath() {
   );
 }
 
-function Row({ node, label, color }: { node: PathNode; label: string; color: string }) {
+function Row({ node, label }: { node: PathNode; label: string }) {
   const { href } = useCourse();
   const isQuest = node.type === "quest";
   const done = node.state === "done";
@@ -138,23 +148,30 @@ function Row({ node, label, color }: { node: PathNode; label: string; color: str
   const locked = node.state === "locked";
   const body = (
     <span
-      className={`flex items-center gap-3 rounded-2xl border px-4 py-3 text-left transition ${
-        here ? "border-emerald-400 bg-emerald-400/10" : done ? "border-white/10 bg-white/[0.04]" : "border-white/10 bg-slate-900/60"
-      } ${locked ? "opacity-50" : "hover:border-white/30"}`}
+      className={`flex min-h-11 items-center gap-3 rounded-card border px-4 py-3 text-left transition-colors ${
+        here ? "border-primary bg-primary/10" : done ? "border-success/40 bg-success/5" : "border-border bg-card"
+      } ${locked ? "" : "hover:border-primary/60"}`}
     >
       <span
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-black"
-        style={{ background: done ? color : "rgb(255 255 255 / 0.1)", color: done ? "#020617" : "#e2e8f0" }}
+        className={`flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${done ? "bg-success/20 text-success-foreground" : "bg-muted text-foreground"}`}
         aria-hidden
       >
-        {done ? "✓" : locked ? "🔒" : label}
+        {done ? <CheckCircle2 className="size-4" /> : locked ? <Lock className="size-4" /> : label}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-base font-bold text-white">{isQuest ? "Short check" : node.title}</span>
-        {isQuest && <span className="block text-sm text-slate-400">A few questions on this part. No rush.</span>}
+        <span className="block text-base font-medium text-foreground">{isQuest ? "Short check" : node.title}</span>
+        {isQuest && <span className="block text-sm text-muted-foreground">A few questions on this part. No rush.</span>}
+        {locked && <span className="block text-sm text-muted-foreground">Finish the one before first.</span>}
       </span>
-      {here && <span className="shrink-0 rounded-full bg-emerald-400 px-2.5 py-1 text-xs font-black text-slate-950">Next</span>}
+      {done && <span className="shrink-0 text-sm text-success-foreground">Done</span>}
+      {here && <span className="shrink-0 rounded-full bg-primary px-2.5 py-1 text-sm font-semibold text-primary-foreground">Next</span>}
     </span>
   );
-  return locked ? <span aria-label={`${node.title} (finish the one before first)`}>{body}</span> : <Link href={href(node.to)}>{body}</Link>;
+  return locked ? (
+    <span aria-label={`${node.title} (finish the one before first)`}>{body}</span>
+  ) : (
+    <Link href={href(node.to)} aria-current={here ? "step" : undefined} className="block rounded-card focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
+      {body}
+    </Link>
+  );
 }

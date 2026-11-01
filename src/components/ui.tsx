@@ -1,64 +1,53 @@
 "use client";
 
 import Link from "next/link";
+import { ArrowLeft, Star } from "lucide-react";
 import type { ReactNode } from "react";
+import { BlockIcon } from "@/components/learn/block-icons";
 import { useOptionalCourse } from "@/engine/course-context";
 import { pct } from "@/engine/game";
+import { cn } from "@/lib/utils";
 
-export function Bar({ value, color = "#38bdf8", className = "h-2" }: { value: number; color?: string; className?: string }) {
+/** Progress bar. Colour defaults to the primary token; a track accent may be passed for track progress only. */
+export function Bar({ value, color = "var(--primary)", className = "h-2" }: { value: number; color?: string; className?: string }) {
   return (
-    <div className={`w-full overflow-hidden rounded-full bg-white/10 ${className}`}>
-      <div
-        className="h-full rounded-full transition-[width] duration-500"
-        style={{ width: pct(Math.max(0, Math.min(1, value))), background: color }}
-      />
+    <div className={cn("w-full overflow-hidden rounded-full bg-muted", className)}>
+      <div className="h-full rounded-full transition-[width] duration-500 motion-reduce:transition-none" style={{ width: pct(Math.max(0, Math.min(1, value))), background: color }} />
     </div>
   );
 }
 
-export function Stars({ count, size = "text-xl" }: { count: number; size?: string }) {
+/** 0–3 stars: reward amber when earned, an outline when not. */
+export function Stars({ count, size = "size-5" }: { count: number; size?: string }) {
   return (
-    <span className={size} aria-label={`${count} of 3 stars`}>
+    <span className="inline-flex items-center gap-0.5" role="img" aria-label={`${count} of 3 stars`}>
       {[0, 1, 2].map((i) => (
-        <span key={i} aria-hidden className={i < count ? "" : "text-slate-600"}>
-          {i < count ? "⭐" : "☆"}
-        </span>
+        <Star key={i} aria-hidden="true" className={cn(size, i < count ? "fill-reward text-reward" : "text-muted-foreground")} />
       ))}
     </span>
   );
 }
 
-export function PageShell({ title, subtitle, children }: { title: string; subtitle?: string; children: ReactNode }) {
+/** Page frame. `width` picks a shared token: "page" for hubs, lists and references, "play" for game rounds. */
+export function PageShell({ title, subtitle, width = "page", children }: { title: string; subtitle?: string; width?: "page" | "play"; children: ReactNode }) {
   const course = useOptionalCourse();
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 py-6 sm:py-10">
-      <Link href={course ? course.href() : "/"} className="-my-3 inline-flex min-h-11 items-center text-sm text-slate-400 hover:text-white print:hidden">
-        ← Back to map
+    <main className={cn("mx-auto w-full px-4 py-6 sm:py-10", width === "play" ? "max-w-play" : "max-w-page")}>
+      <Link href={course ? course.href() : "/"} className="-my-3 inline-flex min-h-11 items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground print:hidden">
+        <ArrowLeft aria-hidden="true" className="size-4" />
+        {course ? "Back to course" : "Home"}
       </Link>
-      <h1 className="mt-3 text-2xl sm:text-3xl font-bold text-white print:text-black">{title}</h1>
-      {subtitle && <p className="mt-1 text-slate-400">{subtitle}</p>}
+      <h1 className="mt-3 font-heading text-h2 font-semibold tracking-tight text-foreground print:text-black">{title}</h1>
+      {subtitle && <p className="mt-1 max-w-[65ch] text-base text-muted-foreground">{subtitle}</p>}
       <div className="mt-6">{children}</div>
     </main>
   );
 }
 
-export function Button({
-  children,
-  onClick,
-  variant = "primary",
-  className = "",
-}: {
-  children: ReactNode;
-  onClick?: () => void;
-  variant?: "primary" | "ghost";
-  className?: string;
-}) {
-  const styles =
-    variant === "primary"
-      ? "bg-sky-500 text-slate-950 hover:bg-sky-400"
-      : "border border-white/15 text-slate-200 hover:bg-white/10";
+export function Button({ children, onClick, variant = "primary", className = "" }: { children: ReactNode; onClick?: () => void; variant?: "primary" | "ghost"; className?: string }) {
+  const styles = variant === "primary" ? "bg-primary text-primary-foreground hover:bg-primary/90" : "border border-input text-foreground hover:bg-accent";
   return (
-    <button type="button" onClick={onClick} className={`rounded-xl px-5 py-2.5 font-semibold transition ${styles} ${className}`}>
+    <button type="button" onClick={onClick} className={cn("min-h-11 rounded-control px-5 py-2.5 font-semibold transition-colors", styles, className)}>
       {children}
     </button>
   );
@@ -66,11 +55,11 @@ export function Button({
 
 export function StatPill({ icon, label, value }: { icon: string; label: string; value: ReactNode }) {
   return (
-    <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2">
-      <span className="text-lg">{icon}</span>
+    <div className="flex items-center gap-2 rounded-control border border-border bg-card px-3 py-2">
+      <BlockIcon icon={icon} className="size-5" />
       <div className="leading-tight">
-        <div className="text-[11px] uppercase tracking-wider text-slate-400">{label}</div>
-        <div className="font-semibold text-white">{value}</div>
+        <div className="text-sm text-muted-foreground">{label}</div>
+        <div className="font-semibold text-foreground">{value}</div>
       </div>
     </div>
   );

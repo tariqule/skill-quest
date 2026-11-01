@@ -12,7 +12,7 @@ export const APP_NAME = "SkillQuest";
 export function HeaderFrame({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <header className="sticky top-0 z-20 border-b border-border bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
-      <div className={cn("mx-auto flex h-14 max-w-5xl items-center gap-3 px-4", className)}>{children}</div>
+      <div className={cn("mx-auto flex h-14 max-w-page items-center gap-3 px-4", className)}>{children}</div>
     </header>
   );
 }

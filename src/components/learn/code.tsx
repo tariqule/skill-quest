@@ -83,9 +83,9 @@ export function Tokens({ code, lang }: { code: string; lang?: string }) {
 export function CodeBlock({ code, lang, caption }: { code: string; lang?: string; caption?: string }) {
   return (
     <figure className="min-w-0 max-w-full">
-      <div className="overflow-hidden rounded-xl border border-white/10 bg-slate-950">
-        {lang && <div className="border-b border-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">{lang}</div>}
-        <pre className="overflow-x-auto p-3 font-mono text-[13px] leading-relaxed text-slate-100">
+      <div className="overflow-hidden rounded-control border border-border bg-code">
+        {lang && <div className="border-b border-code-muted/20 px-3 py-1 text-sm font-medium text-code-muted">{lang}</div>}
+        <pre className="overflow-x-auto p-3 font-mono text-sm leading-relaxed text-code-foreground">
           <code>
             {lang === "yaml" || lang === "yml"
               ? highlightYaml(code.replace(/^\n+|\s+$/g, ""))
@@ -93,7 +93,7 @@ export function CodeBlock({ code, lang, caption }: { code: string; lang?: string
           </code>
         </pre>
       </div>
-      {caption && <figcaption className="mt-1 text-xs text-slate-400">{caption}</figcaption>}
+      {caption && <figcaption className="mt-1 text-sm text-muted-foreground">{caption}</figcaption>}
     </figure>
   );
 }
@@ -117,7 +117,7 @@ export function CodeCompare({
     <div className="grid min-w-0 grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
       {[left, right].map((s, i) => (
         <div key={i} className="min-w-0">
-          <div className={`mb-1 text-xs font-bold uppercase tracking-wider ${tone === "neutral" ? "text-sky-300" : i === 0 ? "text-rose-300" : "text-emerald-300"}`}>{s.title}</div>
+          <div className={`mb-1 text-sm font-semibold ${tone === "neutral" ? "text-primary" : i === 0 ? "text-destructive-foreground" : "text-success-foreground"}`}>{s.title}</div>
           <CodeBlock code={s.code} lang={lang} />
         </div>
       ))}

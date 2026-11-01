@@ -18,7 +18,7 @@ export default function Home() {
   return (
     <>
       <AppBar />
-      <main className="mx-auto w-full max-w-5xl px-4 py-8 text-base sm:py-12">
+      <main className="mx-auto w-full max-w-page px-4 py-8 text-base sm:py-12">
         {/* Until local progress is read we can't know if there's a plan: keep the full hero and a skeleton of the card. */}
         <Hero compact={mounted && !!plan} />
 

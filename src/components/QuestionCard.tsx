@@ -437,7 +437,11 @@ function OutputBody({ q, submitted, onSubmit, reveal }: BodyProps) {
           value={typed}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && ready) onSubmit(encodeText(text));
+            if (e.key !== "Enter") return;
+            // Same as Submit; the answer and its feedback stay on screen until the next deliberate press.
+            e.preventDefault();
+            e.stopPropagation();
+            if (ready) onSubmit(encodeText(text));
           }}
           spellCheck={false}
           autoCapitalize="off"
@@ -449,9 +453,12 @@ function OutputBody({ q, submitted, onSubmit, reveal }: BodyProps) {
         />
       )}
       {locked && reveal && !right && (
-        <p className="mt-2 text-sm text-success-foreground">
-          Expected: <code className="whitespace-pre-wrap rounded bg-muted px-1.5 py-0.5 font-mono">{q.shuffled[0]}</code>
-        </p>
+        <div className="mt-3">
+          <p className="text-sm font-semibold text-success-foreground">Expected:</p>
+          <pre className="mt-1 overflow-x-auto rounded-control border border-border bg-code px-3 py-2 font-mono text-sm text-code-foreground">
+            <code className="whitespace-pre">{q.shuffled[0]}</code>
+          </pre>
+        </div>
       )}
       {!locked && <SubmitButton disabled={!ready} onClick={() => onSubmit(encodeText(text))} />}
       {!locked && <OutputChoices q={q} onSubmit={onSubmit} />}

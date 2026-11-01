@@ -22,7 +22,9 @@ export interface PathNode {
 export interface PathWorld {
   domain: string;
   unlocked: boolean;
+  /** Done lesson tiles in this world, counting optional extras: the same set the map lists. */
   lessonsDone: number;
+  /** Every lesson tile in this world (required and optional), so "done/total" matches the tiles. */
   lessonsTotal: number;
   nodes: PathNode[];
 }
@@ -67,7 +69,7 @@ export function buildPath(course: Course, p: Progress): { worlds: PathWorld[]; c
     const extraNodes = extras.map((l) =>
       toNode(l, p.lessonsDone.includes(l.id) ? "done" : beginner ? "later" : unlocked ? "open" : "locked", { optional: true }),
     );
-    const lessonsDone = requiredNodes.filter((n) => n.state === "done").length;
+    const requiredDone = requiredNodes.filter((n) => n.state === "done").length;
     const questDone = (p.questStars[d.id] ?? 0) > 0;
     const quest: PathNode = {
       key: `quest-${d.id}`,
@@ -75,11 +77,12 @@ export function buildPath(course: Course, p: Progress): { worlds: PathWorld[]; c
       domain: d.id,
       title: `${d.world} trial`,
       to: `/quest/${d.id}`,
-      state: questDone ? "done" : unlocked && lessonsDone === required.length ? "open" : "locked",
+      state: questDone ? "done" : unlocked && requiredDone === required.length ? "open" : "locked",
     };
     // Basics come first on higher levels; "later" lessons come after the trial on Beginner.
     const nodes = beginner ? [...requiredNodes, quest, ...extraNodes] : [...extraNodes, ...requiredNodes, quest];
-    return { domain: d.id, unlocked, lessonsDone, lessonsTotal: required.length, nodes };
+    const lessonNodes = [...requiredNodes, ...extraNodes];
+    return { domain: d.id, unlocked, lessonsDone: lessonNodes.filter((n) => n.state === "done").length, lessonsTotal: lessonNodes.length, nodes };
   });
   for (const w of worlds) {
     const n = w.nodes.find((x) => x.state === "open" && !x.optional);

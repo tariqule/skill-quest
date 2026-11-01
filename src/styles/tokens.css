@@ -62,6 +62,10 @@
   --ring: #0D9488;
 }
 :root {
+  /* Code surfaces stay dark in both themes so syntax colours keep their contrast. */
+  --code: #0B1220;
+  --code-foreground: #E2E8F0;
+  --code-muted: #94A3B8;
   /* Type scale (px → rem), see typeScale in tokens.ts */
   --sq-text-caption: 0.875rem;
   --sq-text-ui: 1rem;
@@ -125,6 +129,9 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-code: var(--code);
+  --color-code-foreground: var(--code-foreground);
+  --color-code-muted: var(--code-muted);
 
   --text-caption: var(--sq-text-caption);
   --text-caption--line-height: 1.45;
@@ -158,6 +165,9 @@
 
 /* Loader shimmer for coss Skeleton (loaders are the only allowed looping animation). */
 @theme {
+  /* Shared page widths: hubs, lists and the cheat sheet use "page"; one-at-a-time play uses "play". */
+  --container-page: 64rem;
+  --container-play: 42.5rem;
   --animate-skeleton: skeleton 2s -1s infinite linear;
   @keyframes skeleton {
     to {

@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
 import { useState } from "react";
+import { ArrowLeft, Play, Trophy } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { ScenarioPlay } from "@/components/scenarios/ScenarioPlay";
 import { PageShell } from "@/components/ui";
 import { useCourse } from "@/engine/course-context";
@@ -32,9 +34,9 @@ export function ScenarioGame() {
   if (!info) notFound();
   if (!all.length) {
     return (
-      <PageShell title={`${info.icon} ${info.name}`}>
-        <p className="text-slate-300">No {info.name} items for {course.shortTitle} yet.</p>
-        <Link href={href("/scenarios")} className="mt-4 inline-block text-sky-300 underline">
+      <PageShell title={info.name}>
+        <p className="text-base text-muted-foreground">No {info.name} items for {course.shortTitle} yet.</p>
+        <Link href={href("/scenarios")} className="mt-4 inline-flex min-h-11 items-center gap-1 font-medium text-primary underline underline-offset-4">
           Back to scenario games
         </Link>
       </PageShell>
@@ -42,17 +44,20 @@ export function ScenarioGame() {
   }
   const q = queue ?? [];
   return (
-    <PageShell title={`${info.icon} ${info.name}`} subtitle={gameText(info.id, all).rule}>
+    <PageShell title={info.name} subtitle={gameText(info.id, all).rule} width="play">
       {!queue ? (
-        <div>
-          <p className="text-base text-slate-300">{all.length} items. Unplayed ones come first.</p>
-          <button type="button" className="mt-4 min-h-11 rounded-2xl bg-sky-400 px-5 py-2.5 text-base font-black text-slate-950" onClick={() => setQueue(order(course.id, all))}>
-            Start
-          </button>
+        <div className="flex flex-col gap-4 rounded-card border border-border bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-base text-muted-foreground">
+            <span className="font-semibold text-foreground">{all.length} scenarios.</span> Unplayed ones come first.
+          </p>
+          <Button size="lg" className="shrink-0" onClick={() => setQueue(order(course.id, all))}>
+            <Play aria-hidden="true" />
+            Start round ({all.length} scenarios)
+          </Button>
         </div>
       ) : i < q.length ? (
         <div>
-          <p className="mb-2 text-sm text-slate-300">
+          <p className="mb-2 text-sm tabular-nums text-muted-foreground">
             {i + 1} / {q.length}
           </p>
           <ScenarioPlay
@@ -76,12 +81,14 @@ export function ScenarioGame() {
           />
         </div>
       ) : (
-        <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-6 text-center" aria-live="polite">
-          <p className="text-2xl font-black text-white">Round done 🎉</p>
-          <p className="mt-2 text-base text-slate-300">Average score {Math.round((scores.reduce((a, b) => a + b, 0) / Math.max(1, scores.length)) * 100)}%, +{xp} XP. These items are now scheduled in Daily Review.</p>
-          <Link href={href("/scenarios")} className="mt-4 inline-block rounded-2xl bg-sky-400 px-5 py-2.5 font-black text-slate-950">
+        <div className="rounded-card border border-border bg-card p-6 text-center" aria-live="polite">
+          <Trophy aria-hidden="true" className="mx-auto size-8 text-reward" />
+          <p className="mt-2 font-heading text-h3 font-semibold text-foreground">Round done</p>
+          <p className="mt-2 text-base text-muted-foreground">Average score {Math.round((scores.reduce((a, b) => a + b, 0) / Math.max(1, scores.length)) * 100)}%, +{xp} XP. These items are now scheduled in Daily Review.</p>
+          <Button size="xl" className="mt-4" render={<Link href={href("/scenarios")} />}>
+            <ArrowLeft aria-hidden="true" />
             Back to scenario games
-          </Link>
+          </Button>
         </div>
       )}
     </PageShell>
