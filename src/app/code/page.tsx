@@ -1,17 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import { LevelPicker, TerminalWindow, Typewriter } from "@/components/code/ui";
-import { Tilt } from "@/components/fx";
+import { useEffect, useRef, useState } from "react";
+import { BookOpen, Bug, Code2, Eye, LayoutGrid, ListOrdered, MessagesSquare, Search, Sprout, Timer, X, type LucideIcon } from "lucide-react";
+import { LevelPicker } from "@/components/code/ui";
 import { AppBar } from "@/components/Hud";
-import { Galaxy3D } from "@/components/three";
+import { BlockIcon } from "@/components/learn/block-icons";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { COURSES } from "@/courses";
-import { overallReadiness, pct } from "@/engine/game";
+import { overallReadiness } from "@/engine/game";
+import { useHydrated } from "@/engine/hydrated";
 import { indexCourse } from "@/engine/indexes";
 import { LEVEL_BY_ID, levelOptions, questionsForLevel, type LevelChoice } from "@/engine/levels";
-import { getCourseStore, levelInfo } from "@/engine/store";
+import { getCourseStore } from "@/engine/store";
 import { setSharedLevel, useSharedLevel } from "@/engine/track-level";
 import { isCodeTrack, matchesQuery, searchText, TRACK_CATEGORIES, TRACK_FOCUSES, type TrackFocus } from "@/engine/tracks";
 import type { Course, TrackCategory } from "@/engine/types";
@@ -23,10 +28,17 @@ const COURSES_ONLY = TRACKS.map((t) => t.course);
 const LEVEL_COUNTS = Object.fromEntries(
   levelOptions({ kind: "interview" }).map((l) => [l.id, COURSES_ONLY.reduce((n, c) => n + questionsForLevel(c, l.id).length, 0)]),
 ) as Record<LevelChoice, number>;
+const FOCUS_ICON: Record<TrackFocus, LucideIcon> = { all: LayoutGrid, interview: MessagesSquare, learning: Sprout };
+const FORMATS: { icon: LucideIcon; t: string; d: string }[] = [
+  { icon: Bug, t: "Spot the bug", d: "Tap the line that breaks." },
+  { icon: Eye, t: "Predict output", d: "Run the code in your head." },
+  { icon: ListOrdered, t: "Build it", d: "Put the lines or steps in order." },
+  { icon: Timer, t: "Final test", d: "Timed, at your level." },
+];
+const chip = "h-10 shrink-0 rounded-full border-border px-3.5 text-sm data-pressed:border-primary data-pressed:bg-primary/15 data-pressed:text-foreground";
 
-/** The Code Quests hub: every interview and learning track, in a terminal/arcade skin. */
+/** The code tracks hub: every interview and learning track, one shared level, search and filters. */
 export default function CodeHub() {
-  const router = useRouter();
   const search = useRef<HTMLInputElement>(null);
   const [focus, setFocus] = useState<TrackFocus>("all");
   const [category, setCategory] = useState<TrackCategory | "all">("all");
@@ -51,177 +63,133 @@ export default function CodeHub() {
   const shown = byQuery(byFocus(focus).filter((t) => category === "all" || t.course.category === category));
   const categories = TRACK_CATEGORIES.filter((c) => TRACKS.some((t) => t.course.category === c.id));
   const filtered = focus !== "all" || category !== "all" || query.trim() !== "";
-
-  const galaxy = useMemo(
-    () => shown.map(({ course: c }) => ({ id: c.id, label: c.shortTitle, icon: c.provider.icon, color: c.provider.color })),
-    [shown],
-  );
+  const reset = () => {
+    setFocus("all");
+    setCategory("all");
+    setQuery("");
+  };
 
   return (
-    <div className="code-theme flex min-h-full flex-1 flex-col">
+    <div className="flex min-h-full flex-1 flex-col">
       <AppBar />
       <main className="mx-auto w-full min-w-0 max-w-6xl px-4 py-8 sm:py-10">
-        <TerminalWindow title="~/code-quest — zsh">
-          <div className="grid items-center gap-4 lg:grid-cols-[1fr_1.1fr]">
-            <div className="min-w-0">
-              <h1 className="text-4xl font-black text-white sm:text-5xl">Code Quests</h1>
-              <p className="mt-2 max-w-xl text-slate-300">
-                Learn a skill from scratch or prep for the interview. Every concept comes with code you can poke at, labs that react as you play, bug hunts,
-                and a timed challenge at your level.
-              </p>
-              <div className="mt-4">
-                <Typewriter
-                  lines={[
-                    `$ code-quest --list`,
-                    `${TRACKS.length} tracks · ${TOTAL_QUESTIONS} questions · beginner to staff`,
-                    `$ code-quest --levels`,
-                    levelOptions({ kind: "interview" }).map((l) => `${l.icon} ${l.name}`).join("  "),
-                  ]}
-                />
-              </div>
-              <p className="mt-4 text-sm text-muted-foreground">Select a planet to open its track, or browse every track below.</p>
-            </div>
-            <Galaxy3D
-              items={galaxy}
-              onSelect={(id) => router.push(`/c/${id}`)}
-              className="h-56 w-full sm:h-80 lg:h-96"
-              fallback={<div className="hidden h-72 lg:block" />}
-            />
-          </div>
-        </TerminalWindow>
+        <header className="max-w-2xl">
+          <p className="flex items-center gap-2 text-sm font-medium text-primary">
+            <Code2 aria-hidden="true" className="size-4" />
+            {TRACKS.length} tracks · {TOTAL_QUESTIONS} questions
+          </p>
+          <h1 className="mt-2 font-heading text-h2 font-semibold text-foreground">Code tracks</h1>
+          <p className="mt-2 text-base text-muted-foreground">
+            Learn a skill from scratch or prep for the interview. Every idea comes with code you can try, bug hunts, and a timed check at your level.
+          </p>
+        </header>
 
-        <section className="mt-8">
-          <div className="flex flex-wrap items-end justify-between gap-2">
-            <h2 className="font-mono text-lg font-black uppercase tracking-wider text-white">
-              <span className="text-emerald-300">&gt;</span> Select difficulty
-            </h2>
-            <p className="font-mono text-xs text-slate-400">
-              {level === "mixed" ? "⚠ Your tracks are set to different levels. Pick one to set them all." : `Every track plays at ${LEVEL_BY_ID[level].icon} ${LEVEL_BY_ID[level].name}.`}
-            </p>
-          </div>
-          <p className="mt-1 text-sm text-slate-400">
-            Applies to every track: trials, drills, boss battles, study play, and the final mock interview or skill check. You can still change one track on its own map.
+        <section aria-labelledby="level-h" className="mt-8">
+          <h2 id="level-h" className="font-heading text-h4 font-semibold text-foreground">
+            Your level
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {level === "mixed" ? "Your tracks are set to different levels. Pick one to set them all. " : `Every track plays at ${LEVEL_BY_ID[level].name}. `}
+            You can still change a single track on its own page.
           </p>
           <div className="mt-4">
             <LevelPicker value={level} onChange={(l) => setSharedLevel(COURSES_ONLY, l)} counts={LEVEL_COUNTS} />
           </div>
         </section>
 
-        <section aria-label="Level and filters" className="sticky top-14 z-10 -mx-4 mt-8 border-y border-border bg-background/90 px-4 py-3 backdrop-blur">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <label className="flex min-h-11 shrink-0 items-center gap-2 text-sm text-muted-foreground">
-              <span className="sr-only sm:not-sr-only">Level</span>
-              <select
-                value={level === "mixed" ? "" : level}
-                onChange={(e) => setSharedLevel(COURSES_ONLY, e.target.value as LevelChoice)}
-                className="h-10 rounded-lg border border-input bg-background px-2 text-base font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring sm:text-sm"
-                aria-label="Level for every track"
-              >
-                {level === "mixed" && <option value="">Mixed</option>}
-                {levelOptions({ kind: "interview" }).map((l) => (
-                  <option key={l.id} value={l.id}>
-                    {l.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="flex min-h-10 min-w-0 flex-1 items-center gap-2 rounded-xl border border-white/10 bg-[#07111c] px-3 py-2 font-mono text-sm focus-within:border-emerald-400/60 sm:max-w-md">
-              <span className="text-emerald-300">$ grep</span>
-              <input
-                ref={search}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="hooks, sql joins, goroutines…"
-                className="min-w-0 flex-1 bg-transparent text-white placeholder:text-slate-600 focus:outline-none"
-                aria-label="Search tracks, lessons, and topics"
-              />
-              {query ? (
-                <button type="button" onClick={() => setQuery("")} className="text-slate-500 hover:text-white" aria-label="Clear search">
-                  ✕
-                </button>
-              ) : (
-                <kbd className="rounded border border-white/15 px-1.5 text-[10px] text-slate-500">/</kbd>
+        <section aria-labelledby="tracks-h" className="mt-10">
+          <h2 id="tracks-h" className="font-heading text-h3 font-semibold text-foreground">
+            Tracks
+          </h2>
+          <div className="sticky top-14 z-10 -mx-4 mt-3 border-y border-border bg-background/95 px-4 py-3">
+            <div className="flex gap-2">
+              <label htmlFor="track-q" className="sr-only">
+                Search tracks, lessons and topics
+              </label>
+              <div className="relative min-w-0 flex-1 sm:max-w-md">
+                <Search className="pointer-events-none absolute left-3 top-1/2 z-10 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+                <Input
+                  id="track-q"
+                  ref={search}
+                  type="search"
+                  size="lg"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Hooks, SQL joins, goroutines…"
+                  className="[&_input]:ps-9"
+                />
+              </div>
+              {filtered && (
+                <Button type="button" variant="ghost" size="lg" onClick={reset}>
+                  <X aria-hidden />
+                  Clear
+                </Button>
               )}
-            </label>
+            </div>
           </div>
-        </section>
-        <section aria-label="Track filters" className="mt-4">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex rounded-xl border border-white/10 bg-[#07111c] p-1 font-mono text-xs" role="tablist" aria-label="Track type">
+          <div className="mt-3 flex flex-col gap-2">
+            <ToggleGroup aria-label="Track type" value={[focus]} onValueChange={(v) => setFocus(((v as string[])[0] as TrackFocus) ?? "all")} className="flex-wrap gap-2">
               {TRACK_FOCUSES.map((f) => {
-                const on = focus === f.id;
+                const Icon = FOCUS_ICON[f.id];
                 return (
-                  <button
-                    key={f.id}
-                    type="button"
-                    role="tab"
-                    aria-selected={on}
-                    title={f.blurb}
-                    onClick={() => setFocus(f.id)}
-                    className={`rounded-lg px-3 py-1.5 font-bold uppercase tracking-wider transition ${on ? "bg-emerald-400 text-slate-950" : "text-slate-400 hover:text-white"}`}
-                  >
-                    {f.icon} {f.name} <span className={on ? "text-slate-800" : "text-slate-600"}>{byFocus(f.id).length}</span>
-                  </button>
+                  <ToggleGroupItem key={f.id} value={f.id} title={f.blurb} className={chip}>
+                    <Icon aria-hidden />
+                    {f.name}
+                    <span className="text-muted-foreground">{byFocus(f.id).length}</span>
+                  </ToggleGroupItem>
                 );
               })}
+            </ToggleGroup>
+            <div className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
+              <ToggleGroup aria-label="Topic" value={[category]} onValueChange={(v) => setCategory(((v as string[])[0] as TrackCategory) ?? "all")} className="gap-2">
+                <ToggleGroupItem value="all" className={chip}>
+                  All topics
+                </ToggleGroupItem>
+                {categories.map((c) => (
+                  <ToggleGroupItem key={c.id} value={c.id} className={chip}>
+                    <BlockIcon icon={c.icon} className="size-4" />
+                    {c.name}
+                    <span className="text-muted-foreground">{byFocus(focus).filter((t) => t.course.category === c.id).length}</span>
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
             </div>
           </div>
-          <div className="mt-3 flex flex-wrap gap-2 font-mono text-xs">
-            <CategoryChip active={category === "all"} onClick={() => setCategory("all")}>
-              ✳️ All topics
-            </CategoryChip>
-            {categories.map((c) => (
-              <CategoryChip key={c.id} active={category === c.id} onClick={() => setCategory(c.id)}>
-                {c.icon} {c.name} <span className="opacity-60">{byFocus(focus).filter((t) => t.course.category === c.id).length}</span>
-              </CategoryChip>
-            ))}
-            {filtered && (
-              <button
-                type="button"
-                onClick={() => {
-                  setFocus("all");
-                  setCategory("all");
-                  setQuery("");
-                }}
-                className="ml-auto text-slate-400 underline-offset-2 hover:text-white hover:underline"
-              >
-                reset filters
-              </button>
-            )}
-          </div>
+
+          <p className="mt-4 text-sm text-muted-foreground" aria-live="polite">
+            {shown.length} {shown.length === 1 ? "track" : "tracks"}
+            {query.trim() && <> matching “{query.trim()}”</>}
+          </p>
+
+          {shown.length === 0 ? (
+            <div className="mt-4 rounded-card border border-dashed border-border p-10 text-center text-base text-muted-foreground">
+              <Search aria-hidden="true" className="mx-auto size-6" />
+              <p className="mt-2">No track matches. Try another word or clear the filters.</p>
+            </div>
+          ) : (
+            <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {shown.map(({ course }) => (
+                <li key={course.id}>
+                  <TrackCard course={course} hint={matchHint(course, query)} />
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
 
-        <p className="mt-5 font-mono text-xs text-slate-500">
-          → {shown.length} {shown.length === 1 ? "track" : "tracks"}
-          {query.trim() && <> matching &quot;{query.trim()}&quot;</>}
-        </p>
-
-        {shown.length === 0 ? (
-          <div className="mt-4 rounded-2xl border border-dashed border-white/10 p-10 text-center font-mono text-slate-400">
-            <div className="text-4xl">🛰️</div>
-            <p className="mt-2">No track matches. Try another word or reset the filters.</p>
-          </div>
-        ) : (
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {shown.map(({ course }) => (
-              <Cartridge key={course.id} course={course} hint={matchHint(course, query)} />
+        <section aria-labelledby="formats-h" className="mt-12">
+          <h2 id="formats-h" className="font-heading text-h4 font-semibold text-foreground">
+            Ways to practise
+          </h2>
+          <ul className="mt-3 grid grid-cols-1 gap-3 min-[375px]:grid-cols-2 lg:grid-cols-4">
+            {FORMATS.map((f) => (
+              <li key={f.t} className="rounded-card border border-border bg-card p-4">
+                <f.icon aria-hidden="true" className="size-5 text-primary" />
+                <div className="mt-2 text-base font-semibold text-foreground">{f.t}</div>
+                <div className="text-sm text-muted-foreground">{f.d}</div>
+              </li>
             ))}
-          </div>
-        )}
-
-        <section className="mt-10 grid gap-3 sm:grid-cols-4">
-          {[
-            { icon: "🐞", t: "Bug hunt", d: "Tap the line that breaks." },
-            { icon: "🔮", t: "Predict output", d: "Run the code in your head." },
-            { icon: "🧱", t: "Build it", d: "Order the lines or steps." },
-            { icon: "🎤", t: "Final test", d: "Timed, at your level." },
-          ].map((f) => (
-            <div key={f.t} className="rounded-xl border border-white/10 bg-[#07111c]/90 p-4">
-              <div className="text-2xl">{f.icon}</div>
-              <div className="mt-1 font-mono text-sm font-black uppercase tracking-wider text-white">{f.t}</div>
-              <div className="text-xs text-slate-400">{f.d}</div>
-            </div>
-          ))}
+          </ul>
         </section>
       </main>
     </div>
@@ -235,87 +203,61 @@ function matchHint(course: Course, query: string) {
   const lesson = Object.values(course.lessons)
     .flat()
     .find((l) => l.title.toLowerCase().includes(q));
-  if (lesson) return `📖 ${lesson.title}`;
+  if (lesson) return `Lesson: ${lesson.title}`;
   const card = course.cards.find((c) => c.term.toLowerCase().includes(q));
-  if (card) return `🃏 ${card.term}`;
+  if (card) return `Flashcard: ${card.term}`;
   return null;
 }
 
-function CategoryChip({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`rounded-lg border px-2.5 py-1 transition ${active ? "border-emerald-400/70 bg-emerald-400/15 text-emerald-100" : "border-white/10 text-slate-400 hover:border-white/30 hover:text-white"}`}
-    >
-      {children}
-    </button>
-  );
-}
-
-function Cartridge({ course, hint }: { course: Course; hint: string | null }) {
+/** One track: the whole card is the link; the track colour only marks the icon and progress. */
+function TrackCard({ course, hint }: { course: Course; hint: string | null }) {
   const p = getCourseStore(course).useProgress();
-  const lvl = levelInfo(p.xp, course.levelTitles);
-  const readiness = Math.round(overallReadiness(course, p));
+  const hydrated = useHydrated();
+  const readiness = hydrated ? Math.round(overallReadiness(course, p)) : 0;
   const lessons = indexCourse(course).allLessons.length;
   const skill = LEVEL_BY_ID[p.level];
   const atLevel = questionsForLevel(course, p.level).length;
-  const color = course.provider.color;
   const focus = TRACK_FOCUSES.find((f) => f.id === course.kind);
   const category = course.category ? CATEGORY_BY_ID[course.category] : null;
-
+  const started = hydrated && p.xp > 0;
   return (
-    <Tilt className="rounded-2xl" max={8}>
-      <Link
-        href={`/c/${course.id}`}
-        className="group relative flex h-full flex-col overflow-hidden rounded-2xl border-2 bg-[#07111c]/95 p-5 transition hover:-translate-y-1"
-        style={{ borderColor: `${color}66`, boxShadow: `0 0 0 1px ${color}22, 0 18px 40px -26px ${color}` } as CSSProperties}
-      >
-        <div className="absolute -right-6 -top-6 text-8xl opacity-10 transition group-hover:scale-110 group-hover:opacity-20">{course.provider.icon}</div>
-        <div className="flex items-center gap-2 font-mono text-xs font-black uppercase tracking-wider" style={{ color }}>
-          <span className="text-2xl">{course.provider.icon}</span>
-          {course.code}
-          {(p.xp > 0 || p.level !== "all") && (
-            <span className="ml-auto rounded px-1.5 py-0.5 text-[10px]" style={{ background: `${skill.color}22`, color: skill.color }}>
-              {skill.icon} {skill.name}
-            </span>
-          )}
-        </div>
-        <div className="mt-3 font-mono text-xl font-black text-white">{course.shortTitle}</div>
-        <div className="mt-1 flex flex-wrap gap-1.5 font-mono text-[10px] font-bold uppercase tracking-wider">
-          {focus && (
-            <span className={`rounded px-1.5 py-0.5 ${course.kind === "learning" ? "bg-sky-400/15 text-sky-200" : "bg-fuchsia-400/15 text-fuchsia-200"}`}>
-              {focus.icon} {focus.name}
-            </span>
-          )}
-          {category && (
-            <span className="rounded bg-white/5 px-1.5 py-0.5 text-slate-400">
-              {category.icon} {category.name}
-            </span>
-          )}
-        </div>
-        <p className="mt-2 flex-1 text-sm text-slate-400">{course.tagline}</p>
-        {hint && <p className="mt-2 truncate rounded bg-emerald-400/10 px-2 py-1 font-mono text-[11px] text-emerald-200">{hint}</p>}
-        <div className="mt-4 flex flex-wrap gap-3 font-mono text-[11px] text-slate-400">
-          <span>{course.domains.length} stages</span>
-          {course.coding?.length ? <span className="text-emerald-300">💻 {course.coding.length} coding</span> : null}
-          <span>{lessons} levels</span>
-          <span>{p.level === "all" ? `${course.questions.length} questions` : `${atLevel} ${skill.name.toLowerCase()} questions`}</span>
-        </div>
-        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10">
-          <div className="h-full rounded-full" style={{ width: pct(readiness / 100), background: color }} />
-        </div>
-        <div className="mt-1 flex justify-between font-mono text-[11px] text-slate-500">
-          <span>lv {lvl.level}</span>
-          <span>{readiness}% ready</span>
-        </div>
-        <span
-          className="btn-3d mt-4 rounded-xl py-2.5 text-center font-mono text-sm font-black uppercase tracking-wider text-slate-950"
-          style={{ background: color, "--edge": "#00000088" } as CSSProperties}
-        >
-          ▶ {p.xp > 0 ? "Continue" : "Play"}
+    <Card
+      render={<Link href={`/c/${course.id}`} />}
+      className="h-full gap-0 rounded-card p-5 transition-colors hover:border-primary/50 hover:bg-accent/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+    >
+      <div className="flex items-start gap-3">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-control bg-muted" style={{ color: course.provider.color }}>
+          <BlockIcon icon={course.provider.icon} className="size-5" />
         </span>
-      </Link>
-    </Tilt>
+        <div className="min-w-0 flex-1">
+          <h3 className="text-base font-semibold text-foreground">{course.shortTitle}</h3>
+          <p className="text-sm text-muted-foreground">
+            {[focus?.name, category?.name].filter(Boolean).join(" · ")}
+          </p>
+        </div>
+      </div>
+      <p className="mt-3 flex-1 text-sm text-muted-foreground">{course.tagline}</p>
+      {hint && <p className="mt-2 truncate rounded-control bg-primary/10 px-2 py-1 text-sm text-foreground">{hint}</p>}
+      <p className="mt-3 flex flex-wrap gap-x-3 text-sm text-muted-foreground">
+        <span className="inline-flex items-center gap-1">
+          <BookOpen aria-hidden="true" className="size-4" />
+          {lessons} lessons
+        </span>
+        {course.coding?.length ? (
+          <span className="inline-flex items-center gap-1">
+            <Code2 aria-hidden="true" className="size-4" />
+            {course.coding.length} coding
+          </span>
+        ) : null}
+        <span>{p.level === "all" ? `${course.questions.length} questions` : `${atLevel} ${skill.name.toLowerCase()} questions`}</span>
+      </p>
+      <div className="mt-3">
+        <Progress value={readiness} aria-label={`${course.shortTitle} readiness`} />
+        <p className="mt-1 flex justify-between text-sm text-muted-foreground">
+          <span>{started ? "In progress" : "Not started"}</span>
+          <span>{hydrated ? `${readiness}% ready` : "–"}</span>
+        </p>
+      </div>
+    </Card>
   );
 }

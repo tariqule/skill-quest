@@ -14,7 +14,7 @@ import {
   Timer, TrafficCone, Train, TreePine, TrendingDown, TrendingUp, Trash2, Trophy, Truck, Type, Undo2, Upload, User,
   UserCheck, Users, Utensils, Wallet, Waves, Wifi, Wrench, X, Zap, Sun, Moon as Night, Feather, Construction, Telescope,
   Microscope, Dice5, Bird, Turtle, Rabbit, Dog, Cat, Fish, Snail, Car, Bus, Ship, Wind, Flame, Sigma, Brush, Volume2,
-  Satellite, Siren as Alarm, MousePointer2, Printer, Film, Music, Coffee, Accessibility, Sparkle, Link, PackageOpen,
+  Satellite, Siren as Alarm, MousePointer2, Printer, Film, Music, Coffee, Accessibility, Sparkle, Link, PackageOpen, Egg, Swords, Medal, Crosshair,
 } from "lucide-react";
 
 /** Lesson visuals store decorative icons as emoji. They render through this map as Lucide icons instead. */
@@ -53,6 +53,8 @@ const MAP: Record<string, LucideIcon> = {
   "🧑‍🏫": GraduationCap, "🎧": Headphones, "⛓️": Link, "🪢": Link, "🔚": Flag, "🔖": Tag, "🃏": SquareStack, "♾️": Repeat,
   "🌈": Sparkles, "🆕": Sparkle, "📺": Monitor, "📹": Camera, "⏪": History, "🧲": Filter, "🪜": ArrowUp, "🧷": Paperclip,
   "🗜️": Minus, "🏬": Store, "🏪": Store, "☠️": CircleAlert, "🪂": Plane, "🚶": User, "🛎️": Bell, "💎": Star,
+  "🐣": Egg, "🐉": Swords, "⚔️": Swords, "🗡️": Swords, "🎓": GraduationCap, "🏅": Medal, "🥇": Medal, "🎖️": Medal, "⭐": Star, "🌟": Star,
+  "🎳": Crosshair, "🧗": Mountain, "🪐": Globe, "🌌": Sparkles, "🏃": Activity, "🕹️": Play, "🎰": Dice5,
 };
 
 const EMOJI = /\p{Extended_Pictographic}|\u20e3/u;

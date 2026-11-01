@@ -1,35 +1,16 @@
 "use client";
 
-import { type CSSProperties, type ReactNode } from "react";
+import { Check } from "lucide-react";
+import { BlockIcon } from "@/components/learn/block-icons";
 import { LEVELS, type LevelChoice, type LevelInfo } from "@/engine/levels";
-
-export function TerminalWindow({ title, children, className = "", glow = "#34d399" }: { title: string; children: ReactNode; className?: string; glow?: string }) {
-  return (
-    <div className={`overflow-hidden rounded-2xl border border-white/10 bg-[#07111c]/90 backdrop-blur ${className}`} style={{ boxShadow: `0 0 0 1px ${glow}22, 0 20px 60px -30px ${glow}` }}>
-      <div className="flex items-center gap-2 border-b border-white/10 bg-white/[0.03] px-3 py-2">
-        <span className="h-3 w-3 rounded-full bg-rose-400/80" />
-        <span className="h-3 w-3 rounded-full bg-amber-300/80" />
-        <span className="h-3 w-3 rounded-full bg-emerald-400/80" />
-        <span className="ml-2 truncate font-mono text-xs text-slate-400">{title}</span>
-      </div>
-      <div className="min-w-0 p-4 sm:p-6">{children}</div>
-    </div>
-  );
-}
-
-/**
- * Terminal-style lines, shown in full. The type-out effect and blinking cursor are retired
- * (no ambient motion: the redesign's seductive-details rule).
- */
-export function Typewriter({ lines }: { lines: string[]; speed?: number }) {
-  return <pre className="whitespace-pre-wrap font-mono text-sm leading-relaxed text-emerald-200 sm:text-base">{lines.join("\n")}</pre>;
-}
+import { cn } from "@/lib/utils";
 
 const CODE_LEVELS = LEVELS.filter((l) => l.id !== "exam");
 
 /**
- * Arcade-style difficulty select. `counts` shows how many questions each level has and
- * `countLabels` says what was counted when it isn't every question; "mixed" highlights none.
+ * Difficulty select. `counts` shows how many questions each level has and `countLabels` says what
+ * was counted when it isn't every question; "mixed" highlights none. Selection is shown with a
+ * check and the word "Selected", not colour alone.
  */
 export function LevelPicker({
   value,
@@ -46,7 +27,7 @@ export function LevelPicker({
 }) {
   const cols = options.length <= 3 ? "sm:grid-cols-3" : "sm:grid-cols-3 lg:grid-cols-6";
   return (
-    <div className={`grid grid-cols-2 gap-3 ${cols}`}>
+    <div className={cn("grid grid-cols-1 gap-2 min-[375px]:grid-cols-2", cols)}>
       {options.map((l) => {
         const on = value === l.id;
         return (
@@ -55,39 +36,30 @@ export function LevelPicker({
             type="button"
             onClick={() => onChange(l.id)}
             aria-pressed={on}
-            className={`group relative rounded-xl border-2 p-3 text-left transition ${on ? "scale-[1.03]" : "opacity-80 hover:opacity-100"}`}
-            style={{
-              borderColor: on ? l.color : "rgb(255 255 255 / 0.1)",
-              background: on ? `${l.color}1f` : "rgb(7 17 28 / 0.8)",
-              boxShadow: on ? `0 0 24px -6px ${l.color}` : undefined,
-            }}
+            className={cn(
+              "flex min-h-11 flex-col rounded-control border p-3 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+              on ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/50",
+            )}
           >
-            {on && <span className="absolute right-2 top-2 font-mono text-[10px] font-black" style={{ color: l.color }}>◉ ON</span>}
-            <div className="text-2xl">{l.icon}</div>
-            <div className="mt-1 font-mono text-sm font-black uppercase tracking-wider text-white">{l.name}</div>
-            <div className="mt-0.5 text-[11px] leading-snug text-slate-400">{l.blurb}</div>
+            <span className="flex items-center justify-between gap-2">
+              <BlockIcon icon={l.icon} className="size-5" />
+              {on && (
+                <span className="inline-flex items-center gap-1 text-sm font-medium text-primary">
+                  <Check aria-hidden="true" className="size-4" />
+                  Selected
+                </span>
+              )}
+            </span>
+            <span className="mt-1.5 text-base font-semibold text-foreground">{l.name}</span>
+            <span className="mt-0.5 text-sm leading-snug text-muted-foreground">{l.blurb}</span>
             {counts?.[l.id] !== undefined && (
-              <div className="mt-2 font-mono text-[11px]" style={{ color: l.color }}>
+              <span className="mt-2 text-sm tabular-nums text-muted-foreground">
                 {counts[l.id]} {countLabels?.[l.id] ?? "questions"}
-              </div>
+              </span>
             )}
           </button>
         );
       })}
     </div>
-  );
-}
-
-/** Neon arcade button. */
-export function NeonButton({ children, color = "#34d399", onClick, className = "" }: { children: ReactNode; color?: string; onClick?: () => void; className?: string }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`btn-3d rounded-xl px-5 py-3 font-mono text-sm font-black uppercase tracking-wider text-slate-950 ${className}`}
-      style={{ background: color, "--edge": "#00000088", boxShadow: `0 5px 0 0 #00000088, 0 0 24px -4px ${color}` } as CSSProperties}
-    >
-      {children}
-    </button>
   );
 }

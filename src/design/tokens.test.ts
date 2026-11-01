@@ -117,3 +117,34 @@ describe("shell and home stay calm", () => {
   });
 });
 
+
+/** PR D: course hubs, maps, code games, scenarios, the cheat sheet and /code. */
+const PR_D_DIRS = ["../components/hub", "../components/motion", "../components/map", "../components/code", "../components/code-games", "../components/scenarios", "../app/code", "../app/c/[course]/code-games", "../app/c/[course]/scenarios", "../app/c/[course]/cheatsheet"];
+const PR_D_FILES = ["../app/c/[course]/page.tsx", "../app/c/[course]/CodeMap.tsx", "../components/LevelControls.tsx", "../components/learn/BeginnerMap.tsx"];
+describe("PR D surfaces stay calm", () => {
+  const all = [...PR_D_DIRS.flatMap((d) => files(join(__dirname, d))), ...PR_D_FILES.map((f) => join(__dirname, f))];
+  const read = (f: string) => readFileSync(f, "utf8");
+  it("finds files to check", () => expect(all.length).toBeGreaterThan(PR_D_FILES.length));
+  it("uses icons, not emoji", () => {
+    expect(all.filter((f) => /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{23F0}-\u{23FF}]/u.test(read(f)))).toEqual([]);
+  });
+  it("has no text-xs, sub-14px text or hex literals", () => {
+    expect(all.filter((f) => /\btext-(?:xs|\[(?:[0-9]|1[0-3])px\])\b|#[0-9a-fA-F]{6}\b/.test(read(f)))).toEqual([]);
+  });
+  it("uses tokens instead of raw neon palette colours", () => {
+    expect(all.filter((f) => /\b(?:text|bg|border)-(?:slate|emerald|rose|sky|amber|violet|fuchsia|cyan)-\d/.test(read(f)))).toEqual([]);
+  });
+  it("retires the 3D galaxy", () => {
+    expect(all.filter((f) => /Galaxy3D|TrackCore3D|Orb3D/.test(read(f)))).toEqual([]);
+  });
+  it("keeps code surfaces readable in both themes", () => {
+    const hex = (name: string) => css.match(new RegExp(`--${name}:\\s*(#[0-9A-Fa-f]{6})`))![1];
+    expect(contrast(hex("code-foreground"), hex("code"))).toBeGreaterThanOrEqual(4.5);
+    expect(contrast(hex("code-muted"), hex("code"))).toBeGreaterThanOrEqual(4.5);
+  });
+  it("flattens .btn-3d (no neon glow or drop shadow)", () => {
+    const g = readFileSync(join(__dirname, "../app/globals.css"), "utf8");
+    const rule = g.slice(g.indexOf(".btn-3d"), g.indexOf("}", g.indexOf(".btn-3d")));
+    expect(rule).not.toMatch(/box-shadow|text-shadow/);
+  });
+});

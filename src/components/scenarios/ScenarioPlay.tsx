@@ -1,5 +1,6 @@
 "use client";
 
+import { BookOpen } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { RichText } from "@/components/learn/code";
@@ -38,9 +39,9 @@ export function ScenarioPlay({ courseId, item, onDone, onResult, doneLabel = "Ne
   };
   const p = { onDone, doneLabel, onReveal: () => setRevealed(true), report };
   return (
-    <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-5 sm:p-7">
+    <div className="rounded-card border border-border bg-card p-5 sm:p-7">
       {/* Interview titles are the question itself, so the question is shown once, as the heading. */}
-      <h2 className="text-xl font-black text-white">{item.type === "interview" ? item.prompt : item.title}</h2>
+      <h2 className="font-heading text-h3 font-semibold text-foreground">{item.type === "interview" ? item.prompt : item.title}</h2>
       {item.type === "architect" && <Architect item={item} {...p} />}
       {item.type === "chain" && <Chain item={item} {...p} />}
       {item.type === "matcher" && <Matcher item={item} {...p} />}
@@ -52,16 +53,16 @@ export function ScenarioPlay({ courseId, item, onDone, onResult, doneLabel = "Ne
 
 type Props<T> = { item: T; onDone: (share: number) => void; doneLabel: string; onReveal: () => void; report: (share: number) => void };
 
-const btn = "flex min-h-11 flex-col justify-center rounded-xl border px-3 py-2 text-left text-base transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-300";
-const primary = "min-h-11 rounded-2xl bg-sky-400 px-5 py-2.5 text-base font-black text-slate-950 hover:bg-sky-300 disabled:opacity-50";
+const btn = "flex min-h-11 flex-col justify-center rounded-xl border px-3 py-2 text-left text-base transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
+const primary = "min-h-11 rounded-control bg-primary px-5 py-2.5 text-base font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50";
 
 function Footer({ courseId, lesson, sources, revealed }: { courseId: string; lesson?: string; sources?: LessonSource[]; revealed: boolean }) {
   if (!lesson && !sources?.length) return null;
   return (
-    <div className="mt-5 border-t border-white/10 pt-3 text-sm text-slate-300">
+    <div className="mt-5 border-t border-border pt-3 text-sm text-muted-foreground">
       {lesson && (
-        <Link href={`/c/${courseId}/lesson/${lesson}`} className="inline-flex min-h-11 items-center font-bold text-sky-300 underline-offset-2 hover:underline">
-          📘 {revealed ? "Review the lesson" : "Review the lesson first"}
+        <Link href={`/c/${courseId}/lesson/${lesson}`} className="inline-flex min-h-11 items-center font-semibold text-primary underline-offset-2 hover:underline">
+          <BookOpen aria-hidden="true" className="mr-1.5 size-4" />{revealed ? "Review the lesson" : "Review the lesson first"}
         </Link>
       )}
       {!!sources?.length && (
@@ -70,7 +71,7 @@ function Footer({ courseId, lesson, sources, revealed }: { courseId: string; les
           {sources.map((s, i) => (
             <span key={s.url}>
               {i > 0 && " · "}
-              <a href={s.url} target="_blank" rel="noreferrer" className="inline-block py-2.5 text-sky-300 underline">
+              <a href={s.url} target="_blank" rel="noreferrer" className="inline-block py-2.5 text-primary underline">
                 {s.title}
               </a>
             </span>
@@ -86,7 +87,7 @@ function Done({ share, onDone, label }: { share: number; onDone: (s: number) => 
   useEffect(() => ref.current?.focus(), []);
   return (
     <div className="mt-4 flex flex-wrap items-center gap-3">
-      <span className="text-base font-bold text-white">Score: {Math.round(share * 100)}%</span>
+      <span className="text-base font-semibold text-foreground">Score: {Math.round(share * 100)}%</span>
       <button ref={ref} type="button" className={primary} onClick={() => onDone(share)}>
         {label}
       </button>
@@ -118,7 +119,7 @@ function Architect({ item, onDone, doneLabel, onReveal, report }: Props<ArchItem
   const solutionTiles = new Set(score ? Object.values(score.solution) : []);
   return (
     <>
-      <ul className="mt-3 list-disc space-y-1 pl-5 text-base text-slate-200">
+      <ul className="mt-3 list-disc space-y-1 pl-5 text-base text-foreground">
         {item.requirements.map((r) => (
           <li key={r}>{r}</li>
         ))}
@@ -126,7 +127,7 @@ function Architect({ item, onDone, doneLabel, onReveal, report }: Props<ArchItem
       <p aria-live="polite" className="sr-only">
         {say}
       </p>
-      <h3 className="mt-5 text-sm font-bold uppercase tracking-wider text-slate-400">Your design: choose a slot</h3>
+      <h3 className="mt-5 text-sm font-semibold text-muted-foreground">Your design: choose a slot</h3>
       <div className="mt-2 grid gap-2 sm:grid-cols-2">
         {item.slots.map((s) => {
           const ok = score?.right.includes(s.id);
@@ -137,21 +138,21 @@ function Architect({ item, onDone, doneLabel, onReveal, report }: Props<ArchItem
               disabled={checked}
               aria-pressed={slot === s.id}
               onClick={() => setSlot(s.id)}
-              className={`${btn} ${checked ? (ok ? "border-emerald-400 bg-emerald-400/10" : "border-rose-400 bg-rose-400/10") : slot === s.id ? "border-sky-300 bg-sky-400/15" : "border-white/15 bg-white/5"}`}
+              className={`${btn} ${checked ? (ok ? "border-success bg-success/10" : "border-destructive bg-destructive/10") : slot === s.id ? "border-primary bg-primary/15" : "border-border bg-card"}`}
             >
-              <span className="block text-sm text-slate-300">{s.label}</span>
-              <span className="block font-bold text-white">{label(picks[s.id]) ?? "— empty —"}</span>
-              {checked && !ok && <span className="block text-sm text-emerald-300">Better: {label(score!.solution[s.id])}</span>}
+              <span className="block text-sm text-muted-foreground">{s.label}</span>
+              <span className="block font-semibold text-foreground">{label(picks[s.id]) ?? "— empty —"}</span>
+              {checked && !ok && <span className="block text-sm text-success-foreground">Better: {label(score!.solution[s.id])}</span>}
             </button>
           );
         })}
       </div>
-      <h3 className="mt-5 text-sm font-bold uppercase tracking-wider text-slate-400">Components: pick one for “{item.slots.find((s) => s.id === slot)?.label}”</h3>
+      <h3 className="mt-5 text-sm font-semibold text-muted-foreground">Components: pick one for “{item.slots.find((s) => s.id === slot)?.label}”</h3>
       <div className="mt-2 grid gap-2 sm:grid-cols-2">
         {tiles.map((t) => (
-          <button key={t.id} type="button" disabled={checked} aria-pressed={used.has(t.id)} onClick={() => place(t.id)} className={`${btn} min-h-12 ${used.has(t.id) ? "border-sky-300/60 bg-sky-400/10 text-white" : "border-white/15 bg-white/5 text-slate-100"}`}>
+          <button key={t.id} type="button" disabled={checked} aria-pressed={used.has(t.id)} onClick={() => place(t.id)} className={`${btn} min-h-12 ${used.has(t.id) ? "border-primary/60 bg-primary/10 text-foreground" : "border-border bg-card text-foreground"}`}>
             {t.label}
-            {checked && <span className={`mt-1 block text-sm ${solutionTiles.has(t.id) ? "text-emerald-300" : "text-slate-300"}`}>{solutionTiles.has(t.id) ? "✓ " : ""}{t.why}</span>}
+            {checked && <span className={`mt-1 block text-sm ${solutionTiles.has(t.id) ? "text-success-foreground" : "text-muted-foreground"}`}>{t.why}</span>}
           </button>
         ))}
       </div>
@@ -167,8 +168,8 @@ function Architect({ item, onDone, doneLabel, onReveal, report }: Props<ArchItem
         </button>
       ) : (
         <>
-          <p aria-live="polite" className="mt-4 text-base text-white">
-            {score!.correct ? "✅ Solid design." : `${score!.right.length} of ${score!.total} slots match a good design.`}
+          <p aria-live="polite" className="mt-4 text-base text-foreground">
+            {score!.correct ? "Solid design." : `${score!.right.length} of ${score!.total} slots match a good design.`}
           </p>
           <Done share={score!.right.length / score!.total} onDone={onDone} label={doneLabel} />
         </>
@@ -189,25 +190,25 @@ function Chain({ item, onDone, doneLabel, onReveal, report }: Props<ChainItem>) 
   useEffect(() => headRef.current?.focus(), [at]);
   return (
     <>
-      <p className="mt-2 text-base text-slate-200">{item.intro}</p>
+      <p className="mt-2 text-base text-foreground">{item.intro}</p>
       <ol className="mt-3 space-y-2">
         {taken.map((t, i) => (
-          <li key={i} className={`rounded-xl border p-3 text-sm ${t.choice.best ? "border-emerald-400/50" : "border-amber-300/50"}`}>
-            <span className="block text-slate-300">{item.steps[t.step].situation}</span>
-            <span className="block font-bold text-white">
-              {t.choice.best ? "✓" : "↪"} {t.choice.text}
+          <li key={i} className={`rounded-xl border p-3 text-sm ${t.choice.best ? "border-success/50" : "border-warning/50"}`}>
+            <span className="block text-muted-foreground">{item.steps[t.step].situation}</span>
+            <span className="block font-semibold text-foreground">
+              {t.choice.best ? "Best: " : "Alternative: "}{t.choice.text}
             </span>
-            <span className="block text-slate-300">{t.choice.why}</span>
+            <span className="block text-muted-foreground">{t.choice.why}</span>
             {!t.choice.best && <StrongCall step={item.steps[t.step]} />}
           </li>
         ))}
       </ol>
       {step && (
         <div className="mt-4">
-          <p ref={headRef} tabIndex={-1} className="text-sm font-bold uppercase tracking-wider text-slate-400 outline-none">
+          <p ref={headRef} tabIndex={-1} className="text-sm font-semibold text-muted-foreground outline-none">
             Decision {taken.length + 1}
           </p>
-          <p className="mt-1 text-lg text-white">{step.situation}</p>
+          <p className="mt-1 text-lg text-foreground">{step.situation}</p>
           <div className="mt-3 grid gap-2" role="group" aria-label="Choices">
             {order[at!].map((c) => (
               <button
@@ -219,7 +220,7 @@ function Chain({ item, onDone, doneLabel, onReveal, report }: Props<ChainItem>) 
                   setPending(c);
                   onReveal();
                 }}
-                className={`${btn} ${pending === c ? (c.best ? "border-emerald-400 bg-emerald-400/10" : "border-amber-300 bg-amber-300/10") : "border-white/15 bg-white/5"} text-white`}
+                className={`${btn} ${pending === c ? (c.best ? "border-success bg-success/10" : "border-warning bg-warning/10") : "border-border bg-card"} text-foreground`}
               >
                 {c.text}
               </button>
@@ -227,8 +228,8 @@ function Chain({ item, onDone, doneLabel, onReveal, report }: Props<ChainItem>) 
           </div>
           {pending && (
             <div aria-live="polite" className="mt-3">
-              <p className={`text-base ${pending.best ? "text-emerald-300" : "text-amber-200"}`}>
-                {pending.best ? "✓ Strong choice. " : "↪ That has consequences. "}
+              <p className={`text-base ${pending.best ? "text-success-foreground" : "text-warning-foreground"}`}>
+                {pending.best ? "Strong choice. " : "That has consequences. "}
                 {pending.why}
               </p>
               {!pending.best && <StrongCall step={step} />}
@@ -251,7 +252,7 @@ function Chain({ item, onDone, doneLabel, onReveal, report }: Props<ChainItem>) 
       )}
       {!step && (
         <>
-          <p className="mt-4 text-base text-white" aria-live="polite">
+          <p className="mt-4 text-base text-foreground" aria-live="polite">
             You made {plural(taken.filter((t) => t.choice.best).length, "strong call")} out of {plural(taken.length, "decision")}.
           </p>
           <Done share={chainShare(taken.map((t) => t.choice))} onDone={onDone} label={doneLabel} />
@@ -266,8 +267,8 @@ function StrongCall({ step }: { step: ChainStep }) {
   const best = step.choices.find((c) => c.best);
   if (!best) return null;
   return (
-    <p className="mt-2 rounded-lg border border-emerald-400/40 bg-emerald-400/10 p-2 text-sm text-emerald-100">
-      <span className="font-bold text-emerald-300">Strong call: {best.text}.</span> {best.why}
+    <p className="mt-2 rounded-lg border border-success/40 bg-success/10 p-2 text-sm text-foreground">
+      <span className="font-semibold text-success-foreground">Strong call: {best.text}.</span> {best.why}
     </p>
   );
 }
@@ -294,13 +295,13 @@ function Matcher({ item, onDone, doneLabel, onReveal, report }: Props<MatcherIte
   };
   return (
     <>
-      <p className="mt-2 text-base text-slate-200">{item.prompt}</p>
+      <p className="mt-2 text-base text-foreground">{item.prompt}</p>
       <p aria-live="polite" className="sr-only">
         {say}
       </p>
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         <div>
-          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400">{item.leftLabel}</h3>
+          <h3 className="text-sm font-semibold text-muted-foreground">{item.leftLabel}</h3>
           <div className="mt-2 grid gap-2">
             {item.pairs.map(([l], i) => (
               <button
@@ -309,21 +310,21 @@ function Matcher({ item, onDone, doneLabel, onReveal, report }: Props<MatcherIte
                 disabled={checked}
                 aria-pressed={left === i}
                 onClick={() => setLeft(i)}
-                className={`${btn} ${checked ? (result![i] ? "border-emerald-400 bg-emerald-400/10" : "border-rose-400 bg-rose-400/10") : left === i ? "border-sky-300 bg-sky-400/15" : "border-white/15 bg-white/5"} text-white`}
+                className={`${btn} ${checked ? (result![i] ? "border-success bg-success/10" : "border-destructive bg-destructive/10") : left === i ? "border-primary bg-primary/15" : "border-border bg-card"} text-foreground`}
               >
-                <span className="flex items-start gap-2 font-bold">
+                <span className="flex items-start gap-2 font-semibold">
                   <Badge n={i + 1} />
                   {l}
                 </span>
-                <span className="block text-sm text-slate-300">→ {picks[i] !== undefined ? item.pairs[picks[i]!][1] : "choose a match"}</span>
-                {checked && !result![i] && <span className="block text-sm text-emerald-300">Answer: {item.pairs[i][1]}</span>}
-                {checked && item.notes?.[i] && <span className="block text-sm text-slate-300">{item.notes[i]}</span>}
+                <span className="block text-sm text-muted-foreground">→ {picks[i] !== undefined ? item.pairs[picks[i]!][1] : "choose a match"}</span>
+                {checked && !result![i] && <span className="block text-sm text-success-foreground">Answer: {item.pairs[i][1]}</span>}
+                {checked && item.notes?.[i] && <span className="block text-sm text-muted-foreground">{item.notes[i]}</span>}
               </button>
             ))}
           </div>
         </div>
         <div>
-          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400">{item.rightLabel}</h3>
+          <h3 className="text-sm font-semibold text-muted-foreground">{item.rightLabel}</h3>
           <div className="mt-2 grid gap-2">
             {rights.map((r) => (
               <button
@@ -333,7 +334,7 @@ function Matcher({ item, onDone, doneLabel, onReveal, report }: Props<MatcherIte
                 aria-pressed={usedBy(r) !== undefined}
                 aria-label={usedBy(r) !== undefined ? `${item.pairs[r][1]}, used by row ${+usedBy(r)! + 1}` : undefined}
                 onClick={() => pick(r)}
-                className={`${btn} ${usedBy(r) !== undefined ? "border-white/10 bg-white/[0.02] text-slate-400" : "border-white/15 bg-white/5 text-slate-100"}`}
+                className={`${btn} ${usedBy(r) !== undefined ? "border-border bg-muted/40 text-muted-foreground" : "border-border bg-card text-foreground"}`}
               >
                 <span className="flex items-start gap-2">
                   {usedBy(r) !== undefined && <Badge n={+usedBy(r)! + 1} dim />}
@@ -355,7 +356,7 @@ function Matcher({ item, onDone, doneLabel, onReveal, report }: Props<MatcherIte
         </button>
       ) : (
         <>
-          <p aria-live="polite" className="mt-4 text-base text-white">
+          <p aria-live="polite" className="mt-4 text-base text-foreground">
             {result!.filter(Boolean).length} of {item.pairs.length} matched.
           </p>
           <Done share={result!.filter(Boolean).length / item.pairs.length} onDone={onDone} label={doneLabel} />
@@ -367,7 +368,7 @@ function Matcher({ item, onDone, doneLabel, onReveal, report }: Props<MatcherIte
 
 function Badge({ n, dim }: { n: number; dim?: boolean }) {
   return (
-    <span aria-hidden className={`inline-flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full px-1 font-mono text-xs font-black ${dim ? "bg-sky-400/30 text-sky-100" : "bg-white/10 text-slate-200"}`}>
+    <span aria-hidden className={`inline-flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full px-1 font-mono text-sm font-semibold ${dim ? "bg-primary/20 text-foreground" : "bg-muted text-foreground"}`}>
       {n}
     </span>
   );
@@ -398,12 +399,12 @@ function Interview({ item, onDone, doneLabel, onReveal, report }: Props<Intervie
   const scored = marks.every((m) => m !== undefined);
   return (
     <>
-      <p className="mt-1 text-sm uppercase tracking-wider text-slate-400">
+      <p className="mt-1 text-sm text-muted-foreground">
         {item.kind === "system-design" ? "System design" : item.kind === "behavioral" ? "Behavioral" : "Technical"} · {item.minutes} min
       </p>
       {item.kind === "behavioral" && (
-        <details className="mt-3 rounded-xl border border-white/10 p-3 text-base text-slate-200" open={!started}>
-          <summary className="cursor-pointer font-bold text-white">Answer with STAR</summary>
+        <details className="mt-3 rounded-xl border border-border p-3 text-base text-foreground" open={!started}>
+          <summary className="cursor-pointer font-semibold text-foreground">Answer with STAR</summary>
           <ul className="mt-2 space-y-1">
             {STAR_PRIMER.map((l) => (
               <li key={l}>
@@ -420,14 +421,14 @@ function Interview({ item, onDone, doneLabel, onReveal, report }: Props<Intervie
       ) : (
         <>
           <div className="mt-4 flex items-center justify-between">
-            <label htmlFor={`ans-${item.id}`} className="text-sm font-bold text-slate-300">
+            <label htmlFor={`ans-${item.id}`} className="text-sm font-semibold text-muted-foreground">
               Your answer (notes are fine)
             </label>
-            <span role="timer" aria-label={`Time left ${mm}`} className={`font-mono text-lg font-black ${left < 30 ? "text-rose-300" : "text-white"}`}>
+            <span role="timer" aria-label={`Time left ${mm}`} className={`font-mono text-lg font-semibold ${left < 30 ? "text-destructive-foreground" : "text-foreground"}`}>
               {timerLabel(left, stopped, mm)}
             </span>
           </div>
-          <textarea id={`ans-${item.id}`} value={answer} onChange={(e) => setAnswer(e.target.value)} readOnly={revealed} rows={6} className="mt-2 w-full rounded-xl border border-white/15 bg-slate-950 p-3 text-base text-white" />
+          <textarea id={`ans-${item.id}`} value={answer} onChange={(e) => setAnswer(e.target.value)} readOnly={revealed} rows={6} className="mt-2 w-full rounded-xl border border-input bg-background p-3 text-base text-foreground" />
           {!revealed && (
             <button type="button" className={`${primary} mt-3`} onClick={() => {
                 setRevealed(true);
@@ -442,12 +443,12 @@ function Interview({ item, onDone, doneLabel, onReveal, report }: Props<Intervie
       {revealed && (
         <div className="mt-5 space-y-5" aria-live="polite">
           <section>
-            <h3 className="text-base font-black text-white">Key points you covered</h3>
-            <p className="text-sm text-slate-300">Tick these first: your score is saved once every rubric line is marked.</p>
+            <h3 className="text-base font-semibold text-foreground">Key points you covered</h3>
+            <p className="text-sm text-muted-foreground">Tick these first: your score is saved once every rubric line is marked.</p>
             <ul className="mt-2 space-y-1">
               {item.keyPoints.map((k, i) => (
                 <li key={k}>
-                  <label className="flex min-h-11 cursor-pointer items-center gap-3 text-base text-slate-100">
+                  <label className="flex min-h-11 cursor-pointer items-center gap-3 text-base text-foreground">
                     <input type="checkbox" className="h-5 w-5" disabled={scored} checked={ticks[i]} onChange={() => setTicks(ticks.map((t, j) => (j === i ? !t : t)))} />
                     <span>
                       <RichText text={k} />
@@ -458,11 +459,11 @@ function Interview({ item, onDone, doneLabel, onReveal, report }: Props<Intervie
             </ul>
           </section>
           <section>
-            <h3 className="text-base font-black text-white">Score yourself</h3>
+            <h3 className="text-base font-semibold text-foreground">Score yourself</h3>
             {item.rubric.map((r, i) => (
               <fieldset key={r.name} className="mt-3">
-                <legend className="text-base font-bold text-white">{r.name}</legend>
-                <p className="text-sm text-slate-300">
+                <legend className="text-base font-semibold text-foreground">{r.name}</legend>
+                <p className="text-sm text-muted-foreground">
                   Full marks: <RichText text={r.good} />
                 </p>
                 <div className="mt-2 grid grid-cols-3 gap-2">
@@ -471,7 +472,7 @@ function Interview({ item, onDone, doneLabel, onReveal, report }: Props<Intervie
                       const nm = marks.map((x, j) => (j === i ? v : x));
                       setMarks(nm);
                       if (nm.every((m) => m !== undefined)) report(interviewShare(item, nm.map((m) => m ?? 0), ticks.filter(Boolean).length));
-                    }} className={`${btn} text-center ${marks[i] === v ? "border-sky-300 bg-sky-400/20 text-white" : "border-white/15 bg-white/5 text-slate-200"}`}>
+                    }} className={`${btn} text-center ${marks[i] === v ? "border-primary bg-primary/15 text-foreground" : "border-border bg-card text-foreground"}`}>
                       {m}
                     </button>
                   ))}
@@ -480,18 +481,18 @@ function Interview({ item, onDone, doneLabel, onReveal, report }: Props<Intervie
             ))}
           </section>
           <section>
-            <h3 className="text-base font-black text-white">Model answer</h3>
-            <p className="mt-2 text-base text-slate-200">
+            <h3 className="text-base font-semibold text-foreground">Model answer</h3>
+            <p className="mt-2 text-base text-foreground">
               <RichText text={item.model} />
             </p>
           </section>
           {scored ? (
             <>
-              <p className="text-base text-white">{share >= INTERVIEW_PASS ? "✅ Interview-ready answer." : "Worth another go: it'll come back in Daily Review."}</p>
+              <p className="text-base text-foreground">{share >= INTERVIEW_PASS ? "Interview-ready answer." : "Worth another go: it'll come back in Daily Review."}</p>
               <Done share={share} onDone={onDone} label={doneLabel} />
             </>
           ) : (
-            <p className="text-sm text-slate-300">Mark every rubric line to finish.</p>
+            <p className="text-sm text-muted-foreground">Mark every rubric line to finish.</p>
           )}
         </div>
       )}

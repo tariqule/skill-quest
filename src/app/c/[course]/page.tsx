@@ -1,29 +1,31 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { BookOpen, CheckCircle2, Compass, Gamepad2, GraduationCap, Map as MapIcon, NotebookText, RotateCcw, ScrollText, Swords, type LucideIcon } from "lucide-react";
 import { IntroOffer } from "@/components/learn/IntroOffer";
-import { useEffect, useState, type CSSProperties } from "react";
-import { Core3D, MascotSays, Tilt } from "@/components/fx";
 import { LifecycleBanner } from "@/components/Lifecycle";
+import { HubHeader } from "@/components/hub/HubHeader";
+import { BadgeShelf, HubSection, ModeGrid } from "@/components/hub/Sections";
+import { StageMap } from "@/components/hub/StageMap";
+import { LayoutMotion } from "@/components/motion/LayoutMotion";
+import { Button } from "@/components/ui/button";
 import { CodeMap } from "./CodeMap";
-import { Bar, Stars } from "@/components/ui";
-import { BADGES } from "@/engine/badges";
 import { courseCopy } from "@/engine/copy";
 import { useCourse, useProgress } from "@/engine/course-context";
-import { domainMastery, overallReadiness } from "@/engine/game";
+import { overallReadiness } from "@/engine/game";
+import { useHydrated } from "@/engine/hydrated";
 import { effectiveLevel, hasBeginnerLessons } from "@/engine/levels";
 import { BeginnerMap } from "@/components/learn/BeginnerMap";
-import { MODE_BY_ID, modesFor } from "@/engine/modes";
+import { modesFor } from "@/engine/modes";
 import { CourseLevel, LevelUpBanner } from "@/components/LevelControls";
-import { buildPath, type PathNode, type PathWorld } from "@/engine/path";
+import { buildPath } from "@/engine/path";
 import { levelInfo } from "@/engine/store";
-import type { Domain } from "@/engine/types";
 import { setGuideOpen } from "@/engine/ui-state";
 import { isCodeTrack } from "@/engine/tracks";
+import { cn } from "@/lib/utils";
 
-const ZIGZAG = [0, 56, 84, 56, 0, -56, -84, -56];
-
-/** Certification courses get the planet map; interview tracks get the Code Quest arcade. */
+/** Certification courses get the world map; code tracks get CodeMap. Both share the hub header. */
 export default function CoursePage() {
   const { course } = useCourse();
   const p = useProgress();
@@ -36,297 +38,97 @@ function MissionMap() {
   const { course, store, href, domain: domainById, lesson: lessonById } = useCourse();
   const copy = courseCopy(course);
   const p = useProgress();
+  const hydrated = useHydrated();
   const lvl = levelInfo(p.xp, course.levelTitles);
   const { worlds, current, examUnlocked } = buildPath(course, p);
   const readiness = Math.round(overallReadiness(course, p));
   const level = effectiveLevel(course, p.level);
-
-
   const currentDomain = current ? domainById[current.domain] : null;
-  const currentLesson = current?.type === "lesson" ? lessonById[current.key] : null;
+  const next = current ? (current.type === "lesson" ? lessonById[current.key]?.title : `${currentDomain?.world} trial`) : `${copy.gate} is open`;
+
+  const steps: { icon: LucideIcon; t: string; d: string }[] = [
+    { icon: BookOpen, t: "Learn", d: "Each lesson explains one idea with a picture." },
+    { icon: CheckCircle2, t: "Check", d: "Two quick questions. Anything you miss comes back until it sticks." },
+    { icon: Swords, t: "Trial", d: `A short test per world: ${course.config.quest.length} questions, ${level === "beginner" ? course.config.quest.beginnerHearts : course.config.quest.hearts} hearts.` },
+    { icon: GraduationCap, t: copy.gateStep, d: `A full practice ${copy.noun}. Score ${course.exam.scale.pass} or more and you're ready.` },
+  ];
 
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-6 sm:py-10">
       <IntroOffer show={!p.onboarded && p.xp === 0} href={href("/start")} onSkip={() => store.skipOnboarding()} />
-      {/* Hero: where you are and what's next */}
-      <section className="grid items-center gap-6 rounded-3xl border border-white/10 bg-slate-900/50 p-5 sm:p-8 md:grid-cols-[1fr_auto]">
-        <div>
-          <div className="text-xs font-bold uppercase tracking-[0.2em] text-sky-300">Your course · {course.code}</div>
-          <h1 className="mt-2 text-3xl sm:text-4xl font-black text-white">
-            Level {lvl.level} <span className="text-slate-400">·</span> {lvl.title}
-          </h1>
-          <div className="mt-3 max-w-md">
-            <Bar value={lvl.into / lvl.needed} className="h-2.5" />
-            <div className="mt-1 text-xs text-slate-400">
-              {lvl.into}/{lvl.needed} XP to level {lvl.level + 1}
-            </div>
-          </div>
-
-          <div className="mt-5">
-            {current && currentDomain ? (
-              <MascotSays>
-                <div className="text-sm text-slate-300">Next up on your expedition</div>
-                <div className="font-bold text-white">
-                  {current.type === "lesson" ? `📖 Mission: ${currentLesson?.title}` : `⚔️ ${currentDomain.world} trial`}
-                </div>
-              </MascotSays>
-            ) : (
-              <MascotSays mood="wow">
-                <div className="font-bold text-white">Every world cleared! {copy.gate} is open.</div>
-              </MascotSays>
-            )}
-          </div>
-
-          <div className="mt-5 flex flex-wrap gap-3">
-            <Link
-              href={href(current?.to ?? "/exam")}
-              className="btn-3d rounded-2xl bg-sky-400 px-7 py-3.5 text-lg font-black uppercase tracking-wide text-slate-950"
-              style={{ "--edge": "#0369a1" } as CSSProperties}
-            >
-              {p.xp === 0 ? "Start expedition" : "Continue"} →
-            </Link>
-            <Link
-              href={href("/study")}
-              className="btn-3d rounded-2xl bg-violet-400 px-5 py-3.5 font-black text-slate-950"
-              style={{ "--edge": "#6d28d9" } as CSSProperties}
-            >
-              📚 Study first
-            </Link>
-            <button
-              type="button"
-              onClick={() => setGuideOpen(true)}
-              className="btn-3d rounded-2xl border border-white/15 bg-slate-800 px-5 py-3.5 font-bold text-slate-100"
-              style={{ "--edge": "#020617" } as CSSProperties}
-            >
-              📖 Guide
-            </button>
-          </div>
-        </div>
-        <div className="hidden justify-self-center md:block">
-          <Core3D size={110} domains={course.domains} icon={course.provider.icon} />
-        </div>
-      </section>
+      <HubHeader
+        eyebrow={`${course.provider.name} · ${course.code}`}
+        accent={course.provider.color}
+        title={course.title}
+        tagline={course.tagline}
+        primary={{ href: href(current?.to ?? "/exam"), label: p.xp === 0 ? "Start the course" : "Continue", line: hydrated ? `Next: ${next}` : undefined }}
+        secondary={[{ href: href("/study"), label: "Study", icon: NotebookText }]}
+        xp={p.xp}
+        streak={p.streak.count}
+        readiness={readiness}
+        level={lvl}
+      />
       <LifecycleBanner course={course} />
       <LevelUpBanner />
       <CourseLevel />
 
-      {/* How the expedition works */}
-      <section className="mt-6 grid gap-3 sm:grid-cols-4">
-        {[
-          { icon: "📖", t: "1. Learn", d: "Each lesson explains one idea with a picture." },
-          { icon: "✅", t: "2. Check", d: "Two quick questions. Anything you miss comes back until it sticks." },
-          { icon: "⚔️", t: "3. Trial", d: `A short test for the world: ${course.config.quest.length} questions, ${level === "beginner" ? course.config.quest.beginnerHearts : course.config.quest.hearts} hearts.` },
-          { icon: copy.gateIcon, t: `4. ${copy.gateStep}`, d: `A full practice ${copy.noun}. Score ${course.exam.scale.pass} or more and you're ready.` },
-        ].map((s) => (
-          <div key={s.t} className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
-            <div className="text-2xl">{s.icon}</div>
-            <div className="mt-1 font-bold text-white">{s.t}</div>
-            <div className="text-sm text-slate-400">{s.d}</div>
-          </div>
-        ))}
-      </section>
-
-      {/* The map */}
-      <section className="mt-10">
-        <div className="flex items-end justify-between gap-3">
-          <h2 className="text-2xl font-black text-white">🗺️ Your map</h2>
-          <div className="text-sm text-slate-400">
-            {copy.readiness} <span className="font-bold text-white">{readiness}%</span>
-          </div>
-        </div>
-        <div className="mt-6 grid gap-10">
-          {worlds.map((w, i) => (
-            <WorldSection key={w.domain} world={w} domain={course.domains[i]} mastery={domainMastery(course, p, w.domain)} stars={p.questStars[w.domain] ?? 0} />
-          ))}
-
-          <Tilt className="rounded-3xl">
-            <Link
-              href={href("/exam")}
-              className={`block rounded-3xl border-2 p-6 text-center transition ${examUnlocked ? "border-amber-300/60 bg-gradient-to-b from-amber-400/20 to-slate-900/60" : "border-white/10 bg-slate-900/50"}`}
-            >
-              <div className="text-5xl">{copy.gateIcon}</div>
-              <div className="mt-2 text-xl font-black text-white">{copy.gate}</div>
-              <div className="mt-1 text-sm text-slate-300">
-                Full {copy.simulator}: {course.exam.questions} questions, {course.exam.minutes} minutes, scored {course.exam.scale.min}–{course.exam.scale.max}.
+      <HubSection id="how-heading" icon={Compass} title="How it works">
+        <ol className="grid grid-cols-1 gap-3 min-[375px]:grid-cols-2 lg:grid-cols-4">
+          {steps.map((s, i) => (
+            <li key={s.t} className="rounded-card border border-border bg-card p-4">
+              <s.icon aria-hidden="true" className="size-5 text-primary" />
+              <div className="mt-2 text-base font-semibold text-foreground">
+                {i + 1}. {s.t}
               </div>
-              <div className="mt-3 text-xs font-semibold text-amber-300">
-                {examUnlocked ? "Open. You're ready to attempt it." : "Best after you finish every world's trial, but you can go in any time."}
-              </div>
-            </Link>
-          </Tilt>
-        </div>
-      </section>
-
-      {/* Practice deck */}
-      <section className="mt-12">
-        <h2 className="text-xl font-black text-white">🎮 Practice games</h2>
-        <p className="mt-1 text-sm text-slate-400">
-          Practice games you can replay any time. Need a quick recap?{" "}
-          <Link href={href("/cheatsheet")} className="font-semibold text-sky-300 underline">
-            📜 Open the cheat sheet
-          </Link>
-        </p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {modesFor(course, level)
-            .map((id) => MODE_BY_ID[id])
-            .map((m) => ({ href: href(m.to), icon: m.icon, name: m.name, meta: m.status(p, course) }))
-            .map((m) => (
-            <Tilt key={m.href} className="rounded-2xl">
-              <Link href={m.href} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-900/60 p-4 transition hover:border-white/25">
-                <span className="text-3xl">{m.icon}</span>
-                <div>
-                  <div className="font-bold text-white">{m.name}</div>
-                  <div className="text-xs text-slate-400">{m.meta}</div>
-                </div>
-              </Link>
-            </Tilt>
+              <div className="mt-0.5 text-sm text-muted-foreground">{s.d}</div>
+            </li>
           ))}
-        </div>
-      </section>
+        </ol>
+      </HubSection>
 
-      <BadgeShelf earned={p.badges} />
+      <HubSection id="map-heading" icon={MapIcon} title="Your map" aside={hydrated ? `${copy.readiness} ${readiness}%` : undefined}>
+        <LayoutMotion>
+          <StageMap worlds={worlds} />
+        </LayoutMotion>
+        <Link
+          href={href("/exam")}
+          className={cn(
+            "mt-3 flex min-h-11 items-start gap-3 rounded-card border p-4 transition-colors hover:bg-accent/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+            examUnlocked ? "border-primary/60 bg-primary/5" : "border-border bg-card",
+          )}
+        >
+          <GraduationCap aria-hidden="true" className="mt-0.5 size-6 shrink-0 text-primary" />
+          <span>
+            <span className="block text-base font-semibold text-foreground">{copy.gate}</span>
+            <span className="mt-0.5 block text-sm text-muted-foreground">
+              Full {copy.simulator}: {course.exam.questions} questions, {course.exam.minutes} minutes, scored {course.exam.scale.min}–{course.exam.scale.max}.
+            </span>
+            <span className="mt-1 block text-sm font-medium text-foreground">{examUnlocked ? "Open. You're ready to attempt it." : "Best after every world's trial, but you can go in any time."}</span>
+          </span>
+        </Link>
+      </HubSection>
 
-      <footer className="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-6 text-xs text-slate-500">
-        <span>
-          Progress is saved in this browser. Not affiliated with AWS.{" "}
-          <Link href={href("/start")} className="text-slate-400 underline">
+      <HubSection id="practice-heading" icon={Gamepad2} title="Practice" aside={<Link href={href("/cheatsheet")} className="inline-flex min-h-11 items-center gap-1 font-medium text-primary underline-offset-4 hover:underline"><ScrollText aria-hidden="true" className="size-4" />Cheat sheet</Link>}>
+        <ModeGrid modes={modesFor(course, level)} />
+      </HubSection>
+
+      <BadgeShelf />
+
+      <footer className="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4 text-sm text-muted-foreground">
+        <span className="flex flex-wrap items-center gap-x-3">
+          Progress is saved in this browser. Not affiliated with {course.provider.name}.
+          <Link href={href("/start")} className="inline-flex min-h-11 items-center gap-1 hover:text-foreground">
+            <RotateCcw aria-hidden="true" className="size-4" />
             Replay intro
           </Link>
+          <button type="button" onClick={() => setGuideOpen(true)} className="inline-flex min-h-11 items-center gap-1 hover:text-foreground">
+            <BookOpen aria-hidden="true" className="size-4" />
+            Guide
+          </button>
         </span>
         <ResetButton />
       </footer>
     </main>
-  );
-}
-
-function Planet({ domain, size = 84, dim }: { domain: Domain; size?: number; dim?: boolean }) {
-  return (
-    <div className={`planet relative shrink-0 ${dim ? "opacity-40 grayscale" : ""}`} style={{ width: size, height: size }} aria-hidden>
-      <div
-        className="planet-body absolute inset-0 rounded-full"
-        style={{ "--c": domain.color, background: `radial-gradient(circle at 32% 28%, white -20%, ${domain.color} 45%, #020617 120%)` } as CSSProperties}
-      />
-      <div className="planet-ring absolute" style={{ borderColor: `${domain.color}99` }} />
-      <span className="absolute inset-0 flex items-center justify-center" style={{ fontSize: size * 0.38 }}>
-        {domain.emoji}
-      </span>
-    </div>
-  );
-}
-
-function WorldSection({ world, domain, mastery, stars }: { world: PathWorld; domain: Domain; mastery: number; stars: number }) {
-  const { href } = useCourse();
-  const questNode = world.nodes[world.nodes.length - 1];
-  return (
-    <div>
-      <Tilt className="rounded-3xl">
-        <div
-          className="flex items-center gap-4 rounded-3xl border p-4 sm:p-5"
-          style={{ borderColor: `${domain.color}55`, background: `linear-gradient(120deg, ${domain.color}22, transparent 70%)` }}
-        >
-          <Planet domain={domain} dim={!world.unlocked} />
-          <div className="min-w-0 flex-1">
-            <div className="text-xs font-bold uppercase tracking-wider" style={{ color: domain.color }}>
-              World {domain.number} · {domain.weight}% of the exam
-            </div>
-            <div className="text-xl font-black text-white">{domain.world}</div>
-            <div className="text-sm text-slate-400">{domain.name}</div>
-            <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-400">
-              <Link href={href(`/study/${domain.id}`)} className="rounded-full border border-violet-300/40 bg-violet-400/15 px-2.5 py-1 font-bold text-violet-100 hover:bg-violet-400/25">
-                📚 Study
-              </Link>
-              <Link href={href(`/game/${domain.id}`)} className="rounded-full border border-amber-300/40 bg-amber-400/15 px-2.5 py-1 font-bold text-amber-100 hover:bg-amber-400/25">
-                🎮 Mini game
-              </Link>
-              <span>
-                📖 {world.lessonsDone}/{world.lessonsTotal} lessons
-              </span>
-              <Stars count={stars} size="text-sm" />
-              <span>{Math.round(mastery * 100)}% mastered</span>
-            </div>
-          </div>
-        </div>
-      </Tilt>
-
-      <div className="relative mt-6 flex flex-col items-center gap-5">
-        {world.nodes.map((n, i) => (
-          <PathNodeButton key={n.key} node={n} color={domain.color} offset={ZIGZAG[i % ZIGZAG.length]} />
-        ))}
-        {!world.unlocked && (
-          <div className="text-center text-xs text-slate-500">
-            🔒 Clear the previous world&apos;s trial to unlock.{" "}
-            <Link href={href(questNode.to)} className="text-slate-300 underline">
-              Already know this? Take the trial
-            </Link>
-          </div>
-        )}
-        {world.unlocked && questNode.state === "locked" && (
-          <Link href={href(questNode.to)} className="text-xs text-slate-500 underline hover:text-slate-300">
-            Already know this world? Skip ahead to the trial
-          </Link>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function PathNodeButton({ node, color, offset }: { node: PathNode; color: string; offset: number }) {
-  const { href, lesson: lessonById } = useCourse();
-  const [hover, setHover] = useState(false);
-  const lesson = node.type === "lesson" ? lessonById[node.key] : null;
-  const locked = node.state === "locked";
-  const size = node.type === "quest" ? 84 : 68;
-  const later = node.state === "later";
-  const icon = node.state === "done" ? "✓" : locked ? "🔒" : node.type === "quest" ? "⚔️" : node.basics ? "🐣" : later ? "⏭" : "📖";
-  const label = node.type === "quest" ? "World trial" : `${lesson?.title ?? node.title}${later ? " (after the basics, open any time)" : node.optional ? " (basics, optional)" : ""}`;
-
-  const inner = (
-    <span
-      className={`node-3d relative flex items-center justify-center rounded-full text-2xl font-black text-slate-950 ${locked || later ? "node-locked" : ""} ${later ? "opacity-60" : ""} ${node.state === "current" ? "node-current" : ""}`}
-      style={{ width: size, height: size, "--c": node.state === "done" ? "#facc15" : color, "--edge": node.state === "done" ? "#a16207" : "#0f172a" } as CSSProperties}
-    >
-      {node.state === "current" && <span className="ring-pulse absolute inset-0 rounded-full border-4" style={{ borderColor: color }} />}
-      <span aria-hidden="true" className={locked ? "opacity-70 grayscale" : ""}>{icon}</span>
-    </span>
-  );
-
-  return (
-    <div className="relative flex flex-col items-center" style={{ transform: `translateX(calc(${offset}px * var(--zig, 1)))` }} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
-      {node.state === "current" && (
-        <span className="mb-2 rounded-xl border border-white/15 bg-slate-900 px-3 py-1 text-xs font-black uppercase tracking-wider text-white shadow-lg">Start</span>
-      )}
-      {locked ? (
-        <span title={label} aria-label={`${label} (locked)`}>
-          {inner}
-        </span>
-      ) : (
-        <Link href={href(node.to)} aria-label={label} title={label}>
-          {inner}
-        </Link>
-      )}
-      <span className={`mt-2 max-w-[8.5rem] text-center sm:max-w-[11rem] text-xs leading-tight transition ${hover || node.state === "current" ? "text-white" : "text-slate-500"}`}>{label}</span>
-    </div>
-  );
-}
-
-function BadgeShelf({ earned }: { earned: string[] }) {
-  return (
-    <section className="mt-12">
-      <h2 className="text-xl font-black text-white">
-        🏅 Badges <span className="text-sm font-normal text-slate-400">{earned.length}/{BADGES.length}</span>
-      </h2>
-      <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-5 lg:grid-cols-8">
-        {BADGES.map((b) => {
-          const got = earned.includes(b.id);
-          return (
-            <div key={b.id} title={`${b.name}: ${b.description}`} className={`rounded-xl border p-2 text-center ${got ? "border-amber-300/40 bg-amber-300/10" : "border-white/5 bg-white/[0.02]"}`}>
-              <div className={`text-2xl ${got ? "" : "opacity-25 grayscale"}`}>{b.icon}</div>
-              <div className={`mt-1 text-[11px] font-semibold leading-tight ${got ? "text-white" : "text-slate-500"}`}>{b.name}</div>
-            </div>
-          );
-        })}
-      </div>
-    </section>
   );
 }
 
@@ -341,17 +143,18 @@ function ResetButton() {
   }, [armed]);
 
   return (
-    <button
-      type="button"
+    <Button
+      variant={armed ? "destructive-outline" : "ghost"}
+      size="lg"
       onClick={() => {
         if (armed) {
           store.reset();
           setArmed(false);
         } else setArmed(true);
       }}
-      className="rounded-lg border border-white/10 px-3 py-1.5 hover:border-rose-400/50 hover:text-rose-300"
+      className="min-h-11"
     >
       {armed ? "Click again to erase all progress" : "Reset progress"}
-    </button>
+    </Button>
   );
 }

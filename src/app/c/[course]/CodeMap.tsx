@@ -1,26 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { LANGUAGE_LABEL, languageOf } from "@/engine/coding-langs";
+import { ArrowLeft, BookOpen, ChevronRight, Code2, Gamepad2, Map as MapIcon, MessagesSquare, RotateCcw, Swords } from "lucide-react";
 import { IntroOffer } from "@/components/learn/IntroOffer";
-import { type CSSProperties } from "react";
-import { TerminalWindow, Typewriter } from "@/components/code/ui";
-import { TrackCore3D } from "@/components/three";
-import { Bar } from "@/components/ui";
-import { BADGES } from "@/engine/badges";
+import { HubHeader } from "@/components/hub/HubHeader";
+import { BadgeShelf, HubSection, ModeGrid } from "@/components/hub/Sections";
+import { PathTile, StageMap } from "@/components/hub/StageMap";
+import { LayoutMotion } from "@/components/motion/LayoutMotion";
+import { LANGUAGE_LABEL, languageOf } from "@/engine/coding-langs";
 import { courseCopy } from "@/engine/copy";
 import { useCourse, useProgress } from "@/engine/course-context";
-import { domainMastery, overallReadiness, pct } from "@/engine/game";
+import { overallReadiness } from "@/engine/game";
 import { effectiveLevel, LEVEL_BY_ID } from "@/engine/levels";
 import { CourseLevel, LevelUpBanner } from "@/components/LevelControls";
-import { MODE_BY_ID, modesFor } from "@/engine/modes";
-import { buildPath, tileLabel, type PathNode, type PathWorld } from "@/engine/path";
+import { modesFor } from "@/engine/modes";
+import { buildPath, type PathWorld } from "@/engine/path";
 import { levelInfo } from "@/engine/store";
 import { ModuleMap } from "@/components/map/ModuleMap";
 import { useCourseMap } from "@/components/map/useCourseMap";
+import { useHydrated } from "@/engine/hydrated";
 import { PracticeTile } from "@/components/practice/PracticeTile";
 
-/** The mission map for interview tracks: a terminal hub plus an arcade level-select. */
+/** The hub for code tracks: header with one Continue, the module map, stage trials, practice. */
 export function CodeMap() {
   const { course, store, href, lesson: lessonById } = useCourse();
   const p = useProgress();
@@ -28,6 +29,7 @@ export function CodeMap() {
   const { worlds, current } = buildPath(course, p);
   // A topic syllabus replaces the per-stage lesson grid, so "next" follows the syllabus too.
   const map = useCourseMap();
+  const hydrated = useHydrated();
   const nextTopic = map?.current?.lesson ? { to: `/lesson/${map.current.lesson}`, title: map.current.topic.title } : null;
   const readiness = Math.round(overallReadiness(course, p));
   const skill = LEVEL_BY_ID[p.level];
@@ -35,322 +37,107 @@ export function CodeMap() {
   const codingSolved = codingAtLevel.filter((c) => p.coding[c.id]?.solved).length;
   const copy = courseCopy(course);
   const learning = course.kind === "learning";
-
-
-  const slug = course.shortTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  const nextTitle = nextTopic?.title ?? (current ? (current.type === "lesson" ? lessonById[current.key]?.title : "Stage trial") : null);
 
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-6 sm:py-10">
       <IntroOffer show={!p.onboarded && p.xp === 0} href={href("/start")} onSkip={() => store.skipOnboarding()} />
-      <TerminalWindow title={`~/code-quest/${slug} — zsh`}>
-        <div className="grid gap-6 md:grid-cols-[1fr_auto] md:items-center">
-          <div>
-            <div className="font-mono text-xs font-bold uppercase tracking-[0.25em]" style={{ color: course.provider.color }}>
-              {course.provider.icon} {course.code} · {learning ? "learning quest" : "interview quest"}
-            </div>
-            <h1 className="mt-2 text-3xl font-black text-white sm:text-4xl">{course.title}</h1>
-            <div className="mt-4">
-              <Typewriter
-                key={`${p.level}-${lvl.level}`}
-                lines={[
-                  `$ whoami → ${lvl.title} (lv ${lvl.level}, ${p.xp} xp)`,
-                  `$ difficulty → ${skill.icon} ${skill.name}`,
-                  nextTopic ? `$ next → ${nextTopic.title}` : current ? `$ next → ${current.type === "lesson" ? lessonById[current.key]?.title : "stage boss"}` : `$ next → ${copy.simulator} unlocked`,
-                ]}
-              />
-            </div>
-            <div className="mt-5 flex flex-wrap gap-3">
-              <Link
-                href={href(nextTopic?.to ?? current?.to ?? "/exam")}
-                className="btn-3d rounded-xl bg-emerald-400 px-6 py-3 font-mono text-sm font-black uppercase tracking-wider text-slate-950"
-                style={{ "--edge": "#065f46", boxShadow: "0 5px 0 0 #065f46, 0 0 28px -6px #34d399" } as CSSProperties}
-              >
-                ▶ {p.xp === 0 ? "Start" : "Continue"}
-              </Link>
-              <Link
-                href={href("/study")}
-                className="btn-3d rounded-xl bg-sky-400 px-5 py-3 font-mono text-sm font-black uppercase tracking-wider text-slate-950"
-                style={{ "--edge": "#075985" } as CSSProperties}
-              >
-                📚 Study
-              </Link>
-              <Link
-                href={href("/exam")}
-                className="btn-3d rounded-xl bg-fuchsia-400 px-5 py-3 font-mono text-sm font-black uppercase tracking-wider text-slate-950"
-                style={{ "--edge": "#86198f" } as CSSProperties}
-              >
-                {copy.gateIcon} {learning ? "Skill check" : "Mock interview"}
-              </Link>
-            </div>
-          </div>
-          <div className="md:w-64">
-            <TrackCore3D
-              color={course.provider.color}
-              stages={course.domains.map((d) => ({ color: d.color, mastery: domainMastery(course, p, d.id) }))}
-              className="-mt-2 h-52 w-full cursor-grab active:cursor-grabbing"
-            />
-            <div className="grid grid-cols-3 gap-2 font-mono text-center">
-              <Stat label="XP" value={p.xp} color="#34d399" />
-              <Stat label="Streak" value={`🔥 ${p.streak.count}`} color="#fb923c" />
-              <Stat label="Ready" value={`${readiness}%`} color="#38bdf8" />
-            </div>
-          </div>
-        </div>
-        <div className="mt-5">
-          <Bar value={lvl.into / lvl.needed} color="#34d399" className="h-1.5" />
-          <div className="mt-1 font-mono text-[11px] text-slate-500">
-            {lvl.into}/{lvl.needed} xp to lv {lvl.level + 1}
-          </div>
-        </div>
-      </TerminalWindow>
+      <HubHeader
+        eyebrow={`${learning ? "Learn from zero" : "Interview prep"} · ${course.code}`}
+        accent={course.provider.color}
+        title={course.title}
+        tagline={course.tagline}
+        primary={{
+          href: href(nextTopic?.to ?? current?.to ?? "/exam"),
+          label: p.xp === 0 ? "Start" : "Continue",
+          line: hydrated && nextTitle ? `Next: ${nextTitle}` : undefined,
+        }}
+        secondary={[
+          { href: href("/study"), label: "Study", icon: BookOpen },
+          { href: href("/exam"), label: learning ? "Skill check" : "Mock interview", icon: MessagesSquare },
+        ]}
+        xp={p.xp}
+        streak={p.streak.count}
+        readiness={readiness}
+        level={lvl}
+      />
 
       <LevelUpBanner />
-      <CourseLevel title="> Select your level" note={`Lessons, trials, drills, study play and the ${copy.simulator} follow this level. Change it any time.`} />
+      <CourseLevel title="Your level" note={`Lessons, trials, drills, study play and the ${copy.simulator} follow this level. Change it any time.`} />
 
       {codingAtLevel.length > 0 && (
-        <section className="mt-8">
-          <Link
-            href={href("/coding")}
-            className="group grid gap-4 rounded-2xl border-2 border-emerald-400/40 bg-gradient-to-br from-emerald-400/10 via-[#07111c] to-sky-400/10 p-5 transition hover:-translate-y-0.5 hover:border-emerald-300 sm:grid-cols-[auto_1fr_auto] sm:items-center"
-          >
-            <div className="text-4xl transition group-hover:scale-110">💻</div>
-            <div>
-              <div className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-emerald-300">New · live coding</div>
-              <div className="font-mono text-xl font-black text-white">Write real code, run real tests</div>
-              <p className="mt-1 text-sm text-slate-400">
-                {codingAtLevel.length} {LANGUAGE_LABEL[languageOf(codingAtLevel[0])]} challenges at {skill.name.toLowerCase()} level, run in your browser: an editor, hidden tests, hints, and a reference solution. {codingSolved}/{codingAtLevel.length} solved.
-              </p>
-            </div>
-            <span className="btn-3d rounded-xl bg-emerald-400 px-5 py-2.5 text-center font-mono text-sm font-black uppercase tracking-wider text-slate-950" style={{ "--edge": "#065f46" } as CSSProperties}>
-              ▶ Code
-            </span>
-          </Link>
-        </section>
-      )}
-
-      {map ? (
-        <>
-          <section aria-labelledby="modules-heading" className="mt-10">
-            <h2 id="modules-heading" className="font-mono text-lg font-black uppercase tracking-wider text-white">
-              <span className="text-emerald-300">&gt;</span> {map.modules.length} modules · {map.done}/{map.total} topics
-            </h2>
-            <div className="mt-4">
-              <PracticeTile />
-            </div>
-            <div className="mt-4">
-              <ModuleMap map={map} color={course.provider.color} />
-            </div>
-          </section>
-          <BossRow worlds={worlds} />
-        </>
-      ) : (
-        <StageList worlds={worlds} />
-      )}
-
-      <section className="mt-10">
-        <h2 className="font-mono text-lg font-black uppercase tracking-wider text-white">
-          <span className="text-emerald-300">&gt;</span> Arcade
-        </h2>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {modesFor(course, effectiveLevel(course, p.level))
-            .filter((id) => !(map && id === "practice"))
-            .map((id) => MODE_BY_ID[id])
-            .map((m) => (
-              <Link
-                key={m.id}
-                href={href(m.to)}
-                className="group rounded-xl border border-white/10 bg-[#07111c]/90 p-4 transition hover:-translate-y-0.5 hover:border-emerald-400/50"
-              >
-                <div className="text-3xl transition group-hover:scale-110">{m.icon}</div>
-                <div className="mt-2 font-mono text-sm font-black uppercase tracking-wider text-white">{m.name}</div>
-                <div className="mt-0.5 font-mono text-[11px] text-slate-400">{m.status(p, course)}</div>
-              </Link>
-            ))}
-        </div>
-      </section>
-
-      <section className="mt-10">
-        <h2 className="font-mono text-lg font-black uppercase tracking-wider text-white">
-          <span className="text-emerald-300">&gt;</span> Achievements{" "}
-          <span className="text-sm font-normal text-slate-500">
-            {p.badges.length}/{BADGES.length}
+        <Link
+          href={href("/coding")}
+          className="mt-8 flex min-h-11 items-center gap-4 rounded-card border border-border bg-card p-4 transition-colors hover:border-primary/50 hover:bg-accent/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:p-5"
+        >
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-control bg-primary/15 text-primary">
+            <Code2 aria-hidden="true" className="size-5" />
           </span>
-        </h2>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {BADGES.map((b) => {
-            const got = p.badges.includes(b.id);
-            return (
-              <span
-                key={b.id}
-                title={`${b.name}: ${b.description}`}
-                className={`rounded-lg border px-2.5 py-1.5 font-mono text-xs ${got ? "border-amber-300/50 bg-amber-300/10 text-amber-100" : "border-white/5 text-slate-600"}`}
-              >
-                <span className={got ? "" : "grayscale"}>{b.icon}</span> {b.name}
-              </span>
-            );
-          })}
-        </div>
-      </section>
-
-      <footer className="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-6 font-mono text-xs text-slate-500">
-        <Link href="/code" className="hover:text-slate-300">
-          ← all code quests
+          <span className="min-w-0 flex-1">
+            <span className="block text-base font-semibold text-foreground">Live coding: write real code, run real tests</span>
+            <span className="mt-0.5 block text-sm text-muted-foreground">
+              {codingAtLevel.length} {LANGUAGE_LABEL[languageOf(codingAtLevel[0])]} challenges at {skill.name.toLowerCase()} level, with hints and a reference solution.{" "}
+              {hydrated ? `${codingSolved}/${codingAtLevel.length} solved.` : ""}
+            </span>
+          </span>
+          <ChevronRight aria-hidden="true" className="size-5 shrink-0 text-muted-foreground" />
         </Link>
-        <Link href={href("/start")} className="hover:text-slate-300">
-          replay intro
+      )}
+
+      <LayoutMotion>
+        {map ? (
+          <>
+            <HubSection id="modules-heading" icon={MapIcon} title={`${map.modules.length} modules`} aside={`${hydrated ? map.done : "–"}/${map.total} topics`}>
+              <PracticeTile />
+              <div className="mt-4">
+                <ModuleMap map={map} color={course.provider.color} />
+              </div>
+            </HubSection>
+            <BossRow worlds={worlds} />
+          </>
+        ) : (
+          <HubSection id="stages-heading" icon={MapIcon} title="Stages">
+            <StageMap worlds={worlds} unit="Stage" />
+          </HubSection>
+        )}
+      </LayoutMotion>
+
+      <HubSection id="practice-heading" icon={Gamepad2} title="Practice">
+        <ModeGrid modes={modesFor(course, effectiveLevel(course, p.level)).filter((id) => !(map && id === "practice"))} />
+      </HubSection>
+
+      <BadgeShelf />
+
+      <footer className="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4 text-sm text-muted-foreground">
+        <Link href="/code" className="inline-flex min-h-11 items-center gap-1 hover:text-foreground">
+          <ArrowLeft aria-hidden="true" className="size-4" />
+          All code tracks
+        </Link>
+        <Link href={href("/start")} className="inline-flex min-h-11 items-center gap-1 hover:text-foreground">
+          <RotateCcw aria-hidden="true" className="size-4" />
+          Replay intro
         </Link>
       </footer>
     </main>
   );
 }
 
-/** The original per-stage lesson grid, for tracks without a topic syllabus. */
-function StageList({ worlds }: { worlds: PathWorld[] }) {
-  const { course, href } = useCourse();
-  const p = useProgress();
-  const copy = courseCopy(course);
-  return (
-      <section className="mt-10 grid gap-6">
-      <h2 className="font-mono text-lg font-black uppercase tracking-wider text-white">
-        <span className="text-emerald-300">&gt;</span> Stages
-      </h2>
-      {worlds.map((w, wi) => {
-        const d = course.domains[wi];
-        const mastery = domainMastery(course, p, d.id);
-        return (
-          <TerminalWindow key={d.id} title={`stage_${d.number}.${d.world.toLowerCase().replace(/[^a-z0-9]+/g, "_")}`} glow={d.color}>
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="text-3xl">{d.emoji}</span>
-              <div className="min-w-0 flex-1">
-                <div className="font-mono text-xs font-bold uppercase tracking-wider" style={{ color: d.color }}>
-                  Stage {d.number} · {d.weight}% of the {copy.noun}
-                </div>
-                <div className="font-mono text-xl font-black text-white">{d.world}</div>
-                <div className="text-sm text-slate-400">{d.name}</div>
-              </div>
-              <div className="w-full font-mono text-xs text-slate-400 sm:w-48">
-                <SegmentBar value={mastery} color={d.color} />
-                <div className="mt-1 flex justify-between">
-                  <span>
-                    {w.lessonsDone}/{w.lessonsTotal} levels
-                  </span>
-                  <span>{Math.round(mastery * 100)}% mastered</span>
-                </div>
-              </div>
-            </div>
-            <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-              {w.nodes.map((n, ni) => (
-                <Tile key={n.key} node={n} label={n.type === "quest" ? "BOSS" : `${d.number}-${ni + 1}`} color={d.color} />
-              ))}
-            </div>
-            <div className="mt-4 flex flex-wrap gap-2 font-mono text-xs">
-              <Link href={href(`/study/${d.id}`)} className="rounded-lg border border-sky-400/40 bg-sky-400/10 px-2.5 py-1 font-bold text-sky-100 hover:bg-sky-400/20">
-                📚 Study
-              </Link>
-              <Link href={href(`/game/${d.id}`)} className="rounded-lg border border-amber-300/40 bg-amber-400/10 px-2.5 py-1 font-bold text-amber-100 hover:bg-amber-400/20">
-                🎮 Mini game{p.games[d.id] ? ` · best ${p.games[d.id].best}` : ""}
-              </Link>
-            </div>
-            {!w.unlocked && <p className="mt-3 font-mono text-xs text-slate-500">🔒 Beat the previous stage&apos;s boss to unlock.</p>}
-          </TerminalWindow>
-        );
-      })}
-    </section>
-  );
-}
-
-/** Stage bosses, study pages and mini games for a course whose lessons are laid out by module. */
+/** Stage trials for a course whose lessons are laid out by module. */
 function BossRow({ worlds }: { worlds: PathWorld[] }) {
-  const { course, href, domain: domainById } = useCourse();
-  const p = useProgress();
+  const { course, domain: domainById } = useCourse();
   return (
-    <section aria-labelledby="bosses-heading" className="mt-10">
-      <h2 id="bosses-heading" className="font-mono text-lg font-black uppercase tracking-wider text-white">
-        <span className="text-emerald-300">&gt;</span> Stage bosses
-      </h2>
-      <div className="mt-4 grid grid-cols-1 gap-3 min-[375px]:grid-cols-2 lg:grid-cols-4">
+    <HubSection id="bosses-heading" icon={Swords} title="Stage trials" aside={`${course.domains.length} trials, one per stage`}>
+      <ul className="grid grid-cols-1 gap-2 min-[375px]:grid-cols-2 lg:grid-cols-4">
         {worlds.map((w) => {
-          const d = domainById[w.domain];
           const quest = w.nodes.find((n) => n.type === "quest");
-          return (
-            <div key={w.domain} className="grid gap-2">
-              {quest && <Tile node={quest} label={`${d.emoji} ${d.world}`} color={d.color} />}
-              <div className="flex flex-wrap gap-2 font-mono text-xs">
-                <Link href={href(`/study/${d.id}`)} className="rounded-lg border border-sky-400/40 bg-sky-400/10 px-2.5 py-1 font-bold text-sky-100 hover:bg-sky-400/20">
-                  📚 Study
-                </Link>
-                <Link href={href(`/game/${d.id}`)} className="rounded-lg border border-amber-300/40 bg-amber-400/10 px-2.5 py-1 font-bold text-amber-100 hover:bg-amber-400/20">
-                  🎮 Game{p.games[d.id] ? ` · best ${p.games[d.id].best}` : ""}
-                </Link>
-              </div>
-            </div>
-          );
+          return quest ? (
+            <li key={w.domain}>
+              <PathTile node={quest} label={domainById[w.domain].world} />
+            </li>
+          ) : null;
         })}
-      </div>
-      <p className="mt-2 font-mono text-xs text-slate-500">{course.domains.length} bosses, one per stage. Each opens once the stage&apos;s lessons are done.</p>
-    </section>
-  );
-}
-
-function Stat({ label, value, color }: { label: string; value: string | number; color: string }) {
-  return (
-    <div className="rounded-lg border border-white/10 bg-black/30 px-3 py-2">
-      <div className="text-[10px] uppercase tracking-wider text-slate-500">{label}</div>
-      <div className="text-lg font-black" style={{ color }}>
-        {value}
-      </div>
-    </div>
-  );
-}
-
-function SegmentBar({ value, color }: { value: number; color: string }) {
-  const filled = Math.round(value * 10);
-  return (
-    <div className="flex gap-0.5">
-      {Array.from({ length: 10 }, (_, i) => (
-        <span key={i} className="h-2.5 flex-1 rounded-sm" style={{ background: i < filled ? color : "rgb(255 255 255 / 0.08)" }} />
-      ))}
-    </div>
-  );
-}
-
-function Tile({ node, label, color }: { node: PathNode; label: string; color: string }) {
-  const { href, lesson: lessonById } = useCourse();
-  const lesson = node.type === "lesson" ? lessonById[node.key] : null;
-  const level = lesson?.level ? LEVEL_BY_ID[lesson.level] : null;
-  const locked = node.state === "locked";
-  const later = node.state === "later";
-  const done = node.state === "done";
-  const current = node.state === "current";
-  const boss = node.type === "quest";
-  const body = (
-    <div
-      className={`pixel-tile relative h-full p-3 transition ${locked ? "opacity-40" : later ? "opacity-55 hover:opacity-90" : "hover:-translate-y-0.5"} ${current ? "node-current" : ""}`}
-      style={{
-        background: done ? `${color}30` : boss ? "linear-gradient(135deg, #be185d55, #7c3aed44)" : "rgb(255 255 255 / 0.04)",
-        boxShadow: current ? `inset 0 0 0 2px ${color}, 0 0 22px -4px ${color}` : `inset 0 0 0 1px ${done ? color : "rgb(255 255 255 / 0.1)"}`,
-      }}
-    >
-      <div className="flex items-center justify-between font-mono text-xs font-black" style={{ color: boss ? "#f472b6" : color }}>
-        <span>{label}</span>
-        <span aria-hidden="true">{done ? "★" : locked ? "🔒" : boss ? "⚔️" : current ? "▶" : later ? "⏭" : node.basics ? "🐣" : "·"}</span>
-      </div>
-      <div className="mt-2 line-clamp-3 text-xs leading-snug text-slate-200">{boss ? "Stage boss: prove the whole stage" : node.title}</div>
-      {later && <div className="mt-1 text-[10px] text-slate-500">after the basics</div>}
-      {node.optional && !later && node.basics && <div className="mt-1 text-[10px] text-rose-200/70">basics · optional</div>}
-      {level && (
-        <div className="mt-2 inline-block rounded px-1.5 py-0.5 font-mono text-[10px] font-bold" style={{ background: `${level.color}22`, color: level.color }}>
-          {level.icon} {level.name}
-        </div>
-      )}
-      {current && <div className="mt-2 h-1 overflow-hidden rounded bg-white/10"><div className="h-full animate-pulse" style={{ width: pct(1), background: color }} /></div>}
-    </div>
-  );
-  return locked ? (
-    <span aria-label={`${node.title} (locked)`}>{body}</span>
-  ) : (
-    <Link href={href(node.to)} aria-label={tileLabel(node)} title={tileLabel(node)} className="block h-full">
-      {body}
-    </Link>
+      </ul>
+      <p className="mt-2 text-sm text-muted-foreground">Each trial opens once its stage&apos;s lessons are done.</p>
+    </HubSection>
   );
 }

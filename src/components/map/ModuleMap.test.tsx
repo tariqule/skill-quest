@@ -28,3 +28,28 @@ describe.each([["beginner", true], ["normal", false]] as const)("ModuleMap (%s)"
     expect(html).toContain('href="/c/code-system-design/lesson/t-cdn"');
   });
 });
+
+describe("ModuleMap redesign", () => {
+  const html = renderToStaticMarkup(
+    <CourseProvider courseId={course.id}>
+      <ModuleMap map={map} color="#2DD4BF" />
+    </CourseProvider>,
+  );
+
+  it("is an accordion: one module open, the rest collapsed but still in the markup", () => {
+    const expanded = html.match(/aria-expanded="true"/g) ?? [];
+    expect(expanded).toHaveLength(1);
+    expect((html.match(/aria-expanded="false"/g) ?? []).length).toBe(map.modules.length - 1);
+    expect(html).toMatch(/<ul id="[^"]+" hidden=""/);
+  });
+
+  it("names states in words, not colour alone, and uses no emoji or glow", () => {
+    expect(html).toMatch(/Up next|Open/);
+    expect(html).not.toMatch(/\p{Extended_Pictographic}/u);
+    expect(html).not.toMatch(/box-shadow|slate-|sky-/);
+  });
+
+  it("keeps text at 14px or more", () => {
+    expect(html).not.toMatch(/text-xs|text-\[1[0-3]px\]/);
+  });
+});

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { QuestionCard } from "@/components/QuestionCard";
 import { CourseProvider } from "@/engine/course-context";
 import { isCorrect, prepare } from "@/engine/game";
@@ -21,20 +23,21 @@ export function GameItem({ course, q, tag, note, onDone }: { course: Course; q: 
 
   return (
     <CourseProvider courseId={course.id}>
-      <div className="mb-2 text-sm font-bold uppercase tracking-wider text-slate-400">
+      <div className="mb-2 text-sm font-medium text-muted-foreground">
         {course.shortTitle}
         {tag ? ` · ${tag}` : ""}
       </div>
       <QuestionCard q={prepared} submitted={submitted} onSubmit={submit} />
       {submitted && note && (
-        <p className={`mt-4 text-base font-semibold ${correct ? "text-emerald-200" : "text-rose-200"}`} role="status">
+        <p className={`mt-4 text-base font-semibold ${correct ? "text-success-foreground" : "text-destructive-foreground"}`} role="status">
           {note(correct)}
         </p>
       )}
       {submitted && (
-        <button type="button" onClick={() => onDone(correct)} className="mt-4 w-full rounded-2xl bg-emerald-400 py-3 text-base font-black text-slate-950">
-          Next →
-        </button>
+        <Button size="xl" className="mt-4 w-full" onClick={() => onDone(correct)}>
+          Next
+          <ArrowRight aria-hidden="true" />
+        </Button>
       )}
     </CourseProvider>
   );

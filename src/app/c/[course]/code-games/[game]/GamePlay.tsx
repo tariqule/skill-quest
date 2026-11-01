@@ -13,11 +13,11 @@ export function GamePlay() {
   const { course, store, href } = useCourse();
   const { level } = useLevelPool();
   const mix = game === "mix";
-  const info = mix ? { icon: "🎲", name: "Mixed warm-up", rule: "Two of each code game, unplayed ones first." } : CODE_GAME_BY_ID[game as CodeGameId] && { ...CODE_GAME_BY_ID[game as CodeGameId], rule: gameRule(game as CodeGameId, course) };
+  const info = mix ? { name: "Mixed warm-up", rule: "Two of each code game, unplayed ones first." } : CODE_GAME_BY_ID[game as CodeGameId] && { ...CODE_GAME_BY_ID[game as CodeGameId], rule: gameRule(game as CodeGameId, course) };
   if (!info) notFound();
 
   return (
-    <PageShell title={`${info.icon} ${info.name}`} subtitle={info.rule}>
+    <PageShell title={info.name} subtitle={info.rule}>
       <QuizSession
         startLabel={mix ? "Start the warm-up" : `Play ${GAME_ROUND}`}
         baseXp={course.config.xp.reviewCorrect}
@@ -28,10 +28,10 @@ export function GamePlay() {
             : levelDeck(course, level, gamePool(course, game as CodeGameId), GAME_ROUND)
         }
         intro={
-          <div className="text-slate-300">
+          <div className="text-base text-foreground">
             <p>{info.rule}</p>
-            <p className="mt-2 text-sm text-slate-400">
-              Each item links to the lesson that teaches it. <Link href={href("/code-games")} className="text-sky-300 hover:underline">All code games</Link>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Each item links to the lesson that teaches it. <Link href={href("/code-games")} className="font-medium text-primary underline-offset-4 hover:underline">All code games</Link>
             </p>
           </div>
         }

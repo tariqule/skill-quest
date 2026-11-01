@@ -168,7 +168,7 @@ export function QuizSession({
         </h2>
         {stars !== null && (
           <div className="mt-3">
-            <Stars count={stars} size="text-3xl" />
+            <Stars count={stars} size="size-8" />
           </div>
         )}
         <dl className="mt-5 grid grid-cols-3 gap-3">
