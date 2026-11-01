@@ -12,7 +12,7 @@ import { useCourse, useProgress } from "@/engine/course-context";
 import { domainMastery } from "@/engine/game";
 import { useHydrated } from "@/engine/hydrated";
 import { LEVEL_BY_ID } from "@/engine/levels";
-import { tileLabel, type NodeState, type PathNode, type PathWorld } from "@/engine/path";
+import { type NodeState, type PathNode, type PathWorld } from "@/engine/path";
 import { cn } from "@/lib/utils";
 
 /** Every node state has an icon AND a word. */
@@ -169,9 +169,9 @@ export function PathTile({ node, label }: { node: PathNode; label: string }) {
       )}
     </span>
   );
-  if (node.state === "locked") return <span aria-label={`${tileLabel(node)} (locked)`} className="block h-full">{body}</span>;
+  if (node.state === "locked") return <span className="block h-full">{body}</span>;
   return (
-    <Link href={href(node.to)} aria-label={tileLabel(node)} aria-current={node.state === "current" ? "step" : undefined} className="block h-full rounded-control focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
+    <Link href={href(node.to)} aria-current={node.state === "current" ? "step" : undefined} className="block h-full rounded-control focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
       {body}
     </Link>
   );

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import { useState } from "react";
+import { BlockIcon } from "@/components/learn/block-icons";
 import { CodeBlock, LabHeader, type GoalProps } from "@/components/learn/blocks";
 
-const edge = (c: string) => ({ "--edge": c }) as CSSProperties;
 
 // ───────────── Event loop lab ─────────────
 
@@ -101,7 +101,7 @@ function Lane({ title, items, color }: { title: string; items: string[]; color: 
         {title}
       </div>
       <div className="mt-1 flex min-h-8 flex-wrap gap-1">
-        {items.length === 0 && <span className="text-xs text-slate-600">empty</span>}
+        {items.length === 0 && <span className="text-xs text-muted-foreground">empty</span>}
         {items.map((it, i) => (
           <span key={`${it}-${i}`} className="pop-in rounded-md px-2 py-0.5 font-mono text-xs text-slate-950" style={{ background: color }}>
             {it}
@@ -167,7 +167,7 @@ export function EventLoopLab({ goal, onSolved }: GoalProps<"classic" | "async" |
           <Lane title="Microtask queue" items={s?.micro ?? []} color="#34d399" />
           <Lane title="Macrotask (task) queue" items={s?.macro ?? []} color="#38bdf8" />
           <div className="rounded-xl border border-white/10 bg-black/60 p-2 font-mono text-xs text-emerald-200">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Console</div>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Console</div>
             {(s?.out ?? []).map((o, i) => (
               <div key={i}>&gt; {o}</div>
             ))}
@@ -178,8 +178,7 @@ export function EventLoopLab({ goal, onSolved }: GoalProps<"classic" | "async" |
               type="button"
               onClick={() => setStep((n) => Math.min(n + 1, puzzle.steps.length - 1))}
               disabled={step >= puzzle.steps.length - 1}
-              className="btn-3d rounded-xl bg-slate-700 px-3 py-1.5 text-sm font-bold text-white disabled:opacity-40"
-              style={edge("#0f172a")}
+              className="rounded-lg bg-slate-700 px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-40"
             >
               Step ▶ {step + 1}/{puzzle.steps.length}
             </button>
@@ -222,8 +221,7 @@ export function EventLoopLab({ goal, onSolved }: GoalProps<"classic" | "async" |
             type="button"
             onClick={check}
             disabled={guess.length !== puzzle.answer.length}
-            className="btn-3d rounded-xl bg-sky-400 px-4 py-2 font-bold text-slate-950 disabled:opacity-40"
-            style={edge("#0369a1")}
+            className="rounded-lg bg-primary px-4 py-2 font-semibold text-primary-foreground disabled:opacity-40"
           >
             Check
           </button>
@@ -240,7 +238,7 @@ export function EventLoopLab({ goal, onSolved }: GoalProps<"classic" | "async" |
         </div>
         {checked && (
           <p className={`mt-2 text-sm ${correct ? "text-emerald-300" : "text-rose-300"}`}>
-            {correct ? "✅ Exactly right: sync code, then every microtask, then one macrotask at a time." : "❌ Not quite. Step through the simulation to see where the order changes."}
+            {correct ? "Exactly right: sync code, then every microtask, then one macrotask at a time." : "Not quite. Step through the simulation to see where the order changes."}
           </p>
         )}
       </div>
@@ -323,12 +321,12 @@ const bob = { name: "Bob" };`}
         })}
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-3">
-        <button type="button" onClick={run} disabled={!allPicked} className="btn-3d rounded-xl bg-fuchsia-400 px-4 py-2 font-bold text-slate-950 disabled:opacity-40" style={edge("#a21caf")}>
+        <button type="button" onClick={run} disabled={!allPicked} className="rounded-lg bg-primary px-4 py-2 font-semibold text-primary-foreground disabled:opacity-40">
           ▶ Run all
         </button>
         {ran && (
           <span className={`text-sm font-semibold ${score === CALLS.length ? "text-emerald-300" : "text-amber-300"}`}>
-            {score}/{CALLS.length} correct{score === CALLS.length ? " 🎉" : ""}
+            {score}/{CALLS.length} correct{score === CALLS.length && <> <BlockIcon icon="🎉" className="inline-block size-[1.1em] align-[-0.15em]" /></>}
           </span>
         )}
       </div>
@@ -391,7 +389,7 @@ export function LoopClosureLab({ goal, onSolved }: GoalProps<"zero-one-two">) {
         </div>
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-3">
-        <button type="button" onClick={run} className="btn-3d rounded-xl bg-amber-400 px-4 py-2 font-bold text-slate-950" style={edge("#b45309")}>
+        <button type="button" onClick={run} className="rounded-lg bg-reward px-4 py-2 font-semibold text-primary-foreground">
           ▶ Run
         </button>
         {out && <span className="pop-in rounded-lg bg-black/60 px-3 py-1.5 font-mono text-emerald-200">&gt; {out}</span>}

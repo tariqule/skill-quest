@@ -2,6 +2,7 @@ import { CodeBlock, CodeCompare, Flow, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { js } from "../snippet";
 import { FibTree } from "../visuals";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /** Domain 4: dynamic programming, greedy algorithms, and recognising interview patterns. */
 export default defineDomain({
@@ -165,21 +166,21 @@ export default defineDomain({
       visual: (
         <div className="grid gap-4 md:grid-cols-2">
           <div className="rounded-xl border border-emerald-400/30 bg-emerald-400/5 p-3">
-            <div className="font-semibold text-emerald-300">✅ Greedy works</div>
+            <div className="font-semibold text-emerald-300"><BlockIcon icon="✅" className="inline-block size-[1.1em] align-[-0.15em]" /> Greedy works</div>
             <ul className="mt-2 grid gap-1.5 text-sm text-slate-200">
-              <li>📅 Most meetings in one room: always take the one that ends first</li>
-              <li>🦘 Jump game: track the farthest index you can reach</li>
-              <li>🗺️ Dijkstra, Prim, Kruskal, Huffman coding</li>
-              <li>🪙 Coins 25/10/5/1: largest coin first is optimal</li>
+              <li><BlockIcon icon="📅" className="inline-block size-[1.1em] align-[-0.15em]" /> Most meetings in one room: always take the one that ends first</li>
+              <li><BlockIcon icon="🦘" className="inline-block size-[1.1em] align-[-0.15em]" /> Jump game: track the farthest index you can reach</li>
+              <li><BlockIcon icon="🗺️" className="inline-block size-[1.1em] align-[-0.15em]" /> Dijkstra, Prim, Kruskal, Huffman coding</li>
+              <li><BlockIcon icon="🪙" className="inline-block size-[1.1em] align-[-0.15em]" /> Coins 25/10/5/1: largest coin first is optimal</li>
             </ul>
           </div>
           <div className="rounded-xl border border-rose-400/30 bg-rose-400/5 p-3">
-            <div className="font-semibold text-rose-300">❌ Greedy fails</div>
+            <div className="font-semibold text-rose-300"><BlockIcon icon="❌" className="inline-block size-[1.1em] align-[-0.15em]" /> Greedy fails</div>
             <ul className="mt-2 grid gap-1.5 text-sm text-slate-200">
-              <li>🪙 Coins 1/3/4 for 6: greedy picks 4+1+1 (3 coins), but 3+3 is better</li>
-              <li>🎒 0/1 knapsack by value per weight</li>
-              <li>📅 Meetings chosen by shortest length or earliest start</li>
-              <li>💡 Use DP instead, or prove the greedy choice is safe</li>
+              <li><BlockIcon icon="🪙" className="inline-block size-[1.1em] align-[-0.15em]" /> Coins 1/3/4 for 6: greedy picks 4+1+1 (3 coins), but 3+3 is better</li>
+              <li><BlockIcon icon="🎒" className="inline-block size-[1.1em] align-[-0.15em]" /> 0/1 knapsack by value per weight</li>
+              <li><BlockIcon icon="📅" className="inline-block size-[1.1em] align-[-0.15em]" /> Meetings chosen by shortest length or earliest start</li>
+              <li><BlockIcon icon="💡" className="inline-block size-[1.1em] align-[-0.15em]" /> Use DP instead, or prove the greedy choice is safe</li>
             </ul>
           </div>
         </div>

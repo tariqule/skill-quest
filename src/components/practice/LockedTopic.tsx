@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 interface Props {
   /** The topic to finish, and where its lesson is. */
@@ -10,10 +11,10 @@ interface Props {
 /** The next step in practice: "Finish X to unlock Y", linking to X's lesson. */
 export function LockedTopic({ finish, unlocks }: Props) {
   return (
-    <p className="rounded-xl border border-amber-300/30 bg-amber-400/10 px-4 py-3 text-slate-200">
-      <span aria-hidden="true">🔒 </span>
+    <p className="rounded-xl border border-warning/30 bg-warning/10 px-4 py-3 text-foreground">
+      <span aria-hidden="true"><BlockIcon icon="🔒" className="inline-block size-[1.1em] align-[-0.15em]" /> </span>
       Finish{" "}
-      <Link href={finish.href} className="font-semibold text-amber-200 underline">
+      <Link href={finish.href} className="font-semibold text-warning-foreground underline">
         {finish.title}
       </Link>{" "}
       to unlock {unlocks}.

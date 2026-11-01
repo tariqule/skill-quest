@@ -42,7 +42,8 @@ export function AnswerFeedback({ ok, note, children, concept, onOpenGuide, after
   const Icon = ok ? CircleCheck : CircleAlert;
 
   return (
-    <section
+    <div
+      role="group"
       aria-label="Answer feedback"
       data-verdict={ok ? "correct" : "wrong"}
       className={cn("mt-5 rounded-card border p-4 sm:p-5", ok ? "border-success/40 bg-success/10" : "border-border bg-card", className)}
@@ -98,6 +99,6 @@ export function AnswerFeedback({ ok, note, children, concept, onOpenGuide, after
           )}
         </div>
       )}
-    </section>
+    </div>
   );
 }

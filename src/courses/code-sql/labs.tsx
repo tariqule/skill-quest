@@ -1,18 +1,18 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import { useState } from "react";
 import { LabHeader, type GoalProps } from "@/components/learn/blocks";
 import { CUSTOMERS, EMPLOYEES, ORDERS, type Cell, type Customer, type Employee, type Order } from "./data";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /** Hands-on playgrounds for Learn SQL. Every lab evaluates its query in TypeScript over tiny in-memory tables. */
 
-const btn = "btn-3d rounded-xl px-3 py-2 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-40";
-const edge = (c: string) => ({ "--edge": c }) as CSSProperties;
+const btn = "rounded-lg px-3 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40";
 const chip = (on: boolean, color = "bg-sky-400") =>
   `rounded-lg px-2.5 py-1 font-mono text-xs font-bold transition ${on ? `${color} text-slate-950` : "bg-white/10 text-slate-200 hover:bg-white/15"}`;
 
 function CellText({ v }: { v: Cell }) {
-  return v === null ? <span className="italic text-slate-500">NULL</span> : <>{v}</>;
+  return v === null ? <span className="italic text-muted-foreground">NULL</span> : <>{v}</>;
 }
 
 /** A small result grid. */
@@ -41,8 +41,8 @@ function ResultTable({ cols, rows, empty = "(0 rows)" }: { cols: string[]; rows:
           ))}
         </tbody>
       </table>
-      {rows.length === 0 && <div className="px-2.5 py-2 font-mono text-xs text-slate-500">{empty}</div>}
-      {rows.length > 0 && <div className="border-t border-white/10 px-2.5 py-1 text-[11px] text-slate-500">({rows.length} {rows.length === 1 ? "row" : "rows"})</div>}
+      {rows.length === 0 && <div className="px-2.5 py-2 font-mono text-xs text-muted-foreground">{empty}</div>}
+      {rows.length > 0 && <div className="border-t border-white/10 px-2.5 py-1 text-[11px] text-muted-foreground">({rows.length} {rows.length === 1 ? "row" : "rows"})</div>}
     </div>
   );
 }
@@ -161,7 +161,7 @@ export function QueryBuilderLab({ goal, onSolved }: GoalProps<"topEng" | "lowest
               ))}
             </div>
           </div>
-          <button type="button" onClick={() => setQ(START_QUERY)} className={`${btn} bg-slate-800 text-slate-300`} style={edge("#020617")}>
+          <button type="button" onClick={() => setQ(START_QUERY)} className={`${btn} bg-slate-800 text-slate-300`}>
             ↺ Reset
           </button>
         </div>
@@ -170,11 +170,11 @@ export function QueryBuilderLab({ goal, onSolved }: GoalProps<"topEng" | "lowest
           <pre className="overflow-x-auto rounded-xl border border-white/10 bg-slate-950 p-3 font-mono text-[13px] leading-relaxed text-sky-100">{querySql(q)}</pre>
           <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-bold">
             <span className="rounded-md bg-white/10 px-2 py-0.5 text-slate-200">FROM: {EMPLOYEES.length} rows</span>
-            <span className="text-slate-500">→</span>
+            <span className="text-muted-foreground">→</span>
             <span className="rounded-md bg-amber-300/20 px-2 py-0.5 text-amber-200">WHERE: {kept.length} kept</span>
-            <span className="text-slate-500">→</span>
+            <span className="text-muted-foreground">→</span>
             <span className="rounded-md bg-sky-300/20 px-2 py-0.5 text-sky-200">ORDER BY: {q.orderBy ? "sorted" : "any order"}</span>
-            <span className="text-slate-500">→</span>
+            <span className="text-muted-foreground">→</span>
             <span className="rounded-md bg-emerald-300/20 px-2 py-0.5 text-emerald-200">LIMIT: {limited.length} returned</span>
           </div>
           <div className="flex flex-wrap gap-1">
@@ -185,7 +185,7 @@ export function QueryBuilderLab({ goal, onSolved }: GoalProps<"topEng" | "lowest
                 <span
                   key={e.id}
                   title={k ? (r ? "returned" : "cut by LIMIT") : "removed by WHERE"}
-                  className={`rounded-md px-2 py-0.5 font-mono text-[11px] ${r ? "bg-emerald-400/25 text-emerald-100" : k ? "bg-sky-400/10 text-sky-200/60" : "bg-white/5 text-slate-600 line-through"}`}
+                  className={`rounded-md px-2 py-0.5 font-mono text-[11px] ${r ? "bg-emerald-400/25 text-emerald-100" : k ? "bg-sky-400/10 text-sky-200/60" : "bg-white/5 text-muted-foreground line-through"}`}
                 >
                   {e.name}
                 </span>
@@ -195,7 +195,7 @@ export function QueryBuilderLab({ goal, onSolved }: GoalProps<"topEng" | "lowest
           <ResultTable key={querySql(q)} cols={cols} rows={limited.map((e) => cols.map((c) => e[c]))} />
           <p className="text-xs text-slate-400">
             {q.limit !== null && !q.orderBy
-              ? "⚠️ LIMIT without ORDER BY: a real database may hand back any rows that match. Always sort before you limit."
+              ? "LIMIT without ORDER BY: a real database may hand back any rows that match. Always sort before you limit."
               : "Salaries are in thousands. Struck-through names were removed by WHERE; faded ones were cut by LIMIT."}
           </p>
         </div>
@@ -266,7 +266,7 @@ export function JoinLab({ goal, onSolved }: GoalProps<"noOrders" | "orphan">) {
             {t} JOIN
           </button>
         ))}
-        <span className="mx-1 self-center text-slate-600">|</span>
+        <span className="mx-1 self-center text-muted-foreground">|</span>
         {(
           [
             ["none", "no WHERE"],
@@ -303,7 +303,7 @@ export function JoinLab({ goal, onSolved }: GoalProps<"noOrders" | "orphan">) {
                 <div
                   key={it.key}
                   className={`rounded-md px-2 py-1 font-mono text-xs transition ${
-                    it.used ? (it.matched ? "bg-emerald-400/20 text-emerald-100" : "bg-amber-400/20 text-amber-100") : "bg-white/5 text-slate-600 line-through"
+                    it.used ? (it.matched ? "bg-emerald-400/20 text-emerald-100" : "bg-amber-400/20 text-amber-100") : "bg-white/5 text-muted-foreground line-through"
                   }`}
                 >
                   {it.text}
@@ -320,7 +320,7 @@ export function JoinLab({ goal, onSolved }: GoalProps<"noOrders" | "orphan">) {
           <pre className="overflow-x-auto rounded-xl border border-white/10 bg-slate-950 p-3 font-mono text-[13px] leading-relaxed text-sky-100">{sqlText};</pre>
           <p className="text-sm text-slate-300">{JOIN_NOTES[type]}</p>
           <p className="text-xs text-slate-400">
-            🟩 matched · 🟨 kept without a match (NULL-padded) · struck out = dropped. The guest order has customer_id NULL, and NULL never equals anything, so it
+            <BlockIcon icon="🟩" className="inline-block size-[1.1em] align-[-0.15em]" /> matched · <BlockIcon icon="🟨" className="inline-block size-[1.1em] align-[-0.15em]" /> kept without a match (NULL-padded) · struck out = dropped. The guest order has customer_id NULL, and NULL never equals anything, so it
             can&apos;t match.
           </p>
         </div>
@@ -436,7 +436,7 @@ export function GroupByLab({ goal, onSolved }: GoalProps<"bigSpenders" | "perSta
         {ORDERS.map((o) => {
           const k = kept.includes(o);
           return (
-            <span key={o.id} className={`rounded-md px-2 py-0.5 font-mono text-[11px] ${k ? "bg-white/10 text-slate-200" : "bg-white/5 text-slate-600 line-through"}`}>
+            <span key={o.id} className={`rounded-md px-2 py-0.5 font-mono text-[11px] ${k ? "bg-white/10 text-slate-200" : "bg-white/5 text-muted-foreground line-through"}`}>
               #{o.id} c{o.customer_id ?? "∅"} {o.total} {o.status}
             </span>
           );
@@ -457,7 +457,7 @@ export function GroupByLab({ goal, onSolved }: GoalProps<"bigSpenders" | "perSta
                   {keyCol ? `${keyCol} = ` : ""}
                   {g.key === null ? "NULL" : String(g.key)}
                 </span>
-                {!g.pass && <span className="text-rose-300">✗ HAVING</span>}
+                {!g.pass && <span className="text-rose-300"><BlockIcon icon="✗" className="inline-block size-[1.1em] align-[-0.15em]" /> HAVING</span>}
               </div>
               <div className="mt-1 flex flex-wrap gap-1">
                 {g.rows.map((r) => (
@@ -529,7 +529,7 @@ function script(p: Pattern, iso: Iso): { steps: TxStep[]; balance: number; outco
     return {
       steps: [
         { who: 1, sql: "UPDATE accounts SET balance = balance - 30 WHERE id = 1;", result: "UPDATE 1 (row now locked)" },
-        { who: 2, sql: "UPDATE accounts SET balance = balance - 30 WHERE id = 1;", result: "⏳ waiting for session 1's row lock…", tone: "wait" },
+        { who: 2, sql: "UPDATE accounts SET balance = balance - 30 WHERE id = 1;", result: "waiting for session 1's row lock…", tone: "wait" },
         { who: 1, sql: "COMMIT;", result: "COMMIT", tone: "ok" },
         strict
           ? { who: 2, sql: "(session 2 wakes up)", result: serr, tone: "error" }
@@ -545,7 +545,7 @@ function script(p: Pattern, iso: Iso): { steps: TxStep[]; balance: number; outco
   return {
     steps: [
       { who: 1, sql: "SELECT balance FROM accounts WHERE id = 1 FOR UPDATE;", result: "100 (row now locked)" },
-      { who: 2, sql: "SELECT balance FROM accounts WHERE id = 1 FOR UPDATE;", result: "⏳ waiting for session 1's row lock…", tone: "wait" },
+      { who: 2, sql: "SELECT balance FROM accounts WHERE id = 1 FOR UPDATE;", result: "waiting for session 1's row lock…", tone: "wait" },
       { who: 1, sql: "UPDATE accounts SET balance = 70 WHERE id = 1;", result: "UPDATE 1" },
       { who: 1, sql: "COMMIT;", result: "COMMIT", tone: "ok" },
       strict ? { who: 2, sql: "(session 2 wakes up)", result: serr, tone: "error" } : { who: 2, sql: "(session 2 wakes up)", result: "returns the latest balance: 70" },
@@ -619,7 +619,7 @@ export function IsolationLab({ goal, onSolved }: GoalProps<"lost" | "safe">) {
           <div className="py-1.5 text-amber-300">Session 2</div>
         </div>
         <div className="grid gap-1 p-2">
-          <div className="grid grid-cols-2 gap-2 font-mono text-[11px] text-slate-500">
+          <div className="grid grid-cols-2 gap-2 font-mono text-[11px] text-muted-foreground">
             <div>BEGIN ISOLATION LEVEL {iso};</div>
             <div>BEGIN ISOLATION LEVEL {iso};</div>
           </div>
@@ -637,10 +637,10 @@ export function IsolationLab({ goal, onSolved }: GoalProps<"lost" | "safe">) {
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        <button type="button" disabled={done} onClick={step} className={`${btn} bg-emerald-400 text-slate-950`} style={edge("#047857")}>
+        <button type="button" disabled={done} onClick={step} className={`${btn} bg-primary text-primary-foreground`}>
           ▶ Step {Math.min(shown + 1, steps.length)}/{steps.length}
         </button>
-        <button type="button" onClick={() => setShown(0)} className={`${btn} bg-slate-700 text-white`} style={edge("#0f172a")}>
+        <button type="button" onClick={() => setShown(0)} className={`${btn} bg-slate-700 text-white`}>
           ↺ Restart
         </button>
       </div>
@@ -648,7 +648,7 @@ export function IsolationLab({ goal, onSolved }: GoalProps<"lost" | "safe">) {
         <div className="pop-in mt-3 rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm">
           <div className="font-mono text-slate-300">
             Final balance: <span className={balance === 40 ? "font-bold text-emerald-300" : "font-bold text-rose-300"}>{balance}</span>{" "}
-            <span className="text-slate-500">(correct answer after two withdrawals: 40)</span>
+            <span className="text-muted-foreground">(correct answer after two withdrawals: 40)</span>
           </div>
           <p className="mt-1 text-slate-200">{outcome}</p>
         </div>

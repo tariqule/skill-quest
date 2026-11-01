@@ -1,0 +1,71 @@
+{
+  "note": "Initial route JS (gzip bytes) from next build. prA = skillquest/redesign-a 240f3cb, prD = skillquest/redesign-d 9bb7241. Regenerate with scripts/bundle-report.mjs --json.",
+  "prA": {
+    "home": {
+      "gzip": 1612715,
+      "raw": 5342152
+    },
+    "hub": {
+      "gzip": 1610304,
+      "raw": 5337015
+    },
+    "lesson": {
+      "gzip": 1609475,
+      "raw": 5333644
+    },
+    "practice": {
+      "gzip": 1595680,
+      "raw": 5285357
+    },
+    "exam": {
+      "gzip": 1605889,
+      "raw": 5324867
+    },
+    "quiz": {
+      "gzip": 1602649,
+      "raw": 5313139
+    },
+    "timed": {
+      "gzip": 1604672,
+      "raw": 5317718
+    },
+    "review": {
+      "gzip": 1603708,
+      "raw": 5315602
+    }
+  },
+  "prD": {
+    "home": {
+      "gzip": 1689909,
+      "raw": 5571161
+    },
+    "hub": {
+      "gzip": 1681348,
+      "raw": 5553252
+    },
+    "lesson": {
+      "gzip": 1671192,
+      "raw": 5526356
+    },
+    "practice": {
+      "gzip": 1637443,
+      "raw": 5414135
+    },
+    "exam": {
+      "gzip": 1670225,
+      "raw": 5521858
+    },
+    "quiz": {
+      "gzip": 1663704,
+      "raw": 5501100
+    },
+    "timed": {
+      "gzip": 1668299,
+      "raw": 5514596
+    },
+    "review": {
+      "gzip": 1666661,
+      "raw": 5510823
+    }
+  }
+}

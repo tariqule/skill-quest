@@ -12,7 +12,7 @@ export function GamePlay() {
   const domain = domainById[domainId];
   if (!domain) notFound();
   return (
-    <PageShell title={`🎮 ${domain.world}`} subtitle="A quick game with this section's words. Play as often as you like.">
+    <PageShell title={domain.world} subtitle="A quick game with this section's words. Play as often as you like.">
       <SectionGame domainId={domain.id} />
     </PageShell>
   );

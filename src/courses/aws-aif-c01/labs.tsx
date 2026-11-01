@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { LabHeader, type GoalProps } from "@/components/learn/blocks";
 import { pct } from "@/engine/game";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 // ───────────── Temperature / Top P / Top K / max tokens ─────────────
 
@@ -84,7 +85,7 @@ export function TemperatureLab({ goal, onSolved }: GoalProps<"identical" | "vari
   }
 
   const distinct = new Set(outputs).size;
-  const mood = temp === 0 ? "🧊 Deterministic" : temp < 0.5 ? "🎯 Focused" : temp < 1 ? "⚖️ Balanced" : "🔥 Creative / risky";
+  const mood = temp === 0 ? "Deterministic" : temp < 0.5 ? "Focused" : temp < 1 ? "Balanced" : "Creative / risky";
 
   return (
     <div>
@@ -119,15 +120,15 @@ export function TemperatureLab({ goal, onSolved }: GoalProps<"identical" | "vari
               </div>
             ))}
           </div>
-          <div className="mt-1 text-[11px] text-slate-500">Faded words have been cut by Top K or Top P.</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">Faded words have been cut by Top K or Top P.</div>
         </div>
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        <button type="button" onClick={() => generate(1)} className="btn-3d rounded-xl bg-amber-400 px-4 py-2 font-bold text-slate-950" style={{ "--edge": "#b45309" } as React.CSSProperties}>
-          ✨ Generate
+        <button type="button" onClick={() => generate(1)} className="rounded-lg bg-reward px-4 py-2 font-semibold text-primary-foreground">
+          <BlockIcon icon="✨" className="inline-block size-[1.1em] align-[-0.15em]" /> Generate
         </button>
-        <button type="button" onClick={() => generate(5)} className="btn-3d rounded-xl bg-slate-700 px-4 py-2 font-bold text-white" style={{ "--edge": "#0f172a" } as React.CSSProperties}>
+        <button type="button" onClick={() => generate(5)} className="rounded-lg bg-slate-700 px-4 py-2 font-semibold text-white">
           Generate 5×
         </button>
       </div>
@@ -135,7 +136,7 @@ export function TemperatureLab({ goal, onSolved }: GoalProps<"identical" | "vari
         <div className="mt-3 grid gap-1.5">
           {outputs.map((o, i) => (
             <div key={`${o}-${i}`} className="pop-in rounded-lg border border-white/10 bg-slate-950/70 px-3 py-2 text-slate-100">
-              🤖 {o}
+              <BlockIcon icon="🤖" className="inline-block size-[1.1em] align-[-0.15em]" /> {o}
             </div>
           ))}
           {outputs.length > 1 && (
@@ -210,7 +211,7 @@ export function ThresholdLab({ goal, onSolved }: GoalProps<"catchAll" | "noFalse
         ))}
       </div>
       <input type="range" min={0} max={100} value={th} onChange={(e) => move(Number(e.target.value))} className="mt-2 w-full accent-amber-400" aria-label="Flag threshold" />
-      <div className="flex justify-between text-[11px] text-slate-500">
+      <div className="flex justify-between text-[11px] text-muted-foreground">
         <span>Flag everything</span>
         <span>Cutoff: score ≥ {th}</span>
         <span>Flag nothing</span>
@@ -313,20 +314,20 @@ export function RagLab({ goal, onSolved }: GoalProps<"compare">) {
         </button>
         <span className="font-semibold text-white">RAG {rag ? "ON: search company docs first" : "OFF: model answers from memory"}</span>
       </div>
-      <button type="button" onClick={ask} className="btn-3d mt-3 rounded-xl bg-sky-400 px-4 py-2 font-bold text-slate-950" style={{ "--edge": "#0369a1" } as React.CSSProperties}>
+      <button type="button" onClick={ask} className="mt-3 rounded-lg bg-primary px-4 py-2 font-semibold text-primary-foreground">
         Ask the model
       </button>
       {asked && (
         <div className="pop-in mt-3 grid gap-2">
           {rag && (
             <div className="rounded-lg border border-amber-400/30 bg-amber-400/10 p-2 text-sm text-amber-100">
-              📎 Retrieved chunk: &quot;{item.chunk}&quot;
+              <BlockIcon icon="📎" className="inline-block size-[1.1em] align-[-0.15em]" /> Retrieved chunk: &quot;{item.chunk}&quot;
             </div>
           )}
           <div className={`rounded-lg border p-3 ${rag ? "border-emerald-400/40 bg-emerald-400/10" : "border-rose-400/40 bg-rose-400/10"}`}>
-            🤖 {rag ? item.with : item.without}
+            <BlockIcon icon="🤖" className="inline-block size-[1.1em] align-[-0.15em]" /> {rag ? item.with : item.without}
             <div className={`mt-1 text-xs font-semibold ${rag ? "text-emerald-300" : "text-rose-300"}`}>
-              {rag ? "✓ Grounded in your document, with a citation." : "✗ Sounds confident, but it's a guess: a hallucination."}
+              {rag ? "Grounded in your document, with a citation." : "Sounds confident, but it's a guess: a hallucination."}
             </div>
           </div>
         </div>
@@ -375,7 +376,7 @@ export function PromptLab({ goal, onSolved }: GoalProps<"perfect">) {
             className="rounded-full border-2 px-3 py-1 text-sm font-semibold transition"
             style={{ borderColor: p.color, color: on[p.k] ? "#020617" : p.color, background: on[p.k] ? p.color : "transparent" }}
           >
-            {on[p.k] ? "✓ " : "+ "}
+            {on[p.k] ? <><BlockIcon icon="✓" className="inline-block size-[1.1em] align-[-0.15em]" />{" "}</> : "+ "}
             {p.label}
           </button>
         ))}
@@ -388,11 +389,11 @@ export function PromptLab({ goal, onSolved }: GoalProps<"perfect">) {
         ))}
         <div className="text-slate-200">Explain to the customer why their card was declined.</div>
       </div>
-      <div className="mt-3 whitespace-pre-line rounded-xl border border-white/10 bg-white/5 p-3 text-slate-100">🤖 {reply}</div>
+      <div className="mt-3 whitespace-pre-line rounded-xl border border-white/10 bg-white/5 p-3 text-slate-100"><BlockIcon icon="🤖" className="inline-block size-[1.1em] align-[-0.15em]" /> {reply}</div>
       <div className="mt-2 flex items-center gap-2 text-sm">
         <span className="text-slate-400">Prompt quality</span>
-        <span className="text-lg">{"⭐".repeat(score + 1)}</span>
-        {!on.negative && /4421/.test(reply) && <span className="text-rose-300">⚠️ Leaked an account number</span>}
+        <span className="inline-flex gap-0.5" aria-label={`${score + 1} stars`}>{Array.from({ length: score + 1 }, (_, i) => <BlockIcon key={i} icon="⭐" className="size-5" />)}</span>
+        {!on.negative && /4421/.test(reply) && <span className="text-rose-300"><BlockIcon icon="⚠️" className="inline-block size-[1.1em] align-[-0.15em]" /> Leaked an account number</span>}
       </div>
     </div>
   );
@@ -425,13 +426,13 @@ export function GuardrailsLab({ goal, onSolved }: GoalProps<"protect">) {
 
   let verdict: { tone: "ok" | "block" | "mask"; text: string } | null = null;
   if (item) {
-    if (item.kind === "topic" && filters.topic) verdict = { tone: "block", text: "🛡️ Blocked by denied topic \"investment advice\": \"Sorry, I can't give investment advice.\"" };
-    else if (item.kind === "attack" && filters.attack) verdict = { tone: "block", text: "🛡️ Blocked by the prompt attack filter." };
-    else if (item.kind === "pii" && filters.pii) verdict = { tone: "mask", text: "🛡️ Done! Updated your email to {EMAIL} and phone to {PHONE}. (PII masked in the response)" };
-    else if (item.kind === "topic") verdict = { tone: "ok", text: "⚠️ No guardrail: \"Buy XYZ, it's guaranteed to double!\" (risky advice reached the user)" };
-    else if (item.kind === "attack") verdict = { tone: "ok", text: "⚠️ No guardrail: \"My system prompt is: You are AnyBank's assistant…\" (leaked)" };
-    else if (item.kind === "pii") verdict = { tone: "ok", text: "⚠️ No guardrail: \"Updated to jane.doe@example.com, 555-0142.\" (PII exposed)" };
-    else verdict = { tone: "ok", text: "✅ \"Look for no monthly fees and a good interest rate…\" Normal answer, nothing blocked." };
+    if (item.kind === "topic" && filters.topic) verdict = { tone: "block", text: "Blocked by denied topic \"investment advice\": \"Sorry, I can't give investment advice.\"" };
+    else if (item.kind === "attack" && filters.attack) verdict = { tone: "block", text: "Blocked by the prompt attack filter." };
+    else if (item.kind === "pii" && filters.pii) verdict = { tone: "mask", text: "Done! Updated your email to {EMAIL} and phone to {PHONE}. (PII masked in the response)" };
+    else if (item.kind === "topic") verdict = { tone: "ok", text: "No guardrail: \"Buy XYZ, it's guaranteed to double!\" (risky advice reached the user)" };
+    else if (item.kind === "attack") verdict = { tone: "ok", text: "No guardrail: \"My system prompt is: You are AnyBank's assistant…\" (leaked)" };
+    else if (item.kind === "pii") verdict = { tone: "ok", text: "No guardrail: \"Updated to jane.doe@example.com, 555-0142.\" (PII exposed)" };
+    else verdict = { tone: "ok", text: "\"Look for no monthly fees and a good interest rate…\" Normal answer, nothing blocked." };
   }
 
   return (
@@ -440,9 +441,9 @@ export function GuardrailsLab({ goal, onSolved }: GoalProps<"protect">) {
       <div className="grid gap-2 sm:grid-cols-3">
         {(
           [
-            ["topic", "🚫 Denied topic: investment advice"],
-            ["attack", "💉 Prompt attack filter"],
-            ["pii", "🔏 Sensitive info (PII) masking"],
+            ["topic", "Denied topic: investment advice"],
+            ["attack", "Prompt attack filter"],
+            ["pii", "Sensitive info (PII) masking"],
           ] as const
         ).map(([k, label]) => (
           <label key={k} className={`flex cursor-pointer items-center gap-2 rounded-xl border p-2 text-sm ${filters[k] ? "border-emerald-400/50 bg-emerald-400/10 text-white" : "border-white/10 text-slate-400"}`}>
@@ -459,7 +460,7 @@ export function GuardrailsLab({ goal, onSolved }: GoalProps<"protect">) {
             onClick={() => send(i)}
             className={`rounded-xl border px-3 py-2 text-left text-sm ${pick === i ? "border-sky-400 bg-sky-400/15 text-white" : "border-white/10 bg-white/5 text-slate-200 hover:border-sky-400/50"}`}
           >
-            🙋 {g.text}
+            <BlockIcon icon="🙋" className="inline-block size-[1.1em] align-[-0.15em]" /> {g.text}
           </button>
         ))}
       </div>
@@ -509,7 +510,7 @@ export function EmbeddingLab({ goal, onSolved }: GoalProps<"refunds">) {
               setQi(i);
               if (goal === "refunds" && x.g === 1) onSolved?.();
             }} className={`rounded-full border px-3 py-1 text-sm ${qi === i ? "border-amber-400 bg-amber-400/20 text-white" : "border-white/10 text-slate-300"}`}>
-            🔎 {x.q}
+            <BlockIcon icon="🔎" className="inline-block size-[1.1em] align-[-0.15em]" /> {x.q}
           </button>
         ))}
       </div>
@@ -525,11 +526,11 @@ export function EmbeddingLab({ goal, onSolved }: GoalProps<"refunds">) {
         {q ? (
           ranked.slice(0, 3).map((d, i) => (
             <div key={d.t} className="pop-in rounded-lg bg-white/5 px-3 py-1.5 text-slate-200">
-              {i + 1}. {d.t} <span className="text-xs text-slate-500">(nearest vector #{i + 1})</span>
+              {i + 1}. {d.t} <span className="text-xs text-muted-foreground">(nearest vector #{i + 1})</span>
             </div>
           ))
         ) : (
-          <div className="text-slate-500">Dots are documents placed by meaning. Pick a question above.</div>
+          <div className="text-muted-foreground">Dots are documents placed by meaning. Pick a question above.</div>
         )}
       </div>
     </div>
@@ -574,7 +575,7 @@ export function ResponsibilityLab({ goal, onSolved }: GoalProps<"allCorrect">) {
                   }}
                   className={`rounded-lg px-3 py-1 text-sm font-bold ${a === o ? (ok ? "bg-emerald-400 text-slate-950" : "bg-rose-400 text-slate-950") : "bg-slate-800 text-slate-200"} disabled:cursor-default`}
                 >
-                  {o === "aws" ? "☁️ AWS" : "🧑‍💻 You"}
+                  {o === "aws" ? "AWS" : "You"}
                 </button>
               ))}
               {a && !ok && <span className="w-full text-xs text-rose-200">It&apos;s {d.owner === "aws" ? "AWS's job (security OF the cloud)" : "your job (security IN the cloud)"}.</span>}

@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import { useState } from "react";
 import { CodeBlock, LabHeader, type GoalProps } from "@/components/learn/blocks";
 import { js } from "./js";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /** Hands-on labs for the Node.js Interview Quest. */
 
-const btn = "btn-3d rounded-xl px-3 py-2 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-40";
-const edge = (c: string) => ({ "--edge": c }) as CSSProperties;
+const btn = "rounded-lg px-3 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40";
 
 // ───────────── Event loop: predict, then step through ─────────────
 
@@ -184,10 +184,10 @@ function logsInCodeOrder(body: Op[]): string[] {
 
 const PHASE_STRIP: { id: LoopPhase; label: string }[] = [
   { id: "main", label: "Main script" },
-  { id: "timers", label: "⏰ Timers" },
-  { id: "poll", label: "📥 Poll" },
-  { id: "check", label: "✅ Check" },
-  { id: "done", label: "🏁 Exit" },
+  { id: "timers", label: "Timers" },
+  { id: "poll", label: "Poll" },
+  { id: "check", label: "Check" },
+  { id: "done", label: "Exit" },
 ];
 
 export function EventLoopLab({ goal, onSolved }: GoalProps<"basics" | "io" | "nested" | "chain">) {
@@ -239,7 +239,7 @@ export function EventLoopLab({ goal, onSolved }: GoalProps<"basics" | "io" | "ne
           <div className="rounded-xl border border-white/10 bg-slate-950/60 p-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-400">Your prediction</div>
             <div className="mt-2 flex min-h-9 flex-wrap gap-1.5">
-              {guess.length === 0 && <span className="text-sm text-slate-500">Tap the logs below in order…</span>}
+              {guess.length === 0 && <span className="text-sm text-muted-foreground">Tap the logs below in order…</span>}
               {guess.map((g, i) => (
                 <span key={i} className="pop-in rounded-md bg-emerald-400/20 px-2 py-1 font-mono text-sm text-emerald-100">
                   {g}
@@ -256,14 +256,13 @@ export function EventLoopLab({ goal, onSolved }: GoalProps<"basics" | "io" | "ne
                     setVerdict(null);
                   }}
                   className={`${btn} bg-slate-700 font-mono text-white`}
-                  style={edge("#0f172a")}
                 >
                   {c}
                 </button>
               ))}
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
-              <button type="button" disabled={guess.length !== chips.length} onClick={check} className={`${btn} bg-emerald-400 text-slate-950`} style={edge("#166534")}>
+              <button type="button" disabled={guess.length !== chips.length} onClick={check} className={`${btn} bg-primary text-primary-foreground`}>
                 Check
               </button>
               <button
@@ -274,13 +273,12 @@ export function EventLoopLab({ goal, onSolved }: GoalProps<"basics" | "io" | "ne
                   setVerdict(null);
                 }}
                 className={`${btn} bg-slate-800 text-slate-300`}
-                style={edge("#020617")}
               >
                 Clear
               </button>
             </div>
-            {verdict === "right" && <div className="pop-in mt-2 text-sm font-semibold text-emerald-300">✅ Exactly right: {expected.join(" ")}</div>}
-            {verdict === "wrong" && <div className="pop-in mt-2 text-sm font-semibold text-rose-300">❌ Not quite. Step through the loop to see the real order, then try again.</div>}
+            {verdict === "right" && <div className="pop-in mt-2 text-sm font-semibold text-emerald-300"><BlockIcon icon="✅" className="inline-block size-[1.1em] align-[-0.15em]" /> Exactly right: {expected.join(" ")}</div>}
+            {verdict === "wrong" && <div className="pop-in mt-2 text-sm font-semibold text-rose-300"><BlockIcon icon="❌" className="inline-block size-[1.1em] align-[-0.15em]" /> Not quite. Step through the loop to see the real order, then try again.</div>}
           </div>
         </div>
 
@@ -318,26 +316,25 @@ export function EventLoopLab({ goal, onSolved }: GoalProps<"basics" | "io" | "ne
           </div>
           <div className="rounded-lg border border-white/10 bg-black/60 p-2 font-mono text-sm text-emerald-200">
             <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Console</div>
-            {frame.out.length ? frame.out.join(" ") : <span className="text-slate-600">…</span>}
+            {frame.out.length ? frame.out.join(" ") : <span className="text-muted-foreground">…</span>}
           </div>
           <p className="text-sm text-slate-300">{frame.note}</p>
           <div className="flex flex-wrap items-center gap-2">
-            <button type="button" disabled={step === 0} onClick={() => setStep(step - 1)} className={`${btn} bg-slate-800 text-slate-300`} style={edge("#020617")}>
+            <button type="button" disabled={step === 0} onClick={() => setStep(step - 1)} className={`${btn} bg-slate-800 text-slate-300`}>
               ◀ Back
             </button>
             <button
               type="button"
               disabled={step >= frames.length - 1}
               onClick={() => setStep(step + 1)}
-              className={`${btn} bg-sky-400 text-slate-950`}
-              style={edge("#075985")}
+              className={`${btn} bg-primary text-primary-foreground`}
             >
               Step ▶
             </button>
-            <button type="button" onClick={() => setStep(frames.length - 1)} className={`${btn} bg-slate-700 text-white`} style={edge("#0f172a")}>
+            <button type="button" onClick={() => setStep(frames.length - 1)} className={`${btn} bg-slate-700 text-white`}>
               Run all
             </button>
-            <span className="text-xs text-slate-500">
+            <span className="text-xs text-muted-foreground">
               {Math.min(step, frames.length - 1) + 1} / {frames.length}
             </span>
           </div>
@@ -400,7 +397,7 @@ export function simulateStream(producer: number, consumer: number, hwm: number, 
     maxBuffer = Math.max(maxBuffer, buffer);
     ticks.push({ peak: buffer, paused });
     if (buffer > LIMIT) {
-      events.push(`t${t}: ${buffer} chunks buffered > ${LIMIT} 💥 FATAL ERROR: JavaScript heap out of memory`);
+      events.push(`t${t}: ${buffer} chunks buffered > ${LIMIT} FATAL ERROR: JavaScript heap out of memory`);
       return { ticks, events, crashed: true, delivered, pauses, drains, maxBuffer };
     }
     const take = Math.min(consumer, buffer);
@@ -453,9 +450,9 @@ export function BackpressureLab({ goal, onSolved }: GoalProps<"crash" | "tame">)
       <LabHeader title="Backpressure simulator" hint="A fast producer writes to a slow consumer. Ignore write()'s return value and the buffer grows until the heap gives up." />
       <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
         <div className="grid content-start gap-2">
-          <Slider label="🚰 Producer" value={producer} min={1} max={8} onChange={change(setProducer)} note="Chunks it tries to write per tick" accent="accent-sky-400" />
-          <Slider label="🐢 Consumer" value={consumer} min={1} max={8} onChange={change(setConsumer)} note="Chunks the destination drains per tick" accent="accent-emerald-400" />
-          <Slider label="🌊 highWaterMark" value={hwm} min={2} max={16} onChange={change(setHwm)} note="write() returns false once this many are buffered" accent="accent-violet-400" />
+          <Slider label="Producer" value={producer} min={1} max={8} onChange={change(setProducer)} note="Chunks it tries to write per tick" accent="accent-sky-400" />
+          <Slider label="Consumer" value={consumer} min={1} max={8} onChange={change(setConsumer)} note="Chunks the destination drains per tick" accent="accent-emerald-400" />
+          <Slider label="highWaterMark" value={hwm} min={2} max={16} onChange={change(setHwm)} note="write() returns false once this many are buffered" accent="accent-violet-400" />
           <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-white/10 bg-slate-950/60 p-3 text-sm text-slate-200">
             <input type="checkbox" checked={respect} onChange={(e) => change(setRespect)(e.target.checked)} className="accent-emerald-400" />
             Respect backpressure (stop on <span className="font-mono">false</span>, resume on <span className="font-mono">&apos;drain&apos;</span>)
@@ -481,7 +478,7 @@ export function BackpressureLab({ goal, onSolved }: GoalProps<"crash" | "tame">)
                   `
             }
           />
-          <button type="button" onClick={go} className={`${btn} bg-sky-400 text-slate-950`} style={edge("#075985")}>
+          <button type="button" onClick={go} className={`${btn} bg-primary text-primary-foreground`}>
             ▶ Stream {TOTAL} chunks
           </button>
         </div>
@@ -501,7 +498,7 @@ export function BackpressureLab({ goal, onSolved }: GoalProps<"crash" | "tame">)
                   const color = t.peak > LIMIT ? "bg-rose-500" : t.peak >= hwm ? "bg-amber-400" : "bg-emerald-400";
                   return <div key={i} className={`min-w-0 flex-1 rounded-t-sm ${color} ${t.paused ? "opacity-60" : ""}`} style={{ height: `${h * 95}%` }} />;
                 })}
-                {!run && <div className="m-auto text-sm text-slate-500">Buffered chunks per tick appear here</div>}
+                {!run && <div className="m-auto text-sm text-muted-foreground">Buffered chunks per tick appear here</div>}
               </div>
             </div>
           </div>
@@ -521,7 +518,7 @@ export function BackpressureLab({ goal, onSolved }: GoalProps<"crash" | "tame">)
                 ))}
               </div>
               <div className={`rounded-lg px-3 py-2 text-sm font-semibold ${run.crashed ? "bg-rose-500/15 text-rose-200" : "bg-emerald-400/15 text-emerald-200"}`}>
-                {run.crashed ? "💥 The process ran out of memory. Every ignored false let the buffer grow." : "✅ Finished with bounded memory."}
+                {run.crashed ? "The process ran out of memory. Every ignored false let the buffer grow." : "Finished with bounded memory."}
               </div>
               <ul className="grid gap-1 font-mono text-xs text-slate-300">
                 {run.events.map((e, i) => (

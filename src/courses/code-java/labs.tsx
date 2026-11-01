@@ -177,11 +177,11 @@ export function HashMapLab({ goal, onSolved }: GoalProps<"resize" | "chain" | "t
             className="flex min-h-9 flex-wrap items-center gap-1.5 rounded-lg border bg-slate-950/60 px-2 py-1 transition"
             style={{ borderColor: touched === i ? "#fbbf24" : "rgb(255 255 255 / 0.08)" }}
           >
-            <span className="w-8 shrink-0 font-mono text-xs text-slate-500">{`[${i}]`}</span>
-            {b.length === 0 && <span className="text-xs text-slate-600">empty</span>}
+            <span className="w-8 shrink-0 font-mono text-xs text-muted-foreground">{`[${i}]`}</span>
+            {b.length === 0 && <span className="text-xs text-muted-foreground">empty</span>}
             {b.map((e, j) => (
               <span key={e.key} className="flex items-center gap-1.5">
-                {j > 0 && <span className="text-slate-500">→</span>}
+                {j > 0 && <span className="text-muted-foreground">→</span>}
                 <span
                   title={`hashCode ${e.hash}`}
                   className={`pop-in rounded-md px-2 py-0.5 font-mono text-xs ${b.length >= 3 ? "bg-rose-400/20 text-rose-100" : b.length === 2 ? "bg-amber-400/20 text-amber-100" : "bg-sky-400/15 text-sky-100"}`}
@@ -215,7 +215,7 @@ export function HashMapLab({ goal, onSolved }: GoalProps<"resize" | "chain" | "t
           ))}
         </div>
       )}
-      <p className="mt-2 text-xs text-slate-500">
+      <p className="mt-2 text-xs text-muted-foreground">
         In a real HashMap, a chain longer than 8 (in a table of at least 64 buckets) becomes a red-black tree, so even a bad hash degrades to O(log n), not O(n).
       </p>
     </div>

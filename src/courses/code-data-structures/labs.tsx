@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { LabHeader, type GoalProps } from "@/components/learn/blocks";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 const BTN = "rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:opacity-40";
-const PRIMARY = "btn-3d rounded-xl px-4 py-2 font-bold text-slate-950 disabled:opacity-40";
+const PRIMARY = "rounded-lg px-4 py-2 font-semibold text-primary-foreground disabled:opacity-40";
 
 // ───────────── Stack & queue lab ─────────────
 
@@ -37,18 +38,18 @@ function BracketMode({ solveOnBalanced, onSolved }: { solveOnBalanced: boolean; 
   function oops(text: string) {
     setMistakes(mistakes + 1);
     setShake(shake + 1);
-    setMsg(`❌ ${text}`);
+    setMsg(text);
   }
 
   function finish(nextStack: string[], nextPos: number) {
     if (nextPos < s.length) return;
     if (nextStack.length === 0) {
       setVerdict("balanced");
-      setMsg("✅ End of string and the stack is empty: balanced!");
+      setMsg("End of string and the stack is empty: balanced!");
       if (solveOnBalanced) onSolved?.();
     } else {
       setVerdict("unbalanced");
-      setMsg(`✅ Correct call: the string ended with ${nextStack.length} unmatched opener(s) left on the stack, so it's NOT balanced.`);
+      setMsg(`Correct call: the string ended with ${nextStack.length} unmatched opener(s) left on the stack, so it's NOT balanced.`);
     }
   }
 
@@ -65,7 +66,7 @@ function BracketMode({ solveOnBalanced, onSolved }: { solveOnBalanced: boolean; 
     if (OPEN.includes(ch)) return oops(`\`${ch}\` is an opener. Openers get pushed.`);
     if (stack.length === 0) {
       setVerdict("unbalanced");
-      setMsg(`✅ Correct call: \`${ch}\` has nothing to match (empty stack), so it's NOT balanced.`);
+      setMsg(`Correct call: \`${ch}\` has nothing to match (empty stack), so it's NOT balanced.`);
       return;
     }
     const top = stack[stack.length - 1];
@@ -73,7 +74,7 @@ function BracketMode({ solveOnBalanced, onSolved }: { solveOnBalanced: boolean; 
     setStack(next);
     if (MATCH[ch] !== top) {
       setVerdict("unbalanced");
-      setMsg(`✅ Correct call: popped \`${top}\` but \`${ch}\` needs \`${MATCH[ch]}\`. Mismatch, so it's NOT balanced.`);
+      setMsg(`Correct call: popped \`${top}\` but \`${ch}\` needs \`${MATCH[ch]}\`. Mismatch, so it's NOT balanced.`);
       return;
     }
     setPos(pos + 1);
@@ -97,7 +98,7 @@ function BracketMode({ solveOnBalanced, onSolved }: { solveOnBalanced: boolean; 
               <span
                 key={i}
                 className={`flex h-11 w-9 items-center justify-center rounded-lg border ${
-                  i === pos && verdict === "running" ? "border-violet-400 bg-violet-400/25 text-white" : i < pos ? "border-white/5 text-slate-600" : "border-white/10 text-slate-200"
+                  i === pos && verdict === "running" ? "border-violet-400 bg-violet-400/25 text-white" : i < pos ? "border-white/5 text-muted-foreground" : "border-white/10 text-slate-200"
                 }`}
               >
                 {c}
@@ -108,17 +109,17 @@ function BracketMode({ solveOnBalanced, onSolved }: { solveOnBalanced: boolean; 
             <RichMsg text={msg} />
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
-            <button type="button" className={PRIMARY + " bg-violet-400"} style={{ "--edge": "#6d28d9" } as React.CSSProperties} disabled={verdict !== "running"} onClick={push}>
+            <button type="button" className={PRIMARY + " bg-violet-400"} disabled={verdict !== "running"} onClick={push}>
               ⬆ Push
             </button>
-            <button type="button" className={PRIMARY + " bg-sky-400"} style={{ "--edge": "#0369a1" } as React.CSSProperties} disabled={verdict !== "running"} onClick={pop}>
+            <button type="button" className={PRIMARY + " bg-sky-400"} disabled={verdict !== "running"} onClick={pop}>
               ⬇ Pop &amp; match
             </button>
             <button type="button" className={BTN} onClick={() => load(pi)}>
               Restart
             </button>
           </div>
-          <div className="mt-2 text-xs text-slate-500">Wrong moves: {mistakes}</div>
+          <div className="mt-2 text-xs text-muted-foreground">Wrong moves: {mistakes}</div>
         </div>
         <div className="flex flex-col items-center">
           <div className="text-xs font-bold uppercase tracking-wider text-slate-400">Stack</div>
@@ -129,7 +130,7 @@ function BracketMode({ solveOnBalanced, onSolved }: { solveOnBalanced: boolean; 
               </div>
             ))}
           </div>
-          <div className="mt-1 text-[11px] text-slate-500">top is on top</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">top is on top</div>
         </div>
       </div>
     </div>
@@ -190,7 +191,7 @@ function TwoStacksMode({ solveOnFifo, onSolved }: { solveOnFifo: boolean; onSolv
 
   function dequeue() {
     if (!outbox.length) {
-      setMsg("❌ The outbox is empty. Move items over from the inbox first.");
+      setMsg("The outbox is empty. Move items over from the inbox first.");
       return;
     }
     const v = outbox[outbox.length - 1];
@@ -198,11 +199,11 @@ function TwoStacksMode({ solveOnFifo, onSolved }: { solveOnFifo: boolean; onSolv
     setOutbox(outbox.slice(0, -1));
     setServed(next);
     if (v !== served.length + 1) {
-      setMsg(`❌ Served ${v}, but customer ${served.length + 1} arrived first. Only refill the outbox when it's empty. Restart and try again.`);
+      setMsg(`Served ${v}, but customer ${served.length + 1} arrived first. Only refill the outbox when it's empty. Restart and try again.`);
       return;
     }
     if (next.length === ARRIVALS.length) {
-      setMsg(`✅ Everyone served in arrival order with ${moves} moves. Each item moved once, so dequeue is O(1) amortized.`);
+      setMsg(`Everyone served in arrival order with ${moves} moves. Each item moved once, so dequeue is O(1) amortized.`);
       if (solveOnFifo) onSolved?.();
     } else setMsg(`Served customer ${v}. FIFO so far!`);
   }
@@ -215,7 +216,7 @@ function TwoStacksMode({ solveOnFifo, onSolved }: { solveOnFifo: boolean; onSolv
           <div className="mt-1 flex gap-1">
             {ARRIVALS.slice(arrived).map((v) => (
               <span key={v} className="rounded-full bg-white/10 px-2 py-0.5 font-mono text-sm text-white">
-                🙋{v}
+                <BlockIcon icon="🙋" className="inline-block size-[1.1em] align-[-0.15em]" />{v}
               </span>
             ))}
           </div>
@@ -280,7 +281,7 @@ export function StackQueueLab({ goal, onSolved, mode }: GoalProps<"balanced" | "
         <div className="mb-3 flex gap-1.5">
           {(["brackets", "twoStacks"] as const).map((t) => (
             <button key={t} type="button" onClick={() => setTab(t)} className={`rounded-full border px-3 py-1 text-sm ${tab === t ? "border-violet-400 bg-violet-400/20 text-white" : "border-white/10 text-slate-300"}`}>
-              {t === "brackets" ? "🧱 Bracket checker" : "🔁 Queue from two stacks"}
+              {t === "brackets" ? "Bracket checker" : "Queue from two stacks"}
             </button>
           ))}
         </div>

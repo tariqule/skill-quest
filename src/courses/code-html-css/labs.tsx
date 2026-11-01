@@ -2,6 +2,7 @@
 
 import { useRef, useState, type CSSProperties } from "react";
 import { CodeBlock, LabHeader, type GoalProps } from "@/components/learn/blocks";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 // ───────────── Shared bits ─────────────
 
@@ -44,7 +45,7 @@ function Slider({ label, value, min, max, step = 1, unit = "px", onChange }: { l
 
 function Solved({ show, text }: { show: boolean; text: string }) {
   if (!show) return null;
-  return <div className="mt-3 rounded-xl border border-emerald-400/40 bg-emerald-500/10 px-3 py-2 text-sm font-semibold text-emerald-200">✅ {text}</div>;
+  return <div className="mt-3 rounded-xl border border-emerald-400/40 bg-emerald-500/10 px-3 py-2 text-sm font-semibold text-emerald-200"><BlockIcon icon="✅" className="inline-block size-[1.1em] align-[-0.15em]" /> {text}</div>;
 }
 
 // ───────────── Flexbox & grid playground ─────────────
@@ -175,7 +176,7 @@ export function FlexGridLab({ goal, onSolved }: GoalProps<FlexGoal>) {
             {Array.from({ length: s.count }, (_, i) => (
               <div
                 key={i}
-                className="rounded-lg px-3 py-2 text-center font-mono text-sm font-black text-slate-950"
+                className="rounded-lg px-3 py-2 text-center font-mono text-sm font-semibold text-slate-950"
                 style={{ background: BOX_COLORS[i % BOX_COLORS.length], minWidth: 44, gridColumn: s.mode === "grid" && s.span && i === 0 ? "span 2" : undefined }}
               >
                 {i + 1}
@@ -632,7 +633,7 @@ export function SpecificityDuelLab({ goal, onSolved }: GoalProps<DuelGoal>) {
               disabled={pick !== null}
               className={`rounded-xl border p-3 text-left transition ${isWinner ? "border-emerald-400 bg-emerald-500/10" : isWrongPick ? "border-rose-400 bg-rose-500/10" : "border-white/10 bg-slate-950/60 hover:-translate-y-0.5 hover:border-sky-400/60"}`}
             >
-              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Rule {side.toUpperCase()}</div>
+              <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Rule {side.toUpperCase()}</div>
               <code className="mt-1 block font-mono text-sm text-white">{rule.css}</code>
               {pick && <div className="mt-2 font-mono text-xs text-sky-200">specificity: {rule.spec}</div>}
             </button>
@@ -640,14 +641,14 @@ export function SpecificityDuelLab({ goal, onSolved }: GoalProps<DuelGoal>) {
         })}
       </div>
       <div className="mt-3 rounded-xl border border-white/10 bg-slate-950/80 p-3 text-center">
-        <span className="text-lg font-black transition" style={{ color: shown }}>
+        <span className="text-lg font-semibold transition" style={{ color: shown }}>
           The element&apos;s text
         </span>
       </div>
       {pick && (
         <div className="mt-3 grid gap-2">
           <p className={`text-sm ${pick === r.winner ? "text-emerald-200" : "text-rose-200"}`}>
-            {pick === r.winner ? "✔ Right. " : "✘ Not this time. "}
+            {pick === r.winner ? "Right. " : "Not this time. "}
             {r.why}
           </p>
           <div className="flex gap-2">
@@ -721,9 +722,9 @@ ${on.button ? '<button type="submit">Subscribe</button>' : '<div class="btn" onc
             <div key={r.what} className={`flex items-center justify-between gap-2 rounded-xl border px-3 py-2 ${r.ok ? "border-emerald-400/40 bg-emerald-500/10" : "border-rose-400/40 bg-rose-500/10"}`}>
               <div className="min-w-0">
                 <div className="text-xs text-slate-400">{r.what}</div>
-                <div className="font-mono text-sm text-white">🔊 {r.says}</div>
+                <div className="font-mono text-sm text-white"><BlockIcon icon="🔊" className="inline-block size-[1.1em] align-[-0.15em]" /> {r.says}</div>
               </div>
-              <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-bold ${r.tab ? "bg-emerald-400 text-slate-950" : "bg-rose-400 text-slate-950"}`}>⌨️ {r.tab ? "Tab ✓" : "skipped"}</span>
+              <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-bold ${r.tab ? "bg-emerald-400 text-slate-950" : "bg-rose-400 text-slate-950"}`}><BlockIcon icon="⌨️" className="inline-block size-[1.1em] align-[-0.15em]" /> {r.tab ? "Tab ✓" : "skipped"}</span>
             </div>
           ))}
         </div>

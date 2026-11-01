@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import { useState } from "react";
 import { LabHeader, type GoalProps } from "@/components/learn/blocks";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /** Hands-on playgrounds for Learn Docker & Containers. */
 
-const btn = "btn-3d rounded-xl px-3 py-2 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-40";
-const edge = (c: string) => ({ "--edge": c }) as CSSProperties;
+const btn = "rounded-lg px-3 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40";
 
 function Toggle({ on, label, onChange }: { on: boolean; label: string; onChange: (v: boolean) => void }) {
   return (
@@ -16,7 +16,7 @@ function Toggle({ on, label, onChange }: { on: boolean; label: string; onChange:
       className={`rounded-lg px-2.5 py-1 text-xs font-bold ${on ? "bg-emerald-400 text-slate-950" : "bg-white/10 text-slate-300"}`}
       aria-pressed={on}
     >
-      {on ? "☑" : "☐"} {label}
+      {on ? <BlockIcon icon="☑" className="inline-block size-[1.1em] align-[-0.15em]" /> : <BlockIcon icon="☐" className="inline-block size-[1.1em] align-[-0.15em]" />} {label}
     </button>
   );
 }
@@ -159,7 +159,7 @@ export function LifecycleLab({ goal, onSolved }: GoalProps<"survive" | "autoremo
             {s.label}
           </span>
         ))}
-        <span className={`rounded-full border px-3 py-1 text-xs font-bold ${box.state === "none" ? "border-rose-400 bg-rose-400/20 text-rose-200" : "border-white/10 text-slate-500"}`}>No container</span>
+        <span className={`rounded-full border px-3 py-1 text-xs font-bold ${box.state === "none" ? "border-rose-400 bg-rose-400/20 text-rose-200" : "border-white/10 text-muted-foreground"}`}>No container</span>
       </div>
 
       <div className="mb-2 flex flex-wrap gap-2">
@@ -169,33 +169,33 @@ export function LifecycleLab({ goal, onSolved }: GoalProps<"survive" | "autoremo
 
       <div className="grid gap-2">
         <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={() => create(true)} className={`${btn} bg-emerald-400 font-mono text-slate-950`} style={edge("#047857")}>
+          <button type="button" onClick={() => create(true)} className={`${btn} bg-primary font-mono text-primary-foreground`}>
             docker run -d
           </button>
-          <button type="button" onClick={() => create(false)} className={`${btn} bg-slate-700 font-mono text-white`} style={edge("#0f172a")}>
+          <button type="button" onClick={() => create(false)} className={`${btn} bg-slate-700 font-mono text-white`}>
             docker create
           </button>
-          <button type="button" onClick={start} disabled={!exists} className={`${btn} bg-sky-400 font-mono text-slate-950`} style={edge("#0369a1")}>
+          <button type="button" onClick={start} disabled={!exists} className={`${btn} bg-primary font-mono text-primary-foreground`}>
             docker start
           </button>
-          <button type="button" onClick={stop} disabled={!exists} className={`${btn} bg-amber-400 font-mono text-slate-950`} style={edge("#b45309")}>
+          <button type="button" onClick={stop} disabled={!exists} className={`${btn} bg-reward font-mono text-primary-foreground`}>
             docker stop
           </button>
-          <button type="button" onClick={kill} disabled={!exists} className={`${btn} bg-rose-500 font-mono text-white`} style={edge("#9f1239")}>
+          <button type="button" onClick={kill} disabled={!exists} className={`${btn} bg-rose-500 font-mono text-white`}>
             docker kill
           </button>
         </div>
         <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={pause} disabled={box.state !== "running" && box.state !== "paused"} className={`${btn} bg-slate-700 font-mono text-white`} style={edge("#0f172a")}>
+          <button type="button" onClick={pause} disabled={box.state !== "running" && box.state !== "paused"} className={`${btn} bg-slate-700 font-mono text-white`}>
             {box.state === "paused" ? "docker unpause" : "docker pause"}
           </button>
-          <button type="button" onClick={write} disabled={!exists} className={`${btn} bg-violet-500 font-mono text-white`} style={edge("#4c1d95")}>
+          <button type="button" onClick={write} disabled={!exists} className={`${btn} bg-violet-500 font-mono text-white`}>
             docker exec … touch
           </button>
-          <button type="button" onClick={() => remove(false)} className={`${btn} bg-slate-700 font-mono text-white`} style={edge("#0f172a")}>
+          <button type="button" onClick={() => remove(false)} className={`${btn} bg-slate-700 font-mono text-white`}>
             docker rm
           </button>
-          <button type="button" onClick={() => remove(true)} className={`${btn} bg-slate-800 font-mono text-rose-200`} style={edge("#020617")}>
+          <button type="button" onClick={() => remove(true)} className={`${btn} bg-slate-800 font-mono text-rose-200`}>
             docker rm -f
           </button>
         </div>
@@ -215,8 +215,8 @@ export function LifecycleLab({ goal, onSolved }: GoalProps<"survive" | "autoremo
             return (
               <div key={v} className="overflow-x-auto rounded-xl border border-white/10 bg-slate-950 p-2 font-mono text-[11px]">
                 <div className="text-slate-400">$ docker {v}</div>
-                <div className="whitespace-pre text-slate-500">NAMES  IMAGE        STATUS</div>
-                {show ? <div className="whitespace-pre text-slate-100">{`api    my-api:1.0   ${statusText}`}</div> : <div className="text-slate-600">(empty)</div>}
+                <div className="whitespace-pre text-muted-foreground">NAMES  IMAGE        STATUS</div>
+                {show ? <div className="whitespace-pre text-slate-100">{`api    my-api:1.0   ${statusText}`}</div> : <div className="text-muted-foreground">(empty)</div>}
               </div>
             );
           })}
@@ -268,10 +268,10 @@ interface BuildRow {
 }
 
 const EDITS: { id: Change; label: string; note: string }[] = [
-  { id: "src", label: "✏️ Edit src/server.ts", note: "You changed application code." },
-  { id: "deps", label: "📦 Add a dependency", note: "package.json and package-lock.json changed." },
-  { id: "readme", label: "📝 Edit README.md", note: "Docs only. Should that really cost a rebuild?" },
-  { id: "base", label: "⬆️ Bump base image", note: "The FROM line now names a different image." },
+  { id: "src", label: "Edit src/server.ts", note: "You changed application code." },
+  { id: "deps", label: "Add a dependency", note: "package.json and package-lock.json changed." },
+  { id: "readme", label: "Edit README.md", note: "Docs only. Should that really cost a rebuild?" },
+  { id: "base", label: "Bump base image", note: "The FROM line now names a different image." },
 ];
 
 export function LayerCacheLab({ goal, onSolved }: GoalProps<"fast" | "ignore">) {
@@ -343,12 +343,12 @@ export function LayerCacheLab({ goal, onSolved }: GoalProps<"fast" | "ignore">) 
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="overflow-hidden rounded-xl border border-white/10 bg-slate-950 font-mono text-[12.5px]">
-          <div className="border-b border-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">Dockerfile</div>
+          <div className="border-b border-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Dockerfile</div>
           {list.map((s, i) => {
             const row = rows?.[i];
             return (
               <div key={s.text} className={`flex items-center gap-3 px-3 py-0.5 ${row ? (row.cached ? "bg-emerald-400/10" : "bg-amber-400/15") : ""}`}>
-                <span className="w-4 text-right text-slate-600">{i + 1}</span>
+                <span className="w-4 text-right text-muted-foreground">{i + 1}</span>
                 <span className="flex-1 whitespace-pre text-slate-100">{s.text}</span>
                 {row && <span className={`text-[11px] font-bold ${row.cached ? "text-emerald-300" : "text-amber-300"}`}>{row.cached ? "CACHED" : `⟳ ${row.seconds}s`}</span>}
               </div>
@@ -369,7 +369,7 @@ export function LayerCacheLab({ goal, onSolved }: GoalProps<"fast" | "ignore">) 
           <div className="text-xs font-bold uppercase tracking-wider text-slate-400">Change something</div>
           <div className="flex flex-wrap gap-1.5">
             {EDITS.map((e) => (
-              <button key={e.id} type="button" onClick={() => edit(e.id)} className={`${btn} bg-slate-700 px-2 py-1 text-xs text-white`} style={edge("#0f172a")}>
+              <button key={e.id} type="button" onClick={() => edit(e.id)} className={`${btn} bg-slate-700 px-2 py-1 text-xs text-white`}>
                 {e.label}
               </button>
             ))}
@@ -377,11 +377,11 @@ export function LayerCacheLab({ goal, onSolved }: GoalProps<"fast" | "ignore">) 
           <div className="text-xs text-slate-400">
             Changed since this Dockerfile&apos;s last build: <span className="text-amber-300">{pending.length ? pending.join(", ") : "nothing"}</span>
           </div>
-          <button type="button" onClick={build} className={`${btn} bg-sky-400 font-mono text-slate-950`} style={edge("#0369a1")}>
+          <button type="button" onClick={build} className={`${btn} bg-primary font-mono text-primary-foreground`}>
             ▶ docker build -t api .
           </button>
           <p className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm text-slate-300">{note}</p>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-muted-foreground">
             Timings are illustrative. COPY steps are keyed on the content of the files they copy; RUN steps on the command text and everything before
             them.
           </p>
@@ -442,9 +442,9 @@ export function PortLab({ goal, onSolved }: GoalProps<"publish" | "dns" | "priva
 
   const runCmd = `docker run -d --name api${net === "appnet" ? " --network appnet" : ""}${pub === "none" ? "" : ` -p ${pub}`} my-api`;
   const tests: { id: "host" | "lan" | "peer"; who: string; cmd: string }[] = [
-    { id: "host", who: "💻 Your laptop", cmd: "curl http://localhost:8080" },
-    { id: "lan", who: "📱 A phone on your Wi-Fi", cmd: "curl http://192.168.1.20:8080" },
-    { id: "peer", who: `🐳 Container "web"${net === "appnet" ? " (on appnet)" : ""}`, cmd: "curl http://api:3000" },
+    { id: "host", who: "Your laptop", cmd: "curl http://localhost:8080" },
+    { id: "lan", who: "A phone on your Wi-Fi", cmd: "curl http://192.168.1.20:8080" },
+    { id: "peer", who: `Container "web"${net === "appnet" ? " (on appnet)" : ""}`, cmd: "curl http://api:3000" },
   ];
 
   return (
@@ -495,11 +495,11 @@ export function PortLab({ goal, onSolved }: GoalProps<"publish" | "dns" | "priva
           const r = results[t.id];
           return (
             <div key={t.id} className="grid gap-2 rounded-xl border border-white/10 bg-slate-950/60 p-2 sm:grid-cols-[minmax(0,14rem)_minmax(0,1fr)] sm:items-center">
-              <button type="button" onClick={() => run(t.id)} className={`${btn} bg-violet-500 text-left text-white`} style={edge("#4c1d95")}>
+              <button type="button" onClick={() => run(t.id)} className={`${btn} bg-violet-500 text-left text-white`}>
                 <div className="text-xs">{t.who}</div>
                 <div className="font-mono text-[11px] font-normal">{t.cmd}</div>
               </button>
-              <div className={`font-mono text-xs ${r ? (r.ok ? "text-emerald-300" : "text-rose-300") : "text-slate-600"}`}>{r ? `${r.ok ? "✓" : "✗"} ${r.text}` : "(not tested yet)"}</div>
+              <div className={`font-mono text-xs ${r ? (r.ok ? "text-emerald-300" : "text-rose-300") : "text-muted-foreground"}`}>{r ? `${r.ok ? <BlockIcon icon="✓" className="inline-block size-[1.1em] align-[-0.15em]" /> : <BlockIcon icon="✗" className="inline-block size-[1.1em] align-[-0.15em]" />} ${r.text}` : "(not tested yet)"}</div>
             </div>
           );
         })}

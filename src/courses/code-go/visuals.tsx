@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CodeBlock } from "@/components/learn/blocks";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /** Concept diagrams for the Go Interview Quest. */
 
@@ -44,7 +45,7 @@ export function RuneExplorer() {
             <div className="mt-1 flex gap-0.5">
               {r.bytes.map((b, bi) => (
                 <div key={bi} className="rounded bg-sky-400/15 px-1 font-mono text-[11px] text-sky-200">
-                  <div className="text-[9px] text-slate-500">[{r.at + bi}]</div>
+                  <div className="text-[9px] text-muted-foreground">[{r.at + bi}]</div>
                   {hex(b)}
                 </div>
               ))}
@@ -57,17 +58,17 @@ export function RuneExplorer() {
         <div>
           <span className="text-slate-400">len(s) </span>
           <span className="text-amber-300">{all.length}</span>
-          <span className="text-slate-500">{"  // bytes"}</span>
+          <span className="text-muted-foreground">{"  // bytes"}</span>
         </div>
         <div>
           <span className="text-slate-400">utf8.RuneCountInString(s) </span>
           <span className="text-amber-300">{runes.length}</span>
-          <span className="text-slate-500">{"  // code points"}</span>
+          <span className="text-muted-foreground">{"  // code points"}</span>
         </div>
         <div>
           <span className="text-slate-400">s[1] </span>
           <span className="text-amber-300">{all[1]}</span>
-          <span className="text-slate-500">{`  // a byte (uint8), 0x${hex(all[1])}`}</span>
+          <span className="text-muted-foreground">{`  // a byte (uint8), 0x${hex(all[1])}`}</span>
         </div>
       </div>
       <p className="mt-2 text-xs text-slate-400">A Go string is a read-only slice of bytes, usually UTF-8. Indexing gives bytes; ranging decodes runes and reports each rune&apos;s byte offset.</p>
@@ -111,13 +112,13 @@ export function MethodSetTable() {
           <div className="text-xs font-bold uppercase tracking-wider text-slate-400">Method set of T</div>
           <div className="mt-1 font-mono text-white">{"{"}{tSet.join(", ")}{"}"}</div>
           <div className={`mt-2 font-mono text-sm ${valueOk ? "text-emerald-300" : "text-rose-300"}`}>
-            var _ AB = T{"{}"} {valueOk ? "✓ compiles" : "✗ T does not implement AB"}
+            var _ AB = T{"{}"} {valueOk ? "compiles" : "T does not implement AB"}
           </div>
         </div>
         <div className="rounded-xl border border-white/10 bg-slate-950/70 p-3">
           <div className="text-xs font-bold uppercase tracking-wider text-slate-400">Method set of *T</div>
           <div className="mt-1 font-mono text-white">{"{A, B}"}</div>
-          <div className="mt-2 font-mono text-sm text-emerald-300">var _ AB = &amp;T{"{}"} ✓ compiles</div>
+          <div className="mt-2 font-mono text-sm text-emerald-300">var _ AB = &amp;T{"{}"} <BlockIcon icon="✓" className="inline-block size-[1.1em] align-[-0.15em]" /> compiles</div>
         </div>
       </div>
       <p className="text-xs text-slate-400">
@@ -152,15 +153,15 @@ export function NilInterfaceBox() {
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-3">
         <span className="font-mono text-sm text-white">err</span>
-        <span className="text-slate-500">=</span>
+        <span className="text-muted-foreground">=</span>
         <div className="flex overflow-hidden rounded-xl border-2 border-violet-400/60">
           <div className="bg-violet-400/15 px-4 py-2 text-center">
             <div className="text-[10px] font-bold uppercase tracking-wider text-violet-300">type</div>
-            <div className={`font-mono font-bold ${c.type === "nil" ? "text-slate-500" : "text-white"}`}>{c.type}</div>
+            <div className={`font-mono font-bold ${c.type === "nil" ? "text-muted-foreground" : "text-white"}`}>{c.type}</div>
           </div>
           <div className="border-l-2 border-violet-400/60 px-4 py-2 text-center">
             <div className="text-[10px] font-bold uppercase tracking-wider text-violet-300">value</div>
-            <div className={`font-mono font-bold ${c.value === "nil" ? "text-slate-500" : "text-white"}`}>{c.value}</div>
+            <div className={`font-mono font-bold ${c.value === "nil" ? "text-muted-foreground" : "text-white"}`}>{c.value}</div>
           </div>
         </div>
         <span className={`rounded-lg px-2 py-1 font-mono text-sm font-bold ${isNil ? "bg-emerald-400/20 text-emerald-200" : "bg-rose-400/20 text-rose-200"}`}>
@@ -263,7 +264,7 @@ export function SchedulerBoard() {
     <div>
       <div className="flex flex-wrap gap-2">
         <button type="button" onClick={spawn} className="rounded-lg bg-white/10 px-3 py-1.5 font-mono text-sm font-bold text-white">go f()</button>
-        <button type="button" onClick={() => setS(tick(s))} className="rounded-lg bg-emerald-400 px-3 py-1.5 text-sm font-bold text-slate-950">⏱ Tick</button>
+        <button type="button" onClick={() => setS(tick(s))} className="rounded-lg bg-emerald-400 px-3 py-1.5 text-sm font-bold text-slate-950"><BlockIcon icon="⏱" className="inline-block size-[1.1em] align-[-0.15em]" /> Tick</button>
         <button type="button" disabled={!s.ps[0].running} onClick={syscall} className="rounded-lg bg-white/10 px-3 py-1.5 text-sm font-bold text-white disabled:opacity-40">P0&apos;s G: blocking syscall</button>
         <button type="button" disabled={!s.syscalls.length} onClick={syscallReturn} className="rounded-lg bg-white/10 px-3 py-1.5 text-sm font-bold text-white disabled:opacity-40">syscall returns</button>
         <button type="button" onClick={() => setS(SCHED_START)} className="rounded-lg bg-slate-800 px-3 py-1.5 text-sm font-bold text-slate-300">↺</button>
@@ -273,12 +274,12 @@ export function SchedulerBoard() {
           <div key={i} className="rounded-xl border border-white/10 bg-slate-950/70 p-3">
             <div className="flex items-center gap-2 text-sm">
               <span className="rounded bg-sky-400/20 px-2 py-0.5 font-bold text-sky-200">P{i}</span>
-              <span className="text-slate-500">on</span>
+              <span className="text-muted-foreground">on</span>
               <span className="rounded bg-amber-400/20 px-2 py-0.5 font-bold text-amber-200">M{p.m}</span>
               <span className="ml-auto text-xs text-slate-400">running:</span>
-              <span className={`rounded px-2 py-0.5 font-mono text-sm font-bold ${p.running ? "bg-emerald-400 text-slate-950" : "bg-white/5 text-slate-500"}`}>{p.running ?? "idle"}</span>
+              <span className={`rounded px-2 py-0.5 font-mono text-sm font-bold ${p.running ? "bg-emerald-400 text-slate-950" : "bg-white/5 text-muted-foreground"}`}>{p.running ?? "idle"}</span>
             </div>
-            <div className="mt-2 text-[11px] uppercase tracking-wider text-slate-500">local run queue</div>
+            <div className="mt-2 text-[11px] uppercase tracking-wider text-muted-foreground">local run queue</div>
             <div className="mt-1 flex min-h-7 flex-wrap gap-1">
               {p.queue.map((g) => (
                 <span key={g} className="pop-in rounded bg-white/10 px-2 py-0.5 font-mono text-xs text-white">{g}</span>

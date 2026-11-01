@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /** Concept diagrams for the System Design track. */
 
@@ -44,7 +45,7 @@ export function LatencyLadder() {
         </button>
       ))}
       <p className="rounded-lg bg-black/30 p-3 text-sm text-slate-300">{LATENCIES[sel].note}</p>
-      <p className="text-[11px] text-slate-500">Log scale. These are rough sizes, and exact numbers vary by hardware.</p>
+      <p className="text-[11px] text-muted-foreground">Log scale. These are rough sizes, and exact numbers vary by hardware.</p>
     </div>
   );
 }
@@ -102,8 +103,8 @@ export function CacheStrategies() {
         ))}
       </div>
       <div className="grid gap-2 text-sm sm:grid-cols-2">
-        <div className="rounded-lg bg-emerald-500/10 p-2 text-emerald-100">✅ {st.good}</div>
-        <div className="rounded-lg bg-rose-500/10 p-2 text-rose-100">⚠️ {st.bad}</div>
+        <div className="rounded-lg bg-emerald-500/10 p-2 text-emerald-100"><BlockIcon icon="✅" className="inline-block size-[1.1em] align-[-0.15em]" /> {st.good}</div>
+        <div className="rounded-lg bg-rose-500/10 p-2 text-rose-100"><BlockIcon icon="⚠️" className="inline-block size-[1.1em] align-[-0.15em]" /> {st.bad}</div>
       </div>
     </div>
   );
@@ -140,21 +141,21 @@ export function ReplicationVisual() {
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-center">
         <div className="rounded-xl border border-teal-300/50 bg-teal-300/10 p-3">
           <div className="text-xs uppercase tracking-wider text-teal-200">Primary</div>
-          <div className="font-mono text-2xl font-black text-white">x = {primary}</div>
+          <div className="font-mono text-2xl font-semibold text-white">x = {primary}</div>
         </div>
         <div className={`text-xs ${primary === replica ? "text-emerald-300" : "animate-pulse text-amber-300"}`}>{primary === replica ? "in sync →" : "lagging ⋯→"}</div>
         <div className="rounded-xl border border-white/15 bg-slate-950/60 p-3">
           <div className="text-xs uppercase tracking-wider text-slate-400">Replica</div>
-          <div className="font-mono text-2xl font-black text-white">x = {replica}</div>
+          <div className="font-mono text-2xl font-semibold text-white">x = {replica}</div>
         </div>
       </div>
       <div className="flex flex-wrap gap-2">
         <button type="button" onClick={write} className="rounded-lg bg-teal-400 px-3 py-1.5 text-sm font-bold text-slate-950">Write x = {primary + 1}</button>
-        <button type="button" onClick={() => setRead(replica === primary ? `Read x = ${replica} ✅ fresh` : `Read x = ${replica} ❌ stale (primary has ${primary})`)} className="rounded-lg bg-white/10 px-3 py-1.5 text-sm text-slate-100">
+        <button type="button" onClick={() => setRead(replica === primary ? `Read x = ${replica} fresh` : `Read x = ${replica} stale (primary has ${primary})`)} className="rounded-lg bg-white/10 px-3 py-1.5 text-sm text-slate-100">
           Read from replica
         </button>
         <button type="button" onClick={() => { setReplica(primary); setRead(null); }} className="rounded-lg bg-white/10 px-3 py-1.5 text-sm text-slate-100">
-          ⏱ Replica catches up
+          <BlockIcon icon="⏱" className="inline-block size-[1.1em] align-[-0.15em]" /> Replica catches up
         </button>
       </div>
       <p className="min-h-5 text-sm text-slate-300" aria-live="polite">
@@ -171,12 +172,12 @@ export function CapVisual() {
   const [partition, setPartition] = useState(true);
   const [choice, setChoice] = useState<"CP" | "AP">("CP");
   const left = "Node 1 (has the latest write x = 2)";
-  const rightAnswer = !partition ? "x = 2 ✅ (replicated normally)" : choice === "CP" ? "Error or timeout ⛔: it refuses rather than risk a stale answer" : "x = 1 ⚠️: it answers, but stays stale until the network heals";
+  const rightAnswer = !partition ? "x = 2 (replicated normally)" : choice === "CP" ? "Error or timeout: it refuses rather than risk a stale answer" : "x = 1: it answers, but stays stale until the network heals";
   return (
     <div className="grid gap-3">
       <div className="flex flex-wrap gap-2">
         <button type="button" onClick={() => setPartition(!partition)} className={btn(partition)}>
-          {partition ? "✂️ Network partitioned" : "🔗 Network healthy"}
+          {partition ? "Network partitioned" : "Network healthy"}
         </button>
         {(["CP", "AP"] as const).map((c) => (
           <button key={c} type="button" onClick={() => setChoice(c)} className={btn(choice === c)} disabled={!partition}>
@@ -190,10 +191,10 @@ export function CapVisual() {
         <rect x="200" y="20" width="110" height="50" rx="10" fill="#33415566" stroke="#94a3b8" />
         <text x="255" y="50" textAnchor="middle" fill="#e2e8f0" fontSize="12">Node 2</text>
         <line x1="120" y1="45" x2="200" y2="45" stroke={partition ? "#f43f5e" : "#2dd4bf"} strokeWidth="3" strokeDasharray={partition ? "6 6" : undefined} />
-        {partition && <text x="160" y="38" textAnchor="middle" fill="#fda4af" fontSize="16">✂</text>}
+        {partition && <text x="160" y="38" textAnchor="middle" fill="#fda4af" fontSize="16"><BlockIcon icon="✂" className="inline-block size-[1.1em] align-[-0.15em]" /></text>}
       </svg>
       <div className="grid gap-2 text-sm sm:grid-cols-2">
-        <div className="rounded-lg bg-slate-950/60 p-2 text-slate-200">Client → {left}: x = 2 ✅</div>
+        <div className="rounded-lg bg-slate-950/60 p-2 text-slate-200">Client → {left}: x = 2 <BlockIcon icon="✅" className="inline-block size-[1.1em] align-[-0.15em]" /></div>
         <div className="rounded-lg bg-slate-950/60 p-2 text-slate-200">Client → Node 2: {rightAnswer}</div>
       </div>
       <p className="text-xs text-slate-400">CAP only matters while the network is split. PACELC adds the everyday trade-off: the rest of the time, you still choose between speed and consistency.</p>
@@ -229,11 +230,11 @@ export function FanoutVisual() {
       <div className="grid gap-2 sm:grid-cols-2">
         <div className={`rounded-xl border p-3 ${writes > 100_000 ? "border-rose-400/60 bg-rose-500/10" : "border-white/10 bg-slate-950/60"}`}>
           <div className="text-xs uppercase tracking-wider text-slate-400">Timeline inserts per post</div>
-          <div className="font-mono text-2xl font-black text-white">{fmt(writes)}</div>
+          <div className="font-mono text-2xl font-semibold text-white">{fmt(writes)}</div>
         </div>
         <div className="rounded-xl border border-white/10 bg-slate-950/60 p-3">
           <div className="text-xs uppercase tracking-wider text-slate-400">Lookups per feed load</div>
-          <div className="font-mono text-2xl font-black text-white">{mode === "read" ? `${following} authors merged` : reads === 2 ? "1 cached feed + celeb posts" : "1 precomputed feed"}</div>
+          <div className="font-mono text-2xl font-semibold text-white">{mode === "read" ? `${following} authors merged` : reads === 2 ? "1 cached feed + celeb posts" : "1 precomputed feed"}</div>
         </div>
       </div>
       <p className="text-sm text-slate-300">
@@ -304,7 +305,7 @@ export function CircuitBreakerVisual() {
           }}
           className="rounded-lg bg-white/10 px-3 py-1.5 text-sm text-slate-100"
         >
-          ⏱ Cool-down elapses
+          <BlockIcon icon="⏱" className="inline-block size-[1.1em] align-[-0.15em]" /> Cool-down elapses
         </button>
       </div>
       <p className="text-center text-sm text-slate-300" aria-live="polite">{log}</p>

@@ -193,7 +193,7 @@ export default defineDomain({
             { input: "💬 Text", service: "Comprehend", output: "Sentiment, names, personal data" },
             { input: "🎙️ Speech", service: "Transcribe", output: "A written transcript" },
             { input: "📝 Text", service: "Polly", output: "🔊 Natural-sounding speech" },
-            { input: "🇬🇧 Text", service: "Translate", output: "🇫🇷 Another language" },
+            { input: "English text", service: "Translate", output: "French text" },
             { input: "🗣️ Conversation", service: "Lex", output: "A chatbot or voice bot" },
             { input: "👆 User clicks", service: "Personalize", output: "Recommendations" },
           ]}

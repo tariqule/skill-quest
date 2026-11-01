@@ -1,5 +1,6 @@
 "use client";
 
+import { PartyPopperIcon } from "lucide-react";
 import { QuizSession } from "@/components/QuizSession";
 import { PageShell } from "@/components/ui";
 import { useCourse, useProgress } from "@/engine/course-context";
@@ -12,7 +13,7 @@ export default function ReviewPage() {
   const xp = course.config.xp.reviewCorrect;
 
   return (
-    <PageShell title="🔁 Fix mistakes" subtitle="Questions you got wrong last time. Fix them to raise your mastery.">
+    <PageShell title="Fix mistakes" subtitle="Questions you got wrong last time. Fix them to raise your mastery.">
       <QuizSession
         startLabel={`Review ${Math.min(missed.length, maxQuestions)} questions`}
         baseXp={xp}
@@ -20,13 +21,13 @@ export default function ReviewPage() {
         buildDeck={() => deck(missedQuestions(course, store.get()), maxQuestions)}
         emptyMessage={
           <>
-            <div className="text-5xl">🎉</div>
+            <div className="text-5xl"><PartyPopperIcon aria-hidden="true" className="inline-block size-[1.1em] align-[-0.15em]" /></div>
             <p className="mt-3">No mistakes to review. Go play a mission or a trial.</p>
           </>
         }
         intro={
-          <p className="text-slate-300">
-            You have <span className="font-semibold text-white">{missed.length}</span> question{missed.length === 1 ? "" : "s"} to fix.
+          <p className="text-muted-foreground">
+            You have <span className="font-semibold text-foreground">{missed.length}</span> question{missed.length === 1 ? "" : "s"} to fix.
             Each fix earns {xp} XP and counts toward the Comeback Kid badge.
           </p>
         }

@@ -35,14 +35,14 @@ describe("AnswerFeedback", () => {
         Roles are borrowed.
       </AnswerFeedback>,
     );
-    const section = div.querySelector("section")!;
+    const section = div.querySelector<HTMLElement>("[data-verdict]")!;
     expect(section.dataset.verdict).toBe("wrong");
     expect(div.querySelector('[role="status"]')?.textContent).toBe("Not quite");
     expect(div.textContent).toContain("Why: Roles are borrowed.");
     expect(div.textContent).toContain("It comes back sooner.");
     // Gentle, not a warning box: neutral surface, amber only on the icon.
-    expect(div.querySelector("section")!.className).toContain("bg-card");
-    expect(div.querySelector("section")!.className).not.toContain("bg-warning");
+    expect(div.querySelector<HTMLElement>("[data-verdict]")!.className).toContain("bg-card");
+    expect(div.querySelector<HTMLElement>("[data-verdict]")!.className).not.toContain("bg-warning");
     expect(div.querySelector("svg")!.getAttribute("class")).toContain("text-warning");
     const link = div.querySelector("a")!;
     expect(link.getAttribute("href")).toBe("/c/x/lesson/k");
@@ -53,7 +53,7 @@ describe("AnswerFeedback", () => {
   it("moves focus to the verdict so keyboard and screen-reader users land on it", () => {
     const div = render(<AnswerFeedback ok>Yes.</AnswerFeedback>);
     expect(document.activeElement).toBe(div.querySelector('[role="status"]'));
-    expect(div.querySelector("section")!.dataset.verdict).toBe("correct");
+    expect(div.querySelector<HTMLElement>("[data-verdict]")!.dataset.verdict).toBe("correct");
   });
 
   it("toggles an inline concept through a real link and reports its state", () => {

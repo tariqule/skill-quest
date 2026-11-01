@@ -133,6 +133,9 @@
   --color-code-foreground: var(--code-foreground);
   --color-code-muted: var(--code-muted);
 
+  /* Floor for legacy course visuals that still use text-xs: nothing renders under 14px. */
+  --text-xs: var(--sq-text-caption);
+  --text-xs--line-height: 1.45;
   --text-caption: var(--sq-text-caption);
   --text-caption--line-height: 1.45;
   --text-ui: var(--sq-text-ui);

@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import { useState } from "react";
 import { LabHeader, type GoalProps } from "@/components/learn/blocks";
 
 /** Hands-on labs for the Go Interview Quest. */
 
-const btn = "btn-3d rounded-xl px-3 py-2 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-40";
-const edge = (c: string) => ({ "--edge": c }) as CSSProperties;
+const btn = "rounded-lg px-3 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40";
 
 // ───────────── Slice capacity lab ─────────────
 
@@ -105,7 +104,7 @@ function Cell({ v, inA, inACap, inB, inBCap }: { v: number; inA: boolean; inACap
   const live = inA || inB;
   return (
     <div className="w-12 text-center">
-      <div className={`rounded-lg border-2 py-1.5 font-mono text-lg font-black ${live ? "border-white/40 bg-white/10 text-white" : "border-dashed border-white/15 text-slate-500"}`}>
+      <div className={`rounded-lg border-2 py-1.5 font-mono text-lg font-semibold ${live ? "border-white/40 bg-white/10 text-white" : "border-dashed border-white/15 text-muted-foreground"}`}>
         {v}
       </div>
       <div className="mt-1 h-1.5 rounded-full" style={{ background: inA ? "#00add8" : inACap ? "#00add855" : "transparent" }} />
@@ -153,12 +152,11 @@ export function SliceLab({ goal, onSolved }: GoalProps<"isolate" | "overwrite">)
               disabled={op.needsB && s.b === null}
               onClick={() => run(op)}
               className={`${btn} bg-slate-700 text-left font-mono text-white`}
-              style={edge("#0f172a")}
             >
               {op.code}
             </button>
           ))}
-          <button type="button" onClick={reset} className={`${btn} bg-slate-800 text-slate-300`} style={edge("#020617")}>
+          <button type="button" onClick={reset} className={`${btn} bg-slate-800 text-slate-300`}>
             ↺ Reset
           </button>
         </div>
@@ -193,11 +191,11 @@ export function SliceLab({ goal, onSolved }: GoalProps<"isolate" | "overwrite">)
             <div className="text-pink-300">{s.b ? `${fmtSlice(readView(s, s.b))} ${s.b.len} ${s.b.cap}` : "undefined: b"}</div>
           </div>
           <p className="text-sm text-slate-300">{note}</p>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-muted-foreground">
             New arrays here double in size. The real growth amount is a runtime detail; only &quot;a new, bigger array when len would exceed cap&quot; is
             guaranteed.
           </p>
-          {log.length > 0 && <div className="text-xs text-slate-500">Ran: {log.join(" ; ")}</div>}
+          {log.length > 0 && <div className="text-xs text-muted-foreground">Ran: {log.join(" ; ")}</div>}
         </div>
       </div>
     </div>
@@ -304,7 +302,7 @@ const STATE_STYLE: Record<GState, string> = {
   ready: "bg-emerald-400/20 text-emerald-200",
   blocked: "bg-rose-400/20 text-rose-200",
   done: "bg-slate-500/20 text-slate-300",
-  off: "bg-slate-800 text-slate-500",
+  off: "bg-slate-800 text-muted-foreground",
 };
 
 function GoroutineCard({ title, lines, active, state, onStep, disabled }: { title: string; lines: string[]; active: number | null; state: GState; onStep: () => void; disabled: boolean }) {
@@ -315,12 +313,12 @@ function GoroutineCard({ title, lines, active, state, onStep, disabled }: { titl
         <span className={`rounded px-2 py-0.5 text-[11px] font-bold ${STATE_STYLE[state]}`}>{state === "off" ? "not started" : state}</span>
       </div>
       {lines.map((l, i) => (
-        <div key={i} className={`whitespace-pre px-3 py-0.5 ${active === i ? (state === "blocked" ? "bg-rose-400/20" : "bg-amber-400/20") : ""} ${state === "off" ? "text-slate-600" : "text-slate-100"}`}>
+        <div key={i} className={`whitespace-pre px-3 py-0.5 ${active === i ? (state === "blocked" ? "bg-rose-400/20" : "bg-amber-400/20") : ""} ${state === "off" ? "text-muted-foreground" : "text-slate-100"}`}>
           {l}
         </div>
       ))}
       <div className="border-t border-white/10 p-2">
-        <button type="button" disabled={disabled} onClick={onStep} className={`${btn} w-full bg-emerald-400 text-slate-950`} style={edge("#047857")}>
+        <button type="button" disabled={disabled} onClick={onStep} className={`${btn} w-full bg-primary text-primary-foreground`}>
           ▶ Step {title}
         </button>
       </div>
@@ -360,7 +358,7 @@ export function ChannelLab({ goal, onSolved }: GoalProps<"nonblocking" | "finish
           <input type="checkbox" checked={s.receiver} onChange={(e) => setS(freshChan(s.cap, e.target.checked))} />
           start the receiver goroutine
         </label>
-        <button type="button" onClick={() => setS(freshChan(s.cap, s.receiver))} className={`${btn} ml-auto bg-slate-700 text-white`} style={edge("#0f172a")}>
+        <button type="button" onClick={() => setS(freshChan(s.cap, s.receiver))} className={`${btn} ml-auto bg-slate-700 text-white`}>
           ↺ Restart
         </button>
       </div>
@@ -374,7 +372,7 @@ export function ChannelLab({ goal, onSolved }: GoalProps<"nonblocking" | "finish
               <div className="rounded-lg border-2 border-dashed border-white/20 px-3 py-2 text-xs text-slate-400">no buffer: hand-off only</div>
             ) : (
               Array.from({ length: s.cap }, (_, i) => (
-                <div key={i} className={`grid h-10 w-10 place-items-center rounded-lg border-2 font-mono text-lg font-black ${s.buf[i] !== undefined ? "border-sky-400 bg-sky-400/20 text-white" : "border-white/15 text-slate-600"}`}>
+                <div key={i} className={`grid h-10 w-10 place-items-center rounded-lg border-2 font-mono text-lg font-semibold ${s.buf[i] !== undefined ? "border-sky-400 bg-sky-400/20 text-white" : "border-white/15 text-muted-foreground"}`}>
                   {s.buf[i] ?? "·"}
                 </div>
               ))
@@ -390,13 +388,13 @@ export function ChannelLab({ goal, onSolved }: GoalProps<"nonblocking" | "finish
 
       <div className="mt-3 grid gap-3 md:grid-cols-2">
         <div className="min-h-20 rounded-xl border border-white/10 bg-slate-950 p-3 font-mono text-sm">
-          <div className="text-xs text-slate-500">stdout</div>
-          {s.printed.length === 0 ? <span className="text-slate-600">(nothing printed)</span> : s.printed.map((v, i) => <div key={i} className="text-slate-100">{v}</div>)}
+          <div className="text-xs text-muted-foreground">stdout</div>
+          {s.printed.length === 0 ? <span className="text-muted-foreground">(nothing printed)</span> : s.printed.map((v, i) => <div key={i} className="text-slate-100">{v}</div>)}
           {s.outcome === "deadlock" && <div className="pop-in mt-1 text-rose-300">fatal error: all goroutines are asleep - deadlock!</div>}
           {s.outcome === "exit" && <div className="pop-in mt-1 text-emerald-300">exit status 0</div>}
         </div>
         <div className="max-h-48 overflow-y-auto rounded-xl border border-white/10 bg-slate-950 p-3 text-xs text-slate-300">
-          {s.log.length === 0 ? <span className="text-slate-500">Step a goroutine to begin.</span> : s.log.map((l, i) => <div key={i} className={l.includes("BLOCKS") || l.startsWith("fatal") ? "text-rose-300" : ""}>{l}</div>)}
+          {s.log.length === 0 ? <span className="text-muted-foreground">Step a goroutine to begin.</span> : s.log.map((l, i) => <div key={i} className={l.includes("BLOCKS") || l.startsWith("fatal") ? "text-rose-300" : ""}>{l}</div>)}
         </div>
       </div>
       <p className="mt-2 text-xs text-slate-400">
@@ -485,7 +483,7 @@ export function DeferLab({ goal, onSolved }: GoalProps<"named" | "plain">) {
         <div className="overflow-hidden rounded-xl border border-white/10 bg-slate-950 font-mono text-[13px]">
           {DEFER_CODE[variant].map((l, li) => (
             <div key={li} className={`flex gap-3 px-3 py-0.5 ${step?.line === li ? "bg-amber-400/20" : ""}`}>
-              <span className="w-4 text-right text-slate-600">{li + 1}</span>
+              <span className="w-4 text-right text-muted-foreground">{li + 1}</span>
               <span className="whitespace-pre text-slate-100">{l}</span>
             </div>
           ))}
@@ -504,33 +502,33 @@ export function DeferLab({ goal, onSolved }: GoalProps<"named" | "plain">) {
           <div className="text-xs font-bold uppercase tracking-wider text-slate-400">Predict: f() returns…</div>
           <div className="flex flex-wrap gap-2">
             {[0, 3, 20, 30].map((g) => (
-              <button key={g} type="button" onClick={() => predict(g)} className={`${btn} bg-violet-500 text-white`} style={edge("#4c1d95")}>
+              <button key={g} type="button" onClick={() => predict(g)} className={`${btn} bg-violet-500 text-white`}>
                 {g}
               </button>
             ))}
           </div>
-          {guess !== null && <div className="pop-in text-sm text-slate-200">{guess === answer ? "✅ Right! Step through to see why." : "❌ Not quite. Step through and watch n."}</div>}
+          {guess !== null && <div className="pop-in text-sm text-slate-200">{guess === answer ? "Right! Step through to see why." : "Not quite. Step through and watch n."}</div>}
           <div className="flex flex-wrap gap-2">
-            <button type="button" disabled={i >= steps.length - 1} onClick={() => setI(i + 1)} className={`${btn} bg-emerald-400 text-slate-950`} style={edge("#047857")}>
+            <button type="button" disabled={i >= steps.length - 1} onClick={() => setI(i + 1)} className={`${btn} bg-primary text-primary-foreground`}>
               ▶ Step
             </button>
-            <button type="button" onClick={() => setI(-1)} className={`${btn} bg-slate-700 text-white`} style={edge("#0f172a")}>
+            <button type="button" onClick={() => setI(-1)} className={`${btn} bg-slate-700 text-white`}>
               ↺ Restart
             </button>
           </div>
           <div className="rounded-xl border border-white/10 bg-slate-950 p-3">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-500">defer stack (top runs first)</div>
+            <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground">defer stack (top runs first)</div>
             <div className="mt-1 flex flex-col-reverse gap-1 font-mono text-xs">
               {(step?.stack ?? []).map((d, di) => (
                 <div key={di} className="rounded bg-white/10 px-2 py-1 text-slate-100">
                   {d}
                 </div>
               ))}
-              {(step?.stack.length ?? 0) === 0 && <span className="text-slate-600">(empty)</span>}
+              {(step?.stack.length ?? 0) === 0 && <span className="text-muted-foreground">(empty)</span>}
             </div>
           </div>
           <div className="min-h-12 rounded-xl border border-white/10 bg-slate-950 p-3 font-mono text-sm">
-            {(step?.out ?? []).length === 0 ? <span className="text-slate-600">(no output yet)</span> : step!.out.map((o, oi) => <div key={oi} className="text-slate-100">{o}</div>)}
+            {(step?.out ?? []).length === 0 ? <span className="text-muted-foreground">(no output yet)</span> : step!.out.map((o, oi) => <div key={oi} className="text-slate-100">{o}</div>)}
           </div>
           <p className="text-sm text-slate-300">{step ? step.note : "Press Step to run the first line."}</p>
         </div>

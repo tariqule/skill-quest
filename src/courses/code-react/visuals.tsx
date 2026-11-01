@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 const START = [
   { id: "a1", name: "Apple" },
@@ -72,9 +73,9 @@ export function KeysVisual() {
             >
               <span className="font-mono text-xs text-slate-400">key={key}</span>
               <span className="font-semibold text-white">{it.name}</span>
-              <span className={`truncate rounded-md px-2 py-1 font-mono text-xs ${note ? (wrong ? "bg-rose-400/20 text-rose-200" : "bg-emerald-400/15 text-emerald-200") : "bg-white/5 text-slate-500"}`}>
+              <span className={`truncate rounded-md px-2 py-1 font-mono text-xs ${note ? (wrong ? "bg-rose-400/20 text-rose-200" : "bg-emerald-400/15 text-emerald-200") : "bg-white/5 text-muted-foreground"}`}>
                 {note ?? "(new, empty state)"}
-                {wrong && " ✖"}
+                {wrong && <> <BlockIcon icon="✖" className="inline-block size-[1.1em] align-[-0.15em]" /></>}
               </span>
             </div>
           );

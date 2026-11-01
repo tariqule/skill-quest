@@ -1,3 +1,4 @@
+import { HeroParticles } from "@/components/particles";
 import { BookOpen, CalendarCheck, RotateCcw } from "lucide-react";
 
 const POINTS = [
@@ -7,7 +8,7 @@ const POINTS = [
 ] as const;
 
 /**
- * Calm home hero. No decoration and no button of its own: below it sits the single
+ * Calm home hero. Only a faint particle drift behind it, and no button of its own: below it sits the single
  * primary action (the plan wizard, or Today's Continue once a plan exists).
  * `compact` is the returning-learner version: a short greeting so Today comes first.
  */
@@ -21,7 +22,11 @@ export function Hero({ compact = false }: { compact?: boolean }) {
     );
   }
   return (
-    <section aria-labelledby="hero-h" className="max-w-3xl">
+    <section aria-labelledby="hero-h" className="relative isolate">
+      {/* Decorative drift across the whole hero band, behind the text; lazy chunk, one still frame under reduced motion.
+          Explicit width/height (not size-full) so the canvas bleeds 1rem/1.5rem past the text on every side. */}
+      <HeroParticles className="pointer-events-none absolute -left-4 -top-6 -z-10 h-[calc(100%+3rem)] w-[calc(100%+2rem)] opacity-60 [mask-image:radial-gradient(ellipse_at_center,black_45%,transparent_100%)]" />
+      <div className="max-w-3xl">
       <h1 id="hero-h" className="font-heading text-h2 font-semibold tracking-tight text-foreground sm:text-h1">
         Learn tech skills, one small step at a time.
       </h1>
@@ -36,6 +41,7 @@ export function Hero({ compact = false }: { compact?: boolean }) {
           </li>
         ))}
       </ul>
+      </div>
     </section>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, Star } from "lucide-react";
+import { ArrowLeft, Star, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { BlockIcon } from "@/components/learn/block-icons";
 import { useOptionalCourse } from "@/engine/course-context";
@@ -29,7 +29,8 @@ export function Stars({ count, size = "size-5" }: { count: number; size?: string
 }
 
 /** Page frame. `width` picks a shared token: "page" for hubs, lists and references, "play" for game rounds. */
-export function PageShell({ title, subtitle, width = "page", children }: { title: string; subtitle?: string; width?: "page" | "play"; children: ReactNode }) {
+/** Page frame for course tools. `icon` is a Lucide icon shown before the title; titles themselves stay plain text. */
+export function PageShell({ icon: Icon, title, subtitle, width = "page", children }: { icon?: LucideIcon; title: string; subtitle?: string; width?: "page" | "play"; children: ReactNode }) {
   const course = useOptionalCourse();
   return (
     <main className={cn("mx-auto w-full px-4 py-6 sm:py-10", width === "play" ? "max-w-play" : "max-w-page")}>
@@ -37,7 +38,10 @@ export function PageShell({ title, subtitle, width = "page", children }: { title
         <ArrowLeft aria-hidden="true" className="size-4" />
         {course ? "Back to course" : "Home"}
       </Link>
-      <h1 className="mt-3 font-heading text-h2 font-semibold tracking-tight text-foreground print:text-black">{title}</h1>
+      <h1 className="mt-3 flex items-center gap-2.5 font-heading text-h2 font-semibold tracking-tight text-foreground print:text-black">
+        {Icon && <Icon aria-hidden="true" className="size-7 shrink-0 text-primary" />}
+        {title}
+      </h1>
       {subtitle && <p className="mt-1 max-w-[65ch] text-base text-muted-foreground">{subtitle}</p>}
       <div className="mt-6">{children}</div>
     </main>

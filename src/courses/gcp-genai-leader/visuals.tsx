@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /** Concept diagrams specific to the Google Cloud Generative AI Leader course. */
 
@@ -55,7 +56,7 @@ export function GenAiNesting() {
           <span className="text-emerald-300">Foundation models</span> are trained on massive, mostly unlabeled data and adapt to many tasks.{" "}
           <span className="text-emerald-300">LLMs</span> are foundation models specialised in human language.
         </p>
-        <p className="mt-2 text-xs text-slate-500">Tap a box.</p>
+        <p className="mt-2 text-xs text-muted-foreground">Tap a box.</p>
       </div>
     </div>
   );
@@ -125,15 +126,15 @@ export function LandscapeStack() {
               marginRight: `${(LAYERS.length - 1 - i) * 4}%`,
             }}
           >
-            <span className="text-xl">{x.icon}</span>
+            <span className="text-xl"><BlockIcon icon={x.icon} className="inline-block size-[1.1em] align-[-0.15em]" /></span>
             <span className="text-white">{x.name}</span>
           </button>
         ))}
-        <div className="text-center text-[11px] text-slate-500">⬆ closer to the user · ⬇ closer to the hardware</div>
+        <div className="text-center text-[11px] text-muted-foreground">⬆ closer to the user · ⬇ closer to the hardware</div>
       </div>
       <div className="rounded-xl border bg-slate-950/60 p-3" style={{ borderColor: `${l.color}66` }}>
         <div className="text-lg font-bold" style={{ color: l.color }}>
-          {l.icon} {l.name}
+          <BlockIcon icon={l.icon} className="inline-block size-[1.1em] align-[-0.15em]" /> {l.name}
         </div>
         <p className="mt-1 text-slate-200">{l.what}</p>
         <div className="mt-3 text-xs font-bold uppercase tracking-wider text-slate-400">On Google Cloud</div>
@@ -160,15 +161,15 @@ export function AgentAnatomy() {
     <div className="grid gap-4 md:grid-cols-2">
       <div className="grid gap-2">
         <div className="rounded-xl border border-violet-400/40 bg-violet-400/10 p-3">
-          <div className="font-semibold text-violet-200">🧠 Model</div>
+          <div className="font-semibold text-violet-200"><BlockIcon icon="🧠" className="inline-block size-[1.1em] align-[-0.15em]" /> Model</div>
           <div className="text-sm text-slate-300">The brain: it understands, plans and writes.</div>
         </div>
         <div className="rounded-xl border border-amber-400/40 bg-amber-400/10 p-3">
-          <div className="font-semibold text-amber-200">🛠️ Tools</div>
+          <div className="font-semibold text-amber-200"><BlockIcon icon="🛠️" className="inline-block size-[1.1em] align-[-0.15em]" /> Tools</div>
           <div className="text-sm text-slate-300">How the agent reaches the outside world: APIs, data and actions.</div>
         </div>
         <div className="rounded-xl border border-sky-400/40 bg-sky-400/10 p-3">
-          <div className="font-semibold text-sky-200">🔁 Reasoning loop</div>
+          <div className="font-semibold text-sky-200"><BlockIcon icon="🔁" className="inline-block size-[1.1em] align-[-0.15em]" /> Reasoning loop</div>
           <div className="text-sm text-slate-300">Observe, interpret, reason, act, and repeat until the goal is met.</div>
         </div>
       </div>
@@ -181,7 +182,7 @@ export function AgentAnatomy() {
               onClick={() => setI(k)}
               className={`rounded-xl border p-3 text-center transition ${i === k ? "border-sky-400 bg-sky-400/20" : "border-white/10 bg-slate-950/60"}`}
             >
-              <div className="text-2xl">{s.icon}</div>
+              <div className="text-2xl"><BlockIcon icon={s.icon} className="inline-block size-[1.1em] align-[-0.15em]" /></div>
               <div className="text-sm font-semibold text-white">
                 {k + 1}. {s.label}
               </div>
@@ -220,7 +221,7 @@ export function RagSteps() {
               aria-label={s.label}
               className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 text-xl transition ${k <= i ? "border-emerald-400 bg-emerald-400/20" : "border-white/15 bg-white/5 opacity-50"}`}
             >
-              {s.icon}
+              <BlockIcon icon={s.icon} className="inline-block size-[1.1em] align-[-0.15em]" />
             </button>
             {k < RAG.length - 1 && <div className={`h-0.5 flex-1 rounded ${k < i ? "bg-emerald-400" : "bg-white/10"}`} />}
           </div>
@@ -259,16 +260,16 @@ export function SamplingDial() {
     <div className="grid gap-3">
       <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
         <div className="flex justify-between text-sm">
-          <span className="font-semibold text-white">🌡️ Temperature</span>
+          <span className="font-semibold text-white"><BlockIcon icon="🌡️" className="inline-block size-[1.1em] align-[-0.15em]" /> Temperature</span>
           <span className="font-mono text-amber-300">{t.label}</span>
         </div>
         <input type="range" min={0} max={2} step={1} value={v} onChange={(e) => setV(Number(e.target.value))} className="w-full accent-amber-400" aria-label="Temperature" />
-        <div className="rounded-lg bg-slate-950/70 px-3 py-2 text-slate-100">🤖 {t.out}</div>
+        <div className="rounded-lg bg-slate-950/70 px-3 py-2 text-slate-100"><BlockIcon icon="🤖" className="inline-block size-[1.1em] align-[-0.15em]" /> {t.out}</div>
         <div className="mt-1 text-xs text-slate-400">{t.note}</div>
       </div>
       <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
         <div className="flex justify-between text-sm">
-          <span className="font-semibold text-white">📏 Output length (max tokens)</span>
+          <span className="font-semibold text-white"><BlockIcon icon="📏" className="inline-block size-[1.1em] align-[-0.15em]" /> Output length (max tokens)</span>
           <span className="font-mono text-sky-300">{["64", "256", "1024"][len]}</span>
         </div>
         <input type="range" min={0} max={2} step={1} value={len} onChange={(e) => setLen(Number(e.target.value))} className="w-full accent-sky-400" aria-label="Output length" />
@@ -276,10 +277,10 @@ export function SamplingDial() {
       </div>
       <div className="grid gap-2 sm:grid-cols-2">
         <div className="rounded-xl border border-violet-400/30 bg-violet-400/5 p-3 text-sm text-slate-200">
-          <b className="text-violet-200">🎯 Top-p (nucleus sampling)</b>: only the most likely tokens whose probabilities add up to p are considered. Lower p means safer, less varied word choices.
+          <b className="text-violet-200"><BlockIcon icon="🎯" className="inline-block size-[1.1em] align-[-0.15em]" /> Top-p (nucleus sampling)</b>: only the most likely tokens whose probabilities add up to p are considered. Lower p means safer, less varied word choices.
         </div>
         <div className="rounded-xl border border-emerald-400/30 bg-emerald-400/5 p-3 text-sm text-slate-200">
-          <b className="text-emerald-200">🛡️ Safety settings</b>: filter potentially harmful or inappropriate content out of the model&apos;s output.
+          <b className="text-emerald-200"><BlockIcon icon="🛡️" className="inline-block size-[1.1em] align-[-0.15em]" /> Safety settings</b>: filter potentially harmful or inappropriate content out of the model&apos;s output.
         </div>
       </div>
     </div>

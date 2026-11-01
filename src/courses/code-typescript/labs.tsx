@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CodeBlock, LabHeader, type GoalProps } from "@/components/learn/blocks";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 // ───────────── Narrowing lab ─────────────
 
@@ -163,7 +164,7 @@ export function NarrowingLab({ goal, onSolved }: GoalProps<"circle" | "square">)
           </div>
           {error && <p className="pop-in mt-2 rounded-lg border border-rose-400/50 bg-rose-400/10 p-2 font-mono text-xs text-rose-200">{error}</p>}
           {left.length === 0 && <p className="mt-2 text-sm text-amber-300">x is never: no value can reach this branch.</p>}
-          {solved && <p className="pop-in mt-2 text-sm font-semibold text-emerald-300">✅ Narrowed to {t} in {applied.length} checks. Notice that typeof x === &quot;object&quot; alone still lets null through.</p>}
+          {solved && <p className="pop-in mt-2 text-sm font-semibold text-emerald-300"><BlockIcon icon="✅" className="inline-block size-[1.1em] align-[-0.15em]" /> Narrowed to {t} in {applied.length} checks. Notice that typeof x === &quot;object&quot; alone still lets null through.</p>}
         </div>
       </div>
     </div>
@@ -248,7 +249,7 @@ export function UtilityBuilderLab({ goal, onSolved }: GoalProps<"patch" | "publi
   return (
     <div>
       <LabHeader title="Utility-type builder" hint="Each button wraps the current type in a utility. For Pick and Omit, tap keys first." />
-      {target && <p className="mb-3 rounded-lg border border-amber-400/40 bg-amber-400/10 p-2 text-sm text-amber-100">🎯 Build: {target.text}</p>}
+      {target && <p className="mb-3 rounded-lg border border-amber-400/40 bg-amber-400/10 p-2 text-sm text-amber-100"><BlockIcon icon="🎯" className="inline-block size-[1.1em] align-[-0.15em]" /> Build: {target.text}</p>}
       <div className="grid gap-4 md:grid-cols-2">
         <div>
           <CodeBlock
@@ -299,7 +300,7 @@ export function UtilityBuilderLab({ goal, onSolved }: GoalProps<"patch" | "publi
         <div>
           <div className="mb-1 overflow-x-auto rounded-lg bg-black/50 px-3 py-2 font-mono text-sm text-amber-200">type Result = {expr(ops)};</div>
           <CodeBlock lang="ts" code={`// Result resolves to:\n${show(props)}`} />
-          {done && <p className="pop-in mt-2 text-sm font-semibold text-emerald-300">✅ That&apos;s the shape. Utility types compose: each one maps over the result of the last.</p>}
+          {done && <p className="pop-in mt-2 text-sm font-semibold text-emerald-300"><BlockIcon icon="✅" className="inline-block size-[1.1em] align-[-0.15em]" /> That&apos;s the shape. Utility types compose: each one maps over the result of the last.</p>}
           {!target && ops.length > 0 && <p className="mt-2 text-xs text-slate-400">Pick and Omit keep each property&apos;s ? and readonly modifiers.</p>}
         </div>
       </div>

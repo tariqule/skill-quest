@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CodeBlock, LabHeader, type GoalProps } from "@/components/learn/blocks";
 import { RichText } from "@/components/learn/code";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 // ───────────── Server or client? ─────────────
 
@@ -46,13 +47,13 @@ export function ServerClientSorter({ goal, onSolved }: GoalProps<"sortAll">) {
       <LabHeader title="Server or client?" hint="Decide where each component should run. Everything is a Server Component unless it truly needs the browser." />
       <div className="mb-3 rounded-xl border border-white/10 bg-slate-950/60 p-3">
         <div className="flex justify-between text-xs text-slate-400">
-          <span>📦 Client JavaScript you ship</span>
+          <span><BlockIcon icon="📦" className="inline-block size-[1.1em] align-[-0.15em]" /> Client JavaScript you ship</span>
           <span className="font-mono text-amber-300">{kb} KB</span>
         </div>
         <div className="mt-1.5 h-3 overflow-hidden rounded-full bg-white/10">
           <div className="h-full rounded-full bg-amber-400 transition-all duration-300" style={{ width: `${Math.min(100, (kb / 267) * 100)}%` }} />
         </div>
-        <div className="mt-1 text-[11px] text-slate-500">The leanest correct sort ships {minKb} KB.</div>
+        <div className="mt-1 text-[11px] text-muted-foreground">The leanest correct sort ships {minKb} KB.</div>
       </div>
       <div className="grid gap-2 sm:grid-cols-2">
         {PIECES.map((p) => {
@@ -76,13 +77,13 @@ export function ServerClientSorter({ goal, onSolved }: GoalProps<"sortAll">) {
                     onClick={() => pick(p.id, side)}
                     className={`rounded-lg px-2.5 py-1 text-xs font-bold ${mine === side ? (side === "server" ? "bg-sky-400 text-slate-950" : "bg-fuchsia-400 text-slate-950") : "bg-white/10 text-slate-200"}`}
                   >
-                    {side === "server" ? "🖥️ Server" : "🌐 Client"}
+                    {side === "server" ? "Server" : "Client"}
                   </button>
                 ))}
               </div>
               {checked && mine && (
                 <div className={`mt-2 text-xs ${right ? "text-emerald-300" : "text-rose-300"}`}>
-                  {right ? "✓ " : `✗ Should be ${p.answer}. `}
+                  {right ? <><BlockIcon icon="✓" className="inline-block size-[1.1em] align-[-0.15em]" />{" "}</> : `Should be ${p.answer}. `}
                   <RichText text={p.why} />
                 </div>
               )}
@@ -95,10 +96,9 @@ export function ServerClientSorter({ goal, onSolved }: GoalProps<"sortAll">) {
           type="button"
           disabled={!done}
           onClick={check}
-          className="btn-3d rounded-xl bg-sky-400 px-4 py-2 font-bold text-slate-950 disabled:opacity-40"
-          style={{ "--edge": "#0369a1" } as React.CSSProperties}
+          className="rounded-lg bg-primary px-4 py-2 font-semibold text-primary-foreground disabled:opacity-40"
         >
-          ✅ Check my sort
+          <BlockIcon icon="✅" className="inline-block size-[1.1em] align-[-0.15em]" /> Check my sort
         </button>
         <button
           type="button"
@@ -113,7 +113,7 @@ export function ServerClientSorter({ goal, onSolved }: GoalProps<"sortAll">) {
         {!done && <span className="text-xs text-slate-400">Sort all {PIECES.length} to check.</span>}
         {checked && (
           <span className={`text-sm font-bold ${correct === PIECES.length ? "text-emerald-300" : "text-amber-300"}`}>
-            {correct === PIECES.length ? `🎉 All ${PIECES.length} right, shipping only ${kb} KB.` : `${correct} / ${PIECES.length} right.`}
+            {correct === PIECES.length ? `All ${PIECES.length} right, shipping only ${kb} KB.` : `${correct} / ${PIECES.length} right.`}
           </span>
         )}
       </div>
@@ -161,7 +161,7 @@ export function CacheLab({ goal, onSolved }: GoalProps<"readYourWrites" | "swr">
   const [shown, setShown] = useState(1);
   const [lastCall, setLastCall] = useState<"updateTag" | "revalidateTag" | null>(null);
   const [prev, setPrev] = useState<{ outcome: Outcome; old: boolean } | null>(null);
-  const [log, setLog] = useState<LogLine[]>([{ id: 0, at: 0, tone: "info", text: "🏗️ Build: getPosts() prerendered with v1 into the static shell." }]);
+  const [log, setLog] = useState<LogLine[]>([{ id: 0, at: 0, tone: "info", text: "Build: getPosts() prerendered with v1 into the static shell." }]);
 
   const p = PROFILES[profile];
   const add = (tone: LogLine["tone"], text: string, at = now) => setLog((l) => [{ id: (l[0]?.id ?? 0) + 1, at, tone, text }, ...l].slice(0, 8));
@@ -177,7 +177,7 @@ export function CacheLab({ goal, onSolved }: GoalProps<"readYourWrites" | "swr">
   function visit(via: "visit" | "refresh") {
     let outcome: Outcome;
     let value: number;
-    const who = via === "refresh" ? "🔄 refresh() re-rendered the page" : "👀 Visitor";
+    const who = via === "refresh" ? "refresh() re-rendered the page" : "Visitor";
     if (!entry || now - entry.at >= p.expire) {
       outcome = "miss";
       value = db;
@@ -204,29 +204,29 @@ export function CacheLab({ goal, onSolved }: GoalProps<"readYourWrites" | "swr">
 
   function edit() {
     setDb(db + 1);
-    add("info", `✏️ Someone saved a post: the database is now v${db + 1}. The cache still holds v${entry?.v ?? "nothing"}.`);
+    add("info", `Someone saved a post: the database is now v${db + 1}. The cache still holds v${entry?.v ?? "nothing"}.`);
   }
 
   function updateTag() {
     setEntry(null);
     setLastCall("updateTag");
-    add("info", "⚡ Server Action: updateTag('posts') expired the entry now. The next read waits for fresh data.");
+    add("info", "Server Action: updateTag('posts') expired the entry now. The next read waits for fresh data.");
   }
 
   function revalidateTag() {
     if (entry) setEntry({ ...entry, stale: true });
     setLastCall("revalidateTag");
-    add("info", "🏷️ revalidateTag('posts', 'max') marked the entry stale. The next visit gets stale-while-revalidate.");
+    add("info", "revalidateTag('posts', 'max') marked the entry stale. The next visit gets stale-while-revalidate.");
   }
 
   function advance(mins: number) {
     setNow(now + mins);
-    add("info", `⏩ Time passes: ${clock(now + mins)}.`, now + mins);
+    add("info", `Time passes: ${clock(now + mins)}.`, now + mins);
   }
 
   function changeProfile(next: Profile) {
     setProfile(next);
-    add("info", `🧪 Redeployed with cacheLife('${next}'): a new build prerenders v${db}.`);
+    add("info", `Redeployed with cacheLife('${next}'): a new build prerenders v${db}.`);
     setEntry({ v: db, at: now, stale: false });
     setShown(db);
     setPrev(null);
@@ -254,12 +254,12 @@ export async function getPosts() {
         <div className="grid gap-2">
           <div className="grid grid-cols-2 gap-2">
             <div className="rounded-xl border border-white/10 bg-slate-950/60 p-3">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">🗄️ Database</div>
-              <div className="font-mono text-2xl font-black text-white">v{db}</div>
+              <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground"><BlockIcon icon="🗄️" className="inline-block size-[1.1em] align-[-0.15em]" /> Database</div>
+              <div className="font-mono text-2xl font-semibold text-white">v{db}</div>
             </div>
             <div className="rounded-xl border p-3" style={{ borderColor: `${st.color}66`, background: `${st.color}12` }}>
-              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">🧊 Cache entry</div>
-              <div className="font-mono text-2xl font-black text-white">{entry ? `v${entry.v}` : "—"}</div>
+              <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground"><BlockIcon icon="🧊" className="inline-block size-[1.1em] align-[-0.15em]" /> Cache entry</div>
+              <div className="font-mono text-2xl font-semibold text-white">{entry ? `v${entry.v}` : "—"}</div>
               <div className="text-xs font-bold" style={{ color: st.color }}>
                 {st.label}
                 {entry && <span className="font-normal text-slate-400"> · age {age(now - entry.at)}</span>}
@@ -268,7 +268,7 @@ export async function getPosts() {
           </div>
           <div className="rounded-xl border border-white/10 bg-slate-950/60 p-3 text-sm">
             <div className="flex justify-between">
-              <span className="text-slate-400">🕘 {clock(now)}</span>
+              <span className="text-slate-400"><BlockIcon icon="🕘" className="inline-block size-[1.1em] align-[-0.15em]" /> {clock(now)}</span>
               <span className="text-slate-400">
                 Page shows <b className="text-white">v{shown}</b>
               </span>
@@ -280,7 +280,7 @@ export async function getPosts() {
                 </button>
               ))}
             </div>
-            <div className="mt-1 text-[11px] text-slate-500">{p.label}</div>
+            <div className="mt-1 text-[11px] text-muted-foreground">{p.label}</div>
           </div>
         </div>
       </div>
@@ -288,19 +288,19 @@ export async function getPosts() {
       <div className="mt-3 grid gap-2 sm:grid-cols-2">
         <div className="flex flex-wrap gap-2">
           <button type="button" onClick={() => visit("visit")} className={`${btn} bg-sky-400 text-slate-950`}>
-            👀 Visit the page
+            <BlockIcon icon="👀" className="inline-block size-[1.1em] align-[-0.15em]" /> Visit the page
           </button>
           <button type="button" onClick={edit} className={`${btn} bg-white/10 text-white`}>
-            ✏️ Edit a post in the DB
+            <BlockIcon icon="✏️" className="inline-block size-[1.1em] align-[-0.15em]" /> Edit a post in the DB
           </button>
           <button type="button" onClick={() => advance(1)} className={`${btn} bg-white/10 text-white`}>
-            ⏩ +1 min
+            <BlockIcon icon="⏩" className="inline-block size-[1.1em] align-[-0.15em]" /> +1 min
           </button>
           <button type="button" onClick={() => advance(60)} className={`${btn} bg-white/10 text-white`}>
-            ⏩ +1 h
+            <BlockIcon icon="⏩" className="inline-block size-[1.1em] align-[-0.15em]" /> +1 h
           </button>
           <button type="button" onClick={() => advance(1440)} className={`${btn} bg-white/10 text-white`}>
-            ⏩ +1 day
+            <BlockIcon icon="⏩" className="inline-block size-[1.1em] align-[-0.15em]" /> +1 day
           </button>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -324,12 +324,12 @@ export async function getPosts() {
               l.tone === "hit" ? "border-emerald-400/40 text-emerald-100" : l.tone === "stale" ? "border-amber-400/40 text-amber-100" : l.tone === "miss" ? "border-rose-400/40 text-rose-100" : "border-white/10 text-slate-300"
             } bg-slate-950/70`}
           >
-            <span className="mr-2 font-mono text-[11px] text-slate-500">{clock(l.at).split(" · ")[1]}</span>
+            <span className="mr-2 font-mono text-[11px] text-muted-foreground">{clock(l.at).split(" · ")[1]}</span>
             {l.text}
           </div>
         ))}
       </div>
-      <p className="mt-2 text-[11px] text-slate-500">
+      <p className="mt-2 text-[11px] text-muted-foreground">
         Simplified model of one server instance: time-based revalidation and revalidateTag serve stale content while refreshing; updateTag and expiry make the next read wait. refresh() re-renders without touching the cache.
       </p>
     </div>

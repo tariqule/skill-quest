@@ -1,5 +1,6 @@
 "use client";
 
+import { CheckIcon, TimerIcon } from "lucide-react";
 import { secondsFor } from "@/engine/timing";
 import { useEffect, useRef, useState } from "react";
 import { useCourse } from "@/engine/course-context";
@@ -30,7 +31,7 @@ const FEEDBACK_MS = { correct: 700, wrong: 1400 };
  * A run of questions, each against its own countdown. Running out of time
  * counts as wrong. Reused by lessons (after a miss) and the Timed drill mode.
  */
-export function TimedQuiz({ questions, secondsPerQuestion, passShare, xpPerCorrect, color = "#f59e0b", showDomain, onFinish }: Props) {
+export function TimedQuiz({ questions, secondsPerQuestion, passShare, xpPerCorrect, color = "var(--primary)", showDomain, onFinish }: Props) {
   const { store } = useCourse();
   const [idx, setIdx] = useState(0);
   const [submitted, setSubmitted] = useState<number[] | null>(null);
@@ -107,45 +108,45 @@ export function TimedQuiz({ questions, secondsPerQuestion, passShare, xpPerCorre
       <div className="mb-3 flex items-center gap-3">
         <div className={`relative flex h-14 w-14 shrink-0 items-center justify-center rounded-full ${urgent && !verdict ? "shake" : ""}`}>
           <svg viewBox="0 0 36 36" className="absolute inset-0 -rotate-90">
-            <circle cx="18" cy="18" r="15.5" fill="none" stroke="rgb(255 255 255 / 0.1)" strokeWidth="3" />
+            <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--muted)" strokeWidth="3" />
             <circle
               cx="18"
               cy="18"
               r="15.5"
               fill="none"
-              stroke={urgent ? "#f43f5e" : color}
+              stroke={urgent ? "var(--destructive)" : color}
               strokeWidth="3"
               strokeLinecap="round"
               strokeDasharray="97.4"
               strokeDashoffset={(97.4 * (1 - left / limit)).toFixed(2)}
             />
           </svg>
-          <span className={`font-mono text-lg font-black ${urgent ? "text-rose-300" : "text-white"}`}>{Math.ceil(left)}</span>
+          <span className={`font-mono text-lg font-semibold ${urgent ? "text-destructive-foreground" : "text-foreground"}`}>{Math.ceil(left)}</span>
         </div>
         <div className="flex-1">
-          <div className="mb-1 flex justify-between text-xs text-slate-400">
+          <div className="mb-1 flex justify-between text-sm text-muted-foreground">
             <span>
-              ⏱️ Question {idx + 1} of {questions.length}
+              <TimerIcon aria-hidden="true" className="inline-block size-[1.1em] align-[-0.15em]" /> Question {idx + 1} of {questions.length}
             </span>
             <span>
-              ✓ {correctSoFar} · need {Math.ceil(passShare * questions.length)}
+              <CheckIcon role="img" aria-label="correct" className="inline-block size-[1.1em] align-[-0.15em]" /> {correctSoFar} · need {Math.ceil(passShare * questions.length)}
             </span>
           </div>
-          <div className="h-2 overflow-hidden rounded-full bg-white/10">
+          <div className="h-2 overflow-hidden rounded-full bg-muted">
             <div className="h-full rounded-full transition-all" style={{ width: pct(idx / questions.length), background: color }} />
           </div>
         </div>
       </div>
 
       <div
-        className={`rounded-2xl transition ${verdict === "correct" ? "ring-4 ring-emerald-400/60" : verdict ? "ring-4 ring-rose-400/60" : ""}`}
+        className={`rounded-2xl transition ${verdict === "correct" ? "ring-4 ring-success/60" : verdict ? "ring-4 ring-destructive/60" : ""}`}
       >
         <QuestionCard key={`${q.id}-${idx}`} q={q} submitted={verdict === "timeout" ? [] : submitted} onSubmit={submit} explain={false} showDomain={showDomain} />
       </div>
 
       {verdict && (
-        <div className={`pop-in mt-3 text-center text-lg font-black ${verdict === "correct" ? "text-emerald-300" : "text-rose-300"}`}>
-          {verdict === "correct" ? `✓ +${xpPerCorrect} XP` : verdict === "timeout" ? "⏰ Time's up" : "✗ Not this time"}
+        <div className={`pop-in mt-3 text-center text-lg font-semibold ${verdict === "correct" ? "text-success-foreground" : "text-destructive-foreground"}`}>
+          {verdict === "correct" ? `+${xpPerCorrect} XP` : verdict === "timeout" ? "Time's up" : "Not this time"}
         </div>
       )}
     </div>

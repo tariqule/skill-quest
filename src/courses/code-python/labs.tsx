@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import { useState } from "react";
 import { LabHeader, type GoalProps } from "@/components/learn/blocks";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /** Hands-on labs for the Python Interview Quest. */
 
-const btn = "btn-3d rounded-xl px-3 py-2 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-40";
-const edge = (c: string) => ({ "--edge": c }) as CSSProperties;
+const btn = "rounded-lg px-3 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40";
 
 // ───────────── Names → objects: aliasing, copy, deepcopy ─────────────
 
@@ -132,12 +132,11 @@ export function AliasLab({ goal, onSolved }: GoalProps<"deep" | "outer">) {
               disabled={op.needsB && heap.b === null}
               onClick={() => run(op)}
               className={`${btn} bg-slate-700 text-left font-mono text-white`}
-              style={edge("#0f172a")}
             >
               {op.code}
             </button>
           ))}
-          <button type="button" onClick={reset} className={`${btn} bg-slate-800 text-slate-300`} style={edge("#020617")}>
+          <button type="button" onClick={reset} className={`${btn} bg-slate-800 text-slate-300`}>
             ↺ Reset
           </button>
         </div>
@@ -149,9 +148,9 @@ export function AliasLab({ goal, onSolved }: GoalProps<"deep" | "outer">) {
               return (
                 <div key={name} className="flex items-center gap-2 font-mono text-sm">
                   <span className="w-6 rounded bg-white/10 text-center font-bold text-white">{name}</span>
-                  <span className="text-slate-500">──▶</span>
+                  <span className="text-muted-foreground">──▶</span>
                   {id === null ? (
-                    <span className="text-slate-500">not defined</span>
+                    <span className="text-muted-foreground">not defined</span>
                   ) : (
                     <span className="rounded px-2 py-0.5 font-bold text-slate-950" style={{ background: colorOf(id) }}>
                       list #{id}
@@ -198,7 +197,7 @@ export function AliasLab({ goal, onSolved }: GoalProps<"deep" | "outer">) {
             )}
           </div>
           <p className="text-sm text-slate-300">{note}</p>
-          {log.length > 0 && <div className="text-xs text-slate-500">Ran: {log.join(" ; ")}</div>}
+          {log.length > 0 && <div className="text-xs text-muted-foreground">Ran: {log.join(" ; ")}</div>}
         </div>
       </div>
     </div>
@@ -251,7 +250,7 @@ export function GeneratorLab({ goal, onSolved }: GoalProps<"exhaust" | "predict"
     if (guess !== undefined) {
       const right = guess === result;
       next = { ...state, correct: state.correct + (right ? 1 : 0), perfect: state.perfect && right };
-      setFeedback(right ? "✅ Correct prediction!" : `❌ It was ${result === "stop" ? "StopIteration" : result}.`);
+      setFeedback(right ? "Correct prediction!" : `It was ${result === "stop" ? "StopIteration" : result}.`);
     } else {
       next = { ...state, perfect: false };
       setFeedback(null);
@@ -287,7 +286,7 @@ export function GeneratorLab({ goal, onSolved }: GoalProps<"exhaust" | "predict"
           </button>
         ))}
         <span className="font-mono">)</span>
-        <span className="text-xs text-slate-500">(creating it runs nothing yet)</span>
+        <span className="text-xs text-muted-foreground">(creating it runs nothing yet)</span>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -296,9 +295,9 @@ export function GeneratorLab({ goal, onSolved }: GoalProps<"exhaust" | "predict"
             const paused = s.line === i + 1;
             return (
               <div key={i} className={`flex gap-3 px-3 py-0.5 ${paused ? "bg-amber-400/20" : ""}`}>
-                <span className="w-4 text-right text-slate-600">{i + 1}</span>
+                <span className="w-4 text-right text-muted-foreground">{i + 1}</span>
                 <span className="whitespace-pre text-slate-100">{l}</span>
-                {paused && <span className="ml-auto text-amber-300">⏸ paused</span>}
+                {paused && <span className="ml-auto text-amber-300"><BlockIcon icon="⏸" className="inline-block size-[1.1em] align-[-0.15em]" /> paused</span>}
               </div>
             );
           })}
@@ -321,23 +320,23 @@ export function GeneratorLab({ goal, onSolved }: GoalProps<"exhaust" | "predict"
           <div className="text-xs font-bold uppercase tracking-wider text-slate-400">Predict, then step</div>
           <div className="flex flex-wrap gap-2">
             {guesses.map((g) => (
-              <button key={String(g)} type="button" onClick={() => step(g)} className={`${btn} bg-violet-500 text-white`} style={edge("#4c1d95")}>
+              <button key={String(g)} type="button" onClick={() => step(g)} className={`${btn} bg-violet-500 text-white`}>
                 {g === "stop" ? "StopIteration" : `yields ${g}`}
               </button>
             ))}
           </div>
           <div className="flex flex-wrap gap-2">
-            <button type="button" onClick={() => step()} className={`${btn} bg-emerald-400 text-slate-950`} style={edge("#047857")}>
+            <button type="button" onClick={() => step()} className={`${btn} bg-primary text-primary-foreground`}>
               ▶ next(gen)
             </button>
-            <button type="button" onClick={() => restart(start)} className={`${btn} bg-slate-700 text-white`} style={edge("#0f172a")}>
+            <button type="button" onClick={() => restart(start)} className={`${btn} bg-slate-700 text-white`}>
               ↺ New generator
             </button>
           </div>
           {feedback && <div className="pop-in text-sm text-slate-200">{feedback}</div>}
           <div className="min-h-24 rounded-xl border border-white/10 bg-slate-950 p-3 font-mono text-sm">
             {s.out.length === 0 ? (
-              <span className="text-slate-500">Console is empty: the body hasn&apos;t started.</span>
+              <span className="text-muted-foreground">Console is empty: the body hasn&apos;t started.</span>
             ) : (
               s.out.map((o, i) => (
                 <div key={i} className={o.startsWith("✗") ? "text-rose-300" : o.startsWith("→") ? "text-amber-300" : "text-slate-100"}>

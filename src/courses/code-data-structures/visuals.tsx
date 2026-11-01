@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CodeBlock } from "@/components/learn/blocks";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /** Concept diagrams for the Data Structures interview track. */
 
@@ -94,17 +95,17 @@ export function ArrayShift() {
                 disabled={!has}
                 onClick={() => setLast({ label: `arr[${i}]`, cost: "O(1)", note: `arr[${i}] holds ${arr[i]}. Its address is the start plus ${i} times the item size, so it takes one step however long the array is.`, fresh: i, moved: [] })}
                 className={`flex h-14 w-11 shrink-0 flex-col items-center justify-center rounded-lg border text-sm transition ${
-                  !has ? "border-dashed border-white/15 text-slate-600" : fresh ? "border-emerald-400 bg-emerald-400/20 text-white" : moved ? "border-amber-400 bg-amber-400/20 text-white" : "border-white/15 bg-slate-950/70 text-white"
+                  !has ? "border-dashed border-white/15 text-muted-foreground" : fresh ? "border-emerald-400 bg-emerald-400/20 text-white" : moved ? "border-amber-400 bg-amber-400/20 text-white" : "border-white/15 bg-slate-950/70 text-white"
                 }`}
               >
                 <span className="font-mono font-bold">{has ? arr[i] : "·"}</span>
-                <span className="text-[10px] text-slate-500">{i}</span>
+                <span className="text-[10px] text-muted-foreground">{i}</span>
               </button>
             );
           })}
         </div>
       </div>
-      <div className="mt-1 text-[11px] text-slate-500">
+      <div className="mt-1 text-[11px] text-muted-foreground">
         length {arr.length} · capacity {cap} · tap a filled slot to read it · <span className="text-amber-300">amber</span> = moved, <span className="text-emerald-300">green</span> = new
       </div>
       {last && (
@@ -191,7 +192,7 @@ export function LinkedListReverse() {
           <button type="button" className={BTN} onClick={() => setStep(0)}>
             Reset
           </button>
-          <span className="self-center text-xs text-slate-500">
+          <span className="self-center text-xs text-muted-foreground">
             step {step} / {LL_SNAPS.length - 1}
           </span>
         </div>
@@ -234,7 +235,7 @@ export function HashBuckets() {
               }}
               className={`rounded-full border px-3 py-1 font-mono text-sm ${inTable ? "border-violet-400 bg-violet-400/20 text-white" : "border-white/10 text-slate-300"}`}
             >
-              {inTable ? "✓ " : "+ "}
+              {inTable ? <><BlockIcon icon="✓" className="inline-block size-[1.1em] align-[-0.15em]" />{" "}</> : "+ "}
               {k}
             </button>
           );
@@ -245,10 +246,10 @@ export function HashBuckets() {
           <div key={b} className="flex items-center gap-2 rounded-lg border border-white/10 bg-slate-950/60 px-2 py-1.5">
             <span className="w-14 shrink-0 font-mono text-xs text-slate-400">[{b}]</span>
             <div className="flex flex-wrap items-center gap-1">
-              {chain.length === 0 && <span className="text-xs text-slate-600">empty</span>}
+              {chain.length === 0 && <span className="text-xs text-muted-foreground">empty</span>}
               {chain.map((k, i) => (
                 <span key={k} className="flex items-center gap-1">
-                  {i > 0 && <span className="text-slate-500">→</span>}
+                  {i > 0 && <span className="text-muted-foreground">→</span>}
                   <span className={`rounded-md px-2 py-0.5 font-mono text-sm ${k === last ? "bg-emerald-400/25 text-emerald-100" : i > 0 ? "bg-amber-400/20 text-amber-100" : "bg-white/10 text-white"}`}>{k}</span>
                 </span>
               ))}
@@ -447,7 +448,7 @@ export function HeapPlayground() {
             {heap.map((v, i) => (
               <div key={i} className={`flex w-9 flex-col items-center rounded-md border py-1 ${i === 0 ? "border-amber-400 bg-amber-400/15" : "border-white/15 bg-slate-950/70"}`}>
                 <span className="font-mono text-sm font-bold text-white">{v}</span>
-                <span className="text-[9px] text-slate-500">{i}</span>
+                <span className="text-[9px] text-muted-foreground">{i}</span>
               </div>
             ))}
           </div>
@@ -482,7 +483,7 @@ export function HeapPlayground() {
             <ol className="pop-in mt-3 grid gap-1 text-sm text-slate-300">
               {log.map((line, i) => (
                 <li key={i}>
-                  <span className="mr-1 text-slate-500">{i + 1}.</span>
+                  <span className="mr-1 text-muted-foreground">{i + 1}.</span>
                   {line}
                 </li>
               ))}
@@ -537,7 +538,7 @@ export function GraphViews() {
             </div>
           ))}
         </div>
-        <div className="mt-2 text-[11px] text-slate-500">Stores 2 × E = {edges.length * 2} entries</div>
+        <div className="mt-2 text-[11px] text-muted-foreground">Stores 2 × E = {edges.length * 2} entries</div>
       </div>
       <div className="rounded-xl border border-white/10 bg-slate-950/60 p-3">
         <div className="text-xs font-bold uppercase tracking-wider text-amber-300">Adjacency matrix (tap a cell)</div>
@@ -558,7 +559,7 @@ export function GraphViews() {
                   disabled={r === c}
                   onClick={() => toggle(r, c)}
                   aria-label={`Toggle edge ${r}-${c}`}
-                  className={`h-7 w-7 rounded ${r === c ? "bg-white/5 text-slate-600" : has(r, c) ? "bg-amber-400/30 text-amber-100" : "bg-white/5 text-slate-500"} ${sel === r ? "ring-1 ring-amber-400/60" : ""}`}
+                  className={`h-7 w-7 rounded ${r === c ? "bg-white/5 text-muted-foreground" : has(r, c) ? "bg-amber-400/30 text-amber-100" : "bg-white/5 text-muted-foreground"} ${sel === r ? "ring-1 ring-amber-400/60" : ""}`}
                 >
                   {has(r, c) ? 1 : 0}
                 </button>
@@ -566,7 +567,7 @@ export function GraphViews() {
             </div>
           ))}
         </div>
-        <div className="mt-2 text-[11px] text-slate-500">Always V² = {G_NODES.length ** 2} cells, however few edges</div>
+        <div className="mt-2 text-[11px] text-muted-foreground">Always V² = {G_NODES.length ** 2} cells, however few edges</div>
       </div>
     </div>
   );
@@ -604,7 +605,7 @@ function TrieBranch({ node, path, prefix }: { node: TrieNode; path: string; pref
           <li key={ch} className="my-0.5">
             <span className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 font-mono text-sm ${exact ? "bg-sky-400/30 text-white" : onPath ? "bg-sky-400/10 text-sky-100" : "text-slate-300"}`}>
               {ch}
-              {child.end && <span className="text-amber-300" title="end of a word">★</span>}
+              {child.end && <span className="text-amber-300" title="end of a word"><BlockIcon icon="★" className="inline-block size-[1.1em] align-[-0.15em]" /></span>}
             </span>
             {child.children.size > 0 && <TrieBranch node={child} path={p} prefix={prefix} />}
           </li>
@@ -638,7 +639,7 @@ export function TrieExplorer() {
                 onClick={() => setWords(on ? words.filter((x) => x !== w) : [...words, w])}
                 className={`rounded-full border px-2.5 py-0.5 font-mono text-sm ${on ? "border-sky-400 bg-sky-400/20 text-white" : "border-white/10 text-slate-400"}`}
               >
-                {on ? "✓ " : "+ "}
+                {on ? <><BlockIcon icon="✓" className="inline-block size-[1.1em] align-[-0.15em]" />{" "}</> : "+ "}
                 {w}
               </button>
             );
@@ -661,13 +662,13 @@ export function TrieExplorer() {
             <code className="text-sky-200">search(&apos;{prefix}&apos;)</code> → <b className={node?.end ? "text-emerald-300" : "text-rose-300"}>{String(Boolean(node?.end))}</b>
           </div>
           <div className="text-slate-300">Autocomplete: {matches.length ? matches.join(", ") : "nothing"}</div>
-          <div className="text-xs text-slate-500">Each lookup walked {prefix.length} node{prefix.length === 1 ? "" : "s"}: O(L), however many words are stored.</div>
+          <div className="text-xs text-muted-foreground">Each lookup walked {prefix.length} node{prefix.length === 1 ? "" : "s"}: O(L), however many words are stored.</div>
         </div>
       </div>
       <div className="rounded-xl border border-white/10 bg-slate-950/60 p-3">
         <div className="text-xs font-bold uppercase tracking-wider text-sky-300">root</div>
         <TrieBranch node={root} path="" prefix={prefix} />
-        <div className="mt-1 text-[11px] text-slate-500">★ = a word ends here (isEnd)</div>
+        <div className="mt-1 text-[11px] text-muted-foreground"><BlockIcon icon="★" className="inline-block size-[1.1em] align-[-0.15em]" /> = a word ends here (isEnd)</div>
       </div>
     </div>
   );
@@ -715,7 +716,7 @@ export function BigOTable() {
           ))}
         </tbody>
       </table>
-      <div className="px-2 py-1.5 text-[11px] text-slate-500">* amortized</div>
+      <div className="px-2 py-1.5 text-[11px] text-muted-foreground">* amortized</div>
     </div>
   );
 }

@@ -39,7 +39,7 @@ export function ModeGrid({ modes }: { modes: ModeId[] }) {
         return (
           <li key={m.id}>
             <Link href={href(m.to)} className="flex h-full min-h-11 flex-col rounded-card border border-border bg-card p-4 transition-colors hover:border-primary/50 hover:bg-accent/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
-              <BlockIcon icon={m.icon} className="size-6" />
+              <m.icon aria-hidden="true" className="size-6" />
               <span className="mt-2 text-base font-semibold text-foreground">{m.name}</span>
               <span className="mt-0.5 text-sm text-muted-foreground">{hydrated ? m.status(p, course) : " "}</span>
             </Link>

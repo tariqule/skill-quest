@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /** Concept diagrams for the TypeScript track. */
 
@@ -38,7 +39,7 @@ export function AssignabilityGrid() {
         <table className="mx-auto border-separate border-spacing-1 text-center font-mono text-xs">
           <thead>
             <tr>
-              <th className="px-2 text-[10px] font-normal text-slate-500">source ↓ / target →</th>
+              <th className="px-2 text-[10px] font-normal text-muted-foreground">source ↓ / target →</th>
               {TYPES.map((x) => (
                 <th key={x} className="px-2 py-1 text-sky-200">
                   {x}
@@ -61,7 +62,7 @@ export function AssignabilityGrid() {
                         aria-label={`${row} to ${col}`}
                         className={`h-9 w-12 rounded-lg border text-base ${ok ? "bg-emerald-400/15 text-emerald-300" : "bg-rose-400/10 text-rose-300"} ${active ? "border-white" : "border-white/10"}`}
                       >
-                        {ok ? "✓" : "✗"}
+                        {ok ? <BlockIcon icon="✓" className="inline-block size-[1.1em] align-[-0.15em]" /> : <BlockIcon icon="✗" className="inline-block size-[1.1em] align-[-0.15em]" />}
                       </button>
                     </td>
                   );

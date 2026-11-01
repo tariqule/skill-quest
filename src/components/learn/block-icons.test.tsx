@@ -43,3 +43,42 @@ describe("picture-card icons", () => {
     for (const l of lessons) expect(textOf(renderToStaticMarkup(<>{l.visual}</>)).match(EMOJI_G) ?? [], l.id).toEqual([]);
   });
 });
+
+/**
+ * Emoji that stay as literal text on purpose: simulated terminal output, a screen-reader demo
+ * button, a Unicode string-length example, and mark strings that labs parse (`includes("✗")`).
+ */
+/** Typographic arrows and marks that read as text, not pictures. */
+const SYMBOLS = /[▶◀⬆⬇↕↔✂←→↑↓]\uFE0F?/gu;
+const KEEP = /hi👋|⌨️ shows|>🔍<|Search button 🔍|"(?:healthy|unhealthy|primary) [✓✗]"|"[✓✗] |`[✓✗] \$\{t\.text\}`|out\.push\(|startsWith\("[✓✗]"\)|includes\("[✓✗]"\)/;
+
+describe("course visuals and labs", () => {
+  const sources = files("src/courses").filter((f) => /[/\\](visuals|labs)\.tsx$/.test(f));
+  it("finds every course's visuals and labs", () => expect(sources.length).toBeGreaterThan(20));
+
+  it("render emoji through BlockIcon, never as JSX text or UI strings", () => {
+    const bad: string[] = [];
+    for (const f of sources) {
+      readFileSync(f, "utf8").split("\n").forEach((line, i) => {
+        if (!new RegExp(EMOJI_PATTERN.source, "u").test(line) || KEEP.test(line)) return;
+        // Icon data (`icon: "☁️"`, `emoji: "🐉"`, `["⭐", "XP"]`) and BlockIcon props are fine.
+        const stripped = line.replace(SYMBOLS, "").replace(/<BlockIcon[^>]*\/>/g, "").replace(/(?:icon|emoji|glyph)(?:=|: )"[^"]*"/g, "").replace(/\["[^"]{1,4}",/g, "");
+        if (new RegExp(EMOJI_PATTERN.source, "u").test(stripped)) bad.push(`${f}:${i + 1}`);
+      });
+    }
+    expect(bad).toEqual([]);
+  });
+
+  it("every lesson visual in every course renders without raw emoji", () => {
+    const bad: string[] = [];
+    for (const c of COURSES)
+      for (const l of Object.values(c.lessons ?? {}).flat()) {
+        if (!l.visual) continue;
+        const text = textOf(renderToStaticMarkup(<>{l.visual}</>)).replace(SYMBOLS, "");
+        // 😬 and 👍 sit inside rendered code samples (a comment and a JSX button), which stay verbatim.
+        const hits = (text.match(EMOJI_G) ?? []).filter((e) => !["👋", "🔍", "😬", "👍"].includes(e));
+        if (hits.length) bad.push(`${c.id}/${l.id}: ${hits.join(" ")}`);
+      }
+    expect(bad).toEqual([]);
+  });
+});

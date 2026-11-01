@@ -42,7 +42,7 @@ export function FileStack() {
         </span>{" "}
         {STACK[active].detail}
       </div>
-      <div className="text-center text-[11px] text-slate-500">Tap a layer. Outer files wrap inner ones; a child segment nests inside its parent&apos;s page slot.</div>
+      <div className="text-center text-[11px] text-muted-foreground">Tap a layer. Outer files wrap inner ones; a child segment nests inside its parent&apos;s page slot.</div>
     </div>
   );
 }
@@ -74,7 +74,7 @@ export function ShellDiagram() {
             onClick={() => setPhase(p)}
             className={`rounded-lg px-3 py-1.5 text-sm font-bold ${phase === p ? "bg-sky-400 text-slate-950" : "bg-white/10 text-slate-200"}`}
           >
-            {p === "build" ? "🏗️ At build (static shell)" : "📨 At request time"}
+            {p === "build" ? "At build (static shell)" : "At request time"}
           </button>
         ))}
       </div>
@@ -93,7 +93,7 @@ export function ShellDiagram() {
                 {k.label}
               </span>
               <span className="text-xs text-slate-400">{r.code}</span>
-              <span className="ml-auto text-xs text-slate-300">{filled ? "✅ in the HTML" : "⏳ fallback shown, streams later"}</span>
+              <span className="ml-auto text-xs text-slate-300">{filled ? "in the HTML" : "fallback shown, streams later"}</span>
             </div>
           );
         })}

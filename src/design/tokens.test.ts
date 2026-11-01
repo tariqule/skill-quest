@@ -148,3 +148,20 @@ describe("PR D surfaces stay calm", () => {
     expect(rule).not.toMatch(/box-shadow|text-shadow/);
   });
 });
+
+describe("no legacy chrome left anywhere (PR E sweep)", () => {
+  const src = join(__dirname, "..");
+  const all = files(src);
+  const appAndComponents = all.filter((f) => /[/\\](app|components)[/\\]/.test(f));
+  // Syntax highlighting palettes are content, not chrome.
+  const PALETTE_OK = /coding[/\\]Editor\.tsx$|learn[/\\]code\.tsx$/;
+  it("no raised 3D buttons or heavy weights in any source file", () => {
+    expect(all.filter((f) => /btn-3d|"--edge"|font-black/.test(readFileSync(f, "utf8")))).toEqual([]);
+  });
+  it("app and components use colour tokens, not the legacy bright palette", () => {
+    const bad = appAndComponents.filter(
+      (f) => !PALETTE_OK.test(f) && /\b(?:bg|text|border|from|to|via|ring)-(?:slate|emerald|rose|sky|amber|violet|fuchsia|cyan|lime|orange|pink|indigo|yellow|red|green|blue|purple|teal)-\d/.test(readFileSync(f, "utf8")),
+    );
+    expect(bad).toEqual([]);
+  });
+});

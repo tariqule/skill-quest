@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { GoalProps } from "@/components/learn/blocks";
 import { LabHeader } from "@/components/learn/blocks";
 import { pct } from "@/engine/game";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /** Concept diagrams specific to the AWS Cloud Practitioner course. */
 
@@ -44,7 +45,7 @@ export function ElasticityLab({ goal, onSolved }: GoalProps<"elastic">) {
             }}
             className={`rounded-full border px-3 py-1 text-sm ${mode === m ? "border-amber-400 bg-amber-400/20 text-white" : "border-white/10 text-slate-300"}`}
           >
-            {m === "fixed" ? "🏢 Fixed capacity (on-premises)" : "📈 Auto Scaling (cloud)"}
+            {m === "fixed" ? "Fixed capacity (on-premises)" : "Auto Scaling (cloud)"}
           </button>
         ))}
       </div>
@@ -87,18 +88,18 @@ export function ElasticityLab({ goal, onSolved }: GoalProps<"elastic">) {
           </div>
         ))}
       </div>
-      <div className="mt-1 flex justify-between text-[11px] text-slate-500">
+      <div className="mt-1 flex justify-between text-[11px] text-muted-foreground">
         <span>6 am</span>
         <span>noon (peak {peak})</span>
         <span>6 pm</span>
       </div>
       <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
         <div className={`rounded-xl p-2 ${idle ? "bg-amber-400/10 text-amber-100" : "bg-emerald-400/10 text-emerald-100"}`}>
-          💤 Idle server-hours: <b>{idle}</b>
+          <BlockIcon icon="💤" className="inline-block size-[1.1em] align-[-0.15em]" /> Idle server-hours: <b>{idle}</b>
           <div className="text-xs opacity-80">Paid for but unused</div>
         </div>
         <div className={`rounded-xl p-2 ${short ? "bg-rose-400/10 text-rose-100" : "bg-emerald-400/10 text-emerald-100"}`}>
-          🚫 Missing server-hours: <b>{short}</b>
+          <BlockIcon icon="🚫" className="inline-block size-[1.1em] align-[-0.15em]" /> Missing server-hours: <b>{short}</b>
           <div className="text-xs opacity-80">Users turned away</div>
         </div>
       </div>
@@ -146,13 +147,13 @@ export function PillarWheel() {
             className="rounded-xl border bg-slate-950/60 p-2 text-left transition hover:-translate-y-0.5"
             style={{ borderColor: sel === i ? x.color : "rgb(255 255 255 / 0.1)", boxShadow: sel === i ? `0 0 0 3px ${x.color}33` : undefined }}
           >
-            <span className="text-xl">{x.icon}</span> <span className="text-sm font-semibold text-white">{x.name}</span>
+            <span className="text-xl"><BlockIcon icon={x.icon} className="inline-block size-[1.1em] align-[-0.15em]" /></span> <span className="text-sm font-semibold text-white">{x.name}</span>
           </button>
         ))}
       </div>
       <div className="pop-in mt-3 rounded-xl border p-3" key={p.name} style={{ borderColor: `${p.color}55`, background: `${p.color}12` }}>
         <div className="font-bold" style={{ color: p.color }}>
-          {p.icon} {p.name}
+          <BlockIcon icon={p.icon} className="inline-block size-[1.1em] align-[-0.15em]" /> {p.name}
         </div>
         <p className="mt-1 text-sm text-slate-200">{p.focus}</p>
         <ul className="mt-2 grid gap-1 text-sm text-slate-300">
@@ -161,7 +162,7 @@ export function PillarWheel() {
           ))}
         </ul>
       </div>
-      <p className="mt-2 text-xs text-slate-500">Six pillars. The AWS Well-Architected Tool reviews a workload against them.</p>
+      <p className="mt-2 text-xs text-muted-foreground">Six pillars. The AWS Well-Architected Tool reviews a workload against them.</p>
     </div>
   );
 }
@@ -190,25 +191,25 @@ export function MultiAzLab({ goal, onSolved }: GoalProps<"survive">) {
 
   return (
     <div>
-      <LabHeader title="Region in a box" hint="Place your app's servers in Availability Zones, then simulate an AZ failure. Tap 💥 on a zone that runs your app." />
+      <LabHeader title="Region in a box" hint="Place your app's servers in Availability Zones, then simulate an AZ failure. Tap on a zone that runs your app." />
       <div className="rounded-2xl border border-amber-400/30 bg-amber-400/5 p-3">
-        <div className="text-xs font-bold uppercase tracking-wider text-amber-300">🌍 AWS Region (for example, eu-west-1)</div>
+        <div className="text-xs font-bold uppercase tracking-wider text-amber-300"><BlockIcon icon="🌍" className="inline-block size-[1.1em] align-[-0.15em]" /> AWS Region (for example, eu-west-1)</div>
         <div className="mt-2 grid gap-2 sm:grid-cols-3">
           {AZS.map((az, i) => (
             <div key={az} className={`rounded-xl border p-2 transition ${down === i ? "border-rose-400 bg-rose-500/15" : "border-white/10 bg-slate-950/60"}`}>
               <div className="flex items-center justify-between text-sm">
                 <span className="font-semibold text-white">{az}</span>
                 <button type="button" onClick={() => fail(i)} className="rounded-md bg-slate-800 px-2 py-0.5 text-xs text-rose-200" aria-label={`Fail ${az}`}>
-                  💥 Fail
+                  <BlockIcon icon="💥" className="inline-block size-[1.1em] align-[-0.15em]" /> Fail
                 </button>
               </div>
-              <div className="mt-1 text-[11px] text-slate-500">One or more data centers · own power, cooling, networking</div>
+              <div className="mt-1 text-[11px] text-muted-foreground">One or more data centers · own power, cooling, networking</div>
               <button
                 type="button"
                 onClick={() => toggle(i)}
                 className={`mt-2 w-full rounded-lg px-2 py-1.5 text-sm font-bold ${placed[i] ? (down === i ? "bg-rose-400/60 text-slate-950 line-through" : "bg-emerald-400 text-slate-950") : "border border-dashed border-white/20 text-slate-400"}`}
               >
-                {placed[i] ? "🖥️ App server" : "+ Place server"}
+                {placed[i] ? "App server" : "+ Place server"}
               </button>
             </div>
           ))}
@@ -219,11 +220,11 @@ export function MultiAzLab({ goal, onSolved }: GoalProps<"survive">) {
         {down === null
           ? `Your app runs in ${placed.filter(Boolean).length} of 3 AZs. Simulate a failure to test it.`
           : up
-            ? "✓ The app stays up: a load balancer sends traffic to the healthy AZ."
-            : "✗ Outage. Every copy of the app was in the failed AZ (or nowhere)."}
+            ? "The app stays up: a load balancer sends traffic to the healthy AZ."
+            : "Outage. Every copy of the app was in the failed AZ (or nowhere)."}
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-400">
-        <span className="rounded-md bg-sky-400/15 px-2 py-1 text-sky-200">📍 Edge locations</span>
+        <span className="rounded-md bg-sky-400/15 px-2 py-1 text-sky-200"><BlockIcon icon="📍" className="inline-block size-[1.1em] align-[-0.15em]" /> Edge locations</span>
         <span>Many more sites than Regions. CloudFront caches content there, close to users.</span>
       </div>
     </div>
@@ -238,21 +239,21 @@ export function VpcDiagram() {
     <div>
       <div className="flex flex-wrap gap-2">
         <button type="button" onClick={() => setLayer("sg")} className={`rounded-full border px-3 py-1 text-sm ${layer === "sg" ? "border-emerald-400 bg-emerald-400/20 text-white" : "border-white/10 text-slate-300"}`}>
-          🛡️ Security group
+          <BlockIcon icon="🛡️" className="inline-block size-[1.1em] align-[-0.15em]" /> Security group
         </button>
         <button type="button" onClick={() => setLayer("nacl")} className={`rounded-full border px-3 py-1 text-sm ${layer === "nacl" ? "border-sky-400 bg-sky-400/20 text-white" : "border-white/10 text-slate-300"}`}>
-          🚧 Network ACL
+          <BlockIcon icon="🚧" className="inline-block size-[1.1em] align-[-0.15em]" /> Network ACL
         </button>
       </div>
       <div className="mt-3 rounded-2xl border border-violet-400/40 bg-violet-400/5 p-3">
         <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-violet-300">
-          <span>☁️ VPC</span>
-          <span className="rounded-md bg-slate-950/70 px-2 py-0.5 normal-case text-slate-200">🌐 Internet gateway</span>
+          <span><BlockIcon icon="☁️" className="inline-block size-[1.1em] align-[-0.15em]" /> VPC</span>
+          <span className="rounded-md bg-slate-950/70 px-2 py-0.5 normal-case text-slate-200"><BlockIcon icon="🌐" className="inline-block size-[1.1em] align-[-0.15em]" /> Internet gateway</span>
         </div>
         <div className="mt-2 grid gap-2 sm:grid-cols-2">
           {[
-            { name: "Public subnet", note: "Route to the internet gateway", box: "🖥️ Web server" },
-            { name: "Private subnet", note: "No direct internet route (NAT gateway for outbound)", box: "🗄️ Database" },
+            { name: "Public subnet", note: "Route to the internet gateway", box: "Web server" },
+            { name: "Private subnet", note: "No direct internet route (NAT gateway for outbound)", box: "Database" },
           ].map((s) => (
             <div key={s.name} className={`rounded-xl border-2 p-2 ${layer === "nacl" ? "border-sky-400" : "border-white/10"}`}>
               <div className="text-sm font-semibold text-white">{s.name}</div>

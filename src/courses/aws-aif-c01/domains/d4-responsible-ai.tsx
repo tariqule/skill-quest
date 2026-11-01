@@ -2,6 +2,7 @@ import { Flow, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { GuardrailsLab, SortLab } from "../labs";
 import { BiasVariance, GuardrailsPipeline, TradeoffSlider } from "../visuals";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /**
  * Domain 4: everything for this exam domain in one file.
@@ -172,12 +173,12 @@ export default defineDomain({
             ]}
           />
           <div className="rounded-xl border border-emerald-400/30 bg-emerald-400/5 p-3">
-            <div className="font-semibold text-emerald-300">✅ A responsible dataset is…</div>
+            <div className="font-semibold text-emerald-300"><BlockIcon icon="✅" className="inline-block size-[1.1em] align-[-0.15em]" /> A responsible dataset is…</div>
             <ul className="mt-2 grid gap-1.5 text-sm text-slate-200">
-              <li>🌍 Inclusive and diverse</li>
-              <li>⚖️ Balanced across groups</li>
-              <li>🧹 Carefully chosen from trusted sources</li>
-              <li>🤝 Collected with consent</li>
+              <li><BlockIcon icon="🌍" className="inline-block size-[1.1em] align-[-0.15em]" /> Inclusive and diverse</li>
+              <li><BlockIcon icon="⚖️" className="inline-block size-[1.1em] align-[-0.15em]" /> Balanced across groups</li>
+              <li><BlockIcon icon="🧹" className="inline-block size-[1.1em] align-[-0.15em]" /> Carefully chosen from trusted sources</li>
+              <li><BlockIcon icon="🤝" className="inline-block size-[1.1em] align-[-0.15em]" /> Collected with consent</li>
             </ul>
           </div>
         </div>

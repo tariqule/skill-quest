@@ -2,6 +2,7 @@ import { Flow, Ladder, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { GroundingLab } from "../labs";
 import { RagSteps, SamplingDial } from "../visuals";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /**
  * Section 3: Techniques to improve gen AI model output (~20% of the exam).
@@ -148,7 +149,7 @@ export default defineDomain({
             ]}
           />
           <div className="rounded-xl border border-emerald-400/30 bg-emerald-400/5 p-3 text-sm text-slate-200">
-            🧑‍⚖️ <b className="text-emerald-200">Human in the loop (HITL)</b> works alongside all of these. Use it for content moderation, sensitive fields like healthcare and
+            <BlockIcon icon="🧑‍⚖️" className="inline-block size-[1.1em] align-[-0.15em]" /> <b className="text-emerald-200">Human in the loop (HITL)</b> works alongside all of these. Use it for content moderation, sensitive fields like healthcare and
             finance, high-stakes decisions, and reviews before or after the model generates.
           </div>
         </div>

@@ -1,8 +1,10 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { FlagIcon, PuzzleIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { RichText } from "@/components/learn/code";
-import { Button, PageShell } from "@/components/ui";
+import { PageShell } from "@/components/ui";
 import { useCourse, useProgress } from "@/engine/course-context";
 import { shuffle } from "@/engine/game";
 import type { Card } from "@/engine/types";
@@ -71,24 +73,24 @@ export default function MatchPage() {
 
   if (phase === "intro") {
     return (
-      <PageShell title="🧩 Service Match" subtitle={`Pair each of the ${label} with what it does.`}>
-        <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-6 sm:p-8">
-          <p className="text-slate-300">
+      <PageShell title="Service Match" subtitle={`Pair each of the ${label} with what it does.`}>
+        <div className="rounded-2xl border border-border bg-card p-6 sm:p-8">
+          <p className="text-muted-foreground">
             Exams love &quot;which service should they use?&quot; questions. Click a service, then click its use case. Clear all {PAIRS}{" "}
             pairs as fast as you can.
           </p>
-          <ul className="mt-4 grid gap-2 text-sm text-slate-400">
+          <ul className="mt-4 grid gap-2 text-sm text-muted-foreground">
             <li>
-              🏁 Up to {xpCfg.matchMax} XP, minus {xpCfg.matchMistakePenalty} per mismatch
+              <FlagIcon aria-hidden="true" className="inline-block size-[1.1em] align-[-0.15em]" /> Up to {xpCfg.matchMax} XP, minus {xpCfg.matchMistakePenalty} per mismatch
             </li>
-            <li>🧩 Finish in {badgeSeconds} seconds or less for the Speed Matcher badge</li>
+            <li><PuzzleIcon aria-hidden="true" className="inline-block size-[1.1em] align-[-0.15em]" /> Finish in {badgeSeconds} seconds or less for the Speed Matcher badge</li>
           </ul>
           {progress.matchBestSeconds !== null && (
-            <p className="mt-4 text-sm text-slate-300">
-              Best time: <span className="font-bold text-white">{progress.matchBestSeconds}s</span>
+            <p className="mt-4 text-sm text-muted-foreground">
+              Best time: <span className="font-semibold text-foreground">{progress.matchBestSeconds}s</span>
             </p>
           )}
-          <Button onClick={start} className="mt-6">
+          <Button size="lg" onClick={start} className="mt-6">
             Start matching
           </Button>
         </div>
@@ -98,21 +100,21 @@ export default function MatchPage() {
 
   if (phase === "done") {
     return (
-      <PageShell title="🧩 Board cleared!">
-        <div className="pop-in rounded-2xl border border-white/10 bg-slate-900/70 p-8 text-center">
-          <div className="text-6xl font-black text-sky-300">{elapsed}s</div>
-          <div className="mt-2 text-slate-400">
+      <PageShell title="Board cleared!">
+        <div className="pop-in rounded-2xl border border-border bg-card p-8 text-center">
+          <div className="text-6xl font-semibold text-primary">{elapsed}s</div>
+          <div className="mt-2 text-muted-foreground">
             {mistakes} mismatch{mistakes === 1 ? "" : "es"} · +{xp} XP
           </div>
           <div className="mt-6 grid gap-2 text-left text-sm">
             {terms.map((t) => (
-              <div key={t.id} className="rounded-lg bg-white/5 px-3 py-2">
-                <span className="font-semibold text-white"><RichText text={t.term} /></span>
-                <span className="text-slate-400"> · <RichText text={t.definition} /></span>
+              <div key={t.id} className="rounded-lg bg-muted px-3 py-2">
+                <span className="font-semibold text-foreground"><RichText text={t.term} /></span>
+                <span className="text-muted-foreground"> · <RichText text={t.definition} /></span>
               </div>
             ))}
           </div>
-          <Button onClick={start} className="mt-6">
+          <Button size="lg" onClick={start} className="mt-6">
             New board
           </Button>
         </div>
@@ -122,12 +124,12 @@ export default function MatchPage() {
 
   const tile = "w-full rounded-xl border px-3 py-3 text-left text-sm transition";
   return (
-    <PageShell title="🧩 Service Match">
-      <div className="mb-4 flex justify-between text-sm text-slate-400">
+    <PageShell title="Service Match">
+      <div className="mb-4 flex justify-between text-sm text-muted-foreground">
         <span>
           {matched.length}/{PAIRS} matched · {mistakes} mismatches
         </span>
-        <span className="font-mono text-slate-200">{elapsed.toFixed(0)}s</span>
+        <span className="font-mono text-foreground">{elapsed.toFixed(0)}s</span>
       </div>
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
         <div className="grid content-start gap-2">
@@ -143,12 +145,12 @@ export default function MatchPage() {
                 onClick={() => setPickedTerm(active ? null : t.id)}
                 className={`${tile} font-semibold ${
                   done
-                    ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-200 opacity-50"
+                    ? "border-success/30 bg-success/10 text-success-foreground opacity-50"
                     : active
-                      ? "border-sky-400 bg-sky-400/20 text-white"
+                      ? "border-primary bg-primary/20 text-foreground"
                       : bad
-                        ? "shake border-rose-400 bg-rose-400/15 text-white"
-                        : "border-white/10 bg-white/5 text-slate-100 hover:border-sky-400/50"
+                        ? "shake border-destructive bg-destructive/15 text-foreground"
+                        : "border-border bg-muted text-foreground hover:border-primary/50"
                 }`}
               >
                 <RichText text={t.term} />
@@ -168,12 +170,12 @@ export default function MatchPage() {
                 onClick={() => pickDef(d.id)}
                 className={`${tile} ${
                   done
-                    ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-200 opacity-50"
+                    ? "border-success/30 bg-success/10 text-success-foreground opacity-50"
                     : bad
-                      ? "shake border-rose-400 bg-rose-400/15 text-white"
+                      ? "shake border-destructive bg-destructive/15 text-foreground"
                       : pickedTerm
-                        ? "border-white/15 bg-white/5 text-slate-200 hover:border-sky-400/60 hover:bg-sky-400/10"
-                        : "border-white/10 bg-white/[0.03] text-slate-300"
+                        ? "border-border bg-muted text-foreground hover:border-primary/60 hover:bg-primary/10"
+                        : "border-border bg-card text-muted-foreground"
                 }`}
               >
                 <RichText text={d.definition} />
@@ -182,7 +184,7 @@ export default function MatchPage() {
           })}
         </div>
       </div>
-      <p className="mt-4 text-center text-xs text-slate-500">Pick a service on the left, then its match on the right.</p>
+      <p className="mt-4 text-center text-sm text-muted-foreground">Pick a service on the left, then its match on the right.</p>
     </PageShell>
   );
 }

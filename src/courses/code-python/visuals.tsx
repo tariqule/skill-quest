@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /** Concept diagrams for the Python Interview Quest. */
 
@@ -63,13 +64,13 @@ export function SliceRuler() {
           const order = picked.indexOf(i);
           return (
             <div key={i}>
-              <div className="font-mono text-[11px] text-slate-500">{i}</div>
+              <div className="font-mono text-[11px] text-muted-foreground">{i}</div>
               <div
-                className={`rounded-lg py-2 font-mono text-xl font-black transition ${order >= 0 ? "bg-sky-400 text-slate-950" : "bg-white/5 text-slate-400"}`}
+                className={`rounded-lg py-2 font-mono text-xl font-semibold transition ${order >= 0 ? "bg-sky-400 text-slate-950" : "bg-white/5 text-slate-400"}`}
               >
                 {ch}
               </div>
-              <div className="font-mono text-[11px] text-slate-500">{i - WORD.length}</div>
+              <div className="font-mono text-[11px] text-muted-foreground">{i - WORD.length}</div>
               <div className="h-4 font-mono text-[10px] text-sky-300">{order >= 0 ? `#${order + 1}` : ""}</div>
             </div>
           );
@@ -194,7 +195,7 @@ export function ComplexityExplorer() {
             onClick={() => setSel(i)}
             className={`rounded-xl px-3 py-1.5 font-mono text-sm font-bold ${i === sel ? "bg-sky-400 text-slate-950" : "bg-white/10 text-white"}`}
           >
-            {st.icon} {st.name}
+            <BlockIcon icon={st.icon} className="inline-block size-[1.1em] align-[-0.15em]" /> {st.name}
           </button>
         ))}
       </div>
@@ -210,7 +211,7 @@ export function ComplexityExplorer() {
           </div>
         ))}
       </div>
-      <p className="mt-2 text-[11px] text-slate-500">* amortized. Hash-table costs are averages; heavy collisions can degrade them.</p>
+      <p className="mt-2 text-[11px] text-muted-foreground">* amortized. Hash-table costs are averages; heavy collisions can degrade them.</p>
     </div>
   );
 }
@@ -238,7 +239,7 @@ export function LegbRings() {
             className="absolute rounded-full border-2 transition"
             style={{ inset: `${i * 12}%`, borderColor: r.color, background: sel === i ? `${r.color}33` : `${r.color}10` }}
           >
-            <span className="absolute left-1/2 top-[5%] -translate-x-1/2 text-xs font-black" style={{ color: r.color }}>
+            <span className="absolute left-1/2 top-[5%] -translate-x-1/2 text-xs font-semibold" style={{ color: r.color }}>
               {r.key}
             </span>
           </button>
@@ -256,12 +257,12 @@ export function LegbRings() {
               <span className="rounded px-1.5 font-bold text-slate-950" style={{ background: r.color }}>
                 {r.key}
               </span>
-              {i < 3 && <span className="text-slate-500">→</span>}
+              {i < 3 && <span className="text-muted-foreground">→</span>}
             </span>
           ))}
           <span className="text-slate-400">→ NameError</span>
         </div>
-        <p className="mt-2 text-xs text-slate-500">Tap a ring.</p>
+        <p className="mt-2 text-xs text-muted-foreground">Tap a ring.</p>
       </div>
     </div>
   );
@@ -306,8 +307,7 @@ export function MroDiamond() {
         <button
           type="button"
           onClick={() => setStep((s) => Math.min(s + 1, MRO.length))}
-          className="btn-3d rounded-xl bg-amber-400 px-4 py-2 text-sm font-bold text-slate-950"
-          style={{ "--edge": "#b45309" } as React.CSSProperties}
+          className="rounded-lg bg-reward px-4 py-2 text-sm font-semibold text-primary-foreground"
         >
           Next in MRO ▶
         </button>
@@ -319,7 +319,7 @@ export function MroDiamond() {
         D.__mro__ → ({MRO.slice(0, step).join(", ")}
         {step < MRO.length ? ", …" : ""})
       </div>
-      <p className="mt-1 text-center text-xs text-slate-500">
+      <p className="mt-1 text-center text-xs text-muted-foreground">
         class D(B, C) where B(A) and C(A). C3 linearization: children before parents, left before right, each class once.
       </p>
     </div>
@@ -357,10 +357,10 @@ export function ExceptionPaths() {
         {TRY_LINES.map((l, i) => {
           const ran = p.lines.includes(i + 1);
           return (
-            <div key={i} className={`flex gap-3 px-3 py-0.5 transition ${ran ? "bg-emerald-400/15 text-slate-100" : "text-slate-600 line-through decoration-slate-700"}`}>
-              <span className="w-4 text-right text-slate-600">{i + 1}</span>
+            <div key={i} className={`flex gap-3 px-3 py-0.5 transition ${ran ? "bg-emerald-400/15 text-slate-100" : "text-muted-foreground line-through decoration-slate-700"}`}>
+              <span className="w-4 text-right text-muted-foreground">{i + 1}</span>
               <span className="whitespace-pre">{l}</span>
-              {ran && <span className="ml-auto text-emerald-300">✓</span>}
+              {ran && <span className="ml-auto text-emerald-300"><BlockIcon icon="✓" className="inline-block size-[1.1em] align-[-0.15em]" /></span>}
             </div>
           );
         })}

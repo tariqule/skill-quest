@@ -9,6 +9,7 @@ import { courseCopy } from "@/engine/copy";
 import { levelDeck, questStars, taughtPool } from "@/engine/game";
 import { LEVEL_BY_ID, levelSplit } from "@/engine/levels";
 import { finishedTopicPool } from "@/engine/practice";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 export function QuestPlay() {
   const { domain: domainId } = useParams<{ domain: string }>();
@@ -24,7 +25,7 @@ export function QuestPlay() {
   const percent = (n: number) => `${Math.round(n * 100)}%`;
 
   return (
-    <PageShell title={`${domain.emoji} ${domain.world}`} subtitle={`${copy.noun === "exam" ? "Domain" : "Stage"} ${domain.number}: ${domain.name} · ${domain.weight}% of the ${copy.noun}`}>
+    <PageShell title={`${domain.world}`} subtitle={`${copy.noun === "exam" ? "Domain" : "Stage"} ${domain.number}: ${domain.name} · ${domain.weight}% of the ${copy.noun}`}>
       <QuizSession
         color={domain.color}
         hearts={hearts}
@@ -42,26 +43,26 @@ export function QuestPlay() {
         }}
         intro={
           <>
-            <p className="text-slate-300">{domain.summary}</p>
-            <ul className="mt-5 grid gap-2 text-sm text-slate-400">
+            <p className="text-muted-foreground">{domain.summary}</p>
+            <ul className="mt-5 grid gap-2 text-sm text-muted-foreground">
               <li>
-                ❤️ You have {hearts} hearts. Each wrong answer costs one.
+                <BlockIcon icon="❤️" className="inline-block size-[1.1em] align-[-0.15em]" /> You have {hearts} hearts. Each wrong answer costs one.
               </li>
-              <li>🔥 Chain correct answers for a combo: x1.5 XP at 3, x2 at 5, x3 at 10.</li>
+              <li><BlockIcon icon="🔥" className="inline-block size-[1.1em] align-[-0.15em]" /> Chain correct answers for a combo: x1.5 XP at 3, x2 at 5, x3 at 10.</li>
               <li>
-                ⭐ {percent(starThresholds[0])} earns 3 stars, {percent(starThresholds[1])} earns 2, {percent(starThresholds[2])} earns 1. Stars give bonus XP.
+                <BlockIcon icon="⭐" className="inline-block size-[1.1em] align-[-0.15em]" /> {percent(starThresholds[0])} earns 3 stars, {percent(starThresholds[1])} earns 2, {percent(starThresholds[2])} earns 1. Stars give bonus XP.
               </li>
-              <li>⌨️ Press 1-4 or A-D to answer, Enter for next.</li>
+              <li><BlockIcon icon="⌨️" className="inline-block size-[1.1em] align-[-0.15em]" /> Press 1-4 or A-D to answer, Enter for next.</li>
             </ul>
-            <p className="mt-4 text-sm text-slate-400">
+            <p className="mt-4 text-sm text-muted-foreground">
               {split.borrowed > 0 ? (
                 <>
-                  {LEVEL_BY_ID[level].icon} {split.size} random questions: {split.atLevel} at {LEVEL_BY_ID[level].name} level, the other {split.borrowed} from the
+                  <BlockIcon icon={LEVEL_BY_ID[level].icon} className="inline-block size-[1.1em] align-[-0.15em]" /> {split.size} random questions: {split.atLevel} at {LEVEL_BY_ID[level].name} level, the other {split.borrowed} from the
                   nearest levels because this stage has only {split.atLevel} at yours.
                 </>
               ) : level !== "all" && split.size < pool.length ? (
                 <>
-                  {LEVEL_BY_ID[level].icon} {split.size} random {LEVEL_BY_ID[level].name}-level questions.
+                  <BlockIcon icon={LEVEL_BY_ID[level].icon} className="inline-block size-[1.1em] align-[-0.15em]" /> {split.size} random {LEVEL_BY_ID[level].name}-level questions.
                 </>
               ) : (
                 <>
@@ -69,10 +70,10 @@ export function QuestPlay() {
                 </>
               )}
             </p>
-            <p className="mt-4 rounded-xl border border-violet-300/30 bg-violet-400/10 p-3 text-sm text-violet-100">
+            <p className="mt-4 rounded-xl border border-info/30 bg-info/10 p-3 text-sm text-info-foreground">
               Not ready yet?{" "}
               <Link href={href(`/study/${domain.id}`)} className="font-bold underline">
-                📚 Study this world first
+                <BlockIcon icon="📚" className="inline-block size-[1.1em] align-[-0.15em]" /> Study this world first
               </Link>{" "}
               at your own pace, then come back.
             </p>

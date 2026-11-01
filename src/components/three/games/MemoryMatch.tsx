@@ -38,7 +38,7 @@ export default function MemoryMatch({ data, color, onFinish }: GameProps<MemoryT
 
   return (
     <div>
-      <div className="flex items-center justify-between text-sm font-bold text-slate-300">
+      <div className="flex items-center justify-between text-sm font-bold text-muted-foreground">
         <span>
           Pairs {matched.length}/{pairs}
         </span>
@@ -62,7 +62,7 @@ export default function MemoryMatch({ data, color, onFinish }: GameProps<MemoryT
               key={i}
               type="button"
               onClick={() => flip(i)}
-              className={`min-h-20 rounded-xl border p-2 text-xs font-semibold ${matched.includes(t.pair) ? "border-emerald-400 bg-emerald-400/15 text-emerald-100" : shown(i) ? "border-sky-400 bg-sky-400/15 text-white" : "border-white/10 bg-white/5 text-transparent"}`}
+              className={`min-h-20 rounded-xl border p-2 text-xs font-semibold ${matched.includes(t.pair) ? "border-success bg-success/15 text-success-foreground" : shown(i) ? "border-primary bg-primary/15 text-foreground" : "border-border bg-muted text-transparent"}`}
             >
               {shown(i) ? t.text : "?"}
             </button>
@@ -74,13 +74,13 @@ export default function MemoryMatch({ data, color, onFinish }: GameProps<MemoryT
         {open.map((k) => (
           <div
             key={k}
-            className={`rounded-xl border px-3 py-2 text-sm font-semibold ${data[k].side === "term" ? "border-sky-400/50 bg-sky-400/10 text-sky-50" : "border-violet-400/50 bg-violet-400/10 text-violet-50"}`}
+            className={`rounded-xl border px-3 py-2 text-sm font-semibold ${data[k].side === "term" ? "border-primary/50 bg-primary/10 text-primary" : "border-info/50 bg-info/10 text-info-foreground"}`}
           >
-            <span className="mr-1.5 text-[10px] font-black uppercase tracking-wider opacity-70">{data[k].side === "term" ? "Term" : "Meaning"}</span>
+            <span className="mr-1.5 text-[10px] font-semibold uppercase tracking-wider opacity-70">{data[k].side === "term" ? "Term" : "Meaning"}</span>
             {data[k].full ?? data[k].text}
           </div>
         ))}
-        {open.length === 0 && <p className="text-center text-xs text-slate-500 sm:col-span-2">Tap two tiles. A term and its meaning make a pair.</p>}
+        {open.length === 0 && <p className="text-center text-xs text-muted-foreground sm:col-span-2">Tap two tiles. A term and its meaning make a pair.</p>}
       </div>
     </div>
   );

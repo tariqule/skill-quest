@@ -1,6 +1,7 @@
 import { Flow, Layers, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { ResponsibilityShiftLab } from "../labs";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /**
  * Domain 2: Security and Compliance (30% of scored content).
@@ -175,11 +176,11 @@ export default defineDomain({
           />
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-xl border border-white/10 bg-slate-950/60 p-3 text-sm text-slate-300">
-              <div className="font-bold text-white">💾 At rest</div>
+              <div className="font-bold text-white"><BlockIcon icon="💾" className="inline-block size-[1.1em] align-[-0.15em]" /> At rest</div>
               Data sitting on disks, in S3 or in databases. You turn it on with KMS keys, for example SSE-KMS for S3, or encrypted EBS volumes and RDS instances.
             </div>
             <div className="rounded-xl border border-white/10 bg-slate-950/60 p-3 text-sm text-slate-300">
-              <div className="font-bold text-white">📡 In transit</div>
+              <div className="font-bold text-white"><BlockIcon icon="📡" className="inline-block size-[1.1em] align-[-0.15em]" /> In transit</div>
               Data moving across a network. Protect it with TLS (HTTPS) using certificates from ACM, or with a VPN tunnel.
             </div>
           </div>
@@ -269,7 +270,7 @@ export default defineDomain({
       visual: (
         <div className="grid gap-4">
           <div className="rounded-xl border border-rose-400/40 bg-rose-400/5 p-3">
-            <div className="font-bold text-rose-200">👑 Root user: lock it away</div>
+            <div className="font-bold text-rose-200"><BlockIcon icon="👑" className="inline-block size-[1.1em] align-[-0.15em]" /> Root user: lock it away</div>
             <ul className="mt-2 grid gap-1 text-sm text-slate-300">
               <li>• Turn on MFA and use a strong password</li>
               <li>• Don&apos;t create root access keys (delete any that exist)</li>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /** Concept diagrams specific to the KCNA course. */
 
@@ -29,7 +30,7 @@ export function ClusterMap() {
       onClick={() => setSel(id)}
       className={`rounded-lg border px-2 py-1.5 text-left text-xs font-semibold transition hover:-translate-y-0.5 ${sel === id ? "border-sky-400 bg-sky-400/20 text-white" : "border-white/10 bg-slate-950/70 text-slate-200"}`}
     >
-      <span className="mr-1">{COMPONENTS[id].icon}</span>
+      <span className="mr-1"><BlockIcon icon={COMPONENTS[id].icon} className="inline-block size-[1.1em] align-[-0.15em]" /></span>
       {COMPONENTS[id].name}
     </button>
   );
@@ -53,7 +54,7 @@ export function ClusterMap() {
       </div>
       <div className="pop-in mt-3 rounded-xl border border-white/10 bg-white/[0.04] p-3" key={sel}>
         <div className="font-semibold text-white">
-          {c.icon} {c.name}
+          <BlockIcon icon={c.icon} className="inline-block size-[1.1em] align-[-0.15em]" /> {c.name}
         </div>
         <p className="mt-1 text-sm leading-snug text-slate-300">{c.text}</p>
       </div>
@@ -124,7 +125,7 @@ export function RollingUpdateViz() {
       </div>
       {invalid ? (
         <div className="mt-3 rounded-xl border border-rose-400/40 bg-rose-400/10 p-3 text-sm text-rose-200">
-          ⛔ Rejected: maxSurge and maxUnavailable can&apos;t both be 0, or the rollout could never make progress.
+          <BlockIcon icon="⛔" className="inline-block size-[1.1em] align-[-0.15em]" /> Rejected: maxSurge and maxUnavailable can&apos;t both be 0, or the rollout could never make progress.
         </div>
       ) : (
         <div className="mt-3 rounded-xl border border-white/10 bg-slate-950/60 p-3">
@@ -141,13 +142,13 @@ export function RollingUpdateViz() {
             ))}
             {Array.from({ length: f.starting }, (_, i) => (
               <span key={`s${i}`} className="flex h-9 w-11 items-center justify-center rounded-lg border border-dashed border-emerald-400 text-xs text-emerald-300">
-                ⏳
+                <BlockIcon icon="⏳" className="inline-block size-[1.1em] align-[-0.15em]" />
               </span>
             ))}
           </div>
           <div className="mt-2 text-xs text-slate-400">
             Ready: <b className="text-white">{f.old + f.ready}</b> (minimum {replicas - unavail}) · Total: <b className="text-white">{f.old + f.ready + f.starting}</b> (maximum {replicas + surge}) ·{" "}
-            <span className="text-sky-300">blue v1</span> · <span className="text-emerald-300">green v2</span> · ⏳ starting, not Ready yet
+            <span className="text-sky-300">blue v1</span> · <span className="text-emerald-300">green v2</span> · <BlockIcon icon="⏳" className="inline-block size-[1.1em] align-[-0.15em]" /> starting, not Ready yet
           </div>
           <div className="mt-3 flex items-center gap-2">
             <button type="button" disabled={step === 0} onClick={() => setStep(step - 1)} className="rounded-lg bg-slate-800 px-3 py-1 text-sm text-slate-200 disabled:opacity-40">
@@ -184,7 +185,7 @@ export function PodStatusDecoder() {
   return (
     <div>
       <div className="overflow-x-auto rounded-xl bg-slate-950 p-2 font-mono text-[12px]">
-        <div className="text-slate-500">$ kubectl get pods</div>
+        <div className="text-muted-foreground">$ kubectl get pods</div>
         <div className="whitespace-pre text-slate-400">{"NAME                     READY   STATUS"}</div>
         {STATUSES.map((x, i) => (
           <button
@@ -206,7 +207,7 @@ export function PodStatusDecoder() {
         <p className="mt-1 text-sm leading-snug text-slate-300">{s.cause}</p>
         <div className="mt-2 rounded-lg bg-slate-950 px-2 py-1 font-mono text-xs text-emerald-300">$ {s.cmd}</div>
       </div>
-      <div className="mt-2 text-[11px] text-slate-500">Tap a row to decode it.</div>
+      <div className="mt-2 text-[11px] text-muted-foreground">Tap a row to decode it.</div>
     </div>
   );
 }

@@ -26,8 +26,8 @@ describe("lesson visuals", () => {
         settings={[{ name: "Block low and up", blocksFrom: 1 }]}
       />,
     );
-    expect(html.match(/⛔ blocked/g)).toHaveLength(3);
-    expect(html.match(/✓ allowed/g)).toHaveLength(1);
+    expect(html.match(/>blocked</g)).toHaveLength(3);
+    expect(html.match(/>allowed</g)).toHaveLength(1);
     expect(html).not.toMatch(/\$|cost/);
   });
 });

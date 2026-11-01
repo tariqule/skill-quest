@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CodeBlock } from "@/components/learn/blocks";
 import { js } from "./js";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /** Concept diagrams for the Node.js Interview Quest. */
 
@@ -31,23 +32,23 @@ export function LoopPhases() {
             className="relative rounded-xl border bg-slate-950/60 p-3 text-left transition hover:-translate-y-0.5"
             style={{ borderColor: sel === i ? "#5fa04e" : "rgb(255 255 255 / 0.1)", boxShadow: sel === i ? "0 0 0 3px #5fa04e33" : undefined }}
           >
-            <span className="absolute right-2 top-1.5 font-mono text-[10px] text-slate-500">{i + 1}</span>
-            <div className="text-xl">{ph.icon}</div>
+            <span className="absolute right-2 top-1.5 font-mono text-[10px] text-muted-foreground">{i + 1}</span>
+            <div className="text-xl"><BlockIcon icon={ph.icon} className="inline-block size-[1.1em] align-[-0.15em]" /></div>
             <div className="mt-1 text-sm font-semibold text-white">{ph.name}</div>
           </button>
         ))}
       </div>
       <div className="rounded-xl border border-emerald-400/30 bg-emerald-400/10 p-3">
         <div className="font-bold text-emerald-200">
-          {p.icon} {p.name}
+          <BlockIcon icon={p.icon} className="inline-block size-[1.1em] align-[-0.15em]" /> {p.name}
         </div>
         <p className="mt-1 text-sm text-slate-200">{p.text}</p>
       </div>
       <div className="rounded-xl border border-amber-400/30 bg-amber-400/10 p-3 text-sm text-amber-100">
-        ⚡ Between every callback, in every phase, Node empties the <b>process.nextTick queue</b> first and then the <b>promise microtask queue</b>. Then
+        <BlockIcon icon="⚡" className="inline-block size-[1.1em] align-[-0.15em]" /> Between every callback, in every phase, Node empties the <b>process.nextTick queue</b> first and then the <b>promise microtask queue</b>. Then
         the loop moves on. ↺ After close callbacks it goes back to timers, and exits when nothing is left to wait for.
       </div>
-      <p className="text-xs text-slate-500">Tap a phase.</p>
+      <p className="text-xs text-muted-foreground">Tap a phase.</p>
     </div>
   );
 }
@@ -109,18 +110,18 @@ export function MiddlewareChain() {
   const style: Record<Status, string> = {
     ran: "border-sky-400/50 bg-sky-400/10 text-sky-100",
     responded: "border-emerald-400/60 bg-emerald-400/15 text-emerald-100",
-    skipped: "border-white/5 bg-slate-950/40 text-slate-500 line-through",
+    skipped: "border-white/5 bg-slate-950/40 text-muted-foreground line-through",
     idle: "border-white/10 bg-slate-950/60 text-slate-300",
   };
-  const badge: Record<Status, string> = { ran: "next() →", responded: "📤 responds", skipped: "skipped", idle: "" };
+  const badge: Record<Status, string> = { ran: "next() →", responded: "responds", skipped: "skipped", idle: "" };
 
   return (
     <div className="grid gap-4">
       <div className="flex flex-wrap gap-2 text-sm">
         {[
-          ["🔑 Logged in", loggedIn, setLoggedIn],
-          ["🗺️ Route /orders exists", routeExists, setRouteExists],
-          ["💥 Handler throws", throws, setThrows],
+          ["Logged in", loggedIn, setLoggedIn],
+          ["Route /orders exists", routeExists, setRouteExists],
+          ["Handler throws", throws, setThrows],
         ].map(([label, v, set]) => (
           <label key={label as string} className="flex cursor-pointer items-center gap-2 rounded-lg border border-white/10 bg-slate-950/60 px-3 py-1.5 text-slate-200">
             <input type="checkbox" checked={v as boolean} onChange={(e) => toggle(set as (v: boolean) => void, e.target.checked)} className="accent-emerald-400" />
@@ -130,8 +131,7 @@ export function MiddlewareChain() {
         <button
           type="button"
           onClick={() => setSent(true)}
-          className="btn-3d rounded-xl bg-emerald-400 px-4 py-1.5 font-bold text-slate-950"
-          style={{ "--edge": "#166534" } as React.CSSProperties}
+          className="rounded-lg bg-primary px-4 py-1.5 font-semibold text-primary-foreground"
         >
           Send GET /orders
         </button>
@@ -141,7 +141,7 @@ export function MiddlewareChain() {
           const st: Status = sent ? status[s.id] : "idle";
           return (
             <div key={s.id} className={`flex items-center gap-3 rounded-xl border px-3 py-2 transition ${style[st]}`}>
-              <span className="w-5 text-center font-mono text-xs text-slate-500">{i + 1}</span>
+              <span className="w-5 text-center font-mono text-xs text-muted-foreground">{i + 1}</span>
               <span className="min-w-0 flex-1">
                 <span className="font-semibold">{s.label}</span>
                 <span className="ml-2 font-mono text-xs opacity-80">{s.code}</span>
@@ -154,7 +154,7 @@ export function MiddlewareChain() {
       {sent ? (
         <div className="pop-in rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2 text-sm text-slate-100">{result}</div>
       ) : (
-        <p className="text-xs text-slate-500">Set the switches, then send the request. Middleware runs top to bottom, in registration order.</p>
+        <p className="text-xs text-muted-foreground">Set the switches, then send the request. Middleware runs top to bottom, in registration order.</p>
       )}
     </div>
   );

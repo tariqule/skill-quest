@@ -3,8 +3,9 @@
 import { RichText } from "@/components/learn/code";
 import { BookOpen, BookText, Check, FileText, Gamepad2, Keyboard, Lightbulb, ListChecks, Map, Search, Swords, Target, Wrench, X, type LucideIcon } from "lucide-react";
 import { Input } from "./ui/input";
+import { Sheet, SheetClose, SheetPopup, SheetTitle } from "./ui/sheet";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { courseCopy } from "@/engine/copy";
 import { useCourse, useProgress } from "@/engine/course-context";
 import { versionLabel } from "@/engine/game";
@@ -284,42 +285,28 @@ function SourceNote() {
   );
 }
 
-/** Slide-over guide panel available on every page. */
+/** Slide-over guide panel (Base UI Dialog: focus trap + focus return). Loaded lazily by GuideDrawerGate. */
 export function GuideDrawer() {
   const { href } = useCourse();
   const open = useGuideOpen();
 
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      const t = e.target as HTMLElement | null;
-      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT")) return;
-      if (e.key === "Escape") setGuideOpen(false);
-      if (e.key === "?") setGuideOpen(!open);
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open]);
-
   return (
-    <div className={`fixed inset-0 z-30 ${open ? "" : "pointer-events-none"}`} aria-hidden={!open}>
-      <div className={`absolute inset-0 bg-background/70 backdrop-blur-sm transition-opacity motion-reduce:transition-none ${open ? "opacity-100" : "opacity-0"}`} onClick={() => setGuideOpen(false)} />
-      <aside
-        role="dialog"
-        aria-label="Study guide"
-        className={`absolute inset-y-0 right-0 flex w-full min-w-0 flex-col overflow-hidden bg-popover shadow-elevation-3 transition-transform duration-300 motion-reduce:transition-none sm:max-w-lg sm:border-l sm:border-border ${open ? "translate-x-0" : "translate-x-full"}`}
-      >
+    <Sheet open={open} onOpenChange={setGuideOpen}>
+      <SheetPopup aria-label="Study guide">
         <div className="flex items-center gap-2 border-b border-border px-4 py-2" style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 0.5rem)" }}>
           <BookOpen className="size-5 text-primary" aria-hidden />
-          <span className="flex-1 font-heading text-lg font-semibold text-foreground">Study guide</span>
+          <SheetTitle className="flex-1 font-heading text-lg font-semibold text-foreground">Study guide</SheetTitle>
           <Link href={href("/guide")} onClick={() => setGuideOpen(false)} className="flex min-h-11 items-center px-2 text-sm text-foreground underline underline-offset-4">
             Full page
           </Link>
-          <button type="button" onClick={() => setGuideOpen(false)} aria-label="Close guide" className="flex size-11 items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring">
+          <SheetClose aria-label="Close guide" className="flex size-11 items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring">
             <X className="size-5" aria-hidden />
-          </button>
+          </SheetClose>
         </div>
-        <div className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden p-4">{open && <GuideContent />}</div>
-      </aside>
-    </div>
+        <div className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden p-4">
+          <GuideContent />
+        </div>
+      </SheetPopup>
+    </Sheet>
   );
 }

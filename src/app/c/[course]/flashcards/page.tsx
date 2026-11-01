@@ -1,11 +1,14 @@
 "use client";
 
+import { SquareStackIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { RichText } from "@/components/learn/code";
 import { useEffect, useState } from "react";
-import { Bar, Button, PageShell } from "@/components/ui";
+import { Bar, PageShell } from "@/components/ui";
 import { useCourse, useProgress } from "@/engine/course-context";
 import { shuffle } from "@/engine/game";
 import type { Card } from "@/engine/types";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 type Phase = "intro" | "play" | "done";
 
@@ -65,38 +68,38 @@ export default function FlashcardsPage() {
 
   if (phase === "intro" || phase === "done") {
     return (
-      <PageShell title="🃏 Flashcards" subtitle="Spaced repetition. Cards you know move up a box; misses go back to box 1.">
+      <PageShell icon={SquareStackIcon} title="Flashcards" subtitle="Spaced repetition. Cards you know move up a box; misses go back to box 1.">
         {phase === "done" && (
-          <div className="pop-in mb-6 rounded-2xl border border-emerald-400/20 bg-emerald-400/5 p-5 text-center">
-            <div className="text-2xl font-bold text-white">
+          <div className="pop-in mb-6 rounded-2xl border border-success/20 bg-success/5 p-5 text-center">
+            <div className="text-2xl font-semibold text-foreground">
               {knew}/{session.length} known
             </div>
-            <div className="text-slate-400">+{knew * XP} XP</div>
+            <div className="text-muted-foreground">+{knew * XP} XP</div>
           </div>
         )}
-        <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-6 sm:p-8">
+        <div className="rounded-2xl border border-border bg-card p-6 sm:p-8">
           <div className="flex flex-wrap gap-2">
             <Chip active={filter === "all"} onClick={() => setFilter("all")}>
               All ({course.cards.length})
             </Chip>
             {course.domains.map((d) => (
               <Chip key={d.id} active={filter === d.id} onClick={() => setFilter(d.id)}>
-                {d.emoji} D{d.number}
+                <BlockIcon icon={d.emoji} className="inline-block size-[1.1em] align-[-0.15em]" /> D{d.number}
               </Chip>
             ))}
           </div>
 
           <div className="mt-6 grid grid-cols-5 gap-2 text-center">
             {boxCounts.map((n, i) => (
-              <div key={i} className="rounded-xl bg-white/5 p-2">
-                <div className="text-[11px] uppercase tracking-wider text-slate-400">Box {i + 1}</div>
-                <div className="text-lg font-bold text-white">{n}</div>
+              <div key={i} className="rounded-xl bg-muted p-2">
+                <div className="text-sm text-muted-foreground">Box {i + 1}</div>
+                <div className="text-lg font-semibold text-foreground">{n}</div>
               </div>
             ))}
           </div>
-          <p className="mt-2 text-xs text-slate-400">Box 1: new or missed · Box 5: mastered</p>
+          <p className="mt-2 text-sm text-muted-foreground">Box 1: new or missed · Box 5: mastered</p>
 
-          <Button onClick={start} className="mt-6">
+          <Button size="lg" onClick={start} className="mt-6">
             {phase === "done" ? "Another round" : `Study ${Math.min(SESSION, pool.length)} cards`}
           </Button>
         </div>
@@ -107,9 +110,9 @@ export default function FlashcardsPage() {
   const card = session[idx];
   const domain = domainById[card.domain];
   return (
-    <PageShell title="🃏 Flashcards">
+    <PageShell icon={SquareStackIcon} title="Flashcards">
       <div className="mb-4">
-        <div className="mb-1 flex justify-between text-xs text-slate-400">
+        <div className="mb-1 flex justify-between text-sm text-muted-foreground">
           <span>
             Card {idx + 1} of {session.length}
           </span>
@@ -120,24 +123,24 @@ export default function FlashcardsPage() {
 
       <button type="button" onClick={() => setFlipped((f) => !f)} className="flip-scene block w-full" aria-label="Flip card">
         <div className={`flip-card relative h-64 sm:h-72 ${flipped ? "is-flipped" : ""}`}>
-          <div className="flip-face absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-slate-900 p-6">
-            <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: domain.color }}>
-              {card.kind === "service" ? "Service" : "Concept"} · {domain.emoji} D{domain.number}
+          <div className="flip-face absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-border bg-card p-6">
+            <div className="text-sm font-semibold" style={{ color: domain.color }}>
+              {card.kind === "service" ? "Service" : "Concept"} · <BlockIcon icon={domain.emoji} className="inline-block size-[1.1em] align-[-0.15em]" /> D{domain.number}
             </div>
-            <div className="mt-4 text-center text-2xl sm:text-3xl font-bold text-white"><RichText text={card.term} /></div>
-            <div className="mt-6 text-xs text-slate-400">Tap or press Space to flip</div>
+            <div className="mt-4 text-center text-2xl sm:text-3xl font-semibold text-foreground"><RichText text={card.term} /></div>
+            <div className="mt-6 text-sm text-muted-foreground">Tap or press Space to flip</div>
           </div>
-          <div className="flip-face flip-back absolute inset-0 flex items-center justify-center rounded-2xl border border-sky-400/30 bg-slate-800 p-6">
-            <div className="text-center text-xl sm:text-2xl text-slate-100"><RichText text={card.definition} /></div>
+          <div className="flip-face flip-back absolute inset-0 flex items-center justify-center rounded-2xl border border-primary/30 bg-secondary p-6">
+            <div className="text-center text-xl sm:text-2xl text-foreground"><RichText text={card.definition} /></div>
           </div>
         </div>
       </button>
 
       <div className={`mt-5 grid grid-cols-2 gap-3 transition ${flipped ? "opacity-100" : "pointer-events-none opacity-30"}`}>
-        <Button variant="ghost" onClick={() => grade(false)}>
+        <Button size="lg" variant="outline" onClick={() => grade(false)}>
           ← Still learning
         </Button>
-        <Button onClick={() => grade(true)} className="bg-emerald-400 hover:bg-emerald-300">
+        <Button size="lg" onClick={() => grade(true)}>
           Knew it →
         </Button>
       </div>
@@ -151,7 +154,7 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
       type="button"
       onClick={onClick}
       className={`rounded-full border px-3 py-1.5 text-sm transition ${
-        active ? "border-sky-400 bg-sky-400/20 text-white" : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"
+        active ? "border-primary bg-primary/20 text-foreground" : "border-border bg-muted text-muted-foreground hover:bg-muted"
       }`}
     >
       {children}
