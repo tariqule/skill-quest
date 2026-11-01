@@ -137,7 +137,7 @@ export function PartitionStepper() {
         <button type="button" className={BTN} onClick={() => setK(0)}>
           Reset
         </button>
-        <span className="self-center text-xs text-slate-500">
+        <span className="self-center text-xs text-muted-foreground">
           <span className="text-emerald-300">green</span> &lt; pivot · <span className="text-pink-300">pink</span> is the pivot
         </span>
       </div>
@@ -318,7 +318,7 @@ export function BfsGrid() {
               : `Wave ${wave}: every cell at distance ${wave} from S.`}
         </span>
       </div>
-      <p className="mt-1 text-xs text-slate-500">Tap cells to add or remove walls. Each wave is one BFS level: everything in the queue at the same distance.</p>
+      <p className="mt-1 text-xs text-muted-foreground">Tap cells to add or remove walls. Each wave is one BFS level: everything in the queue at the same distance.</p>
     </div>
   );
 }
@@ -392,7 +392,7 @@ export function FibTree() {
           onClick={() => setMemo(!memo)}
           className={`rounded-full border px-3 py-1 text-sm font-semibold ${memo ? "border-emerald-400 bg-emerald-400/20 text-white" : "border-white/15 text-slate-300"}`}
         >
-          {memo ? "🧠 Memo ON" : "Memo OFF"}
+          {memo ? "Memo ON" : "Memo OFF"}
         </button>
         <span className="rounded-md bg-white/10 px-2 py-0.5 font-mono text-sm text-white">{placed.length} calls</span>
       </div>

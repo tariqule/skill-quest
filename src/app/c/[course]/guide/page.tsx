@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: "Study guide · SkillQuest" };
 
 export default function GuidePage() {
   return (
-    <PageShell title="📖 Study guide" subtitle="Everything about the exam in one place. Open it anytime with the Guide button or the ? key.">
+    <PageShell title="Study guide" subtitle="Everything about the exam in one place. Open it anytime with the Guide button or the ? key.">
       <GuideContent />
     </PageShell>
   );

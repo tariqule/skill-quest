@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import { useState } from "react";
 import { CodeBlock, Flow, LabHeader, type FlowStep, type GoalProps } from "@/components/learn/blocks";
 import { pct } from "@/engine/game";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /** Hands-on labs for the KCNA course. Each one doubles as a challenge through `goal` + `onSolved`. */
 
@@ -135,7 +136,7 @@ export function SchedulingLab({ goal, onSolved }: GoalProps<"place">) {
         {NODES.map((n) => (
           <div key={n.id} className={`rounded-xl border p-2 ${n.taint ? "border-amber-400/40 bg-amber-400/5" : "border-white/10 bg-slate-950/60"}`}>
             <div className="flex items-center gap-1.5 text-sm font-semibold text-white">
-              <span className="text-xl">{n.icon}</span> {n.name}
+              <span className="text-xl"><BlockIcon icon={n.icon} className="inline-block size-[1.1em] align-[-0.15em]" /></span> {n.name}
             </div>
             <div className="mt-1 text-[11px] text-slate-400">
               {Object.keys(n.labels).length ? `label ${Object.keys(n.labels).map((k) => SELECTOR_TEXT[k as "gpu" | "ssd"]).join(", ")}` : "no special labels"}
@@ -145,7 +146,7 @@ export function SchedulingLab({ goal, onSolved }: GoalProps<"place">) {
               {result &&
                 PODS.filter((p) => result[p.id].node === n.id).map((p) => (
                   <span key={p.id} className={`pop-in rounded-md px-1.5 py-0.5 text-xs font-bold ${placementOk(p.id, n.id) ? "bg-emerald-400 text-slate-950" : "bg-rose-400 text-slate-950"}`}>
-                    {p.icon} {p.name}
+                    <BlockIcon icon={p.icon} className="inline-block size-[1.1em] align-[-0.15em]" /> {p.name}
                   </span>
                 ))}
             </div>
@@ -157,7 +158,7 @@ export function SchedulingLab({ goal, onSolved }: GoalProps<"place">) {
         <div className="mt-2 rounded-xl border border-rose-400/40 bg-rose-400/10 p-2 text-xs text-rose-200">
           <b>Pending:</b>{" "}
           {PODS.filter((p) => !result[p.id].node)
-            .map((p) => `${p.icon} ${p.name}`)
+            .map((p) => `$<BlockIcon icon={p.icon} className="inline-block size-[1.1em] align-[-0.15em]" /> ${p.name}`)
             .join(", ")}
         </div>
       )}
@@ -170,7 +171,7 @@ export function SchedulingLab({ goal, onSolved }: GoalProps<"place">) {
             onClick={() => setSel(p.id)}
             className={`rounded-full border px-3 py-1 text-sm ${sel === p.id ? "border-sky-400 bg-sky-400/20 text-white" : "border-white/10 text-slate-300"}`}
           >
-            {p.icon} {p.name}
+            <BlockIcon icon={p.icon} className="inline-block size-[1.1em] align-[-0.15em]" /> {p.name}
           </button>
         ))}
       </div>
@@ -178,7 +179,7 @@ export function SchedulingLab({ goal, onSolved }: GoalProps<"place">) {
       <div className="mt-3 grid gap-3 md:grid-cols-2">
         <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm">
           <div className="font-semibold text-white">
-            {pod.icon} {pod.name} <span className="font-normal text-slate-400">· {pod.needs}</span>
+            <BlockIcon icon={pod.icon} className="inline-block size-[1.1em] align-[-0.15em]" /> {pod.name} <span className="font-normal text-slate-400">· {pod.needs}</span>
           </div>
           <div className="mt-3 text-xs font-bold uppercase tracking-wider text-slate-400">nodeSelector</div>
           <div className="mt-1 flex flex-wrap gap-1.5">
@@ -208,7 +209,7 @@ export function SchedulingLab({ goal, onSolved }: GoalProps<"place">) {
           </div>
           {result && (
             <div className={`mt-3 rounded-lg p-2 font-mono text-[11px] ${result[sel].node ? "bg-white/5 text-slate-300" : "bg-rose-400/10 text-rose-200"}`}>
-              {result[sel].node ? "✓ " : "⚠ FailedScheduling: "}
+              {result[sel].node ? <><BlockIcon icon="✓" className="inline-block size-[1.1em] align-[-0.15em]" />{" "}</> : "FailedScheduling: "}
               {result[sel].reason}
             </div>
           )}
@@ -216,8 +217,8 @@ export function SchedulingLab({ goal, onSolved }: GoalProps<"place">) {
         <CodeBlock code={podYaml(pod, spec)} lang="yaml" />
       </div>
 
-      <button type="button" onClick={run} className="btn-3d mt-3 rounded-xl bg-sky-400 px-4 py-2 font-bold text-slate-950" style={{ "--edge": "#0369a1" } as CSSProperties}>
-        ☸️ Schedule all Pods
+      <button type="button" onClick={run} className="mt-3 rounded-lg bg-primary px-4 py-2 font-semibold text-primary-foreground">
+        <BlockIcon icon="☸️" className="inline-block size-[1.1em] align-[-0.15em]" /> Schedule all Pods
       </button>
       {allGood && <div className="pop-in mt-2 text-sm font-semibold text-emerald-300">Every Pod landed where it should. Taints push Pods away, tolerations let them in, and selectors pull them toward a node.</div>}
     </div>
@@ -353,7 +354,7 @@ export function ServiceTypeLab({ goal, onSolved }: GoalProps<"all">) {
           const tone = p === null ? "border-white/10 text-slate-300" : p === x.answer ? "border-emerald-400 bg-emerald-400/20 text-emerald-100" : "border-rose-400 bg-rose-400/20 text-rose-100";
           return (
             <button key={k} type="button" onClick={() => setI(k)} className={`rounded-full border px-2.5 py-1 text-sm ${tone} ${k === i ? "ring-2 ring-sky-400" : ""}`}>
-              {x.icon} {k + 1}
+              <BlockIcon icon={x.icon} className="inline-block size-[1.1em] align-[-0.15em]" /> {k + 1}
             </button>
           );
         })}
@@ -363,7 +364,7 @@ export function ServiceTypeLab({ goal, onSolved }: GoalProps<"all">) {
       </div>
 
       <div className="mt-3 rounded-xl border border-white/10 bg-slate-950/60 p-3 text-sm text-slate-100">
-        <span className="mr-1 text-xl">{s.icon}</span> {s.text}
+        <span className="mr-1 text-xl"><BlockIcon icon={s.icon} className="inline-block size-[1.1em] align-[-0.15em]" /></span> {s.text}
       </div>
 
       <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -372,7 +373,7 @@ export function ServiceTypeLab({ goal, onSolved }: GoalProps<"all">) {
           const tone = !on ? "border-white/10 bg-white/[0.03] text-slate-200" : e.id === s.answer ? "border-emerald-400 bg-emerald-400/15 text-white" : "border-rose-400 bg-rose-400/15 text-white shake";
           return (
             <button key={e.id} type="button" onClick={() => choose(e.id)} className={`rounded-xl border px-3 py-2 text-left text-sm font-semibold transition hover:-translate-y-0.5 ${tone}`}>
-              <span className="mr-1">{e.icon}</span>
+              <span className="mr-1"><BlockIcon icon={e.icon} className="inline-block size-[1.1em] align-[-0.15em]" /></span>
               {e.id}
             </button>
           );
@@ -382,7 +383,7 @@ export function ServiceTypeLab({ goal, onSolved }: GoalProps<"all">) {
       {pick && (
         <div className="pop-in mt-3 rounded-xl border border-white/10 bg-white/[0.03] p-3">
           <div className={`text-sm font-semibold ${pick === s.answer ? "text-emerald-300" : "text-rose-300"}`}>
-            {pick === s.answer ? `✓ ${s.why}` : `✗ ${pick} isn't the best fit. Here's how ${pick} routes traffic:`}
+            {pick === s.answer ? s.why : `${pick} isn't the best fit. Here's how ${pick} routes traffic:`}
           </div>
           <div className="mt-3">
             <Flow steps={shown.path} color={pick === s.answer ? "#34d399" : "#fb7185"} />
@@ -493,7 +494,7 @@ export function ScaleLab({ goal, onSolved }: GoalProps<"peak" | "ha">) {
             }}
             className={`rounded-full border px-3 py-1 text-sm ${load === k ? "border-violet-400 bg-violet-400/20 text-white" : "border-white/10 text-slate-300"}`}
           >
-            {LOADS[k].icon} {LOADS[k].name}
+            <BlockIcon icon={LOADS[k].icon} className="inline-block size-[1.1em] align-[-0.15em]" /> {LOADS[k].name}
           </button>
         ))}
         <span className="self-center text-xs text-slate-400">{LOADS[load].note}</span>
@@ -507,16 +508,15 @@ export function ScaleLab({ goal, onSolved }: GoalProps<"peak" | "ha">) {
         <Slider label="maxReplicas" value={s.max} min={1} max={30} step={1} onChange={(v) => set("max", v)} />
       </div>
 
-      {invalid && <div className="mt-2 rounded-xl border border-rose-400/40 bg-rose-400/10 p-2 text-sm text-rose-200">⛔ {invalid}</div>}
+      {invalid && <div className="mt-2 rounded-xl border border-rose-400/40 bg-rose-400/10 p-2 text-sm text-rose-200"><BlockIcon icon="⛔" className="inline-block size-[1.1em] align-[-0.15em]" /> {invalid}</div>}
 
       <button
         type="button"
         onClick={run}
         disabled={!!invalid}
-        className="btn-3d mt-3 rounded-xl bg-violet-400 px-4 py-2 font-bold text-slate-950 disabled:opacity-40"
-        style={{ "--edge": "#6d28d9" } as CSSProperties}
+        className="mt-3 rounded-lg bg-primary px-4 py-2 font-semibold text-primary-foreground disabled:opacity-40"
       >
-        📈 Send traffic
+        <BlockIcon icon="📈" className="inline-block size-[1.1em] align-[-0.15em]" /> Send traffic
       </button>
 
       {r && ran && (
@@ -543,11 +543,11 @@ export function ScaleLab({ goal, onSolved }: GoalProps<"peak" | "ha">) {
           </div>
           {r.pending > 0 && (
             <div className="rounded-xl border border-rose-400/40 bg-rose-400/10 p-2 text-sm text-rose-200">
-              ⏳ {r.pending} Pod{r.pending > 1 ? "s" : ""} Pending: 0/{NODE_COUNT} nodes have {ran.s.request}m of CPU left to request. Smaller requests, or more nodes (Cluster Autoscaler), would fix it.
+              <BlockIcon icon="⏳" className="inline-block size-[1.1em] align-[-0.15em]" /> {r.pending} Pod{r.pending > 1 ? "s" : ""} Pending: 0/{NODE_COUNT} nodes have {ran.s.request}m of CPU left to request. Smaller requests, or more nodes (Cluster Autoscaler), would fix it.
             </div>
           )}
           <div className="overflow-x-auto rounded-xl bg-slate-950 p-2 font-mono text-[12px] text-slate-200">
-            <div className="text-slate-500">$ kubectl get hpa web</div>
+            <div className="text-muted-foreground">$ kubectl get hpa web</div>
             <div className="whitespace-pre">{"NAME  REFERENCE       TARGETS          MINPODS  MAXPODS  REPLICAS"}</div>
             <div className="whitespace-pre">{`web   Deployment/web  cpu: ${r.utilization}%/${ran.s.target}%`.padEnd(41) + `${ran.s.min}`.padEnd(9) + `${ran.s.max}`.padEnd(9) + `${r.desired}`}</div>
           </div>
@@ -575,7 +575,7 @@ export function ScaleLab({ goal, onSolved }: GoalProps<"peak" | "ha">) {
 function Check({ ok, text }: { ok: boolean; text: string }) {
   return (
     <li className={`flex gap-2 ${ok ? "text-emerald-200" : "text-rose-200"}`}>
-      <span>{ok ? "✅" : "❌"}</span>
+      <span>{ok ? <BlockIcon icon="✅" className="inline-block size-[1.1em] align-[-0.15em]" /> : <BlockIcon icon="❌" className="inline-block size-[1.1em] align-[-0.15em]" />}</span>
       <span>{text}</span>
     </li>
   );

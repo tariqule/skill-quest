@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useCourse } from "@/engine/course-context";
 import { isCorrect, pct, type PreparedQuestion } from "@/engine/game";
 import { QuestionCard } from "./QuestionCard";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 export interface TimedResult {
   correct: number;
@@ -120,32 +121,32 @@ export function TimedQuiz({ questions, secondsPerQuestion, passShare, xpPerCorre
               strokeDashoffset={(97.4 * (1 - left / limit)).toFixed(2)}
             />
           </svg>
-          <span className={`font-mono text-lg font-black ${urgent ? "text-rose-300" : "text-white"}`}>{Math.ceil(left)}</span>
+          <span className={`font-mono text-lg font-semibold ${urgent ? "text-destructive-foreground" : "text-foreground"}`}>{Math.ceil(left)}</span>
         </div>
         <div className="flex-1">
-          <div className="mb-1 flex justify-between text-xs text-slate-400">
+          <div className="mb-1 flex justify-between text-xs text-muted-foreground">
             <span>
-              ⏱️ Question {idx + 1} of {questions.length}
+              <BlockIcon icon="⏱️" className="inline-block size-[1.1em] align-[-0.15em]" /> Question {idx + 1} of {questions.length}
             </span>
             <span>
-              ✓ {correctSoFar} · need {Math.ceil(passShare * questions.length)}
+              <BlockIcon icon="✓" className="inline-block size-[1.1em] align-[-0.15em]" /> {correctSoFar} · need {Math.ceil(passShare * questions.length)}
             </span>
           </div>
-          <div className="h-2 overflow-hidden rounded-full bg-white/10">
+          <div className="h-2 overflow-hidden rounded-full bg-muted">
             <div className="h-full rounded-full transition-all" style={{ width: pct(idx / questions.length), background: color }} />
           </div>
         </div>
       </div>
 
       <div
-        className={`rounded-2xl transition ${verdict === "correct" ? "ring-4 ring-emerald-400/60" : verdict ? "ring-4 ring-rose-400/60" : ""}`}
+        className={`rounded-2xl transition ${verdict === "correct" ? "ring-4 ring-success/60" : verdict ? "ring-4 ring-destructive/60" : ""}`}
       >
         <QuestionCard key={`${q.id}-${idx}`} q={q} submitted={verdict === "timeout" ? [] : submitted} onSubmit={submit} explain={false} showDomain={showDomain} />
       </div>
 
       {verdict && (
-        <div className={`pop-in mt-3 text-center text-lg font-black ${verdict === "correct" ? "text-emerald-300" : "text-rose-300"}`}>
-          {verdict === "correct" ? `✓ +${xpPerCorrect} XP` : verdict === "timeout" ? "⏰ Time's up" : "✗ Not this time"}
+        <div className={`pop-in mt-3 text-center text-lg font-semibold ${verdict === "correct" ? "text-success-foreground" : "text-destructive-foreground"}`}>
+          {verdict === "correct" ? `+${xpPerCorrect} XP` : verdict === "timeout" ? "Time's up" : "Not this time"}
         </div>
       )}
     </div>

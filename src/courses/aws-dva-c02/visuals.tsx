@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { pct } from "@/engine/game";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /** Concept diagrams specific to the AWS Developer Associate course. */
 
@@ -82,14 +83,14 @@ export function DeployStrategies() {
               key={i}
               className={`flex h-9 items-center justify-center rounded-lg text-xs font-bold ${isTraffic ? "w-7" : "w-11"} ${v === "1" ? "bg-sky-500/70 text-white" : v === "2" ? "bg-emerald-400 text-slate-950" : "border border-dashed border-rose-400/60 text-rose-300"}`}
             >
-              {v === "-" ? "⏸" : isTraffic ? "" : `v${v}`}
+              {v === "-" ? <BlockIcon icon="⏸" className="inline-block size-[1.1em] align-[-0.15em]" /> : isTraffic ? "" : `v${v}`}
             </span>
           ))}
         </div>
         <div className="mt-2 text-xs text-slate-400">
           {isTraffic ? "Each block is 10% of traffic. " : "Each block is an instance. "}
           <span className="text-sky-300">Blue is the old version</span>, <span className="text-emerald-300">green is the new one</span>
-          {!isTraffic && <span className="text-rose-300">, ⏸ is out of service</span>}
+          {!isTraffic && <span className="text-rose-300">, <BlockIcon icon="⏸" className="inline-block size-[1.1em] align-[-0.15em]" /> is out of service</span>}
         </div>
         <div className="mt-3 flex items-center gap-2">
           <button type="button" disabled={step === 0} onClick={() => setStep(step - 1)} className="rounded-lg bg-slate-800 px-3 py-1 text-sm text-slate-200 disabled:opacity-40">
@@ -181,7 +182,7 @@ export function TraceWaterfall() {
             </span>
           </button>
         ))}
-        <div className="grid grid-cols-[9.5rem_1fr] text-[10px] text-slate-500">
+        <div className="grid grid-cols-[9.5rem_1fr] text-[10px] text-muted-foreground">
           <span />
           <span className="flex justify-between">
             <span>0 ms</span>

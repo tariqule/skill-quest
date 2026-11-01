@@ -14,7 +14,7 @@ import {
   Timer, TrafficCone, Train, TreePine, TrendingDown, TrendingUp, Trash2, Trophy, Truck, Type, Undo2, Upload, User,
   UserCheck, Users, Utensils, Wallet, Waves, Wifi, Wrench, X, Zap, Sun, Moon as Night, Feather, Construction, Telescope,
   Microscope, Dice5, Bird, Turtle, Rabbit, Dog, Cat, Fish, Snail, Car, Bus, Ship, Wind, Flame, Sigma, Brush, Volume2,
-  Satellite, Siren as Alarm, MousePointer2, Printer, Film, Music, Coffee, Accessibility, Sparkle, Link, PackageOpen, Egg, Swords, Medal, Crosshair,
+  Satellite, Siren as Alarm, MousePointer2, Printer, Film, Music, Coffee, Accessibility, Sparkle, Link, PackageOpen, Egg, Swords, Medal, Crosshair, Check, Square, List, Pause, Redo2,
 } from "lucide-react";
 
 /** Lesson visuals store decorative icons as emoji. They render through this map as Lucide icons instead. */
@@ -54,8 +54,10 @@ const MAP: Record<string, LucideIcon> = {
   "🌈": Sparkles, "🆕": Sparkle, "📺": Monitor, "📹": Camera, "⏪": History, "🧲": Filter, "🪜": ArrowUp, "🧷": Paperclip,
   "🗜️": Minus, "🏬": Store, "🏪": Store, "☠️": CircleAlert, "🪂": Plane, "🚶": User, "🛎️": Bell, "💎": Star,
   "🐣": Egg, "🐉": Swords, "⚔️": Swords, "🗡️": Swords, "🎓": GraduationCap, "🏅": Medal, "🥇": Medal, "🎖️": Medal, "⭐": Star, "🌟": Star,
-  "🎳": Crosshair, "🧗": Mountain, "🪐": Globe, "🌌": Sparkles, "🏃": Activity, "🕹️": Play, "🎰": Dice5,
+  "🎳": Crosshair, "✓": Check, "✔": Check, "✗": X, "✕": X, "✖": X, "○": Circle, "☐": Square, "☑": CheckSquare, "☰": List, "⏸": Pause, "▶": Play, "🖤": Heart, "★": Star, "✂": Scissors, "↷": Redo2, "🧗": Mountain, "🪐": Globe, "🌌": Sparkles, "🏃": Activity, "🕹️": Play, "🎰": Dice5,
 };
+
+const MARK_LABEL: Record<string, string> = { "✓": "correct", "✔": "correct", "✅": "correct", "✗": "incorrect", "✕": "incorrect", "✖": "incorrect", "✘": "incorrect", "❌": "incorrect" };
 
 const EMOJI = /\p{Extended_Pictographic}|\u20e3/u;
 const KEYCAP = /^([0-9#])\ufe0f?\u20e3$/u;
@@ -63,6 +65,7 @@ const KEYCAP = /^([0-9#])\ufe0f?\u20e3$/u;
 /** A Lucide icon for an emoji, or null when the string is plain text (λ, ▲, $) that should render as is. */
 export function iconFor(icon: string): LucideIcon | "keycap" | null {
   if (KEYCAP.test(icon)) return "keycap";
+  if (MAP[icon]) return MAP[icon];
   if (!EMOJI.test(icon)) return null;
   return MAP[icon] ?? MAP[icon.replace(/\ufe0f/g, "")] ?? MAP[`${icon.replace(/\ufe0f/g, "")}\ufe0f`] ?? CircleDot;
 }
@@ -73,7 +76,25 @@ export function BlockIcon({ icon, className = "size-6" }: { icon: string; classN
   if (I === "keycap")
     return <span aria-hidden="true" className="inline-flex size-7 items-center justify-center rounded-md border border-border font-mono text-base font-semibold">{icon.match(KEYCAP)![1]}</span>;
   if (!I) return <span aria-hidden="true" className="font-mono text-xl font-semibold">{icon}</span>;
-  return createElement(I, { "aria-hidden": true, className: `${className} text-primary`, strokeWidth: 1.75 });
+  // Right/wrong marks carry meaning, so they keep a text alternative; every other icon is decorative.
+  const label = MARK_LABEL[icon];
+  const a11y = label ? { role: "img", "aria-label": label } : { "aria-hidden": true };
+  return createElement(I, { ...a11y, className: `${className} text-primary`, strokeWidth: 1.75 });
 }
 
 export { EMOJI as EMOJI_PATTERN };
+
+const LEADING = new RegExp(`^(?:(?:${EMOJI.source})[\\uFE0F\\u200D]*\\s*)+`, "u");
+
+/** Text that may start with an emoji ("🔑 Who gets a key"): the emoji becomes its Lucide icon. */
+export function IconText({ text }: { text: string }) {
+  const m = text.match(LEADING);
+  if (!m) return <>{text}</>;
+  const lead = m[0].match(EMOJI)![0];
+  return (
+    <>
+      <BlockIcon icon={lead} className="mr-1 inline-block size-[1.1em] align-[-0.15em]" />
+      {text.slice(m[0].length)}
+    </>
+  );
+}

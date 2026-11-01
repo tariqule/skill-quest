@@ -7,6 +7,7 @@ import { Bar, Button, PageShell } from "@/components/ui";
 import { courseCopy } from "@/engine/copy";
 import { useCourse, useLevelPool, useProgress } from "@/engine/course-context";
 import { isCorrect, scaledScore, weightedExamDeck, type PreparedQuestion } from "@/engine/game";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 type Phase = "intro" | "play" | "done";
 
@@ -103,29 +104,29 @@ export default function BossPage() {
 
   if (phase === "intro") {
     return (
-      <PageShell title={`${boss.emoji} Boss Battle`} subtitle={`A quick mock exam, weighted like the real ${course.code}.`}>
-        <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-6 sm:p-8">
-          <p className="text-slate-300">
-            Face the <span className="font-semibold text-rose-300">{boss.name}</span>. Every correct answer is a hit. Explanations
+      <PageShell title={`Boss Battle`} subtitle={`A quick mock exam, weighted like the real ${course.code}.`}>
+        <div className="rounded-2xl border border-border bg-card p-6 sm:p-8">
+          <p className="text-muted-foreground">
+            Face the <span className="font-semibold text-destructive-foreground">{boss.name}</span>. Every correct answer is a hit. Explanations
             stay hidden until the end, just like {copy.real}.
           </p>
-          <ul className="mt-5 grid gap-2 text-sm text-slate-400">
-            <li>📝 {TOTAL} questions drawn by domain weight</li>
+          <ul className="mt-5 grid gap-2 text-sm text-muted-foreground">
+            <li><BlockIcon icon="📝" className="inline-block size-[1.1em] align-[-0.15em]" /> {TOTAL} questions drawn by domain weight</li>
             <li>
-              ⏱️ {MINUTES} minutes (the full {copy.simulator} is {course.exam.minutes} minutes for {course.exam.questions} questions)
+              <BlockIcon icon="⏱️" className="inline-block size-[1.1em] align-[-0.15em]" /> {MINUTES} minutes (the full {copy.simulator} is {course.exam.minutes} minutes for {course.exam.questions} questions)
             </li>
             <li>
-              🎯 Scaled score {course.exam.scale.min} to {course.exam.scale.max}. You need {pass} to pass.
+              <BlockIcon icon="🎯" className="inline-block size-[1.1em] align-[-0.15em]" /> Scaled score {course.exam.scale.min} to {course.exam.scale.max}. You need {pass} to pass.
             </li>
-            <li>🏅 Pass for +{xp.bossPassBonus} bonus XP and the Boss Slayer badge</li>
+            <li><BlockIcon icon="🏅" className="inline-block size-[1.1em] align-[-0.15em]" /> Pass for +{xp.bossPassBonus} bonus XP and the Boss Slayer badge</li>
           </ul>
           {progress.bossBest !== null && (
-            <p className="mt-4 text-sm text-slate-300">
-              Your best: <span className="font-bold text-white">{progress.bossBest}</span>
+            <p className="mt-4 text-sm text-muted-foreground">
+              Your best: <span className="font-bold text-foreground">{progress.bossBest}</span>
             </p>
           )}
-          <Button onClick={start} className="mt-6 bg-rose-500 hover:bg-rose-400">
-            ⚔️ Start battle
+          <Button onClick={start} className="mt-6 bg-destructive hover:bg-destructive">
+            <BlockIcon icon="⚔️" className="inline-block size-[1.1em] align-[-0.15em]" /> Start battle
           </Button>
         </div>
       </PageShell>
@@ -136,31 +137,31 @@ export default function BossPage() {
     const score = scaledScore(course, correct, deck.length);
     const passed = score >= pass;
     return (
-      <PageShell title={`${boss.emoji} Boss Battle results`}>
-        <div className="pop-in rounded-2xl border border-white/10 bg-slate-900/70 p-6 sm:p-8 text-center">
-          <div className="text-6xl">{passed ? "🏆" : "🐉"}</div>
-          <h2 className="mt-3 text-3xl font-bold text-white">{score}</h2>
-          <p className={`mt-1 font-semibold ${passed ? "text-emerald-300" : "text-rose-300"}`}>
+      <PageShell title={`Boss Battle results`}>
+        <div className="pop-in rounded-2xl border border-border bg-card p-6 sm:p-8 text-center">
+          <div className="text-6xl">{passed ? <BlockIcon icon="🏆" className="inline-block size-[1.1em] align-[-0.15em]" /> : <BlockIcon icon="🐉" className="inline-block size-[1.1em] align-[-0.15em]" />}</div>
+          <h2 className="mt-3 text-3xl font-bold text-foreground">{score}</h2>
+          <p className={`mt-1 font-semibold ${passed ? "text-success-foreground" : "text-destructive-foreground"}`}>
             {passed ? `PASS. ${boss.name} is defeated!` : `Not yet. ${pass} is the passing score.`}
           </p>
-          <p className="mt-1 text-slate-400">
+          <p className="mt-1 text-muted-foreground">
             {correct} of {deck.length} correct
           </p>
         </div>
 
-        <h3 className="mt-8 text-lg font-semibold text-white">By domain</h3>
+        <h3 className="mt-8 text-lg font-semibold text-foreground">By domain</h3>
         <div className="mt-3 grid gap-3">
           {course.domains.map((d) => {
             const idxs = deck.flatMap((x, i) => (x.domain === d.id ? [i] : []));
             const right = idxs.filter((i) => results[i]).length;
             const pct = idxs.length ? right / idxs.length : 0;
             return (
-              <div key={d.id} className="rounded-xl border border-white/10 bg-white/5 p-3">
+              <div key={d.id} className="rounded-xl border border-border bg-muted p-3">
                 <div className="mb-1.5 flex justify-between text-sm">
-                  <span className="text-slate-200">
-                    {d.emoji} {d.name}
+                  <span className="text-foreground">
+                    <BlockIcon icon={d.emoji} className="inline-block size-[1.1em] align-[-0.15em]" /> {d.name}
                   </span>
-                  <span className={pct >= 0.7 ? "text-emerald-300" : "text-amber-300"}>
+                  <span className={pct >= 0.7 ? "text-success-foreground" : "text-warning-foreground"}>
                     {right}/{idxs.length}
                   </span>
                 </div>
@@ -170,12 +171,12 @@ export default function BossPage() {
           })}
         </div>
 
-        <h3 className="mt-8 text-lg font-semibold text-white">Review your answers</h3>
+        <h3 className="mt-8 text-lg font-semibold text-foreground">Review your answers</h3>
         <div className="mt-3 grid gap-4">
           {deck.map((d, i) => (
-            <details key={d.id} className="rounded-xl border border-white/10 bg-white/5 open:bg-transparent" open={!results[i]}>
-              <summary className="cursor-pointer px-4 py-3 text-sm text-slate-200">
-                <span className={results[i] ? "text-emerald-300" : "text-rose-300"}>{results[i] ? "✓" : "✗"}</span> {i + 1}. {d.prompt}
+            <details key={d.id} className="rounded-xl border border-border bg-muted open:bg-transparent" open={!results[i]}>
+              <summary className="cursor-pointer px-4 py-3 text-sm text-foreground">
+                <span className={results[i] ? "text-success-foreground" : "text-destructive-foreground"}>{results[i] ? <BlockIcon icon="✓" className="inline-block size-[1.1em] align-[-0.15em]" /> : <BlockIcon icon="✗" className="inline-block size-[1.1em] align-[-0.15em]" />}</span> {i + 1}. {d.prompt}
               </summary>
               <div className="p-2">
                 <QuestionCard q={d} submitted={answers[i] ?? []} onSubmit={() => {}} />
@@ -186,7 +187,7 @@ export default function BossPage() {
 
         <div className="mt-8 flex flex-wrap gap-3">
           <Button onClick={start}>Rematch</Button>
-          <Link href={href("/review")} className="rounded-xl border border-white/15 px-5 py-2.5 font-semibold text-slate-200 hover:bg-white/10">
+          <Link href={href("/review")} className="rounded-xl border border-border px-5 py-2.5 font-semibold text-foreground hover:bg-muted">
             Review mistakes
           </Link>
         </div>
@@ -199,28 +200,28 @@ export default function BossPage() {
 
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-6">
-      <div className="mb-5 rounded-2xl border border-rose-400/20 bg-gradient-to-b from-rose-950/50 to-slate-900/60 p-4">
+      <div className="mb-5 rounded-card border border-destructive/30 bg-destructive/10 p-4">
         <div className="flex items-center gap-4">
-          <div className={`text-5xl transition ${hit ? "boss-hit" : ""}`}>{boss.emoji}</div>
+          <div className={`text-5xl transition ${hit ? "boss-hit" : ""}`}><BlockIcon icon={boss.emoji} className="inline-block size-[1.1em] align-[-0.15em]" /></div>
           <div className="flex-1">
             <div className="mb-1 flex justify-between text-xs">
-              <span className="font-semibold text-rose-300">{boss.name}</span>
-              <span className="text-slate-400">
+              <span className="font-semibold text-destructive-foreground">{boss.name}</span>
+              <span className="text-muted-foreground">
                 {deck.length - correct}/{deck.length} HP
               </span>
             </div>
             <Bar value={bossHp} color="#f43f5e" className="h-3" />
             <div className="mt-2 mb-1 flex justify-between text-xs">
-              <span className="font-semibold text-sky-300">You</span>
-              <span className="text-slate-400">survive below 35% misses</span>
+              <span className="font-semibold text-primary">You</span>
+              <span className="text-muted-foreground">survive below 35% misses</span>
             </div>
             <Bar value={playerHp} color="#38bdf8" className="h-2" />
           </div>
-          <div className={`font-mono text-lg ${secondsLeft < 300 ? "text-rose-300" : "text-slate-200"}`}>
+          <div className={`font-mono text-lg ${secondsLeft < 300 ? "text-destructive-foreground" : "text-foreground"}`}>
             {mm}:{ss}
           </div>
         </div>
-        <div className="mt-3 text-xs text-slate-400">
+        <div className="mt-3 text-xs text-muted-foreground">
           Question {idx + 1} of {deck.length}
         </div>
       </div>

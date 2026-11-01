@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /** Concept diagrams specific to the Solutions Architect Associate course. */
 
@@ -38,9 +39,9 @@ export function RoutingPolicies() {
       </div>
       <div className="mt-3 rounded-xl border border-white/10 bg-slate-950/60 p-3">
         <div className="flex items-center justify-center gap-2 text-sm text-slate-200">
-          <span className="rounded-lg bg-white/5 px-2 py-1">🙋 users</span>
-          <span className="text-slate-500">→</span>
-          <span className="rounded-lg bg-sky-400/15 px-2 py-1 font-semibold text-sky-200">🧭 Route 53: {p.name}</span>
+          <span className="rounded-lg bg-white/5 px-2 py-1"><BlockIcon icon="🙋" className="inline-block size-[1.1em] align-[-0.15em]" /> users</span>
+          <span className="text-muted-foreground">→</span>
+          <span className="rounded-lg bg-sky-400/15 px-2 py-1 font-semibold text-sky-200"><BlockIcon icon="🧭" className="inline-block size-[1.1em] align-[-0.15em]" /> Route 53: {p.name}</span>
         </div>
         <div className="mt-3 grid gap-2 sm:grid-cols-3">
           {ENDPOINTS.map((e, i) => (
@@ -49,7 +50,16 @@ export function RoutingPolicies() {
               className={`rounded-xl border p-2 text-center text-sm transition ${p.shares[i] ? (p.shares[i].includes("✗") ? "border-rose-400/50 bg-rose-400/10" : "border-emerald-400/50 bg-emerald-400/10") : "border-white/10 opacity-40"}`}
             >
               <div className="font-semibold text-white">{e}</div>
-              <div className="mt-1 text-xs text-slate-300">{p.shares[i] || "not used"}</div>
+              <div className="mt-1 text-xs text-slate-300">
+                {p.shares[i] ? (
+                  <>
+                    {p.shares[i].replace(/ [✓✗]$/u, "")}{" "}
+                    {/[✓✗]$/u.test(p.shares[i]) && <BlockIcon icon={p.shares[i].slice(-1)} className="inline-block size-[1.1em] align-[-0.15em]" />}
+                  </>
+                ) : (
+                  "not used"
+                )}
+              </div>
             </div>
           ))}
         </div>
@@ -77,8 +87,8 @@ export function SgVsNacl() {
     <div className="overflow-x-auto">
       <div className="grid min-w-[30rem] grid-cols-[7rem_1fr_1fr] gap-1.5 text-sm">
         <span />
-        <span className="rounded-lg bg-emerald-400/15 px-2 py-1 font-bold text-emerald-200">🛡️ Security group</span>
-        <span className="rounded-lg bg-amber-400/15 px-2 py-1 font-bold text-amber-200">🚧 Network ACL</span>
+        <span className="rounded-lg bg-emerald-400/15 px-2 py-1 font-bold text-emerald-200"><BlockIcon icon="🛡️" className="inline-block size-[1.1em] align-[-0.15em]" /> Security group</span>
+        <span className="rounded-lg bg-amber-400/15 px-2 py-1 font-bold text-amber-200"><BlockIcon icon="🚧" className="inline-block size-[1.1em] align-[-0.15em]" /> Network ACL</span>
         {FILTERS.map((f, i) => (
           <button key={f.k} type="button" onClick={() => setRow(row === i ? null : i)} className="contents text-left">
             <span className={`rounded-lg px-2 py-1 text-xs font-semibold uppercase tracking-wider ${row === i ? "bg-white/10 text-white" : "text-slate-400"}`}>{f.k}</span>

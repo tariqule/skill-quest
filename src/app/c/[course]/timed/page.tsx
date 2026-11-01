@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import { useState } from "react";
 import { Confetti } from "@/components/fx";
 import { TimedQuiz, type TimedResult } from "@/components/TimedQuiz";
 import { PageShell } from "@/components/ui";
 import { courseCopy } from "@/engine/copy";
 import { useCourse, useLevelPool } from "@/engine/course-context";
 import { answerText, levelDeck, weightedExamDeck, type PreparedQuestion } from "@/engine/game";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 type Phase = "pick" | "play" | "done";
 
@@ -32,7 +33,7 @@ export default function TimedDrillPage() {
 
   if (phase === "play") {
     return (
-      <PageShell title={`⏱️ Timed drill${domain ? ` · ${domain.world}` : ""}`}>
+      <PageShell title={`Timed drill${domain ? ` · ${domain.world}` : ""}`}>
         <TimedQuiz
           key={run}
           questions={questions}
@@ -53,28 +54,28 @@ export default function TimedDrillPage() {
 
   if (phase === "done" && result) {
     return (
-      <PageShell title="⏱️ Drill results">
+      <PageShell title="Drill results">
         {result.passed && <Confetti />}
-        <div className="pop-in rounded-3xl border border-white/10 bg-slate-900/70 p-6 text-center">
-          <div className="text-5xl">{result.passed ? "🏆" : "⏰"}</div>
-          <div className={`mt-2 text-4xl font-black ${result.passed ? "text-emerald-300" : "text-amber-300"}`}>
+        <div className="pop-in rounded-3xl border border-border bg-card p-6 text-center">
+          <div className="text-5xl">{result.passed ? <BlockIcon icon="🏆" className="inline-block size-[1.1em] align-[-0.15em]" /> : <BlockIcon icon="⏰" className="inline-block size-[1.1em] align-[-0.15em]" />}</div>
+          <div className={`mt-2 text-4xl font-semibold ${result.passed ? "text-success-foreground" : "text-warning-foreground"}`}>
             {result.correct}/{result.total}
           </div>
-          <div className="mt-1 text-slate-400">
+          <div className="mt-1 text-muted-foreground">
             {result.passed ? "Passed against the clock!" : `You need ${Math.ceil(cfg.passShare * result.total)} to pass. Review below and go again.`}
           </div>
         </div>
         {result.missed.length > 0 && (
           <>
-            <h2 className="mt-6 text-sm font-black uppercase tracking-wider text-rose-300">Review what you missed</h2>
+            <h2 className="mt-6 text-sm font-semibold uppercase tracking-wider text-destructive-foreground">Review what you missed</h2>
             <div className="mt-2 grid gap-2">
               {result.missed.map((qid) => {
                 const q = question[qid];
                 return (
-                  <div key={qid} className="rounded-xl border border-rose-400/30 bg-rose-400/5 p-3 text-sm">
-                    <div className="font-semibold text-white">{q.prompt}</div>
-                    <div className="mt-1 text-emerald-300">✓ {answerText(q)}</div>
-                    <div className="mt-1 text-slate-400">{q.explanation}</div>
+                  <div key={qid} className="rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-sm">
+                    <div className="font-semibold text-foreground">{q.prompt}</div>
+                    <div className="mt-1 text-success-foreground"><BlockIcon icon="✓" className="inline-block size-[1.1em] align-[-0.15em]" /> {answerText(q)}</div>
+                    <div className="mt-1 text-muted-foreground">{q.explanation}</div>
                   </div>
                 );
               })}
@@ -82,10 +83,10 @@ export default function TimedDrillPage() {
           </>
         )}
         <div className="mt-6 flex flex-wrap gap-3">
-          <button type="button" onClick={start} className="btn-3d rounded-2xl bg-amber-400 px-6 py-3 font-black text-slate-950" style={{ "--edge": "#b45309" } as CSSProperties}>
+          <button type="button" onClick={start} className="rounded-2xl bg-reward px-6 py-3 font-semibold text-primary-foreground">
             Go again
           </button>
-          <button type="button" onClick={() => setPhase("pick")} className="btn-3d rounded-2xl bg-slate-800 px-6 py-3 font-bold text-white" style={{ "--edge": "#020617" } as CSSProperties}>
+          <button type="button" onClick={() => setPhase("pick")} className="rounded-2xl bg-secondary px-6 py-3 font-bold text-foreground">
             Change world
           </button>
         </div>
@@ -94,35 +95,34 @@ export default function TimedDrillPage() {
   }
 
   return (
-    <PageShell title="⏱️ Timed drill" subtitle={`Answer before the clock runs out. Builds the speed you need on ${courseCopy(course).day}.`}>
-      <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-6">
-        <ul className="grid gap-2 text-slate-300">
+    <PageShell title="Timed drill" subtitle={`Answer before the clock runs out. Builds the speed you need on ${courseCopy(course).day}.`}>
+      <div className="rounded-2xl border border-border bg-card p-6">
+        <ul className="grid gap-2 text-muted-foreground">
           <li>
-            📝 {cfg.questions} questions, at least {cfg.secondsPerQuestion} seconds each (more for longer questions, ordering, matching and bug hunts)
+            <BlockIcon icon="📝" className="inline-block size-[1.1em] align-[-0.15em]" /> {cfg.questions} questions, at least {cfg.secondsPerQuestion} seconds each (more for longer questions, ordering, matching and bug hunts)
           </li>
-          <li>⏰ Running out of time counts as wrong</li>
+          <li><BlockIcon icon="⏰" className="inline-block size-[1.1em] align-[-0.15em]" /> Running out of time counts as wrong</li>
           <li>
-            🎯 Get {Math.round(cfg.passShare * 100)}% to pass · +{course.config.xp.timedCorrect} XP per correct answer
+            <BlockIcon icon="🎯" className="inline-block size-[1.1em] align-[-0.15em]" /> Get {Math.round(cfg.passShare * 100)}% to pass · +{course.config.xp.timedCorrect} XP per correct answer
           </li>
         </ul>
-        <div className="mt-5 text-sm font-semibold text-white">Choose a world</div>
+        <div className="mt-5 text-sm font-semibold text-foreground">Choose a world</div>
         <div className="mt-2 flex flex-wrap gap-2">
           <WorldChip active={world === "all"} onClick={() => setWorld("all")} color="#f59e0b">
-            🌐 All worlds (exam mix)
+            <BlockIcon icon="🌐" className="inline-block size-[1.1em] align-[-0.15em]" /> All worlds (exam mix)
           </WorldChip>
           {course.domains.map((d) => (
             <WorldChip key={d.id} active={world === d.id} onClick={() => setWorld(d.id)} color={d.color}>
-              {d.emoji} {d.world}
+              <BlockIcon icon={d.emoji} className="inline-block size-[1.1em] align-[-0.15em]" /> {d.world}
             </WorldChip>
           ))}
         </div>
         <button
           type="button"
           onClick={start}
-          className="btn-3d mt-6 rounded-2xl bg-amber-400 px-6 py-3 font-black uppercase text-slate-950"
-          style={{ "--edge": "#b45309" } as CSSProperties}
+          className="mt-6 rounded-2xl bg-reward px-6 py-3 font-semibold uppercase text-primary-foreground"
         >
-          ⏱️ Start
+          <BlockIcon icon="⏱️" className="inline-block size-[1.1em] align-[-0.15em]" /> Start
         </button>
       </div>
     </PageShell>

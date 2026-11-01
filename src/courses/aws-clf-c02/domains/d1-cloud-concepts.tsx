@@ -1,6 +1,7 @@
 import { Flow, Layers, Ladder, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { ElasticityLab, PillarWheel } from "../visuals";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /**
  * Domain 1: Cloud Concepts (24% of scored content).
@@ -254,7 +255,7 @@ export default defineDomain({
         <div className="grid gap-4">
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-xl border border-rose-400/30 bg-rose-400/5 p-3">
-              <div className="font-bold text-rose-200">🏢 On-premises: fixed costs (CapEx)</div>
+              <div className="font-bold text-rose-200"><BlockIcon icon="🏢" className="inline-block size-[1.1em] align-[-0.15em]" /> On-premises: fixed costs (CapEx)</div>
               <ul className="mt-2 grid gap-1 text-sm text-slate-300">
                 <li>• Servers and storage bought years ahead, sized for the busiest day</li>
                 <li>• Data center space, power, and cooling</li>
@@ -263,7 +264,7 @@ export default defineDomain({
               </ul>
             </div>
             <div className="rounded-xl border border-emerald-400/30 bg-emerald-400/5 p-3">
-              <div className="font-bold text-emerald-200">☁️ AWS: variable costs (OpEx)</div>
+              <div className="font-bold text-emerald-200"><BlockIcon icon="☁️" className="inline-block size-[1.1em] align-[-0.15em]" /> AWS: variable costs (OpEx)</div>
               <ul className="mt-2 grid gap-1 text-sm text-slate-300">
                 <li>• Pay as you go, per second, hour, GB, or request</li>
                 <li>• Scale down and you stop paying for it</li>

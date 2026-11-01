@@ -39,7 +39,7 @@ export function ContainerVsVm() {
             onClick={() => setS(k)}
             className={`rounded-lg px-3 py-1.5 text-sm font-bold ${s === k ? "bg-sky-400 text-slate-950" : "bg-white/10 text-white"}`}
           >
-            {k === "vm" ? "🖥️ Virtual machines" : "🐳 Containers"}
+            {k === "vm" ? "Virtual machines" : "Containers"}
           </button>
         ))}
       </div>
@@ -63,7 +63,7 @@ export function ContainerVsVm() {
         ))}
       </div>
       <p className="text-sm text-slate-300">{st.text}</p>
-      <p className="text-xs text-slate-500">On macOS and Windows, Docker Desktop runs a small Linux VM, and Linux containers share that VM&apos;s kernel.</p>
+      <p className="text-xs text-muted-foreground">On macOS and Windows, Docker Desktop runs a small Linux VM, and Linux containers share that VM&apos;s kernel.</p>
     </div>
   );
 }

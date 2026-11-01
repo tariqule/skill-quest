@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Flow, type GoalProps } from "@/components/learn/blocks";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /** Concept diagrams specific to the AWS AI Practitioner course. */
 
@@ -51,7 +52,7 @@ export function AiRings() {
           Each ring sits inside the one before it. <span className="text-emerald-300">Agentic AI</span> builds on GenAI: it uses a model to plan and
           take actions with tools.
         </p>
-        <p className="mt-2 text-xs text-slate-500">Tap a ring.</p>
+        <p className="mt-2 text-xs text-muted-foreground">Tap a ring.</p>
       </div>
     </div>
   );
@@ -63,10 +64,10 @@ export function LearningTypes() {
       <div className="rounded-xl border border-sky-400/30 bg-slate-950/60 p-3">
         <div className="font-semibold text-sky-300">Supervised</div>
         <div className="mt-2 flex flex-wrap gap-1 text-xl">
-          <span>🐱<sub className="text-[9px] text-slate-400">cat</sub></span>
-          <span>🐶<sub className="text-[9px] text-slate-400">dog</sub></span>
-          <span>🐱<sub className="text-[9px] text-slate-400">cat</sub></span>
-          <span>🐶<sub className="text-[9px] text-slate-400">dog</sub></span>
+          <span><BlockIcon icon="🐱" className="inline-block size-[1.1em] align-[-0.15em]" /><sub className="text-[9px] text-slate-400">cat</sub></span>
+          <span><BlockIcon icon="🐶" className="inline-block size-[1.1em] align-[-0.15em]" /><sub className="text-[9px] text-slate-400">dog</sub></span>
+          <span><BlockIcon icon="🐱" className="inline-block size-[1.1em] align-[-0.15em]" /><sub className="text-[9px] text-slate-400">cat</sub></span>
+          <span><BlockIcon icon="🐶" className="inline-block size-[1.1em] align-[-0.15em]" /><sub className="text-[9px] text-slate-400">dog</sub></span>
         </div>
         <p className="mt-2 text-sm text-slate-300">Learns from <b>labeled</b> examples, then predicts labels for new data.</p>
       </div>
@@ -85,7 +86,7 @@ export function LearningTypes() {
       </div>
       <div className="rounded-xl border border-amber-400/30 bg-slate-950/60 p-3">
         <div className="font-semibold text-amber-300">Reinforcement</div>
-        <div className="mt-2 text-xl">🤖 → 🧱 <span className="text-rose-300 text-sm">-1</span> · 🤖 → 🏁 <span className="text-emerald-300 text-sm">+10</span></div>
+        <div className="mt-2 text-xl"><BlockIcon icon="🤖" className="inline-block size-[1.1em] align-[-0.15em]" /> → <BlockIcon icon="🧱" className="inline-block size-[1.1em] align-[-0.15em]" /> <span className="text-rose-300 text-sm">-1</span> · <BlockIcon icon="🤖" className="inline-block size-[1.1em] align-[-0.15em]" /> → <BlockIcon icon="🏁" className="inline-block size-[1.1em] align-[-0.15em]" /> <span className="text-emerald-300 text-sm">+10</span></div>
         <p className="mt-2 text-sm text-slate-300">An agent learns by <b>trial and error</b>, chasing rewards.</p>
       </div>
     </div>
@@ -138,7 +139,7 @@ export function ConfusionMatrix() {
           </>
         )}
       </p>
-      <p className="mt-1 text-xs text-slate-500">Accuracy here is 97%, yet 10 frauds slipped through. That&apos;s why accuracy can mislead.</p>
+      <p className="mt-1 text-xs text-muted-foreground">Accuracy here is 97%, yet 10 frauds slipped through. That&apos;s why accuracy can mislead.</p>
     </div>
   );
 }
@@ -218,7 +219,7 @@ export function DiffusionSteps() {
             className="flex aspect-square w-full items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-sky-400 via-violet-500 to-amber-400 text-3xl"
             style={{ filter: `blur(${blur / 6}px) saturate(${1 - blur / 40})` }}
           >
-            <span style={{ opacity: 1 - blur / 26 }}>🏔️</span>
+            <span style={{ opacity: 1 - blur / 26 }}><BlockIcon icon="🏔️" className="inline-block size-[1.1em] align-[-0.15em]" /></span>
           </div>
           <span className="text-[10px] text-slate-400">{i === 0 ? "noise" : i === steps.length - 1 ? "image" : `step ${i}`}</span>
         </div>
@@ -232,14 +233,14 @@ export function AgentLoop() {
     <div className="grid gap-4 sm:grid-cols-[1fr_1fr]">
       <div className="relative mx-auto aspect-square w-full max-w-[14rem]">
         <div className="absolute inset-[18%] flex flex-col items-center justify-center rounded-full border-2 border-emerald-400/60 bg-emerald-400/10 text-center">
-          <span className="text-3xl">🤖</span>
+          <span className="text-3xl"><BlockIcon icon="🤖" className="inline-block size-[1.1em] align-[-0.15em]" /></span>
           <span className="text-xs font-semibold text-emerald-200">Agent + FM</span>
         </div>
         {[
-          { t: "🎯 Goal", pos: "left-1/2 top-0 -translate-x-1/2" },
-          { t: "🧠 Plan", pos: "right-0 top-1/2 -translate-y-1/2" },
-          { t: "🛠️ Act", pos: "bottom-0 left-1/2 -translate-x-1/2" },
-          { t: "👀 Observe", pos: "left-0 top-1/2 -translate-y-1/2" },
+          { t: "Goal", pos: "left-1/2 top-0 -translate-x-1/2" },
+          { t: "Plan", pos: "right-0 top-1/2 -translate-y-1/2" },
+          { t: "Act", pos: "bottom-0 left-1/2 -translate-x-1/2" },
+          { t: "Observe", pos: "left-0 top-1/2 -translate-y-1/2" },
         ].map((n) => (
           <span key={n.t} className={`absolute ${n.pos} rounded-full border border-white/15 bg-slate-900 px-2 py-1 text-xs font-semibold text-white`}>
             {n.t}
@@ -248,15 +249,15 @@ export function AgentLoop() {
       </div>
       <div className="grid content-center gap-2 text-sm">
         <div className="rounded-xl border border-white/10 bg-slate-950/60 p-3">
-          <b className="text-white">🔌 MCP</b>
+          <b className="text-white"><BlockIcon icon="🔌" className="inline-block size-[1.1em] align-[-0.15em]" /> MCP</b>
           <span className="text-slate-300"> is a universal plug between agents and their tools, like databases, APIs and files.</span>
         </div>
         <div className="rounded-xl border border-white/10 bg-slate-950/60 p-3">
-          <b className="text-white">🧠 Memory</b>
+          <b className="text-white"><BlockIcon icon="🧠" className="inline-block size-[1.1em] align-[-0.15em]" /> Memory</b>
           <span className="text-slate-300"> holds short-term context (this chat) and long-term context (past chats).</span>
         </div>
         <div className="rounded-xl border border-white/10 bg-slate-950/60 p-3">
-          <b className="text-white">👥 Multi-agent</b>
+          <b className="text-white"><BlockIcon icon="👥" className="inline-block size-[1.1em] align-[-0.15em]" /> Multi-agent</b>
           <span className="text-slate-300"> means a supervisor agent hands parts of the job to specialist agents.</span>
         </div>
       </div>
@@ -284,7 +285,7 @@ export function RagFlow() {
               className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 text-xl transition ${k <= i ? "border-amber-400 bg-amber-400/20" : "border-white/15 bg-white/5 opacity-50"}`}
               aria-label={s.label}
             >
-              {s.icon}
+              <BlockIcon icon={s.icon} className="inline-block size-[1.1em] align-[-0.15em]" />
             </button>
             {k < steps.length - 1 && <div className={`h-0.5 flex-1 rounded ${k < i ? "bg-amber-400" : "bg-white/10"}`} />}
           </div>
@@ -320,9 +321,9 @@ export function TemperatureDial() {
   return (
     <div>
       <div className="flex items-center gap-3">
-        <span className="text-xl">🧊</span>
+        <span className="text-xl"><BlockIcon icon="🧊" className="inline-block size-[1.1em] align-[-0.15em]" /></span>
         <input type="range" min={0} max={2} step={1} value={v} onChange={(e) => setV(Number(e.target.value))} className="flex-1 accent-amber-400" aria-label="Temperature" />
-        <span className="text-xl">🔥</span>
+        <span className="text-xl"><BlockIcon icon="🔥" className="inline-block size-[1.1em] align-[-0.15em]" /></span>
       </div>
       <div className="mt-3 rounded-xl border border-white/10 bg-slate-950/60 p-3">
         <div className="text-xs text-slate-400">Temperature {cur.t} · prompt: &quot;Describe the sky.&quot;</div>
@@ -382,7 +383,7 @@ export function PromptAnatomy() {
 
 export function BiasVariance() {
   const boards = [
-    { title: "Low bias, low variance", note: "Just right 🎯", dots: [[0, 0], [3, -2], [-2, 3], [2, 2], [-3, -1]], cx: 0, cy: 0 },
+    { title: "Low bias, low variance", note: "Just right", dots: [[0, 0], [3, -2], [-2, 3], [2, 2], [-3, -1]], cx: 0, cy: 0 },
     { title: "Low bias, high variance", note: "Overfitting", dots: [[-14, 8], [12, -10], [6, 14], [-10, -12], [15, 6]], cx: 0, cy: 0 },
     { title: "High bias, low variance", note: "Underfitting", dots: [[0, 0], [3, -2], [-2, 3], [2, 2], [-3, -1]], cx: 16, cy: -14 },
     { title: "High bias, high variance", note: "Worst of both", dots: [[-8, 6], [10, -8], [4, 12], [-6, -10], [12, 4]], cx: 14, cy: -12 },
@@ -422,15 +423,15 @@ export function TradeoffSlider() {
       <div className="mt-1 text-center font-semibold text-white">{m.name}</div>
       <div className="mt-3 grid gap-2 text-sm">
         <div>
-          <div className="flex justify-between text-slate-300"><span>🔍 Explainability</span><span>{m.explain}%</span></div>
+          <div className="flex justify-between text-slate-300"><span><BlockIcon icon="🔍" className="inline-block size-[1.1em] align-[-0.15em]" /> Explainability</span><span>{m.explain}%</span></div>
           <div className="h-2 rounded-full bg-white/10"><div className="h-full rounded-full bg-emerald-400 transition-all" style={{ width: `${m.explain}%` }} /></div>
         </div>
         <div>
-          <div className="flex justify-between text-slate-300"><span>💪 Performance on complex tasks</span><span>{m.power}%</span></div>
+          <div className="flex justify-between text-slate-300"><span><BlockIcon icon="💪" className="inline-block size-[1.1em] align-[-0.15em]" /> Performance on complex tasks</span><span>{m.power}%</span></div>
           <div className="h-2 rounded-full bg-white/10"><div className="h-full rounded-full bg-sky-400 transition-all" style={{ width: `${m.power}%` }} /></div>
         </div>
       </div>
-      <p className="mt-2 text-xs text-slate-500">Illustrative. The more complex the model, the harder it is to explain.</p>
+      <p className="mt-2 text-xs text-muted-foreground">Illustrative. The more complex the model, the harder it is to explain.</p>
     </div>
   );
 }
@@ -439,7 +440,7 @@ export function SharedResponsibility() {
   return (
     <div className="grid gap-2">
       <div className="rounded-xl border-2 border-sky-400/50 bg-sky-400/10 p-3">
-        <div className="text-xs font-bold uppercase tracking-wider text-sky-300">🧑‍💻 You: security IN the cloud</div>
+        <div className="text-xs font-bold uppercase tracking-wider text-sky-300"><BlockIcon icon="🧑‍💻" className="inline-block size-[1.1em] align-[-0.15em]" /> You: security IN the cloud</div>
         <div className="mt-2 flex flex-wrap gap-1.5 text-sm">
           {["Your data and prompts", "IAM users and roles", "Encryption choices (KMS)", "Guardrails config", "App code", "Network setup (VPC)"].map((x) => (
             <span key={x} className="rounded-md bg-slate-950/70 px-2 py-1 text-slate-100">{x}</span>
@@ -447,7 +448,7 @@ export function SharedResponsibility() {
         </div>
       </div>
       <div className="rounded-xl border-2 border-amber-400/50 bg-amber-400/10 p-3">
-        <div className="text-xs font-bold uppercase tracking-wider text-amber-300">☁️ AWS: security OF the cloud</div>
+        <div className="text-xs font-bold uppercase tracking-wider text-amber-300"><BlockIcon icon="☁️" className="inline-block size-[1.1em] align-[-0.15em]" /> AWS: security OF the cloud</div>
         <div className="mt-2 flex flex-wrap gap-1.5 text-sm">
           {["Data centers", "Hardware", "Global network", "Managed service infrastructure, such as Bedrock hosting"].map((x) => (
             <span key={x} className="rounded-md bg-slate-950/70 px-2 py-1 text-slate-100">{x}</span>
@@ -475,7 +476,7 @@ export function ScopingMatrix() {
               className="flex flex-col items-center justify-center rounded-t-lg px-1 text-center"
               style={{ height: `${3 + s.n * 1.6}rem`, background: `hsl(${200 - s.n * 30} 70% 55% / 0.25)`, borderTop: `3px solid hsl(${200 - s.n * 30} 70% 60%)` }}
             >
-              <span className="text-xl font-black text-white">{s.n}</span>
+              <span className="text-xl font-semibold text-white">{s.n}</span>
             </div>
             <div className="mt-1 text-center text-[11px] font-semibold leading-tight text-white">{s.name}</div>
             <div className="text-center text-[10px] leading-tight text-slate-400">{s.ex}</div>
@@ -483,10 +484,10 @@ export function ScopingMatrix() {
         ))}
       </div>
       <div className="mt-3 grid grid-cols-5 gap-1.5 text-center text-[11px]">
-        <div className="col-span-2 rounded bg-white/5 py-1 text-slate-300">🛒 Buy (prebuilt)</div>
-        <div className="col-span-3 rounded bg-white/5 py-1 text-slate-300">🔨 Build (self-built)</div>
+        <div className="col-span-2 rounded bg-white/5 py-1 text-slate-300"><BlockIcon icon="🛒" className="inline-block size-[1.1em] align-[-0.15em]" /> Buy (prebuilt)</div>
+        <div className="col-span-3 rounded bg-white/5 py-1 text-slate-300"><BlockIcon icon="🔨" className="inline-block size-[1.1em] align-[-0.15em]" /> Build (self-built)</div>
       </div>
-      <p className="mt-2 text-xs text-slate-500">The higher the scope, the more of the data, model and security controls you own.</p>
+      <p className="mt-2 text-xs text-muted-foreground">The higher the scope, the more of the data, model and security controls you own.</p>
     </div>
   );
 }

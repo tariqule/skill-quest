@@ -2,6 +2,7 @@ import { Flow, Ladder, Layers, ServiceRows, Tiles } from "@/components/learn/blo
 import { defineDomain } from "@/engine/define";
 import { ProductPickerLab } from "../labs";
 import { AgentAnatomy } from "../visuals";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /**
  * Section 2: Google Cloud's gen AI offerings (~35% of the exam).
@@ -221,7 +222,7 @@ export default defineDomain({
             ]}
           />
           <div className="rounded-xl border border-sky-400/30 bg-sky-400/5 p-3 text-sm text-slate-200">
-            🔎 <b className="text-sky-200">Agent Search</b> (on Gemini Enterprise Agent Platform) adds Google-quality search and recommendations to your own website
+            <BlockIcon icon="🔎" className="inline-block size-[1.1em] align-[-0.15em]" /> <b className="text-sky-200">Agent Search</b> (on Gemini Enterprise Agent Platform) adds Google-quality search and recommendations to your own website
             or app. <b className="text-sky-200">Google Search</b> reaches customers on the open web.
           </div>
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type CSSProperties, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { CodeBlock, LabHeader, type GoalProps } from "@/components/learn/blocks";
 
 /** Concept diagrams for the Java interview track. */
@@ -27,8 +27,7 @@ export function Btn({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`btn-3d rounded-xl px-3 py-1.5 text-sm font-bold disabled:opacity-40 ${styles.cls}`}
-      style={{ "--edge": styles.edge } as CSSProperties}
+      className={`rounded-lg px-3 py-1.5 text-sm font-semibold disabled:opacity-40 ${styles.cls}`}
     >
       {children}
     </button>
@@ -41,7 +40,7 @@ function SteppedCode({ lines, active }: { lines: string[]; active: number }) {
     <div className="overflow-x-auto rounded-xl border border-white/10 bg-slate-950 p-2 font-mono text-[13px] leading-relaxed">
       {lines.map((l, i) => (
         <div key={i} className={`flex gap-3 rounded px-2 ${i + 1 === active ? "bg-amber-400/20 text-white" : "text-slate-300"}`}>
-          <span className="w-4 shrink-0 text-right text-slate-600">{i + 1}</span>
+          <span className="w-4 shrink-0 text-right text-muted-foreground">{i + 1}</span>
           <span className="whitespace-pre">{l}</span>
         </div>
       ))}
@@ -112,7 +111,7 @@ export function IntegerCacheLab({ goal, onSolved }: GoalProps<"edge">) {
           ? "Inside the cache: Integer.valueOf hands back one shared object, so == compares two references to the same object and says true."
           : "Outside the cache: each autobox makes a new Integer object, so == compares two different objects and says false. equals still compares the values."}
       </p>
-      <p className="mt-1 text-xs text-slate-500">The upper bound can be raised with -XX:AutoBoxCacheMax, which is one more reason never to rely on it.</p>
+      <p className="mt-1 text-xs text-muted-foreground">The upper bound can be raised with -XX:AutoBoxCacheMax, which is one more reason never to rely on it.</p>
     </div>
   );
 }
@@ -154,7 +153,7 @@ export function StringPool() {
             </button>
           ))}
         </div>
-        <p className="mt-2 text-xs text-slate-500">Tap an expression.</p>
+        <p className="mt-2 text-xs text-muted-foreground">Tap an expression.</p>
       </div>
       <div className="grid gap-3">
         <div className="rounded-xl border border-emerald-400/30 bg-emerald-400/5 p-3">
@@ -229,12 +228,12 @@ export function StreamStepper({ goal, onSolved }: GoalProps<"predict">) {
         {SRC.map((n, i) => (
           <span
             key={n}
-            className={`rounded-lg px-2.5 py-1 font-mono text-sm ${ev && i < ev.pulled ? "bg-slate-800 text-slate-500 line-through" : "bg-sky-400/15 text-sky-100"}`}
+            className={`rounded-lg px-2.5 py-1 font-mono text-sm ${ev && i < ev.pulled ? "bg-slate-800 text-muted-foreground line-through" : "bg-sky-400/15 text-sky-100"}`}
           >
             {n}
           </span>
         ))}
-        <span className="self-center text-xs text-slate-500">source</span>
+        <span className="self-center text-xs text-muted-foreground">source</span>
       </div>
       <div className="mt-3 grid gap-2 sm:grid-cols-5">
         {STAGES.map((s, i) => (
@@ -312,10 +311,10 @@ export function HeapStack() {
           <div className="rounded-xl border border-violet-400/30 bg-violet-400/5 p-3">
             <div className="text-xs font-bold uppercase tracking-wider text-violet-300">Stack (per thread)</div>
             {s.stack === null ? (
-              <div className="mt-2 text-sm text-slate-500">frame popped</div>
+              <div className="mt-2 text-sm text-muted-foreground">frame popped</div>
             ) : (
               <div className="mt-2 rounded-lg border border-white/10 bg-slate-950/70 p-2">
-                <div className="text-[10px] text-slate-500">demo() frame</div>
+                <div className="text-[10px] text-muted-foreground">demo() frame</div>
                 {s.stack.map((v) => (
                   <div key={v.name} className="pop-in font-mono text-sm text-white">
                     {v.name} <span className="text-slate-400">{v.val}</span>
@@ -414,7 +413,7 @@ export function RaceStepper({ goal, onSolved }: GoalProps<"lost">) {
               {OPS.slice(0, 3).map((op, i) => (
                 <li
                   key={op}
-                  className={`rounded px-2 ${threads[t].pc === i ? "bg-amber-400/20 text-amber-100" : threads[t].pc > i ? "text-slate-500 line-through" : "text-slate-300"}`}
+                  className={`rounded px-2 ${threads[t].pc === i ? "bg-amber-400/20 text-amber-100" : threads[t].pc > i ? "text-muted-foreground line-through" : "text-slate-300"}`}
                 >
                   {op}
                 </li>
@@ -429,9 +428,9 @@ export function RaceStepper({ goal, onSolved }: GoalProps<"lost">) {
         ))}
         <div className="rounded-xl border border-amber-400/30 bg-amber-400/5 p-3 text-center">
           <div className="text-xs font-bold uppercase tracking-wider text-amber-300">Shared memory</div>
-          <div className="mt-2 font-mono text-4xl font-black text-white">{count}</div>
+          <div className="mt-2 font-mono text-4xl font-semibold text-white">{count}</div>
           <div className="text-xs text-slate-400">count</div>
-          {sync && <div className="mt-2 text-xs text-slate-300">{lock === null ? "🔓 lock free" : `🔒 held by T${lock + 1}`}</div>}
+          {sync && <div className="mt-2 text-xs text-slate-300">{lock === null ? "lock free" : `held by T${lock + 1}`}</div>}
         </div>
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-2">

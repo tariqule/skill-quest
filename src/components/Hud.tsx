@@ -11,6 +11,7 @@ import { levelInfo } from "@/engine/store";
 import { setGuideOpen, useToasts } from "@/engine/ui-state";
 import { isCodeTrack } from "@/engine/tracks";
 import { streakLabel } from "@/components/home/today-model";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 export { APP_NAME, AppBar } from "@/components/shell/AppHeader";
 
@@ -79,7 +80,7 @@ export function Toaster() {
       {toasts.map((t) => (
         <div key={t.id} className="toast-in flex items-start gap-3 rounded-card border border-border bg-popover p-3 shadow-elevation-3">
           <span className="text-2xl" aria-hidden>
-            {t.icon}
+            <BlockIcon icon={t.icon} className="inline-block size-[1.1em] align-[-0.15em]" />
           </span>
           <div>
             <div className="font-semibold text-popover-foreground">{t.title}</div>

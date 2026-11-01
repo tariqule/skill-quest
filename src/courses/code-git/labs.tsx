@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import { useState } from "react";
 import { LabHeader, type GoalProps } from "@/components/learn/blocks";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /** Hands-on playgrounds for Learn Git & GitHub. */
 
-const btn = "btn-3d rounded-xl px-3 py-2 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-40";
-const edge = (c: string) => ({ "--edge": c }) as CSSProperties;
+const btn = "rounded-lg px-3 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40";
 
 // ───────────── Three areas: working tree → index → commits ─────────────
 
@@ -139,7 +139,7 @@ export function ThreeAreasLab({ goal, onSolved }: GoalProps<"partial" | "discard
         {columns.map((col, ci) => (
           <div key={col.key} className="rounded-xl border border-white/10 bg-slate-950/60 p-2">
             <div className="flex items-center gap-1.5 text-sm font-bold text-white">
-              <span>{col.icon}</span>
+              <span><BlockIcon icon={col.icon} className="inline-block size-[1.1em] align-[-0.15em]" /></span>
               {col.title}
             </div>
             <div className="mb-2 text-[11px] text-slate-400">{col.sub}</div>
@@ -152,7 +152,7 @@ export function ThreeAreasLab({ goal, onSolved }: GoalProps<"partial" | "discard
                 return (
                   <div
                     key={n}
-                    className={`flex items-center justify-between rounded-lg border px-2 py-1 font-mono text-xs ${v === null ? "border-dashed border-white/10 text-slate-600" : "text-slate-100"}`}
+                    className={`flex items-center justify-between rounded-lg border px-2 py-1 font-mono text-xs ${v === null ? "border-dashed border-white/10 text-muted-foreground" : "text-slate-100"}`}
                     style={v !== null ? { borderColor: differs ? col.color : "rgb(255 255 255 / 0.12)", boxShadow: differs ? `0 0 0 2px ${col.color}33` : undefined } : undefined}
                   >
                     <span>{n}</span>
@@ -169,31 +169,31 @@ export function ThreeAreasLab({ goal, onSolved }: GoalProps<"partial" | "discard
         {FILES.map((n) => (
           <div key={n} className="flex flex-wrap items-center gap-1.5">
             <span className="w-24 font-mono text-xs text-slate-300">{n}</span>
-            <button type="button" onClick={() => act(n, "edit")} className={`${btn} bg-amber-400 px-2 py-1 text-xs text-slate-950`} style={edge("#b45309")}>
-              ✏️ edit
+            <button type="button" onClick={() => act(n, "edit")} className={`${btn} bg-reward px-2 py-1 text-xs text-primary-foreground`}>
+              <BlockIcon icon="✏️" className="inline-block size-[1.1em] align-[-0.15em]" /> edit
             </button>
-            <button type="button" onClick={() => act(n, "add")} className={`${btn} bg-emerald-400 px-2 py-1 font-mono text-xs text-slate-950`} style={edge("#047857")}>
+            <button type="button" onClick={() => act(n, "add")} className={`${btn} bg-primary px-2 py-1 font-mono text-xs text-primary-foreground`}>
               git add
             </button>
-            <button type="button" onClick={() => act(n, "restore")} className={`${btn} bg-slate-700 px-2 py-1 font-mono text-xs text-white`} style={edge("#0f172a")}>
+            <button type="button" onClick={() => act(n, "restore")} className={`${btn} bg-slate-700 px-2 py-1 font-mono text-xs text-white`}>
               git restore
             </button>
-            <button type="button" onClick={() => act(n, "unstage")} className={`${btn} bg-slate-700 px-2 py-1 font-mono text-xs text-white`} style={edge("#0f172a")}>
+            <button type="button" onClick={() => act(n, "unstage")} className={`${btn} bg-slate-700 px-2 py-1 font-mono text-xs text-white`}>
               restore --staged
             </button>
           </div>
         ))}
         <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={() => commit(false)} className={`${btn} bg-sky-400 font-mono text-slate-950`} style={edge("#0369a1")}>
+          <button type="button" onClick={() => commit(false)} className={`${btn} bg-primary font-mono text-primary-foreground`}>
             git commit
           </button>
-          <button type="button" onClick={() => commit(true)} className={`${btn} bg-sky-700 font-mono text-white`} style={edge("#0c4a6e")}>
+          <button type="button" onClick={() => commit(true)} className={`${btn} bg-sky-700 font-mono text-white`}>
             git commit -a
           </button>
-          <button type="button" onClick={status} className={`${btn} bg-violet-500 font-mono text-white`} style={edge("#4c1d95")}>
+          <button type="button" onClick={status} className={`${btn} bg-violet-500 font-mono text-white`}>
             git status -s
           </button>
-          <button type="button" onClick={reset} className={`${btn} bg-slate-800 text-slate-300`} style={edge("#020617")}>
+          <button type="button" onClick={reset} className={`${btn} bg-slate-800 text-slate-300`}>
             ↺ Reset
           </button>
         </div>
@@ -427,32 +427,32 @@ export function CommitGraphLab({ goal, onSolved }: GoalProps<"merge" | "rebase" 
 
       <div className="mt-3 grid gap-2">
         <div className="flex flex-wrap gap-2">
-          <button type="button" disabled={full} onClick={commit} className={`${btn} bg-sky-400 font-mono text-slate-950`} style={edge("#0369a1")}>
+          <button type="button" disabled={full} onClick={commit} className={`${btn} bg-primary font-mono text-primary-foreground`}>
             git commit
           </button>
           {missing.map((b) => (
-            <button key={b} type="button" onClick={() => branch(b)} className={`${btn} bg-emerald-400 font-mono text-slate-950`} style={edge("#047857")}>
+            <button key={b} type="button" onClick={() => branch(b)} className={`${btn} bg-primary font-mono text-primary-foreground`}>
               git branch {b}
             </button>
           ))}
-          <button type="button" onClick={reset} className={`${btn} bg-slate-800 text-slate-300`} style={edge("#020617")}>
+          <button type="button" onClick={reset} className={`${btn} bg-slate-800 text-slate-300`}>
             ↺ Reset
           </button>
         </div>
         {others.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {others.map((b) => (
-              <button key={`s-${b}`} type="button" onClick={() => switchTo(b)} className={`${btn} bg-slate-700 font-mono text-white`} style={edge("#0f172a")}>
+              <button key={`s-${b}`} type="button" onClick={() => switchTo(b)} className={`${btn} bg-slate-700 font-mono text-white`}>
                 git switch {b}
               </button>
             ))}
             {others.map((b) => (
-              <button key={`m-${b}`} type="button" disabled={full} onClick={() => merge(b)} className={`${btn} bg-violet-500 font-mono text-white`} style={edge("#4c1d95")}>
+              <button key={`m-${b}`} type="button" disabled={full} onClick={() => merge(b)} className={`${btn} bg-violet-500 font-mono text-white`}>
                 git merge {b}
               </button>
             ))}
             {others.map((b) => (
-              <button key={`r-${b}`} type="button" disabled={full} onClick={() => rebase(b)} className={`${btn} bg-pink-500 font-mono text-white`} style={edge("#9d174d")}>
+              <button key={`r-${b}`} type="button" disabled={full} onClick={() => rebase(b)} className={`${btn} bg-pink-500 font-mono text-white`}>
                 git rebase {b}
               </button>
             ))}
@@ -569,7 +569,7 @@ export function ConflictLab({ goal, onSolved }: GoalProps<"resolve">) {
       />
       <div className="grid gap-4 md:grid-cols-2">
         <div className="overflow-hidden rounded-xl border border-white/10 bg-slate-950 font-mono text-[12.5px]">
-          <div className="border-b border-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">greet.js</div>
+          <div className="border-b border-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">greet.js</div>
           {fileLines.map((l, i) => {
             const marker = /^(<<<<<<<|=======|>>>>>>>)/.test(l);
             const inOurs = res === "markers" && stage !== "aborted" && i === 2;
@@ -579,7 +579,7 @@ export function ConflictLab({ goal, onSolved }: GoalProps<"resolve">) {
                 key={i}
                 className={`flex gap-3 px-3 py-0.5 ${marker ? "bg-rose-500/20 text-rose-200" : inOurs ? "bg-sky-500/15" : inTheirs ? "bg-pink-500/15" : ""}`}
               >
-                <span className="w-4 text-right text-slate-600">{i + 1}</span>
+                <span className="w-4 text-right text-muted-foreground">{i + 1}</span>
                 <span className="whitespace-pre text-slate-100">{l}</span>
               </div>
             );
@@ -606,16 +606,16 @@ export function ConflictLab({ goal, onSolved }: GoalProps<"resolve">) {
           </div>
           <div className="text-xs font-bold uppercase tracking-wider text-slate-400">2 · Tell Git</div>
           <div className="flex flex-wrap gap-2">
-            <button type="button" disabled={stage !== "conflict"} onClick={add} className={`${btn} bg-emerald-400 font-mono text-slate-950`} style={edge("#047857")}>
+            <button type="button" disabled={stage !== "conflict"} onClick={add} className={`${btn} bg-primary font-mono text-primary-foreground`}>
               git add greet.js
             </button>
-            <button type="button" disabled={stage === "done" || stage === "aborted"} onClick={commit} className={`${btn} bg-sky-400 font-mono text-slate-950`} style={edge("#0369a1")}>
+            <button type="button" disabled={stage === "done" || stage === "aborted"} onClick={commit} className={`${btn} bg-primary font-mono text-primary-foreground`}>
               git commit
             </button>
-            <button type="button" disabled={stage === "done" || stage === "aborted"} onClick={abort} className={`${btn} bg-slate-700 font-mono text-white`} style={edge("#0f172a")}>
+            <button type="button" disabled={stage === "done" || stage === "aborted"} onClick={abort} className={`${btn} bg-slate-700 font-mono text-white`}>
               git merge --abort
             </button>
-            <button type="button" onClick={restart} className={`${btn} bg-slate-800 text-slate-300`} style={edge("#020617")}>
+            <button type="button" onClick={restart} className={`${btn} bg-slate-800 text-slate-300`}>
               ↺ Start over
             </button>
           </div>

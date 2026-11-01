@@ -6,6 +6,7 @@ import { Confetti } from "@/components/fx";
 import { useCourse, useProgress } from "@/engine/course-context";
 import { questionsForLevel } from "@/engine/levels";
 import { isChoice } from "@/engine/types";
+import { BlockIcon } from "@/components/learn/block-icons";
 import {
   buildCatchRounds,
   buildMemoryTiles,
@@ -85,20 +86,20 @@ export function SectionGame({ domainId, compact = false }: { domainId: string; c
     <section className="rounded-3xl border-2 p-4 sm:p-5" style={{ borderColor: `${domain.color}55`, background: `linear-gradient(160deg, ${domain.color}18, transparent 60%)` } as CSSProperties}>
       {result && result.score / result.max >= 0.7 && <Confetti count={40} />}
       <div className="flex items-center gap-3">
-        <span className="text-3xl">{info.icon}</span>
+        <span className="text-3xl"><BlockIcon icon={info.icon} className="inline-block size-[1.1em] align-[-0.15em]" /></span>
         <div className="min-w-0 flex-1">
           <div className="text-xs font-bold uppercase tracking-wider" style={{ color: domain.color }}>
             Mini game · {domain.world}
           </div>
-          <div className="text-lg font-black text-white">{info.name}</div>
+          <div className="text-lg font-semibold text-foreground">{info.name}</div>
         </div>
-        {best > 0 && !deck && <span className="shrink-0 rounded-full bg-white/10 px-2.5 py-1 text-xs font-bold text-slate-200">Best ⭐ {best}</span>}
+        {best > 0 && !deck && <span className="shrink-0 rounded-full bg-muted px-2.5 py-1 text-xs font-bold text-foreground">Best <BlockIcon icon="⭐" className="inline-block size-[1.1em] align-[-0.15em]" /> {best}</span>}
       </div>
 
       {!deck && !result && (
         <>
-          <p className="mt-3 text-sm text-slate-300">{info.how}</p>
-          <button type="button" onClick={play} className="btn-3d mt-4 w-full rounded-2xl py-3 font-black text-slate-950 sm:w-auto sm:px-8" style={{ background: domain.color, "--edge": "#00000066" } as CSSProperties}>
+          <p className="mt-3 text-sm text-muted-foreground">{info.how}</p>
+          <button type="button" onClick={play} className="mt-4 w-full rounded-lg bg-primary py-3 font-semibold text-primary-foreground hover:bg-primary/90 sm:w-auto sm:px-8">
             ▶ Play
           </button>
         </>
@@ -115,16 +116,16 @@ export function SectionGame({ domainId, compact = false }: { domainId: string; c
 
       {result && (
         <div className="pop-in mt-4 text-center">
-          <div className="text-4xl font-black text-white">
-            ⭐ {result.score}
-            <span className="text-xl text-slate-400">/{result.max}</span>
+          <div className="text-4xl font-semibold text-foreground">
+            <BlockIcon icon="⭐" className="inline-block size-[1.1em] align-[-0.15em]" /> {result.score}
+            <span className="text-xl text-muted-foreground">/{result.max}</span>
           </div>
-          <p className="mt-1 text-sm text-slate-300">
+          <p className="mt-1 text-sm text-muted-foreground">
             {result.score / result.max >= 0.8 ? "Brilliant." : result.score / result.max >= 0.5 ? "Nice work." : "Good warm-up. Try once more?"}
             {result.best ? " New best!" : ""}
             {result.xp > 0 ? ` +${result.xp} XP` : ""}
           </p>
-          <button type="button" onClick={play} className="mt-4 rounded-2xl border border-white/15 px-6 py-2.5 font-bold text-white hover:bg-white/10">
+          <button type="button" onClick={play} className="mt-4 rounded-2xl border border-border px-6 py-2.5 font-bold text-foreground hover:bg-muted">
             ↻ Play again
           </button>
         </div>

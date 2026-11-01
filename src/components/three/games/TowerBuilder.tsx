@@ -7,6 +7,7 @@ import { RichText } from "@/components/learn/code";
 import { useWebGL } from "../hooks";
 import { Stage } from "../Stage";
 import type { GameProps, QuickQuestion } from "./common";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 const GOAL = 6;
 const PALETTE = ["#38bdf8", "#a78bfa", "#34d399", "#f59e0b", "#f472b6", "#facc15", "#60a5fa", "#fb7185"];
@@ -40,11 +41,11 @@ export default function TowerBuilder({ data, onFinish }: GameProps<QuickQuestion
   return (
     <div className="grid gap-4 md:grid-cols-[1fr_minmax(0,1fr)] md:items-start">
       <div className="min-w-0">
-        <div className="flex items-center justify-between text-sm font-bold text-slate-300">
+        <div className="flex items-center justify-between text-sm font-bold text-muted-foreground">
           <span>
-            🧱 {height}/{GOAL}
+            <BlockIcon icon="🧱" className="inline-block size-[1.1em] align-[-0.15em]" /> {height}/{GOAL}
           </span>
-          <span>{"💥".repeat(strikes)}{"·".repeat(3 - strikes)}</span>
+          <span><span className="inline-flex gap-0.5" aria-label={`${strikes} of 3 strikes`}>{[0, 1, 2].map((i) => <BlockIcon key={i} icon={i < strikes ? "💥" : "○"} className={`size-4 ${i < strikes ? "" : "opacity-40"}`} />)}</span></span>
         </div>
         {gl ? (
           <Stage className="mt-2 h-64 w-full" camera={{ position: [0, 2.2, 7], fov: 45 }} fit={2.4}>
@@ -53,7 +54,7 @@ export default function TowerBuilder({ data, onFinish }: GameProps<QuickQuestion
             <Tower height={height} wobble={wobble} />
           </Stage>
         ) : (
-          <div className="mt-2 flex h-40 flex-col-reverse items-center gap-1 rounded-xl bg-black/30 p-2">
+          <div className="mt-2 flex h-40 flex-col-reverse items-center gap-1 rounded-xl bg-background/30 p-2">
             {Array.from({ length: height }, (_, k) => (
               <div key={k} className="h-4 w-24 rounded" style={{ background: PALETTE[k % PALETTE.length] }} />
             ))}
@@ -61,18 +62,18 @@ export default function TowerBuilder({ data, onFinish }: GameProps<QuickQuestion
         )}
       </div>
       <div className="min-w-0">
-        <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+        <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
           Question {i + 1} of {Math.min(data.length, 10)}
         </div>
-        <p className="mt-1 font-semibold text-white">
+        <p className="mt-1 font-semibold text-foreground">
           <RichText text={q.prompt} />
         </p>
         <div className="mt-3 grid gap-2">
           {q.options.map((o, k) => {
             const tone =
-              picked === null ? "border-white/15 bg-white/5 hover:bg-white/10" : k === q.answer ? "border-emerald-400 bg-emerald-400/15" : k === picked ? "border-rose-400 bg-rose-400/15" : "border-white/5 opacity-60";
+              picked === null ? "border-border bg-muted hover:bg-muted" : k === q.answer ? "border-success bg-success/15" : k === picked ? "border-destructive bg-destructive/15" : "border-border opacity-60";
             return (
-              <button key={k} type="button" onClick={() => answer(k)} className={`rounded-xl border px-3 py-2 text-left text-sm text-white transition ${tone}`}>
+              <button key={k} type="button" onClick={() => answer(k)} className={`rounded-xl border px-3 py-2 text-left text-sm text-foreground transition ${tone}`}>
                 <RichText text={o} />
               </button>
             );

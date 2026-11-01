@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { LabHeader, type GoalProps } from "@/components/learn/blocks";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 // ───────────── Shared responsibility sorter (EC2 · RDS · Lambda) ─────────────
 
@@ -83,7 +84,7 @@ export function ResponsibilityShiftLab({ goal, onSolved }: GoalProps<"ec2" | "al
             onClick={() => setSvc(id)}
             className={`rounded-full border px-3 py-1 text-sm ${svc === id ? "border-amber-400 bg-amber-400/20 text-white" : "border-white/10 text-slate-300"}`}
           >
-            {SERVICES[id].icon} {SERVICES[id].name} {solved(id, answers[id]) && "✓"}
+            <BlockIcon icon={SERVICES[id].icon} className="inline-block size-[1.1em] align-[-0.15em]" /> {SERVICES[id].name} {solved(id, answers[id]) && <BlockIcon icon="✓" className="inline-block size-[1.1em] align-[-0.15em]" />}
           </button>
         ))}
       </div>
@@ -92,9 +93,9 @@ export function ResponsibilityShiftLab({ goal, onSolved }: GoalProps<"ec2" | "al
         <div className="bg-sky-400 transition-all" style={{ width: `${((s.duties.length - youCount) / s.duties.length) * 100}%` }} />
         <div className="bg-emerald-400 transition-all" style={{ width: `${(youCount / s.duties.length) * 100}%` }} />
       </div>
-      <div className="mt-1 flex justify-between text-[11px] text-slate-500">
-        <span className="text-sky-300">☁️ AWS: security OF the cloud</span>
-        <span className="text-emerald-300">🧑‍💻 You: security IN the cloud</span>
+      <div className="mt-1 flex justify-between text-[11px] text-muted-foreground">
+        <span className="text-sky-300"><BlockIcon icon="☁️" className="inline-block size-[1.1em] align-[-0.15em]" /> AWS: security OF the cloud</span>
+        <span className="text-emerald-300"><BlockIcon icon="🧑‍💻" className="inline-block size-[1.1em] align-[-0.15em]" /> You: security IN the cloud</span>
       </div>
       <div className="mt-3 grid gap-2">
         {s.duties.map((d, i) => {
@@ -111,7 +112,7 @@ export function ResponsibilityShiftLab({ goal, onSolved }: GoalProps<"ec2" | "al
                   onClick={() => pick(i, o)}
                   className={`rounded-lg px-3 py-1 text-sm font-bold ${a === o ? (ok ? "bg-emerald-400 text-slate-950" : "bg-rose-400 text-slate-950") : "bg-slate-800 text-slate-200"} disabled:cursor-default`}
                 >
-                  {o === "aws" ? "☁️ AWS" : "🧑‍💻 You"}
+                  {o === "aws" ? "AWS" : "You"}
                 </button>
               ))}
               {a && !ok && <span className="w-full text-xs text-rose-200">On {s.name} this is {d.owner === "aws" ? "AWS's job" : "your job"}.</span>}
@@ -129,7 +130,7 @@ export function ResponsibilityShiftLab({ goal, onSolved }: GoalProps<"ec2" | "al
           </button>
         </div>
       )}
-      <p className="mt-2 text-xs text-slate-500">Shared controls on every service: patch management, configuration management, and awareness and training. Each side does its part.</p>
+      <p className="mt-2 text-xs text-muted-foreground">Shared controls on every service: patch management, configuration management, and awareness and training. Each side does its part.</p>
     </div>
   );
 }
@@ -180,7 +181,7 @@ export function PricingPickerLab({ goal, onSolved }: GoalProps<"bestFit">) {
         {OPTIONS.map((o) => (
           <div key={o.id} className="rounded-xl border border-white/10 bg-slate-950/60 p-2">
             <div className="text-sm font-semibold text-white">
-              {o.icon} {o.name}
+              <BlockIcon icon={o.icon} className="inline-block size-[1.1em] align-[-0.15em]" /> {o.name}
             </div>
             <div className="mt-1 text-[11px] leading-snug text-slate-400">{o.blurb}</div>
           </div>
@@ -193,7 +194,7 @@ export function PricingPickerLab({ goal, onSolved }: GoalProps<"bestFit">) {
           return (
             <div key={w.text} className={`rounded-xl border p-2 ${p ? (ok ? "border-emerald-400/50 bg-emerald-400/10" : "border-rose-400/50 bg-rose-400/10") : "border-white/10 bg-white/5"}`}>
               <div className="text-sm text-slate-100">
-                <span className="mr-1">{w.icon}</span>
+                <span className="mr-1"><BlockIcon icon={w.icon} className="inline-block size-[1.1em] align-[-0.15em]" /></span>
                 {w.text}
               </div>
               <div className="mt-2 flex flex-wrap gap-1.5">
@@ -205,18 +206,18 @@ export function PricingPickerLab({ goal, onSolved }: GoalProps<"bestFit">) {
                     onClick={() => pick(i, o.id)}
                     className={`rounded-lg px-2.5 py-1 text-xs font-bold ${p === o.id ? (ok ? "bg-emerald-400 text-slate-950" : "bg-rose-400 text-slate-950") : "bg-slate-800 text-slate-200"} disabled:cursor-default`}
                   >
-                    {o.icon} {o.name}
+                    <BlockIcon icon={o.icon} className="inline-block size-[1.1em] align-[-0.15em]" /> {o.name}
                   </button>
                 ))}
               </div>
-              {p && <div className={`mt-1.5 text-xs ${ok ? "text-emerald-200" : "text-rose-200"}`}>{ok ? `✓ ${w.why}` : `✗ ${PITFALL[p]}`}</div>}
+              {p && <div className={`mt-1.5 text-xs ${ok ? "text-emerald-200" : "text-rose-200"}`}>{ok ? w.why : PITFALL[p]}</div>}
             </div>
           );
         })}
       </div>
       <div className="mt-3 flex items-center justify-between rounded-xl bg-white/5 p-3 text-sm">
         <span className="text-white">
-          {right}/{WORKLOADS.length} best fits {done && right === WORKLOADS.length && "🎉"}
+          {right}/{WORKLOADS.length} best fits {done && right === WORKLOADS.length && <BlockIcon icon="🎉" className="inline-block size-[1.1em] align-[-0.15em]" />}
         </span>
         <button type="button" onClick={() => setPicks({})} className="text-sky-300 underline">
           Reset
@@ -270,7 +271,7 @@ export function SupportPlanLab({ goal, onSolved }: GoalProps<"allRight">) {
             className="rounded-xl border bg-slate-950/60 p-2 text-left"
             style={{ borderColor: peek === p.id ? p.color : "rgb(255 255 255 / 0.1)", boxShadow: peek === p.id ? `0 0 0 3px ${p.color}33` : undefined }}
           >
-            <div className="text-xl">{p.icon}</div>
+            <div className="text-xl"><BlockIcon icon={p.icon} className="inline-block size-[1.1em] align-[-0.15em]" /></div>
             <div className="text-sm font-semibold text-white">{p.name}</div>
           </button>
         ))}
@@ -296,11 +297,11 @@ export function SupportPlanLab({ goal, onSolved }: GoalProps<"allRight">) {
                     onClick={() => pick(i, pl.id)}
                     className={`rounded-lg px-2.5 py-1 text-xs font-bold ${p === pl.id ? (ok ? "bg-emerald-400 text-slate-950" : "bg-rose-400 text-slate-950") : "bg-slate-800 text-slate-200"} disabled:cursor-default`}
                   >
-                    {pl.icon} {pl.name}
+                    <BlockIcon icon={pl.icon} className="inline-block size-[1.1em] align-[-0.15em]" /> {pl.name}
                   </button>
                 ))}
               </div>
-              {p && <div className={`mt-1.5 text-xs ${ok ? "text-emerald-200" : "text-rose-200"}`}>{ok ? `✓ ${c.why}` : "✗ Either it doesn't meet the need, or a cheaper plan does."}</div>}
+              {p && <div className={`mt-1.5 text-xs ${ok ? "text-emerald-200" : "text-rose-200"}`}>{ok ? c.why : "Either it doesn't meet the need, or a cheaper plan does."}</div>}
             </div>
           );
         })}
@@ -308,7 +309,7 @@ export function SupportPlanLab({ goal, onSolved }: GoalProps<"allRight">) {
       <div className="mt-3 rounded-xl bg-white/5 p-3 text-sm text-white">
         {right}/{CASES.length} customers matched
       </div>
-      <p className="mt-2 text-xs text-slate-500">Developer Support and Business Support (classic) no longer accept new subscriptions and end January 1, 2027.</p>
+      <p className="mt-2 text-xs text-muted-foreground">Developer Support and Business Support (classic) no longer accept new subscriptions and end January 1, 2027.</p>
     </div>
   );
 }

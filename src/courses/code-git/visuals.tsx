@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /** Concept diagrams for Learn Git & GitHub. */
 
@@ -27,7 +28,7 @@ export function ObjectModel() {
               style={{ borderColor: sel === i ? ob.color : "rgb(255 255 255 / 0.1)", boxShadow: sel === i ? `0 0 0 3px ${ob.color}33` : undefined }}
             >
               <div className="mb-1 font-sans text-sm font-bold" style={{ color: ob.color }}>
-                {ob.icon} {ob.name}
+                <BlockIcon icon={ob.icon} className="inline-block size-[1.1em] align-[-0.15em]" /> {ob.name}
               </div>
               {ob.lines.map((l, j) => (
                 <div key={j} className="min-h-[1em] text-slate-300">
@@ -35,7 +36,7 @@ export function ObjectModel() {
                 </div>
               ))}
             </button>
-            {i < OBJECTS.length - 1 && <span className="text-slate-500">→</span>}
+            {i < OBJECTS.length - 1 && <span className="text-muted-foreground">→</span>}
           </div>
         ))}
       </div>
@@ -77,7 +78,7 @@ export function ResetModes() {
             className={`rounded-xl border p-3 text-center transition ${m.moves[i] ? "border-amber-400/70 bg-amber-400/15" : "border-white/10 bg-slate-950/60"}`}
           >
             <div className="text-sm font-bold text-white">{a}</div>
-            <div className={`mt-1 text-xs ${m.moves[i] ? "text-amber-200" : "text-slate-500"}`}>{m.moves[i] ? "reset to HEAD~1" : "untouched"}</div>
+            <div className={`mt-1 text-xs ${m.moves[i] ? "text-amber-200" : "text-muted-foreground"}`}>{m.moves[i] ? "reset to HEAD~1" : "untouched"}</div>
           </div>
         ))}
       </div>

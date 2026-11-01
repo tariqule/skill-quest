@@ -7,6 +7,7 @@ import type { Group } from "three";
 import { useWebGL } from "../hooks";
 import { Stage } from "../Stage";
 import { hoverHandlers, TextSprite, type GameProps, type SortStatement } from "./common";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /** Sort the Bins: is this meaning right for this term? Throw the card into True or False. */
 export default function SortBins({ data, onFinish }: GameProps<SortStatement[]>) {
@@ -31,33 +32,33 @@ export default function SortBins({ data, onFinish }: GameProps<SortStatement[]>)
 
   return (
     <div>
-      <div className="flex items-center justify-between text-sm font-bold text-slate-300">
+      <div className="flex items-center justify-between text-sm font-bold text-muted-foreground">
         <span>
           Card {i + 1}/{data.length}
         </span>
-        <span>⭐ {score}</span>
+        <span><BlockIcon icon="⭐" className="inline-block size-[1.1em] align-[-0.15em]" /> {score}</span>
       </div>
-      <div className="mt-3 rounded-2xl border border-white/10 bg-slate-950/70 p-4 text-center">
-        <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Does this term mean this?</div>
-        <p className="mt-1 text-lg font-black text-white">{s.term}</p>
-        <p className="mt-1 text-base text-slate-200">{s.meaning}</p>
+      <div className="mt-3 rounded-2xl border border-border bg-background p-4 text-center">
+        <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Does this term mean this?</div>
+        <p className="mt-1 text-lg font-semibold text-foreground">{s.term}</p>
+        <p className="mt-1 text-base text-foreground">{s.meaning}</p>
       </div>
       {gl && (
         <Stage className="mt-3 h-60 w-full" camera={{ position: [0, 0.4, 6.8], fov: 45 }} fit={3.4}>
           <ambientLight intensity={0.7} />
           <directionalLight position={[2, 5, 4]} intensity={1.2} />
           <Card key={i} text={s.term} thrown={thrown} />
-          <Bin x={-2.2} label="✓ True" color="#34d399" onClick={() => sort(true)} />
-          <Bin x={2.2} label="✗ False" color="#f87171" onClick={() => sort(false)} />
+          <Bin x={-2.2} label="True" color="#34d399" onClick={() => sort(true)} />
+          <Bin x={2.2} label="False" color="#f87171" onClick={() => sort(false)} />
         </Stage>
       )}
-      {thrown && <p className={`mt-2 text-center text-sm font-bold ${thrown.ok ? "text-emerald-300" : "text-rose-300"}`}>{thrown.ok ? "Nice!" : s.truth ? "That one was true." : "That one was false."}</p>}
+      {thrown && <p className={`mt-2 text-center text-sm font-bold ${thrown.ok ? "text-success-foreground" : "text-destructive-foreground"}`}>{thrown.ok ? "Nice!" : s.truth ? "That one was true." : "That one was false."}</p>}
       <div className="mt-3 grid grid-cols-2 gap-2">
-        <button type="button" disabled={!!thrown} onClick={() => sort(true)} className="rounded-xl border border-emerald-400/50 bg-emerald-400/10 py-2.5 font-black text-emerald-100">
-          ✓ True
+        <button type="button" disabled={!!thrown} onClick={() => sort(true)} className="rounded-xl border border-success/50 bg-success/10 py-2.5 font-semibold text-success-foreground">
+          <BlockIcon icon="✓" className="inline-block size-[1.1em] align-[-0.15em]" /> True
         </button>
-        <button type="button" disabled={!!thrown} onClick={() => sort(false)} className="rounded-xl border border-rose-400/50 bg-rose-400/10 py-2.5 font-black text-rose-100">
-          ✗ False
+        <button type="button" disabled={!!thrown} onClick={() => sort(false)} className="rounded-xl border border-destructive/50 bg-destructive/10 py-2.5 font-semibold text-destructive-foreground">
+          <BlockIcon icon="✗" className="inline-block size-[1.1em] align-[-0.15em]" /> False
         </button>
       </div>
     </div>

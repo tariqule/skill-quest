@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { LabHeader, type GoalProps } from "@/components/learn/blocks";
 import { pct } from "@/engine/game";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 // ───────────── DynamoDB capacity calculator ─────────────
 
@@ -75,16 +76,16 @@ export function DynamoCapacityLab({ goal, onSolved }: GoalProps<"provision">) {
             onClick={() => pick(i)}
             className={`rounded-full border px-3 py-1 text-sm ${si === i ? "border-amber-400 bg-amber-400/20 text-white" : "border-white/10 text-slate-300"}`}
           >
-            {x.icon} {x.name}
+            <BlockIcon icon={x.icon} className="inline-block size-[1.1em] align-[-0.15em]" /> {x.name}
           </button>
         ))}
       </div>
       <div className="mt-3 grid gap-2 rounded-xl border border-white/10 bg-slate-950/60 p-3 text-sm text-slate-200 sm:grid-cols-2">
         <div>
-          📖 <b>{s.reads}</b> {READ_LABEL[s.readMode]} reads/second of <b>{s.readKB} KB</b> items
+          <BlockIcon icon="📖" className="inline-block size-[1.1em] align-[-0.15em]" /> <b>{s.reads}</b> {READ_LABEL[s.readMode]} reads/second of <b>{s.readKB} KB</b> items
         </div>
         <div>
-          ✍️ <b>{s.writes}</b> {s.writeMode === "transactional" ? "transactional " : ""}writes/second of <b>{s.writeKB} KB</b> items
+          <BlockIcon icon="✍️" className="inline-block size-[1.1em] align-[-0.15em]" /> <b>{s.writes}</b> {s.writeMode === "transactional" ? "transactional " : ""}writes/second of <b>{s.writeKB} KB</b> items
         </div>
       </div>
 
@@ -93,8 +94,8 @@ export function DynamoCapacityLab({ goal, onSolved }: GoalProps<"provision">) {
         <Stepper label="Write capacity units (WCU)" value={wcu} onChange={setWcu} color="#34d399" />
       </div>
 
-      <button type="button" onClick={run} className="btn-3d mt-3 rounded-xl bg-amber-400 px-4 py-2 font-bold text-slate-950" style={{ "--edge": "#b45309" } as React.CSSProperties}>
-        ⚡ Run load test
+      <button type="button" onClick={run} className="mt-3 rounded-lg bg-reward px-4 py-2 font-semibold text-primary-foreground">
+        <BlockIcon icon="⚡" className="inline-block size-[1.1em] align-[-0.15em]" /> Run load test
       </button>
 
       {result && ran && (
@@ -225,15 +226,15 @@ export function SqsLab({ goal, onSolved }: GoalProps<"once" | "dlq">) {
   }
 
   const banner: Record<SqsOutcome, { cls: string; text: string }> = {
-    once: { cls: "border-emerald-400/40 bg-emerald-400/10 text-emerald-100", text: "✓ Processed exactly once, then deleted." },
-    dup: { cls: "border-rose-400/40 bg-rose-400/10 text-rose-100", text: `✗ Processed ${run?.processed ?? 0}+ times, so its side effects happen more than once (double emails, double charges).` },
+    once: { cls: "border-emerald-400/40 bg-emerald-400/10 text-emerald-100", text: "Processed exactly once, then deleted." },
+    dup: { cls: "border-rose-400/40 bg-rose-400/10 text-rose-100", text: `Processed ${run?.processed ?? 0}+ times, so its side effects happen more than once (double emails, double charges).` },
     dlq: poison
-      ? { cls: "border-sky-400/40 bg-sky-400/10 text-sky-100", text: "✓ The poison message is parked in the DLQ for inspection. The main queue keeps flowing." }
+      ? { cls: "border-sky-400/40 bg-sky-400/10 text-sky-100", text: "The poison message is parked in the DLQ for inspection. The main queue keeps flowing." }
       : {
           cls: "border-amber-400/40 bg-amber-400/10 text-amber-100",
-          text: `⚠️ A healthy message ended up in the DLQ after being processed ${run?.processed ?? 0} times: the visibility timeout is shorter than the processing time.`,
+          text: `A healthy message ended up in the DLQ after being processed ${run?.processed ?? 0} times: the visibility timeout is shorter than the processing time.`,
         },
-    loop: { cls: "border-rose-400/40 bg-rose-400/10 text-rose-100", text: "✗ The poison message keeps coming back and wastes consumer time." },
+    loop: { cls: "border-rose-400/40 bg-rose-400/10 text-rose-100", text: "The poison message keeps coming back and wastes consumer time." },
   };
 
   return (
@@ -250,12 +251,12 @@ export function SqsLab({ goal, onSolved }: GoalProps<"once" | "dlq">) {
           </label>
           <label className="flex cursor-pointer items-center gap-2 text-white">
             <input type="checkbox" checked={poison} onChange={() => setPoison(!poison)} className="accent-rose-400" />
-            ☠️ Poison message (always fails)
+            <BlockIcon icon="☠️" className="inline-block size-[1.1em] align-[-0.15em]" /> Poison message (always fails)
           </label>
         </div>
       </div>
-      <button type="button" onClick={send} className="btn-3d mt-3 rounded-xl bg-sky-400 px-4 py-2 font-bold text-slate-950" style={{ "--edge": "#0369a1" } as React.CSSProperties}>
-        📨 Send a message
+      <button type="button" onClick={send} className="mt-3 rounded-lg bg-primary px-4 py-2 font-semibold text-primary-foreground">
+        <BlockIcon icon="📨" className="inline-block size-[1.1em] align-[-0.15em]" /> Send a message
       </button>
       {run && (
         <div className="pop-in mt-3 grid gap-2">
@@ -267,7 +268,7 @@ export function SqsLab({ goal, onSolved }: GoalProps<"once" | "dlq">) {
           <div className={`rounded-xl border p-3 text-sm ${banner[run.outcome].cls}`}>{banner[run.outcome].text}</div>
         </div>
       )}
-      <p className="mt-2 text-xs text-slate-500">With Lambda polling the queue, AWS recommends a visibility timeout of at least 6 times the function timeout.</p>
+      <p className="mt-2 text-xs text-muted-foreground">With Lambda polling the queue, AWS recommends a visibility timeout of at least 6 times the function timeout.</p>
     </div>
   );
 }
@@ -363,7 +364,7 @@ export function IamPolicyLab({ goal, onSolved }: GoalProps<"leastPrivilege" | "d
               <span className={`rounded px-1.5 text-xs font-bold ${s.effect === "Deny" ? "bg-rose-400 text-slate-950" : "bg-emerald-400 text-slate-950"}`}>{s.effect}</span>
             </div>
             <div className="mt-1 font-mono text-slate-100">{s.text}</div>
-            <div className="text-[11px] text-slate-500">{on[s.id] ? "✓ attached" : "detached"}</div>
+            <div className="text-[11px] text-muted-foreground">{on[s.id] ? "attached" : "detached"}</div>
           </button>
         ))}
       </div>
@@ -375,9 +376,9 @@ export function IamPolicyLab({ goal, onSolved }: GoalProps<"leastPrivilege" | "d
           return (
             <div key={r.label} className="grid grid-cols-[1fr_auto] items-center gap-2 rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-sm">
               <div className="min-w-0">
-                <div className="text-slate-100">🙋 {r.label}</div>
-                <div className="truncate text-xs text-slate-500">
-                  Decided by: {res.by} · target: {r.want === "allow" ? "allow" : "deny"} {ok ? "✓" : "✗"}
+                <div className="text-slate-100"><BlockIcon icon="🙋" className="inline-block size-[1.1em] align-[-0.15em]" /> {r.label}</div>
+                <div className="truncate text-xs text-muted-foreground">
+                  Decided by: {res.by} · target: {r.want === "allow" ? "allow" : "deny"} {ok ? <BlockIcon icon="✓" className="inline-block size-[1.1em] align-[-0.15em]" /> : <BlockIcon icon="✗" className="inline-block size-[1.1em] align-[-0.15em]" />}
                 </div>
               </div>
               <span className={`rounded-lg px-2 py-1 text-xs font-bold ${allowed ? "bg-emerald-400/20 text-emerald-200" : res.decision === "Explicit deny" ? "bg-rose-400/20 text-rose-200" : "bg-slate-700 text-slate-200"}`}>
@@ -387,7 +388,7 @@ export function IamPolicyLab({ goal, onSolved }: GoalProps<"leastPrivilege" | "d
           );
         })}
       </div>
-      <p className="mt-2 text-xs text-slate-500">An explicit Deny anywhere beats every Allow. With no matching Allow, the answer is an implicit deny.</p>
+      <p className="mt-2 text-xs text-muted-foreground">An explicit Deny anywhere beats every Allow. With no matching Allow, the answer is an implicit deny.</p>
     </div>
   );
 }

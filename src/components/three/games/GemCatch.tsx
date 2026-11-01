@@ -7,6 +7,7 @@ import type { Group, Mesh } from "three";
 import { useWebGL } from "../hooks";
 import { Stage } from "../Stage";
 import { hoverHandlers, TextSprite, type CatchRound, type GameProps } from "./common";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 const LANES = [-2.1, 0, 2.1];
 const TOP = 3;
@@ -43,15 +44,15 @@ export default function GemCatch({ data, color, onFinish }: GameProps<CatchRound
   return (
     <div>
       <div className="flex items-center justify-between text-sm font-bold">
-        <span>{"❤️".repeat(lives)}{"🖤".repeat(3 - lives)}</span>
-        <span className="text-slate-300">
-          Round {round + 1}/{data.length} · ⭐ {score}
-          {streak >= 2 ? ` · 🔥${streak}` : ""}
+        <span><span className="inline-flex gap-0.5" aria-label={`${lives} of 3 lives`}>{[0, 1, 2].map((i) => <BlockIcon key={i} icon="❤️" className={`size-4 ${i < lives ? "" : "opacity-30"}`} />)}</span></span>
+        <span className="text-muted-foreground">
+          Round {round + 1}/{data.length} · <BlockIcon icon="⭐" className="inline-block size-[1.1em] align-[-0.15em]" /> {score}
+          {streak >= 2 ? ` · ${streak}` : ""}
         </span>
       </div>
-      <div className="mt-3 rounded-2xl border border-white/10 bg-slate-950/70 p-3 text-center">
-        <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Which term means</div>
-        <p className="mt-1 text-base font-semibold text-white">{r.definition}</p>
+      <div className="mt-3 rounded-2xl border border-border bg-background p-3 text-center">
+        <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Which term means</div>
+        <p className="mt-1 text-base font-semibold text-foreground">{r.definition}</p>
       </div>
       {gl && (
         <Stage className="mt-3 h-64 w-full sm:h-72" camera={{ position: [0, 0.2, 7.5], fov: 45 }} fit={3.6}>
@@ -68,21 +69,21 @@ export default function GemCatch({ data, color, onFinish }: GameProps<CatchRound
       )}
       <div className="mt-3 grid grid-cols-3 gap-2">
         {r.choices.map((c, i) => {
-          const tone = flash && (i === r.answer ? "border-emerald-400 bg-emerald-400/20" : i === flash.pick ? "border-rose-400 bg-rose-400/20" : "");
+          const tone = flash && (i === r.answer ? "border-success bg-success/20" : i === flash.pick ? "border-destructive bg-destructive/20" : "");
           return (
             <button
               key={i}
               type="button"
               disabled={!!flash}
               onClick={() => settle(i === r.answer, i)}
-              className={`rounded-xl border px-2 py-2 text-xs font-bold text-white transition sm:text-sm ${tone || "border-white/15 bg-white/5 hover:bg-white/10"}`}
+              className={`rounded-xl border px-2 py-2 text-xs font-bold text-foreground transition sm:text-sm ${tone || "border-border bg-muted hover:bg-muted"}`}
             >
               {c}
             </button>
           );
         })}
       </div>
-      <p className="mt-2 text-center text-xs text-slate-500">{gl ? "Tap a falling gem, or a button below it." : "Tap the right term."}</p>
+      <p className="mt-2 text-center text-xs text-muted-foreground">{gl ? "Tap a falling gem, or a button below it." : "Tap the right term."}</p>
     </div>
   );
 }

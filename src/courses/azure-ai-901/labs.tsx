@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { LabHeader, type GoalProps } from "@/components/learn/blocks";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 // ───────────── Responsible AI principle matcher ─────────────
 
@@ -78,7 +79,7 @@ export function RaiMatcherLab({ goal, onSolved }: GoalProps<"allCorrect">) {
           const n = RAI_CASES.filter((c, i) => answers[i] === p.id && c.answer === p.id).length;
           return (
             <span key={p.id} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-xs text-slate-200">
-              {p.icon} {p.name} <span className="font-mono text-emerald-300">{n}</span>
+              <BlockIcon icon={p.icon} className="inline-block size-[1.1em] align-[-0.15em]" /> {p.name} <span className="font-mono text-emerald-300">{n}</span>
             </span>
           );
         })}
@@ -89,7 +90,7 @@ export function RaiMatcherLab({ goal, onSolved }: GoalProps<"allCorrect">) {
           const ok = a === c.answer;
           return (
             <div key={c.text} className={`rounded-xl border p-2 ${a ? (ok ? "border-emerald-400/50 bg-emerald-400/10" : "border-rose-400/50 bg-rose-400/10") : "border-white/10 bg-white/5"}`}>
-              <div className="text-sm text-slate-100">🧩 {c.text}</div>
+              <div className="text-sm text-slate-100"><BlockIcon icon="🧩" className="inline-block size-[1.1em] align-[-0.15em]" /> {c.text}</div>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {PRINCIPLES.map((p) => (
                   <button
@@ -101,7 +102,7 @@ export function RaiMatcherLab({ goal, onSolved }: GoalProps<"allCorrect">) {
                       a === p.id ? (ok ? "bg-emerald-400 text-slate-950" : "bg-rose-400 text-slate-950") : a && p.id === c.answer ? "bg-emerald-400/30 text-emerald-100" : "bg-slate-800 text-slate-200"
                     } disabled:cursor-default`}
                   >
-                    {p.icon} {p.name}
+                    <BlockIcon icon={p.icon} className="inline-block size-[1.1em] align-[-0.15em]" /> {p.name}
                   </button>
                 ))}
               </div>
@@ -113,7 +114,7 @@ export function RaiMatcherLab({ goal, onSolved }: GoalProps<"allCorrect">) {
       {done && (
         <div className="pop-in mt-3 flex items-center justify-between rounded-xl bg-white/5 p-3 text-sm">
           <span className="text-white">
-            {right}/{RAI_CASES.length} correct {right === RAI_CASES.length ? "🏅" : ""}
+            {right}/{RAI_CASES.length} correct {right === RAI_CASES.length ? <BlockIcon icon="🏅" className="inline-block size-[1.1em] align-[-0.15em]" /> : ""}
           </span>
           <button type="button" onClick={() => setAnswers({})} className="text-sky-300 underline">
             Try again
@@ -215,7 +216,7 @@ export function ToolSorterLab({ goal, onSolved }: GoalProps<"allSorted">) {
         {current ? (
           <div key={active} className="pop-in">
             <div className="text-xs uppercase tracking-wider text-sky-300">Job {(active ?? 0) + 1} of {JOBS.length}</div>
-            <div className="mt-1 text-slate-100">💼 {current.text}</div>
+            <div className="mt-1 text-slate-100"><BlockIcon icon="💼" className="inline-block size-[1.1em] align-[-0.15em]" /> {current.text}</div>
           </div>
         ) : (
           <div className="text-sm text-slate-300">All jobs sorted. {right}/{JOBS.length} in the right bin.</div>
@@ -223,7 +224,7 @@ export function ToolSorterLab({ goal, onSolved }: GoalProps<"allSorted">) {
       </div>
       {last !== null && answers[last] && (
         <div className={`mt-2 text-xs ${answers[last] === JOBS[last].answer ? "text-emerald-200" : "text-rose-200"}`}>
-          {answers[last] === JOBS[last].answer ? "✅ " : `❌ Better bin: ${BUCKETS.find((b) => b.id === JOBS[last].answer)!.name}. `}
+          {answers[last] === JOBS[last].answer ? <><BlockIcon icon="✅" className="inline-block size-[1.1em] align-[-0.15em]" />{" "}</> : `Better bin: ${BUCKETS.find((b) => b.id === JOBS[last].answer)!.name}. `}
           {JOBS[last].why}
         </div>
       )}
@@ -239,7 +240,7 @@ export function ToolSorterLab({ goal, onSolved }: GoalProps<"allSorted">) {
               className="flex min-h-[7rem] flex-col rounded-xl border-2 p-2 text-left transition hover:-translate-y-0.5 disabled:hover:translate-y-0"
               style={{ borderColor: `${b.color}88`, background: `${b.color}14` }}
             >
-              <span className="text-2xl">{b.icon}</span>
+              <span className="text-2xl"><BlockIcon icon={b.icon} className="inline-block size-[1.1em] align-[-0.15em]" /></span>
               <span className="text-xs font-bold leading-tight" style={{ color: b.color }}>
                 {b.name}
               </span>
@@ -271,7 +272,7 @@ export function ToolSorterLab({ goal, onSolved }: GoalProps<"allSorted">) {
       {done && (
         <div className="pop-in mt-3 flex items-center justify-between rounded-xl bg-white/5 p-3 text-sm">
           <span className="text-white">
-            {right}/{JOBS.length} sorted correctly {right === JOBS.length ? "🏆" : ""}
+            {right}/{JOBS.length} sorted correctly {right === JOBS.length ? <BlockIcon icon="🏆" className="inline-block size-[1.1em] align-[-0.15em]" /> : ""}
           </span>
           <button
             type="button"
@@ -330,7 +331,7 @@ const TESTS: AgentTest[] = [
     prompt: "Here's last quarter's sales CSV. Chart revenue by month.",
     run: (_, tools) =>
       tools.has("code")
-        ? { pass: true, reply: "📊 Ran Python on the file and produced a bar chart: March was the peak at 48,200." }
+        ? { pass: true, reply: "Ran Python on the file and produced a bar chart: March was the peak at 48,200." }
         : { pass: false, reply: "I can describe how you might chart it, but I can't run code on the file." },
   },
   {
@@ -345,7 +346,7 @@ const TESTS: AgentTest[] = [
     run: (ins) =>
       ins === "support"
         ? { pass: true, reply: "I can only help with Skyline orders and policies. Is there anything about an order I can check for you?" }
-        : { pass: false, reply: "🏴‍☠️ Yo-ho, the sea is wide… (Off-topic: the instructions don't keep the agent in its lane.)" },
+        : { pass: false, reply: "Yo-ho, the sea is wide… (Off-topic: the instructions don't keep the agent in its lane.)" },
   },
 ];
 
@@ -377,11 +378,11 @@ export function AgentBuilderLab({ goal, onSolved }: GoalProps<"allPass" | "lean"
       <div className="grid gap-3 md:grid-cols-2">
         <div className="grid gap-3">
           <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-            <div className="text-xs font-bold uppercase tracking-wider text-violet-300">🧠 Model</div>
+            <div className="text-xs font-bold uppercase tracking-wider text-violet-300"><BlockIcon icon="🧠" className="inline-block size-[1.1em] align-[-0.15em]" /> Model</div>
             <div className="mt-1 font-mono text-sm text-slate-200">gpt-4.1 (deployment: support-chat)</div>
           </div>
           <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-            <div className="text-xs font-bold uppercase tracking-wider text-sky-300">📜 Instructions (system prompt)</div>
+            <div className="text-xs font-bold uppercase tracking-wider text-sky-300"><BlockIcon icon="📜" className="inline-block size-[1.1em] align-[-0.15em]" /> Instructions (system prompt)</div>
             <div className="mt-2 grid gap-1.5">
               {INSTRUCTIONS.map((i) => (
                 <button
@@ -399,7 +400,7 @@ export function AgentBuilderLab({ goal, onSolved }: GoalProps<"allPass" | "lean"
             </div>
           </div>
           <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-            <div className="text-xs font-bold uppercase tracking-wider text-orange-300">🧰 Tools and knowledge</div>
+            <div className="text-xs font-bold uppercase tracking-wider text-orange-300"><BlockIcon icon="🧰" className="inline-block size-[1.1em] align-[-0.15em]" /> Tools and knowledge</div>
             <div className="mt-2 grid gap-1.5">
               {TOOLS.map((t) => (
                 <button
@@ -410,7 +411,7 @@ export function AgentBuilderLab({ goal, onSolved }: GoalProps<"allPass" | "lean"
                   className={`flex items-center justify-between rounded-lg px-3 py-1.5 text-left text-sm ${tools.has(t.id) ? "bg-orange-400 font-semibold text-slate-950" : "bg-slate-800 text-slate-200"}`}
                 >
                   <span>
-                    {t.icon} {t.name}
+                    <BlockIcon icon={t.icon} className="inline-block size-[1.1em] align-[-0.15em]" /> {t.name}
                   </span>
                   <span className="text-xs">{tools.has(t.id) ? "ON" : "off"}</span>
                 </button>
@@ -420,12 +421,11 @@ export function AgentBuilderLab({ goal, onSolved }: GoalProps<"allPass" | "lean"
         </div>
         <div className="rounded-xl border border-white/10 bg-slate-950/60 p-3">
           <div className="flex items-center justify-between">
-            <div className="text-xs font-bold uppercase tracking-wider text-emerald-300">🧪 Playground test prompts</div>
+            <div className="text-xs font-bold uppercase tracking-wider text-emerald-300"><BlockIcon icon="🧪" className="inline-block size-[1.1em] align-[-0.15em]" /> Playground test prompts</div>
             <button
               type="button"
               onClick={runTests}
-              className="btn-3d rounded-xl bg-emerald-400 px-3 py-1.5 text-sm font-bold text-slate-950"
-              style={{ "--edge": "#047857" } as React.CSSProperties}
+              className="rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground"
             >
               ▶ Run tests
             </button>
@@ -435,10 +435,10 @@ export function AgentBuilderLab({ goal, onSolved }: GoalProps<"allPass" | "lean"
               const r = results?.[i];
               return (
                 <div key={t.prompt} className={`rounded-lg border p-2 text-sm ${r ? (r.pass ? "border-emerald-400/50 bg-emerald-400/10" : "border-rose-400/50 bg-rose-400/10") : "border-white/10"}`}>
-                  <div className="text-slate-100">🙋 {t.prompt}</div>
+                  <div className="text-slate-100"><BlockIcon icon="🙋" className="inline-block size-[1.1em] align-[-0.15em]" /> {t.prompt}</div>
                   {r && (
                     <div className="pop-in mt-1 text-xs text-slate-300">
-                      {r.pass ? "✅" : "❌"} 🤖 {r.reply}
+                      {r.pass ? <BlockIcon icon="✅" className="inline-block size-[1.1em] align-[-0.15em]" /> : <BlockIcon icon="❌" className="inline-block size-[1.1em] align-[-0.15em]" />} <BlockIcon icon="🤖" className="inline-block size-[1.1em] align-[-0.15em]" /> {r.reply}
                     </div>
                   )}
                 </div>

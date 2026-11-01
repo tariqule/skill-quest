@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /** Concept diagrams specific to the Azure AI Fundamentals (AI-901) course. */
 
@@ -69,7 +70,7 @@ export function TokenEmbeddings() {
                   className="cursor-pointer"
                   onClick={() => setSel(e.word)}
                 >
-                  {e.icon}
+                  <BlockIcon icon={e.icon} className="inline-block size-[1.1em] align-[-0.15em]" />
                 </text>
               </g>
             ))}
@@ -85,7 +86,7 @@ export function TokenEmbeddings() {
                 onClick={() => setSel(e.word)}
                 className={`rounded-lg px-2 py-1 text-sm font-semibold ${e.word === sel ? "bg-violet-400 text-slate-950" : "bg-slate-800 text-slate-200"}`}
               >
-                {e.icon} {e.word}
+                <BlockIcon icon={e.icon} className="inline-block size-[1.1em] align-[-0.15em]" /> {e.word}
               </button>
             ))}
           </div>
@@ -93,7 +94,7 @@ export function TokenEmbeddings() {
             {ranked.map((r) => (
               <div key={r.word} className="grid grid-cols-[6.5rem_1fr_3rem] items-center gap-2 text-sm">
                 <span className="text-slate-200">
-                  {r.icon} {r.word}
+                  <BlockIcon icon={r.icon} className="inline-block size-[1.1em] align-[-0.15em]" /> {r.word}
                 </span>
                 <div className="h-2.5 overflow-hidden rounded-full bg-white/10">
                   <div className="h-full rounded-full bg-emerald-400 transition-all duration-300" style={{ width: `${Math.max(0, r.sim) * 100}%` }} />
@@ -117,15 +118,15 @@ type Residency = "none" | "zone" | "geo";
 type Pattern = "bursty" | "steady" | "batch";
 
 const RESIDENCY: { id: Residency; label: string }[] = [
-  { id: "none", label: "🌍 Any Azure region is fine" },
+  { id: "none", label: "Any Azure region is fine" },
   { id: "zone", label: "🇪🇺 Stay inside a data zone (EU, US, APAC)" },
-  { id: "geo", label: "📍 Stay inside one Azure geography" },
+  { id: "geo", label: "Stay inside one Azure geography" },
 ];
 
 const PATTERN: { id: Pattern; label: string }[] = [
-  { id: "bursty", label: "📈 Variable, bursty traffic" },
-  { id: "steady", label: "🏭 Steady high volume that needs consistent speed" },
-  { id: "batch", label: "📦 A huge background job that isn't urgent" },
+  { id: "bursty", label: "Variable, bursty traffic" },
+  { id: "steady", label: "Steady high volume that needs consistent speed" },
+  { id: "batch", label: "A huge background job that isn't urgent" },
 ];
 
 const PICK: Record<Residency, Record<Pattern, { name: string; note: string }>> = {
@@ -176,11 +177,11 @@ export function DeploymentChooser() {
       </div>
       <div className="flex flex-col justify-center rounded-xl border border-white/10 bg-slate-950/60 p-4">
         <div className="text-xs uppercase tracking-wider text-slate-400">Recommended deployment type</div>
-        <div key={pick.name} className="pop-in mt-1 text-2xl font-black text-white">
+        <div key={pick.name} className="pop-in mt-1 text-2xl font-semibold text-white">
           {pick.name}
         </div>
         <p className="mt-2 text-sm text-slate-300">{pick.note}</p>
-        <p className="mt-3 text-xs text-slate-500">You also set the model version and a tokens-per-minute (TPM) limit on every deployment.</p>
+        <p className="mt-3 text-xs text-muted-foreground">You also set the model version and a tokens-per-minute (TPM) limit on every deployment.</p>
       </div>
     </div>
   );
@@ -228,7 +229,7 @@ export function CvTasks() {
                     : undefined
                 }
               >
-                {f.icon}
+                <BlockIcon icon={f.icon} className="inline-block size-[1.1em] align-[-0.15em]" />
               </span>
               {task === "detect" && (
                 <>
@@ -246,7 +247,7 @@ export function CvTasks() {
         <div>
           <div className="text-lg font-bold text-sky-300">{tab.label}</div>
           <p className="mt-1 text-slate-300">{tab.text}</p>
-          <p className="mt-3 text-xs text-slate-500">Older models (CNNs) learned from labeled images. Newer vision transformers and multimodal models also connect images to text.</p>
+          <p className="mt-3 text-xs text-muted-foreground">Older models (CNNs) learned from labeled images. Newer vision transformers and multimodal models also connect images to text.</p>
         </div>
       </div>
     </div>
@@ -263,7 +264,7 @@ export function FoundryMap() {
     <div className="grid gap-3">
       <div className="rounded-2xl border-2 p-3" style={{ borderColor: open === "resource" ? "#38bdf8" : "rgb(56 189 248 / 0.35)", background: "rgb(56 189 248 / 0.06)" }}>
         <button type="button" onClick={() => setOpen("resource")} className="text-left text-xs font-bold uppercase tracking-wider text-sky-300">
-          🟦 Foundry resource (the Azure resource) {open === "resource" ? "▾" : "▸"}
+          <BlockIcon icon="🟦" className="inline-block size-[1.1em] align-[-0.15em]" /> Foundry resource (the Azure resource) {open === "resource" ? "▾" : "▸"}
         </button>
         {open === "resource" && (
           <div className="mt-2 flex flex-wrap gap-1.5">
@@ -278,7 +279,7 @@ export function FoundryMap() {
           {["Support agent project", "Invoice extraction project"].map((p, i) => (
             <div key={p} className="rounded-xl border p-2" style={{ borderColor: open === "project" && i === 0 ? "#f97316" : "rgb(249 115 22 / 0.35)", background: "rgb(249 115 22 / 0.06)" }}>
               <button type="button" onClick={() => setOpen("project")} className="text-left text-xs font-bold uppercase tracking-wider text-orange-300">
-                🗂️ Foundry project: {p}
+                <BlockIcon icon="🗂️" className="inline-block size-[1.1em] align-[-0.15em]" /> Foundry project: {p}
               </button>
               {open === "project" && i === 0 && (
                 <div className="mt-2 flex flex-wrap gap-1.5">
@@ -293,7 +294,7 @@ export function FoundryMap() {
           ))}
         </div>
       </div>
-      <p className="text-xs text-slate-500">One resource per team, many projects inside it, one per AI use case. Tap the resource or a project.</p>
+      <p className="text-xs text-muted-foreground">One resource per team, many projects inside it, one per AI use case. Tap the resource or a project.</p>
     </div>
   );
 }
@@ -314,10 +315,10 @@ export function SchemaExtraction() {
     <div>
       <div className="flex flex-wrap gap-1.5">
         <button type="button" onClick={() => setMode("ocr")} className={`rounded-lg px-3 py-1 text-sm font-semibold ${mode === "ocr" ? "bg-slate-200 text-slate-950" : "bg-slate-800 text-slate-200"}`}>
-          🔤 Basic OCR
+          <BlockIcon icon="🔤" className="inline-block size-[1.1em] align-[-0.15em]" /> Basic OCR
         </button>
         <button type="button" onClick={() => setMode("schema")} className={`rounded-lg px-3 py-1 text-sm font-semibold ${mode === "schema" ? "bg-emerald-400 text-slate-950" : "bg-slate-800 text-slate-200"}`}>
-          🧾 Content Understanding analyzer
+          <BlockIcon icon="🧾" className="inline-block size-[1.1em] align-[-0.15em]" /> Content Understanding analyzer
         </button>
       </div>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
@@ -330,7 +331,7 @@ export function SchemaExtraction() {
           {mode === "ocr" ? (
             <div className="text-slate-300">
               &quot;Invoice # INV-2207 Skyline Outfitters Ltd. Dated 4 March 2026 2 × Trail tent @ 189.00 Amount due 412.80&quot;
-              <div className="mt-2 font-sans text-xs text-slate-500">Just text. No idea which number is the total.</div>
+              <div className="mt-2 font-sans text-xs text-muted-foreground">Just text. No idea which number is the total.</div>
             </div>
           ) : (
             <div className="grid gap-0.5">
@@ -339,7 +340,7 @@ export function SchemaExtraction() {
                   <span className="text-sky-300">{l.field}</span>: <span className="text-emerald-300">{l.value}</span>
                 </div>
               ))}
-              <div className="mt-2 font-sans text-xs text-slate-500">&quot;Amount due&quot; still maps to InvoiceTotal: schemas are applied by meaning, not by label.</div>
+              <div className="mt-2 font-sans text-xs text-muted-foreground">&quot;Amount due&quot; still maps to InvoiceTotal: schemas are applied by meaning, not by label.</div>
             </div>
           )}
         </div>

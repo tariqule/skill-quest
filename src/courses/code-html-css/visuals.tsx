@@ -2,6 +2,7 @@
 
 import { useState, type CSSProperties } from "react";
 import { CodeBlock } from "@/components/learn/blocks";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 const chip = (on: boolean) => `rounded-lg px-3 py-1.5 font-mono text-xs font-semibold transition ${on ? "bg-sky-400 text-slate-950" : "bg-white/10 text-slate-200 hover:bg-white/20"}`;
 
@@ -124,7 +125,7 @@ export function FlexAxisVisual() {
         <div className="grid gap-1">
           <div className="rounded-xl border border-dashed border-sky-400/50 bg-slate-950/80 p-2" style={{ display: "flex", flexDirection: dir, gap: 8, justifyContent: "center", alignItems: "center", height: 160 }}>
             {["#f97316", "#38bdf8", "#a78bfa"].map((c, i) => (
-              <div key={c} className="rounded-md px-4 py-2 font-mono text-sm font-black text-slate-950" style={{ background: c }}>
+              <div key={c} className="rounded-md px-4 py-2 font-mono text-sm font-semibold text-slate-950" style={{ background: c }}>
                 {i + 1}
               </div>
             ))}
@@ -213,7 +214,7 @@ export function PositionVisual() {
         </div>
         <div className="relative h-44 overflow-y-auto rounded-xl border border-white/10 bg-slate-950/80 p-3 text-xs text-slate-400">
           <p>Paragraph one sits above the badge.</p>
-          <div className="z-10 inline-block rounded-md bg-fuchsia-400 px-2 py-1 font-mono text-xs font-black text-slate-950" style={p.style}>
+          <div className="z-10 inline-block rounded-md bg-fuchsia-400 px-2 py-1 font-mono text-xs font-semibold text-slate-950" style={p.style}>
             .badge
           </div>
           {Array.from({ length: 9 }, (_, i) => (
@@ -226,7 +227,7 @@ export function PositionVisual() {
       <div className="grid content-start gap-2">
         <CodeBlock lang="css" code={`.badge {\n  ${p.css.split("\n").join("\n  ")}\n}`} />
         <p className="text-sm text-slate-300">{p.note}</p>
-        <p className="text-xs text-slate-500">position: fixed works like absolute but against the viewport, so it stays put while the whole page scrolls.</p>
+        <p className="text-xs text-muted-foreground">position: fixed works like absolute but against the viewport, so it stays put while the whole page scrolls.</p>
       </div>
     </div>
   );
@@ -262,9 +263,9 @@ export function ResponsiveVisual() {
       </div>
       <div className="grid gap-1 font-mono text-xs">
         {queries.map((q) => (
-          <div key={q.q} className={`flex justify-between rounded-md px-2 py-1 ${q.on ? "bg-emerald-500/15 text-emerald-200" : "bg-white/5 text-slate-500"}`}>
+          <div key={q.q} className={`flex justify-between rounded-md px-2 py-1 ${q.on ? "bg-emerald-500/15 text-emerald-200" : "bg-white/5 text-muted-foreground"}`}>
             <span>{q.q}</span>
-            <span>{q.on ? `✓ ${q.set}` : "no match"}</span>
+            <span>{q.on ? <><BlockIcon icon="✓" className="inline-block size-[1.1em] align-[-0.15em]" /> {q.set}</> : "no match"}</span>
           </div>
         ))}
         <div className="rounded-md bg-sky-400/10 px-2 py-1 text-sky-200">
@@ -361,7 +362,7 @@ export function HasVisual() {
             {t}
           </label>
         ))}
-        <div className="done">🎉 All done! (shown by CSS only)</div>
+        <div className="done"><BlockIcon icon="🎉" className="inline-block size-[1.1em] align-[-0.15em]" /> All done! (shown by CSS only)</div>
       </div>
       <CodeBlock
         lang="css"
@@ -398,7 +399,7 @@ export function ContainerVisual() {
     <div className="grid gap-3">
       <style>{CQ_CSS}</style>
       <label className="block font-mono text-xs text-slate-300">
-        container width: <span className="text-sky-200">{w}px</span> {w >= 420 ? "· @container (min-width: 420px) ✓" : "· query doesn't match"}
+        container width: <span className="text-sky-200">{w}px</span> {w >= 420 ? "· @container (min-width: 420px)" : "· query doesn't match"}
         <input type="range" min={200} max={640} step={10} value={w} onChange={(e) => setW(Number(e.target.value))} className="mt-1 w-full accent-sky-400" aria-label="Container width" />
       </label>
       <div className="overflow-x-auto">

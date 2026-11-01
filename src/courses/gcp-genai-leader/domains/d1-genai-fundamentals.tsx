@@ -1,6 +1,7 @@
 import { Flow, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { GenAiNesting, LandscapeStack } from "../visuals";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /**
  * Section 1: Fundamentals of gen AI (~30% of the exam).
@@ -240,22 +241,22 @@ export default defineDomain({
         <div className="grid gap-4">
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-xl border border-sky-400/30 bg-sky-400/5 p-3">
-              <div className="font-semibold text-sky-200">🗂️ Structured</div>
+              <div className="font-semibold text-sky-200"><BlockIcon icon="🗂️" className="inline-block size-[1.1em] align-[-0.15em]" /> Structured</div>
               <div className="text-sm text-slate-300">Organised and easy to search, often kept in a database.</div>
               <div className="mt-1 text-xs text-slate-400">Order tables, spreadsheets, CRM fields</div>
             </div>
             <div className="rounded-xl border border-amber-400/30 bg-amber-400/5 p-3">
-              <div className="font-semibold text-amber-200">🌀 Unstructured</div>
+              <div className="font-semibold text-amber-200"><BlockIcon icon="🌀" className="inline-block size-[1.1em] align-[-0.15em]" /> Unstructured</div>
               <div className="text-sm text-slate-300">No set layout, so it takes smarter tools to make sense of it.</div>
               <div className="mt-1 text-xs text-slate-400">Emails, PDFs, photos, call recordings, video</div>
             </div>
             <div className="rounded-xl border border-emerald-400/30 bg-emerald-400/5 p-3">
-              <div className="font-semibold text-emerald-200">🏷️ Labeled</div>
+              <div className="font-semibold text-emerald-200"><BlockIcon icon="🏷️" className="inline-block size-[1.1em] align-[-0.15em]" /> Labeled</div>
               <div className="text-sm text-slate-300">Each item carries a tag, such as a name, a type or a number.</div>
               <div className="mt-1 text-xs text-slate-400">X-rays tagged &quot;fracture&quot; or &quot;no fracture&quot;</div>
             </div>
             <div className="rounded-xl border border-violet-400/30 bg-violet-400/5 p-3">
-              <div className="font-semibold text-violet-200">📦 Unlabeled</div>
+              <div className="font-semibold text-violet-200"><BlockIcon icon="📦" className="inline-block size-[1.1em] align-[-0.15em]" /> Unlabeled</div>
               <div className="text-sm text-slate-300">Raw information with no tags.</div>
               <div className="mt-1 text-xs text-slate-400">Unsorted photo libraries, audio streams</div>
             </div>

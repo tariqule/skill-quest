@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CodeBlock, LabHeader, type GoalProps } from "@/components/learn/blocks";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 // ───────────── Re-render counter ─────────────
 
@@ -130,7 +131,7 @@ export function RenderCounterLab({ goal, onSolved }: GoalProps<"isolate" | "memo
           <button
             type="button"
             onClick={click}
-            className="rounded-xl bg-gradient-to-r from-sky-400 to-cyan-300 px-4 py-2.5 font-black text-slate-950 shadow transition hover:-translate-y-0.5"
+            className="rounded-xl bg-gradient-to-r from-sky-400 to-cyan-300 px-4 py-2.5 font-semibold text-slate-950 shadow transition hover:-translate-y-0.5"
           >
             +1 (count is {count})
           </button>
@@ -313,10 +314,10 @@ export function EffectDepsLab({ goal, onSolved }: GoalProps<"sync" | "race">) {
           </div>
           <div className="flex flex-wrap gap-2">
             <button type="button" onClick={parentRender} className="rounded-lg bg-white/10 px-3 py-1.5 text-sm font-semibold text-slate-100 hover:bg-white/20">
-              🔁 Parent re-renders
+              <BlockIcon icon="🔁" className="inline-block size-[1.1em] align-[-0.15em]" /> Parent re-renders
             </button>
             <button type="button" onClick={changeUser} className="rounded-lg bg-white/10 px-3 py-1.5 text-sm font-semibold text-slate-100 hover:bg-white/20">
-              👤 Change userId
+              <BlockIcon icon="👤" className="inline-block size-[1.1em] align-[-0.15em]" /> Change userId
             </button>
             <button type="button" onClick={() => setSim(mount())} className="rounded-lg bg-white/5 px-3 py-1.5 text-sm text-slate-300 hover:bg-white/15">
               ↺ Remount
@@ -328,9 +329,9 @@ export function EffectDepsLab({ goal, onSolved }: GoalProps<"sync" | "race">) {
             <div className="text-xs text-slate-400">
               prop <span className="font-mono text-slate-200">userId = {sim.userId}</span> · screen shows
             </div>
-            <div className="text-2xl font-black text-white">{sim.shown ? NAMES[sim.shown] : "…loading"}</div>
+            <div className="text-2xl font-semibold text-white">{sim.shown ? NAMES[sim.shown] : "…loading"}</div>
             <div className={`text-xs font-semibold ${inSync ? "text-emerald-300" : "text-rose-300"}`}>
-              {inSync ? "✔ in sync with the prop" : sim.shown === null ? "waiting for the first request" : `✖ stale: showing user ${sim.shown}`}
+              {inSync ? "in sync with the prop" : sim.shown === null ? "waiting for the first request" : `stale: showing user ${sim.shown}`}
             </div>
             <div className="mt-2 font-mono text-xs text-slate-300">
               effect runs: {sim.runs} {wasted > 0 && <span className="text-amber-300">({wasted} wasted)</span>}
@@ -339,7 +340,7 @@ export function EffectDepsLab({ goal, onSolved }: GoalProps<"sync" | "race">) {
           <div className="rounded-xl border border-white/10 bg-slate-950/60 p-3">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-400">Network (tap to resolve)</div>
             <div className="mt-2 flex flex-wrap gap-2">
-              {sim.pending.length === 0 && <span className="text-sm text-slate-500">No requests in flight</span>}
+              {sim.pending.length === 0 && <span className="text-sm text-muted-foreground">No requests in flight</span>}
               {sim.pending.map((f) => (
                 <button
                   key={f.seq}

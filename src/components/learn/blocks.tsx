@@ -1,6 +1,6 @@
 "use client";
 
-import { BlockIcon } from "./block-icons";
+import { BlockIcon, IconText } from "./block-icons";
 import { RichText } from "./code";
 import { useState } from "react";
 
@@ -28,15 +28,15 @@ export function Flow({ steps, color = "#38bdf8", loop }: { steps: FlowStep[]; co
             <button
               type="button"
               onClick={() => setActive(active === i ? null : i)}
-              className="w-full rounded-xl border bg-slate-950/60 p-3 text-center transition hover:-translate-y-0.5"
+              className="w-full rounded-xl border bg-background p-3 text-center transition hover:-translate-y-0.5"
               style={{ borderColor: active === i ? color : "rgb(255 255 255 / 0.1)", boxShadow: active === i ? `0 0 0 3px ${color}33` : undefined }}
             >
               <div className="flex justify-center"><BlockIcon icon={s.icon} /></div>
-              <div className="mt-1 text-sm font-semibold leading-tight text-white">{s.label}</div>
-              {s.sub && (active === i || steps.length <= 4) && <div className="mt-1 text-sm leading-snug text-slate-300">{s.sub}</div>}
+              <div className="mt-1 text-sm font-semibold leading-tight text-foreground">{s.label}</div>
+              {s.sub && (active === i || steps.length <= 4) && <div className="mt-1 text-sm leading-snug text-muted-foreground">{s.sub}</div>}
             </button>
             {i < steps.length - 1 && (
-              <span className="text-lg text-slate-400 sm:shrink-0" aria-hidden>
+              <span className="text-lg text-muted-foreground sm:shrink-0" aria-hidden>
                 <span className="sm:hidden">↓</span>
                 <span className="hidden sm:inline">→</span>
               </span>
@@ -44,8 +44,8 @@ export function Flow({ steps, color = "#38bdf8", loop }: { steps: FlowStep[]; co
           </div>
         ))}
       </div>
-      {loop && <div className="mt-2 text-center text-sm text-slate-300">↺ {loop}</div>}
-      {steps.length > 4 && <div className="mt-2 text-center text-sm text-slate-300">Tap a step for details</div>}
+      {loop && <div className="mt-2 text-center text-sm text-muted-foreground">↺ {loop}</div>}
+      {steps.length > 4 && <div className="mt-2 text-center text-sm text-muted-foreground">Tap a step for details</div>}
     </div>
   );
 }
@@ -64,14 +64,14 @@ export function Tiles({ tiles, cols = 2 }: { tiles: Tile[]; cols?: 2 | 3 | 4 }) 
       {tiles.map((t) => (
         <div
           key={t.title}
-          className="rounded-xl border border-white/10 bg-slate-950/60 p-3"
+          className="rounded-xl border border-border bg-background p-3"
           style={t.color ? { boxShadow: `inset 3px 0 0 0 ${t.color}` } : undefined}
         >
           <div className="flex items-center gap-2">
             <BlockIcon icon={t.icon} />
-            <span className="font-semibold text-white">{t.title}</span>
+            <span className="font-semibold text-foreground">{t.title}</span>
           </div>
-          <p className="mt-1.5 text-base leading-normal text-slate-300"><RichText text={t.text} /></p>
+          <p className="mt-1.5 text-base leading-normal text-muted-foreground"><RichText text={t.text} /></p>
         </div>
       ))}
     </div>
@@ -83,12 +83,12 @@ export function ServiceRows({ rows }: { rows: { input: string; service: string; 
   return (
     <div className="grid gap-2">
       {rows.map((r) => (
-        <div key={r.service} className="grid grid-cols-[1fr_auto_1.3fr_auto_1fr] items-center gap-2 rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-sm">
-          <span className="text-slate-300">{r.input}</span>
-          <span className="text-slate-400">→</span>
-          <span className="rounded-lg bg-sky-400/15 px-2 py-1 text-center font-semibold text-sky-200">{r.service}</span>
-          <span className="text-slate-400">→</span>
-          <span className="text-slate-300">{r.output}</span>
+        <div key={r.service} className="grid grid-cols-[1fr_auto_1.3fr_auto_1fr] items-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-sm">
+          <span className="text-muted-foreground"><IconText text={r.input} /></span>
+          <span className="text-muted-foreground">→</span>
+          <span className="rounded-lg bg-primary/15 px-2 py-1 text-center font-semibold text-primary">{r.service}</span>
+          <span className="text-muted-foreground">→</span>
+          <span className="text-muted-foreground"><IconText text={r.output} /></span>
         </div>
       ))}
     </div>
@@ -105,8 +105,8 @@ export function Layers({ layers }: { layers: { name: string; color: string; item
           </div>
           <div className="mt-2 flex flex-wrap gap-1.5">
             {l.items.map((it) => (
-              <span key={it} className="rounded-md bg-slate-950/70 px-2 py-1 text-sm text-slate-100">
-                {it}
+              <span key={it} className="rounded-md bg-background px-2 py-1 text-sm text-foreground">
+                <IconText text={it} />
               </span>
             ))}
           </div>
@@ -126,25 +126,25 @@ export function Ladder({ rungs, caption, dollars = false }: { rungs: { icon: str
       {rungs.map((r, i) => (
         <div
           key={r.name}
-          className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950/60 p-3"
+          className="flex items-center gap-3 rounded-xl border border-border bg-background p-3"
           style={{ marginLeft: `${i * 6}%`, boxShadow: `inset 4px 0 0 0 hsl(${140 - i * 40} 70% 55%)` }}
         >
           <BlockIcon icon={r.icon} />
           <div className="min-w-0">
-            <div className="font-semibold text-white">
+            <div className="font-semibold text-foreground">
               {i + 1}. {r.name}
               {dollars && (
                 <>
-                  <span className="ml-1 text-sm text-slate-200" aria-hidden="true">{"$".repeat(i + 1)}</span>
+                  <span className="ml-1 text-sm text-foreground" aria-hidden="true">{"$".repeat(i + 1)}</span>
                   <span className="sr-only">, cost level {i + 1} of {rungs.length}</span>
                 </>
               )}
             </div>
-            <div className="text-base text-slate-300">{r.text}</div>
+            <div className="text-base text-muted-foreground">{r.text}</div>
           </div>
         </div>
       ))}
-      {caption && <div className="text-sm text-slate-200">⬆ {caption}</div>}
+      {caption && <div className="text-sm text-foreground">⬆ {caption}</div>}
     </div>
   );
 }
@@ -158,9 +158,9 @@ export function SeverityScale({ levels, settings, caption }: { levels: { name: s
     <div className="grid gap-3">
       <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${levels.length}, minmax(0, 1fr))` }}>
         {levels.map((l) => (
-          <div key={l.name} className="rounded-xl border border-white/10 bg-slate-950/60 p-2 text-center" style={{ boxShadow: `inset 0 4px 0 0 ${l.color}` }}>
-            <div className="font-semibold text-white">{l.name}</div>
-            <div className="text-sm text-slate-300">{l.text}</div>
+          <div key={l.name} className="rounded-xl border border-border bg-background p-2 text-center" style={{ boxShadow: `inset 0 4px 0 0 ${l.color}` }}>
+            <div className="font-semibold text-foreground">{l.name}</div>
+            <div className="text-sm text-muted-foreground">{l.text}</div>
           </div>
         ))}
       </div>
@@ -168,24 +168,24 @@ export function SeverityScale({ levels, settings, caption }: { levels: { name: s
         <caption className="sr-only">Which severity levels each filter setting blocks</caption>
         <thead>
           <tr>
-            <th scope="col" className="text-left font-semibold text-slate-200">Setting</th>
+            <th scope="col" className="text-left font-semibold text-foreground">Setting</th>
             {levels.map((l) => (
-              <th key={l.name} scope="col" className="font-semibold text-slate-200">{l.name}</th>
+              <th key={l.name} scope="col" className="font-semibold text-foreground">{l.name}</th>
             ))}
           </tr>
         </thead>
         <tbody>
           {settings.map((st) => (
             <tr key={st.name}>
-              <th scope="row" className="text-left font-semibold text-white">
+              <th scope="row" className="text-left font-semibold text-foreground">
                 {st.name}
-                {st.note && <span className="ml-1 font-normal text-slate-300">({st.note})</span>}
+                {st.note && <span className="ml-1 font-normal text-muted-foreground">({st.note})</span>}
               </th>
               {levels.map((l, i) => {
                 const blocked = st.blocksFrom !== null && i >= st.blocksFrom;
                 return (
-                  <td key={l.name} className={`rounded-md px-1 py-1 text-center font-semibold ${blocked ? "bg-rose-500/25 text-rose-100" : "bg-white/5 text-slate-200"}`}>
-                    {blocked ? "⛔ blocked" : "✓ allowed"}
+                  <td key={l.name} className={`rounded-md px-1 py-1 text-center font-semibold ${blocked ? "bg-destructive/25 text-destructive-foreground" : "bg-muted text-foreground"}`}>
+                    {blocked ? "blocked" : "allowed"}
                   </td>
                 );
               })}
@@ -193,7 +193,7 @@ export function SeverityScale({ levels, settings, caption }: { levels: { name: s
           ))}
         </tbody>
       </table>
-      {caption && <div className="text-sm text-slate-200">{caption}</div>}
+      {caption && <div className="text-sm text-foreground">{caption}</div>}
     </div>
   );
 }
@@ -211,9 +211,9 @@ export interface GoalProps<G extends string> {
 export function LabHeader({ title, hint }: { title: string; hint: string }) {
   return (
     <div className="mb-3 flex flex-wrap items-center gap-2">
-      <span className="rounded-full bg-fuchsia-400/20 px-2.5 py-0.5 text-xs font-black uppercase tracking-wider text-fuchsia-200">🧪 Lab</span>
-      <span className="font-bold text-white">{title}</span>
-      <span className="w-full text-sm text-slate-400">{hint}</span>
+      <span className="rounded-full bg-info/20 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-info-foreground"><BlockIcon icon="🧪" className="inline-block size-[1.1em] align-[-0.15em]" /> Lab</span>
+      <span className="font-bold text-foreground">{title}</span>
+      <span className="w-full text-sm text-muted-foreground">{hint}</span>
     </div>
   );
 }

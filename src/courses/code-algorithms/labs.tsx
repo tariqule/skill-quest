@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { LabHeader, type GoalProps } from "@/components/learn/blocks";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 const BTN = "rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:opacity-40";
 
@@ -41,7 +42,7 @@ export function BinarySearchLab({ goal, onSolved }: GoalProps<"fourSteps">) {
     if (v === target) {
       setFound(true);
       if (next.length <= MAX_PROBES) {
-        setMsg(`🎯 Found ${target} in ${next.length} probe${next.length === 1 ? "" : "s"}. Binary search never needs more than ${MAX_PROBES} for 15 items.`);
+        setMsg(`Found ${target} in ${next.length} probe${next.length === 1 ? "" : "s"}. Binary search never needs more than ${MAX_PROBES} for 15 items.`);
         if (goal === "fourSteps") onSolved?.();
       } else setMsg(`Found it, but it took ${next.length} probes. Always picking the middle guarantees ${MAX_PROBES} or fewer. Try a new target.`);
       return;
@@ -90,7 +91,7 @@ export function BinarySearchLab({ goal, onSolved }: GoalProps<"fourSteps">) {
               }`}
             >
               <span className="font-mono text-sm font-bold text-white">{v}</span>
-              <span className="text-[9px] text-slate-500">{probed ? "✕" : i}</span>
+              <span className="text-[9px] text-muted-foreground">{probed ? <BlockIcon icon="✕" className="inline-block size-[1.1em] align-[-0.15em]" /> : i}</span>
             </button>
           );
         })}
@@ -170,7 +171,7 @@ export function SlidingWindowLab({ goal, onSolved }: GoalProps<"shortest">) {
     setBest(next);
     const bestLen = next.r - next.l + 1;
     if (bestLen === optimal) {
-      setMsg(`✅ Length ${bestLen} is the shortest possible. The pointers moved ${moves} times in total. Each can move at most ${WINDOW_NUMS.length} times, once per number, so this is O(n).`);
+      setMsg(`Length ${bestLen} is the shortest possible. The pointers moved ${moves} times in total. Each can move at most ${WINDOW_NUMS.length} times, once per number, so this is O(n).`);
       if (goal === "shortest") onSolved?.();
     } else setMsg(better ? `Recorded length ${len}. Can you shrink further and still keep the sum ≥ ${target}?` : `Length ${len} isn't better than your best (${bestLen}).`);
   }
@@ -214,7 +215,7 @@ export function SlidingWindowLab({ goal, onSolved }: GoalProps<"shortest">) {
         </span>
         <span className="rounded-md bg-white/10 px-2 py-0.5 font-mono text-slate-200">length {right - left + 1}</span>
         <span className="rounded-md bg-amber-400/15 px-2 py-0.5 font-mono text-amber-200">best {best ? best.r - best.l + 1 : "–"}</span>
-        <span className="text-xs text-slate-500">pointer moves: {moves}</span>
+        <span className="text-xs text-muted-foreground">pointer moves: {moves}</span>
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
         <button
@@ -239,8 +240,8 @@ export function SlidingWindowLab({ goal, onSolved }: GoalProps<"shortest">) {
         >
           Shrink L →
         </button>
-        <button type="button" className="btn-3d rounded-xl bg-amber-400 px-4 py-1.5 font-bold text-slate-950" style={{ "--edge": "#b45309" } as React.CSSProperties} onClick={record}>
-          📌 Record window
+        <button type="button" className="rounded-lg bg-reward px-4 py-1.5 font-semibold text-primary-foreground" onClick={record}>
+          <BlockIcon icon="📌" className="inline-block size-[1.1em] align-[-0.15em]" /> Record window
         </button>
         <button type="button" className={BTN} onClick={() => reset()}>
           Restart

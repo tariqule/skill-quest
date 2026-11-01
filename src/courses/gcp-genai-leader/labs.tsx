@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { LabHeader, type GoalProps } from "@/components/learn/blocks";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 // ───────────── Pick the right Google Cloud AI product ─────────────
 
@@ -70,7 +71,7 @@ export function ProductPickerLab({ goal, onSolved }: GoalProps<"allCorrect">) {
           const ok = a === j.answer;
           return (
             <div key={j.need} className={`rounded-xl border p-2 ${a ? (ok ? "border-emerald-400/50 bg-emerald-400/10" : "border-rose-400/50 bg-rose-400/10") : "border-white/10 bg-white/5"}`}>
-              <div className="text-sm text-slate-100">💼 {j.need}</div>
+              <div className="text-sm text-slate-100"><BlockIcon icon="💼" className="inline-block size-[1.1em] align-[-0.15em]" /> {j.need}</div>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {j.options.map((o) => (
                   <button
@@ -110,9 +111,9 @@ export function ProductPickerLab({ goal, onSolved }: GoalProps<"allCorrect">) {
 type Source = "none" | "enterprise" | "search";
 
 const SOURCES: { id: Source; label: string }[] = [
-  { id: "none", label: "🧠 No grounding (model memory)" },
-  { id: "enterprise", label: "🏢 Your enterprise data (Agent Search)" },
-  { id: "search", label: "🌐 Grounding with Google Search" },
+  { id: "none", label: "No grounding (model memory)" },
+  { id: "enterprise", label: "Your enterprise data (Agent Search)" },
+  { id: "search", label: "Grounding with Google Search" },
 ];
 
 const G_QUESTIONS: {
@@ -182,7 +183,7 @@ export function GroundingLab({ goal, onSolved }: GoalProps<"allGrounded">) {
             }}
             className={`rounded-full border px-3 py-1 text-sm ${qi === i ? "border-sky-400 bg-sky-400/20 text-white" : "border-white/10 text-slate-300"}`}
           >
-            {solved.includes(i) ? "✅ " : "🙋 "}
+            {solved.includes(i) ? <><BlockIcon icon="✅" className="inline-block size-[1.1em] align-[-0.15em]" />{" "}</> : <><BlockIcon icon="🙋" className="inline-block size-[1.1em] align-[-0.15em]" />{" "}</>}
             {g.q}
           </button>
         ))}
@@ -207,14 +208,14 @@ export function GroundingLab({ goal, onSolved }: GoalProps<"allGrounded">) {
           </label>
         ))}
       </div>
-      <button type="button" onClick={ask} className="btn-3d mt-3 rounded-xl bg-sky-400 px-4 py-2 font-bold text-slate-950" style={{ "--edge": "#0369a1" } as React.CSSProperties}>
+      <button type="button" onClick={ask} className="mt-3 rounded-lg bg-primary px-4 py-2 font-semibold text-primary-foreground">
         Ask Gemini
       </button>
       {asked && (
         <div key={`${qi}-${source}`} className={`pop-in mt-3 rounded-xl border p-3 ${ans.good ? "border-emerald-400/40 bg-emerald-400/10" : "border-rose-400/40 bg-rose-400/10"}`}>
-          🤖 {ans.text}
+          <BlockIcon icon="🤖" className="inline-block size-[1.1em] align-[-0.15em]" /> {ans.text}
           <div className={`mt-1 text-xs font-semibold ${ans.good ? "text-emerald-300" : "text-rose-300"}`}>
-            {ans.good ? "✓ " : "✗ "}
+            {ans.good ? <><BlockIcon icon="✓" className="inline-block size-[1.1em] align-[-0.15em]" />{" "}</> : <><BlockIcon icon="✗" className="inline-block size-[1.1em] align-[-0.15em]" />{" "}</>}
             {ans.note}
           </div>
         </div>

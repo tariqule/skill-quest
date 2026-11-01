@@ -17,6 +17,7 @@ import { gradeItem } from "@/engine/srs-store";
 import { useCourse, useLevelPool } from "@/engine/course-context";
 import { LEVEL_BY_ID } from "@/engine/levels";
 import type { CodingChallenge } from "@/engine/types";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 const noop = () => () => {};
 
@@ -27,7 +28,7 @@ export default function CodingPlay() {
   if (!challenge) notFound();
   // Drafts live in localStorage, so the workspace only mounts in the browser (no hydration mismatch).
   const mounted = useSyncExternalStore(noop, () => true, () => false);
-  if (!mounted) return <main className="mx-auto w-full max-w-6xl px-4 py-10 font-mono text-slate-500">Loading editor…</main>;
+  if (!mounted) return <main className="mx-auto w-full max-w-6xl px-4 py-10 font-mono text-muted-foreground">Loading editor…</main>;
   return <Workspace key={`${course.id}:${challenge.id}`} challenge={challenge} />;
 }
 
@@ -95,68 +96,68 @@ function Workspace({ challenge: c }: { challenge: CodingChallenge }) {
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:py-8">
       {celebrate && <Confetti count={50} />}
-      <Link href={href("/coding")} className="font-mono text-sm text-slate-400 hover:text-white">
+      <Link href={href("/coding")} className="font-mono text-sm text-muted-foreground hover:text-foreground">
         ← All challenges
       </Link>
       <div className="mt-3 flex flex-wrap items-center gap-2 font-mono text-[11px] font-bold">
         <span className="rounded px-1.5 py-0.5" style={{ background: `${lv.color}22`, color: lv.color }}>
-          {lv.icon} {lv.name}
+          <BlockIcon icon={lv.icon} className="inline-block size-[1.1em] align-[-0.15em]" /> {lv.name}
         </span>
         {domain && (
           <span style={{ color: domain.color }}>
-            {domain.emoji} {domain.world}
+            <BlockIcon icon={domain.emoji} className="inline-block size-[1.1em] align-[-0.15em]" /> {domain.world}
           </span>
         )}
-        <span className="rounded bg-sky-400/10 px-1.5 py-0.5 text-sky-200">{label}</span>
-        {c.idea && <span className="rounded bg-white/5 px-1.5 py-0.5 text-slate-400">💡 {c.idea}</span>}
+        <span className="rounded bg-primary/10 px-1.5 py-0.5 text-primary">{label}</span>
+        {c.idea && <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground"><BlockIcon icon="💡" className="inline-block size-[1.1em] align-[-0.15em]" /> {c.idea}</span>}
         <span role="status" className="contents">
           {runStatusChips(solved, summary && result ? { ...summary, error: !!result.error, timedOut: !!result.timedOut } : null).map((chip) => (
-            <span key={chip.text} className={`rounded px-1.5 py-0.5 ${chip.tone === "good" ? "bg-emerald-400/15 text-emerald-200" : "bg-rose-400/15 text-rose-200"}`}>
+            <span key={chip.text} className={`rounded px-1.5 py-0.5 ${chip.tone === "good" ? "bg-success/15 text-success-foreground" : "bg-destructive/15 text-destructive-foreground"}`}>
               {chip.text}
             </span>
           ))}
         </span>
       </div>
-      <h1 className="mt-2 font-mono text-2xl font-black text-white sm:text-3xl">{c.title}</h1>
+      <h1 className="mt-2 font-mono text-2xl font-semibold text-foreground sm:text-3xl">{c.title}</h1>
 
       <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
         <section className="min-w-0 space-y-4">
-          <div className="rounded-2xl border border-white/10 bg-[#07111c]/90 p-4 text-slate-200">
-            <div className="font-mono text-xs font-bold uppercase tracking-wider text-slate-500">Task</div>
+          <div className="rounded-2xl border border-border bg-[#07111c]/90 p-4 text-foreground">
+            <div className="font-mono text-xs font-bold uppercase tracking-wider text-muted-foreground">Task</div>
             <p className="mt-2 whitespace-pre-line leading-relaxed">
               <RichText text={c.prompt} />
             </p>
-            <div className="mt-4 font-mono text-xs font-bold uppercase tracking-wider text-slate-500">Examples</div>
+            <div className="mt-4 font-mono text-xs font-bold uppercase tracking-wider text-muted-foreground">Examples</div>
             <ul className="mt-2 grid gap-1.5 font-mono text-[12px]">
               {visibleTests.slice(0, 3).map((t, i) => (
-                <li key={i} className="overflow-x-auto whitespace-nowrap rounded-lg bg-black/30 px-2.5 py-1.5 text-slate-300">
-                  {c.fn}({t.args.map((a) => show(a, lang)).join(", ")}) <span className="text-emerald-300">→ {show(t.expected, lang)}</span>
+                <li key={i} className="overflow-x-auto whitespace-nowrap rounded-lg bg-background/30 px-2.5 py-1.5 text-muted-foreground">
+                  {c.fn}({t.args.map((a) => show(a, lang)).join(", ")}) <span className="text-success-foreground">→ {show(t.expected, lang)}</span>
                 </li>
               ))}
             </ul>
-            <p className="mt-2 text-xs text-slate-500">
+            <p className="mt-2 text-xs text-muted-foreground">
               {c.tests.length} tests{c.tests.some((t) => t.hidden) ? `, ${c.tests.filter((t) => t.hidden).length} of them hidden` : ""}. {lang === "java" ? `Edit the method in class Solution, then run. Java runs as Java 8 with Java 10 syntax, so var works but List.of does not.` : "Edit the function, then run."}
             </p>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-[#07111c]/90 p-4">
+          <div className="rounded-2xl border border-border bg-[#07111c]/90 p-4">
             <div className="flex items-center justify-between">
-              <div className="font-mono text-xs font-bold uppercase tracking-wider text-slate-500">Hints</div>
+              <div className="font-mono text-xs font-bold uppercase tracking-wider text-muted-foreground">Hints</div>
               <button
                 type="button"
                 disabled={hints >= c.hints.length}
                 onClick={() => setHints((h) => h + 1)}
-                className="rounded-lg border border-amber-300/40 px-2.5 py-1 font-mono text-xs font-bold text-amber-200 transition hover:bg-amber-300/10 disabled:opacity-40"
+                className="rounded-lg border border-warning/40 px-2.5 py-1 font-mono text-xs font-bold text-warning-foreground transition hover:bg-warning/10 disabled:opacity-40"
               >
-                💡 {hints >= c.hints.length ? "No more hints" : `Hint ${hints + 1}/${c.hints.length}`}
+                <BlockIcon icon="💡" className="inline-block size-[1.1em] align-[-0.15em]" /> {hints >= c.hints.length ? "No more hints" : `Hint ${hints + 1}/${c.hints.length}`}
               </button>
             </div>
             {hints === 0 ? (
-              <p className="mt-2 text-sm text-slate-500">Try it first. Each hint costs a little XP, and they get more revealing.</p>
+              <p className="mt-2 text-sm text-muted-foreground">Try it first. Each hint costs a little XP, and they get more revealing.</p>
             ) : (
-              <ol className="mt-3 grid gap-2 text-sm text-amber-100">
+              <ol className="mt-3 grid gap-2 text-sm text-warning-foreground">
                 {c.hints.slice(0, hints).map((h, i) => (
-                  <li key={i} className="rounded-lg bg-amber-300/10 px-3 py-2">
+                  <li key={i} className="rounded-lg bg-warning/10 px-3 py-2">
                     <b>{i + 1}.</b> <RichText text={h} />
                   </li>
                 ))}
@@ -179,8 +180,7 @@ function Workspace({ challenge: c }: { challenge: CodingChallenge }) {
               type="button"
               onClick={run}
               disabled={running}
-              className="btn-3d rounded-xl bg-emerald-400 px-5 py-2.5 font-mono text-sm font-black uppercase tracking-wider text-slate-950 disabled:opacity-60"
-              style={{ "--edge": "#065f46" } as React.CSSProperties}
+              className="rounded-xl bg-success px-5 py-2.5 font-mono text-sm font-semibold uppercase tracking-wider text-primary-foreground disabled:opacity-60"
             >
               {running ? "Running…" : `▶ Run ${label}`}
             </button>
@@ -190,47 +190,47 @@ function Workspace({ challenge: c }: { challenge: CodingChallenge }) {
                 change(c.starter);
                 setResult(null);
               }}
-              className="rounded-xl border border-white/15 px-3 py-2.5 font-mono text-xs font-bold text-slate-300 hover:bg-white/5"
+              className="rounded-xl border border-border px-3 py-2.5 font-mono text-xs font-bold text-muted-foreground hover:bg-muted"
             >
               ↺ Reset
             </button>
             {solution === "hidden" && (attempted || result?.unavailable) && (
-              <button type="button" onClick={() => setSolution("confirm")} className="rounded-xl border border-white/15 px-3 py-2.5 font-mono text-xs font-bold text-slate-400 hover:bg-white/5">
-                👁 Show solution
+              <button type="button" onClick={() => setSolution("confirm")} className="rounded-xl border border-border px-3 py-2.5 font-mono text-xs font-bold text-muted-foreground hover:bg-muted">
+                <BlockIcon icon="👁" className="inline-block size-[1.1em] align-[-0.15em]" /> Show solution
               </button>
             )}
             {solution === "confirm" && (
-              <button type="button" onClick={() => setSolution("shown")} className="rounded-xl border border-rose-400/50 px-3 py-2.5 font-mono text-xs font-bold text-rose-200 hover:bg-rose-400/10">
+              <button type="button" onClick={() => setSolution("shown")} className="rounded-xl border border-destructive/50 px-3 py-2.5 font-mono text-xs font-bold text-destructive-foreground hover:bg-destructive/10">
                 Really show it? Costs most of the XP
               </button>
             )}
-            <span className="ml-auto hidden font-mono text-[11px] text-slate-500 sm:inline">Ctrl/⌘ + Enter to run</span>
+            <span className="ml-auto hidden font-mono text-[11px] text-muted-foreground sm:inline">Ctrl/⌘ + Enter to run</span>
           </div>
 
-          {solution === "hidden" && !attempted && !result?.unavailable && <p className="font-mono text-[11px] text-slate-500">The reference solution unlocks after your first run.</p>}
-          <div aria-live="polite" className="font-mono text-xs text-sky-200">
+          {solution === "hidden" && !attempted && !result?.unavailable && <p className="font-mono text-[11px] text-muted-foreground">The reference solution unlocks after your first run.</p>}
+          <div aria-live="polite" className="font-mono text-xs text-primary">
             {running && status}
           </div>
           {result && <Results result={result} fn={c.fn} lang={lang} />}
 
           {summary?.allPassed && (
-            <div className="pop-in rounded-2xl border border-emerald-400/40 bg-emerald-400/10 p-4">
-              <div className="font-mono text-lg font-black text-emerald-200">🎉 All tests pass{xp ? ` · +${xp} XP` : ""}</div>
-              <p className="mt-2 text-sm text-slate-200">
+            <div className="pop-in rounded-2xl border border-success/40 bg-success/10 p-4">
+              <div className="font-mono text-lg font-semibold text-success-foreground"><BlockIcon icon="🎉" className="inline-block size-[1.1em] align-[-0.15em]" /> All tests pass{xp ? ` · +${xp} XP` : ""}</div>
+              <p className="mt-2 text-sm text-foreground">
                 <RichText text={c.explanation} />
               </p>
               {c.complexity && (
-                <p className="mt-2 font-mono text-xs text-emerald-100/80">
-                  ⏱ <RichText text={c.complexity} />
+                <p className="mt-2 font-mono text-xs text-success-foreground/80">
+                  <BlockIcon icon="⏱" className="inline-block size-[1.1em] align-[-0.15em]" /> <RichText text={c.complexity} />
                 </p>
               )}
               <div className="mt-3 flex flex-wrap gap-2">
                 {next && (
-                  <Link href={href(`/coding/${next.id}`)} className="rounded-xl bg-emerald-400 px-4 py-2 font-mono text-sm font-black text-slate-950">
+                  <Link href={href(`/coding/${next.id}`)} className="rounded-xl bg-success px-4 py-2 font-mono text-sm font-semibold text-primary-foreground">
                     Next challenge →
                   </Link>
                 )}
-                <Link href={href("/coding")} className="rounded-xl border border-white/15 px-4 py-2 font-mono text-sm font-bold text-slate-200 hover:bg-white/5">
+                <Link href={href("/coding")} className="rounded-xl border border-border px-4 py-2 font-mono text-sm font-bold text-foreground hover:bg-muted">
                   All challenges
                 </Link>
               </div>
@@ -238,20 +238,20 @@ function Workspace({ challenge: c }: { challenge: CodingChallenge }) {
           )}
 
           {solution === "shown" && (
-            <div className="rounded-2xl border border-white/10 bg-[#07111c]/90 p-4">
-              <div className="font-mono text-xs font-bold uppercase tracking-wider text-slate-500">Reference solution</div>
+            <div className="rounded-2xl border border-border bg-[#07111c]/90 p-4">
+              <div className="font-mono text-xs font-bold uppercase tracking-wider text-muted-foreground">Reference solution</div>
               <div className="mt-2">
                 <CodeBlock code={c.solution} lang={lang} />
               </div>
-              <p className="mt-3 text-sm text-slate-300">
+              <p className="mt-3 text-sm text-muted-foreground">
                 <RichText text={c.explanation} />
               </p>
               {c.complexity && (
-                <p className="mt-2 font-mono text-xs text-slate-400">
-                  ⏱ <RichText text={c.complexity} />
+                <p className="mt-2 font-mono text-xs text-muted-foreground">
+                  <BlockIcon icon="⏱" className="inline-block size-[1.1em] align-[-0.15em]" /> <RichText text={c.complexity} />
                 </p>
               )}
-              <button type="button" onClick={() => change(c.solution)} className="mt-3 rounded-lg border border-white/15 px-3 py-1.5 font-mono text-xs font-bold text-slate-200 hover:bg-white/5">
+              <button type="button" onClick={() => change(c.solution)} className="mt-3 rounded-lg border border-border px-3 py-1.5 font-mono text-xs font-bold text-foreground hover:bg-muted">
                 Copy into editor
               </button>
             </div>
@@ -287,32 +287,32 @@ function Results({ result, fn, lang }: { result: RunResult; fn: string; lang: st
   const s = summarize(result);
   if (result.error) {
     return (
-      <div className="rounded-2xl border border-rose-400/40 bg-rose-400/10 p-4 font-mono text-sm text-rose-100">
-        <div className="font-black">{result.timedOut ? "⏱️ Stopped" : "💥 Couldn't run"}</div>
+      <div className="rounded-2xl border border-destructive/40 bg-destructive/10 p-4 font-mono text-sm text-destructive-foreground">
+        <div className="font-semibold">{result.timedOut ? "Stopped" : "Couldn't run"}</div>
         <pre className="mt-1 overflow-x-auto whitespace-pre-wrap">{result.error}</pre>
-        {result.logs.length > 0 && <pre className="mt-2 max-h-40 overflow-auto rounded-lg bg-black/40 p-2.5 text-[12px] text-slate-200">{result.logs.join("\n")}</pre>}
+        {result.logs.length > 0 && <pre className="mt-2 max-h-40 overflow-auto rounded-lg bg-background/40 p-2.5 text-[12px] text-foreground">{result.logs.join("\n")}</pre>}
       </div>
     );
   }
   return (
-    <div className="rounded-2xl border border-white/10 bg-[#07111c]/90 p-4" role="status">
-      <div className={`font-mono text-sm font-black ${s.allPassed ? "text-emerald-300" : "text-amber-200"}`}>
+    <div className="rounded-2xl border border-border bg-[#07111c]/90 p-4" role="status">
+      <div className={`font-mono text-sm font-semibold ${s.allPassed ? "text-success-foreground" : "text-warning-foreground"}`}>
         {s.passed}/{s.total} tests passed
       </div>
       <ul className="mt-3 grid gap-1.5">
         {result.results.map((t, i) => (
-          <li key={i} className={`rounded-lg border px-3 py-2 font-mono text-[12px] ${t.ok ? "border-emerald-400/20 bg-emerald-400/5 text-emerald-100" : "border-rose-400/30 bg-rose-400/10 text-rose-100"}`}>
+          <li key={i} className={`rounded-lg border px-3 py-2 font-mono text-[12px] ${t.ok ? "border-success/20 bg-success/5 text-success-foreground" : "border-destructive/30 bg-destructive/10 text-destructive-foreground"}`}>
             <div className="flex items-center gap-2">
-              <span>{t.ok ? "✓" : "✗"}</span>
+              <span>{t.ok ? <BlockIcon icon="✓" className="inline-block size-[1.1em] align-[-0.15em]" /> : <BlockIcon icon="✗" className="inline-block size-[1.1em] align-[-0.15em]" />}</span>
               <span className="font-bold">{t.hidden ? "hidden test" : t.name}</span>
             </div>
             {!t.ok && !t.hidden && (
-              <div className="mt-1 grid gap-0.5 overflow-x-auto whitespace-pre text-slate-200">
-                <div className="text-slate-400">
+              <div className="mt-1 grid gap-0.5 overflow-x-auto whitespace-pre text-foreground">
+                <div className="text-muted-foreground">
                   {fn}({t.args})
                 </div>
-                {t.error ? <div className="text-rose-200">threw {t.error}</div> : <div>got {t.got ?? "nothing"}</div>}
-                {t.expected !== undefined && <div className="text-emerald-300">expected {t.expected}</div>}
+                {t.error ? <div className="text-destructive-foreground">threw {t.error}</div> : <div>got {t.got ?? "nothing"}</div>}
+                {t.expected !== undefined && <div className="text-success-foreground">expected {t.expected}</div>}
               </div>
             )}
           </li>
@@ -320,8 +320,8 @@ function Results({ result, fn, lang }: { result: RunResult; fn: string; lang: st
       </ul>
       {result.logs.length > 0 && (
         <div className="mt-3">
-          <div className="font-mono text-[11px] font-bold uppercase tracking-wider text-slate-500">{lang === "python" ? "print output" : lang === "java" ? "System.out" : "console.log"}</div>
-          <pre className="mt-1 max-h-40 overflow-auto rounded-lg bg-black/40 p-2.5 font-mono text-[12px] text-slate-200">{result.logs.join("\n")}</pre>
+          <div className="font-mono text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{lang === "python" ? "print output" : lang === "java" ? "System.out" : "console.log"}</div>
+          <pre className="mt-1 max-h-40 overflow-auto rounded-lg bg-background/40 p-2.5 font-mono text-[12px] text-foreground">{result.logs.join("\n")}</pre>
         </div>
       )}
     </div>

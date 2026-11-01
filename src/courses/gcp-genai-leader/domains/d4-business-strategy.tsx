@@ -1,5 +1,6 @@
 import { Flow, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /**
  * Section 4: Business strategies for a successful gen AI solution (~15% of the exam).
@@ -133,22 +134,22 @@ export default defineDomain({
         <div className="grid gap-4">
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-xl border border-sky-400/30 bg-sky-400/5 p-3">
-              <div className="font-semibold text-sky-200">🎯 Needs</div>
+              <div className="font-semibold text-sky-200"><BlockIcon icon="🎯" className="inline-block size-[1.1em] align-[-0.15em]" /> Needs</div>
               <ul className="mt-1 grid gap-0.5 text-sm text-slate-200">
-                <li>📈 Scale: how many people will use it?</li>
-                <li>🛠️ Customisation: how specialised does it need to be?</li>
-                <li>💬 User interaction: how will people use it?</li>
-                <li>🔒 Privacy: how sensitive is the data?</li>
-                <li>⏱️ Latency: how fast must it respond?</li>
-                <li>📶 Connectivity: what connection will users have?</li>
+                <li><BlockIcon icon="📈" className="inline-block size-[1.1em] align-[-0.15em]" /> Scale: how many people will use it?</li>
+                <li><BlockIcon icon="🛠️" className="inline-block size-[1.1em] align-[-0.15em]" /> Customisation: how specialised does it need to be?</li>
+                <li><BlockIcon icon="💬" className="inline-block size-[1.1em] align-[-0.15em]" /> User interaction: how will people use it?</li>
+                <li><BlockIcon icon="🔒" className="inline-block size-[1.1em] align-[-0.15em]" /> Privacy: how sensitive is the data?</li>
+                <li><BlockIcon icon="⏱️" className="inline-block size-[1.1em] align-[-0.15em]" /> Latency: how fast must it respond?</li>
+                <li><BlockIcon icon="📶" className="inline-block size-[1.1em] align-[-0.15em]" /> Connectivity: what connection will users have?</li>
               </ul>
             </div>
             <div className="rounded-xl border border-amber-400/30 bg-amber-400/5 p-3">
-              <div className="font-semibold text-amber-200">🧰 Resources</div>
+              <div className="font-semibold text-amber-200"><BlockIcon icon="🧰" className="inline-block size-[1.1em] align-[-0.15em]" /> Resources</div>
               <ul className="mt-1 grid gap-0.5 text-sm text-slate-200">
-                <li>🧑‍💻 People: do you have AI skills on the team?</li>
-                <li>💵 Money: what&apos;s the budget?</li>
-                <li>📅 Time: what&apos;s the deadline?</li>
+                <li><BlockIcon icon="🧑‍💻" className="inline-block size-[1.1em] align-[-0.15em]" /> People: do you have AI skills on the team?</li>
+                <li><BlockIcon icon="💵" className="inline-block size-[1.1em] align-[-0.15em]" /> Money: what&apos;s the budget?</li>
+                <li><BlockIcon icon="📅" className="inline-block size-[1.1em] align-[-0.15em]" /> Time: what&apos;s the deadline?</li>
               </ul>
               <div className="mt-3 text-sm text-slate-300">
                 <b className="text-white">Strategy:</b> mix <b>top-down</b> (leaders set the vision and priorities) with <b>bottom-up</b> (employees find practical uses and
@@ -205,7 +206,7 @@ export default defineDomain({
       visual: (
         <div className="grid gap-4">
           <div className="rounded-xl border border-emerald-400/30 bg-emerald-400/5 p-3">
-            <div className="font-semibold text-emerald-200">🛡️ Secure AI Framework (SAIF): six core elements</div>
+            <div className="font-semibold text-emerald-200"><BlockIcon icon="🛡️" className="inline-block size-[1.1em] align-[-0.15em]" /> Secure AI Framework (SAIF): six core elements</div>
             <ol className="mt-1 grid list-decimal gap-0.5 pl-5 text-sm text-slate-200">
               <li>Extend strong security foundations to the AI ecosystem</li>
               <li>Bring AI into detection and response</li>
@@ -263,12 +264,12 @@ export default defineDomain({
       visual: (
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="rounded-xl border border-violet-400/30 bg-violet-400/5 p-3">
-            <div className="font-semibold text-violet-200">🕶️ Anonymisation</div>
+            <div className="font-semibold text-violet-200"><BlockIcon icon="🕶️" className="inline-block size-[1.1em] align-[-0.15em]" /> Anonymisation</div>
             <div className="text-sm text-slate-200">Removes or changes identifying details for good. The data can never be linked back to a person.</div>
             <div className="mt-2 rounded-lg bg-slate-950/70 px-2 py-1 font-mono text-xs text-slate-300">&quot;Jane Doe, 34, Toronto&quot; → &quot;Customer, 30–39, Ontario&quot;</div>
           </div>
           <div className="rounded-xl border border-sky-400/30 bg-sky-400/5 p-3">
-            <div className="font-semibold text-sky-200">🎭 Pseudonymisation</div>
+            <div className="font-semibold text-sky-200"><BlockIcon icon="🎭" className="inline-block size-[1.1em] align-[-0.15em]" /> Pseudonymisation</div>
             <div className="text-sm text-slate-200">Swaps identifying details for codes. You can link them back with a key that&apos;s kept somewhere else.</div>
             <div className="mt-2 rounded-lg bg-slate-950/70 px-2 py-1 font-mono text-xs text-slate-300">&quot;Jane Doe&quot; → &quot;CUST-8841&quot; (key kept in a vault)</div>
           </div>

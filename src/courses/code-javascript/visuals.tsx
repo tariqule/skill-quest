@@ -29,7 +29,7 @@ export function EqualityExplorer() {
             onClick={() => setSel(i)}
             className={`rounded-xl border px-2 py-2 font-mono text-sm ${i === sel ? "border-yellow-300 bg-yellow-300/15 text-yellow-100" : "border-white/10 bg-slate-950/60 text-slate-200"}`}
           >
-            {x.a} <span className="text-slate-500">vs</span> {x.b}
+            {x.a} <span className="text-muted-foreground">vs</span> {x.b}
           </button>
         ))}
       </div>
@@ -43,7 +43,7 @@ export function EqualityExplorer() {
               <div className="font-mono text-sm text-slate-300">
                 {p.a} {r.op} {p.b}
               </div>
-              <div className={`mt-1 text-2xl font-black ${r.v ? "text-emerald-300" : "text-rose-300"}`}>{String(r.v)}</div>
+              <div className={`mt-1 text-2xl font-semibold ${r.v ? "text-emerald-300" : "text-rose-300"}`}>{String(r.v)}</div>
             </div>
           ))}
         </div>
@@ -101,15 +101,15 @@ export function PrototypeChain() {
                   </span>
                 ))}
               </div>
-              {i < last && <div className="mt-1 text-[11px] text-slate-500">not here, so follow the prototype link</div>}
+              {i < last && <div className="mt-1 text-[11px] text-muted-foreground">not here, so follow the prototype link</div>}
             </div>
-            <span className="text-center text-slate-500" aria-hidden>
+            <span className="text-center text-muted-foreground" aria-hidden>
               <span className="sm:hidden">↓</span>
               <span className="hidden sm:inline">→</span>
             </span>
           </div>
         ))}
-        <div className={`rounded-xl border px-3 py-3 text-center font-mono text-sm ${found === -1 ? "border-rose-400 bg-rose-400/15 text-rose-200" : "border-white/10 text-slate-500"}`}>null</div>
+        <div className={`rounded-xl border px-3 py-3 text-center font-mono text-sm ${found === -1 ? "border-rose-400 bg-rose-400/15 text-rose-200" : "border-white/10 text-muted-foreground"}`}>null</div>
       </div>
       <p className="mt-3 text-sm text-slate-300">
         {found === -1

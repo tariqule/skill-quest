@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { LabHeader, type GoalProps } from "@/components/learn/blocks";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 // ───────────── Capacity and latency lab ─────────────
 
@@ -96,7 +97,7 @@ export function CapacityLab({ goal, onSolved }: GoalProps<CapacityGoal>) {
         <div className="grid content-start gap-3">
           <div className={`rounded-xl border p-3 text-center ${c.saturated ? "border-rose-400/70 bg-rose-500/15" : c.p99 < 100 ? "border-emerald-400/50 bg-emerald-500/10" : "border-amber-400/50 bg-amber-500/10"}`}>
             <div className="text-xs uppercase tracking-wider text-slate-400">p99 latency</div>
-            <div className="font-mono text-3xl font-black text-white">{c.saturated ? "∞ (timeouts)" : `${Math.round(c.p99)} ms`}</div>
+            <div className="font-mono text-3xl font-semibold text-white">{c.saturated ? "∞ (timeouts)" : `${Math.round(c.p99)} ms`}</div>
             <div className="mt-1 text-xs text-slate-300">
               {c.saturated ? "A node is past 100%, so its queue keeps growing with no limit." : "Writes always reach the database, so the slowest 1% are database requests. Latency shoots up as a node nears 100%."}
             </div>
@@ -108,7 +109,7 @@ export function CapacityLab({ goal, onSolved }: GoalProps<CapacityGoal>) {
                 <div key={n.name} className="grid grid-cols-[6rem_1fr_3.5rem] items-center gap-2 text-xs">
                   <span className="text-slate-200">
                     {n.name}
-                    <span className="block text-[10px] text-slate-500">{n.role}</span>
+                    <span className="block text-[10px] text-muted-foreground">{n.role}</span>
                   </span>
                   <span className="h-3 overflow-hidden rounded-full bg-white/5">
                     <span className="block h-3 rounded-full transition-all" style={{ width: `${Math.min(100, u * 100)}%`, background: u >= 1 ? "#f43f5e" : u > 0.75 ? "#fbbf24" : "#2dd4bf" }} />
@@ -135,7 +136,7 @@ function Stat({ label, value, tone }: { label: string; value: string; tone?: "ok
   const color = tone === "bad" ? "text-rose-300" : tone === "warn" ? "text-amber-300" : "text-white";
   return (
     <div className="rounded-lg bg-black/30 p-2">
-      <div className="text-[10px] uppercase tracking-wider text-slate-500">{label}</div>
+      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
       <div className={`font-mono text-sm font-bold ${color}`}>{value}</div>
     </div>
   );
@@ -269,7 +270,7 @@ export function HashRingLab({ goal, onSolved }: GoalProps<RingGoal>) {
                 </span>
                 <span className="font-mono text-slate-300">{loads[i]} keys</span>
                 <button type="button" disabled={nodes.length <= 2} onClick={() => change(nodes.filter((x) => x !== n), vnodes, `removed ${n}`)} className="rounded bg-white/10 px-1.5 py-0.5 text-slate-300 disabled:opacity-30" aria-label={`Remove node ${n}`}>
-                  ✕
+                  <BlockIcon icon="✕" className="size-4" />
                 </button>
               </div>
             ))}
@@ -364,7 +365,7 @@ export function TokenBucketLab({ goal, onSolved }: GoalProps<"burst">) {
           <div className="flex flex-wrap gap-2">
             <button type="button" onClick={() => send(1)} className="rounded-lg bg-white/10 px-3 py-1.5 font-semibold text-slate-100">Send 1</button>
             <button type="button" onClick={() => send(10)} className="rounded-lg bg-teal-400 px-3 py-1.5 font-bold text-slate-950">Burst of 10</button>
-            <button type="button" onClick={wait} className="rounded-lg bg-white/10 px-3 py-1.5 font-semibold text-slate-100">⏱ Wait 1 s</button>
+            <button type="button" onClick={wait} className="rounded-lg bg-white/10 px-3 py-1.5 font-semibold text-slate-100"><BlockIcon icon="⏱" className="inline-block size-[1.1em] align-[-0.15em]" /> Wait 1 s</button>
           </div>
           <div className="font-mono text-xs text-slate-400">t = {t} s</div>
         </div>
@@ -374,7 +375,7 @@ export function TokenBucketLab({ goal, onSolved }: GoalProps<"burst">) {
               <div className="absolute inset-x-0 bottom-0 bg-teal-400/70 transition-all" style={{ height: `${(tokens / cap) * 100}%` }} />
             </div>
             <div className="text-sm text-slate-300">
-              <div className="font-mono text-2xl font-black text-white">{Math.floor(tokens)}</div>
+              <div className="font-mono text-2xl font-semibold text-white">{Math.floor(tokens)}</div>
               tokens in the bucket
             </div>
           </div>

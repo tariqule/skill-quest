@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CUSTOMERS } from "./data";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /** Concept diagrams for Learn SQL. */
 
@@ -48,8 +49,8 @@ export function TableAnatomy() {
               {cols.map((c, ci) => (
                 <th key={c} className={`px-3 py-1 text-left text-xs ${(part === "column" && ci === 2) || (part === "pk" && ci === 0) ? "text-amber-300" : "text-slate-400"}`}>
                   {c}
-                  {ci === 0 && <span className="ml-1 text-[10px]">🔑</span>}
-                  <span className="ml-1 text-[10px] font-normal text-slate-500">{ci === 0 ? "integer" : "text"}</span>
+                  {ci === 0 && <span className="ml-1 text-[10px]"><BlockIcon icon="🔑" className="inline-block size-[1.1em] align-[-0.15em]" /></span>}
+                  <span className="ml-1 text-[10px] font-normal text-muted-foreground">{ci === 0 ? "integer" : "text"}</span>
                 </th>
               ))}
             </tr>
@@ -61,7 +62,7 @@ export function TableAnatomy() {
                   const v = row[c];
                   return (
                     <td key={c} className={`px-3 py-1 transition ${lit(ri, ci) ? "bg-amber-400/25 text-amber-100" : "text-slate-200"}`}>
-                      {v === null ? <span className="italic text-slate-500">NULL</span> : v}
+                      {v === null ? <span className="italic text-muted-foreground">NULL</span> : v}
                     </td>
                   );
                 })}
@@ -206,7 +207,7 @@ export function WindowExplorer() {
                 <td className="px-2.5 py-1">{r.region}</td>
                 <td className="px-2.5 py-1">{r.amount}</td>
                 <td className="pop-in px-2.5 py-1 font-bold text-amber-300" key={`${fn}${part}${rowsFrame}`}>
-                  {r.v === null ? <span className="italic text-slate-500">NULL</span> : r.v}
+                  {r.v === null ? <span className="italic text-muted-foreground">NULL</span> : r.v}
                 </td>
               </tr>
             ))}

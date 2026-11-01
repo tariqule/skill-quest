@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { LabHeader, type GoalProps } from "@/components/learn/blocks";
 import { pct } from "@/engine/game";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 // ───────────── VPC builder ─────────────
 
@@ -75,7 +76,7 @@ export function VpcBuilderLab({ goal, onSolved }: GoalProps<"egress" | "endpoint
     if (goal === "endpoint" && r.viaEndpoint && !r.egress.ok && r.inbound.ok) onSolved?.();
   }
 
-  const chip = (on: boolean) => `rounded-lg border px-2 py-1 text-xs font-mono transition ${on ? "text-white" : "border-white/10 text-slate-500 line-through"}`;
+  const chip = (on: boolean) => `rounded-lg border px-2 py-1 text-xs font-mono transition ${on ? "text-white" : "border-white/10 text-muted-foreground line-through"}`;
   const routeTargets: PrivRoute[] = ["none", "nat", "igw"];
 
   return (
@@ -91,20 +92,20 @@ export function VpcBuilderLab({ goal, onSolved }: GoalProps<"egress" | "endpoint
           onClick={() => set({ igw: !v.igw })}
           className={`absolute -top-4 right-4 rounded-full border px-3 py-1 text-xs font-bold ${v.igw ? "border-emerald-400 bg-emerald-400/20 text-emerald-100" : "border-white/20 bg-slate-900 text-slate-400"}`}
         >
-          🚪 Internet gateway: {v.igw ? "attached" : "detached"}
+          <BlockIcon icon="🚪" className="inline-block size-[1.1em] align-[-0.15em]" /> Internet gateway: {v.igw ? "attached" : "detached"}
         </button>
         <div className="grid gap-3 sm:grid-cols-2">
           {/* Public subnet */}
           <div className="rounded-xl border border-sky-400/40 bg-sky-400/5 p-3">
             <div className="text-xs font-bold uppercase tracking-wider text-sky-300">Public subnet · 10.0.1.0/24</div>
             <div className="mt-2 flex flex-wrap gap-2">
-              <span className="rounded-lg bg-slate-900 px-2 py-1 text-sm">🌐 Web server (public IP)</span>
+              <span className="rounded-lg bg-slate-900 px-2 py-1 text-sm"><BlockIcon icon="🌐" className="inline-block size-[1.1em] align-[-0.15em]" /> Web server (public IP)</span>
               <button
                 type="button"
                 onClick={() => set({ nat: v.nat === "public" ? "none" : "public" })}
                 className={`rounded-lg border px-2 py-1 text-sm ${v.nat === "public" ? "border-emerald-400 bg-emerald-400/20 text-white" : "border-dashed border-white/20 text-slate-400"}`}
               >
-                🔁 {v.nat === "public" ? "NAT gateway" : "+ place NAT here"}
+                <BlockIcon icon="🔁" className="inline-block size-[1.1em] align-[-0.15em]" /> {v.nat === "public" ? "NAT gateway" : "+ place NAT here"}
               </button>
             </div>
             <div className="mt-3 text-[11px] uppercase tracking-wider text-slate-400">Route table</div>
@@ -124,14 +125,14 @@ export function VpcBuilderLab({ goal, onSolved }: GoalProps<"egress" | "endpoint
                 onClick={() => set({ publicIp: !v.publicIp })}
                 className={`rounded-lg border px-2 py-1 text-sm ${v.publicIp ? "border-rose-400/60 text-rose-100" : "border-white/10 text-slate-200"}`}
               >
-                🗄️ App instance {v.publicIp ? "(public IP!)" : "(private IP only)"}
+                <BlockIcon icon="🗄️" className="inline-block size-[1.1em] align-[-0.15em]" /> App instance {v.publicIp ? "(public IP!)" : "(private IP only)"}
               </button>
               <button
                 type="button"
                 onClick={() => set({ nat: v.nat === "private" ? "none" : "private" })}
                 className={`rounded-lg border px-2 py-1 text-sm ${v.nat === "private" ? "border-rose-400/60 bg-rose-400/10 text-white" : "border-dashed border-white/20 text-slate-400"}`}
               >
-                🔁 {v.nat === "private" ? "NAT gateway" : "+ place NAT here"}
+                <BlockIcon icon="🔁" className="inline-block size-[1.1em] align-[-0.15em]" /> {v.nat === "private" ? "NAT gateway" : "+ place NAT here"}
               </button>
             </div>
             <div className="mt-3 text-[11px] uppercase tracking-wider text-slate-400">Route table</div>
@@ -158,27 +159,27 @@ export function VpcBuilderLab({ goal, onSolved }: GoalProps<"egress" | "endpoint
         </div>
       </div>
 
-      <button type="button" onClick={test} className="btn-3d mt-3 rounded-xl bg-amber-400 px-4 py-2 font-bold text-slate-950" style={{ "--edge": "#b45309" } as React.CSSProperties}>
-        🧪 Run connectivity tests
+      <button type="button" onClick={test} className="mt-3 rounded-lg bg-reward px-4 py-2 font-semibold text-primary-foreground">
+        <BlockIcon icon="🧪" className="inline-block size-[1.1em] align-[-0.15em]" /> Run connectivity tests
       </button>
 
       {result && (
         <div className="pop-in mt-3 grid gap-2">
           {[
-            { label: "📦 App instance → internet (download patches)", p: result.egress },
-            { label: "🕵️ Internet → app instance (new inbound connection)", p: result.inbound },
-            { label: "🪣 App instance → Amazon S3", p: result.s3 },
+            { label: "App instance → internet (download patches)", p: result.egress },
+            { label: "Internet → app instance (new inbound connection)", p: result.inbound },
+            { label: "App instance → Amazon S3", p: result.s3 },
           ].map(({ label, p }) => (
             <div key={label} className={`rounded-xl border p-3 text-sm ${p.ok ? "border-emerald-400/40 bg-emerald-400/10" : "border-rose-400/40 bg-rose-400/10"}`}>
               <div className="font-semibold text-white">
-                {p.ok ? "✓" : "✗"} {label}
+                {p.ok ? <BlockIcon icon="✓" className="inline-block size-[1.1em] align-[-0.15em]" /> : <BlockIcon icon="✗" className="inline-block size-[1.1em] align-[-0.15em]" />} {label}
               </div>
               <div className="mt-0.5 text-slate-300">{p.text}</div>
             </div>
           ))}
         </div>
       )}
-      <p className="mt-2 text-xs text-slate-500">
+      <p className="mt-2 text-xs text-muted-foreground">
         A subnet is &quot;public&quot; only because its route table sends 0.0.0.0/0 to an internet gateway. For high availability, run one NAT gateway per Availability Zone.
       </p>
     </div>
@@ -278,11 +279,11 @@ export function DrStrategyLab({ goal, onSolved }: GoalProps<"all">) {
     ? p.rpo > rpo || p.rto > rto
       ? {
           tone: "border-rose-400/40 bg-rose-400/10",
-          text: `✗ Misses the target: ${p.name} typically gives ${p.band.toLowerCase()} of ${p.rpo > rpo && p.rto > rto ? "data loss and downtime" : p.rpo > rpo ? "data loss (RPO)" : "downtime (RTO)"}.`,
+          text: `Misses the target: ${p.name} typically gives ${p.band.toLowerCase()} of ${p.rpo > rpo && p.rto > rto ? "data loss and downtime" : p.rpo > rpo ? "data loss (RPO)" : "downtime (RTO)"}.`,
         }
       : p.id === best.id
-        ? { tone: "border-emerald-400/40 bg-emerald-400/10", text: `✓ ${p.name} meets both targets, and nothing cheaper does.` }
-        : { tone: "border-amber-400/40 bg-amber-400/10", text: `⚠️ It works, but ${best.name} also meets both targets for less money.` }
+        ? { tone: "border-emerald-400/40 bg-emerald-400/10", text: `${p.name} meets both targets, and nothing cheaper does.` }
+        : { tone: "border-amber-400/40 bg-amber-400/10", text: `It works, but ${best.name} also meets both targets for less money.` }
     : null;
 
   return (
@@ -296,7 +297,7 @@ export function DrStrategyLab({ goal, onSolved }: GoalProps<"all">) {
             onClick={() => chooseScenario(s.id)}
             className={`rounded-full border px-3 py-1 text-sm ${scenario === s.id ? "border-emerald-400 bg-emerald-400/20 text-white" : "border-white/10 text-slate-300"}`}
           >
-            {solved.includes(s.id) ? "✅" : s.icon} {s.name}
+            <BlockIcon icon={solved.includes(s.id) ? "✅" : s.icon} className="inline-block size-[1.1em] align-[-0.15em]" /> {s.name}
           </button>
         ))}
       </div>
@@ -337,7 +338,7 @@ export function DrStrategyLab({ goal, onSolved }: GoalProps<"all">) {
           >
             <div className="flex items-center justify-between">
               <span className="font-semibold text-white">
-                {s.icon} {s.name}
+                <BlockIcon icon={s.icon} className="inline-block size-[1.1em] align-[-0.15em]" /> {s.name}
               </span>
               <span className="font-mono text-xs text-emerald-300">{"$".repeat(s.cost)}</span>
             </div>
@@ -347,7 +348,7 @@ export function DrStrategyLab({ goal, onSolved }: GoalProps<"all">) {
         ))}
       </div>
       {verdict && <div className={`pop-in mt-3 rounded-xl border p-3 text-sm text-white ${verdict.tone}`}>{verdict.text}</div>}
-      <p className="mt-2 text-xs text-slate-500">
+      <p className="mt-2 text-xs text-muted-foreground">
         Bands follow the AWS disaster recovery whitepaper. Real RPO and RTO depend on your implementation, so test your recovery. Solved {solved.length}/{DR_SCENARIOS.length} workloads.
       </p>
     </div>
@@ -460,19 +461,19 @@ export function S3ClassLab({ goal, onSolved }: GoalProps<"five">) {
             }}
             className={`rounded-full border px-3 py-1 text-sm ${si === i ? "border-sky-400 bg-sky-400/20 text-white" : "border-white/10 text-slate-300"}`}
           >
-            {solved.includes(x.id) ? "✅" : x.icon} {x.name.split(":")[0].split(",")[0]}
+            <BlockIcon icon={solved.includes(x.id) ? "✅" : x.icon} className="inline-block size-[1.1em] align-[-0.15em]" /> {x.name.split(":")[0].split(",")[0]}
           </button>
         ))}
       </div>
       <div className="mt-3 grid gap-2 rounded-xl border border-white/10 bg-slate-950/60 p-3 text-sm text-slate-200 sm:grid-cols-2">
         <div className="sm:col-span-2 font-semibold text-white">
-          {s.icon} {s.name}
+          <BlockIcon icon={s.icon} className="inline-block size-[1.1em] align-[-0.15em]" /> {s.name}
         </div>
-        <div>💾 {s.gb.toLocaleString("en-US")} GB stored</div>
-        <div>📖 {s.unpredictable ? "Access pattern unknown and changing" : `${Math.round(s.reads * 100)}% of the data read per month`}</div>
-        <div>⏳ Each object kept {s.days >= 365 ? `${Math.round(s.days / 365)} year${s.days >= 730 ? "s" : ""}` : `${s.days} days`}</div>
+        <div><BlockIcon icon="💾" className="inline-block size-[1.1em] align-[-0.15em]" /> {s.gb.toLocaleString("en-US")} GB stored</div>
+        <div><BlockIcon icon="📖" className="inline-block size-[1.1em] align-[-0.15em]" /> {s.unpredictable ? "Access pattern unknown and changing" : `${Math.round(s.reads * 100)}% of the data read per month`}</div>
+        <div><BlockIcon icon="⏳" className="inline-block size-[1.1em] align-[-0.15em]" /> Each object kept {s.days >= 365 ? `${Math.round(s.days / 365)} year${s.days >= 730 ? "s" : ""}` : `${s.days} days`}</div>
         <div>
-          ⚡ {s.maxWait === 0 ? "Millisecond access" : `Retrieval within ${s.maxWait} h`} · {s.multiAz ? "must survive an AZ loss" : "re-creatable, one AZ is OK"}
+          <BlockIcon icon="⚡" className="inline-block size-[1.1em] align-[-0.15em]" /> {s.maxWait === 0 ? "Millisecond access" : `Retrieval within ${s.maxWait} h`} · {s.multiAz ? "must survive an AZ loss" : "re-creatable, one AZ is OK"}
         </div>
       </div>
       <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
@@ -484,7 +485,7 @@ export function S3ClassLab({ goal, onSolved }: GoalProps<"five">) {
             className={`rounded-xl border bg-slate-950/60 p-2 text-left text-sm transition hover:-translate-y-0.5 ${picked === c.id ? "border-amber-400" : "border-white/10"}`}
           >
             <div className="font-semibold text-white">
-              {c.icon} {c.name.replace("S3 ", "")}
+              <BlockIcon icon={c.icon} className="inline-block size-[1.1em] align-[-0.15em]" /> {c.name.replace("S3 ", "")}
             </div>
             <div className="mt-0.5 text-[11px] text-slate-400">
               {c.minDays ? `min ${c.minDays} days` : "no minimum"} · {c.waitHours === 0 ? "ms access" : c.id === "gfr" ? "minutes–hours restore" : "≤ 12–48 h restore"}
@@ -500,23 +501,23 @@ export function S3ClassLab({ goal, onSolved }: GoalProps<"five">) {
               p.problem ? "border-rose-400/40 bg-rose-400/10" : p.c.id === best.id ? "border-emerald-400/40 bg-emerald-400/10" : "border-amber-400/40 bg-amber-400/10"
             }`}
           >
-            {p.problem ? `✗ ${p.problem}` : p.c.id === best.id ? `✓ Cheapest class that meets every requirement: about ${money(p.cost)} a month.` : `⚠️ It works (${money(p.cost)}/month), but ${best.name} meets the requirements for ${money(s3CostPerGb(best, s) * s.gb)}.`}
+            {p.problem ? p.problem : p.c.id === best.id ? `Cheapest class that meets every requirement: about ${money(p.cost)} a month.` : `It works (${money(p.cost)}/month), but ${best.name} meets the requirements for ${money(s3CostPerGb(best, s) * s.gb)}.`}
           </div>
           <div className="grid gap-1 rounded-xl border border-white/10 bg-white/[0.03] p-3">
             {rows.map((r) => (
               <div key={r.c.id} className="grid grid-cols-[9rem_1fr_4.5rem] items-center gap-2 text-xs">
-                <span className={`truncate ${r.problem ? "text-slate-500 line-through" : "text-slate-200"}`}>{r.c.name.replace("S3 ", "")}</span>
+                <span className={`truncate ${r.problem ? "text-muted-foreground line-through" : "text-slate-200"}`}>{r.c.name.replace("S3 ", "")}</span>
                 <span className="h-3 overflow-hidden rounded-full bg-white/10">
                   <span className="block h-full rounded-full" style={{ width: pct(r.cost / max), background: r.problem ? "#64748b" : r.c.id === best.id ? "#34d399" : "#38bdf8" }} />
                 </span>
                 <span className="text-right font-mono text-slate-300">{s.unpredictable && r.c.id !== "it" ? "?" : money(r.cost)}</span>
               </div>
             ))}
-            <div className="mt-1 text-[11px] text-slate-500">Monthly storage + retrieval, including minimum-duration charges. Illustrative unit prices, not AWS list prices.</div>
+            <div className="mt-1 text-[11px] text-muted-foreground">Monthly storage + retrieval, including minimum-duration charges. Illustrative unit prices, not AWS list prices.</div>
           </div>
         </div>
       )}
-      <p className="mt-2 text-xs text-slate-500">
+      <p className="mt-2 text-xs text-muted-foreground">
         Solved {solved.length} of {S3_SCENARIOS.length} workloads{goal === "five" ? ` (goal: ${need})` : ""}. Check the Amazon S3 pricing page for real prices in your Region.
       </p>
     </div>

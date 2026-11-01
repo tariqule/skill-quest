@@ -2,6 +2,7 @@ import { Flow, Layers, Tiles } from "@/components/learn/blocks";
 import { defineDomain } from "@/engine/define";
 import { EmbeddingLab } from "../labs";
 import { AgentLoop, DiffusionSteps, EmbeddingMap, TokenDemo } from "../visuals";
+import { BlockIcon } from "@/components/learn/block-icons";
 
 /**
  * Domain 2: everything for this exam domain in one file.
@@ -174,7 +175,7 @@ export default defineDomain({
             ]}
           />
           <div>
-            <div className="mb-2 text-sm font-semibold text-white">🌫️ Diffusion model: from noise to an image</div>
+            <div className="mb-2 text-sm font-semibold text-white"><BlockIcon icon="🌫️" className="inline-block size-[1.1em] align-[-0.15em]" /> Diffusion model: from noise to an image</div>
             <DiffusionSteps />
           </div>
         </div>
@@ -229,7 +230,7 @@ export default defineDomain({
       visual: (
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="rounded-xl border border-emerald-400/30 bg-emerald-400/5 p-3">
-            <div className="font-semibold text-emerald-300">👍 Strengths</div>
+            <div className="font-semibold text-emerald-300"><BlockIcon icon="👍" className="inline-block size-[1.1em] align-[-0.15em]" /> Strengths</div>
             <ul className="mt-2 grid gap-1 text-sm text-slate-200">
               <li>• Adapts to many tasks</li>
               <li>• Quick to respond and easy to talk to</li>
@@ -237,7 +238,7 @@ export default defineDomain({
             </ul>
           </div>
           <div className="rounded-xl border border-rose-400/30 bg-rose-400/5 p-3">
-            <div className="font-semibold text-rose-300">👎 Weaknesses</div>
+            <div className="font-semibold text-rose-300"><BlockIcon icon="👎" className="inline-block size-[1.1em] align-[-0.15em]" /> Weaknesses</div>
             <ul className="mt-2 grid gap-1 text-sm text-slate-200">
               <li>• Hallucinations: confident but wrong</li>
               <li>• Hard to see why it answered that way</li>
