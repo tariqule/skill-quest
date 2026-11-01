@@ -2,12 +2,12 @@
 
 import { CalendarClock, CalendarPlus } from "lucide-react";
 import Link from "next/link";
-import { getCourse } from "@/courses";
+import { courseSummary } from "@/api/client";
 import { formatDate } from "@/engine/game";
 import type { Course } from "@/engine/types";
 
 /** Catalog notes: "Last exam date …" / "Exam available from …" (Lucide icons, 14px+, token colours). */
-export function LifecycleBadges({ course }: { course: Course }) {
+export function LifecycleBadges({ course }: { course: Pick<Course, "lifecycle"> }) {
   const l = course.lifecycle;
   if (!l?.retires && !l?.opens) return null;
   return (
@@ -32,8 +32,8 @@ export function LifecycleBadges({ course }: { course: Course }) {
 export function LifecycleBanner({ course }: { course: Course }) {
   const l = course.lifecycle;
   if (!l) return null;
-  const successor = l.successor ? getCourse(l.successor) : undefined;
-  const predecessor = l.predecessor ? getCourse(l.predecessor) : undefined;
+  const successor = l.successor ? courseSummary(l.successor) : undefined;
+  const predecessor = l.predecessor ? courseSummary(l.predecessor) : undefined;
   if (l.retires) {
     return (
       <div className="mt-4 rounded-2xl border border-warning/40 bg-warning/10 p-4 text-base text-foreground">

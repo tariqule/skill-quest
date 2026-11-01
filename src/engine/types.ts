@@ -329,6 +329,11 @@ export interface CheatSheetSection {
 
 export interface Course {
   id: string;
+  /**
+   * Scenario-game items (Architecture Builder, chains, matcher, mock interview). The server
+   * repository fills this from src/scenarios, so client code never imports that module.
+   */
+  scenarios?: import("./scenarios").ScenarioItem[];
   provider: Provider;
   /** Certification code, e.g. "AIF-C01". */
   code: string;

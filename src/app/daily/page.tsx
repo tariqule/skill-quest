@@ -14,7 +14,8 @@ import { CodeBlock, RichText } from "@/components/learn/code";
 import { usePlan } from "@/engine/plan-store";
 import { reviewNote, type ReviewGrade } from "@/engine/srs";
 import { getSrs, gradeItem } from "@/engine/srs-store";
-import { buildQueue } from "@/engine/daily-queue";
+import { buildQueue, queueCourseIds } from "@/engine/daily-queue";
+import { CoursesGate } from "@/components/shell/CoursesGate";
 import { completeScenario, makeOnce } from "@/engine/scenario-progress";
 import { getCourseStore } from "@/engine/store";
 import { useHoldToasts } from "@/engine/ui-state";
@@ -40,6 +41,12 @@ export default function DailyReview() {
 }
 
 function Session() {
+  const plan = usePlan();
+  // Load only the content of the courses the queue can draw from, then build it once.
+  return <CoursesGate ids={queueCourseIds(plan)}>{() => <Queue />}</CoursesGate>;
+}
+
+function Queue() {
   const plan = usePlan();
   const [queue] = useState(() => buildQueue(plan));
   const [i, setI] = useState(0);

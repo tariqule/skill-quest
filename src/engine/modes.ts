@@ -1,7 +1,6 @@
 import { BlocksIcon, ConstructionIcon, MonitorIcon, PuzzleIcon, RepeatIcon, ScrollTextIcon, SquareStackIcon, SwordsIcon, TargetIcon, TimerIcon, ZapIcon, type LucideIcon } from "lucide-react";
 import { codeGameOf } from "./code-games";
 import { practiceSummary } from "./practice";
-import { scenariosFor } from "@/scenarios";
 import type { Progress } from "./store";
 import type { Course, ModeId } from "./types";
 
@@ -38,7 +37,7 @@ export const ALL_MODES: ModeInfo[] = [
     icon: ConstructionIcon,
     to: "/scenarios",
     status: (_p, c) => {
-      const items = scenariosFor(c.id);
+      const items = c.scenarios ?? [];
       const games = new Set(items.map((x) => x.type)).size;
       return `${items.length} scenarios · ${games} game${games === 1 ? "" : "s"}`;
     },

@@ -1,12 +1,11 @@
-import { getCourse } from "@/courses";
+import { peekCourse as getCourse } from "@/api/client";
 import { targetCourses } from "./bundles";
 import { activeCourseIds } from "./plan-inputs";
 import type { StudyPlan } from "./plan";
 import { interleaveDue, itemKey, parseKey } from "./srs";
 import { getSrs, syncFromProgress } from "./srs-store";
-import { getCourseStore } from "./store";
+import { getProgressStore } from "./store";
 import { codeGameOf } from "./code-games";
-import { scenarioById } from "@/scenarios";
 import type { ScenarioItem } from "./scenarios";
 import { isChoice, type Card, type CodingChallenge, type Course, type Question } from "./types";
 
@@ -19,7 +18,7 @@ export const NEW_QUESTIONS = 3;
 
 export type Item = { key: string; course: Course; fresh?: boolean } & ({ kind: "card"; card: Card } | { kind: "q"; q: Question } | { kind: "sc"; sc: ScenarioItem } | { kind: "code"; code: CodingChallenge });
 
-const progressOf = (c: Course) => getCourseStore(c).get();
+const progressOf = (c: Course) => getProgressStore(c).get();
 
 /**
  * What the learner has been taught in a course: lessons they finished, and the sections
@@ -32,12 +31,20 @@ export function taughtIn(course: Course, p: { lessonsDone: string[] }) {
   return { lessons, domains };
 }
 
+/**
+ * Course ids today's queue can draw from. Load these (`useCourses`) before `buildQueue`; an
+ * unloaded course's items are skipped.
+ */
+export function queueCourseIds(plan: StudyPlan | null): string[] {
+  return [...new Set([...activeCourseIds(plan), ...(plan ? targetCourses(plan.target) : [])])];
+}
+
 /** Build today's queue once: due items interleaved across courses, then a few new cards from the plan. */
 export function buildQueue(plan: StudyPlan | null): Item[] {
   syncFromProgress();
   const now = new Date();
   const srs = getSrs();
-  const active = activeCourseIds(plan, progressOf);
+  const active = activeCourseIds(plan);
   const resolve = (key: string): Item | null => {
     const k = parseKey(key);
     const course = k && getCourse(k.courseId);
@@ -47,7 +54,7 @@ export function buildQueue(plan: StudyPlan | null): Item[] {
       return card ? { key, course, kind: "card", card } : null;
     }
     if (k.kind === "sc") {
-      const sc = scenarioById(k.courseId, k.id);
+      const sc = course.scenarios?.find((x) => x.id === k.id);
       return sc ? { key, course, kind: "sc", sc } : null;
     }
     if (k.kind === "code") {

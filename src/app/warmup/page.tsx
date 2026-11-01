@@ -5,7 +5,8 @@ import { NextSteps, PageIntro, PageSkeleton } from "@/components/shell/PageIntro
 import { useState, useSyncExternalStore } from "react";
 import { AppBar } from "@/components/Hud";
 import { GameItem } from "@/components/code-games/GameItem";
-import { getCourse } from "@/courses";
+import { courseSummary } from "@/api/client";
+import { CoursesGate } from "@/components/shell/CoursesGate";
 import { targetCourses } from "@/engine/bundles";
 import { hasCodeGames, warmupPicks } from "@/engine/code-games";
 import { usePlan } from "@/engine/plan-store";
@@ -14,10 +15,10 @@ import type { Course } from "@/engine/types";
 
 const noop = () => () => {};
 
-/** Code tracks in the plan that have games; with no plan, every code track the player has started. */
-function warmupCourses(target: string | null): Course[] {
+/** Code tracks in the plan that have games (from the catalog, before any content loads). */
+function warmupCourseIds(target: string | null): string[] {
   const ids = target ? targetCourses(target) : [];
-  return ids.map((id) => getCourse(id)).filter((c): c is Course => !!c && hasCodeGames(c));
+  return ids.filter((id) => courseSummary(id)?.hasCodeGames);
 }
 
 export default function WarmupPage() {
@@ -37,7 +38,12 @@ export default function WarmupPage() {
 
 function Warmup() {
   const plan = usePlan();
-  const [picks] = useState(() => warmupPicks(warmupCourses(plan?.target ?? null), (c, id) => !!getCourseStore(getCourse(c)!).get().questions[id]?.lastCorrect));
+  return <CoursesGate ids={warmupCourseIds(plan?.target ?? null)}>{(courses) => <WarmupSession courses={courses.filter(hasCodeGames)} />}</CoursesGate>;
+}
+
+function WarmupSession({ courses }: { courses: Course[] }) {
+  const plan = usePlan();
+  const [picks] = useState(() => warmupPicks(courses, (c, id) => !!getCourseStore(courses.find((x) => x.id === c)!).get().questions[id]?.lastCorrect));
   const [i, setI] = useState(0);
   const [right, setRight] = useState(0);
   if (picks.length === 0) {

@@ -20,19 +20,19 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { COURSES, getCourse } from "@/courses";
+import { courseSummaries, courseSummary } from "@/api/client";
+import type { CourseSummary } from "@/api/wire";
+import { CoursesGate } from "@/components/shell/CoursesGate";
 import { BUNDLE_BY_ID, targetCourses } from "@/engine/bundles";
-import { dailySessionSize } from "@/engine/daily-queue";
+import { dailySessionSize, queueCourseIds } from "@/engine/daily-queue";
 import { formatDate } from "@/engine/game";
 import { EASE_IN_LESSONS, onTrack, type PlanItem, type StudyPlan } from "@/engine/plan";
 import { nextStep } from "@/engine/next-step";
 import { planCourses, todaySummary } from "@/engine/plan-inputs";
 import { syncFromProgress, useSrs } from "@/engine/srs-store";
-import { getCourseStore, todayKey } from "@/engine/store";
+import { getCourseStore, getProgressStore, todayKey } from "@/engine/store";
 import type { Course } from "@/engine/types";
 import { lastLesson } from "@/engine/last-opened";
-import { hasCodeGames } from "@/engine/code-games";
-import { hasScenarios, scenariosFor } from "@/scenarios";
 import { cn } from "@/lib/utils";
 import { PlanWizard } from "./PlanWizard";
 import { effortLine, levelRingDash, paceCopy, reviewFirst, streakLabel, totalMinutes } from "./today-model";
@@ -67,10 +67,10 @@ export function ReadinessRing({ value, forecast, size = 96 }: { value: number; f
 }
 
 /** The course the player touched most recently (by streak day, then XP). */
-export function recentCourse(): Course | null {
-  let best: { c: Course; day: string; xp: number } | null = null;
-  for (const c of COURSES) {
-    const p = progressOf(c);
+export function recentCourse(): CourseSummary | null {
+  let best: { c: CourseSummary; day: string; xp: number } | null = null;
+  for (const c of courseSummaries()) {
+    const p = getProgressStore(c).get();
     if (p.xp <= 0) continue;
     const day = p.streak.lastDay ?? "";
     if (!best || day > best.day || (day === best.day && p.xp > best.xp)) best = { c, day, xp: p.xp };
@@ -79,11 +79,11 @@ export function recentCourse(): Course | null {
 }
 
 function bestStreak() {
-  return Math.max(0, ...COURSES.map((c) => progressOf(c).streak.count ?? 0));
+  return Math.max(0, ...courseSummaries().map((c) => getProgressStore(c).get().streak.count ?? 0));
 }
 
 function targetName(target: string) {
-  return BUNDLE_BY_ID[target]?.title ?? getCourse(target)?.title ?? target;
+  return BUNDLE_BY_ID[target]?.title ?? courseSummary(target)?.title ?? target;
 }
 
 type SessionSize = { total: number; due: number; fresh: number };
@@ -110,14 +110,8 @@ function itemLink(item: PlanItem, session: SessionSize): ItemLink {
 
 /** The "Today" panel: one primary action, review first, then the rest of today's plan. */
 export function Today({ plan }: { plan: StudyPlan | null }) {
-  const srs = useSrs();
-  useEffect(() => syncFromProgress(), []);
   const [editing, setEditing] = useState(false);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const session = useMemo(() => dailySessionSize(plan), [plan, srs]);
-  const due = session.total;
   const recent = recentCourse();
-  const streak = bestStreak();
 
   if (!plan || editing) {
     return (
@@ -138,9 +132,24 @@ export function Today({ plan }: { plan: StudyPlan | null }) {
     );
   }
 
+  // The plan card needs the content of the plan's (and active) courses: loaded once, then cached.
+  return (
+    <CoursesGate ids={queueCourseIds(plan)} skeleton={<TodaySkeleton />}>
+      {() => <PlanCard plan={plan} recent={recent} onEdit={() => setEditing(true)} />}
+    </CoursesGate>
+  );
+}
+
+function PlanCard({ plan, recent, onEdit }: { plan: StudyPlan; recent: CourseSummary | null; onEdit: () => void }) {
+  const srs = useSrs();
+  useEffect(() => syncFromProgress(), []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const session = useMemo(() => dailySessionSize(plan), [plan, srs]);
+  const due = session.total;
+  const streak = bestStreak();
   const s = todaySummary(plan, progressOf, todayKey(), due);
   // A brand-new beginner gets one calm next step, not a dashboard of reviews, games and stats.
-  if (s.newLearner) return <FirstSteps plan={plan} onEdit={() => setEditing(true)} />;
+  if (s.newLearner) return <FirstSteps plan={plan} onEdit={() => onEdit()} />;
   const items = reviewFirst(s.items);
   const minutes = totalMinutes(items);
   const pace = paceCopy(s.days, s.forecast, onTrack(s.forecast));
@@ -167,7 +176,7 @@ export function Today({ plan }: { plan: StudyPlan | null }) {
             </p>
           )}
         </div>
-        <Button variant="ghost" size="sm" onClick={() => setEditing(true)} className="hidden sm:inline-flex">
+        <Button variant="ghost" size="sm" onClick={() => onEdit()} className="hidden sm:inline-flex">
           <Pencil aria-hidden />
           Edit plan
         </Button>
@@ -193,10 +202,7 @@ export function Today({ plan }: { plan: StudyPlan | null }) {
         ))}
         {items.length === 0 && <li className="text-base text-muted-foreground">Every lesson in your plan is done. A mock exam or a review keeps it fresh.</li>}
         {plan.goal === "interview" &&
-          courses.some((id) => {
-            const c = getCourse(id);
-            return !!c && hasCodeGames(c);
-          }) && (
+          courses.some((id) => !!courseSummary(id)?.hasCodeGames) && (
             <li>
               <PlanRow link={{ href: "/warmup", icon: Zap, title: "Daily code warm-up", sub: "6 mixed code games: Parsons, Spot the Bug, Predict the Output" }} minutes={5} />
             </li>
@@ -225,7 +231,7 @@ export function Today({ plan }: { plan: StudyPlan | null }) {
             Continue {recent.shortTitle}
           </Button>
         )}
-        <Button variant="ghost" onClick={() => setEditing(true)} className="sm:hidden">
+        <Button variant="ghost" onClick={() => onEdit()} className="sm:hidden">
           <Pencil aria-hidden />
           Edit plan
         </Button>
@@ -293,7 +299,7 @@ function FirstSteps({ plan, onEdit }: { plan: StudyPlan; onEdit: () => void }) {
 }
 
 /** While the wizard is the task, prior progress gets one quiet text link, not competing buttons. */
-function ResumeLink({ course }: { course: Course }) {
+function ResumeLink({ course }: { course: CourseSummary }) {
   return (
     <p className="mt-4 text-base text-muted-foreground">
       Not ready to plan?{" "}
@@ -308,7 +314,7 @@ function ResumeLink({ course }: { course: Course }) {
 /** The single primary action: the last lesson opened in a plan course, else the first plan item (review first). */
 function ContinueButton({ first, planCourses }: { first: ItemLink | null; planCourses: string[] }) {
   const last = lastLesson(planCourses);
-  const course = last ? getCourse(last.courseId) : null;
+  const course = last ? courseSummary(last.courseId) : null;
   const target = course && last ? { href: `/c/${course.id}/lesson/${last.lessonId}`, title: last.title, sub: course.shortTitle } : first;
   if (!target) return null;
   return (
@@ -325,10 +331,10 @@ function ContinueButton({ first, planCourses }: { first: ItemLink | null; planCo
 
 /** Plan row for the scenario games, pointing at the first planned course that has them. */
 function ScenarioRow({ courseIds }: { courseIds: string[] }) {
-  const id = courseIds.find(hasScenarios);
-  const course = id ? getCourse(id) : undefined;
-  if (!id || !course) return null;
-  const kinds = new Set(scenariosFor(id).map((x) => x.type));
+  const course = courseIds.map(courseSummary).find((c) => !!c?.scenarioKinds.length);
+  if (!course) return null;
+  const id = course.id;
+  const kinds = new Set(course.scenarioKinds);
   const names = [kinds.has("architect") && "Architecture Builder", kinds.has("chain") && "Scenario Chains", kinds.has("matcher") && "Service Matcher", kinds.has("interview") && "Mock Interview"]
     .filter(Boolean)
     .join(", ");

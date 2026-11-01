@@ -1,7 +1,6 @@
 "use client";
 
 import { createContext, useContext, type ReactNode } from "react";
-import { getCourse } from "@/courses";
 import { indexCourse, type CourseIndex } from "./indexes";
 import { effectiveLevel, questionsForLevel } from "./levels";
 import { getCourseStore, type CourseStore } from "./store";
@@ -18,9 +17,8 @@ export interface CourseContextValue extends CourseIndex {
 
 const Ctx = createContext<CourseContextValue | null>(null);
 
-export function CourseProvider({ courseId, children }: { courseId: string; children: ReactNode }) {
-  const course = getCourse(courseId);
-  if (!course) throw new Error(`Unknown course "${courseId}"`);
+/** The course comes from the server (see app/c/[course]/layout.tsx); this module never imports course content. */
+export function CourseProvider({ course, children }: { course: Course; children: ReactNode }) {
   const value: CourseContextValue = {
     course,
     store: getCourseStore(course),

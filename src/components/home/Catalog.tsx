@@ -9,13 +9,12 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { COURSES, getCourse } from "@/courses";
+import { courseSummaries, courseSummary, useCourses } from "@/api/client";
+import type { CourseSummary } from "@/api/wire";
 import { BUNDLES } from "@/engine/bundles";
 import { overallReadiness } from "@/engine/game";
-import { indexCourse } from "@/engine/indexes";
-import { getCourseStore } from "@/engine/store";
+import { getProgressStore } from "@/engine/store";
 import { isCodeTrack } from "@/engine/tracks";
-import type { Course } from "@/engine/types";
 
 type Section = "all" | "cert" | "interview" | "fundamentals";
 const FILTERS: { id: Section; label: string; icon: ComponentType<LucideProps> }[] = [
@@ -25,11 +24,7 @@ const FILTERS: { id: Section; label: string; icon: ComponentType<LucideProps> }[
   { id: "fundamentals", label: "Fundamentals", icon: Sprout },
 ];
 
-const CERTS = COURSES.filter((c) => !isCodeTrack(c));
-const INTERVIEW = COURSES.filter((c) => isCodeTrack(c) && c.kind === "interview");
-const FUNDAMENTALS = COURSES.filter((c) => c.kind === "learning");
-
-function matches(c: Course, q: string) {
+function matches(c: CourseSummary, q: string) {
   if (!q) return true;
   const hay = `${c.title} ${c.shortTitle} ${c.code} ${c.provider.name} ${c.tagline} ${c.category ?? ""}`.toLowerCase();
   return q
@@ -49,6 +44,10 @@ export function Catalog({ onFilteringChange }: { onFilteringChange?: (filtering:
     setSection("all");
   };
   const show = (s: Section) => section === "all" || section === s;
+  const all = courseSummaries();
+  const CERTS = all.filter((c) => !isCodeTrack(c));
+  const INTERVIEW = all.filter((c) => isCodeTrack(c) && c.kind === "interview");
+  const FUNDAMENTALS = all.filter((c) => c.kind === "learning");
   const certs = CERTS.filter((c) => matches(c, q));
   const providers = [...new Set(certs.map((c) => c.provider.name))];
   const interview = INTERVIEW.filter((c) => matches(c, q));
@@ -149,7 +148,7 @@ export function Catalog({ onFilteringChange }: { onFilteringChange?: (filtering:
                     <p className="mt-1 text-sm text-muted-foreground">{b.line}</p>
                     <div className="mt-3 flex flex-wrap gap-1.5">
                       {b.courses.map((id) => {
-                        const c = getCourse(id);
+                        const c = courseSummary(id);
                         return c ? (
                           <Link
                             key={id}
@@ -204,10 +203,9 @@ function SectionTitle({ icon: Icon, children }: { icon: ComponentType<LucideProp
 }
 
 /** Course card: calm surface, provider colour only on the accent dot and progress (no tilt, no glow). */
-function CourseCard({ course }: { course: Course }) {
-  const p = getCourseStore(course).useProgress();
-  const lessons = indexCourse(course).allLessons.length;
-  const readiness = Math.round(overallReadiness(course, p));
+function CourseCard({ course }: { course: CourseSummary }) {
+  const p = getProgressStore(course).useProgress();
+  const lessons = course.counts.lessons;
   const code = isCodeTrack(course);
   return (
     <Link
@@ -224,20 +222,36 @@ function CourseCard({ course }: { course: Course }) {
       {!code && <LifecycleBadges course={course} />}
       <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-sm text-muted-foreground">
         <span>{lessons} lessons</span>
-        <span>{course.questions.length} questions</span>
-        {course.coding?.length ? (
+        <span>{course.counts.questions} questions</span>
+        {course.counts.coding ? (
           <span className="flex items-center gap-1">
             <Code2 className="size-4" aria-hidden />
             Live coding
           </span>
         ) : null}
       </div>
-      {p.xp > 0 && (
-        <div className="mt-3">
-          <Progress value={readiness} aria-label={`${course.shortTitle} readiness`} />
-          <div className="mt-1 text-sm text-muted-foreground">{readiness}% ready</div>
-        </div>
-      )}
+      {p.xp > 0 && <CardReadiness course={course} />}
     </Link>
+  );
+}
+
+/** Readiness needs the course's questions: loaded (and cached) only for courses you have started. */
+function CardReadiness({ course }: { course: CourseSummary }) {
+  const p = getProgressStore(course).useProgress();
+  const state = useCourses([course.id]);
+  if (state.status !== "ready" || !state.courses[0]) {
+    return (
+      <div className="mt-3" aria-busy={state.status === "loading"}>
+        <Progress value={0} aria-label={`${course.shortTitle} readiness`} />
+        <div className="mt-1 text-sm text-muted-foreground">{state.status === "error" ? "Readiness unavailable" : "Loading readiness…"}</div>
+      </div>
+    );
+  }
+  const readiness = Math.round(overallReadiness(state.courses[0], p));
+  return (
+    <div className="mt-3">
+      <Progress value={readiness} aria-label={`${course.shortTitle} readiness`} />
+      <div className="mt-1 text-sm text-muted-foreground">{readiness}% ready</div>
+    </div>
   );
 }

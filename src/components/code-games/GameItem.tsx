@@ -22,7 +22,7 @@ export function GameItem({ course, q, tag, note, onDone }: { course: Course; q: 
   }
 
   return (
-    <CourseProvider courseId={course.id}>
+    <CourseProvider course={course}>
       <div className="mb-2 text-sm font-medium text-muted-foreground">
         {course.shortTitle}
         {tag ? ` · ${tag}` : ""}
