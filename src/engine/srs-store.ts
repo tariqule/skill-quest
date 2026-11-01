@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { COURSES } from "@/courses";
+import { courseSummaries } from "@/api/client";
 import { itemKey, migrateProgress, newRecord, review, type ReviewGrade, type SrsState } from "./srs";
 import { peekProgress } from "./store";
 
@@ -49,7 +49,7 @@ function read(): SrsFile {
 function sync(file: SrsFile) {
   const now = new Date();
   let added: SrsState = {};
-  for (const c of COURSES) {
+  for (const c of courseSummaries()) {
     const p = peekProgress(c.storageKey);
     if (p) added = { ...added, ...migrateProgress(c.id, p, file.items, now) };
   }

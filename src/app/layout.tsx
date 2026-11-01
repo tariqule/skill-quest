@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
+import { CatalogProvider } from "@/api/catalog-context";
+import { courseSummaries, contentVersion } from "@/server/courses/repository";
 import { MotionProvider } from "@/components/providers/MotionProvider";
 import { Backdrop } from "@/components/shell/Backdrop";
 import { Toaster } from "@/components/Hud";
@@ -30,11 +32,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" data-theme="dark" className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
-        <MotionProvider>
-          <Backdrop />
-          {children}
-          <Toaster />
-        </MotionProvider>
+        <CatalogProvider courses={courseSummaries()} version={contentVersion()}>
+          <MotionProvider>
+            <Backdrop />
+            {children}
+            <Toaster />
+          </MotionProvider>
+        </CatalogProvider>
       </body>
     </html>
   );

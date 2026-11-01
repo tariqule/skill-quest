@@ -7,14 +7,13 @@ import { PageShell } from "@/components/ui";
 import { useHydrated } from "@/engine/hydrated";
 import { useCourse } from "@/engine/course-context";
 import { playedCounts, useScenarioResults } from "@/engine/scenario-progress";
-import { gameText, MASTERED_AT, SCENARIO_GAMES } from "@/engine/scenarios";
-import { scenariosFor } from "@/scenarios";
+import { gameText, MASTERED_AT, SCENARIO_GAMES, scenariosOf } from "@/engine/scenarios";
 
 export default function ScenariosHub() {
   const { course, href } = useCourse();
   const results = useScenarioResults();
   const hydrated = useHydrated();
-  const games = SCENARIO_GAMES.filter((g) => scenariosFor(course.id, g.id).length > 0);
+  const games = SCENARIO_GAMES.filter((g) => scenariosOf(course, g.id).length > 0);
   if (!games.length) {
     return (
       <PageShell title="Scenario games">
@@ -26,7 +25,7 @@ export default function ScenariosHub() {
     <PageShell title="Scenario games" subtitle={`Apply ${course.shortTitle} to realistic situations. Every item links the lesson that teaches it, and what you play comes back in Daily Review.`}>
       <ul className="grid gap-4">
         {games.map((g) => {
-          const items = scenariosFor(course.id, g.id);
+          const items = scenariosOf(course, g.id);
           const { played, mastered } = playedCounts(results, course.id, items.map((x) => x.id), MASTERED_AT);
           return (
             <li key={g.id}>

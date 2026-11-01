@@ -1,10 +1,10 @@
-import { COURSES, getCourse } from "@/courses";
+import { courseSummaries, peekCourse } from "@/api/client";
 import { targetCourses } from "./bundles";
 import { overallReadiness } from "./game";
 import { indexCourse } from "./indexes";
 import { buildDailyPlan, combinedReadiness, daysLeft, forecastReadiness, isNewLearner, lessonsPerDay, type PlanCourseInput, type PlanItem, type StudyPlan } from "./plan";
 import { pathLessons, type LevelChoice } from "./levels";
-import type { Progress } from "./store";
+import { getProgressStore, type Progress } from "./store";
 import { isCodeTrack } from "./tracks";
 import type { Course } from "./types";
 
@@ -30,9 +30,10 @@ export function planInputs(courses: Course[], progressOf: (c: Course) => Progres
   });
 }
 
+/** The plan's courses that are loaded (see `useCourses`); callers wait for them before using this. */
 export function planCourses(plan: StudyPlan): Course[] {
   return targetCourses(plan.target)
-    .map((id) => getCourse(id))
+    .map(peekCourse)
     .filter((c): c is Course => !!c);
 }
 
@@ -62,9 +63,12 @@ export function todaySummary(plan: StudyPlan, progressOf: (c: Course) => Progres
   return { items: buildDailyPlan(plan, inputs, today, due, newLearner), days, readiness, forecast: forecastReadiness(readiness, remaining, perDay, days), remaining, total, done, newLearner };
 }
 
-/** Courses the player is studying: anything with progress, plus the plan's targets. */
-export function activeCourseIds(plan: StudyPlan | null, progressOf: (c: Course) => Progress): string[] {
-  const ids = new Set(COURSES.filter((c) => progressOf(c).xp > 0).map((c) => c.id));
+/**
+ * Courses the player is studying: anything with progress, plus the plan's targets. Needs only the
+ * catalog and saved progress, so pages call it first to know which course content to load.
+ */
+export function activeCourseIds(plan: StudyPlan | null): string[] {
+  const ids = new Set(courseSummaries().filter((c) => getProgressStore(c).get().xp > 0).map((c) => c.id));
   if (plan) for (const id of targetCourses(plan.target)) ids.add(id);
   return [...ids];
 }

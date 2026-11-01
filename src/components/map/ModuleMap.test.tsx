@@ -11,7 +11,7 @@ const map = courseMap(course.topics ?? [], lessonIds, { lessonsDone: ["t-intro"]
 // The beginner page passes startHere; the full course page doesn't. Both must draw locked tiles the same way.
 describe.each([["beginner", true], ["normal", false]] as const)("ModuleMap (%s)", (_, startHere) => {
   const html = renderToStaticMarkup(
-    <CourseProvider courseId={course.id}>
+    <CourseProvider course={course}>
       <ModuleMap map={map} color="#38bdf8" startHere={startHere} />
     </CourseProvider>,
   );
@@ -31,7 +31,7 @@ describe.each([["beginner", true], ["normal", false]] as const)("ModuleMap (%s)"
 
 describe("ModuleMap redesign", () => {
   const html = renderToStaticMarkup(
-    <CourseProvider courseId={course.id}>
+    <CourseProvider course={course}>
       <ModuleMap map={map} color="#2DD4BF" />
     </CourseProvider>,
   );

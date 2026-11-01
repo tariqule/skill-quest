@@ -1,8 +1,8 @@
-import { getCourse } from "@/courses";
+import { findCourse } from "@/server/courses/repository";
 import { QuestPlay } from "./QuestPlay";
 
 export function generateStaticParams({ params }: { params: { course: string } }) {
-  return getCourse(params.course)?.domains.map((d) => ({ domain: d.id })) ?? [];
+  return findCourse(params.course)?.domains.map((d) => ({ domain: d.id })) ?? [];
 }
 
 export default function QuestPage() {

@@ -8,11 +8,10 @@ import { Button } from "@/components/ui/button";
 import { ScenarioPlay } from "@/components/scenarios/ScenarioPlay";
 import { PageShell } from "@/components/ui";
 import { useCourse } from "@/engine/course-context";
-import { gameText, gradeFor, SCENARIO_GAME_BY_ID, type ScenarioGameId, type ScenarioItem } from "@/engine/scenarios";
+import { gameText, gradeFor, SCENARIO_GAME_BY_ID, scenariosOf, type ScenarioGameId, type ScenarioItem } from "@/engine/scenarios";
 import { itemKey } from "@/engine/srs";
 import { getSrs, gradeItem } from "@/engine/srs-store";
 import { completeScenario, makeOnce } from "@/engine/scenario-progress";
-import { scenariosFor } from "@/scenarios";
 
 /** Unplayed items first, then the ones due soonest. */
 function order(courseId: string, items: ScenarioItem[]) {
@@ -25,7 +24,7 @@ export function ScenarioGame() {
   const { game } = useParams<{ game: string }>();
   const { course, href, store } = useCourse();
   const info = SCENARIO_GAME_BY_ID[game as ScenarioGameId];
-  const all = info ? scenariosFor(course.id, info.id) : [];
+  const all = info ? scenariosOf(course, info.id) : [];
   const [queue, setQueue] = useState<ScenarioItem[] | null>(null);
   const [i, setI] = useState(0);
   const [scores, setScores] = useState<number[]>([]);

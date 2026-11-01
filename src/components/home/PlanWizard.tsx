@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupPrimitive, RadioPrimitive } from "@/components/ui/radio-group";
-import { COURSES, getCourse } from "@/courses";
+import { courseSummaries, courseSummary, ensureCourses } from "@/api/client";
 import { BUNDLES, targetCourses } from "@/engine/bundles";
 import { planLevelOptions, type LevelChoice } from "@/engine/levels";
 import { nextStep } from "@/engine/next-step";
@@ -31,9 +31,9 @@ import { pickGoalFields, type PlanGoal, type StudyPlan } from "@/engine/plan";
 import { setPlan } from "@/engine/plan-store";
 import { setProfile } from "@/engine/profile";
 import { getCourseStore, todayKey } from "@/engine/store";
+import type { CourseSummary } from "@/api/wire";
 import { setSharedLevel } from "@/engine/track-level";
 import { isCodeTrack } from "@/engine/tracks";
-import type { Course } from "@/engine/types";
 import { cardChange, motionSafe } from "@/design/motion";
 import { cn } from "@/lib/utils";
 import { canJumpTo, clampStep, LAST_STEP, primaryLabel, WIZARD_STEPS, type WizardStep } from "./wizard-model";
@@ -59,10 +59,9 @@ export const LEVEL_ICONS: Record<LevelChoice, Icon> = {
 
 const MINUTES = [10, 20, 30, 45, 60];
 
-const CERTS = COURSES.filter((c) => !isCodeTrack(c));
-const CODE = COURSES.filter((c) => isCodeTrack(c));
-
 function targetsFor(goal: PlanGoal): { group: string; options: { id: string; label: string }[] }[] {
+  const CERTS = courseSummaries().filter((c) => !isCodeTrack(c));
+  const CODE = courseSummaries().filter((c) => isCodeTrack(c));
   if (goal === "exam") {
     const providers = [...new Set(CERTS.map((c) => c.provider.name))];
     return providers.map((p) => ({ group: p, options: CERTS.filter((c) => c.provider.name === p).map((c) => ({ id: c.id, label: `${c.code} · ${c.title}` })) }));
@@ -95,8 +94,8 @@ export function PlanWizard({ initial, onDone }: { initial?: StudyPlan | null; on
 
   const valid = groups.some((g) => g.options.some((o) => o.id === target));
   const courses = targetCourses(valid ? target : groups[0].options[0].id)
-    .map((id) => getCourse(id))
-    .filter((c): c is Course => !!c);
+    .map(courseSummary)
+    .filter((c): c is CourseSummary => !!c);
   const levels = planLevelOptions(courses[0] ?? { kind: "learning" });
   const today = todayKey();
 
@@ -122,8 +121,14 @@ export function PlanWizard({ initial, onDone }: { initial?: StudyPlan | null; on
     onDone?.();
     // A first-time beginner goes straight into lesson 1: teach first, no dashboard to decode.
     if (!initial && level === "beginner") {
-      const s = nextStep(plan, (c) => getCourseStore(c).get());
-      if (s?.isFirst) router.push(s.href);
+      // The plan's course content is loaded only now; if that fails, the plan card still shows.
+      ensureCourses(targetCourses(plan.target)).then(
+        () => {
+          const s = nextStep(plan, (c) => getCourseStore(c).get());
+          if (s?.isFirst) router.push(s.href);
+        },
+        () => undefined,
+      );
     }
   }
 

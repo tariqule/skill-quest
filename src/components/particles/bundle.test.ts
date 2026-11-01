@@ -25,10 +25,10 @@ describe.skipIf(!built)("production bundle", () => {
     expect(hits.length).toBeGreaterThanOrEqual(1);
   });
 
-  // The plan's budget (<= 25 KB over PR A) was already spent by PRs B-D (motion runtime and redesigned
-  // components; see the PR E notes). This guard stops further growth: PR E may add at most 4 KB.
-  it.skipIf(!existsSync(BASELINE))("lesson page initial JS grows at most 4 KB (gzip) over PR D", () => {
+  // PR F moved course content off the client (about 1.6 MB gz down to about 0.33 MB per route).
+  // This guard keeps it there: every route may grow at most 4 KB (gzip) over the PR F baseline.
+  it.skipIf(!existsSync(BASELINE))("each route's initial JS grows at most 4 KB (gzip) over PR F", () => {
     const base = JSON.parse(readFileSync(BASELINE, "utf8"));
-    expect(r.lesson!.gzip - base.prD.lesson.gzip).toBeLessThanOrEqual(4 * 1024);
+    for (const [name, v] of Object.entries(r)) expect(v!.gzip - base.prF[name].gzip, name).toBeLessThanOrEqual(4 * 1024);
   });
 });

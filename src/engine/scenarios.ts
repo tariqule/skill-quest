@@ -224,3 +224,9 @@ export function shuffled<T>(xs: T[], rand: () => number = Math.random): T[] {
   }
   return a;
 }
+
+/** A course's scenario items, optionally for one game (the server fills `course.scenarios`). */
+export function scenariosOf(course: { scenarios?: ScenarioItem[] }, game?: ScenarioGameId): ScenarioItem[] {
+  const all = course.scenarios ?? [];
+  return game ? all.filter((x) => x.type === game) : all;
+}

@@ -16,8 +16,9 @@ export function GamePlay() {
   const mix = game === "mix";
   const info = mix ? { name: "Mixed warm-up", rule: "Two of each code game, unplayed ones first." } : CODE_GAME_BY_ID[game as CodeGameId] && { ...CODE_GAME_BY_ID[game as CodeGameId], rule: gameRule(game as CodeGameId, course) };
   const known = !!CODE_GAME_BY_ID[game as CodeGameId];
-  // The button names the real round size, which can be under GAME_ROUND when a level has few items.
-  const roundSize = useMemo(() => (mix || !known ? 0 : levelDeck(course, level, gamePool(course, game as CodeGameId), GAME_ROUND).length), [mix, known, course, level, game]);
+  // The button names the real round size: levelDeck tops up from nearby levels, so it is only
+  // short of GAME_ROUND when the whole pool is (computed without shuffling, so it can prerender).
+  const roundSize = useMemo(() => (mix || !known ? 0 : Math.min(GAME_ROUND, gamePool(course, game as CodeGameId).length)), [mix, known, course, game]);
   if (!info) notFound();
 
   return (

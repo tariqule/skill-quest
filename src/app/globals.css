@@ -117,9 +117,11 @@ body {
 }
 
 /* Lesson card entrance */
+/* Slide only, no fade: Chrome does not count text under a fade-in from (near) zero opacity as
+   painted until the animation runs, which pushed the lesson title's LCP past hydration. */
 @keyframes card-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { transform: translateY(8px); }
+  to { transform: translateY(0); }
 }
 .card-in {
   animation: card-in 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);

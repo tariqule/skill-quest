@@ -116,9 +116,32 @@ export function peekProgress(storageKey: string): Progress | null {
 
 // ───────────── Per-course store ─────────────
 
+/** What the progress core needs: a summary from the catalog is enough (no course content). */
+export interface ProgressSpec {
+  id: string;
+  storageKey: string;
+  lessonMigration?: Course["lessonMigration"];
+}
+
+export type ProgressStore = ReturnType<typeof buildProgress>;
 export type CourseStore = ReturnType<typeof buildStore>;
 
+const progressStores = new Map<string, ProgressStore>();
 const stores = new Map<string, CourseStore>();
+
+/**
+ * Read, subscribe to and set the plain settings of one course's saved progress. Works from a
+ * catalog summary, so pages like Home and Code can show progress without loading course content.
+ * Shares its state with `getCourseStore` for the same course id.
+ */
+export function getProgressStore(spec: ProgressSpec): ProgressStore {
+  let s = progressStores.get(spec.id);
+  if (!s) {
+    s = buildProgress(spec);
+    progressStores.set(spec.id, s);
+  }
+  return s;
+}
 
 /** One store per course, created on first use and kept for the session. */
 export function getCourseStore(course: Course): CourseStore {
@@ -130,12 +153,8 @@ export function getCourseStore(course: Course): CourseStore {
   return s;
 }
 
-function buildStore(course: Course) {
-  const key = course.storageKey;
-  const totalLessons = Object.values(course.lessons).flat().length;
-  const { pass, max } = course.exam.scale;
-  const legendScore = Math.round(pass + ((max - pass) * 2) / 3);
-
+function buildProgress(spec: ProgressSpec) {
+  const key = spec.storageKey;
   let state: Progress = INITIAL_PROGRESS;
   let loaded = false;
   const listeners = new Set<() => void>();
@@ -162,7 +181,7 @@ function buildStore(course: Course) {
     // A brand-new course starts at the level the player picked on the home page.
     state = next ?? { ...INITIAL_PROGRESS, level: getProfile().level ?? INITIAL_PROGRESS.level };
     // Renamed or merged lessons keep their progress under the new id.
-    if (course.lessonMigration) state = migrateLessonIds(state, course.lessonMigration);
+    if (spec.lessonMigration) state = migrateLessonIds(state, spec.lessonMigration);
     // Roll over daily counters so render code never has to read the clock.
     const day = todayKey();
     if (state.today.day !== day) state = { ...state, today: { day, xp: 0 } };
@@ -229,6 +248,30 @@ function buildStore(course: Course) {
   function useProgress(): Progress {
     return useSyncExternalStore(subscribe, get, () => INITIAL_PROGRESS);
   }
+
+  return {
+    get,
+    subscribe,
+    useProgress,
+    commit,
+    setLevel(level: LevelChoice) {
+      commit({ ...get(), level });
+    },
+    setDailyGoal(goal: number) {
+      commit({ ...get(), dailyGoal: goal });
+    },
+    reset() {
+      commit(INITIAL_PROGRESS);
+    },
+  };
+}
+
+function buildStore(course: Course) {
+  const progress = getProgressStore(course);
+  const { get, subscribe, useProgress, commit } = progress;
+  const totalLessons = Object.values(course.lessons).flat().length;
+  const { pass, max } = course.exam.scale;
+  const legendScore = Math.round(pass + ((max - pass) * 2) / 3);
 
   function unlockBadge(id: BadgeId) {
     const s = get();
@@ -398,16 +441,8 @@ function buildStore(course: Course) {
       return xp;
     },
 
-    setLevel(level: LevelChoice) {
-      commit({ ...get(), level });
-    },
-
-    setDailyGoal(goal: number) {
-      commit({ ...get(), dailyGoal: goal });
-    },
-
-    reset() {
-      commit(INITIAL_PROGRESS);
-    },
+    setLevel: progress.setLevel,
+    setDailyGoal: progress.setDailyGoal,
+    reset: progress.reset,
   };
 }
