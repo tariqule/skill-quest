@@ -69,6 +69,14 @@ export function TrueFalse({ correct, submitted, onSubmit, reveal }: Props) {
     if (locked) return;
     function onKey(e: KeyboardEvent) {
       if (e.metaKey || e.ctrlKey || isTyping(e)) return;
+      // Arrows from outside the group bring focus into it, so ArrowDown then Enter answers.
+      if (/^Arrow(Up|Down|Left|Right)$/.test(e.key) && !refs.current.some((r) => r === document.activeElement)) {
+        const target = document.activeElement;
+        if (target && target !== document.body && target.closest("input,textarea,select,[role=slider],[role=tablist]")) return;
+        e.preventDefault();
+        refs.current[active]?.focus();
+        return;
+      }
       const k = e.key.toUpperCase();
       const idx = k === "T" || k === "1" ? 0 : k === "F" || k === "2" ? 1 : -1;
       if (idx < 0) return;
@@ -77,9 +85,16 @@ export function TrueFalse({ correct, submitted, onSubmit, reveal }: Props) {
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [locked, onSubmit]);
+  }, [locked, onSubmit, active]);
 
   function onArrow(e: ReactKeyboardEvent, i: number) {
+    if ((e.key === "Enter" || e.key === " ") && !locked) {
+      // Choose and check in one step; stop the page's own Enter handler from also seeing it.
+      e.preventDefault();
+      e.stopPropagation();
+      onSubmit([i]);
+      return;
+    }
     const to = moveTo(e.key, i);
     if (to === null) return;
     e.preventDefault();
@@ -121,7 +136,7 @@ export function TrueFalse({ correct, submitted, onSubmit, reveal }: Props) {
           >
             <Icon className={cn("size-5", state === "right" ? "text-success-foreground" : state === "wrong" ? "text-destructive-foreground" : "text-muted-foreground")} aria-hidden />
             {c.label}
-            <kbd className="ml-1 hidden rounded bg-muted px-1.5 text-sm font-medium text-muted-foreground sm:inline">{c.key}</kbd>
+            <kbd className="ml-1 hidden rounded border border-border bg-muted px-1.5 text-sm font-medium text-foreground/80 sm:inline">{c.key}</kbd>
           </m.button>
         );
       })}

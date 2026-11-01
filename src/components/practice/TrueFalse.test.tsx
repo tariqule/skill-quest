@@ -72,4 +72,19 @@ describe("TrueFalse", () => {
     key(document.body, "t");
     expect(onSubmit).not.toHaveBeenCalled();
   });
+
+  it("ArrowDown then Enter or Space chooses and submits", () => {
+    const a = mount();
+    act(() => a.radios[0].focus());
+    key(a.radios[0], "ArrowDown");
+    expect(document.activeElement).toBe(a.radios[1]);
+    key(a.radios[1], "Enter");
+    expect(a.onSubmit).toHaveBeenCalledWith([1]);
+    act(() => root?.unmount());
+    document.body.innerHTML = "";
+    const b = mount();
+    act(() => b.radios[0].focus());
+    key(b.radios[0], " ");
+    expect(b.onSubmit).toHaveBeenCalledWith([0]);
+  });
 });

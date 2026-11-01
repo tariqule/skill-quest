@@ -68,7 +68,7 @@ export function LessonReader({
           <span key={k} className="h-1.5 flex-1 rounded-full bg-muted transition-colors duration-200 motion-reduce:transition-none" style={k <= i ? { background: color } : undefined} />
         ))}
       </div>
-      <p className="mt-2 text-sm text-muted-foreground" aria-live="polite">
+      <p className="mt-2 text-sm text-foreground/80" aria-live="polite">
         {ready ? "All done reading" : `Card ${i + 1} of ${steps.length}`}
       </p>
 

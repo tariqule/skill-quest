@@ -54,14 +54,17 @@ export function GuideContent({ initialTab = "exam" }: { compact?: boolean; initi
 
 function ExamTab() {
   const { course } = useCourse();
+  const maxWeight = Math.max(...course.domains.map((d) => d.weight), 1);
+  // One teal hue, darker to lighter by weight; the % and name labels carry the meaning, not the colour.
+  const shade = (w: number) => `color-mix(in oklab, var(--primary) ${Math.round(35 + (65 * w) / maxWeight)}%, var(--muted))`;
   return (
     <div className="grid gap-4">
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-2 min-[400px]:grid-cols-2">
         {course.guide.facts.map((f) => (
           <div key={f.label} className="rounded-xl border border-border bg-card p-3">
-            <div className="text-sm font-medium text-muted-foreground">{f.label}</div>
+            <div className="text-sm font-medium text-foreground/80">{f.label}</div>
             <div className="text-xl font-semibold text-foreground">{f.value}</div>
-            <div className="mt-1 text-sm text-muted-foreground">{f.detail}</div>
+            <div className="mt-1 text-sm text-foreground/80">{f.detail}</div>
           </div>
         ))}
       </div>
@@ -70,11 +73,11 @@ function ExamTab() {
         <div className="grid gap-1.5">
           {course.domains.map((d) => (
             <div key={d.id} className="grid grid-cols-[2.5rem_1fr] items-center gap-2 text-sm">
-              <span className="text-right font-semibold" style={{ color: d.color }}>
+              <span className="text-right font-semibold text-foreground">
                 {d.weight}%
               </span>
               <div>
-                <div className="h-2 rounded-full" style={{ width: `${d.weight * 3.3}%`, background: d.color }} />
+                <div className="h-2 rounded-full" style={{ width: `${(d.weight / maxWeight) * 100}%`, background: shade(d.weight) }} />
                 <div className="mt-0.5 text-sm text-foreground">
                   {d.name}
                 </div>
@@ -90,9 +93,9 @@ function ExamTab() {
             <div key={t.id} className="rounded-xl bg-muted p-2 text-sm">
               <b className="text-foreground">
                 {t.name}
-                {t.practiceOnly && <span className="ml-1.5 rounded bg-background px-1.5 py-0.5 text-sm font-medium text-muted-foreground">practice only</span>}
+                {t.practiceOnly && <span className="ml-1.5 rounded bg-background px-1.5 py-0.5 text-sm font-medium text-foreground/80">practice only</span>}
               </b>
-              <div className="text-sm text-muted-foreground">{t.rule}</div>
+              <div className="text-sm text-foreground/80">{t.rule}</div>
             </div>
           ))}
         </div>
@@ -108,7 +111,7 @@ function TopicsTab() {
   const done = allLessons.filter((l) => p.lessonsDone.includes(l.id)).length;
   return (
     <div className="grid gap-4">
-      <div className="rounded-xl border border-border bg-card p-3 text-sm text-muted-foreground">
+      <div className="rounded-xl border border-border bg-card p-3 text-sm text-foreground/80">
         Every topic in the {courseCopy(course).syllabus}, and the missions that teach it.{" "}
         <b className="text-foreground">
           {done}/{allLessons.length}
@@ -118,11 +121,11 @@ function TopicsTab() {
       {course.domains.map((d) => (
         <details key={d.id} className="group rounded-xl border border-border bg-card" open={false}>
           <summary className="flex min-h-11 cursor-pointer items-center gap-2 p-3">
-            <span className="size-2.5 shrink-0 rounded-full" style={{ background: d.color }} aria-hidden />
+            <span className="size-2.5 shrink-0 rounded-full bg-primary" aria-hidden />
             <span className="flex-1 font-bold text-foreground">
               {d.number}. {d.name}
             </span>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm text-foreground/80">
               {course.lessons[d.id].filter((l) => p.lessonsDone.includes(l.id)).length}/{course.lessons[d.id].length}
             </span>
           </summary>
@@ -132,9 +135,9 @@ function TopicsTab() {
               return (
                 <div key={t.id} className="rounded-lg bg-muted p-3">
                   <div className="text-sm font-bold text-foreground">
-                    <span style={{ color: d.color }}>Task {t.id}</span> {t.title}
+                    <span className="text-primary">Task {t.id}</span> {t.title}
                   </div>
-                  <ul className="mt-1.5 grid list-disc gap-1 pl-5 text-sm text-muted-foreground">
+                  <ul className="mt-1.5 grid list-disc gap-1 pl-5 text-sm text-foreground/80">
                     {t.covers.map((c) => (
                       <li key={c}>{c}</li>
                     ))}
@@ -181,14 +184,13 @@ function GlossaryTab() {
       />
       <div className="mt-3 grid gap-1.5">
         {terms.map((c) => {
-          const d = course.domains.find((x) => x.id === c.domain)!;
           return (
-            <div key={c.id} className="rounded-lg bg-muted px-3 py-2 text-sm" style={{ boxShadow: `inset 3px 0 0 0 ${d.color}` }}>
-              <b className="text-foreground"><RichText text={c.term} /></b> <span className="text-muted-foreground">· <RichText text={c.definition} /></span>
+            <div key={c.id} className="rounded-lg bg-muted px-3 py-2 text-sm" style={{ boxShadow: "inset 3px 0 0 0 var(--primary)" }}>
+              <b className="text-foreground"><RichText text={c.term} /></b> <span className="text-foreground/80">· <RichText text={c.definition} /></span>
             </div>
           );
         })}
-        {terms.length === 0 && <div className="text-sm text-muted-foreground">No match. Try a shorter word.</div>}
+        {terms.length === 0 && <div className="text-sm text-foreground/80">No match. Try a shorter word.</div>}
       </div>
     </div>
   );
@@ -198,7 +200,7 @@ function ServicesTab() {
   const { course } = useCourse();
   return (
     <div className="grid gap-3">
-      <p className="text-sm text-muted-foreground">{course.guide.scope.label} from the {courseCopy(course).syllabus}.</p>
+      <p className="text-sm text-foreground/80">{course.guide.scope.label} from the {courseCopy(course).syllabus}.</p>
       {course.guide.scope.groups.map((c) => (
         <div key={c.category} className="rounded-xl border border-border bg-card p-3">
           <div className="text-sm font-semibold text-foreground">
@@ -239,7 +241,7 @@ function TipsTab() {
 function PlayTab() {
   const { course, href } = useCourse();
   return (
-    <div className="grid gap-3 text-sm text-muted-foreground">
+    <div className="grid gap-3 text-sm text-foreground/80">
       <div className="flex items-center gap-3 rounded-xl border border-primary/40 bg-primary/10 p-3 text-foreground">
         <Map className="size-6 shrink-0 text-primary" aria-hidden />
         <span>Follow the mission map from top to bottom. Each step teaches before it tests.</span>
@@ -273,7 +275,7 @@ function PlayTab() {
 function SourceNote() {
   const { source } = useCourse().course.guide;
   return (
-    <p className="text-sm text-muted-foreground">
+    <p className="text-sm text-foreground/80">
       Based on the {source.label} {versionLabel(source.version)} ({source.date}).{" "}
       <a href={source.url} target="_blank" rel="noreferrer" className="underline">
         Read the official guide

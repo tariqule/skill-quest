@@ -401,6 +401,18 @@ samp {
   font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.9375em;
 }
+/* Reading text in lessons and question cards: 17px on phones, 18px from 640px, 1.6 line height. */
+@utility text-reading {
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  @media (width >= 40rem) {
+    font-size: 1.125rem;
+  }
+}
+/* Keyboard hints stay legible (>=14px) even inside small text. */
+kbd {
+  font-size: max(0.875rem, 0.9375em);
+}
 
 /* ───────── Print (cheat sheet) ───────── */
 @media print {

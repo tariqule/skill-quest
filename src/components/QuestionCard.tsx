@@ -5,6 +5,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { AnswerFeedback } from "./feedback/AnswerFeedback";
 import { ChoiceOption, optionState } from "./feedback/ChoiceOption";
 import { useCourse } from "@/engine/course-context";
+import { useHoldToasts } from "@/engine/ui-state";
 import { decodeText, encodeText, isCorrect, normalizeOutput, type PreparedQuestion } from "@/engine/game";
 import type { TablePreview } from "@/engine/types";
 import { setGuideOpen } from "@/engine/ui-state";
@@ -42,7 +43,9 @@ interface Props {
 }
 
 export function QuestionCard({ q, submitted, onSubmit, reveal = true, showDomain = false, explain = true, note }: Props) {
-  const { domain: domainById, lessonForQuestion } = useCourse();
+  const { domain: domainById, lessonForQuestion, course } = useCourse();
+  // Badge and level toasts wait until the learner leaves the question flow.
+  useHoldToasts();
   const domain = domainById[q.domain];
   const concept = lessonForQuestion[q.id];
   const [showConcept, setShowConcept] = useState(false);
@@ -77,6 +80,7 @@ export function QuestionCard({ q, submitted, onSubmit, reveal = true, showDomain
 
       {tf && <TrueFalse correct={q.correct[0]} submitted={submitted} onSubmit={onSubmit} reveal={reveal} />}
       {q.kind === "choice" && !tf && <ChoiceBody q={q} submitted={submitted} onSubmit={onSubmit} reveal={reveal} />}
+      {q.kind === "choice" && !locked && (tf || q.correct.length === 1) && <KeyHint keys={tf ? ["T", "F"] : [`1–${q.shuffled.length}`]} mode={tf ? "tf" : q.correct.length > 1 ? "multi" : "single"} />}
       {q.kind === "order" && <OrderBody q={q} submitted={submitted} onSubmit={onSubmit} reveal={reveal} />}
       {q.kind === "match" && <MatchBody q={q} submitted={submitted} onSubmit={onSubmit} reveal={reveal} />}
       {q.kind === "lines" && <LinesBody q={q} submitted={submitted} onSubmit={onSubmit} reveal={reveal} />}
@@ -89,7 +93,7 @@ export function QuestionCard({ q, submitted, onSubmit, reveal = true, showDomain
         <AnswerFeedback
           ok={isCorrect(q, submitted)}
           note={note?.(isCorrect(q, submitted))}
-          concept={concept ? { title: concept.title, open: showConcept, onToggle: () => setShowConcept(!showConcept) } : undefined}
+          concept={concept ? { title: concept.title, href: `/c/${course.id}/lesson/${concept.id}`, open: showConcept, onToggle: () => setShowConcept(!showConcept) } : undefined}
           onOpenGuide={() => setGuideOpen(true)}
           after={
             <>
@@ -506,5 +510,23 @@ function TablesPanel({ tables }: { tables: TablePreview[] }) {
         ))}
       </div>
     </details>
+  );
+}
+
+/** One consistent keyboard hint under choice and true/false questions (hidden on touch-size screens). */
+function KeyHint({ keys, mode }: { keys: string[]; mode: "tf" | "single" | "multi" }) {
+  return (
+    <p className="mt-3 hidden items-center gap-1.5 text-sm text-foreground/75 sm:flex" data-testid="key-hint">
+      Press
+      {keys.map((k, i) => (
+        <span key={k} className="inline-flex items-center gap-1.5">
+          {i > 0 && "or"}
+          <kbd className="rounded border border-border bg-muted px-1.5 font-medium text-foreground">{k}</kbd>
+        </span>
+      ))}
+      {mode === "single" && "to answer"}
+      {mode !== "single" && (mode === "multi" ? "to pick, then" : ", or arrows then")}
+      {mode !== "single" && <kbd className="rounded border border-border bg-muted px-1.5 font-medium text-foreground">Enter</kbd>}
+    </p>
   );
 }

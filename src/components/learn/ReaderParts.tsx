@@ -39,7 +39,7 @@ export function ReaderCard({
     <m.div variants={motionSafe(cardChange, reduced)} initial="initial" animate="animate" className={`mt-4 ${step?.kind === "picture" ? "" : MEASURE}`}>
       {step?.kind === "picture" && (
         <>
-          <p className={`mb-3 text-base text-muted-foreground ${MEASURE}`}>Start with the picture. Then we&apos;ll go through it one idea at a time.</p>
+          <p className={`mb-3 text-base text-foreground/80 ${MEASURE}`}>Start with the picture. Then we&apos;ll go through it one idea at a time.</p>
           <div className="overflow-x-auto rounded-card border border-border bg-card p-3 sm:p-6">{lesson.visual}</div>
         </>
       )}
@@ -48,11 +48,11 @@ export function ReaderCard({
         <div className="flex min-h-56 flex-col justify-center rounded-card border border-border bg-card p-6 sm:p-10">
           {/* Ideas are numbered among themselves; example steps carry their own "Step k of N". */}
           {!exampleStep(step.text) && (
-            <span className="mb-4 flex size-9 items-center justify-center rounded-full text-base font-semibold text-slate-950" style={{ background: color }}>
+            <span className="mb-4 flex size-9 items-center justify-center rounded-full text-base font-semibold text-primary-foreground" style={{ background: color }}>
               {lesson.points.slice(0, step.index + 1).filter((p) => !exampleStep(p)).length}
             </span>
           )}
-          <p className="text-body leading-relaxed text-foreground sm:text-xl sm:leading-relaxed">
+          <p className="text-reading text-foreground">
             <RichText text={step.text} />
           </p>
           {lesson.pointVisuals?.[step.index] && <div className="mt-5">{lesson.pointVisuals[step.index]}</div>}
@@ -63,7 +63,7 @@ export function ReaderCard({
         <div className="flex min-h-56 flex-col justify-center rounded-card border border-warning/40 bg-warning/10 p-6 sm:p-10">
           <Lightbulb className="size-7 text-warning-foreground" aria-hidden />
           <div className="mt-3 text-sm font-semibold uppercase tracking-wider text-warning-foreground">{tipLabel}</div>
-          <p className="mt-2 text-body leading-relaxed text-foreground sm:text-xl sm:leading-relaxed">
+          <p className="mt-2 text-reading text-foreground">
             <RichText text={lesson.tip ?? ""} />
           </p>
         </div>
@@ -102,7 +102,7 @@ export function ReaderBar({
 }) {
   return (
     <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-background/95 px-4 pt-3 backdrop-blur" style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 0.75rem)" }}>
-      <div className="mx-auto flex max-w-3xl items-center gap-3">
+      <div className="mx-auto flex max-w-[680px] items-center gap-3">
         {ready ? (
           <>
             <Button type="button" variant="outline" size="xl" onClick={onRestart} className="h-12 sm:h-12">
@@ -125,9 +125,9 @@ export function ReaderBar({
             </Button>
           </>
         )}
-        <p className="hidden shrink-0 items-center gap-1 text-sm text-muted-foreground lg:flex">
-          <Kbd style={{ fontSize: "0.875rem" }}>←</Kbd>
-          <Kbd style={{ fontSize: "0.875rem" }}>→</Kbd>
+        <p className="hidden shrink-0 items-center gap-1 text-sm text-foreground/80 lg:flex">
+          <Kbd>←</Kbd>
+          <Kbd>→</Kbd>
           to move
         </p>
       </div>

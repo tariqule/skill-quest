@@ -40,6 +40,10 @@ describe("AnswerFeedback", () => {
     expect(div.querySelector('[role="status"]')?.textContent).toBe("Not quite");
     expect(div.textContent).toContain("Why: Roles are borrowed.");
     expect(div.textContent).toContain("It comes back sooner.");
+    // Gentle, not a warning box: neutral surface, amber only on the icon.
+    expect(div.querySelector("section")!.className).toContain("bg-card");
+    expect(div.querySelector("section")!.className).not.toContain("bg-warning");
+    expect(div.querySelector("svg")!.getAttribute("class")).toContain("text-warning");
     const link = div.querySelector("a")!;
     expect(link.getAttribute("href")).toBe("/c/x/lesson/k");
     expect(link.textContent).toContain("Keycards");
@@ -52,10 +56,12 @@ describe("AnswerFeedback", () => {
     expect(div.querySelector("section")!.dataset.verdict).toBe("correct");
   });
 
-  it("toggles an inline concept and reports its state", () => {
+  it("toggles an inline concept through a real link and reports its state", () => {
     const onToggle = vi.fn();
-    const div = render(<AnswerFeedback ok concept={{ title: "Roles", open: false, onToggle }} />);
-    const btn = div.querySelector("button")!;
+    const div = render(<AnswerFeedback ok concept={{ title: "Roles", href: "/c/x/lesson/r", open: false, onToggle }} />);
+    const btn = div.querySelector("a")!;
+    expect(btn.getAttribute("href")).toBe("/c/x/lesson/r");
+    expect(btn.textContent).toContain("Revisit the concept: Roles");
     expect(btn.getAttribute("aria-expanded")).toBe("false");
     act(() => btn.click());
     expect(onToggle).toHaveBeenCalledOnce();

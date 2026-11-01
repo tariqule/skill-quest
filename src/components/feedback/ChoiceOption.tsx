@@ -52,7 +52,7 @@ export function ChoiceOption({
       transition={{ duration: duration.base, ease: ease.standard }}
       data-state={state}
       className={cn(
-        "flex min-h-12 w-full items-start gap-3 rounded-card border-2 px-4 py-3 text-left text-base text-foreground outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-default motion-reduce:transition-none",
+        "flex min-h-12 w-full items-start gap-3 rounded-card border-2 px-4 py-3 text-left text-reading text-foreground outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-default motion-reduce:transition-none",
         TONE[state],
       )}
     >

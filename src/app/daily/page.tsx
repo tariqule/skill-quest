@@ -17,6 +17,7 @@ import { getSrs, gradeItem } from "@/engine/srs-store";
 import { buildQueue } from "@/engine/daily-queue";
 import { completeScenario, makeOnce } from "@/engine/scenario-progress";
 import { getCourseStore } from "@/engine/store";
+import { useHoldToasts } from "@/engine/ui-state";
 import { GameItem } from "@/components/code-games/GameItem";
 import { CodeReview } from "@/components/coding/CodeReview";
 import { isChoice, type Card, type ChoiceQuestion, type Course } from "@/engine/types";
@@ -44,6 +45,8 @@ function Session() {
   const [i, setI] = useState(0);
   const [right, setRight] = useState(0);
   const [once] = useState(makeOnce);
+  // Badge toasts wait for the finish screen instead of popping up mid-review.
+  useHoldToasts(i < queue.length);
 
   if (queue.length === 0) {
     return (
@@ -84,7 +87,7 @@ function Session() {
 
   return (
     <div className="mt-6 max-w-3xl">
-      <div className="mb-2 flex items-center justify-between text-sm text-muted-foreground">
+      <div className="mb-2 flex items-center justify-between text-sm text-foreground/80">
         <span>
           {i + 1} / {queue.length}
         </span>
@@ -124,7 +127,7 @@ const GRADES: { id: ReviewGrade; label: string; hint: string }[] = [
 ];
 
 const CARD = "rounded-card border border-border bg-card p-5 sm:p-7";
-const EYEBROW = "text-sm font-medium text-muted-foreground";
+const EYEBROW = "text-sm font-medium text-foreground/80";
 
 function CardItem({ card, onGrade }: { card: Card; onGrade: (g: ReviewGrade) => void }) {
   const [shown, setShown] = useState(false);
@@ -142,7 +145,7 @@ function CardItem({ card, onGrade }: { card: Card; onGrade: (g: ReviewGrade) => 
             {GRADES.map((g) => (
               <Button key={g.id} type="button" variant={g.id === "good" ? "default" : "outline"} onClick={() => onGrade(g.id)} className="h-auto min-h-14 flex-col gap-0 py-2 sm:h-auto">
                 <span className="text-base font-semibold">{g.label}</span>
-                <span className="text-sm font-normal opacity-80">{g.hint}</span>
+                <span className="text-sm font-normal">{g.hint}</span>
               </Button>
             ))}
           </div>

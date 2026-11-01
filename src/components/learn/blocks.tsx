@@ -1,5 +1,6 @@
 "use client";
 
+import { BlockIcon } from "./block-icons";
 import { RichText } from "./code";
 import { useState } from "react";
 
@@ -30,9 +31,9 @@ export function Flow({ steps, color = "#38bdf8", loop }: { steps: FlowStep[]; co
               className="w-full rounded-xl border bg-slate-950/60 p-3 text-center transition hover:-translate-y-0.5"
               style={{ borderColor: active === i ? color : "rgb(255 255 255 / 0.1)", boxShadow: active === i ? `0 0 0 3px ${color}33` : undefined }}
             >
-              <div className="text-2xl">{s.icon}</div>
+              <div className="flex justify-center"><BlockIcon icon={s.icon} /></div>
               <div className="mt-1 text-sm font-semibold leading-tight text-white">{s.label}</div>
-              {s.sub && (active === i || steps.length <= 4) && <div className="mt-1 text-xs leading-snug text-slate-400">{s.sub}</div>}
+              {s.sub && (active === i || steps.length <= 4) && <div className="mt-1 text-sm leading-snug text-slate-300">{s.sub}</div>}
             </button>
             {i < steps.length - 1 && (
               <span className="text-lg text-slate-400 sm:shrink-0" aria-hidden>
@@ -43,8 +44,8 @@ export function Flow({ steps, color = "#38bdf8", loop }: { steps: FlowStep[]; co
           </div>
         ))}
       </div>
-      {loop && <div className="mt-2 text-center text-xs text-slate-400">↺ {loop}</div>}
-      {steps.length > 4 && <div className="mt-2 text-center text-[11px] text-slate-400">Tap a step for details</div>}
+      {loop && <div className="mt-2 text-center text-sm text-slate-300">↺ {loop}</div>}
+      {steps.length > 4 && <div className="mt-2 text-center text-sm text-slate-300">Tap a step for details</div>}
     </div>
   );
 }
@@ -67,7 +68,7 @@ export function Tiles({ tiles, cols = 2 }: { tiles: Tile[]; cols?: 2 | 3 | 4 }) 
           style={t.color ? { boxShadow: `inset 3px 0 0 0 ${t.color}` } : undefined}
         >
           <div className="flex items-center gap-2">
-            <span className="text-2xl">{t.icon}</span>
+            <BlockIcon icon={t.icon} />
             <span className="font-semibold text-white">{t.title}</span>
           </div>
           <p className="mt-1.5 text-base leading-normal text-slate-300"><RichText text={t.text} /></p>
@@ -128,7 +129,7 @@ export function Ladder({ rungs, caption, dollars = false }: { rungs: { icon: str
           className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950/60 p-3"
           style={{ marginLeft: `${i * 6}%`, boxShadow: `inset 4px 0 0 0 hsl(${140 - i * 40} 70% 55%)` }}
         >
-          <span className="text-2xl" aria-hidden="true">{r.icon}</span>
+          <BlockIcon icon={r.icon} />
           <div className="min-w-0">
             <div className="font-semibold text-white">
               {i + 1}. {r.name}

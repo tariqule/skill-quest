@@ -27,6 +27,9 @@ import { lessonGate, moduleLessonLabel, nextMapLesson } from "@/engine/practice"
  */
 type Phase = "teach" | "check" | "recap" | "timed" | "done";
 
+/** Lessons and checks use the teal primary for progress and accents; red is kept for wrong-answer marks. */
+const ACCENT = "var(--primary)";
+
 export function LessonPlay() {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
@@ -174,18 +177,18 @@ export function LessonPlay() {
           : "Read why. You'll see it again at the end.";
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 py-5 sm:py-8">
+    <main className="mx-auto w-full max-w-[712px] px-4 py-5 sm:py-8">
       <div className="flex items-center gap-3">
         <Link href={href()} aria-label="Back to path" className="-ml-2 flex size-11 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring">
           <X className="size-6" aria-hidden />
         </Link>
         <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-muted" role="progressbar" aria-label="Lesson progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(stepProgress * 100)}>
-          <div className="h-full rounded-full transition-[width] duration-200 motion-reduce:transition-none" style={{ width: pct(stepProgress), background: domain.color }} />
+          <div className="h-full rounded-full transition-[width] duration-200 motion-reduce:transition-none" style={{ width: pct(stepProgress), background: ACCENT }} />
         </div>
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center gap-2 text-sm font-medium text-muted-foreground">
-        <span className="size-2.5 rounded-full" style={{ background: domain.color }} aria-hidden />
+      <div className="mt-4 flex flex-wrap items-center gap-2 text-sm font-medium text-foreground/80">
+        <span className="size-2.5 rounded-full" style={{ background: ACCENT }} aria-hidden />
         <span>{gentle || moduleLabel ? lessonLabel : `World ${domain.number} · ${lessonLabel}`}</span>
         {!gentle && <span className="rounded-full bg-muted px-2.5 py-0.5 text-foreground">{copy.task} {lesson.task}</span>}
       </div>
@@ -195,14 +198,14 @@ export function LessonPlay() {
       )}
 
       {phase === "teach" && gentle && gateNeeds.length === 0 && (
-        <LessonReader lesson={lesson} color={domain.color} tipLabel={copy.tip} questionCount={lesson.check.length} onDone={startCheck} />
+        <LessonReader lesson={lesson} color={ACCENT} tipLabel={copy.tip} questionCount={lesson.check.length} onDone={startCheck} />
       )}
 
       {phase === "teach" && !gentle && gateNeeds.length === 0 && (
         <div className="card-in">
           <h1 data-reading className="mt-3 max-w-[680px] font-heading text-h4 font-semibold leading-tight text-foreground sm:text-h3">{lesson.title}</h1>
           <div className="mt-5 overflow-x-auto rounded-card border border-border bg-card p-4 sm:p-6">{lesson.visual}</div>
-          <LessonPoints points={lesson.points} tip={lesson.tip} tipLabel={copy.tip} color={domain.color} />
+          <LessonPoints points={lesson.points} tip={lesson.tip} tipLabel={copy.tip} color={ACCENT} />
           <SourcesFooter sources={lesson.sources} />
           <StickyBar>
             <Button type="button" size="xl" onClick={startCheck} className="h-12 w-full sm:h-12">
@@ -247,7 +250,7 @@ export function LessonPlay() {
             <Zap className="size-6 text-warning-foreground" aria-hidden />
             Quick recap: {lesson.title}
           </h1>
-          <LessonPoints points={lesson.points} tip={lesson.tip} tipLabel={copy.tip} color={domain.color} />
+          <LessonPoints points={lesson.points} tip={lesson.tip} tipLabel={copy.tip} color={ACCENT} />
           <SourcesFooter sources={lesson.sources} />
 
           {missed.length > 0 && (
@@ -300,7 +303,7 @@ export function LessonPlay() {
             secondsPerQuestion={challenge.secondsPerQuestion}
             passShare={challenge.passShare}
             xpPerCorrect={xp.timedCorrect}
-            color={domain.color}
+            color={ACCENT}
             onFinish={timedFinished}
           />
         </div>

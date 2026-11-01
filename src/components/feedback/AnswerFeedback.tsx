@@ -8,7 +8,7 @@ import { correctPop, motionSafe, wrongShake } from "@/design/motion";
 import { cn } from "@/lib/utils";
 
 /** Where "Revisit the concept" goes: a lesson page, or an inline toggle when the learner is already mid-lesson. */
-export type ConceptLink = { title: string; href: string } | { title: string; open: boolean; onToggle: () => void };
+export type ConceptLink = { title: string; href: string } | { title: string; href?: string; open: boolean; onToggle: () => void };
 
 export interface AnswerFeedbackProps {
   ok: boolean;
@@ -45,7 +45,7 @@ export function AnswerFeedback({ ok, note, children, concept, onOpenGuide, after
     <section
       aria-label="Answer feedback"
       data-verdict={ok ? "correct" : "wrong"}
-      className={cn("mt-5 rounded-card border p-4 sm:p-5", ok ? "border-success/40 bg-success/10" : "border-warning/40 bg-warning/10", className)}
+      className={cn("mt-5 rounded-card border p-4 sm:p-5", ok ? "border-success/40 bg-success/10" : "border-border bg-card", className)}
     >
       <m.p
         ref={heading}
@@ -54,14 +54,14 @@ export function AnswerFeedback({ ok, note, children, concept, onOpenGuide, after
         variants={motionSafe(ok ? correctPop : wrongShake, reduced)}
         initial="initial"
         animate="animate"
-        className={cn("flex items-center gap-2 text-lg font-semibold outline-none", ok ? "text-success-foreground" : "text-warning-foreground")}
+        className={cn("flex items-center gap-2 text-lg font-semibold outline-none", ok ? "text-success-foreground" : "text-foreground")}
       >
-        <Icon className="size-5 shrink-0" aria-hidden />
+        <Icon className={cn("size-5 shrink-0", !ok && "text-warning")} aria-hidden />
         {verdictText(ok)}
       </m.p>
       {note && <p className="mt-1 text-base text-foreground">{note}</p>}
       {children && (
-        <div className="mt-3 text-base leading-relaxed text-foreground">
+        <div className="mt-3 text-reading text-foreground">
           <span className="font-semibold">Why: </span>
           {children}
         </div>
@@ -69,25 +69,29 @@ export function AnswerFeedback({ ok, note, children, concept, onOpenGuide, after
       {after}
       {(concept || onOpenGuide) && (
         <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1">
-          {concept && "href" in concept && (
-            <Link href={concept.href} className="inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-info-foreground underline-offset-4 hover:underline focus-visible:underline">
-              <BookOpen className="size-4" aria-hidden />
-              Revisit the lesson: {concept.title}
+          {concept && !("onToggle" in concept) && (
+            <Link href={concept.href} className="inline-flex min-h-11 items-center gap-2 rounded-md text-base font-semibold text-primary underline decoration-primary/40 underline-offset-4 hover:decoration-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
+              <BookOpen className="size-5 shrink-0" aria-hidden />
+              Revisit the concept: {concept.title}
             </Link>
           )}
           {concept && "onToggle" in concept && (
-            <button
-              type="button"
-              onClick={concept.onToggle}
+            <Link
+              href={concept.href ?? "#concept"}
+              onClick={(e) => {
+                if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+                e.preventDefault();
+                concept.onToggle();
+              }}
               aria-expanded={concept.open}
-              className="inline-flex min-h-11 items-center gap-1.5 text-left text-sm font-medium text-info-foreground underline-offset-4 hover:underline focus-visible:underline"
+              className="inline-flex min-h-11 items-center gap-2 rounded-md text-base font-semibold text-primary underline decoration-primary/40 underline-offset-4 hover:decoration-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring text-left"
             >
-              <BookOpen className="size-4 shrink-0" aria-hidden />
+              <BookOpen className="size-5 shrink-0" aria-hidden />
               {concept.open ? "Hide" : "Revisit"} the concept: {concept.title}
-            </button>
+            </Link>
           )}
           {onOpenGuide && (
-            <button type="button" onClick={onOpenGuide} className="inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
+            <button type="button" onClick={onOpenGuide} className="inline-flex min-h-11 items-center gap-1.5 text-base font-medium text-foreground/80 underline-offset-4 hover:text-foreground hover:underline">
               <Search className="size-4" aria-hidden />
               Open the guide
             </button>

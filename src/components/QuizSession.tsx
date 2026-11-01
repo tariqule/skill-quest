@@ -37,7 +37,7 @@ export function QuizSession({
   buildDeck,
   hearts: maxHearts,
   baseXp = 10,
-  color = "#38bdf8",
+  color: _color,
   showDomain,
   onComplete,
   emptyMessage,
@@ -198,10 +198,10 @@ export function QuizSession({
 
   const outOfHearts = maxHearts !== undefined && hearts <= 0;
   return (
-    <div>
+    <div className="mx-auto w-full max-w-[680px]">
       <div className="mb-4 flex items-center gap-4">
         <div className="flex-1">
-          <div className="mb-1.5 flex justify-between text-sm text-muted-foreground">
+          <div className="mb-1.5 flex justify-between text-sm text-foreground/80">
             <span>
               Question {idx + 1} of {deck.length}
             </span>
@@ -212,7 +212,7 @@ export function QuizSession({
               </span>
             )}
           </div>
-          <Bar value={(idx + (submitted ? 1 : 0)) / deck.length} color={color} />
+          <Bar value={(idx + (submitted ? 1 : 0)) / deck.length} color="var(--primary)" />
         </div>
         {maxHearts !== undefined && (
           <div className="flex gap-0.5" role="img" aria-label={`${hearts} of ${maxHearts} hearts left`}>

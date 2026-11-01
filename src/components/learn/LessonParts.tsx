@@ -7,8 +7,8 @@ export function LessonPoints({ points, tip, tipLabel, color }: { points: string[
   return (
     <ul className="mt-5 grid max-w-[680px] gap-2">
       {points.map((pt, i) => (
-        <li key={i} className="flex gap-3 rounded-card border border-border bg-card p-4 text-body leading-relaxed text-foreground">
-          <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-slate-950" style={{ background: color }}>
+        <li key={i} className="flex gap-3 rounded-card border border-border bg-card p-4 text-reading text-foreground">
+          <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-primary-foreground" style={{ background: color }}>
             {i + 1}
           </span>
           <span>
@@ -17,7 +17,7 @@ export function LessonPoints({ points, tip, tipLabel, color }: { points: string[
         </li>
       ))}
       {tip && (
-        <li className="flex gap-3 rounded-card border border-warning/40 bg-warning/10 p-4 text-body leading-relaxed text-foreground">
+        <li className="flex gap-3 rounded-card border border-warning/40 bg-warning/10 p-4 text-reading text-foreground">
           <Lightbulb className="mt-1 size-5 shrink-0 text-warning-foreground" aria-hidden />
           <span>
             <b className="font-semibold text-warning-foreground">{tipLabel}: </b>
