@@ -1,7 +1,8 @@
 "use client";
 
 import { Binary, Bug, Check, CircleDot, Eye, Link2, ListChecks, ListOrdered, Puzzle, Scale, Table2, ToyBrick, X, type LucideIcon } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { Button } from "./ui/button";
 import { AnswerFeedback } from "./feedback/AnswerFeedback";
 import { ChoiceOption, optionState } from "./feedback/ChoiceOption";
 import { useCourse } from "@/engine/course-context";
@@ -13,6 +14,9 @@ import { BugBody, OutputChoices, ParsonsBody, TraceSteps } from "./code-games/bo
 import { isTyping } from "./keyboard";
 import { CodeBlock, RichText, Tokens } from "./learn/code";
 import { TrueFalse } from "./practice/TrueFalse";
+
+/** Practice grades on Submit; the exam only records, so the same button reads "Save answer". */
+const SubmitLabel = createContext("Submit");
 
 const LETTERS = ["A", "B", "C", "D", "E", "F", "G"];
 
@@ -55,6 +59,7 @@ export function QuestionCard({ q, submitted, onSubmit, reveal = true, showDomain
   const KindIcon = label.icon;
 
   return (
+    <SubmitLabel.Provider value={reveal ? "Submit" : "Save answer"}>
     <div className="rounded-card border border-border bg-card p-5 text-card-foreground sm:p-7">
       <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm font-medium text-muted-foreground">
         <span className="inline-flex items-center gap-1.5">
@@ -117,6 +122,7 @@ export function QuestionCard({ q, submitted, onSubmit, reveal = true, showDomain
         </AnswerFeedback>
       )}
     </div>
+    </SubmitLabel.Provider>
   );
 }
 
@@ -468,14 +474,9 @@ function OutputBody({ q, submitted, onSubmit, reveal }: BodyProps) {
 
 function SubmitButton({ disabled, onClick }: { disabled: boolean; onClick: () => void }) {
   return (
-    <button
-      type="button"
-      disabled={disabled}
-      onClick={onClick}
-      className="mt-5 inline-flex min-h-11 items-center rounded-lg bg-primary px-5 font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
-    >
-      Submit
-    </button>
+    <Button size="lg" disabled={disabled} onClick={onClick} className="mt-5">
+      {useContext(SubmitLabel)}
+    </Button>
   );
 }
 

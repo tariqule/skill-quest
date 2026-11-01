@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { AppBar } from "@/components/Hud";
 
 export const metadata: Metadata = { title: "Credits · SkillQuest" };
 
@@ -25,8 +25,8 @@ function Table({ rows }: { rows: typeof LIBRARIES }) {
   return (
     <ul className="mt-3 grid gap-2">
       {rows.map((r) => (
-        <li key={r.name} className="rounded-xl border border-border bg-card p-3">
-          <a href={r.url} target="_blank" rel="noopener noreferrer" className="text-base font-bold text-primary underline hover:text-primary">
+        <li key={r.name} className="rounded-card border border-border bg-card p-4">
+          <a href={r.url} target="_blank" rel="noopener noreferrer" className="text-base font-semibold text-primary underline underline-offset-4">
             {r.name}
           </a>
           <span className="ml-2 rounded bg-muted px-1.5 py-0.5 text-sm text-foreground">{r.license}</span>
@@ -39,11 +39,10 @@ function Table({ rows }: { rows: typeof LIBRARIES }) {
 
 export default function Credits() {
   return (
+    <>
+    <AppBar />
     <main className="mx-auto w-full max-w-3xl px-4 py-8 text-base">
-      <Link href="/" className="text-sm font-bold text-primary hover:text-primary">
-        ← Home
-      </Link>
-      <h1 className="mt-2 text-3xl font-semibold text-foreground">Credits</h1>
+      <h1 className="text-3xl font-semibold text-foreground">Credits</h1>
       <p className="mt-2 text-muted-foreground">
         SkillQuest is built on open-source software and open educational content. Lessons that draw on an outside source list it in a Sources footer. Practice questions are written for SkillQuest and are not real exam questions.
       </p>
@@ -53,5 +52,6 @@ export default function Credits() {
       <Table rows={CONTENT} />
       <p className="mt-6 text-sm text-muted-foreground">AWS, Google Cloud, Microsoft Azure, Kubernetes and CNCF are trademarks of their owners. SkillQuest isn&apos;t affiliated with or endorsed by them.</p>
     </main>
+    </>
   );
 }

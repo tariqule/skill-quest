@@ -22,9 +22,11 @@ export function Hero({ compact = false }: { compact?: boolean }) {
     );
   }
   return (
-    <section aria-labelledby="hero-h" className="relative isolate max-w-3xl">
-      {/* Decorative drift behind the first-visit hero only; lazy chunk, still under reduced motion. */}
-      <HeroParticles className="pointer-events-none absolute -inset-x-4 -inset-y-6 -z-10 size-[calc(100%+3rem)] opacity-70 [mask-image:radial-gradient(ellipse_at_30%_40%,black,transparent_75%)]" />
+    <section aria-labelledby="hero-h" className="relative isolate">
+      {/* Decorative drift across the whole hero band, behind the text; lazy chunk, one still frame under reduced motion.
+          Explicit width/height (not size-full) so the canvas bleeds 1rem/1.5rem past the text on every side. */}
+      <HeroParticles className="pointer-events-none absolute -left-4 -top-6 -z-10 h-[calc(100%+3rem)] w-[calc(100%+2rem)] opacity-60 [mask-image:radial-gradient(ellipse_at_center,black_45%,transparent_100%)]" />
+      <div className="max-w-3xl">
       <h1 id="hero-h" className="font-heading text-h2 font-semibold tracking-tight text-foreground sm:text-h1">
         Learn tech skills, one small step at a time.
       </h1>
@@ -39,6 +41,7 @@ export function Hero({ compact = false }: { compact?: boolean }) {
           </li>
         ))}
       </ul>
+      </div>
     </section>
   );
 }

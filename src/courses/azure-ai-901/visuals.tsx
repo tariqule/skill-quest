@@ -119,7 +119,7 @@ type Pattern = "bursty" | "steady" | "batch";
 
 const RESIDENCY: { id: Residency; label: string }[] = [
   { id: "none", label: "Any Azure region is fine" },
-  { id: "zone", label: "🇪🇺 Stay inside a data zone (EU, US, APAC)" },
+  { id: "zone", label: "Stay inside a data zone (EU, US, APAC)" },
   { id: "geo", label: "Stay inside one Azure geography" },
 ];
 

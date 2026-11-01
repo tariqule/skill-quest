@@ -1,10 +1,10 @@
 "use client";
 
+import { PartyPopperIcon } from "lucide-react";
 import { QuizSession } from "@/components/QuizSession";
 import { PageShell } from "@/components/ui";
 import { useCourse, useProgress } from "@/engine/course-context";
 import { deck, missedQuestions } from "@/engine/game";
-import { BlockIcon } from "@/components/learn/block-icons";
 
 export default function ReviewPage() {
   const { course, store } = useCourse();
@@ -21,7 +21,7 @@ export default function ReviewPage() {
         buildDeck={() => deck(missedQuestions(course, store.get()), maxQuestions)}
         emptyMessage={
           <>
-            <div className="text-5xl"><BlockIcon icon="🎉" className="inline-block size-[1.1em] align-[-0.15em]" /></div>
+            <div className="text-5xl"><PartyPopperIcon aria-hidden="true" className="inline-block size-[1.1em] align-[-0.15em]" /></div>
             <p className="mt-3">No mistakes to review. Go play a mission or a trial.</p>
           </>
         }

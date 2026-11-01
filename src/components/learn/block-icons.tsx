@@ -59,7 +59,8 @@ const MAP: Record<string, LucideIcon> = {
 
 const MARK_LABEL: Record<string, string> = { "✓": "correct", "✔": "correct", "✅": "correct", "✗": "incorrect", "✕": "incorrect", "✖": "incorrect", "✘": "incorrect", "❌": "incorrect" };
 
-const EMOJI = /\p{Extended_Pictographic}|\u20e3/u;
+/** Pictographs, keycaps and regional-indicator pairs (flag emoji). */
+const EMOJI = /\p{Extended_Pictographic}|\u20e3|\p{Regional_Indicator}/u;
 const KEYCAP = /^([0-9#])\ufe0f?\u20e3$/u;
 
 /** A Lucide icon for an emoji, or null when the string is plain text (λ, ▲, $) that should render as is. */

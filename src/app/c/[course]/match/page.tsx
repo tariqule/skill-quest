@@ -1,12 +1,13 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { FlagIcon, PuzzleIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { RichText } from "@/components/learn/code";
-import { Button, PageShell } from "@/components/ui";
+import { PageShell } from "@/components/ui";
 import { useCourse, useProgress } from "@/engine/course-context";
 import { shuffle } from "@/engine/game";
 import type { Card } from "@/engine/types";
-import { BlockIcon } from "@/components/learn/block-icons";
 
 type Phase = "intro" | "play" | "done";
 
@@ -80,16 +81,16 @@ export default function MatchPage() {
           </p>
           <ul className="mt-4 grid gap-2 text-sm text-muted-foreground">
             <li>
-              <BlockIcon icon="🏁" className="inline-block size-[1.1em] align-[-0.15em]" /> Up to {xpCfg.matchMax} XP, minus {xpCfg.matchMistakePenalty} per mismatch
+              <FlagIcon aria-hidden="true" className="inline-block size-[1.1em] align-[-0.15em]" /> Up to {xpCfg.matchMax} XP, minus {xpCfg.matchMistakePenalty} per mismatch
             </li>
-            <li><BlockIcon icon="🧩" className="inline-block size-[1.1em] align-[-0.15em]" /> Finish in {badgeSeconds} seconds or less for the Speed Matcher badge</li>
+            <li><PuzzleIcon aria-hidden="true" className="inline-block size-[1.1em] align-[-0.15em]" /> Finish in {badgeSeconds} seconds or less for the Speed Matcher badge</li>
           </ul>
           {progress.matchBestSeconds !== null && (
             <p className="mt-4 text-sm text-muted-foreground">
-              Best time: <span className="font-bold text-foreground">{progress.matchBestSeconds}s</span>
+              Best time: <span className="font-semibold text-foreground">{progress.matchBestSeconds}s</span>
             </p>
           )}
-          <Button onClick={start} className="mt-6">
+          <Button size="lg" onClick={start} className="mt-6">
             Start matching
           </Button>
         </div>
@@ -113,7 +114,7 @@ export default function MatchPage() {
               </div>
             ))}
           </div>
-          <Button onClick={start} className="mt-6">
+          <Button size="lg" onClick={start} className="mt-6">
             New board
           </Button>
         </div>
@@ -174,7 +175,7 @@ export default function MatchPage() {
                       ? "shake border-destructive bg-destructive/15 text-foreground"
                       : pickedTerm
                         ? "border-border bg-muted text-foreground hover:border-primary/60 hover:bg-primary/10"
-                        : "border-border bg-white/[0.03] text-muted-foreground"
+                        : "border-border bg-card text-muted-foreground"
                 }`}
               >
                 <RichText text={d.definition} />
@@ -183,7 +184,7 @@ export default function MatchPage() {
           })}
         </div>
       </div>
-      <p className="mt-4 text-center text-xs text-muted-foreground">Pick a service on the left, then its match on the right.</p>
+      <p className="mt-4 text-center text-sm text-muted-foreground">Pick a service on the left, then its match on the right.</p>
     </PageShell>
   );
 }

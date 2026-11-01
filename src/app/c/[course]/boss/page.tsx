@@ -1,9 +1,12 @@
 "use client";
 
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { CheckIcon, MedalIcon, NotebookPenIcon, SwordsIcon, TargetIcon, TimerIcon, TrophyIcon, XIcon } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { QuestionCard } from "@/components/QuestionCard";
-import { Bar, Button, PageShell } from "@/components/ui";
+import { Bar, PageShell } from "@/components/ui";
 import { courseCopy } from "@/engine/copy";
 import { useCourse, useLevelPool, useProgress } from "@/engine/course-context";
 import { isCorrect, scaledScore, weightedExamDeck, type PreparedQuestion } from "@/engine/game";
@@ -20,7 +23,7 @@ export default function BossPage() {
   const MINUTES = course.config.boss.minutes;
   const { xp } = course.config;
   const { pass } = course.exam.scale;
-  const boss = course.boss ?? { name: "The Exam Hydra", emoji: "🐉" };
+  const boss = course.boss ?? { name: "The Exam Hydra", emoji: "" };
   const [phase, setPhase] = useState<Phase>("intro");
   const [deck, setDeck] = useState<PreparedQuestion[]>([]);
   const [answers, setAnswers] = useState<number[][]>([]);
@@ -111,22 +114,22 @@ export default function BossPage() {
             stay hidden until the end, just like {copy.real}.
           </p>
           <ul className="mt-5 grid gap-2 text-sm text-muted-foreground">
-            <li><BlockIcon icon="📝" className="inline-block size-[1.1em] align-[-0.15em]" /> {TOTAL} questions drawn by domain weight</li>
+            <li><NotebookPenIcon aria-hidden="true" className="inline-block size-[1.1em] align-[-0.15em]" /> {TOTAL} questions drawn by domain weight</li>
             <li>
-              <BlockIcon icon="⏱️" className="inline-block size-[1.1em] align-[-0.15em]" /> {MINUTES} minutes (the full {copy.simulator} is {course.exam.minutes} minutes for {course.exam.questions} questions)
+              <TimerIcon aria-hidden="true" className="inline-block size-[1.1em] align-[-0.15em]" /> {MINUTES} minutes (the full {copy.simulator} is {course.exam.minutes} minutes for {course.exam.questions} questions)
             </li>
             <li>
-              <BlockIcon icon="🎯" className="inline-block size-[1.1em] align-[-0.15em]" /> Scaled score {course.exam.scale.min} to {course.exam.scale.max}. You need {pass} to pass.
+              <TargetIcon aria-hidden="true" className="inline-block size-[1.1em] align-[-0.15em]" /> Scaled score {course.exam.scale.min} to {course.exam.scale.max}. You need {pass} to pass.
             </li>
-            <li><BlockIcon icon="🏅" className="inline-block size-[1.1em] align-[-0.15em]" /> Pass for +{xp.bossPassBonus} bonus XP and the Boss Slayer badge</li>
+            <li><MedalIcon aria-hidden="true" className="inline-block size-[1.1em] align-[-0.15em]" /> Pass for +{xp.bossPassBonus} bonus XP and the Boss Slayer badge</li>
           </ul>
           {progress.bossBest !== null && (
             <p className="mt-4 text-sm text-muted-foreground">
-              Your best: <span className="font-bold text-foreground">{progress.bossBest}</span>
+              Your best: <span className="font-semibold text-foreground">{progress.bossBest}</span>
             </p>
           )}
-          <Button onClick={start} className="mt-6 bg-destructive hover:bg-destructive">
-            <BlockIcon icon="⚔️" className="inline-block size-[1.1em] align-[-0.15em]" /> Start battle
+          <Button size="lg" onClick={start} className="mt-6">
+            <SwordsIcon aria-hidden="true" className="inline-block size-[1.1em] align-[-0.15em]" /> Start battle
           </Button>
         </div>
       </PageShell>
@@ -139,8 +142,8 @@ export default function BossPage() {
     return (
       <PageShell title={`Boss Battle results`}>
         <div className="pop-in rounded-2xl border border-border bg-card p-6 sm:p-8 text-center">
-          <div className="text-6xl">{passed ? <BlockIcon icon="🏆" className="inline-block size-[1.1em] align-[-0.15em]" /> : <BlockIcon icon="🐉" className="inline-block size-[1.1em] align-[-0.15em]" />}</div>
-          <h2 className="mt-3 text-3xl font-bold text-foreground">{score}</h2>
+          <div className="text-6xl">{passed ? <TrophyIcon aria-hidden="true" className="inline-block size-[1.1em] align-[-0.15em]" /> : <SwordsIcon aria-hidden="true" className="inline-block size-[1.1em] align-[-0.15em]" />}</div>
+          <h2 className="mt-3 text-3xl font-semibold text-foreground">{score}</h2>
           <p className={`mt-1 font-semibold ${passed ? "text-success-foreground" : "text-destructive-foreground"}`}>
             {passed ? `PASS. ${boss.name} is defeated!` : `Not yet. ${pass} is the passing score.`}
           </p>
@@ -176,7 +179,7 @@ export default function BossPage() {
           {deck.map((d, i) => (
             <details key={d.id} className="rounded-xl border border-border bg-muted open:bg-transparent" open={!results[i]}>
               <summary className="cursor-pointer px-4 py-3 text-sm text-foreground">
-                <span className={results[i] ? "text-success-foreground" : "text-destructive-foreground"}>{results[i] ? <BlockIcon icon="✓" className="inline-block size-[1.1em] align-[-0.15em]" /> : <BlockIcon icon="✗" className="inline-block size-[1.1em] align-[-0.15em]" />}</span> {i + 1}. {d.prompt}
+                <span className={results[i] ? "text-success-foreground" : "text-destructive-foreground"}>{results[i] ? <CheckIcon role="img" aria-label="correct" className="inline-block size-[1.1em] align-[-0.15em]" /> : <XIcon role="img" aria-label="incorrect" className="inline-block size-[1.1em] align-[-0.15em]" />}</span> {i + 1}. {d.prompt}
               </summary>
               <div className="p-2">
                 <QuestionCard q={d} submitted={answers[i] ?? []} onSubmit={() => {}} />
@@ -186,8 +189,8 @@ export default function BossPage() {
         </div>
 
         <div className="mt-8 flex flex-wrap gap-3">
-          <Button onClick={start}>Rematch</Button>
-          <Link href={href("/review")} className="rounded-xl border border-border px-5 py-2.5 font-semibold text-foreground hover:bg-muted">
+          <Button size="lg" onClick={start}>Rematch</Button>
+          <Link href={href("/review")} className={cn(buttonVariants({ variant: "outline", size: "default" }))}>
             Review mistakes
           </Link>
         </div>
@@ -202,26 +205,26 @@ export default function BossPage() {
     <main className="mx-auto w-full max-w-3xl px-4 py-6">
       <div className="mb-5 rounded-card border border-destructive/30 bg-destructive/10 p-4">
         <div className="flex items-center gap-4">
-          <div className={`text-5xl transition ${hit ? "boss-hit" : ""}`}><BlockIcon icon={boss.emoji} className="inline-block size-[1.1em] align-[-0.15em]" /></div>
+          <div className={`text-5xl transition ${hit ? "boss-hit" : ""}`}>{boss.emoji ? <BlockIcon icon={boss.emoji} className="inline-block size-[1.1em] align-[-0.15em]" /> : <SwordsIcon aria-hidden="true" className="inline-block size-[1.1em] align-[-0.15em]" />}</div>
           <div className="flex-1">
-            <div className="mb-1 flex justify-between text-xs">
+            <div className="mb-1 flex justify-between text-sm">
               <span className="font-semibold text-destructive-foreground">{boss.name}</span>
               <span className="text-muted-foreground">
                 {deck.length - correct}/{deck.length} HP
               </span>
             </div>
-            <Bar value={bossHp} color="#f43f5e" className="h-3" />
-            <div className="mt-2 mb-1 flex justify-between text-xs">
+            <Bar value={bossHp} color="var(--destructive)" className="h-3" />
+            <div className="mt-2 mb-1 flex justify-between text-sm">
               <span className="font-semibold text-primary">You</span>
               <span className="text-muted-foreground">survive below 35% misses</span>
             </div>
-            <Bar value={playerHp} color="#38bdf8" className="h-2" />
+            <Bar value={playerHp} color="var(--primary)" className="h-2" />
           </div>
           <div className={`font-mono text-lg ${secondsLeft < 300 ? "text-destructive-foreground" : "text-foreground"}`}>
             {mm}:{ss}
           </div>
         </div>
-        <div className="mt-3 text-xs text-muted-foreground">
+        <div className="mt-3 text-sm text-muted-foreground">
           Question {idx + 1} of {deck.length}
         </div>
       </div>
@@ -230,7 +233,7 @@ export default function BossPage() {
 
       {submitted && (
         <div className="mt-4 flex justify-end">
-          <Button onClick={next}>{idx + 1 >= deck.length ? "Finish battle" : "Next →"}</Button>
+          <Button size="lg" onClick={next}>{idx + 1 >= deck.length ? "Finish battle" : "Next →"}</Button>
         </div>
       )}
     </main>

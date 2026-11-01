@@ -2,7 +2,7 @@
 
 import { notFound, useParams } from "next/navigation";
 import type { ReactNode } from "react";
-import { GuideDrawer } from "@/components/Guide";
+import { GuideDrawerGate } from "@/components/GuideDrawerGate";
 import { Hud } from "@/components/Hud";
 import { getCourse } from "@/courses";
 import { CourseProvider } from "@/engine/course-context";
@@ -17,7 +17,7 @@ export function CourseShell({ children }: { children: ReactNode }) {
       <div className="flex min-h-full flex-1 flex-col">
         <Hud />
         {children}
-        <GuideDrawer />
+        <GuideDrawerGate />
       </div>
     </CourseProvider>
   );

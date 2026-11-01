@@ -1,11 +1,11 @@
 "use client";
 
+import { CheckIcon, TimerIcon } from "lucide-react";
 import { secondsFor } from "@/engine/timing";
 import { useEffect, useRef, useState } from "react";
 import { useCourse } from "@/engine/course-context";
 import { isCorrect, pct, type PreparedQuestion } from "@/engine/game";
 import { QuestionCard } from "./QuestionCard";
-import { BlockIcon } from "@/components/learn/block-icons";
 
 export interface TimedResult {
   correct: number;
@@ -31,7 +31,7 @@ const FEEDBACK_MS = { correct: 700, wrong: 1400 };
  * A run of questions, each against its own countdown. Running out of time
  * counts as wrong. Reused by lessons (after a miss) and the Timed drill mode.
  */
-export function TimedQuiz({ questions, secondsPerQuestion, passShare, xpPerCorrect, color = "#f59e0b", showDomain, onFinish }: Props) {
+export function TimedQuiz({ questions, secondsPerQuestion, passShare, xpPerCorrect, color = "var(--primary)", showDomain, onFinish }: Props) {
   const { store } = useCourse();
   const [idx, setIdx] = useState(0);
   const [submitted, setSubmitted] = useState<number[] | null>(null);
@@ -108,13 +108,13 @@ export function TimedQuiz({ questions, secondsPerQuestion, passShare, xpPerCorre
       <div className="mb-3 flex items-center gap-3">
         <div className={`relative flex h-14 w-14 shrink-0 items-center justify-center rounded-full ${urgent && !verdict ? "shake" : ""}`}>
           <svg viewBox="0 0 36 36" className="absolute inset-0 -rotate-90">
-            <circle cx="18" cy="18" r="15.5" fill="none" stroke="rgb(255 255 255 / 0.1)" strokeWidth="3" />
+            <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--muted)" strokeWidth="3" />
             <circle
               cx="18"
               cy="18"
               r="15.5"
               fill="none"
-              stroke={urgent ? "#f43f5e" : color}
+              stroke={urgent ? "var(--destructive)" : color}
               strokeWidth="3"
               strokeLinecap="round"
               strokeDasharray="97.4"
@@ -124,12 +124,12 @@ export function TimedQuiz({ questions, secondsPerQuestion, passShare, xpPerCorre
           <span className={`font-mono text-lg font-semibold ${urgent ? "text-destructive-foreground" : "text-foreground"}`}>{Math.ceil(left)}</span>
         </div>
         <div className="flex-1">
-          <div className="mb-1 flex justify-between text-xs text-muted-foreground">
+          <div className="mb-1 flex justify-between text-sm text-muted-foreground">
             <span>
-              <BlockIcon icon="⏱️" className="inline-block size-[1.1em] align-[-0.15em]" /> Question {idx + 1} of {questions.length}
+              <TimerIcon aria-hidden="true" className="inline-block size-[1.1em] align-[-0.15em]" /> Question {idx + 1} of {questions.length}
             </span>
             <span>
-              <BlockIcon icon="✓" className="inline-block size-[1.1em] align-[-0.15em]" /> {correctSoFar} · need {Math.ceil(passShare * questions.length)}
+              <CheckIcon role="img" aria-label="correct" className="inline-block size-[1.1em] align-[-0.15em]" /> {correctSoFar} · need {Math.ceil(passShare * questions.length)}
             </span>
           </div>
           <div className="h-2 overflow-hidden rounded-full bg-muted">

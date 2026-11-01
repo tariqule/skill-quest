@@ -1,3 +1,4 @@
+import { BlocksIcon, ConstructionIcon, MonitorIcon, PuzzleIcon, RepeatIcon, ScrollTextIcon, SquareStackIcon, SwordsIcon, TargetIcon, TimerIcon, ZapIcon, type LucideIcon } from "lucide-react";
 import { codeGameOf } from "./code-games";
 import { practiceSummary } from "./practice";
 import { scenariosFor } from "@/scenarios";
@@ -12,7 +13,8 @@ import type { Course, ModeId } from "./types";
 export interface ModeInfo {
   id: ModeId;
   name: string;
-  icon: string;
+  /** Lucide icon for the training deck card and page title. */
+  icon: LucideIcon;
   /** Route inside the course, e.g. "/lightning". */
   to: string;
   /** One-line status for the training deck card. */
@@ -23,7 +25,7 @@ export const ALL_MODES: ModeInfo[] = [
   {
     id: "practice",
     name: "Topic practice",
-    icon: "🎯",
+    icon: TargetIcon,
     to: "/practice",
     status: (p, c) => {
       const s = practiceSummary(c, p);
@@ -33,7 +35,7 @@ export const ALL_MODES: ModeInfo[] = [
   {
     id: "scenarios",
     name: "Scenario games",
-    icon: "🏗️",
+    icon: ConstructionIcon,
     to: "/scenarios",
     status: (_p, c) => {
       const items = scenariosFor(c.id);
@@ -44,7 +46,7 @@ export const ALL_MODES: ModeInfo[] = [
   {
     id: "codegames",
     name: "Code games",
-    icon: "🧱",
+    icon: BlocksIcon,
     to: "/code-games",
     status: (p, c) => {
       const games = c.questions.filter((q) => codeGameOf(q));
@@ -54,56 +56,56 @@ export const ALL_MODES: ModeInfo[] = [
   {
     id: "coding",
     name: "Live coding",
-    icon: "💻",
+    icon: MonitorIcon,
     to: "/coding",
     status: (p, c) => `${(c.coding ?? []).filter((x) => p.coding[x.id]?.solved).length}/${(c.coding ?? []).length} solved`,
   },
   {
     id: "review",
     name: "Fix mistakes",
-    icon: "🔁",
+    icon: RepeatIcon,
     to: "/review",
     status: (p) => `${Object.values(p.questions).filter((s) => !s.lastCorrect).length} waiting`,
   },
   {
     id: "timed",
     name: "Timed drill",
-    icon: "⏱️",
+    icon: TimerIcon,
     to: "/timed",
     status: (_p, c) => `${c.config.timed.questions} questions · ${c.config.timed.secondsPerQuestion}s+ each`,
   },
   {
     id: "flashcards",
     name: "Flashcards",
-    icon: "🃏",
+    icon: SquareStackIcon,
     to: "/flashcards",
     status: (p) => `${Object.values(p.cards).filter((b) => b >= 4).length} mastered`,
   },
   {
     id: "match",
     name: "Service match",
-    icon: "🧩",
+    icon: PuzzleIcon,
     to: "/match",
     status: (p, c) => (p.matchBestSeconds !== null ? `Best ${p.matchBestSeconds}s` : `Pair ${c.matchLabel ?? "services"} to jobs`),
   },
   {
     id: "lightning",
     name: "Lightning round",
-    icon: "⚡",
+    icon: ZapIcon,
     to: "/lightning",
     status: (p) => `Best ${p.lightningBest}`,
   },
   {
     id: "boss",
     name: "Boss battle",
-    icon: "🐉",
+    icon: SwordsIcon,
     to: "/boss",
     status: (p, c) => (p.bossBest !== null ? `Best ${p.bossBest}` : `${c.config.boss.questions}-question quick mock`),
   },
   {
     id: "cheatsheet",
     name: "Cheat sheet",
-    icon: "📜",
+    icon: ScrollTextIcon,
     to: "/cheatsheet",
     status: () => "One-page review",
   },

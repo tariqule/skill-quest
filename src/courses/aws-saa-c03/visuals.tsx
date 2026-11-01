@@ -7,7 +7,12 @@ import { BlockIcon } from "@/components/learn/block-icons";
 
 // ───────────── Route 53 routing policies ─────────────
 
-const ENDPOINTS = ["🇺🇸 us-east-1", "🇮🇪 eu-west-1", "🇦🇺 ap-southeast-2"];
+/** Weighted-routing targets: a short area label plus the AWS Region code. */
+const ENDPOINTS = [
+  { area: "US", region: "us-east-1" },
+  { area: "EU", region: "eu-west-1" },
+  { area: "AU", region: "ap-southeast-2" },
+];
 
 const POLICIES = [
   { id: "simple", name: "Simple", shares: ["one record", "", ""], text: "One record for one resource. If it holds several values, Route 53 returns them all in random order. No health checks.", use: "A single web server" },
@@ -46,10 +51,13 @@ export function RoutingPolicies() {
         <div className="mt-3 grid gap-2 sm:grid-cols-3">
           {ENDPOINTS.map((e, i) => (
             <div
-              key={e}
+              key={e.region}
               className={`rounded-xl border p-2 text-center text-sm transition ${p.shares[i] ? (p.shares[i].includes("✗") ? "border-rose-400/50 bg-rose-400/10" : "border-emerald-400/50 bg-emerald-400/10") : "border-white/10 opacity-40"}`}
             >
-              <div className="font-semibold text-white">{e}</div>
+              <div className="flex items-center justify-center gap-1.5 font-semibold text-white">
+                <span className="rounded border border-white/20 px-1.5 text-sm font-semibold">{e.area}</span>
+                <span className="font-mono">{e.region}</span>
+              </div>
               <div className="mt-1 text-xs text-slate-300">
                 {p.shares[i] ? (
                   <>

@@ -3,16 +3,18 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Confetti, MascotSays } from "@/components/fx";
-import { ArrowLeft, ArrowRight, BookOpen, EyeOff, FileText, Flag, Landmark, LayoutGrid, ListChecks, Target, Timer } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, Check, EyeOff, FileText, Flag, LayoutGrid, ListChecks, Sprout, Target, Timer, TriangleAlert } from "lucide-react";
+import { AnswerReview } from "@/components/exam/AnswerReview";
+import { DomainReport } from "@/components/exam/DomainReport";
+import { ModePicker } from "@/components/exam/ModePicker";
 import { QuestionCard } from "@/components/QuestionCard";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Bar, PageShell } from "@/components/ui";
+import { PageShell } from "@/components/ui";
 import { courseCopy } from "@/engine/copy";
 import { useCourse, useLevelPool, useProgress } from "@/engine/course-context";
 import { LEVEL_BY_ID } from "@/engine/levels";
 import { examQuestions, isCorrect, pct, scaledScore, shuffle, versionLabel, weightedExamDeck, type PreparedQuestion } from "@/engine/game";
 import { EXTRA_KINDS, isCodeTrack } from "@/engine/tracks";
-import { BlockIcon } from "@/components/learn/block-icons";
 
 type Phase = "intro" | "exam" | "review" | "results";
 
@@ -138,7 +140,7 @@ export default function ExamPage() {
     return (
       <PageShell title={`${copy.gate}`} subtitle="This one comes after the basics.">
         <div className="rounded-card border border-border bg-card p-6 text-foreground">
-          <BlockIcon icon="🐣" className="size-8 text-primary" />
+          <Sprout className="size-8 text-primary" aria-hidden />
           <p className="mt-2 text-lg font-semibold text-foreground">You&apos;re on the Beginner level.</p>
           <p className="mt-1 text-muted-foreground">
             The full {copy.simulator} is timed and gives no feedback until the end, which can feel rough on day one. Finish the &quot;Start here&quot; lessons first,
@@ -166,7 +168,7 @@ export default function ExamPage() {
       { icon: Target, text: `Scored ${min}–${max}. ${pass} passes.` },
       { icon: EyeOff, text: "No feedback until you submit, just like test day." },
     ];
-    // One primary action: the full simulation. Shorter modes are secondary.
+    // Full simulation first; the learner picks a length, then presses the one primary action.
     const ordered = [...MODES].sort((x, y) => Number(!!y.full) - Number(!!x.full));
     return (
       <PageShell title={copy.gate} subtitle={isCodeTrack(course) ? `A timed ${course.shortTitle} ${copy.simulator}. No feedback until you finish, just like the real thing.` : `A full exam simulator built to the official ${course.code} format.`}>
@@ -190,19 +192,7 @@ export default function ExamPage() {
             </p>
           )}
         </section>
-        <div className="mt-6 grid gap-3 sm:grid-cols-2">
-          {ordered.map((m) => (
-            <Button key={m.id} size="xl" variant={m.full ? "default" : "outline"} className="h-auto min-h-14 justify-start py-3 text-left" onClick={() => start(m.id)}>
-              {m.full ? <Landmark aria-hidden /> : <Timer aria-hidden />}
-              <span className="flex flex-col items-start">
-                <span className="font-semibold">{m.name}</span>
-                <span className="text-sm font-normal opacity-90">
-                  {m.questions} questions · {m.minutes} minutes
-                </span>
-              </span>
-            </Button>
-          ))}
-        </div>
+        <ModePicker modes={ordered} onStart={start} />
         <p className="mt-4 text-base text-muted-foreground">
           Want to review first?{" "}
           <Link href={href("/study")} className="inline-flex min-h-11 items-center gap-1.5 font-medium text-foreground underline underline-offset-4 hover:text-primary">
@@ -239,7 +229,7 @@ export default function ExamPage() {
           <div className="mx-auto mt-3 h-3 max-w-md overflow-hidden rounded-full bg-muted">
             <div className="relative h-full rounded-full bg-gradient-to-r from-destructive via-warning to-success" style={{ width: pct((score - min) / (max - min)) }} />
           </div>
-          <div className="mx-auto mt-1 flex max-w-md justify-between text-xs text-muted-foreground">
+          <div className="mx-auto mt-1 flex max-w-md justify-between text-sm text-muted-foreground">
             <span>{min}</span>
             <span>{pass} pass</span>
             <span>{max}</span>
@@ -254,55 +244,16 @@ export default function ExamPage() {
           </div>
         </div>
 
-        <h2 className="mt-8 text-lg font-semibold text-foreground">Performance by domain</h2>
-        <p className="text-xs text-muted-foreground">Like the official score report, this counts scored questions only.</p>
-        <div className="mt-3 grid gap-3">
-          {course.domains.map((d) => {
+        <DomainReport
+          results={course.domains.map((d) => {
             const mine = scoredIdx.filter((i) => deck[i].domain === d.id);
             const right = mine.filter((i) => answers[i] && isCorrect(deck[i], answers[i]!)).length;
-            const pct = mine.length ? right / mine.length : 0;
-            return (
-              <div key={d.id} className="rounded-xl border border-border bg-muted p-3">
-                <div className="mb-1.5 flex justify-between gap-2 text-sm">
-                  <span className="text-foreground">
-                    <BlockIcon icon={d.emoji} className="inline-block size-[1.1em] align-[-0.15em]" /> {d.name}
-                  </span>
-                  <span className={`shrink-0 font-bold ${pct >= 0.7 ? "text-success-foreground" : "text-warning-foreground"}`}>{pct >= 0.7 ? "Meets competencies" : "Needs improvement"}</span>
-                </div>
-                <Bar value={pct} color={d.color} />
-                <div className="mt-1 text-xs text-muted-foreground">
-                  {right}/{mine.length} correct
-                  {pct < 0.7 && (
-                    <>
-                      {" · "}
-                      <Link href={href(`/quest/${d.id}`)} className="text-primary underline underline-offset-4">
-                        practise this world
-                      </Link>
-                    </>
-                  )}
-                </div>
-              </div>
-            );
+            return { id: d.id, name: d.name, emoji: d.emoji, color: d.color, right, total: mine.length, href: href(`/quest/${d.id}`) };
           })}
-        </div>
-
-        <h2 className="mt-8 text-lg font-semibold text-foreground">Review every answer</h2>
-        <div className="mt-3 grid gap-3">
-          {deck.map((q, i) => {
-            const ok = !!answers[i] && isCorrect(q, answers[i]!);
-            return (
-              <details key={q.id} className="rounded-xl border border-border bg-muted" open={!ok}>
-                <summary className="cursor-pointer px-4 py-3 text-sm text-foreground">
-                  <span className={ok ? "text-success-foreground" : "text-destructive-foreground"}>{ok ? <BlockIcon icon="✓" className="inline-block size-[1.1em] align-[-0.15em]" /> : answers[i] ? <BlockIcon icon="✗" className="inline-block size-[1.1em] align-[-0.15em]" /> : <BlockIcon icon="○" className="inline-block size-[1.1em] align-[-0.15em]" />}</span> {i + 1}. {q.prompt}
-                  {unscored.has(i) && <span className="ml-2 rounded bg-accent px-1.5 text-xs text-muted-foreground">unscored</span>}
-                </summary>
-                <div className="p-2">
-                  <QuestionCard q={q} submitted={answers[i] ?? []} onSubmit={() => {}} showDomain />
-                </div>
-              </details>
-            );
-          })}
-        </div>
+        />
+        <AnswerReview
+          items={deck.map((q, i) => ({ q, index: i, answer: answers[i], correct: !!answers[i] && isCorrect(q, answers[i]!), flagged: flags.has(i), unscored: unscored.has(i) }))}
+        />
         <div className="mt-8 flex flex-wrap gap-3">
           <Button size="lg" onClick={() => setPhase("intro")}>
             New simulation
@@ -335,15 +286,28 @@ export default function ExamPage() {
         <h1 className="text-2xl font-semibold text-foreground">Review before you submit</h1>
         <p className="mt-1 text-muted-foreground">Tap any square to go back to that question.</p>
         <Navigator deck={deck} answers={answers} flags={flags} current={-1} onPick={(i) => { setPhase("exam"); go(i); }} />
-        <div className="mt-4 grid gap-2 text-sm">
-          <div className={unanswered.length ? "text-warning-foreground" : "text-success-foreground"}>
-            {unanswered.length ? `${unanswered.length} unanswered. Unanswered questions count as wrong, and guessing has no penalty.` : "Every question answered."}
-          </div>
-          {flags.size > 0 && <div className="text-primary"><BlockIcon icon="🚩" className="inline-block size-[1.1em] align-[-0.15em]" /> {flags.size} flagged for review.</div>}
+        <div className="mt-4 grid gap-2">
+          {unanswered.length ? (
+            <div role="status" className="flex items-start gap-2 rounded-card border border-warning/40 bg-warning/10 p-3 text-sm text-foreground">
+              <TriangleAlert className="mt-0.5 size-4 shrink-0 text-warning-foreground" aria-hidden />
+              <span>
+                <b className="font-semibold">{unanswered.length} unanswered.</b> Unanswered questions count as wrong, and guessing has no penalty.
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-sm text-success-foreground">
+              <Check className="size-4" aria-hidden /> Every question answered.
+            </div>
+          )}
+          {flags.size > 0 && (
+            <div className="flex items-center gap-2 text-sm text-foreground">
+              <Flag className="size-4 text-muted-foreground" aria-hidden /> {flags.size} flagged for review.
+            </div>
+          )}
         </div>
         <div className="mt-6 flex flex-wrap gap-3">
           <Button size="lg" variant="outline" onClick={() => setPhase("exam")}>
-            ← Back to questions
+            <ArrowLeft aria-hidden /> Back to questions
           </Button>
           <Button size="lg" onClick={submit}>
             Submit exam
@@ -366,7 +330,7 @@ export default function ExamPage() {
           onClick={() => toggleFlag(idx)}
           className={`inline-flex min-h-11 items-center gap-1.5 rounded-lg border px-3 text-sm font-medium ${flags.has(idx) ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground hover:text-foreground"}`}
         >
-          <BlockIcon icon="🚩" className="inline-block size-[1.1em] align-[-0.15em]" /> {flags.has(idx) ? "Flagged" : "Flag for review"}
+          <Flag className="size-4" aria-hidden /> {flags.has(idx) ? "Flagged" : "Flag for review"}
         </button>
         <button type="button" onClick={() => setShowNav(!showNav)} aria-expanded={showNav} className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-border px-3 text-sm text-muted-foreground hover:text-foreground">
           <LayoutGrid className="size-4" aria-hidden /> All questions
@@ -386,12 +350,13 @@ export default function ExamPage() {
           </button>
         )}
         <div className="ml-auto flex gap-3">
+          {/* One primary action per state: "Save answer" while choosing, Next once saved. */}
           {idx + 1 < deck.length ? (
-            <Button size="lg" onClick={() => go(idx + 1)}>
-              Next <ArrowRight aria-hidden />
+            <Button size="lg" variant={answers[idx] ? "default" : "outline"} onClick={() => go(idx + 1)}>
+              {answers[idx] ? "Next" : "Skip for now"} <ArrowRight aria-hidden />
             </Button>
           ) : (
-            <Button size="lg" onClick={() => setPhase("review")}>
+            <Button size="lg" variant={answers[idx] ? "default" : "outline"} onClick={() => setPhase("review")}>
               Review & submit
             </Button>
           )}
@@ -430,14 +395,14 @@ function Navigator({
             className={`relative h-9 rounded-md text-sm font-semibold ${i === current ? "ring-2 ring-ring" : ""} ${answers[i] ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
           >
             {i + 1}
-            {flags.has(i) && <BlockIcon icon="🚩" className="absolute -right-1 -top-1 size-3.5 text-warning-foreground" />}
+            {flags.has(i) && <Flag role="img" aria-label="flagged" className="absolute -right-1 -top-1 size-3.5 fill-current text-foreground" />}
           </button>
         ))}
       </div>
       <div className="mt-2 flex flex-wrap gap-4 text-sm text-muted-foreground">
         <span className="inline-flex items-center gap-1.5"><span className="size-3 rounded-sm bg-primary" aria-hidden /> answered</span>
         <span className="inline-flex items-center gap-1.5"><span className="size-3 rounded-sm bg-muted ring-1 ring-border" aria-hidden /> unanswered</span>
-        <span><BlockIcon icon="🚩" className="inline-block size-[1.1em] align-[-0.15em]" /> flagged</span>
+        <span className="inline-flex items-center gap-1.5"><Flag className="size-3.5" aria-hidden /> flagged</span>
       </div>
     </div>
   );
