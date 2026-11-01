@@ -26,7 +26,7 @@ function mount() {
   root = createRoot(div);
   act(() => root!.render(<LessonReader lesson={LESSON} color="#fff" tipLabel="Tip" questionCount={5} onDone={vi.fn()} />));
   const next = () => act(() => { window.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight" })); });
-  const badge = () => div.querySelector(".rounded-full.h-9");
+  const badge = () => div.querySelector(".rounded-full.size-9");
   return { div, next, badge };
 }
 
@@ -50,7 +50,7 @@ describe("LessonReader", () => {
       expect(div.textContent).not.toContain("A source");
       next();
     }
-    expect(div.textContent).toContain("That's the lesson!");
+    expect(div.textContent).toContain("That's the lesson");
     expect(div.querySelector('a[href="https://example.com"]')).not.toBeNull();
   });
 });

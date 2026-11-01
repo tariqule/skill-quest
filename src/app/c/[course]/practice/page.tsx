@@ -8,7 +8,9 @@ import { LockedTopic } from "@/components/practice/LockedTopic";
 import { PracticeCoverage } from "@/components/practice/PracticeCoverage";
 import { unlockPhrase } from "@/components/practice/copy";
 import { usePracticeSummary } from "@/components/practice/usePracticeSummary";
+import { Sprout } from "lucide-react";
 import { PageShell } from "@/components/ui";
+import { Button } from "@/components/ui/button";
 import { useCourse } from "@/engine/course-context";
 import { prepare } from "@/engine/game";
 import { buildPracticeDeck, entryLesson } from "@/engine/practice";
@@ -32,8 +34,8 @@ export default function PracticePage() {
 
   if (!summary.total) {
     return (
-      <PageShell title="🎯 Topic practice">
-        <p className="text-slate-300">This course doesn&apos;t have a topic syllabus yet. Try Fix mistakes or a mission instead.</p>
+      <PageShell title="Topic practice">
+        <p className="text-base text-muted-foreground">This course doesn&apos;t have a topic syllabus yet. Try Fix mistakes or a mission instead.</p>
       </PageShell>
     );
   }
@@ -43,14 +45,14 @@ export default function PracticePage() {
 
   if (!summary.done.length) {
     return (
-      <PageShell title="🎯 Topic practice" subtitle="Mixed questions from every topic you have finished, never from ones you haven't.">
-        <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-6 text-center">
-          <div className="text-5xl" aria-hidden="true">🌱</div>
-          <p className="mt-3 text-slate-200">Nothing to practise yet. Practice opens up as you finish lessons.</p>
+      <PageShell title="Topic practice" subtitle="Mixed questions from every topic you have finished, never from ones you haven't.">
+        <div className="rounded-card border border-border bg-card p-6 text-center">
+          <Sprout className="mx-auto size-10 text-success-foreground" aria-hidden />
+          <p className="mt-3 text-base text-foreground">Nothing to practise yet. Practice opens up as you finish lessons.</p>
           {next && (
-            <Link href={lessonHref(next.topic)} className="mt-4 inline-block rounded-xl bg-teal-500 px-5 py-2.5 font-bold text-slate-950 hover:bg-teal-400">
+            <Button size="xl" className="mt-4 h-auto min-h-12 max-w-full whitespace-normal py-2 sm:h-auto" render={<Link href={lessonHref(next.topic)} />}>
               Start lesson 1: {next.topic.title}
-            </Link>
+            </Button>
           )}
         </div>
       </PageShell>
@@ -58,9 +60,9 @@ export default function PracticePage() {
   }
 
   return (
-    <PageShell title="🎯 Topic practice" subtitle="Mixed questions from every topic you have finished, weighted toward recent ones and past misses.">
+    <PageShell title="Topic practice" subtitle="Mixed questions from every topic you have finished, weighted toward recent ones and past misses.">
       <PracticeCoverage covered={summary.covered.length} total={summary.total} available={summary.available} planned={summary.planned} />
-      <div className="mt-4">{summary.full ? <p className="text-emerald-300">Every written topic is done: this is full mixed practice.</p> : nextStep}</div>
+      <div className="mt-4">{summary.full ? <p className="text-base text-success-foreground">Every written topic is done: this is full mixed practice.</p> : nextStep}</div>
       <div className="mt-6">
         <QuizSession
           startLabel={`Practise ${Math.min(summary.available, DECK_SIZE)} questions`}
@@ -68,7 +70,7 @@ export default function PracticePage() {
           showDomain
           buildDeck={() => buildPracticeDeck(course, store.get(), DECK_SIZE).map(prepare)}
           emptyMessage={<p>No questions unlocked yet. Finish a lesson to open some.</p>}
-          intro={<p className="text-slate-300">Each right answer earns {xp} XP. Questions you missed come back more often.</p>}
+          intro={<p className="text-base text-muted-foreground">Each right answer earns {xp} XP. Questions you missed come back more often.</p>}
         />
       </div>
       <DesignPromptList prompts={summary.prompts} />

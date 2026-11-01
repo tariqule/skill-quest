@@ -29,7 +29,7 @@ describe("TrueFalse", () => {
   it("is a labelled radio group of True then False with one tab stop", () => {
     const { div, radios } = mount();
     expect(div.querySelector('[role="radiogroup"]')?.getAttribute("aria-label")).toBe("True or false");
-    expect(radios.map((r) => r.textContent)).toEqual(["✓TrueT", "✗FalseF"]);
+    expect(radios.map((r) => r.textContent)).toEqual(["TrueT", "FalseF"]);
     expect(tabStops(radios)).toEqual([0, -1]);
     expect(radios.every((r) => r.getAttribute("aria-checked") === "false")).toBe(true);
   });
@@ -60,7 +60,7 @@ describe("TrueFalse", () => {
 
   it("shows a visible focus ring on every option", () => {
     const { radios } = mount();
-    for (const r of radios) expect(r.className).toMatch(/focus-visible:outline-2\b.*focus-visible:outline-sky-300/);
+    for (const r of radios) expect(r.className).toMatch(/focus-visible:outline-2\b.*focus-visible:outline-ring/);
   });
 
   it("keeps the picked option focusable and checked after answering, and ignores further picks", () => {

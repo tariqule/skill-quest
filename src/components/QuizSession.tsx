@@ -5,7 +5,9 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useCourse } from "@/engine/course-context";
 import { comboMultiplier, isCorrect, type PreparedQuestion } from "@/engine/game";
 import { QuestionCard } from "./QuestionCard";
-import { Bar, Button, Stars } from "./ui";
+import { ArrowRight, BookOpen, Flame, Heart, HeartCrack, RotateCcw, Trophy } from "lucide-react";
+import { Bar, Stars } from "./ui";
+import { Button } from "./ui/button";
 
 export interface SessionResult {
   correct: number;
@@ -133,10 +135,11 @@ export function QuizSession({
 
   if (phase === "intro") {
     return (
-      <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-6 sm:p-8">
+      <div className="rounded-card border border-border bg-card p-6 text-base sm:p-8">
         {intro}
-        <Button onClick={start} className="mt-6">
+        <Button size="xl" onClick={start} className="mt-6 h-12 sm:h-12">
           {startLabel}
+          <ArrowRight aria-hidden />
         </Button>
       </div>
     );
@@ -145,10 +148,10 @@ export function QuizSession({
   if (phase === "done") {
     if (!deck.length) {
       return (
-        <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-8 text-center text-slate-300">
+        <div className="rounded-card border border-border bg-card p-8 text-center text-base text-muted-foreground">
           {emptyMessage}
           <div className="mt-6">
-            <Link href={href()} className="text-sky-300 hover:underline">
+            <Link href={href()} className="inline-flex min-h-11 items-center text-primary underline-offset-4 hover:underline">
               Back to map
             </Link>
           </div>
@@ -156,23 +159,24 @@ export function QuizSession({
       );
     }
     const pct = Math.round((correct / deck.length) * 100);
+    const Icon = failed ? HeartCrack : pct >= 70 ? Trophy : BookOpen;
     return (
-      <div className="pop-in rounded-2xl border border-white/10 bg-slate-900/70 p-6 sm:p-8 text-center">
-        <div className="text-5xl">{failed ? "💀" : pct >= 70 ? "🏆" : "📚"}</div>
-        <h2 className="mt-3 text-2xl font-bold text-white">
-          {failed ? "Out of hearts!" : pct >= 70 ? "Quest complete!" : "Quest finished"}
+      <div className="pop-in rounded-card border border-border bg-card p-6 text-center sm:p-8">
+        <Icon className={`mx-auto size-12 ${failed ? "text-destructive-foreground" : pct >= 70 ? "text-warning-foreground" : "text-info-foreground"}`} aria-hidden />
+        <h2 className="mt-3 font-heading text-h3 font-semibold text-foreground">
+          {failed ? "Out of hearts" : pct >= 70 ? "Quest complete" : "Quest finished"}
         </h2>
         {stars !== null && (
           <div className="mt-3">
             <Stars count={stars} size="text-3xl" />
           </div>
         )}
-        <div className="mt-5 grid grid-cols-3 gap-3 text-sm">
+        <dl className="mt-5 grid grid-cols-3 gap-3">
           <Result label="Correct" value={`${correct}/${failed ? idx + 1 : deck.length}`} />
           <Result label="Best combo" value={`${bestCombo}x`} />
           <Result label="XP earned" value={`+${earned}`} />
-        </div>
-        <p className="mt-5 text-slate-400">
+        </dl>
+        <p className="mx-auto mt-5 max-w-prose text-base text-muted-foreground">
           {failed
             ? "Missed questions are saved to Review Mistakes. Try again, you'll get it."
             : pct >= 90
@@ -180,46 +184,60 @@ export function QuizSession({
               : "Read the explanations on missed ones, then run it again."}
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <Button onClick={start}>Play again</Button>
-          <Link href={href()} className="rounded-xl border border-white/15 px-5 py-2.5 font-semibold text-slate-200 hover:bg-white/10">
+          <Button size="xl" onClick={start} className="h-12 sm:h-12">
+            <RotateCcw aria-hidden />
+            Play again
+          </Button>
+          <Button size="xl" variant="outline" className="h-12 sm:h-12" render={<Link href={href()} />}>
             Back to map
-          </Link>
+          </Button>
         </div>
       </div>
     );
   }
 
+  const outOfHearts = maxHearts !== undefined && hearts <= 0;
   return (
     <div>
       <div className="mb-4 flex items-center gap-4">
         <div className="flex-1">
-          <div className="mb-1 flex justify-between text-xs text-slate-400">
+          <div className="mb-1.5 flex justify-between text-sm text-muted-foreground">
             <span>
               Question {idx + 1} of {deck.length}
             </span>
-            <span>{combo >= 3 && <span className="font-semibold text-orange-300">🔥 {combo} combo · x{comboMultiplier(combo)} XP</span>}</span>
+            {combo >= 3 && (
+              <span className="flex items-center gap-1 font-medium text-warning-foreground">
+                <Flame className="size-4" aria-hidden />
+                {combo} in a row · x{comboMultiplier(combo)} XP
+              </span>
+            )}
           </div>
           <Bar value={(idx + (submitted ? 1 : 0)) / deck.length} color={color} />
         </div>
         {maxHearts !== undefined && (
-          <div className="text-lg" aria-label={`${hearts} hearts left`}>
+          <div className="flex gap-0.5" role="img" aria-label={`${hearts} of ${maxHearts} hearts left`}>
             {Array.from({ length: maxHearts }, (_, i) => (
-              <span key={i} className={i < hearts ? "" : "opacity-20 grayscale"}>
-                ❤️
-              </span>
+              <Heart key={i} className={`size-5 ${i < hearts ? "fill-destructive text-destructive" : "text-muted-foreground/50"}`} aria-hidden />
             ))}
           </div>
         )}
       </div>
 
-      <QuestionCard key={`${q.id}-${idx}`} q={q} submitted={submitted} onSubmit={submit} showDomain={showDomain} />
+      <QuestionCard
+        key={`${q.id}-${idx}`}
+        q={q}
+        submitted={submitted}
+        onSubmit={submit}
+        showDomain={showDomain}
+        note={(ok) => (ok ? (lastGain ? `+${lastGain} XP` : null) : maxHearts !== undefined ? `${Math.max(0, hearts)} ${hearts === 1 ? "heart" : "hearts"} left.` : "It comes back sooner in review.")}
+      />
 
       {submitted && (
-        <div className="mt-4 flex items-center justify-between">
-          <span className={`font-semibold ${lastGain ? "text-emerald-300" : "text-rose-300"}`}>
-            {lastGain ? <span className="xp-float inline-block">+{lastGain} XP</span> : "Not quite"}
-          </span>
-          <Button onClick={next}>{maxHearts !== undefined && hearts <= 0 ? "See results" : idx + 1 >= deck.length ? "Finish" : "Next →"}</Button>
+        <div className="sticky bottom-0 -mx-4 mt-4 border-t border-border bg-background/95 px-4 py-3 backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
+          <Button size="xl" onClick={next} className="h-12 w-full sm:ml-auto sm:flex sm:h-12 sm:w-auto">
+            {outOfHearts ? "See results" : idx + 1 >= deck.length ? "Finish" : "Next"}
+            <ArrowRight aria-hidden />
+          </Button>
         </div>
       )}
     </div>
@@ -228,9 +246,9 @@ export function QuizSession({
 
 function Result({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl bg-white/5 p-3">
-      <div className="text-xs uppercase tracking-wider text-slate-400">{label}</div>
-      <div className="mt-1 text-xl font-bold text-white">{value}</div>
+    <div className="rounded-lg bg-muted p-3">
+      <dt className="text-sm text-muted-foreground">{label}</dt>
+      <dd className="mt-1 text-xl font-semibold text-foreground">{value}</dd>
     </div>
   );
 }
