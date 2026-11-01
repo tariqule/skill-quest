@@ -55,7 +55,6 @@ function MissionMap() {
 
   return (
     <main className="mx-auto w-full max-w-page px-4 py-6 sm:py-10">
-      <IntroOffer show={!p.onboarded && p.xp === 0} href={href("/start")} onSkip={() => store.skipOnboarding()} />
       <HubHeader
         eyebrow={`${course.provider.name} · ${course.code}`}
         accent={course.provider.color}
@@ -68,6 +67,8 @@ function MissionMap() {
         readiness={readiness}
         level={lvl}
       />
+      {/* Below the header so it appears without shifting the page (CLS). */}
+      <IntroOffer show={!p.onboarded && p.xp === 0} href={href("/start")} onSkip={() => store.skipOnboarding()} />
       <LifecycleBanner course={course} />
       <LevelUpBanner />
       <CourseLevel />

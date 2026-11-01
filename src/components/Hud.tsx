@@ -34,7 +34,7 @@ export function Hud() {
       <span aria-hidden className="h-6 w-px shrink-0 bg-border" />
       <Link
         href={href()}
-        className="flex min-h-11 min-w-0 items-center gap-2 rounded-md font-semibold text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="flex min-h-11 min-w-11 items-center gap-2 rounded-md font-semibold text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
         title={course.title}
       >
         <span className="truncate">{course.shortTitle}</span>

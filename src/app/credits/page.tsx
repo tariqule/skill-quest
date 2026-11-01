@@ -11,6 +11,7 @@ const LIBRARIES = [
   { name: "React Three Fiber and drei", url: "https://github.com/pmndrs/react-three-fiber", license: "MIT", use: "React bindings for three.js" },
   { name: "Tailwind CSS", url: "https://github.com/tailwindlabs/tailwindcss", license: "MIT", use: "Styling" },
   { name: "Vitest", url: "https://github.com/vitest-dev/vitest", license: "MIT", use: "Tests" },
+  { name: "Magic UI Particles", url: "https://github.com/magicuidesign/magicui", license: "MIT", use: "Canvas particle drift and celebration burst (adapted)" },
 ];
 
 const CONTENT = [

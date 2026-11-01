@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { Confetti, Core3D, MascotSays } from "@/components/fx";
+import { Confetti, MascotSays } from "@/components/fx";
+import { BookOpen, EyeOff, FileText, Flag, Landmark, ListChecks, Target, Timer } from "lucide-react";
 import { QuestionCard } from "@/components/QuestionCard";
+import { Button } from "@/components/ui/button";
 import { Bar, PageShell } from "@/components/ui";
 import { courseCopy } from "@/engine/copy";
 import { useCourse, useLevelPool, useProgress } from "@/engine/course-context";
@@ -155,74 +157,65 @@ export default function ExamPage() {
   }
 
   if (phase === "intro") {
+    const facts = [
+      { icon: FileText, text: `${headline.questions} questions${headline.unscored > 0 ? `: ${headline.questions - headline.unscored} scored + ${headline.unscored} unscored. Like the real exam, you won't know which are unscored` : ""}.` },
+      { icon: ListChecks, text: `${officialTypes.map((t) => t.name.toLowerCase()).join(", ")}: the formats ${copy.real} uses${practiceTypes.length > 0 ? ` (${practiceTypes.map((t) => t.name.toLowerCase()).join(" and ")} stay in missions and drills)` : ""}.` },
+      { icon: Timer, text: `${headline.minutes} minutes. The timer auto-submits at zero.` },
+      { icon: Flag, text: "Flag questions, jump around, and change answers before you submit." },
+      { icon: Target, text: `Scored ${min}–${max}. ${pass} passes.` },
+      { icon: EyeOff, text: "No feedback until you submit, just like test day." },
+    ];
+    // One primary action: the full simulation. Shorter modes are secondary.
+    const ordered = [...MODES].sort((x, y) => Number(!!y.full) - Number(!!x.full));
     return (
-      <PageShell title={`${copy.gateIcon} ${copy.gate}`} subtitle={isCodeTrack(course) ? `A timed ${course.shortTitle} ${copy.simulator}. No feedback until you finish, just like the real thing.` : `A full exam simulator built to the official ${course.code} format.`}>
-        <div className="grid items-center gap-6 rounded-3xl border border-amber-300/30 bg-gradient-to-b from-amber-400/10 to-slate-900/60 p-6 md:grid-cols-[1fr_auto]">
-          <div>
-            <ul className="grid gap-2 text-slate-200">
-              <li>
-                📝 {headline.questions} questions
-                {headline.unscored > 0 &&
-                  `: ${headline.questions - headline.unscored} scored + ${headline.unscored} unscored. Like the real exam, you won't know which are unscored`}
-                .
+      <PageShell title={copy.gate} subtitle={isCodeTrack(course) ? `A timed ${course.shortTitle} ${copy.simulator}. No feedback until you finish, just like the real thing.` : `A full exam simulator built to the official ${course.code} format.`}>
+        <section aria-label="Exam format" className="rounded-card border border-border bg-card p-5 sm:p-6">
+          <ul className="grid gap-3 text-base text-foreground">
+            {facts.map(({ icon: Icon, text }) => (
+              <li key={text} className="flex items-start gap-3">
+                <Icon className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden />
+                <span>{text}</span>
               </li>
-              <li>
-                {officialTypes.map((t) => t.icon).join("")} {officialTypes.map((t) => t.name.toLowerCase()).join(", ")}: the formats {copy.real} uses
-                {practiceTypes.length > 0 && ` (${practiceTypes.map((t) => t.name.toLowerCase()).join(" and ")} stay in missions and drills)`}
-              </li>
-              <li>⏱️ {headline.minutes} minutes. The timer auto-submits at zero.</li>
-              <li>🚩 Flag questions, jump around, and change answers before you submit</li>
-              <li>
-                🎯 Scored {min}–{max}. {pass} passes.
-              </li>
-              <li>🙈 No feedback until you submit, just like test day</li>
-            </ul>
-            {isCodeTrack(course) && (
-              <p className="mt-4 font-mono text-sm" style={{ color: LEVEL_BY_ID[level].color }}>
-                {LEVEL_BY_ID[level].icon} Level: {LEVEL_BY_ID[level].name} · {examPool.length} questions in the pool. Change the level on the
-                track&apos;s home screen.
-              </p>
-            )}
-            <p className="mt-4 text-sm text-violet-100">
-              Want to review first?{" "}
-              <Link href={href("/study")} className="font-bold underline">
-                📚 Open Study mode
-              </Link>
+            ))}
+          </ul>
+          {isCodeTrack(course) && (
+            <p className="mt-4 text-sm text-muted-foreground">
+              Level: {LEVEL_BY_ID[level].name} · {examPool.length} questions in the pool. Change the level on the track&apos;s home screen.
             </p>
-            {progress.examBest !== null && (
-              <p className="mt-4 text-sm text-slate-300">
-                Best score: <b className="text-white">{progress.examBest}</b> · Attempts: {progress.examAttempts}
-              </p>
-            )}
-          </div>
-          <div className="hidden md:block">
-            <Core3D size={80} domains={course.domains} icon={course.provider.icon} />
-          </div>
-        </div>
+          )}
+          {progress.examBest !== null && (
+            <p className="mt-4 text-sm text-muted-foreground">
+              Best score: <b className="font-semibold text-foreground">{progress.examBest}</b> · Attempts: {progress.examAttempts}
+            </p>
+          )}
+        </section>
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
-          {MODES.map((m) => (
-            <button
-              key={m.id}
-              type="button"
-              onClick={() => start(m.id)}
-              className={`btn-3d rounded-2xl p-5 text-left ${m.full ? "bg-amber-400 text-slate-950" : "bg-slate-800 text-white"}`}
-              style={{ "--edge": m.full ? "#b45309" : "#020617" } as CSSProperties}
-            >
-              <div className="text-3xl">{m.icon}</div>
-              <div className="mt-1 text-lg font-black">{m.name}</div>
-              <div className="text-sm opacity-80">
-                {m.questions} questions · {m.minutes} minutes
-              </div>
-            </button>
+          {ordered.map((m) => (
+            <Button key={m.id} size="xl" variant={m.full ? "default" : "outline"} className="h-auto min-h-14 justify-start py-3 text-left" onClick={() => start(m.id)}>
+              {m.full ? <Landmark aria-hidden /> : <Timer aria-hidden />}
+              <span className="flex flex-col items-start">
+                <span className="font-semibold">{m.name}</span>
+                <span className="text-sm font-normal opacity-90">
+                  {m.questions} questions · {m.minutes} minutes
+                </span>
+              </span>
+            </Button>
           ))}
         </div>
-        <div className="mt-6 rounded-2xl border border-white/10 bg-slate-900/60 p-4 text-sm text-slate-300">
-          <b className="text-white">About the questions.</b> These are original practice questions written to the {course.guide.source.label} ({versionLabel(course.guide.source.version)}). They are not {course.provider.name}&apos;s own exam questions.
+        <p className="mt-4 text-base text-muted-foreground">
+          Want to review first?{" "}
+          <Link href={href("/study")} className="inline-flex min-h-11 items-center gap-1.5 font-medium text-foreground underline underline-offset-4 hover:text-primary">
+            <BookOpen className="size-4 text-primary" aria-hidden />
+            Open Study mode
+          </Link>
+        </p>
+        <div className="mt-6 rounded-card border border-border bg-muted/40 p-4 text-sm text-muted-foreground">
+          <b className="font-semibold text-foreground">About the questions.</b> These are original practice questions written to the {course.guide.source.label} ({versionLabel(course.guide.source.version)}). They are not {course.provider.name}&apos;s own exam questions.
           {course.guide.officialPractice && (
             <>
               {" "}
               For official practice material, use the{" "}
-              <a href={course.guide.officialPractice.url} target="_blank" rel="noreferrer" className="text-sky-300 underline">
+              <a href={course.guide.officialPractice.url} target="_blank" rel="noreferrer" className="font-medium text-foreground underline underline-offset-4 hover:text-primary">
                 {course.guide.officialPractice.label}
               </a>{" "}
               alongside this game.

@@ -2,6 +2,8 @@
 
 import { LessonReader } from "@/components/learn/LessonReader";
 import { SoftGate } from "@/components/learn/SoftGate";
+import { completionKind } from "@/components/celebrate/kind";
+import { TopicComplete } from "@/components/celebrate/TopicComplete";
 import { useCourseMap } from "@/components/map/useCourseMap";
 import { quizIntro } from "@/components/learn/copy";
 import { SourcesFooter } from "@/components/learn/Sources";
@@ -69,6 +71,7 @@ export function LessonPlay() {
   const challenge = gentle ? { ...course.config.lesson.timedChallenge, enabled: false } : course.config.lesson.timedChallenge;
   const lastRun = timedRuns[timedRuns.length - 1];
   const checksDone = lesson.check.length - queue.length + (submitted ? 1 : 0);
+  const completion = completionKind(map, lesson.id, phase === "done" && firstTime);
   const stepProgress = { teach: 0.1, check: 0.1 + 0.4 * (checksDone / lesson.check.length), recap: 0.6, timed: 0.75, done: 1 }[phase];
 
   function startCheck() {
@@ -311,8 +314,8 @@ export function LessonPlay() {
 
       {phase === "done" && (
         <div className="pop-in mt-10 text-center">
-          <CircleCheck className="mx-auto size-12 text-success-foreground" aria-hidden />
-          <p className="mt-3 text-base font-medium text-success-foreground">Lesson complete</p>
+          <TopicComplete kind={completion} />
+          <p className="mt-3 text-base font-medium text-success-foreground">{completion === "module" ? "Module complete" : "Lesson complete"}</p>
           <h2 data-reading className="mt-2 font-heading text-h3 font-semibold text-foreground">{lesson.title}</h2>
           <dl className="mx-auto mt-6 grid max-w-sm grid-cols-2 gap-3">
             <div className="rounded-card border border-border bg-card p-3">

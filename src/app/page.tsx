@@ -27,7 +27,7 @@ export default function Home() {
         <Catalog onFilteringChange={setFiltering} />
 
         <footer className="mt-12 border-t border-border pt-4 text-sm text-muted-foreground">
-          <Link href="/credits" className="underline underline-offset-4 hover:text-foreground">
+          <Link href="/credits" className="inline-flex min-h-11 items-center underline underline-offset-4 hover:text-foreground">
             Credits and licenses
           </Link>
         </footer>

@@ -301,7 +301,7 @@ export function GuideDrawer() {
   }, [open]);
 
   return (
-    <div className={`fixed inset-0 z-30 ${open ? "" : "pointer-events-none"}`} aria-hidden={!open}>
+    <div className={`fixed inset-0 z-30 ${open ? "" : "pointer-events-none"}`} aria-hidden={!open} inert={!open}>
       <div className={`absolute inset-0 bg-background/70 backdrop-blur-sm transition-opacity motion-reduce:transition-none ${open ? "opacity-100" : "opacity-0"}`} onClick={() => setGuideOpen(false)} />
       <aside
         role="dialog"
