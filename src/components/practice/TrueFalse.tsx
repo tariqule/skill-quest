@@ -1,12 +1,17 @@
 "use client";
 
 import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
+import { Check, X } from "lucide-react";
+import { m, useReducedMotion } from "motion/react";
+import { duration, ease } from "@/design/motion";
+import { cn } from "@/lib/utils";
+import { optionState } from "../feedback/ChoiceOption";
 import { isTyping } from "../keyboard";
 
 /** Display order of a true/false question's options; the engine never shuffles them. */
 const CHOICES = [
-  { label: "True", key: "T", icon: "✓" },
-  { label: "False", key: "F", icon: "✗" },
+  { label: "True", key: "T", icon: Check },
+  { label: "False", key: "F", icon: X },
 ] as const;
 
 interface Props {
@@ -36,8 +41,16 @@ function moveTo(key: string, from: number): number | null {
   }
 }
 
-/** Focus ring: 2px sky-300 outline, offset from the button, about 11:1 against the slate-950 page (WCAG 1.4.11 asks 3:1). */
-const FOCUS_RING = "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300";
+/** Focus ring: 2px ring-token outline, offset from the button (WCAG 1.4.11 asks 3:1). */
+const FOCUS_RING = "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
+
+const TONE = {
+  idle: "border-border bg-card hover:border-primary/60 hover:bg-accent/40",
+  picked: "border-primary bg-primary/10",
+  right: "border-success bg-success/10",
+  wrong: "border-destructive bg-destructive/10",
+  dim: "border-border bg-card text-muted-foreground",
+} as const;
 
 /**
  * Two big buttons for a true/false statement, exposed as a radio group with a roving tabindex:
@@ -50,11 +63,20 @@ export function TrueFalse({ correct, submitted, onSubmit, reveal }: Props) {
   // The one option Tab lands on: the pick once there is one, otherwise the last focused.
   const [active, setActive] = useState(0);
   const tabStop = submitted?.[0] ?? active;
+  const reduced = useReducedMotion();
 
   useEffect(() => {
     if (locked) return;
     function onKey(e: KeyboardEvent) {
       if (e.metaKey || e.ctrlKey || isTyping(e)) return;
+      // Arrows from outside the group bring focus into it, so ArrowDown then Enter answers.
+      if (/^Arrow(Up|Down|Left|Right)$/.test(e.key) && !refs.current.some((r) => r === document.activeElement)) {
+        const target = document.activeElement;
+        if (target && target !== document.body && target.closest("input,textarea,select,[role=slider],[role=tablist]")) return;
+        e.preventDefault();
+        refs.current[active]?.focus();
+        return;
+      }
       const k = e.key.toUpperCase();
       const idx = k === "T" || k === "1" ? 0 : k === "F" || k === "2" ? 1 : -1;
       if (idx < 0) return;
@@ -63,9 +85,16 @@ export function TrueFalse({ correct, submitted, onSubmit, reveal }: Props) {
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [locked, onSubmit]);
+  }, [locked, onSubmit, active]);
 
   function onArrow(e: ReactKeyboardEvent, i: number) {
+    if ((e.key === "Enter" || e.key === " ") && !locked) {
+      // Choose and check in one step; stop the page's own Enter handler from also seeing it.
+      e.preventDefault();
+      e.stopPropagation();
+      onSubmit([i]);
+      return;
+    }
     const to = moveTo(e.key, i);
     if (to === null) return;
     e.preventDefault();
@@ -77,12 +106,10 @@ export function TrueFalse({ correct, submitted, onSubmit, reveal }: Props) {
     <div role="radiogroup" aria-label="True or false" className="mt-5 grid grid-cols-2 gap-3">
       {CHOICES.map((c, i) => {
         const picked = submitted?.includes(i) ?? false;
-        const right = i === correct;
-        let tone = "border-white/10 bg-white/5 hover:border-sky-400/60 hover:bg-sky-400/10";
-        if (locked && reveal) tone = right ? "border-emerald-400 bg-emerald-400/15" : picked ? "border-rose-400 bg-rose-400/15" : "border-white/5 bg-white/[0.02] opacity-60";
-        else if (locked) tone = picked ? "border-sky-400 bg-sky-400/15" : "border-white/5 bg-white/[0.02] opacity-60";
+        const state = optionState({ picked, right: i === correct, locked, reveal });
+        const Icon = c.icon;
         return (
-          <button
+          <m.button
             key={c.label}
             ref={(el) => {
               refs.current[i] = el;
@@ -97,12 +124,20 @@ export function TrueFalse({ correct, submitted, onSubmit, reveal }: Props) {
             onFocus={() => setActive(i)}
             onClick={() => !locked && onSubmit([i])}
             onKeyDown={(e) => onArrow(e, i)}
-            className={`flex min-h-16 items-center justify-center gap-2 rounded-xl border px-4 py-3 text-lg font-bold text-slate-100 transition ${tone} ${FOCUS_RING} ${locked ? "cursor-default" : ""}`}
+            data-state={state}
+            animate={state === "wrong" && !reduced ? { x: [0, -4, 4, -2, 0] } : { x: 0 }}
+            transition={{ duration: duration.base, ease: ease.standard }}
+            className={cn(
+              "flex min-h-16 items-center justify-center gap-2 rounded-card border-2 px-4 py-3 text-lg font-semibold text-foreground transition-colors duration-150 motion-reduce:transition-none",
+              TONE[state],
+              FOCUS_RING,
+              locked && "cursor-default",
+            )}
           >
-            <span aria-hidden="true">{c.icon}</span>
+            <Icon className={cn("size-5", state === "right" ? "text-success-foreground" : state === "wrong" ? "text-destructive-foreground" : "text-muted-foreground")} aria-hidden />
             {c.label}
-            <kbd className="ml-1 rounded bg-white/10 px-1.5 text-xs font-semibold text-slate-300">{c.key}</kbd>
-          </button>
+            <kbd className="ml-1 hidden rounded border border-border bg-muted px-1.5 text-sm font-medium text-foreground/80 sm:inline">{c.key}</kbd>
+          </m.button>
         );
       })}
     </div>

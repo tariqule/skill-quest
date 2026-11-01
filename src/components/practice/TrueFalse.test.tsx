@@ -29,7 +29,7 @@ describe("TrueFalse", () => {
   it("is a labelled radio group of True then False with one tab stop", () => {
     const { div, radios } = mount();
     expect(div.querySelector('[role="radiogroup"]')?.getAttribute("aria-label")).toBe("True or false");
-    expect(radios.map((r) => r.textContent)).toEqual(["✓TrueT", "✗FalseF"]);
+    expect(radios.map((r) => r.textContent)).toEqual(["TrueT", "FalseF"]);
     expect(tabStops(radios)).toEqual([0, -1]);
     expect(radios.every((r) => r.getAttribute("aria-checked") === "false")).toBe(true);
   });
@@ -60,7 +60,7 @@ describe("TrueFalse", () => {
 
   it("shows a visible focus ring on every option", () => {
     const { radios } = mount();
-    for (const r of radios) expect(r.className).toMatch(/focus-visible:outline-2\b.*focus-visible:outline-sky-300/);
+    for (const r of radios) expect(r.className).toMatch(/focus-visible:outline-2\b.*focus-visible:outline-ring/);
   });
 
   it("keeps the picked option focusable and checked after answering, and ignores further picks", () => {
@@ -71,5 +71,20 @@ describe("TrueFalse", () => {
     act(() => radios[0].click());
     key(document.body, "t");
     expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it("ArrowDown then Enter or Space chooses and submits", () => {
+    const a = mount();
+    act(() => a.radios[0].focus());
+    key(a.radios[0], "ArrowDown");
+    expect(document.activeElement).toBe(a.radios[1]);
+    key(a.radios[1], "Enter");
+    expect(a.onSubmit).toHaveBeenCalledWith([1]);
+    act(() => root?.unmount());
+    document.body.innerHTML = "";
+    const b = mount();
+    act(() => b.radios[0].focus());
+    key(b.radios[0], " ");
+    expect(b.onSubmit).toHaveBeenCalledWith([0]);
   });
 });

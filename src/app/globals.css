@@ -37,6 +37,13 @@ body {
 .code-theme h1 {
   text-shadow: 0 0 18px rgb(52 211 153 / 0.35);
 }
+/* Reading surfaces (lesson titles, question prompts) stay in the sans face for legibility. */
+.code-theme h1[data-reading],
+.code-theme h2[data-reading] {
+  font-family: var(--font-heading);
+  letter-spacing: normal;
+  text-shadow: none;
+}
 .code-grid {
   background-image: linear-gradient(rgb(52 211 153 / 0.06) 1px, transparent 1px), linear-gradient(90deg, rgb(52 211 153 / 0.06) 1px, transparent 1px);
   background-size: 32px 32px;
@@ -98,15 +105,15 @@ body {
   40%, 80% { transform: translateX(6px); }
 }
 .shake {
-  animation: shake 0.35s ease;
+  animation: shake 0.2s ease;
 }
 
 @keyframes pop-in {
-  from { opacity: 0; transform: scale(0.94); }
+  from { opacity: 0; transform: scale(0.98); }
   to { opacity: 1; transform: scale(1); }
 }
 .pop-in {
-  animation: pop-in 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation: pop-in 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 @keyframes xp-float {
@@ -356,11 +363,11 @@ body {
 
 /* Lesson card entrance */
 @keyframes card-in {
-  from { opacity: 0; transform: perspective(900px) rotateY(-12deg) translateX(30px); }
-  to { opacity: 1; transform: perspective(900px) rotateY(0) translateX(0); }
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 .card-in {
-  animation: card-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation: card-in 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 /* Mission map: pull the zig-zag in on narrow phones so node labels stay on screen. */
@@ -393,6 +400,18 @@ pre,
 samp {
   font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.9375em;
+}
+/* Reading text in lessons and question cards: 17px on phones, 18px from 640px, 1.6 line height. */
+@utility text-reading {
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  @media (width >= 40rem) {
+    font-size: 1.125rem;
+  }
+}
+/* Keyboard hints stay legible (>=14px) even inside small text. */
+kbd {
+  font-size: max(0.875rem, 0.9375em);
 }
 
 /* ───────── Print (cheat sheet) ───────── */

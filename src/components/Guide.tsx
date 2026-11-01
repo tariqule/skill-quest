@@ -1,22 +1,22 @@
 "use client";
 
 import { RichText } from "@/components/learn/code";
-import { BookOpen, X } from "lucide-react";
+import { BookOpen, BookText, Check, FileText, Gamepad2, Keyboard, Lightbulb, ListChecks, Map, Search, Swords, Target, Wrench, X, type LucideIcon } from "lucide-react";
+import { Input } from "./ui/input";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { courseCopy } from "@/engine/copy";
 import { useCourse, useProgress } from "@/engine/course-context";
 import { versionLabel } from "@/engine/game";
 import { setGuideOpen, useGuideOpen } from "@/engine/ui-state";
-import { Mascot } from "./fx";
 
 const TABS = [
-  { id: "exam", label: "🎯 Format" },
-  { id: "topics", label: "🗺️ Topics" },
-  { id: "glossary", label: "🔎 Glossary" },
-  { id: "services", label: "🧰 Scope" },
-  { id: "tips", label: "💡 Tips" },
-  { id: "play", label: "🎮 How to play" },
+  { id: "exam", label: "Format", icon: Target },
+  { id: "topics", label: "Topics", icon: Map },
+  { id: "glossary", label: "Glossary", icon: Search },
+  { id: "services", label: "Scope", icon: Wrench },
+  { id: "tips", label: "Tips", icon: Lightbulb },
+  { id: "play", label: "How to play", icon: Gamepad2 },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -33,8 +33,9 @@ export function GuideContent({ initialTab = "exam" }: { compact?: boolean; initi
             role="tab"
             aria-selected={tab === t.id}
             onClick={() => setTab(t.id)}
-            className={`min-h-10 rounded-full border px-3.5 text-sm font-medium outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-ring ${tab === t.id ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+            className={`inline-flex min-h-11 items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-ring ${tab === t.id ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground hover:bg-accent hover:text-foreground"}`}
           >
+            <t.icon className="size-4" aria-hidden />
             {t.label}
           </button>
         ))}
@@ -53,31 +54,32 @@ export function GuideContent({ initialTab = "exam" }: { compact?: boolean; initi
 
 function ExamTab() {
   const { course } = useCourse();
+  const maxWeight = Math.max(...course.domains.map((d) => d.weight), 1);
+  // One teal hue, darker to lighter by weight; the % and name labels carry the meaning, not the colour.
+  const shade = (w: number) => `color-mix(in oklab, var(--primary) ${Math.round(35 + (65 * w) / maxWeight)}%, var(--muted))`;
   return (
     <div className="grid gap-4">
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-2 min-[400px]:grid-cols-2">
         {course.guide.facts.map((f) => (
-          <div key={f.label} className="rounded-xl border border-white/10 bg-slate-950/60 p-3">
-            <div className="text-xl">{f.icon}</div>
-            <div className="text-xl font-black text-white">
-              {f.value} <span className="text-xs font-bold uppercase text-sky-300">{f.label}</span>
-            </div>
-            <div className="mt-1 text-xs text-slate-400">{f.detail}</div>
+          <div key={f.label} className="rounded-xl border border-border bg-card p-3">
+            <div className="text-sm font-medium text-foreground/80">{f.label}</div>
+            <div className="text-xl font-semibold text-foreground">{f.value}</div>
+            <div className="mt-1 text-sm text-foreground/80">{f.detail}</div>
           </div>
         ))}
       </div>
       <div>
-        <div className="mb-2 text-sm font-bold text-white">Score weight by domain</div>
+        <div className="mb-2 text-sm font-bold text-foreground">Score weight by domain</div>
         <div className="grid gap-1.5">
           {course.domains.map((d) => (
             <div key={d.id} className="grid grid-cols-[2.5rem_1fr] items-center gap-2 text-sm">
-              <span className="text-right font-black" style={{ color: d.color }}>
+              <span className="text-right font-semibold text-foreground">
                 {d.weight}%
               </span>
               <div>
-                <div className="h-2 rounded-full" style={{ width: `${d.weight * 3.3}%`, background: d.color }} />
-                <div className="mt-0.5 text-xs text-slate-300">
-                  {d.emoji} {d.name}
+                <div className="h-2 rounded-full" style={{ width: `${(d.weight / maxWeight) * 100}%`, background: shade(d.weight) }} />
+                <div className="mt-0.5 text-sm text-foreground">
+                  {d.name}
                 </div>
               </div>
             </div>
@@ -85,15 +87,15 @@ function ExamTab() {
         </div>
       </div>
       <div>
-        <div className="mb-2 text-sm font-bold text-white">Question types</div>
+        <div className="mb-2 text-sm font-bold text-foreground">Question types</div>
         <div className="grid gap-2 sm:grid-cols-2">
           {course.exam.questionTypes.map((t) => (
-            <div key={t.id} className="rounded-xl bg-white/5 p-2 text-sm">
-              <b className="text-white">
-                {t.icon} {t.name}
-                {t.practiceOnly && <span className="ml-1.5 rounded bg-white/10 px-1.5 py-0.5 text-[10px] font-bold uppercase text-slate-300">practice only</span>}
+            <div key={t.id} className="rounded-xl bg-muted p-2 text-sm">
+              <b className="text-foreground">
+                {t.name}
+                {t.practiceOnly && <span className="ml-1.5 rounded bg-background px-1.5 py-0.5 text-sm font-medium text-foreground/80">practice only</span>}
               </b>
-              <div className="text-xs text-slate-400">{t.rule}</div>
+              <div className="text-sm text-foreground/80">{t.rule}</div>
             </div>
           ))}
         </div>
@@ -109,21 +111,21 @@ function TopicsTab() {
   const done = allLessons.filter((l) => p.lessonsDone.includes(l.id)).length;
   return (
     <div className="grid gap-4">
-      <div className="rounded-xl border border-white/10 bg-slate-950/60 p-3 text-sm text-slate-300">
+      <div className="rounded-xl border border-border bg-card p-3 text-sm text-foreground/80">
         Every topic in the {courseCopy(course).syllabus}, and the missions that teach it.{" "}
-        <b className="text-white">
+        <b className="text-foreground">
           {done}/{allLessons.length}
         </b>{" "}
         missions cleared.
       </div>
       {course.domains.map((d) => (
-        <details key={d.id} className="group rounded-xl border border-white/10 bg-slate-950/40" open={false}>
-          <summary className="flex cursor-pointer items-center gap-2 p-3">
-            <span className="text-xl">{d.emoji}</span>
-            <span className="flex-1 font-bold text-white">
+        <details key={d.id} className="group rounded-xl border border-border bg-card" open={false}>
+          <summary className="flex min-h-11 cursor-pointer items-center gap-2 p-3">
+            <span className="size-2.5 shrink-0 rounded-full bg-primary" aria-hidden />
+            <span className="flex-1 font-bold text-foreground">
               {d.number}. {d.name}
             </span>
-            <span className="text-xs text-slate-400">
+            <span className="text-sm text-foreground/80">
               {course.lessons[d.id].filter((l) => p.lessonsDone.includes(l.id)).length}/{course.lessons[d.id].length}
             </span>
           </summary>
@@ -131,13 +133,13 @@ function TopicsTab() {
             {(course.guide.tasks[d.id] ?? []).map((t) => {
               const lessons = course.lessons[d.id].filter((l) => l.task.split(" · ").includes(t.id));
               return (
-                <div key={t.id} className="rounded-lg bg-white/5 p-3">
-                  <div className="text-sm font-bold text-white">
-                    <span style={{ color: d.color }}>Task {t.id}</span> {t.title}
+                <div key={t.id} className="rounded-lg bg-muted p-3">
+                  <div className="text-sm font-bold text-foreground">
+                    <span className="text-primary">Task {t.id}</span> {t.title}
                   </div>
-                  <ul className="mt-1.5 grid gap-1 text-xs text-slate-300">
+                  <ul className="mt-1.5 grid list-disc gap-1 pl-5 text-sm text-foreground/80">
                     {t.covers.map((c) => (
-                      <li key={c}>• {c}</li>
+                      <li key={c}>{c}</li>
                     ))}
                   </ul>
                   {lessons.length > 0 && (
@@ -149,9 +151,9 @@ function TopicsTab() {
                             key={l.id}
                             href={href(`/lesson/${l.id}`)}
                             onClick={() => setGuideOpen(false)}
-                            className={`rounded-full border px-2 py-0.5 text-xs ${ok ? "border-emerald-400/50 bg-emerald-400/10 text-emerald-200" : "border-white/15 text-slate-300 hover:bg-white/10"}`}
+                            className={`inline-flex min-h-9 items-center gap-1 rounded-full border px-3 text-sm ${ok ? "border-success/50 bg-success/10 text-success-foreground" : "border-border text-foreground hover:bg-accent"}`}
                           >
-                            {ok ? "✓" : "📖"} {l.title}
+                            {ok ? <Check className="size-3.5" aria-label="Done" /> : <BookText className="size-3.5" aria-hidden />} {l.title}
                           </Link>
                         );
                       })}
@@ -173,23 +175,22 @@ function GlossaryTab() {
   const terms = course.cards.filter((c) => (c.term + c.definition).toLowerCase().includes(q.toLowerCase())).sort((a, b) => a.term.localeCompare(b.term));
   return (
     <div>
-      <input
+      <Input
         value={q}
         onChange={(e) => setQ(e.target.value)}
         placeholder="Search a term, e.g. RAG, Macie, recall…"
         aria-label="Search glossary"
-        className="w-full rounded-xl border border-white/15 bg-slate-950 px-3 py-2.5 text-slate-100 placeholder:text-slate-500"
+        className="text-base"
       />
       <div className="mt-3 grid gap-1.5">
         {terms.map((c) => {
-          const d = course.domains.find((x) => x.id === c.domain)!;
           return (
-            <div key={c.id} className="rounded-lg bg-white/5 px-3 py-2 text-sm" style={{ boxShadow: `inset 3px 0 0 0 ${d.color}` }}>
-              <b className="text-white"><RichText text={c.term} /></b> <span className="text-slate-300">· <RichText text={c.definition} /></span>
+            <div key={c.id} className="rounded-lg bg-muted px-3 py-2 text-sm" style={{ boxShadow: "inset 3px 0 0 0 var(--primary)" }}>
+              <b className="text-foreground"><RichText text={c.term} /></b> <span className="text-foreground/80">· <RichText text={c.definition} /></span>
             </div>
           );
         })}
-        {terms.length === 0 && <div className="text-sm text-slate-500">No match. Try a shorter word.</div>}
+        {terms.length === 0 && <div className="text-sm text-foreground/80">No match. Try a shorter word.</div>}
       </div>
     </div>
   );
@@ -199,15 +200,15 @@ function ServicesTab() {
   const { course } = useCourse();
   return (
     <div className="grid gap-3">
-      <p className="text-sm text-slate-400">{course.guide.scope.label} from the {courseCopy(course).syllabus}.</p>
+      <p className="text-sm text-foreground/80">{course.guide.scope.label} from the {courseCopy(course).syllabus}.</p>
       {course.guide.scope.groups.map((c) => (
-        <div key={c.category} className="rounded-xl border border-white/10 bg-slate-950/50 p-3">
-          <div className="text-sm font-bold text-white">
-            {c.icon} {c.category}
+        <div key={c.category} className="rounded-xl border border-border bg-card p-3">
+          <div className="text-sm font-semibold text-foreground">
+            {c.category}
           </div>
           <div className="mt-2 flex flex-wrap gap-1.5">
             {c.services.map((s) => (
-              <span key={s} className="rounded-md bg-white/5 px-2 py-1 text-xs text-slate-200">
+              <span key={s} className="rounded-md bg-muted px-2 py-1 text-sm text-foreground">
                 {s}
               </span>
             ))}
@@ -223,13 +224,13 @@ function TipsTab() {
   const { course, href } = useCourse();
   return (
     <div className="grid gap-2">
-      <Link href={href("/cheatsheet")} onClick={() => setGuideOpen(false)} className="flex gap-3 rounded-xl border border-sky-400/30 bg-sky-400/10 p-3 text-sm font-semibold text-sky-200 underline">
-        <span className="text-xl" aria-hidden>📜</span>
+      <Link href={href("/cheatsheet")} onClick={() => setGuideOpen(false)} className="flex min-h-11 items-center gap-3 rounded-xl border border-primary/40 bg-primary/10 p-3 text-sm font-semibold text-foreground underline underline-offset-4">
+        <FileText className="size-5 shrink-0 text-primary" aria-hidden />
         <span>Cheat sheet: every key fact on one page</span>
       </Link>
       {course.guide.tips.map((t) => (
-        <div key={t.tip} className="flex gap-3 rounded-xl bg-white/5 p-3 text-sm text-slate-200">
-          <span className="text-xl">{t.icon}</span>
+        <div key={t.tip} className="flex gap-3 rounded-xl bg-muted p-3 text-sm text-foreground">
+          <Lightbulb className="mt-0.5 size-4 shrink-0 text-warning-foreground" aria-hidden />
           <span><RichText text={t.tip} /></span>
         </div>
       ))}
@@ -240,27 +241,31 @@ function TipsTab() {
 function PlayTab() {
   const { course, href } = useCourse();
   return (
-    <div className="grid gap-3 text-sm text-slate-300">
-      <div className="flex items-center gap-3 rounded-xl border border-sky-400/30 bg-sky-400/10 p-3">
-        <Mascot size={48} />
+    <div className="grid gap-3 text-sm text-foreground/80">
+      <div className="flex items-center gap-3 rounded-xl border border-primary/40 bg-primary/10 p-3 text-foreground">
+        <Map className="size-6 shrink-0 text-primary" aria-hidden />
         <span>Follow the mission map from top to bottom. Each step teaches before it tests.</span>
       </div>
-      {[
-        ["📖 Mission", `One concept, explained with a visual or a hands-on lab, then quick check questions. +${course.config.xp.lessonComplete} XP.`],
-        ["⚔️ Trial", `${course.config.quest.length} questions from the world, ${course.config.quest.hearts} hearts. 1+ star unlocks the next world.`],
-        [`${courseCopy(course).gateIcon} ${courseCopy(course).gate.replace(/^The /, "")}`, `Full ${course.exam.questions}-question, ${course.exam.minutes}-minute ${courseCopy(course).simulator}.`],
-        ["🎮 Training deck", "Replay challenges anytime to sharpen what you learned."],
-        ["⌨️ Keys", "1–4 or A–D to answer · Enter to continue · Space flips flashcards."],
-      ].map(([t, d]) => (
-        <div key={t} className="rounded-xl bg-white/5 p-3">
-          <b className="text-white">{t}</b>
+      {([
+        [BookText, "Mission", `One concept, explained with a visual or a hands-on lab, then quick check questions. +${course.config.xp.lessonComplete} XP.`],
+        [Swords, "Trial", `${course.config.quest.length} questions from the world, ${course.config.quest.hearts} hearts. 1+ star unlocks the next world.`],
+        [ListChecks, courseCopy(course).gate.replace(/^The /, ""), `Full ${course.exam.questions}-question, ${course.exam.minutes}-minute ${courseCopy(course).simulator}.`],
+        [Gamepad2, "Training deck", "Replay challenges anytime to sharpen what you learned."],
+        [Keyboard, "Keys", "1–4 or A–D to answer · Enter to continue · Space flips flashcards."],
+      ] as [LucideIcon, string, string][]).map(([Icon, t, d]) => (
+        <div key={t} className="rounded-xl bg-muted p-3">
+          <b className="flex items-center gap-1.5 text-foreground">
+            <Icon className="size-4 text-muted-foreground" aria-hidden />
+            {t}
+          </b>
           <div>{d}</div>
         </div>
       ))}
-      <Link href={href("/cheatsheet")} onClick={() => setGuideOpen(false)} className="text-sky-300 underline">
-        📜 Open the one-page cheat sheet
+      <Link href={href("/cheatsheet")} onClick={() => setGuideOpen(false)} className="inline-flex min-h-11 items-center gap-1.5 text-primary underline underline-offset-4">
+        <FileText className="size-4" aria-hidden />
+        Open the one-page cheat sheet
       </Link>
-      <Link href={href("/start")} onClick={() => setGuideOpen(false)} className="text-sky-300 underline">
+      <Link href={href("/start")} onClick={() => setGuideOpen(false)} className="inline-flex min-h-11 items-center text-primary underline underline-offset-4">
         Replay the intro briefing
       </Link>
     </div>
@@ -270,7 +275,7 @@ function PlayTab() {
 function SourceNote() {
   const { source } = useCourse().course.guide;
   return (
-    <p className="text-xs text-slate-500">
+    <p className="text-sm text-foreground/80">
       Based on the {source.label} {versionLabel(source.version)} ({source.date}).{" "}
       <a href={source.url} target="_blank" rel="noreferrer" className="underline">
         Read the official guide

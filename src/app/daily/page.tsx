@@ -1,6 +1,10 @@
 "use client";
 
-import { ArrowRight, CheckCircle2, Code2, RotateCcw, Zap } from "lucide-react";
+import { ArrowRight, CheckCircle2, Code2, Eye, RotateCcw, Zap } from "lucide-react";
+import { AnswerFeedback } from "@/components/feedback/AnswerFeedback";
+import { ChoiceOption, optionState } from "@/components/feedback/ChoiceOption";
+import { Button } from "@/components/ui/button";
+import { indexCourse } from "@/engine/indexes";
 import { NextSteps, PageIntro, PageSkeleton } from "@/components/shell/PageIntro";
 import { ScenarioPlay } from "@/components/scenarios/ScenarioPlay";
 import { gradeFor } from "@/engine/scenarios";
@@ -13,6 +17,7 @@ import { getSrs, gradeItem } from "@/engine/srs-store";
 import { buildQueue } from "@/engine/daily-queue";
 import { completeScenario, makeOnce } from "@/engine/scenario-progress";
 import { getCourseStore } from "@/engine/store";
+import { useHoldToasts } from "@/engine/ui-state";
 import { GameItem } from "@/components/code-games/GameItem";
 import { CodeReview } from "@/components/coding/CodeReview";
 import { isChoice, type Card, type ChoiceQuestion, type Course } from "@/engine/types";
@@ -40,6 +45,8 @@ function Session() {
   const [i, setI] = useState(0);
   const [right, setRight] = useState(0);
   const [once] = useState(makeOnce);
+  // Badge toasts wait for the finish screen instead of popping up mid-review.
+  useHoldToasts(i < queue.length);
 
   if (queue.length === 0) {
     return (
@@ -80,16 +87,17 @@ function Session() {
 
   return (
     <div className="mt-6 max-w-3xl">
-      <div className="mb-2 flex items-center justify-between text-sm text-muted-foreground">
+      <div className="mb-2 flex items-center justify-between text-sm text-foreground/80">
         <span>
           {i + 1} / {queue.length}
         </span>
-        <span style={{ color: item.course.provider.color }}>
-          {item.course.provider.icon} {item.course.shortTitle}
+        <span className="flex items-center gap-1.5 font-medium text-foreground">
+          <span className="size-2.5 rounded-full" style={{ background: item.course.provider.color }} aria-hidden />
+          {item.course.shortTitle}
         </span>
       </div>
-      <div className="mb-4 h-1.5 rounded-full bg-white/10">
-        <div className="h-full rounded-full bg-emerald-400 transition-all" style={{ width: `${(i / queue.length) * 100}%` }} />
+      <div className="mb-4 h-1.5 rounded-full bg-muted">
+        <div className="h-full rounded-full bg-success transition-[width] duration-200 motion-reduce:transition-none" style={{ width: `${(i / queue.length) * 100}%` }} />
       </div>
       {item.kind === "card" ? <CardItem key={item.key} card={item.card} onGrade={next} /> : item.kind === "sc" ? (
           <ScenarioPlay key={item.key} courseId={item.course.id} item={item.sc} onResult={(share) =>
@@ -111,48 +119,55 @@ function Session() {
   );
 }
 
-const GRADES: { id: ReviewGrade; label: string; cls: string }[] = [
-  { id: "again", label: "Again", cls: "bg-rose-400" },
-  { id: "hard", label: "Hard", cls: "bg-amber-300" },
-  { id: "good", label: "Good", cls: "bg-emerald-400" },
-  { id: "easy", label: "Easy", cls: "bg-sky-400" },
+const GRADES: { id: ReviewGrade; label: string; hint: string }[] = [
+  { id: "again", label: "Again", hint: "forgot it" },
+  { id: "hard", label: "Hard", hint: "with effort" },
+  { id: "good", label: "Good", hint: "recalled it" },
+  { id: "easy", label: "Easy", hint: "instant" },
 ];
+
+const CARD = "rounded-card border border-border bg-card p-5 sm:p-7";
+const EYEBROW = "text-sm font-medium text-foreground/80";
 
 function CardItem({ card, onGrade }: { card: Card; onGrade: (g: ReviewGrade) => void }) {
   const [shown, setShown] = useState(false);
   return (
-    <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-5 sm:p-7">
-      <div className="text-sm font-bold uppercase tracking-wider text-slate-400">Flashcard · what is it?</div>
-      <div className="mt-2 text-2xl font-black text-white">{card.term}</div>
+    <div className={CARD}>
+      <div className={EYEBROW}>Flashcard · what is it?</div>
+      <div className="mt-2 font-heading text-h3 font-semibold text-foreground">{card.term}</div>
       {shown ? (
         <>
-          <p className="mt-4 text-lg text-slate-100">
+          <p className="mt-4 max-w-[680px] text-body leading-relaxed text-foreground">
             <RichText text={card.definition} />
           </p>
-          <p className="mt-5 text-sm text-slate-300">How well did you remember it?</p>
-          <p className="mt-1 text-sm text-slate-400">Again: forgot it, see it soon. Hard: got it with effort. Good: recalled it. Easy: instant, so it waits longer.</p>
-          <div className="mt-2 grid grid-cols-4 gap-2">
+          <p className="mt-6 text-base font-medium text-foreground" id="grade-q">How well did you remember it?</p>
+          <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4" role="group" aria-labelledby="grade-q">
             {GRADES.map((g) => (
-              <button key={g.id} type="button" onClick={() => onGrade(g.id)} className={`rounded-xl px-2 py-3 text-base font-black text-slate-950 ${g.cls}`}>
-                {g.label}
-              </button>
+              <Button key={g.id} type="button" variant={g.id === "good" ? "default" : "outline"} onClick={() => onGrade(g.id)} className="h-auto min-h-14 flex-col gap-0 py-2 sm:h-auto">
+                <span className="text-base font-semibold">{g.label}</span>
+                <span className="text-sm font-normal">{g.hint}</span>
+              </Button>
             ))}
           </div>
         </>
       ) : (
-        <button type="button" onClick={() => setShown(true)} className="mt-6 w-full rounded-2xl bg-sky-400 py-3 text-base font-black text-slate-950">
+        <Button type="button" size="xl" onClick={() => setShown(true)} className="mt-6 h-12 w-full sm:h-12">
+          <Eye aria-hidden />
           Show answer
-        </button>
+        </Button>
       )}
     </div>
   );
 }
+
+const LETTERS = "ABCDEFGH";
 
 function QuestionItem({ course, q, fresh, note, onGrade }: { course: Course; q: ChoiceQuestion; fresh?: boolean; note: (ok: boolean) => string; onGrade: (g: ReviewGrade) => void }) {
   const multi = q.answer.length > 1;
   const [picked, setPicked] = useState<number[]>([]);
   const [done, setDone] = useState(false);
   const correct = done && picked.length === q.answer.length && q.answer.every((a) => picked.includes(a));
+  const lesson = indexCourse(course).lessonForQuestion[q.id];
 
   function submit(sel: number[]) {
     setPicked(sel);
@@ -162,9 +177,11 @@ function QuestionItem({ course, q, fresh, note, onGrade }: { course: Course; q: 
   }
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-5 sm:p-7">
-      <div className="text-sm font-bold uppercase tracking-wider text-slate-400">{multi ? `Choose ${q.answer.length}` : "Question"} · {fresh ? "new for you" : "you missed this before"}</div>
-      <h2 className="mt-2 text-lg font-semibold leading-snug text-white sm:text-xl">
+    <div className={CARD}>
+      <div className={EYEBROW}>
+        {multi ? `Choose ${q.answer.length}` : "Question"} · {fresh ? "new for you" : "you missed this before"}
+      </div>
+      <h2 data-reading className="mt-2 max-w-[680px] text-lg font-semibold leading-snug text-foreground sm:text-xl">
         <RichText text={q.prompt} />
       </h2>
       {q.code && (
@@ -175,41 +192,37 @@ function QuestionItem({ course, q, fresh, note, onGrade }: { course: Course; q: 
       <ul className="mt-4 grid gap-2">
         {q.options.map((o, idx) => {
           const sel = picked.includes(idx);
-          const isAns = q.answer.includes(idx);
-          const tone = done ? (isAns ? "border-emerald-400 bg-emerald-400/15" : sel ? "border-rose-400 bg-rose-400/15" : "border-white/10 opacity-70") : sel ? "border-sky-400 bg-sky-400/15" : "border-white/15 hover:border-white/35";
           return (
             <li key={idx}>
-              <button
-                type="button"
+              <ChoiceOption
+                letter={LETTERS[idx]}
+                state={optionState({ picked: sel, right: q.answer.includes(idx), locked: done, reveal: done })}
                 disabled={done}
-                aria-pressed={sel}
+                pressed={multi ? sel : undefined}
                 onClick={() => (multi ? setPicked((p) => (p.includes(idx) ? p.filter((x) => x !== idx) : [...p, idx])) : submit([idx]))}
-                className={`w-full rounded-2xl border-2 p-3 text-left text-base text-white ${tone}`}
               >
                 <RichText text={o} />
-              </button>
+              </ChoiceOption>
             </li>
           );
         })}
       </ul>
       {multi && !done && (
-        <button type="button" disabled={picked.length !== q.answer.length} onClick={() => submit(picked)} className="mt-3 w-full rounded-2xl bg-sky-400 py-3 text-base font-black text-slate-950 disabled:opacity-40">
+        <Button type="button" size="xl" disabled={picked.length !== q.answer.length} onClick={() => submit(picked)} className="mt-3 h-12 w-full sm:h-12">
           Check
-        </button>
+        </Button>
       )}
       {done && (
-        <div className="mt-4">
-          <div className={`text-lg font-black ${correct ? "text-emerald-300" : "text-rose-300"}`}>{correct ? "✅ Got it" : "❌ Not yet"}</div>
-          <p className="mt-1 text-base font-semibold text-slate-100" role="status">{note(correct)}</p>
-          <p className="mt-1 text-base text-slate-200">
+        <>
+          <AnswerFeedback ok={correct} note={note(correct)} concept={lesson ? { title: lesson.title, href: `/c/${course.id}/lesson/${lesson.id}` } : undefined} className="mt-4">
             <RichText text={q.explanation} />
-          </p>
-          <button type="button" onClick={() => onGrade(correct ? "good" : "again")} className="mt-4 w-full rounded-2xl bg-emerald-400 py-3 text-base font-black text-slate-950">
-            Next →
-          </button>
-        </div>
+          </AnswerFeedback>
+          <Button type="button" size="xl" onClick={() => onGrade(correct ? "good" : "again")} className="mt-4 h-12 w-full sm:h-12">
+            Next
+            <ArrowRight aria-hidden />
+          </Button>
+        </>
       )}
     </div>
   );
 }
-
