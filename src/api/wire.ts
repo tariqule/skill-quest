@@ -98,3 +98,8 @@ export function decodeCourse(wire: WireCourse): Course {
   listeners.forEach((l) => l(course));
   return course;
 }
+
+/** Tests only: forget every decoded course, as on a fresh page load. */
+export function forgetDecodedCourses(): void {
+  decoded.clear();
+}
