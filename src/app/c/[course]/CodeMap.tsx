@@ -5,7 +5,7 @@ import { ArrowLeft, BookOpen, ChevronRight, Code2, Gamepad2, Map as MapIcon, Mes
 import { IntroOffer } from "@/components/learn/IntroOffer";
 import { HubHeader } from "@/components/hub/HubHeader";
 import { BadgeShelf, HubSection, ModeGrid } from "@/components/hub/Sections";
-import { PathTile, StageMap } from "@/components/hub/StageMap";
+import { MapLegend, PathTile, StageMap, type LegendEntry } from "@/components/hub/StageMap";
 import { LayoutMotion } from "@/components/motion/LayoutMotion";
 import { LANGUAGE_LABEL, languageOf } from "@/engine/coding-langs";
 import { courseCopy } from "@/engine/copy";
@@ -16,7 +16,7 @@ import { CourseLevel, LevelUpBanner } from "@/components/LevelControls";
 import { modesFor } from "@/engine/modes";
 import { buildPath, type PathWorld } from "@/engine/path";
 import { levelInfo } from "@/engine/store";
-import { ModuleMap } from "@/components/map/ModuleMap";
+import { ModuleMap, STATE as TOPIC_STATE } from "@/components/map/ModuleMap";
 import { useCourseMap } from "@/components/map/useCourseMap";
 import { useHydrated } from "@/engine/hydrated";
 import { PracticeTile } from "@/components/practice/PracticeTile";
@@ -40,7 +40,7 @@ export function CodeMap() {
   const nextTitle = nextTopic?.title ?? (current ? (current.type === "lesson" ? lessonById[current.key]?.title : "Stage trial") : null);
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-4 py-6 sm:py-10">
+    <main className="mx-auto w-full max-w-page px-4 py-6 sm:py-10">
       <IntroOffer show={!p.onboarded && p.xp === 0} href={href("/start")} onSkip={() => store.skipOnboarding()} />
       <HubHeader
         eyebrow={`${learning ? "Learn from zero" : "Interview prep"} · ${course.code}`}
@@ -52,10 +52,7 @@ export function CodeMap() {
           label: p.xp === 0 ? "Start" : "Continue",
           line: hydrated && nextTitle ? `Next: ${nextTitle}` : undefined,
         }}
-        secondary={[
-          { href: href("/study"), label: "Study", icon: BookOpen },
-          { href: href("/exam"), label: learning ? "Skill check" : "Mock interview", icon: MessagesSquare },
-        ]}
+        secondary={[{ href: href("/study"), label: "Study", icon: BookOpen }]}
         xp={p.xp}
         streak={p.streak.count}
         readiness={readiness}
@@ -92,6 +89,7 @@ export function CodeMap() {
               <div className="mt-4">
                 <ModuleMap map={map} color={course.provider.color} />
               </div>
+              <MapLegend entries={TOPIC_LEGEND} />
             </HubSection>
             <BossRow worlds={worlds} />
           </>
@@ -103,6 +101,7 @@ export function CodeMap() {
       </LayoutMotion>
 
       <HubSection id="practice-heading" icon={Gamepad2} title="Practice">
+        <ExamTile href={href("/exam")} learning={learning} />
         <ModeGrid modes={modesFor(course, effectiveLevel(course, p.level)).filter((id) => !(map && id === "practice"))} />
       </HubSection>
 
@@ -119,6 +118,32 @@ export function CodeMap() {
         </Link>
       </footer>
     </main>
+  );
+}
+
+const TOPIC_LEGEND: LegendEntry[] = [
+  { ...TOPIC_STATE.current, meaning: "the topic we recommend next" },
+  { ...TOPIC_STATE.open, meaning: "take it any time" },
+  { ...TOPIC_STATE.done, meaning: "finished" },
+  { ...TOPIC_STATE.locked, word: "Best after", meaning: "easier once earlier topics are done" },
+];
+
+/** The timed mock lives with practice, so the hero keeps one primary and one secondary action. */
+function ExamTile({ href, learning }: { href: string; learning: boolean }) {
+  return (
+    <Link
+      href={href}
+      className="mb-4 flex min-h-11 items-center gap-4 rounded-card border border-border bg-card p-4 transition-colors hover:border-primary/50 hover:bg-accent/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+    >
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-control bg-primary/15 text-primary">
+        <MessagesSquare aria-hidden="true" className="size-5" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-base font-semibold text-foreground">{learning ? "Skill check" : "Mock interview"}</span>
+        <span className="mt-0.5 block text-sm text-muted-foreground">{learning ? "A short timed check of what you've learned so far." : "Timed questions at your level, scored like the real thing."}</span>
+      </span>
+      <ChevronRight aria-hidden="true" className="size-5 shrink-0 text-muted-foreground" />
+    </Link>
   );
 }
 

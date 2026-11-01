@@ -44,13 +44,15 @@ export function ScenarioGame() {
   }
   const q = queue ?? [];
   return (
-    <PageShell title={info.name} subtitle={gameText(info.id, all).rule}>
+    <PageShell title={info.name} subtitle={gameText(info.id, all).rule} width="play">
       {!queue ? (
-        <div>
-          <p className="text-base text-muted-foreground">{all.length} items. Unplayed ones come first.</p>
-          <Button size="xl" className="mt-4" onClick={() => setQueue(order(course.id, all))}>
+        <div className="flex flex-col gap-4 rounded-card border border-border bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-base text-muted-foreground">
+            <span className="font-semibold text-foreground">{all.length} scenarios.</span> Unplayed ones come first.
+          </p>
+          <Button size="lg" className="shrink-0" onClick={() => setQueue(order(course.id, all))}>
             <Play aria-hidden="true" />
-            Start
+            Start round ({all.length} scenarios)
           </Button>
         </div>
       ) : i < q.length ? (

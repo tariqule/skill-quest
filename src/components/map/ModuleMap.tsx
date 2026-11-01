@@ -12,10 +12,10 @@ import { cn } from "@/lib/utils";
 import { topicTileLabel } from "./labels";
 
 /** Every state has an icon AND a word, so colour is never the only cue. */
-const STATE: Record<TopicState, { icon: LucideIcon; word: string; tone: string }> = {
+export const STATE: Record<TopicState, { icon: LucideIcon; word: string; tone: string }> = {
   done: { icon: CheckCircle2, word: "Done", tone: "text-success-foreground" },
   current: { icon: PlayCircle, word: "Up next", tone: "text-primary" },
-  open: { icon: Circle, word: "Open", tone: "text-muted-foreground" },
+  open: { icon: Circle, word: "Available", tone: "text-muted-foreground" },
   locked: { icon: CircleDashed, word: "Best after", tone: "text-muted-foreground" },
   planned: { icon: PencilLine, word: "Coming soon", tone: "text-muted-foreground" },
 };
@@ -90,7 +90,7 @@ function TopicTile({ node }: { node: MapTopic }) {
     <span
       className={cn(
         "flex h-full min-h-11 flex-col rounded-control border p-3 transition-colors",
-        state === "current" ? "border-primary bg-primary/10" : state === "done" ? "border-success/40 bg-success/5" : "border-border bg-background",
+        state === "current" ? "border-primary bg-primary/10 ring-1 ring-primary" : state === "done" ? "border-success/40 bg-success/5" : state === "open" ? "border-border/60 bg-transparent" : "border-border bg-background",
         node.lesson && "hover:border-primary/60",
       )}
     >

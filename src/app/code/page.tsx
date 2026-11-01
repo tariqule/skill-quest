@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { chip, chipGroup, chipScroller } from "@/lib/chips";
 import { COURSES } from "@/courses";
 import { overallReadiness } from "@/engine/game";
 import { useHydrated } from "@/engine/hydrated";
@@ -35,7 +36,6 @@ const FORMATS: { icon: LucideIcon; t: string; d: string }[] = [
   { icon: ListOrdered, t: "Build it", d: "Put the lines or steps in order." },
   { icon: Timer, t: "Final test", d: "Timed, at your level." },
 ];
-const chip = "h-10 shrink-0 rounded-full border-border px-3.5 text-sm data-pressed:border-primary data-pressed:bg-primary/15 data-pressed:text-foreground";
 
 /** The code tracks hub: every interview and learning track, one shared level, search and filters. */
 export default function CodeHub() {
@@ -58,6 +58,11 @@ export default function CodeHub() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  // "All" is a full reset: it clears the topic chip too, so nothing stays silently filtered.
+  const pickFocus = (f: TrackFocus) => {
+    setFocus(f);
+    if (f === "all") setCategory("all");
+  };
   const byFocus = (f: TrackFocus) => TRACKS.filter((t) => f === "all" || t.course.kind === f);
   const byQuery = (list: typeof TRACKS) => (query.trim() ? list.filter((t) => matchesQuery(t.text, query)) : list);
   const shown = byQuery(byFocus(focus).filter((t) => category === "all" || t.course.category === category));
@@ -72,7 +77,7 @@ export default function CodeHub() {
   return (
     <div className="flex min-h-full flex-1 flex-col">
       <AppBar />
-      <main className="mx-auto w-full min-w-0 max-w-6xl px-4 py-8 sm:py-10">
+      <main className="mx-auto w-full min-w-0 max-w-page px-4 py-8 sm:py-10">
         <header className="max-w-2xl">
           <p className="flex items-center gap-2 text-sm font-medium text-primary">
             <Code2 aria-hidden="true" className="size-4" />
@@ -128,7 +133,7 @@ export default function CodeHub() {
             </div>
           </div>
           <div className="mt-3 flex flex-col gap-2">
-            <ToggleGroup aria-label="Track type" value={[focus]} onValueChange={(v) => setFocus(((v as string[])[0] as TrackFocus) ?? "all")} className="flex-wrap gap-2">
+            <ToggleGroup aria-label="Track type" value={[focus]} onValueChange={(v) => pickFocus(((v as string[])[0] as TrackFocus) ?? "all")} className="flex-wrap gap-2">
               {TRACK_FOCUSES.map((f) => {
                 const Icon = FOCUS_ICON[f.id];
                 return (
@@ -140,8 +145,8 @@ export default function CodeHub() {
                 );
               })}
             </ToggleGroup>
-            <div className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
-              <ToggleGroup aria-label="Topic" value={[category]} onValueChange={(v) => setCategory(((v as string[])[0] as TrackCategory) ?? "all")} className="gap-2">
+            <div className={chipScroller}>
+              <ToggleGroup aria-label="Topic" value={[category]} onValueChange={(v) => setCategory(((v as string[])[0] as TrackCategory) ?? "all")} className={chipGroup}>
                 <ToggleGroupItem value="all" className={chip}>
                   All topics
                 </ToggleGroupItem>

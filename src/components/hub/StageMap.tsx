@@ -19,8 +19,8 @@ import { cn } from "@/lib/utils";
 const NODE: Record<NodeState, { icon: LucideIcon; word: string; tone: string }> = {
   done: { icon: CheckCircle2, word: "Done", tone: "text-success-foreground" },
   current: { icon: PlayCircle, word: "Up next", tone: "text-primary" },
-  open: { icon: Circle, word: "Open", tone: "text-muted-foreground" },
-  later: { icon: Clock, word: "After the basics", tone: "text-muted-foreground" },
+  open: { icon: Circle, word: "Available", tone: "text-muted-foreground" },
+  later: { icon: Clock, word: "Optional", tone: "text-muted-foreground" },
   locked: { icon: Lock, word: "Locked", tone: "text-muted-foreground" },
 };
 
@@ -31,13 +31,39 @@ const NODE: Record<NodeState, { icon: LucideIcon; word: string; tone: string }> 
 export function StageMap({ worlds, unit = "World" }: { worlds: PathWorld[]; unit?: string }) {
   const openFirst = worlds.find((w) => w.nodes.some((n) => n.state === "current"))?.domain ?? worlds.find((w) => w.unlocked)?.domain;
   return (
-    <ol className="grid gap-3" aria-label={`${unit}s`}>
-      {worlds.map((w) => (
-        <StageCard key={w.domain} world={w} unit={unit} defaultOpen={w.domain === openFirst} />
-      ))}
-    </ol>
+    <div>
+      <ol className="grid gap-3" aria-label={`${unit}s`}>
+        {worlds.map((w) => (
+          <StageCard key={w.domain} world={w} unit={unit} defaultOpen={w.domain === openFirst} />
+        ))}
+      </ol>
+      <MapLegend entries={STAGE_LEGEND} />
+    </div>
   );
 }
+
+export type LegendEntry = { icon: LucideIcon; word: string; tone: string; meaning: string };
+
+/** One line under a map that says what the tile words mean, so "Available" next to "Up next" isn't a puzzle. */
+export function MapLegend({ entries }: { entries: LegendEntry[] }) {
+  return (
+    <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+      {entries.map(({ icon: Icon, word, tone, meaning }) => (
+        <span key={word} className="inline-flex items-center gap-1.5">
+          <Icon aria-hidden="true" className={cn("size-4", tone)} />
+          <span className="font-medium text-foreground">{word}</span>: {meaning}
+        </span>
+      ))}
+    </p>
+  );
+}
+
+const STAGE_LEGEND: LegendEntry[] = [
+  { ...NODE.current, meaning: "the one we recommend next" },
+  { ...NODE.open, meaning: "take it any time" },
+  { ...NODE.done, meaning: "finished" },
+  { ...NODE.locked, meaning: "opens after the one before" },
+];
 
 function StageCard({ world, unit, defaultOpen }: { world: PathWorld; unit: string; defaultOpen: boolean }) {
   const { course, href, domain: domainById } = useCourse();
@@ -117,7 +143,13 @@ export function PathTile({ node, label }: { node: PathNode; label: string }) {
     <span
       className={cn(
         "flex h-full min-h-11 flex-col rounded-control border p-3 transition-colors",
-        node.state === "current" ? "border-primary bg-primary/10" : node.state === "done" ? "border-success/40 bg-success/5" : "border-border bg-background",
+        node.state === "current"
+          ? "border-primary bg-primary/10 ring-1 ring-primary"
+          : node.state === "done"
+            ? "border-success/40 bg-success/5"
+            : node.state === "locked"
+              ? "border-dashed border-border bg-background"
+              : "border-border/60 bg-transparent",
         node.state !== "locked" && "hover:border-primary/60",
       )}
     >

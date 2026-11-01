@@ -29,7 +29,7 @@ export default function DailyReview() {
   return (
     <>
       <AppBar />
-      <main className="mx-auto w-full max-w-5xl px-4 py-6 text-base sm:py-10">
+      <main className="mx-auto w-full max-w-page px-4 py-6 text-base sm:py-10">
         <PageIntro icon={RotateCcw} title="Quick refresher">
           Questions you missed, a few new ones, flashcards and coding exercises from all your courses, mixed together. Each comes back just before you&apos;d forget it.
         </PageIntro>

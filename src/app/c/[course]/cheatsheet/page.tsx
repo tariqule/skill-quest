@@ -8,12 +8,12 @@ import { PageShell } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { chip, chipGroup, chipScroller } from "@/lib/chips";
 import { useCourse } from "@/engine/course-context";
 import { cn } from "@/lib/utils";
 import { filterSheet, sheetSections, slug, type SheetSection } from "./sheet";
 
 const card = "cheat-card mt-4 rounded-card border border-border bg-card p-5 break-inside-avoid";
-const chip = "h-10 shrink-0 rounded-full border-border px-3.5 text-sm data-pressed:border-primary data-pressed:bg-primary/15 data-pressed:text-foreground";
 
 /**
  * One page to revise from: exam facts, task statements, every cheat-sheet section and the service glossary.
@@ -57,8 +57,8 @@ export default function CheatSheetPage() {
             Print or save as PDF
           </Button>
         </div>
-        <div className="-mx-4 mt-3 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0 print:hidden [&::-webkit-scrollbar]:hidden">
-          <ToggleGroup aria-label="Cheat sheet section" value={[only]} onValueChange={(v) => setOnly((v as string[])[0] ?? "all")} className="gap-2">
+        <div className={cn("mt-3 print:hidden", chipScroller)}>
+          <ToggleGroup aria-label="Cheat sheet section" value={[only]} onValueChange={(v) => setOnly((v as string[])[0] ?? "all")} className={chipGroup}>
             <ToggleGroupItem value="all" className={chip}>
               All sections
             </ToggleGroupItem>

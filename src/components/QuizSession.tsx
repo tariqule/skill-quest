@@ -123,8 +123,9 @@ export function QuizSession({
 
   useEffect(() => {
     if (phase !== "play" || submitted === null) return;
+    const armedAt = performance.now();
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Enter" || e.key === " ") {
+      if (isAdvanceKey(e, armedAt)) {
         e.preventDefault();
         next();
       }
@@ -198,7 +199,7 @@ export function QuizSession({
 
   const outOfHearts = maxHearts !== undefined && hearts <= 0;
   return (
-    <div className="mx-auto w-full max-w-[680px]">
+    <div className="mx-auto w-full max-w-play">
       <div className="mb-4 flex items-center gap-4">
         <div className="flex-1">
           <div className="mb-1.5 flex justify-between text-sm text-foreground/80">
@@ -251,4 +252,13 @@ function Result({ label, value }: { label: string; value: string }) {
       <dd className="mt-1 text-xl font-semibold text-foreground">{value}</dd>
     </div>
   );
+}
+
+/**
+ * Enter or Space moves on from a shown answer, but never the same keypress that submitted it:
+ * React can register this listener while that Enter is still bubbling, so presses older than the
+ * listener (and auto-repeats of a held key) are ignored.
+ */
+export function isAdvanceKey(e: Pick<KeyboardEvent, "key" | "repeat" | "timeStamp">, armedAt: number): boolean {
+  return (e.key === "Enter" || e.key === " ") && !e.repeat && e.timeStamp > armedAt;
 }

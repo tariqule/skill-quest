@@ -1,10 +1,11 @@
 "use client";
 
-import { ArrowUpDown, Bug, Check, IndentIncrease, Lightbulb, X, type LucideIcon } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Bug, Check, IndentDecrease, IndentIncrease, Keyboard, Lightbulb, Plus, X, type LucideIcon } from "lucide-react";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { FIX_BASE, MAX_INDENT, MISSED_LINE, decodePick, encodePick, parsonsFeedback, parsonsHint, parsonsSolution, type ParsonsStatus } from "@/engine/code-games";
 import { encodeText, shuffle, type PreparedQuestion } from "@/engine/game";
 import { CodeBlock, Tokens } from "../learn/code";
+import { Kbd } from "../ui/kbd";
 
 interface BodyProps {
   q: PreparedQuestion;
@@ -25,7 +26,41 @@ function StatusIcon({ status, className }: { status: ParsonsStatus; className?: 
   return <Icon aria-hidden="true" className={className} />;
 }
 
-const btn = "inline-flex h-11 min-w-11 items-center justify-center rounded-control border border-border bg-card px-2 text-base text-foreground transition-colors hover:border-primary/60 hover:bg-primary/10 disabled:opacity-40";
+// Row controls: 44px touch targets on phones, a compact 32px on desktop.
+const btn = "inline-flex size-11 items-center justify-center rounded-control border border-border bg-card text-foreground transition-colors hover:border-primary/60 hover:bg-primary/10 disabled:opacity-40 sm:size-8 [&_svg]:size-4";
+
+/** Indentation width in characters, so the edit rows and the solution block line up the same way. */
+const indentCh = (unit: string) => unit.replace(/\t/g, "    ").length || 4;
+
+/** The keyboard shortcuts, behind a disclosure so the instruction line stays short. */
+function ParsonsKeys({ indent }: { indent: boolean }) {
+  const rows: [string[], string][] = [
+    [["↑", "↓"], "move between lines"],
+    [["Alt", "↑"], "move a line up (Alt + ↓ for down)"],
+    ...(indent ? ([[["←", "→"], "change indentation"]] as [string[], string][]) : []),
+    [["Delete"], "remove a line"],
+  ];
+  return (
+    <details className="mt-2 text-sm text-muted-foreground">
+      <summary className="inline-flex min-h-11 cursor-pointer items-center gap-1.5 font-medium text-foreground sm:min-h-8">
+        <Keyboard aria-hidden="true" className="size-4" />
+        Keyboard help
+      </summary>
+      <ul className="mt-1 grid gap-1.5">
+        {rows.map(([keys, what]) => (
+          <li key={what} className="flex flex-wrap items-center gap-1.5">
+            {keys.map((k) => (
+              <Kbd key={k} aria-label={k === "↑" ? "Up arrow" : k === "↓" ? "Down arrow" : k === "←" ? "Left arrow" : k === "→" ? "Right arrow" : undefined}>
+                {k}
+              </Kbd>
+            ))}
+            <span>{what}</span>
+          </li>
+        ))}
+      </ul>
+    </details>
+  );
+}
 
 /** Parsons puzzle: build the solution from the pool, reorder and indent it, with buttons or the keyboard. */
 export function ParsonsBody({ q, submitted, onSubmit, reveal }: BodyProps) {
@@ -85,9 +120,10 @@ export function ParsonsBody({ q, submitted, onSubmit, reveal }: BodyProps) {
   return (
     <>
       {!locked && (
-        <p className="mt-2 text-sm text-warning-foreground">
-          Tap lines to add them in order{p.indent ? ", set the indentation with ⇤ ⇥" : ""}, and leave out the decoys. Keyboard: ↑↓ to move between lines, Alt+↑↓ to reorder{p.indent ? ", ←→ to indent" : ""}, Delete to remove.
-        </p>
+        <>
+          <p className="mt-2 text-base text-foreground">Add the lines in order{p.indent ? ", fix the indentation" : ""}, and leave out the decoys.</p>
+          <ParsonsKeys indent={p.indent} />
+        </>
       )}
       <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">{live}</div>
       <ol aria-label="Your solution" className="mt-4 grid min-w-0 gap-1.5 rounded-control border border-border bg-code text-code-foreground p-2">
@@ -107,7 +143,7 @@ export function ParsonsBody({ q, submitted, onSubmit, reveal }: BodyProps) {
                 className="min-w-0 flex-1 overflow-x-auto px-2 py-2 text-left font-mono text-sm text-code-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <span className="mr-2 select-none text-code-muted">{i + 1}</span>
-                <span className="whitespace-pre" style={{ paddingLeft: p.indent ? `${lvl * 1.5}rem` : undefined }}>
+                <span className="whitespace-pre" style={{ paddingLeft: p.indent ? `${lvl * indentCh(p.unit)}ch` : undefined }}>
                   <Tokens code={text(pick)} lang={q.codeLang} />
                 </span>
               </button>
@@ -116,13 +152,13 @@ export function ParsonsBody({ q, submitted, onSubmit, reveal }: BodyProps) {
                 <div className="flex shrink-0 gap-1 pr-1">
                   {p.indent && (
                     <>
-                      <button type="button" className={btn} disabled={lvl === 0} onClick={() => indent(i, -1)} aria-label={`Outdent line ${i + 1}`}>⇤</button>
-                      <button type="button" className={btn} disabled={lvl >= MAX_INDENT} onClick={() => indent(i, 1)} aria-label={`Indent line ${i + 1}`}>⇥</button>
+                      <button type="button" className={btn} disabled={lvl === 0} onClick={() => indent(i, -1)} aria-label={`Outdent line ${i + 1}`} title="Outdent"><IndentDecrease aria-hidden="true" /></button>
+                      <button type="button" className={btn} disabled={lvl >= MAX_INDENT} onClick={() => indent(i, 1)} aria-label={`Indent line ${i + 1}`} title="Indent"><IndentIncrease aria-hidden="true" /></button>
                     </>
                   )}
-                  <button type="button" className={btn} disabled={i === 0} onClick={() => move(i, i - 1)} aria-label={`Move line ${i + 1} up`}>↑</button>
-                  <button type="button" className={btn} disabled={i === rows.length - 1} onClick={() => move(i, i + 1)} aria-label={`Move line ${i + 1} down`}>↓</button>
-                  <button type="button" className={btn} onClick={() => remove(i)} aria-label={`Remove line ${i + 1}`}><X aria-hidden="true" className="size-4" /></button>
+                  <button type="button" className={btn} disabled={i === 0} onClick={() => move(i, i - 1)} aria-label={`Move line ${i + 1} up`} title="Move up"><ArrowUp aria-hidden="true" /></button>
+                  <button type="button" className={btn} disabled={i === rows.length - 1} onClick={() => move(i, i + 1)} aria-label={`Move line ${i + 1} down`} title="Move down"><ArrowDown aria-hidden="true" /></button>
+                  <button type="button" className={btn} onClick={() => remove(i)} aria-label={`Remove line ${i + 1}`} title="Remove"><X aria-hidden="true" /></button>
                 </div>
               )}
             </li>
@@ -144,7 +180,7 @@ export function ParsonsBody({ q, submitted, onSubmit, reveal }: BodyProps) {
                   aria-label={`Add line: ${p.blocks[i].trim()}`}
                   className="flex min-h-11 w-full min-w-0 items-center overflow-x-auto rounded-control border border-dashed border-code-muted/50 bg-code px-3 py-2 text-left font-mono text-sm text-code-foreground transition-colors hover:border-primary"
                 >
-                  <span className="mr-2 text-primary" aria-hidden>＋</span>
+                  <Plus aria-hidden="true" className="mr-2 size-4 shrink-0 text-primary" />
                   <span className="whitespace-pre"><Tokens code={p.blocks[i]} lang={q.codeLang} /></span>
                 </button>
               </li>
@@ -153,13 +189,13 @@ export function ParsonsBody({ q, submitted, onSubmit, reveal }: BodyProps) {
         </div>
       )}
       {!locked && hints > 0 && (
-        <p className="mt-3 rounded-control border border-warning/40 bg-warning/10 px-3 py-2 text-sm text-foreground" role="status">
-          <Lightbulb aria-hidden="true" className="mr-1.5 inline size-4 align-[-2px]" />{parsonsHint(p, placed, hints - 1, q.type === "parsons" ? q.hint : undefined)}
+        <p className="mt-3 rounded-control border border-primary/40 bg-primary/10 px-3 py-2 text-base text-foreground" role="status">
+          <Lightbulb aria-hidden="true" className="mr-1.5 inline size-4 align-[-2px] text-primary" />{parsonsHint(p, placed, hints - 1, q.type === "parsons" ? q.hint : undefined)}
         </p>
       )}
       {!locked && (
         <div className="mt-4 flex flex-wrap gap-2">
-          <button type="button" onClick={() => setHints((h) => h + 1)} className="inline-flex min-h-11 items-center rounded-control border border-border px-4 py-2.5 font-semibold text-foreground hover:bg-accent/40">
+          <button type="button" onClick={() => setHints((h) => h + 1)} className="inline-flex min-h-11 items-center gap-1.5 rounded-control border border-border px-4 py-2.5 font-semibold text-foreground hover:bg-accent/40">
             <Lightbulb aria-hidden="true" className="size-4" /> Hint{hints > 0 ? ` (${hints})` : ""}
           </button>
           <button type="button" disabled={placed.length === 0} onClick={() => onSubmit(placed)} className="inline-flex min-h-11 items-center rounded-control bg-primary px-5 py-2.5 font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-40">
@@ -213,7 +249,9 @@ export function BugBody({ q, submitted, onSubmit, reveal }: BodyProps) {
   return (
     <>
       {!locked && (
-        <p className="mt-2 text-sm text-warning-foreground">{line === null || !onRight ? "Step 1: tap the line with the bug." : "Step 2: pick the fix for that line, then Check."}</p>
+        <p className="mt-2 text-base font-medium text-foreground">
+          <span className="text-primary">{line === null || !onRight ? "Step 1 of 2:" : "Step 2 of 2:"}</span> {line === null || !onRight ? "tap the line with the bug." : "pick the fix for that line, then Check."}
+        </p>
       )}
       <div className="mt-4 min-w-0 overflow-hidden rounded-control border border-border bg-code text-code-foreground">
         {q.codeLang && <div className="border-b border-code-muted/30 px-3 py-1 text-sm font-medium text-code-muted">{q.codeLang}</div>}
@@ -251,7 +289,7 @@ export function BugBody({ q, submitted, onSubmit, reveal }: BodyProps) {
       </div>
       {(locked ? reveal : onRight && line !== null) && (
         <div className="pop-in mt-4">
-          <div className="text-sm font-semibold text-white">{locked ? `The fix for line ${right + 1}` : `Replace line ${right + 1} with:`}</div>
+          <div className="text-sm font-semibold text-foreground">{locked ? `The fix for line ${right + 1}` : `Replace line ${right + 1} with:`}</div>
           <ul className="mt-2 grid gap-2" role="radiogroup" aria-label="Fixes">
             {fixes.map((f, i) => {
               const isPicked = onRight && pickedFix === i;
@@ -306,9 +344,9 @@ export function OutputChoices({ q, onSubmit }: { q: PreparedQuestion; onSubmit: 
   return (
     <div className="mt-3">
       <div className="text-sm font-medium text-muted-foreground">Or choose</div>
-      <ul className="mt-2 grid gap-2 sm:grid-cols-2">
+      <ul className="mt-2 grid grid-cols-[repeat(auto-fill,minmax(min(100%,10rem),1fr))] gap-2">
         {opts.map((o) => (
-          <li key={o} className="min-w-0">
+          <li key={o} className="flex min-w-0">
             <button type="button" onClick={() => onSubmit(encodeText(o))} className="flex min-h-11 w-full min-w-0 items-center overflow-x-auto rounded-control border border-border bg-card px-3 py-2 text-left font-mono text-sm text-foreground transition-colors hover:border-primary/60 hover:bg-primary/10">
               <span className="whitespace-pre">{o}</span>
             </button>
@@ -323,7 +361,7 @@ export function OutputChoices({ q, onSubmit }: { q: PreparedQuestion; onSubmit: 
 export function TraceSteps({ steps }: { steps: string[] }) {
   return (
     <div className="mt-3">
-      <div className="text-sm font-semibold text-white">Step by step</div>
+      <div className="text-sm font-semibold text-foreground">Step by step</div>
       <ol className="mt-1 grid list-decimal gap-1 pl-6 text-base text-muted-foreground">
         {steps.map((s, i) => (
           <li key={i}><TraceText text={s} /></li>

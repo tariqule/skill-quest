@@ -28,10 +28,11 @@ export function Stars({ count, size = "size-5" }: { count: number; size?: string
   );
 }
 
-export function PageShell({ title, subtitle, children }: { title: string; subtitle?: string; children: ReactNode }) {
+/** Page frame. `width` picks a shared token: "page" for hubs, lists and references, "play" for game rounds. */
+export function PageShell({ title, subtitle, width = "page", children }: { title: string; subtitle?: string; width?: "page" | "play"; children: ReactNode }) {
   const course = useOptionalCourse();
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 py-6 sm:py-10">
+    <main className={cn("mx-auto w-full px-4 py-6 sm:py-10", width === "play" ? "max-w-play" : "max-w-page")}>
       <Link href={course ? course.href() : "/"} className="-my-3 inline-flex min-h-11 items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground print:hidden">
         <ArrowLeft aria-hidden="true" className="size-4" />
         {course ? "Back to course" : "Home"}

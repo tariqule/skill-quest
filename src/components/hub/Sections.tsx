@@ -57,14 +57,19 @@ export function BadgeShelf() {
   const earned = hydrated ? p.badges : [];
   return (
     <HubSection id="badges-heading" icon={Award} title="Achievements" aside={`${earned.length}/${BADGES.length} earned`}>
-      <ul className="flex flex-wrap gap-2">
+      <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {BADGES.map((b) => {
           const got = earned.includes(b.id);
           return (
-            <li key={b.id} title={b.description} className={cn("inline-flex min-h-9 items-center gap-1.5 rounded-control border px-2.5 py-1 text-sm", got ? "border-reward/50 bg-reward/10 text-foreground" : "border-border text-muted-foreground")}>
-              <BlockIcon icon={b.icon} className={cn("size-4", !got && "opacity-60")} />
-              {b.name}
-              <span className="sr-only">{got ? " (earned)" : " (not yet)"}: {b.description}</span>
+            <li key={b.id} className={cn("flex items-start gap-3 rounded-control border p-3", got ? "border-reward/50 bg-reward/10" : "border-border bg-card")}>
+              <BlockIcon icon={b.icon} className={cn("mt-0.5 size-5 shrink-0", got ? "text-foreground" : "text-muted-foreground")} />
+              <span className="min-w-0">
+                <span className="block text-base font-medium text-foreground">
+                  {b.name}
+                  <span className="sr-only">{got ? " (earned)" : " (not yet)"}</span>
+                </span>
+                <span className="block text-sm text-muted-foreground">{b.description}</span>
+              </span>
             </li>
           );
         })}

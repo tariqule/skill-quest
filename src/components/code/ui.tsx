@@ -51,7 +51,7 @@ export function LevelPicker({
               )}
             </span>
             <span className="mt-1.5 text-base font-semibold text-foreground">{l.name}</span>
-            <span className="mt-0.5 text-sm leading-snug text-muted-foreground">{l.blurb}</span>
+            <span className="mt-0.5 text-sm text-muted-foreground">{l.blurb}</span>
             {counts?.[l.id] !== undefined && (
               <span className="mt-2 text-sm tabular-nums text-muted-foreground">
                 {counts[l.id]} {countLabels?.[l.id] ?? "questions"}

@@ -165,6 +165,9 @@
 
 /* Loader shimmer for coss Skeleton (loaders are the only allowed looping animation). */
 @theme {
+  /* Shared page widths: hubs, lists and the cheat sheet use "page"; one-at-a-time play uses "play". */
+  --container-page: 64rem;
+  --container-play: 42.5rem;
   --animate-skeleton: skeleton 2s -1s infinite linear;
   @keyframes skeleton {
     to {

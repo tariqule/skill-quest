@@ -54,7 +54,7 @@ function MissionMap() {
   ];
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-4 py-6 sm:py-10">
+    <main className="mx-auto w-full max-w-page px-4 py-6 sm:py-10">
       <IntroOffer show={!p.onboarded && p.xp === 0} href={href("/start")} onSkip={() => store.skipOnboarding()} />
       <HubHeader
         eyebrow={`${course.provider.name} · ${course.code}`}

@@ -99,22 +99,25 @@ function Done({ share, onDone, label }: { share: number; onDone: (s: number) => 
 
 function Architect({ item, onDone, doneLabel, onReveal, report }: Props<ArchItem>) {
   const tiles = useMemo(() => shuffled(item.tiles), [item]);
-  const [slot, setSlot] = useState(item.slots[0].id);
+  const [slot, setSlot] = useState<string | null>(item.slots[0].id);
   const [picks, setPicks] = useState<Record<string, string | undefined>>({});
   const [checked, setChecked] = useState(false);
   const [say, setSay] = useState("");
   const score = checked ? scoreArch(item, picks) : null;
   const label = (id?: string) => item.tiles.find((t) => t.id === id)?.label;
   const used = new Set(Object.values(picks));
+  const missing = item.slots.filter((s) => !picks[s.id]).length;
+  const slotOf = (tileId: string) => item.slots.find((s) => picks[s.id] === tileId);
   const place = (tileId: string) => {
+    if (!slot) return;
     const next = { ...picks };
     for (const k of Object.keys(next)) if (next[k] === tileId) delete next[k];
     next[slot] = tileId;
     setPicks(next);
     const s = item.slots.find((x) => x.id === slot)!;
     setSay(`${label(tileId)} placed in ${s.label}.`);
-    const empty = item.slots.find((x) => !next[x.id]);
-    if (empty) setSlot(empty.id);
+    // Placing clears the selection: move on to the next empty slot, or select nothing once all are full.
+    setSlot(item.slots.find((x) => !next[x.id])?.id ?? null);
   };
   const solutionTiles = new Set(score ? Object.values(score.solution) : []);
   return (
@@ -147,17 +150,27 @@ function Architect({ item, onDone, doneLabel, onReveal, report }: Props<ArchItem
           );
         })}
       </div>
-      <h3 className="mt-5 text-sm font-semibold text-muted-foreground">Components: pick one for “{item.slots.find((s) => s.id === slot)?.label}”</h3>
+      <h3 className="mt-5 text-sm font-semibold text-muted-foreground">
+        {checked ? "Components" : slot ? `Components: pick one for “${item.slots.find((s) => s.id === slot)?.label}”` : "Components: choose a slot above to change it"}
+      </h3>
       <div className="mt-2 grid gap-2 sm:grid-cols-2">
         {tiles.map((t) => (
-          <button key={t.id} type="button" disabled={checked} aria-pressed={used.has(t.id)} onClick={() => place(t.id)} className={`${btn} min-h-12 ${used.has(t.id) ? "border-primary/60 bg-primary/10 text-foreground" : "border-border bg-card text-foreground"}`}>
+          <button
+            key={t.id}
+            type="button"
+            disabled={checked || !slot}
+            onClick={() => place(t.id)}
+            className={`${btn} min-h-12 text-foreground ${used.has(t.id) ? "border-dashed border-border bg-muted/40" : "border-border bg-card"}`}
+          >
             {t.label}
+            {!checked && used.has(t.id) && <span className="mt-0.5 block text-sm text-muted-foreground">In {slotOf(t.id)?.label}</span>}
             {checked && <span className={`mt-1 block text-sm ${solutionTiles.has(t.id) ? "text-success-foreground" : "text-muted-foreground"}`}>{t.why}</span>}
           </button>
         ))}
       </div>
       {!checked ? (
-        <button type="button" className={`${primary} mt-4`} disabled={item.slots.some((s) => !picks[s.id])} onClick={() => {
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+        <button type="button" className={primary} disabled={missing > 0} aria-describedby={missing > 0 ? `${item.id}-fill` : undefined} onClick={() => {
             setChecked(true);
             onReveal();
             const sc = scoreArch(item, picks);
@@ -166,6 +179,12 @@ function Architect({ item, onDone, doneLabel, onReveal, report }: Props<ArchItem
         >
           Check design
         </button>
+        {missing > 0 && (
+          <p id={`${item.id}-fill`} className="text-sm text-muted-foreground">
+            Fill {missing} more {missing === 1 ? "slot" : "slots"} to check
+          </p>
+        )}
+        </div>
       ) : (
         <>
           <p aria-live="polite" className="mt-4 text-base text-foreground">
