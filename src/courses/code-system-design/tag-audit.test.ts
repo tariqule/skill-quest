@@ -42,8 +42,6 @@ const REVIEWED_EXCEPTIONS: Record<string, string> = {
   "d2-23": "copying data to skip joins: t-denorm",
   "sd-ox-03": "quorum sizes: t-replication",
   "sd-b3-03": "idempotent actions, safe to retry: t-fault",
-  "d3-04": "consumer groups: Kafka lessons not written yet",
-  "d3-05": "partition key ordering: Kafka lessons not written yet",
   "d3-07": "CAP: t-cap",
   "d3-10": "choosing C or A under partition: t-cap",
   "d3-11": "Raft majority: consensus lesson not written yet",
@@ -54,14 +52,13 @@ const REVIEWED_EXCEPTIONS: Record<string, string> = {
   "d3-19": "token bucket: t-ratelimit",
   "d3-21": "rate limiter race: t-ratelimit",
   "d3-22": "distributed rate limiting: t-ratelimit",
-  "sd-pz-07": "idempotent handler: t-api",
   "sd-out-04": "quorum arithmetic: t-replication",
-  "d4-02": "cursor pagination: t-api",
-  "d4-05": "HTTP status codes: t-api",
-  "d4-18": "id generation for a shortener: t-patterns",
-  "d4-19": "feed fan-out: t-patterns",
+  "d4-22": "why feed caches hold post ids: t-design-feed-2 teaches the read side",
   "d4-23": "cutting a call chain: t-overload",
-  "sd-fx-02": "Location header: t-api",
+  "d4-16": "two writers handing out the same short code is a shortener bug, though it is a race: t-design-shortener",
+  "sd-b3-01": "queue for slow resize jobs: t-queues",
+  "d3-13": "idempotency key checked in the wrong place: t-api teaches the key",
+  "sd-fx-05": "idempotency key insert: t-api teaches the key",
 };
 
 describe("legacy question tags", () => {

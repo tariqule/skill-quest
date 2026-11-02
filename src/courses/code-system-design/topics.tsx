@@ -25,6 +25,7 @@ const MODULE_HOME: Record<ModuleId, { domain: string; task: string }> = {
   m8: { domain: "d4", task: "4.2" },
   m9: { domain: "d3", task: "3.2" },
   m10: { domain: "d4", task: "4.3" },
+  m11: { domain: "d4", task: "4.4" },
 };
 
 /** The start lessons M1 replaced. Bump `version` whenever an alias is added. */
@@ -62,7 +63,7 @@ function screenVisuals(t: TopicContent): Record<number, ReactNode> | undefined {
 export function topicLesson(t: TopicContent): Lesson {
   return {
     id: t.id,
-    level: "beginner",
+    level: t.level ?? "beginner",
     task: MODULE_HOME[t.module].task,
     title: t.title,
     visual: <VisualView visual={t.visual} />,
@@ -75,7 +76,7 @@ export function topicLesson(t: TopicContent): Lesson {
 }
 
 function toQuestion(item: QuizItem, t: TopicContent, concepts: string[]): ChoiceQuestion {
-  const base = { id: item.id, domain: MODULE_HOME[t.module].domain, lesson: t.id, level: "beginner" as const, explanation: item.explanation, concepts };
+  const base = { id: item.id, domain: MODULE_HOME[t.module].domain, lesson: t.id, level: t.level ?? "beginner", explanation: item.explanation, concepts };
   switch (item.kind) {
     case "mcq":
       return { ...base, prompt: item.prompt, options: [...item.options], answer: [item.answer] };

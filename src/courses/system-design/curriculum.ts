@@ -24,9 +24,10 @@ export const MODULE_TITLES: Record<ModuleId, string> = {
   m8: "Reliability",
   m9: "Distributed systems at scale",
   m10: "Interview method",
+  m11: "Design walkthroughs",
 };
 
-/** The full 48-topic syllabus, in study order. Prerequisites always point at earlier topics. */
+/** The full 68-topic syllabus, in study order. Prerequisites always point at earlier topics. */
 export const CURRICULUM: readonly TopicOutline[] = [
   { id: "t-intro", title: "What is system design?", module: "m1", prereqs: [], match: /\bclient|\bserver\b|request|response/i },
   { id: "t-network", title: "How a request travels", module: "m1", prereqs: ["t-intro"], match: /\bDNS\b|\bTCP\b|\bTLS\b|\bHTTP|\bIP address/i },
@@ -82,7 +83,28 @@ export const CURRICULUM: readonly TopicOutline[] = [
   { id: "t-events", title: "Event-driven architecture", module: "m9", prereqs: ["t-kafka-1"], match: /event.driven|event sourcing|CQRS|outbox/i },
   { id: "t-saga", title: "Sagas and distributed transactions", module: "m9", prereqs: ["t-transactions", "t-events"], match: /saga|two-phase commit|\b2PC\b|compensat/i },
   { id: "t-storage", title: "Blob and object storage", module: "m9", prereqs: ["t-replication"], match: /object storage|blob|\bS3\b|signed URL/i },
-  { id: "t-patterns", title: "Classic design patterns", module: "m9", prereqs: ["t-cache", "t-queues", "t-sharding"], match: /fan-?out|shortener|news feed|chat/i, standIns: ["d4-shortener"] },
 
   { id: "t-method", title: "The interview method", module: "m10", prereqs: ["t-estimation"], match: /requirement|clarif|trade-off|interview/i },
+
+  { id: "t-design-scale", title: "Design: from one server to millions", module: "m11", prereqs: ["t-method", "t-lb", "t-replication", "t-cache", "t-cdn", "t-sharding"], match: /one server to millions|stateless web tier|multiple data cent/i },
+  { id: "t-design-ratelimit", title: "Design a rate limiter", module: "m11", prereqs: ["t-method", "t-ratelimit"], match: /rate limiter|leaking bucket|sliding window counter|race condition/i },
+  { id: "t-design-chash", title: "Design consistent hashing", module: "m11", prereqs: ["t-method", "t-chash"], match: /hash ring|virtual node|rehash/i },
+  { id: "t-design-kv-1", title: "Design a key-value store: the big choices", module: "m11", prereqs: ["t-design-chash", "t-cap", "t-replication"], match: /key-value store|quorum|\bN, W and R\b/i },
+  { id: "t-design-kv-2", title: "Design a key-value store: failures and storage", module: "m11", prereqs: ["t-design-kv-1"], match: /vector clock|gossip|hinted handoff|merkle|memtable|sstable|bloom filter/i },
+  { id: "t-design-id", title: "Design a unique ID generator", module: "m11", prereqs: ["t-method", "t-sharding"], match: /unique id|snowflake|\bUUID|ticket server/i },
+  { id: "t-design-shortener", title: "Design a URL shortener", module: "m11", prereqs: ["t-design-id", "t-cache"], match: /shortener|short URL|base ?62|\b30[12]\b/i, standIns: ["d4-shortener"] },
+  { id: "t-design-crawler-1", title: "Design a web crawler: the crawl loop", module: "m11", prereqs: ["t-method", "t-queues"], match: /crawler|URL frontier|robots\.txt/i },
+  { id: "t-design-crawler-2", title: "Design a web crawler: politeness and traps", module: "m11", prereqs: ["t-design-crawler-1"], match: /politeness|spider trap|content hash|dedup/i },
+  { id: "t-design-notify-1", title: "Design a notification system: the pipeline", module: "m11", prereqs: ["t-method", "t-queues"], match: /notification|push service|third-party provider/i },
+  { id: "t-design-notify-2", title: "Design a notification system: reliability", module: "m11", prereqs: ["t-design-notify-1"], match: /dedup|retry|opt.?in|template/i },
+  { id: "t-design-feed-1", title: "Design a news feed: publishing", module: "m11", prereqs: ["t-method", "t-queues", "t-cache"], match: /news feed|fan-?out/i },
+  { id: "t-design-feed-2", title: "Design a news feed: reading and caching", module: "m11", prereqs: ["t-design-feed-1"], match: /feed cache|hydrat|celebrit/i },
+  { id: "t-design-chat-1", title: "Design a chat system: connections", module: "m11", prereqs: ["t-method", "t-realtime"], match: /chat|websocket|long poll/i },
+  { id: "t-design-chat-2", title: "Design a chat system: messages and presence", module: "m11", prereqs: ["t-design-chat-1"], match: /presence|heartbeat|message id|group chat/i },
+  { id: "t-design-autocomplete-1", title: "Design search autocomplete: the trie", module: "m11", prereqs: ["t-method", "t-cache"], match: /autocomplete|typeahead|\btrie\b|top.?k/i },
+  { id: "t-design-autocomplete-2", title: "Design search autocomplete: building and scaling", module: "m11", prereqs: ["t-design-autocomplete-1"], match: /data gathering|filter layer|trie (cache|db)/i },
+  { id: "t-design-video-1", title: "Design a video platform: uploads", module: "m11", prereqs: ["t-method", "t-cdn", "t-storage"], match: /video|transcod|upload/i },
+  { id: "t-design-video-2", title: "Design a video platform: streaming and cost", module: "m11", prereqs: ["t-design-video-1"], match: /streaming|\bDAG\b|CDN cost|bitrate/i },
+  { id: "t-design-drive-1", title: "Design cloud file storage: upload and sync", module: "m11", prereqs: ["t-method", "t-storage"], match: /file storage|block server|delta sync|cloud drive/i },
+  { id: "t-design-drive-2", title: "Design cloud file storage: conflicts and consistency", module: "m11", prereqs: ["t-design-drive-1"], match: /conflict|metadata|revision|dedup/i },
 ];

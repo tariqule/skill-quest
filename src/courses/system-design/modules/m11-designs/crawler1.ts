@@ -1,0 +1,123 @@
+import type { TopicContent } from "../../schema";
+
+const topic: TopicContent = {
+  id: "t-design-crawler-1",
+  module: "m11",
+  title: "Design a web crawler: the crawl loop",
+  level: "intermediate",
+  visual: {
+    kind: "flow",
+    steps: [
+      { icon: "🌱", label: "URL frontier", sub: "Seed URLs first, then every new link" },
+      { icon: "⬇️", label: "HTML downloader", sub: "Looks up the IP, fetches the page" },
+      { icon: "🧾", label: "Content parser", sub: "Drops broken pages, hashes the rest" },
+      { icon: "🔗", label: "Link extractor", sub: "Pulls links, makes them full URLs" },
+      { icon: "🚦", label: "URL filter and URL seen", sub: "Only new, wanted URLs go back" },
+    ],
+  },
+  screens: [
+    { kind: "idea", text: "The ask: \"Design a web crawler.\" A crawler fetches pages and follows their links. First ask what it's for: building a search index, archiving the web, or mining pages for data. Each purpose changes the design." },
+    { kind: "idea", text: "Then ask: how many pages a month? HTML only, or images and PDFs too? Should new and edited pages be picked up? How long are pages kept? What happens to pages that duplicate others?" },
+    { kind: "idea", text: "A typical agreement: a search index, 2 billion pages a month, HTML only, new and edited pages picked up, pages kept for 3 years, and duplicate content skipped instead of stored twice." },
+    { kind: "idea", text: "Name four qualities too. It must scale by running in parallel, survive broken HTML and dead servers, add content types without a redesign, and show **politeness**: never hammering one website with requests." },
+    {
+      kind: "example",
+      title: "Sizing the crawl",
+      steps: [
+        "A month is about 30 times 86,400 seconds, roughly 2.6 million. 2 billion pages divided by 2.6 million seconds is about 770 pages a second.",
+        "Plan for a peak of twice the average: about 1,540 pages a second.",
+        "Assume an average page of 100 KB. 2 billion times 100 KB is 200 TB of new pages a month.",
+        "Kept 3 years, that's 200 TB times 36 months: 7,200 TB, about 7.2 PB. HTML compresses well, so roughly 4 to 1 brings it near 1.8 PB.",
+        "Bandwidth: 770 pages times 100 KB is about 77 MB a second, roughly 620 megabits, and twice that at peak. Many servers will share it.",
+      ],
+    },
+    { kind: "idea", text: "The basic loop is short. Start from a handful of **seed URLs**, download each page, pull out its links, add the links you haven't seen to the to-do list, and repeat." },
+    { kind: "idea", text: "On one machine with a list in memory, that loop breaks fast. 770 pages a second is too much for one box, the list outgrows memory, copies get stored twice, and one site's links swamp the queue." },
+    { kind: "idea", text: "So split the loop into components that each scale on their own. Seeds come first: pick well-linked sites and divide the web into slices, by country or by topic, so the crawl reaches widely." },
+    { kind: "idea", text: "The **URL frontier** holds every URL waiting to be downloaded. Treat it as a first-in, first-out queue for now; part 2 opens it up. Already-downloaded URLs are tracked separately, in URL storage." },
+    { kind: "idea", text: "The HTML downloader takes URLs from the frontier and fetches them over HTTP. First it asks a **DNS resolver** to turn the host name into an IP address, since a request goes to an address, not a name." },
+    { kind: "idea", text: "The content parser checks each page and throws out malformed ones before they waste storage. It runs as its own component, so slow parsing never holds up the downloaders." },
+    { kind: "idea", text: "Many pages are copies of others under different URLs. **Content seen** hashes each page and looks the hash up. Comparing short hashes is fast where comparing whole pages is not. A match means the page is discarded." },
+    { kind: "idea", text: "Pages that pass go to content storage. You know object storage: most pages sit on disk there, since petabytes won't fit in memory, while popular pages stay in a cache for fast reads." },
+    { kind: "idea", text: "The link extractor pulls every link from a page and turns relative ones into full URLs, so /about on news.example.org becomes https://news.example.org/about. The URL filter then drops unwanted types, error links and blocked sites." },
+    { kind: "idea", text: "**URL seen** checks whether a link was already downloaded or is already waiting. A Bloom filter, from the shortener, fits: a rare false yes only skips one new page. A hash table is exact but bigger." },
+    {
+      kind: "example",
+      title: "One turn of the loop",
+      steps: [
+        "Seed URLs go into the frontier. A downloader takes a batch, resolves each host name to an IP and fetches the pages.",
+        "The parser drops a malformed page. For the rest, content seen hashes each page; one hash is already known, so that copy is discarded.",
+        "The link extractor finds 60 links on a new page. The filter drops 12 image links, since only HTML is crawled.",
+        "URL seen says 30 of the remaining 48 are already known. The other 18 join the frontier and are marked as seen.",
+      ],
+    },
+    { kind: "idea", text: "The web is a directed graph: pages are nodes, links are edges. Depth-first search can follow one site down an almost endless chain of links, so crawlers use **breadth-first** search with a first-in, first-out queue." },
+    { kind: "idea", text: "Plain breadth-first has two flaws. Most links on a page point to the same host, so parallel workers flood that site. And every URL counts the same, so a homepage waits behind spam. Part 2 fixes both." },
+  ],
+  tip: "Name the two dedupe checks separately: content seen catches the same page at different URLs, and URL seen catches the same URL found twice.",
+  quiz: [
+    {
+      kind: "mcq",
+      id: "t-design-crawler-1-q1",
+      prompt: "Storage is filling with the same article served at many URLs, each with a different tracking parameter. Which check fixes it?",
+      options: ["Check each link against URL seen", "Compare new pages letter by letter", "Hash each page and skip known hashes", "Drop any URL over 200 characters"],
+      answer: 2,
+      explanation: "The URLs differ but the content is the same, so a content hash catches it. URL seen only spots a URL it has met before, comparing whole pages is far too slow at billions of pages, and these URLs aren't long.",
+    },
+    {
+      kind: "mcq",
+      id: "t-design-crawler-1-q2",
+      prompt: "You build URL seen as a Bloom filter instead of an exact hash table. What does that choice cost?",
+      options: ["Some URLs are fetched twice", "A few new URLs are never fetched", "Each check needs a disk read", "Every check is a network call"],
+      answer: 1,
+      explanation: "A Bloom filter can wrongly say yes but never wrongly says no, so a rare new URL looks seen and is skipped. It can't cause repeat fetches, and it sits in memory beside the crawler, so there's no disk read or network call.",
+    },
+    {
+      kind: "mcq",
+      id: "t-design-crawler-1-q3",
+      prompt: "A plain breadth-first crawl with 200 workers starts on a large encyclopedia, which soon starts refusing requests. What's the cause?",
+      options: ["Depth-first went too deep into it", "The DNS resolver answers too slowly", "Content seen dropped too many pages", "Most of its links point to itself"],
+      answer: 3,
+      explanation: "The encyclopedia's pages mostly link to its own pages, so the queue fills with one host and all 200 workers hit it at once. The crawl is breadth-first, a slow DNS resolver would slow requests rather than flood the site, and dropping pages means fewer requests.",
+    },
+    {
+      kind: "tf",
+      id: "t-design-crawler-1-q4",
+      statement: "URL seen also covers URLs still waiting in the frontier, so a link found on two pages is queued only once.",
+      answer: true,
+      explanation: "URL seen records a URL when it's added to the frontier, not only after it's downloaded, so the second sighting is dropped.",
+    },
+    {
+      kind: "tf",
+      id: "t-design-crawler-1-q5",
+      statement: "Depth-first search suits a crawler better than breadth-first, because it finishes each site before starting the next.",
+      answer: false,
+      explanation: "A site can hold an almost endless chain of links, so depth-first may never climb back out. Breadth-first spreads the crawl across many sites.",
+    },
+  ],
+  practice: [
+    {
+      kind: "mcq",
+      id: "t-design-crawler-1-p1",
+      prompt: "3 billion pages a month at 50 KB each, kept for 2 years, before compression. About how much storage is that?",
+      options: ["150 TB", "1.8 PB", "3.6 PB", "36 PB"],
+      answer: 2,
+      explanation: "3 billion times 50 KB is 150 TB a month. Times 24 months is 3,600 TB, about 3.6 PB. 150 TB is one month, 1.8 PB is one year, and 36 PB is ten times too much.",
+    },
+    {
+      kind: "tf",
+      id: "t-design-crawler-1-p2",
+      statement: "Running the content parser as its own component keeps slow parsing from holding up the downloaders.",
+      answer: true,
+      explanation: "Downloaders hand pages off and move on, and parsers scale separately, so a slow page to parse doesn't stall fetching.",
+    },
+  ],
+  practiceNeeds: ["t-estimation"],
+  sources: [
+    { title: "Alex Xu, System Design Interview: An Insider's Guide, chapter 9 (reference, not quoted)", url: "https://bytebytego.com/", license: "Link only" },
+    { title: "Olston and Najork: Web Crawling, Foundations and Trends in Information Retrieval (2010)", url: "https://www.nowpublishers.com/article/Details/INR-017", license: "Link only" },
+    { title: "Heydon and Najork: Mercator, A Scalable, Extensible Web Crawler (1999)", url: "https://www.cs.cornell.edu/courses/cs685/2002fa/mercator.pdf", license: "Link only" },
+  ],
+};
+
+export default topic;

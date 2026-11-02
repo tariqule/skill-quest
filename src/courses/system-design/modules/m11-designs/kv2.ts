@@ -1,0 +1,111 @@
+import type { TopicContent } from "../../schema";
+
+const topic: TopicContent = {
+  id: "t-design-kv-2",
+  module: "m11",
+  title: "Design a key-value store: failures and storage",
+  level: "intermediate",
+  visual: {
+    kind: "tiles",
+    tiles: [
+      { icon: "⭕", title: "Big data, easy growth", text: "Consistent hashing with virtual nodes." },
+      { icon: "📚", title: "No lost data", text: "N copies on distinct servers, in more than one data centre." },
+      { icon: "🎚️", title: "Tunable consistency", text: "Quorums with N, W and R set per request." },
+      { icon: "🔀", title: "Clashing writes", text: "Versions with vector clocks, merged on read." },
+      { icon: "🩺", title: "Failures", text: "Gossip to detect, hinted handoff for short ones, Merkle trees for long ones." },
+      { icon: "💾", title: "Fast writes and reads", text: "Commit log, memtable, SSTables, Bloom filters and compaction." },
+    ],
+  },
+  screens: [
+    { kind: "idea", text: "Where part 1 ended: keys on a ring, N copies on distinct servers, W and R set per request. The design is **decentralised**: every node coordinates, copies, gossips, repairs and stores, so there's no single point of failure." },
+    { kind: "idea", text: "Low W lets two clients update one key on different copies at once. Tag each write as a new immutable **version** with a vector clock, from time and ordering. Concurrent versions come back together for the client to merge." },
+    { kind: "idea", text: "Vector clocks cost something. Every client needs merge code, and capping a growing clock can make an older version look like a clash. Cassandra skips them, keeping the newest timestamp per column: simpler, but concurrent updates get lost." },
+    { kind: "idea", text: "Don't let every node ping every other: 1,000 nodes would send about a million messages a round. With the **gossip protocol**, each node bumps a heartbeat counter and swaps lists with a few random peers. A stalled counter means down." },
+    { kind: "idea", text: "For a short outage, apply what you learned before: a sloppy quorum writes to the next healthy node on the ring, and hinted handoff passes the write back when the owner returns. Writes keep flowing." },
+    { kind: "idea", text: "For a replica lost for good, hints aren't enough. Anti-entropy compares Merkle trees: with 2 billion keys in 1 million buckets of 2,000, one mismatched bucket means syncing 2,000 keys, not 2 billion." },
+    { kind: "idea", text: "A whole data centre can lose power, so keep copies in two or more. A **local quorum** waits only for a majority of the copies in the request's own data centre, keeping cross-site delay off the hot path." },
+    { kind: "idea", text: "Inside one node, a write first goes to the **commit log**, a file on disk that only ever grows at the end. Appending is fast, and after a crash the node replays the log to rebuild what was in memory." },
+    { kind: "idea", text: "Next the write goes into the **memtable**, a sorted table in memory, and the node confirms. At a size limit, say 64 MB, it's flushed to disk as an immutable sorted SSTable, and that stretch of log is deleted." },
+    { kind: "idea", text: "A read checks the memtable, then SSTables from newest to oldest. Each SSTable has a **Bloom filter** in memory: a no means the key is definitely absent, so that file is skipped without touching the disk." },
+    { kind: "idea", text: "SSTables pile up, and reads slow down as they check more of them. Compaction merges files and keeps only the newest value. A delete writes a **tombstone** marker, and compaction drops the key once every copy has seen it." },
+    {
+      kind: "example",
+      title: "One write, then one read",
+      steps: [
+        "A client sends put(cart:42) to node D. The ring says copies live on A, B and C. N is 3 and W is 2.",
+        "A and B each append the write to their commit log, add it to their memtable and confirm. C is slow.",
+        "D has two confirmations, which meets W, so it tells the client the write succeeded. C finishes a moment later.",
+        "Later, get(cart:42) with R of 2 reaches node B, which reads its own copy and asks C. On C the key was flushed, and Bloom filters rule out four of five SSTables.",
+        "C reads one SSTable. Both versions match, so B returns the cart. Had C been behind, B would send the newer version back to it.",
+      ],
+    },
+    { kind: "idea", text: "Say the trade-offs plainly. Leaderless AP stays writable but lets conflicts in. Log-structured storage makes writes cheap, but a read may touch several files. Many newer stores pick a Raft leader per partition instead, for strong consistency." },
+    { kind: "idea", text: "Wrap up: at 10x, add nodes and let arcs stream over. Watch p99 latency per node, pending compactions, queued hints, repair progress and disk use. Hot keys and huge values break first. With time, add expiry, range scans and encryption." },
+  ],
+  tip: "Trace one write and one read through the system, naming the commit log, memtable, SSTable and Bloom filter as you go; it shows you know what happens inside a node, not just between nodes.",
+  quiz: [
+    {
+      kind: "mcq",
+      id: "t-design-kv-2-q1",
+      prompt: "To keep vector clocks small, a store caps each one at 10 entries and drops the oldest. What can go wrong?",
+      options: ["Two writes get the same timestamp", "An older version looks like a clash", "Every read must ask all N copies", "Merkle trees stop matching at all"],
+      answer: 1,
+      explanation: "Without the dropped entries, the store can't always prove one version descends from another, so it reports a false conflict for the client to merge. Vector clocks don't use timestamps, reads still ask R copies, and Merkle trees compare data, not clocks.",
+    },
+    {
+      kind: "mcq",
+      id: "t-design-kv-2-q2",
+      prompt: "Reads on one node are slow, and each read is checking about 40 SSTables. Which fix matches this bottleneck?",
+      options: ["Raise W so writes wait for more copies", "Keep more hints for down nodes", "Let compaction catch up on merging", "Make the commit log bigger"],
+      answer: 2,
+      explanation: "Too many SSTables means compaction has fallen behind; merging them leaves fewer files for each read. W changes how many copies confirm a write, hints help down nodes, and the commit log size doesn't change how many files a read checks.",
+    },
+    {
+      kind: "mcq",
+      id: "t-design-kv-2-q3",
+      prompt: "A node writes straight into its memtable and skips the commit log. What does it lose if it crashes?",
+      options: ["The sorted order inside SSTables", "The Bloom filter of each SSTable", "Heartbeat counters from gossip", "Writes not yet flushed to disk"],
+      answer: 3,
+      explanation: "The memtable lives in memory, so anything not yet flushed is gone; replaying the commit log is what brings it back. SSTables and their Bloom filters are already on disk, and gossip counters are rebuilt from peers.",
+    },
+    {
+      kind: "tf",
+      id: "t-design-kv-2-q4",
+      statement: "A delete in a log-structured store writes a marker instead of erasing the value, and compaction removes the key later.",
+      answer: true,
+      explanation: "SSTables are immutable, so a delete is recorded as a tombstone. Compaction drops the key and the tombstone once every copy has seen the delete.",
+    },
+    {
+      kind: "tf",
+      id: "t-design-kv-2-q5",
+      statement: "Hinted handoff is enough to restore a replica that was replaced after its disk failed.",
+      answer: false,
+      explanation: "Hints only cover writes made during a short outage. A replacement replica is missing everything, so anti-entropy with Merkle trees fills it in.",
+    },
+  ],
+  practice: [
+    {
+      kind: "mcq",
+      id: "t-design-kv-2-p1",
+      prompt: "3 billion keys sit in 1 million Merkle buckets. Two replicas differ in 4 buckets. About how many keys must be synced?",
+      options: ["3,000", "12,000", "3 billion", "4 million"],
+      answer: 1,
+      explanation: "3 billion divided by 1 million is 3,000 keys per bucket, and 4 buckets hold 12,000. 3,000 is just one bucket, 3 billion is everything, and 4 million mixes up buckets with keys.",
+    },
+    {
+      kind: "tf",
+      id: "t-design-kv-2-p2",
+      statement: "If every node sends heartbeats to every other node, the messages per round grow with the square of the cluster size.",
+      answer: true,
+      explanation: "Each of n nodes messages the other n minus 1, so about n squared in all: 1,000 nodes send about a million. That's why stores use gossip.",
+    },
+  ],
+  practiceNeeds: ["t-ddb"],
+  sources: [
+    { title: "Alex Xu, System Design Interview: An Insider's Guide, chapter 6 (reference, not quoted)", url: "https://bytebytego.com/", license: "Link only" },
+    { title: "Apache Cassandra docs: Storage engine", url: "https://cassandra.apache.org/doc/latest/cassandra/architecture/storage-engine.html", license: "Link only" },
+    { title: "O'Neil et al.: The Log-Structured Merge-Tree (1996)", url: "https://www.cs.umb.edu/~poneil/lsmtree.pdf", license: "Link only" },
+  ],
+};
+
+export default topic;

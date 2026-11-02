@@ -1,0 +1,112 @@
+import type { TopicContent } from "../../schema";
+
+const topic: TopicContent = {
+  id: "t-design-feed-2",
+  module: "m11",
+  title: "Design a news feed: reading and caching",
+  level: "intermediate",
+  visual: {
+    kind: "tiles",
+    tiles: [
+      { icon: "📜", title: "Feed", text: "Each user's newest post ids, capped at a few hundred." },
+      { icon: "📝", title: "Content", text: "Every post once, with popular ones on a hot cache." },
+      { icon: "🕸️", title: "Social graph", text: "Who follows or is friends with whom." },
+      { icon: "❤️", title: "Actions", text: "Whether you liked or replied to a post." },
+      { icon: "🔢", title: "Counters", text: "Totals for likes, replies and followers." },
+      { icon: "👤", title: "Users", text: "Names and profile photos for authors." },
+    ],
+  },
+  screens: [
+    { kind: "idea", text: "Where part 1 ended: each post is saved once, and fan-out workers push its id into friends' feed caches, except for a few huge accounts that readers pull. Now the read side." },
+    { kind: "idea", text: "The feed cache holds only post ids, newest first, capped at a few hundred per user. Few people scroll further, so old ids drop off and the rare deep scroll falls back to the database." },
+    { kind: "idea", text: "A list of ids isn't a feed yet. **Hydration** turns ids into posts: fetch the posts from the post cache and their authors' names and photos from the user cache, one batched call each." },
+    { kind: "idea", text: "Photos and videos aren't in the response. Each post holds a media link, and the app loads the file from a CDN server near the user, so the feed service only sends small JSON." },
+    { kind: "idea", text: "Split the caches by what they hold, as the picture shows: feed ids, post content, the social graph, actions, counters and users. Each tier is sized and scaled on its own." },
+    { kind: "idea", text: "Inside the content tier, a **hot cache** keeps the few posts everyone is reading, like a viral video, as extra copies on several nodes, so no single cache node takes all those reads." },
+    { kind: "idea", text: "Actions record whether you liked or replied, so the app shows a filled heart. Counters hold totals, bumped atomically in the cache and saved to the database in batches. A second's lag is fine." },
+    { kind: "idea", text: "For pulled accounts, the feed service fetches the newest post ids of each big account the reader follows, cached per author, and **merges** them with the pushed list by time before hydrating." },
+    { kind: "idea", text: "Feeds page with a cursor, as in API design. A reply holds 20 posts and a cursor, the last post id. The next request asks for posts older than that, so new posts don't shift the page." },
+    {
+      kind: "example",
+      title: "One feed read",
+      steps: [
+        "Mia opens the app. GET /v1/me/feed with her token reaches a web server, which checks the token and asks the feed service for 20 posts.",
+        "The feed service reads Mia's feed cache: 300 post ids, newest first. She follows two big accounts, so it also fetches their 10 newest ids each.",
+        "It merges the 320 ids by time and keeps the newest 20. Snowflake-style ids start with a timestamp, so sorting needs no extra lookups.",
+        "One batched read gets the 20 posts, another their authors. Counters add like totals, and actions mark which posts Mia already liked.",
+        "The reply is 20 small JSON posts with CDN links for photos, plus a cursor. Her phone loads the images from the nearest CDN server.",
+      ],
+    },
+    { kind: "idea", text: "If a feed cache node dies, rebuild a user's feed on demand by pulling friends' recent posts, slower but correct, then refill the cache. If fan-out lags, feeds are a little stale, not broken." },
+    { kind: "idea", text: "Most feeds today are **ranked**, not newest first. The same pipeline gathers candidate post ids, a model scores them by likely interest, and the top ones are hydrated. Ranking adds a step, not a new system." },
+    { kind: "idea", text: "At 10 times the load, watch for hot keys on viral posts, fan-out lag after big posts, and database growth. Answer with read replicas, sharding by user id, stateless web servers and caching all you can." },
+    { kind: "idea", text: "Also add data centres near users, keep queues between services so one slow part doesn't stall the rest, and spread hot keys across nodes with consistent hashing." },
+    { kind: "idea", text: "Monitor peak queries per second, feed load time at the 99th percentile, fan-out queue lag and cache hit rate. Growing queue lag is the first sign that push can't keep up." },
+  ],
+  tip: "Walk one feed read end to end: ids from the feed cache, merge in pulled accounts, hydrate in batches, media from the CDN, then a cursor for the next page.",
+  quiz: [
+    {
+      kind: "mcq",
+      id: "t-design-feed-2-q1",
+      prompt: "Feeds load slowly, and traces show the feed service fetching 20 posts one at a time from the post cache. What's the fix?",
+      options: ["Store whole posts in the feed cache", "Batch the 20 lookups into one call", "Raise the feed cache cap to 5,000", "Move every feed to fan-out on read"],
+      answer: 1,
+      explanation: "The delay is 20 round trips, so one batched read removes 19 of them. Whole posts in every feed copy each post hundreds of times, a bigger cap doesn't change the lookups, and pulling makes reads slower.",
+    },
+    {
+      kind: "mcq",
+      id: "t-design-feed-2-q2",
+      prompt: "A viral post gets so many reads that the one content cache node holding it is overloaded. Which fix matches?",
+      options: ["Push it into every user's feed cache", "Store its like count in the database", "Shorten the post cache's expiry time", "Copy it to a hot cache on many nodes"],
+      answer: 3,
+      explanation: "The problem is one hot key on one node, so spread copies of it across nodes. Feed caches hold ids, so readers still hit the same node; moving the count doesn't touch the post reads; a shorter expiry adds misses.",
+    },
+    {
+      kind: "mcq",
+      id: "t-design-feed-2-q3",
+      prompt: "A hot post gets 50,000 likes a minute, and locking its database row on each like is the bottleneck. What fits?",
+      options: ["Recount all likes on every feed read", "Fan the count out to every follower", "Bump a cache counter, save in batches", "Store each like in the user's feed cache"],
+      answer: 2,
+      explanation: "An atomic counter in the cache takes the writes, and a batch save every second or so spares the row. Recounting on read is far slower, fanning out multiplies the writes, and feed caches hold post ids, not likes.",
+    },
+    {
+      kind: "tf",
+      id: "t-design-feed-2-q4",
+      statement: "If a user's feed cache entry is lost, the service can rebuild it by pulling friends' recent posts, at the cost of one slow load.",
+      answer: true,
+      explanation: "Pulling is the slow path, but it gives the right answer, and the rebuilt list refills the cache for the next read.",
+    },
+    {
+      kind: "tf",
+      id: "t-design-feed-2-q5",
+      statement: "Moving to a ranked feed means dropping fan-out, since ranking has to score every post at read time.",
+      answer: false,
+      explanation: "Ranking scores the candidate ids the existing pipeline already gathers. Fan-out and the caches stay; a scoring step is added before hydration.",
+    },
+  ],
+  practice: [
+    {
+      kind: "mcq",
+      id: "t-design-feed-2-p1",
+      prompt: "A reader has 300 pushed ids and follows 3 pulled accounts. You fetch the 10 newest ids per pulled account. How many ids are merged before keeping 20?",
+      options: ["310", "330", "600", "30"],
+      answer: 1,
+      explanation: "3 accounts times 10 ids is 30, plus the 300 pushed ids, gives 330 ids to merge by time.",
+    },
+    {
+      kind: "tf",
+      id: "t-design-feed-2-p2",
+      statement: "A feed response carries the photo and video files inline, so the app needs only one request.",
+      answer: false,
+      explanation: "The response carries links. Media files come from a CDN near the user, which keeps the feed reply small.",
+    },
+  ],
+  practiceNeeds: ["t-api", "t-cdn"],
+  sources: [
+    { title: "Alex Xu, System Design Interview: An Insider's Guide, chapter 11 (reference, not quoted)", url: "https://bytebytego.com/", license: "Link only" },
+    { title: "Meta Engineering: How machine learning powers Facebook's News Feed ranking algorithm", url: "https://engineering.fb.com/2021/01/26/core-infra/news-feed-ranking/", license: "Link only" },
+    { title: "InfoQ: Timelines at Scale (Raffi Krikorian, Twitter)", url: "https://www.infoq.com/presentations/Twitter-Timeline-Scalability/", license: "Link only" },
+  ],
+};
+
+export default topic;

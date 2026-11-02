@@ -1,0 +1,112 @@
+import type { TopicContent } from "../../schema";
+
+const topic: TopicContent = {
+  id: "t-design-notify-2",
+  module: "m11",
+  title: "Design a notification system: reliability",
+  level: "intermediate",
+  visual: {
+    kind: "tiles",
+    tiles: [
+      { icon: "📒", title: "Notification log", text: "Every send is written down first, so none goes missing." },
+      { icon: "🪪", title: "Dedupe", text: "Event ids and idempotency keys stop most repeats." },
+      { icon: "🔕", title: "Settings and caps", text: "Opt-ins, a daily limit per user and quiet hours." },
+      { icon: "🔁", title: "Retries and failover", text: "Backoff, a dead-letter queue and a second provider." },
+      { icon: "📊", title: "Tracking", text: "Sent, delivered, opened and clicked, from provider webhooks." },
+    ],
+  },
+  screens: [
+    { kind: "idea", text: "Where part 1 ended: services call stateless API servers, which look up the user in a cache and database, then put an event on one queue per channel. Workers call the providers. Now make sure nothing goes missing." },
+    { kind: "idea", text: "The promise: late or out of order is fine, lost is not. The API server writes each notification to a **notification log** before queuing it, and a sweeper job requeues any left stuck too long." },
+    { kind: "idea", text: "Loss can start earlier, in the calling service. If billing saves a bill, then crashes before calling the send API, nobody hears. The **outbox pattern** saves the event in the same transaction, and a relay sends it after." },
+    { kind: "idea", text: "You know exactly-once delivery is impossible, so workers dedupe: before sending, look up the event id in the log and skip it if it's already sent. A crash between sending and recording can still let a rare duplicate through." },
+    { kind: "idea", text: "Callers retry too. The send API takes an **idempotency key** from the caller, as in API design, so a repeated request gets the first answer back instead of creating a second notification." },
+    { kind: "idea", text: "Most messages share a shape. A **template** holds fixed text with placeholders, like the name and due date, stored and cached by id. It keeps messages consistent, cuts mistakes and makes translation easier." },
+    { kind: "idea", text: "A **notification settings** table holds user id, channel, message type and an opt-in flag. Check it before every send. Marketing email also needs a working unsubscribe link, which laws and big mailbox providers require." },
+    { kind: "idea", text: "Too many messages make people switch everything off. A **frequency cap** limits each user, say 3 marketing pushes a day, using the rate limiter you already know. Urgent messages, like a login code, skip it." },
+    { kind: "idea", text: "Store each user's time zone and set **quiet hours**, say 10 pm to 8 am local time. A non-urgent send due inside them waits in a scheduled store until morning there." },
+    { kind: "idea", text: "When a provider call fails, put the event back on the queue with exponential backoff and jitter. After a set number of tries, move it to the dead-letter queue, mark it failed in the log and alert someone." },
+    { kind: "idea", text: "Retry only errors that might pass, like a timeout or a 429. If APNs or FCM says a device token is no longer registered, the app was removed, so delete that device row instead of retrying." },
+    { kind: "idea", text: "If an SMS or email provider is down, a circuit breaker trips and workers **fail over** to a second provider. Push usually has no spare: APNs is the only route to an iPhone, so you retry and wait." },
+    { kind: "idea", text: "Lock down the send API, or anyone could spam your users. The classic answer gives each caller an **app key and secret**. Today services more often prove who they are with mutual TLS or short-lived OAuth tokens." },
+    { kind: "idea", text: "Monitor each queue's depth and the age of its oldest event. When they climb, workers can't keep up, so add more. Also watch each provider's error rate and how long its calls take." },
+    { kind: "idea", text: "Track every notification's events: sent, delivered, opened, clicked. Providers report delivery through **webhooks**, calls back to your API, and the events feed analytics. Email opens are fuzzy, since some mail apps load every image." },
+    {
+      kind: "example",
+      title: "One payment reminder",
+      steps: [
+        "Billing saves a due bill and an outbox row in one transaction. Its relay calls the send API with idempotency key bill-5521.",
+        "The API server checks the caller's token, sees the user opted into email, is under her cap and it's 10 am there. It logs the notification as queued and puts it on the email queue.",
+        "The email worker fills the template and calls the provider, which times out. The worker puts the event back with a short delay, and the log says retrying.",
+        "The relay, unsure its first call landed, sends bill-5521 again. The API finds the key and returns the first answer, so no second email is made.",
+        "The retry succeeds and the log says sent. Later the provider's webhook reports delivered, and a click on the payment link is logged as clicked.",
+      ],
+    },
+    { kind: "idea", text: "Wrap up. At 10x, provider rate limits and SMS costs bite first, and the log grows fast, so expire old rows. Give login codes their own high-priority queue so a big campaign can't delay them." },
+  ],
+  tip: "Follow one notification from trigger to tap and say where it could be lost, sent twice or unwanted, and which part of the design stops each.",
+  quiz: [
+    {
+      kind: "mcq",
+      id: "t-design-notify-2-q1",
+      prompt: "The SMS provider has returned errors for two minutes straight. Which response keeps texts reaching users?",
+      options: ["Retry each text at once in a loop", "Drop the texts and log the errors", "Fail over to a second SMS provider", "Move SMS events to the email queue"],
+      answer: 2,
+      explanation: "A second provider can deliver while the first is down. Retrying at once hammers a failing service, dropping breaks the no-loss promise, and email reaches a different place than the user asked for.",
+    },
+    {
+      kind: "mcq",
+      id: "t-design-notify-2-q2",
+      prompt: "A user got 9 marketing pushes in one day and then turned off every notification. Which control would have prevented it?",
+      options: ["A longer retry backoff for push", "A per-user cap on marketing sends", "A separate queue for each channel", "Deduping events by their event id"],
+      answer: 1,
+      explanation: "A frequency cap limits how many marketing messages one user gets. Backoff only spaces out retries, a separate queue isolates providers, and dedupe only removes repeats of the same event, while these were 9 different ones.",
+    },
+    {
+      kind: "mcq",
+      id: "t-design-notify-2-q3",
+      prompt: "APNs replies that a device token is no longer registered. What should the push worker do?",
+      options: ["Retry with exponential backoff", "Move it to the dead-letter queue", "Send it through FCM instead", "Delete that device's token row"],
+      answer: 3,
+      explanation: "The app was removed from that device, so the token will never work again. Retrying or dead-lettering wastes effort on a dead address, and FCM only reaches an iPhone through APNs, which has already refused that token.",
+    },
+    {
+      kind: "tf",
+      id: "t-design-notify-2-q4",
+      statement: "Even with dedupe by event id, a user can occasionally get the same notification twice.",
+      answer: true,
+      explanation: "A worker can send the message and crash before marking it sent. The retry finds no record and sends again. Dedupe makes this rare, not impossible.",
+    },
+    {
+      kind: "tf",
+      id: "t-design-notify-2-q5",
+      statement: "A user's opt-in settings only need checking once, when the user first signs up.",
+      answer: false,
+      explanation: "Users change their settings at any time, so the settings table is checked before every send.",
+    },
+  ],
+  practice: [
+    {
+      kind: "mcq",
+      id: "t-design-notify-2-p1",
+      prompt: "A non-urgent sale push is due at 3 am in the user's time zone, inside their quiet hours. What should happen?",
+      options: ["Send it now, since it's due", "Send it as an email instead", "Hold it until 8 am there", "Drop it and log a skip"],
+      answer: 2,
+      explanation: "Quiet hours delay non-urgent sends until morning in the user's own time zone. Sending now wakes them, switching channels ignores what they chose, and dropping loses a message they'd accept later.",
+    },
+    {
+      kind: "tf",
+      id: "t-design-notify-2-p2",
+      statement: "Email open counts are exact, because every open loads the tracking image.",
+      answer: false,
+      explanation: "Some mail apps load every image on arrival, which counts unread mail as opened, and others block images. Treat open rates as rough.",
+    },
+  ],
+  sources: [
+    { title: "Alex Xu, System Design Interview: An Insider's Guide, chapter 10 (reference, not quoted)", url: "https://bytebytego.com/", license: "Link only" },
+    { title: "Brave New Geek: You Cannot Have Exactly-Once Delivery", url: "https://bravenewgeek.com/you-cannot-have-exactly-once-delivery/", license: "Link only" },
+    { title: "microservices.io: Pattern: Transactional outbox", url: "https://microservices.io/patterns/data/transactional-outbox.html", license: "Link only" },
+  ],
+};
+
+export default topic;

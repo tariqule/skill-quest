@@ -8203,7 +8203,7 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
     "Faster reads with no join, but a name change must update many post rows",
   ],
   "d3-01": [
-    "The API can reply immediately while workers process jobs at their own pace, soaking up bursts and retrying failures",
+    "The API replies at once while workers take jobs at their own pace",
   ],
   "d3-04": [
     "6, and 2 sit idle",
@@ -8229,7 +8229,7 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
     "It needs a majority of 3, so it still survives only 1 failure, just like 3 nodes, while adding cost and write latency; use 3 or 5",
   ],
   "d3-12": [
-    "The client sends a unique key per action; the server records the key with the result and returns the stored result for any repeat",
+    "The server stores the key with the result and replays it on repeats",
   ],
   "d3-14": [
     "PUT",
@@ -8257,10 +8257,10 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
     "\`GET /users/7/orders/42\`",
   ],
   "d4-02": [
-    "Send the same request with \`?cursor=eyJpZCI6OTgyMX0\`; a missing \`next_cursor\` means there are no more pages",
+    "Resend with \`?cursor=eyJpZCI6OTgyMX0\` until no cursor is returned",
   ],
   "d4-03": [
-    "gRPC: Protocol Buffer contracts over HTTP/2 with built-in streaming",
+    "gRPC: typed Protocol Buffer contracts over HTTP/2, with streaming",
   ],
   "d4-04": [
     "Add \`username\`, keep returning \`user_name\`, announce a deprecation window, and remove the old field only in a new major version",
@@ -8294,7 +8294,7 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
     "4,096",
   ],
   "d4-19": [
-    "A mix: don't fan out posts from very high-follower accounts; merge them into followers' feeds when the feed loads",
+    "Skip fan-out for huge accounts and merge their posts in when a feed loads",
   ],
   "d4-20": [
     "About 100 gateways; a connection registry maps each online user to their gateway, and the chat service routes (or publishes) the message to Bo's gateway",
@@ -8337,6 +8337,21 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
   ],
   "sd-b4-03": [
     "It sets how long to wait for an answer before giving up",
+  ],
+  "t-api-q1": [
+    "POST /playlists",
+  ],
+  "t-api-q2": [
+    "Sending an idempotency key",
+  ],
+  "t-api-q3": [
+    "Cursor-based pagination",
+  ],
+  "t-api-q4": [
+    "True",
+  ],
+  "t-api-q5": [
+    "False",
   ],
   "t-availability-q1": [
     "About 8.8 hours",
@@ -8443,6 +8458,21 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
   "t-consistency-q5": [
     "False",
   ],
+  "t-ddb-q1": [
+    "W of 3 and R of 3",
+  ],
+  "t-ddb-q2": [
+    "Hinted handoff",
+  ],
+  "t-ddb-q3": [
+    "To skip ranges whose hashes match",
+  ],
+  "t-ddb-q4": [
+    "True",
+  ],
+  "t-ddb-q5": [
+    "False",
+  ],
   "t-denorm-q1": [
     "Updating every post's copy",
   ],
@@ -8458,6 +8488,336 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
   "t-denorm-q5": [
     "False",
   ],
+  "t-design-autocomplete-1-q1": [
+    "Cache the top 5 at every node",
+  ],
+  "t-design-autocomplete-1-q2": [
+    "Each query is copied to many nodes",
+  ],
+  "t-design-autocomplete-1-q3": [
+    "Short prefixes match huge row sets",
+  ],
+  "t-design-autocomplete-1-q4": [
+    "True",
+  ],
+  "t-design-autocomplete-1-q5": [
+    "False",
+  ],
+  "t-design-autocomplete-2-q1": [
+    "Stream counts into a trending trie",
+  ],
+  "t-design-autocomplete-2-q2": [
+    "Map ranges by historical counts",
+  ],
+  "t-design-autocomplete-2-q3": [
+    "Block it in the filter layer",
+  ],
+  "t-design-autocomplete-2-q4": [
+    "True",
+  ],
+  "t-design-autocomplete-2-q5": [
+    "False",
+  ],
+  "t-design-chash-q1": [
+    "Only keys between B and E",
+  ],
+  "t-design-chash-q2": [
+    "To even out how many keys each gets",
+  ],
+  "t-design-chash-q3": [
+    "Split the key or cache it in front",
+  ],
+  "t-design-chash-q4": [
+    "True",
+  ],
+  "t-design-chash-q5": [
+    "False",
+  ],
+  "t-design-chat-1-q1": [
+    "On stateless API servers over HTTP",
+  ],
+  "t-design-chat-1-q2": [
+    "A key-value store split across machines",
+  ],
+  "t-design-chat-1-q3": [
+    "60",
+  ],
+  "t-design-chat-1-q4": [
+    "True",
+  ],
+  "t-design-chat-1-q5": [
+    "False",
+  ],
+  "t-design-chat-2-q1": [
+    "Bo's messages with ids above 1,010",
+  ],
+  "t-design-chat-2-q2": [
+    "Copying each message to every inbox",
+  ],
+  "t-design-chat-2-q3": [
+    "Her still shown as online",
+  ],
+  "t-design-chat-2-q4": [
+    "True",
+  ],
+  "t-design-chat-2-q5": [
+    "False",
+  ],
+  "t-design-crawler-1-q1": [
+    "Hash each page and skip known hashes",
+  ],
+  "t-design-crawler-1-q2": [
+    "A few new URLs are never fetched",
+  ],
+  "t-design-crawler-1-q3": [
+    "Most of its links point to itself",
+  ],
+  "t-design-crawler-1-q4": [
+    "True",
+  ],
+  "t-design-crawler-1-q5": [
+    "False",
+  ],
+  "t-design-crawler-2-q1": [
+    "Route each host to one back queue",
+  ],
+  "t-design-crawler-2-q2": [
+    "Cap pages crawled per host a day",
+  ],
+  "t-design-crawler-2-q3": [
+    "Cache host-to-IP answers locally",
+  ],
+  "t-design-crawler-2-q4": [
+    "True",
+  ],
+  "t-design-crawler-2-q5": [
+    "False",
+  ],
+  "t-design-drive-1-q1": [
+    "Move files to replicated object storage",
+  ],
+  "t-design-drive-1-q2": [
+    "It's marked a conflict for the user",
+  ],
+  "t-design-drive-1-q3": [
+    "Use resumable uploads for big files",
+  ],
+  "t-design-drive-1-q4": [
+    "True",
+  ],
+  "t-design-drive-1-q5": [
+    "False",
+  ],
+  "t-design-drive-2-q1": [
+    "Upload only blocks whose hash changed",
+  ],
+  "t-design-drive-2-q2": [
+    "ACID transactions for each change",
+  ],
+  "t-design-drive-2-q3": [
+    "Reconnect with backoff and jitter",
+  ],
+  "t-design-drive-2-q4": [
+    "True",
+  ],
+  "t-design-drive-2-q5": [
+    "False",
+  ],
+  "t-design-feed-1-q1": [
+    "Fan out post ids at write time",
+  ],
+  "t-design-feed-1-q2": [
+    "Feed writes that no one reads",
+  ],
+  "t-design-feed-1-q3": [
+    "Queue the work for fan-out workers",
+  ],
+  "t-design-feed-1-q4": [
+    "True",
+  ],
+  "t-design-feed-1-q5": [
+    "False",
+  ],
+  "t-design-feed-2-q1": [
+    "Batch the 20 lookups into one call",
+  ],
+  "t-design-feed-2-q2": [
+    "Copy it to a hot cache on many nodes",
+  ],
+  "t-design-feed-2-q3": [
+    "Bump a cache counter, save in batches",
+  ],
+  "t-design-feed-2-q4": [
+    "True",
+  ],
+  "t-design-feed-2-q5": [
+    "False",
+  ],
+  "t-design-id-q1": [
+    "One database becomes a bottleneck",
+  ],
+  "t-design-id-q2": [
+    "Wait until its clock catches up",
+  ],
+  "t-design-id-q3": [
+    "4,096",
+  ],
+  "t-design-id-q4": [
+    "True",
+  ],
+  "t-design-id-q5": [
+    "False",
+  ],
+  "t-design-kv-1-q1": [
+    "A, B and C",
+  ],
+  "t-design-kv-1-q2": [
+    "AP: take writes and sync later",
+  ],
+  "t-design-kv-1-q3": [
+    "One copy down blocks every write",
+  ],
+  "t-design-kv-1-q4": [
+    "True",
+  ],
+  "t-design-kv-1-q5": [
+    "False",
+  ],
+  "t-design-kv-2-q1": [
+    "An older version looks like a clash",
+  ],
+  "t-design-kv-2-q2": [
+    "Let compaction catch up on merging",
+  ],
+  "t-design-kv-2-q3": [
+    "Writes not yet flushed to disk",
+  ],
+  "t-design-kv-2-q4": [
+    "True",
+  ],
+  "t-design-kv-2-q5": [
+    "False",
+  ],
+  "t-design-notify-1-q1": [
+    "Hand sends to queues and workers",
+  ],
+  "t-design-notify-1-q2": [
+    "One row per device in a device table",
+  ],
+  "t-design-notify-1-q3": [
+    "10",
+  ],
+  "t-design-notify-1-q4": [
+    "True",
+  ],
+  "t-design-notify-1-q5": [
+    "False",
+  ],
+  "t-design-notify-2-q1": [
+    "Fail over to a second SMS provider",
+  ],
+  "t-design-notify-2-q2": [
+    "A per-user cap on marketing sends",
+  ],
+  "t-design-notify-2-q3": [
+    "Delete that device's token row",
+  ],
+  "t-design-notify-2-q4": [
+    "True",
+  ],
+  "t-design-notify-2-q5": [
+    "False",
+  ],
+  "t-design-ratelimit-q1": [
+    "Make the increment atomic in the store",
+  ],
+  "t-design-ratelimit-q2": [
+    "Sliding window log",
+  ],
+  "t-design-ratelimit-q3": [
+    "Fail open and let requests through",
+  ],
+  "t-design-ratelimit-q4": [
+    "True",
+  ],
+  "t-design-ratelimit-q5": [
+    "False",
+  ],
+  "t-design-scale-q1": [
+    "Keep sessions in a shared store",
+  ],
+  "t-design-scale-q2": [
+    "Resize later via a queue and workers",
+  ],
+  "t-design-scale-q3": [
+    "A hot key",
+  ],
+  "t-design-scale-q4": [
+    "True",
+  ],
+  "t-design-scale-q5": [
+    "False",
+  ],
+  "t-design-shortener-q1": [
+    "Their browsers cached the redirect",
+  ],
+  "t-design-shortener-q2": [
+    "Add a fixed string and hash again",
+  ],
+  "t-design-shortener-q3": [
+    "Anyone can guess the next link",
+  ],
+  "t-design-shortener-q4": [
+    "True",
+  ],
+  "t-design-shortener-q5": [
+    "False",
+  ],
+  "t-design-video-1-q1": [
+    "Each video is stored once but streamed many times",
+  ],
+  "t-design-video-1-q2": [
+    "The completion handler's workers",
+  ],
+  "t-design-video-1-q3": [
+    "Let players stream from nearby CDN edges",
+  ],
+  "t-design-video-1-q4": [
+    "True",
+  ],
+  "t-design-video-1-q5": [
+    "False",
+  ],
+  "t-design-video-2-q1": [
+    "Retry that one task on another worker",
+  ],
+  "t-design-video-2-q2": [
+    "Serve the long tail from your own servers",
+  ],
+  "t-design-video-2-q3": [
+    "Put a message queue between the steps",
+  ],
+  "t-design-video-2-q4": [
+    "True",
+  ],
+  "t-design-video-2-q5": [
+    "False",
+  ],
+  "t-discovery-q1": [
+    "Servers change as they come and go",
+  ],
+  "t-discovery-q2": [
+    "Its heartbeats stop arriving",
+  ],
+  "t-discovery-q3": [
+    "Server-side discovery",
+  ],
+  "t-discovery-q4": [
+    "True",
+  ],
+  "t-discovery-q5": [
+    "False",
+  ],
   "t-estimation-q1": [
     "About 10,000",
   ],
@@ -8471,6 +8831,21 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
     "True",
   ],
   "t-estimation-q5": [
+    "False",
+  ],
+  "t-fault-q1": [
+    "Reading a user's profile",
+  ],
+  "t-fault-q2": [
+    "Lets a few trial calls through",
+  ],
+  "t-fault-q3": [
+    "Retries spread out over time",
+  ],
+  "t-fault-q4": [
+    "True",
+  ],
+  "t-fault-q5": [
     "False",
   ],
   "t-index-q1": [
@@ -8533,6 +8908,21 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
   "t-lb-q5": [
     "True",
   ],
+  "t-method-q1": [
+    "Ask who uses it and at what scale",
+  ],
+  "t-method-q2": [
+    "Ask which part to explore in depth",
+  ],
+  "t-method-q3": [
+    "The cache is the weak spot; at 10x I'd shard it",
+  ],
+  "t-method-q4": [
+    "False",
+  ],
+  "t-method-q5": [
+    "True",
+  ],
   "t-network-q1": [
     "Turns a name into an IP address",
   ],
@@ -8546,6 +8936,21 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
     "True",
   ],
   "t-network-q5": [
+    "False",
+  ],
+  "t-observe-q1": [
+    "A distributed trace",
+  ],
+  "t-observe-q2": [
+    "Error rate jumped to 5%",
+  ],
+  "t-observe-q3": [
+    "p99 latency",
+  ],
+  "t-observe-q4": [
+    "True",
+  ],
+  "t-observe-q5": [
     "False",
   ],
   "t-proxy-q1": [
@@ -8563,6 +8968,21 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
   "t-proxy-q5": [
     "False",
   ],
+  "t-queues-q1": [
+    "Another worker handles it again",
+  ],
+  "t-queues-q2": [
+    "Give each channel its own queue",
+  ],
+  "t-queues-q3": [
+    "Move it to a dead-letter queue",
+  ],
+  "t-queues-q4": [
+    "True",
+  ],
+  "t-queues-q5": [
+    "False",
+  ],
   "t-ratelimit-q1": [
     "429 Too Many Requests",
   ],
@@ -8576,6 +8996,21 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
     "True",
   ],
   "t-ratelimit-q5": [
+    "False",
+  ],
+  "t-realtime-q1": [
+    "Only the client starts an exchange",
+  ],
+  "t-realtime-q2": [
+    "Server-sent events",
+  ],
+  "t-realtime-q3": [
+    "Heartbeats stop arriving",
+  ],
+  "t-realtime-q4": [
+    "True",
+  ],
+  "t-realtime-q5": [
     "False",
   ],
   "t-replication-q1": [
@@ -8636,6 +9071,36 @@ exports[`answer keys code-system-design > match the reviewed snapshot 1`] = `
     "True",
   ],
   "t-sql-nosql-q5": [
+    "False",
+  ],
+  "t-storage-q1": [
+    "In object storage, key kept in a row",
+  ],
+  "t-storage-q2": [
+    "1.5 times the space, any 4 lost",
+  ],
+  "t-storage-q3": [
+    "So bytes go straight to the bucket",
+  ],
+  "t-storage-q4": [
+    "False",
+  ],
+  "t-storage-q5": [
+    "True",
+  ],
+  "t-time-q1": [
+    "They're concurrent, a conflict",
+  ],
+  "t-time-q2": [
+    "A's write, the one made earlier",
+  ],
+  "t-time-q3": [
+    "10",
+  ],
+  "t-time-q4": [
+    "True",
+  ],
+  "t-time-q5": [
     "False",
   ],
   "t-transactions-q1": [

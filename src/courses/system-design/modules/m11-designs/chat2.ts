@@ -1,0 +1,112 @@
+import type { TopicContent } from "../../schema";
+
+const topic: TopicContent = {
+  id: "t-design-chat-2",
+  module: "m11",
+  title: "Design a chat system: messages and presence",
+  level: "intermediate",
+  visual: {
+    kind: "flow",
+    steps: [
+      { icon: "✍️", label: "Sender", sub: "Sends over its WebSocket" },
+      { icon: "🔌", label: "Chat server", sub: "Gets an id for the message" },
+      { icon: "📬", label: "Sync queue", sub: "Hands it on in order" },
+      { icon: "🗄️", label: "Key-value store", sub: "Saves it for good" },
+      { icon: "📱", label: "Receiver", sub: "Each device, or a push alert" },
+    ],
+  },
+  screens: [
+    { kind: "idea", text: "Where part one ended: clients log in over HTTP, discovery points each device at a chat server, a WebSocket stays open there, and messages live in a key-value store. Now the close-ups: ids, message flow, devices, groups and presence." },
+    { kind: "idea", text: "A one-on-one message row holds its id, sender, receiver, text and creation time, keyed by message id. You can't order by creation time, because two messages can be made in the same millisecond." },
+    { kind: "idea", text: "Group messages are keyed by channel id plus message id, a **composite key**. The channel id is the partition key, because every group read asks for one channel, so a channel's messages sit together." },
+    { kind: "idea", text: "Message ids must be unique and must sort by time, so newer means bigger. Most key-value stores have no auto-increment. A global Snowflake-style generator, from the ID topic, meets both rules." },
+    { kind: "idea", text: "A simpler choice is a **local sequence**: a counter per channel, so ids only need to be unique inside one conversation. Order only matters within a chat, so that's enough. The counter must be bumped atomically." },
+    { kind: "idea", text: "The one-on-one flow: chat server one gets an id, puts the message on the **message sync queue**, and the message is saved. If the receiver is online, it goes to their chat server; if not, a push alert goes out." },
+    { kind: "idea", text: "How does the system know which chat server Bo is on? A small session registry maps each online device to its chat server. It's written on connect, cleared on disconnect, and usually kept in an in-memory store." },
+    { kind: "idea", text: "Each device keeps a **cursor**, often called cur_max_message_id: the newest message id it has. When it reconnects, it asks the store for its messages with a bigger id, so every device catches up on its own." },
+    {
+      kind: "example",
+      title: "One message, two devices",
+      steps: [
+        "Ana sends \"lunch?\" to Bo. Her chat server gets id 5,021 for their conversation and puts the message on the sync queue, which saves it.",
+        "The registry says Bo's phone is on chat server 7. Server 7 pushes it down the phone's WebSocket, and the phone's cursor moves to 5,021.",
+        "Bo's laptop is asleep with cursor 5,014. No connection is open, so a push alert goes out instead.",
+        "The laptop wakes, connects, and asks for Bo's messages above 5,014. It gets seven, ending with \"lunch?\", and its cursor moves to 5,021 too.",
+      ],
+    },
+    { kind: "idea", text: "In a small group, the message is copied into each member's **inbox**, a sync queue per user. Each device then only reads its own inbox. With groups capped at 200, 200 copies per message is affordable." },
+    { kind: "idea", text: "Copying breaks for huge groups: one post to 50,000 members means 50,000 writes. Big channels store each message once, and members read from the channel. It's the fan-out on write versus read trade-off again." },
+    { kind: "idea", text: "**Presence** is the online dot. Connecting marks a user online with a last-active time; logging out marks them offline. Today that's usually an expiring key in an in-memory store, not a row in the message store." },
+    { kind: "idea", text: "Phones drop off in lifts and tunnels. Flipping to offline on every drop makes the dot flicker. Instead the client sends heartbeats, and the user goes offline only after a **grace period**, say 30 seconds, with none." },
+    { kind: "idea", text: "Friends learn of changes through **publish-subscribe**: each status change is published on a channel that the user's friends subscribe to, and their presence servers push it down their WebSockets." },
+    { kind: "idea", text: "In a 50,000-member group, one status change makes 50,000 events, and people come and go all day. So large groups don't push presence. The app fetches it on demand when someone opens the group or member list." },
+    { kind: "idea", text: "If a chat server dies, its clients reconnect with backoff, discovery gives them a new server, and each device catches up from its cursor. The client keeps unconfirmed messages and resends them with the same id, so retries can't double-post." },
+    { kind: "idea", text: "Wrap up: media goes to object storage with thumbnails, end-to-end encryption means servers can't read or search text, and clients cache recent chats. At 10x, watch queue lag, connections per server and delivery delay." },
+  ],
+  tip: "Trace one message out loud from the sender to each of the receiver's devices, naming the id, the queue, the store, the registry lookup and the push fallback.",
+  quiz: [
+    {
+      kind: "mcq",
+      id: "t-design-chat-2-q1",
+      prompt: "Bo's phone has cursor 1,040 and his laptop has cursor 1,010. The laptop reconnects. What does it ask the store for?",
+      options: ["Bo's messages with ids above 1,040", "Every message the phone has seen", "Bo's messages with ids above 1,010", "Messages from the last 30 seconds"],
+      answer: 2,
+      explanation: "Each device tracks its own cursor, so the laptop asks for everything after 1,010. Using the phone's 1,040 would skip 30 messages, copying the phone's view ignores what the laptop lacks, and a time window misses anything older.",
+    },
+    {
+      kind: "mcq",
+      id: "t-design-chat-2-q2",
+      prompt: "A group grows from 200 to 50,000 members. Which part of the small-group design breaks first?",
+      options: ["Copying each message to every inbox", "Giving each channel its own counter", "Keeping one WebSocket per device", "Storing profiles in a relational table"],
+      answer: 0,
+      explanation: "Each post now means 50,000 inbox writes, so big channels store a message once and members read from it. A per-channel counter still works, connections don't change with group size, and profiles aren't touched by posting.",
+    },
+    {
+      kind: "mcq",
+      id: "t-design-chat-2-q3",
+      prompt: "Ana's phone loses signal for 8 seconds in a tunnel. The grace period is 30 seconds. What do her friends see?",
+      options: ["Offline, then online a moment later", "A blank where her status should be", "An error until she reconnects", "Her still shown as online"],
+      answer: 3,
+      explanation: "Her heartbeats resume well inside 30 seconds, so her status never changes. Flipping offline and back is the flicker the grace period prevents, and nothing shows a blank or an error.",
+    },
+    {
+      kind: "tf",
+      id: "t-design-chat-2-q4",
+      statement: "A per-channel sequence number is enough to order messages, because order only matters within one conversation.",
+      answer: true,
+      explanation: "Nobody compares the order of messages across two different chats, so ids only need to be unique and increasing inside each channel.",
+    },
+    {
+      kind: "tf",
+      id: "t-design-chat-2-q5",
+      statement: "Sorting a conversation by each message's creation time is enough to put it in the right order.",
+      answer: false,
+      explanation: "Two messages can share the same millisecond, so creation time can tie. A unique, increasing message id breaks the tie.",
+    },
+  ],
+  practice: [
+    {
+      kind: "mcq",
+      id: "t-design-chat-2-p1",
+      prompt: "A user with 300 friends goes online and offline 10 times a day. With one event per friend per change, how many presence events is that a day?",
+      options: ["3,000", "600", "6,000", "300"],
+      answer: 2,
+      explanation: "10 times online and 10 times offline is 20 changes. 20 times 300 friends is 6,000 events. 3,000 counts only one direction, and 600 and 300 leave out the friends or the changes.",
+    },
+    {
+      kind: "tf",
+      id: "t-design-chat-2-p2",
+      statement: "If a client resends an unconfirmed message with the same id, the server can drop the repeat instead of posting it twice.",
+      answer: true,
+      explanation: "The id lets the server see it already saved that message, which makes the resend idempotent.",
+    },
+  ],
+  practiceNeeds: ["t-queues"],
+  sources: [
+    { title: "Alex Xu, System Design Interview: An Insider's Guide, chapter 12 (reference, not quoted)", url: "https://bytebytego.com/", license: "Link only" },
+    { title: "Slack engineering: Real-time messaging", url: "https://slack.engineering/real-time-messaging/", license: "Link only" },
+    { title: "Signal: Technical documentation", url: "https://signal.org/docs/", license: "Link only" },
+  ],
+};
+
+export default topic;

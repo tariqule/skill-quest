@@ -1,0 +1,112 @@
+import type { TopicContent } from "../../schema";
+
+const topic: TopicContent = {
+  id: "t-fault",
+  module: "m8",
+  title: "Retries, timeouts and circuit breakers",
+  visual: {
+    kind: "ladder",
+    caption: "Layers of defence around one remote call",
+    rungs: [
+      { icon: "⏱️", name: "Timeout", text: "Give up after a set time instead of waiting forever." },
+      { icon: "🔁", name: "Retry with backoff and jitter", text: "Try again later, at a random time, only if it's safe." },
+      { icon: "🔌", name: "Circuit breaker", text: "Stop calling a dependency that keeps failing." },
+      { icon: "🪂", name: "Fallback", text: "Return something useful when the call can't succeed." },
+    ],
+  },
+  screens: [
+    { kind: "idea", text: "In a system of many services, something is usually a little broken: a slow disk, a restarting server, a dropped packet. That's **partial failure**: some parts work, others don't, and the caller often can't tell which." },
+    { kind: "idea", text: "The worst failure is a slow one. A call that hangs holds a thread, a connection and the user's patience. Enough hanging calls and the caller runs out of threads and fails too." },
+    { kind: "idea", text: "So put a **timeout** on every remote call: give up after a set time instead of waiting forever. Base it on the dependency's normal speed, a little above its p99 latency." },
+    { kind: "idea", text: "When a call times out or fails with a temporary error, a **retry** sends it again. Many failures last only a moment, so a second try often works." },
+    { kind: "idea", text: "Retry only calls that are safe to repeat. Reading a profile is safe. Charging a card is not, unless the call is idempotent, so a repeat has the same effect as the first try." },
+    { kind: "idea", text: "An **idempotency key** makes a risky call safe to retry. The client makes one unique id per action and sends it on every attempt. The server stores the result by key and returns it for repeats." },
+    { kind: "idea", text: "Don't retry at once. **Exponential backoff** doubles the wait after each failure: 100 ms, then 200, then 400. That gives a struggling service room to recover." },
+    { kind: "idea", text: "Backoff alone has a flaw. If a thousand clients fail at the same moment, they all wait the same times and retry together, in waves. That's a **thundering herd**." },
+    { kind: "idea", text: "**Jitter** fixes it: each client waits a random time between zero and its backoff value. The retries spread out over time instead of landing in spikes." },
+    { kind: "idea", text: "Retries multiply through layers of services. A dependency that's struggling then gets more traffic exactly when it can least cope. That pile-up is a **retry storm**." },
+    { kind: "idea", text: "A **retry budget** caps retries at a share of normal traffic, say 10%. Once the budget is spent, the client stops retrying and fails fast, so retries can't snowball." },
+    { kind: "idea", text: "A **circuit breaker** wraps calls to one dependency and watches for failures. Like a fuse in a house, it trips when things go wrong, so you stop sending calls that will fail anyway." },
+    { kind: "idea", text: "A breaker starts **closed**, the normal state: calls pass through and it counts failures. When failures pass a threshold, say half of all calls in 10 seconds, it trips." },
+    { kind: "idea", text: "While the breaker is **open**, calls fail at once without touching the dependency. That saves the caller's threads and gives the dependency quiet time to recover." },
+    { kind: "idea", text: "After a cool-down, say 30 seconds, the breaker goes **half-open** and lets a few trial calls through. If they succeed it closes again. If they fail it opens for another cool-down." },
+    { kind: "idea", text: "A **fallback** is what you return when a call fails or the breaker is open: a cached value, a sensible default, or a smaller page. A shop without its recommendation service can still sell." },
+    { kind: "idea", text: "That's **graceful degradation**: the product loses a feature, not the whole page. Decide ahead of time which features are optional and which must fail clearly, like a payment." },
+    {
+      kind: "example",
+      title: "Retries that multiply",
+      steps: [
+        "A user's app calls the web tier, which calls orders, which calls stock. Every layer makes up to 3 attempts when the one below fails.",
+        "Stock goes down. For each call from the web tier, orders tries stock 3 times, and the web tier tries orders 3 times. That's 9 calls.",
+        "The app also tries the web tier 3 times, so one tap becomes 3 × 3 × 3, or 27 calls to a service that's already down.",
+        "The fix: retry at one layer only, with backoff and jitter, and put a circuit breaker on the calls to stock so they fail fast.",
+      ],
+    },
+  ],
+  tip: "Whenever you draw a call between services, say its timeout, whether it's retried with backoff and jitter, and what the user sees when the breaker opens.",
+  quiz: [
+    {
+      kind: "mcq",
+      id: "t-fault-q1",
+      prompt: "Which of these calls is safe to retry without any extra care?",
+      options: ["Charging a card", "Reading a user's profile", "Sending a text message", "Adding one item to a cart"],
+      answer: 1,
+      explanation: "A read changes nothing, so repeating it is harmless. A repeated charge, text or add-to-cart does the action twice unless you add an idempotency key.",
+    },
+    {
+      kind: "mcq",
+      id: "t-fault-q2",
+      prompt: "A circuit breaker is open and its cool-down has just ended. What does it do next?",
+      options: ["Closes and sends all traffic", "Stays open until restarted", "Retries every failed call", "Lets a few trial calls through"],
+      answer: 3,
+      explanation: "It goes half-open and tests with a few calls. Sending all traffic at once could knock the dependency over again, staying open needs no restart, and the breaker doesn't replay failures.",
+    },
+    {
+      kind: "mcq",
+      id: "t-fault-q3",
+      prompt: "A thousand clients fail at once and all retry with the same exponential backoff. What does adding jitter change?",
+      options: ["Retries stop altogether", "Each wait gets twice as long", "Retries spread out over time", "Only the first retry is sent"],
+      answer: 2,
+      explanation: "Random waits break up the waves. Jitter doesn't stop retries, doubling is the backoff's job, and it doesn't limit how many retries are sent.",
+    },
+    {
+      kind: "tf",
+      id: "t-fault-q4",
+      statement: "With up to 3 attempts at each of three layers, one request can reach the bottom service 27 times.",
+      answer: true,
+      explanation: "The attempts multiply: 3 × 3 × 3 is 27.",
+    },
+    {
+      kind: "tf",
+      id: "t-fault-q5",
+      statement: "Timeouts are needed only on calls to services run by other companies.",
+      answer: false,
+      explanation: "Your own services can hang too. Every remote call needs a timeout, or one slow service can use up the caller's threads.",
+    },
+  ],
+  practice: [
+    {
+      kind: "mcq",
+      id: "t-fault-p1",
+      prompt: "Backoff starts at 100 ms and doubles after each failure. How long is the wait before the fourth retry?",
+      options: ["400 ms", "800 ms", "1,600 ms", "300 ms"],
+      answer: 1,
+      explanation: "The waits are 100, 200, 400 and then 800 ms, so the fourth retry waits 800 ms.",
+    },
+    {
+      kind: "tf",
+      id: "t-fault-p2",
+      statement: "With an idempotency key, the server can return the stored result when a payment request is repeated.",
+      answer: true,
+      explanation: "The server sees a key it already handled and returns the first result instead of charging again.",
+    },
+  ],
+  sources: [
+    { title: "Amazon Builders' Library: Timeouts, retries and backoff with jitter", url: "https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/", license: "Link only" },
+    { title: "AWS Architecture Blog: Exponential backoff and jitter", url: "https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/", license: "Link only" },
+    { title: "Martin Fowler: CircuitBreaker", url: "https://martinfowler.com/bliki/CircuitBreaker.html", license: "Link only" },
+    { title: "Stripe engineering blog: API design with idempotency keys", url: "https://stripe.com/blog/idempotency", license: "Link only" },
+  ],
+};
+
+export default topic;

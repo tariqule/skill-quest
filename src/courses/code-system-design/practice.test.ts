@@ -15,8 +15,8 @@ const at = (lessonsDone: string[]): Progress => ({ ...INITIAL_PROGRESS, lessonsD
 const pathOrder = course.domains.flatMap((d) => course.lessons[d.id] ?? []).map((l) => l.id);
 
 describe("code-system-design topic practice", () => {
-  it("has 48 topics, valid tags, prerequisites and stand-ins", () => {
-    expect(topics).toHaveLength(48);
+  it("has 68 topics, valid tags, prerequisites and stand-ins", () => {
+    expect(topics).toHaveLength(68);
     expect(topicProblems(course)).toEqual([]);
   });
 

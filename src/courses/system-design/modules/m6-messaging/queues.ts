@@ -1,0 +1,111 @@
+import type { TopicContent } from "../../schema";
+
+const topic: TopicContent = {
+  id: "t-queues",
+  module: "m6",
+  title: "Message queues",
+  visual: {
+    kind: "flow",
+    steps: [
+      { icon: "📤", label: "Producer", sub: "Adds a message and moves on" },
+      { icon: "📬", label: "Broker", sub: "Keeps messages until they're done" },
+      { icon: "⚙️", label: "Workers", sub: "Take a message, do it, acknowledge" },
+      { icon: "🪦", label: "Dead-letter queue", sub: "Messages that failed too often" },
+    ],
+  },
+  screens: [
+    { kind: "idea", text: "Some work is slow and the user doesn't need it this second: sending an email, resizing a photo, calling a push provider. Doing it inside the request makes the user wait and ties two services together." },
+    { kind: "idea", text: "A **message queue** sits between the part that creates work and the part that does it. One side drops a message in and moves on. The other takes messages off when it's ready." },
+    { kind: "idea", text: "The service that adds messages is the **producer**. It only needs the queue's address. It doesn't know who will do the work, how many of them there are, or whether they're up right now." },
+    { kind: "idea", text: "The service that takes messages off and does the work is the **consumer**. Consumers usually run as a pool of identical worker machines, each taking the next message when it's free." },
+    { kind: "idea", text: "The **broker** is the server that holds messages until a consumer finishes them. RabbitMQ and Amazon SQS are common examples. It writes messages to disk, so a crash doesn't lose them." },
+    { kind: "idea", text: "Queues absorb spikes. Say 5,000 jobs arrive in one minute and the workers finish 1,000 a minute. The queue holds the other 4,000 and drains over the next four minutes, instead of the service falling over." },
+    { kind: "idea", text: "**Queue depth**, the number of messages waiting, tells you when to scale. Add workers while the depth keeps rising and remove them when it stays near zero. Cloud autoscalers can do this for you." },
+    { kind: "idea", text: "An **acknowledgement** is the consumer telling the broker it finished a message. Only then does the broker delete it. If the consumer crashes first, the message is still there for another worker." },
+    { kind: "idea", text: "While a worker holds a message, the broker hides it from the others for a **visibility timeout**, say 30 seconds. If no acknowledgement arrives in time, the message reappears. Set it longer than the work takes." },
+    { kind: "idea", text: "With **at-most-once** delivery the consumer acknowledges first, then does the work. A crash midway loses the message, but it's never handled twice. It suits data you can afford to drop, like a page-view ping." },
+    { kind: "idea", text: "With **at-least-once** delivery the consumer acknowledges after the work. A crash before the acknowledgement means another worker redoes it. Nothing is lost, but duplicates happen. Most queues work this way." },
+    { kind: "idea", text: "Exactly-once delivery is hard because a worker can finish the work and crash just before acknowledging. The broker can't tell whether the work happened, so it must either send it again or risk losing it." },
+    { kind: "idea", text: "So make the consumer **idempotent**: handling a message twice has the same effect as once. Give each message an event id, record the ids you've handled, and skip any id you've already seen." },
+    { kind: "idea", text: "When handling fails, the message comes back and is retried, ideally after a growing delay. After a set number of tries, say 5, the broker moves it to a **dead-letter queue** for a person to look at." },
+    { kind: "idea", text: "Don't count on order. With several workers, message 2 can finish before message 1, and a retried message lands after newer ones. Some queues offer an ordered mode, but it handles less traffic." },
+    { kind: "idea", text: "Give each kind of work its own queue. If email, SMS and push share one and the SMS provider slows down, SMS jobs tie up the workers and email waits too. Separate queues keep that slowness contained." },
+    { kind: "idea", text: "Watch two numbers on every queue: how many messages are waiting, and how old the oldest one is. A rising age means the workers can't keep up, even when the count looks small." },
+    {
+      kind: "example",
+      title: "A push sent twice",
+      steps: [
+        "The order service puts a \"your order shipped\" message, event id 81, on the push queue and answers the user at once.",
+        "Worker A takes it, calls the push provider, records id 81 as sent, then crashes before acknowledging.",
+        "The 30 second visibility timeout runs out and message 81 reappears. Worker B takes it, finds id 81 already recorded, and acknowledges without sending again.",
+        "Message 82 fails at the provider five times in a row, so the broker moves it to the dead-letter queue and an alert fires.",
+      ],
+    },
+  ],
+  tip: "When you add a queue, say what happens on failure: at-least-once delivery, consumers that skip repeat event ids, retries, a dead-letter queue, and an alert on queue depth.",
+  quiz: [
+    {
+      kind: "mcq",
+      id: "t-queues-q1",
+      prompt: "A worker finishes the work but crashes before acknowledging. With at-least-once delivery, what happens next?",
+      options: ["The message is lost for good", "Another worker handles it again", "The broker undoes the work", "The producer must resend it"],
+      answer: 1,
+      explanation: "The message wasn't acknowledged, so it reappears and another worker repeats it. Nothing is lost, the broker can't undo work it never saw, and the producer isn't involved.",
+    },
+    {
+      kind: "mcq",
+      id: "t-queues-q2",
+      prompt: "Email, SMS and push jobs share one queue. The SMS provider slows to a crawl and emails pile up. What's the best fix?",
+      options: ["Switch to at-most-once delivery", "Shorten the visibility timeout", "Acknowledge before the work", "Give each channel its own queue"],
+      answer: 3,
+      explanation: "Separate queues and workers keep slow SMS jobs from holding up email. At-most-once and acknowledging early only risk losing messages, and a shorter timeout causes more duplicates.",
+    },
+    {
+      kind: "mcq",
+      id: "t-queues-q3",
+      prompt: "One message fails every time a worker handles it. What should happen after a few tries?",
+      options: ["Keep retrying it forever", "Delete it without a trace", "Move it to a dead-letter queue", "Send it back to the producer"],
+      answer: 2,
+      explanation: "A dead-letter queue sets it aside for a person to inspect. Retrying forever wastes workers, deleting hides the bug, and the producer has already moved on.",
+    },
+    {
+      kind: "tf",
+      id: "t-queues-q4",
+      statement: "With at-least-once delivery, a consumer can receive the same message more than once.",
+      answer: true,
+      explanation: "A crash before the acknowledgement makes the broker send it again, so consumers must handle repeats.",
+    },
+    {
+      kind: "tf",
+      id: "t-queues-q5",
+      statement: "A visibility timeout shorter than the work takes prevents duplicate processing.",
+      answer: false,
+      explanation: "It does the opposite: the message reappears while the first worker is still busy, so a second worker picks it up too.",
+    },
+  ],
+  practice: [
+    {
+      kind: "mcq",
+      id: "t-queues-p1",
+      prompt: "Jobs arrive at 600 a minute and one worker finishes 150 a minute. How many workers keep the queue from growing?",
+      options: ["2", "4", "6", "3"],
+      answer: 1,
+      explanation: "600 divided by 150 is 4. With fewer than 4 workers, more jobs arrive each minute than leave.",
+    },
+    {
+      kind: "tf",
+      id: "t-queues-p2",
+      statement: "Recording each event id it has handled lets a consumer skip duplicate messages.",
+      answer: true,
+      explanation: "A repeat carries the same event id, so the consumer sees it's done and just acknowledges.",
+    },
+  ],
+  sources: [
+    { title: "Alex Xu, System Design Interview: An Insider's Guide, chapter 1 (reference, not quoted)", url: "https://bytebytego.com/", license: "Link only" },
+    { title: "Alex Xu, System Design Interview: An Insider's Guide, chapter 10 (reference, not quoted)", url: "https://bytebytego.com/", license: "Link only" },
+    { title: "Amazon SQS Developer Guide: Visibility timeout", url: "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-visibility-timeout.html", license: "Link only" },
+    { title: "Brave New Geek: You Cannot Have Exactly-Once Delivery", url: "https://bravenewgeek.com/you-cannot-have-exactly-once-delivery/", license: "Link only" },
+  ],
+};
+
+export default topic;

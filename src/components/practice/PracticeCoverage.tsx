@@ -10,7 +10,7 @@ interface Props {
   planned: number;
 }
 
-/** How much of the syllabus practice draws from: "Covers N of 48 topics" with a bar. */
+/** How much of the syllabus practice draws from: "Covers N of 68 topics" with a bar. */
 export function PracticeCoverage({ covered, total, available, planned }: Props) {
   const ready = useHydrated();
   return (

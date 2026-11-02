@@ -2,6 +2,7 @@ import { readdirSync } from "node:fs";
 import { join } from "node:path";
 import { exampleStep } from "@/components/learn/copy";
 import { describe, expect, it } from "vitest";
+import { BOOK_CHAPTERS } from "./book-concepts";
 import { CURRICULUM, MODULE_TITLES } from "./curriculum";
 import { TOPIC_CONTENT } from "./registry";
 import { boldTerms, MAX_TERMS_PER_CARD, MODULE_IDS, QUIZ_SHAPE, readerScreens, topicWarnings, validateTopic, type TopicContent } from "./schema";
@@ -14,9 +15,9 @@ const topicFiles = readdirSync(MODULES_DIR, { withFileTypes: true })
 const valid: TopicContent = TOPIC_CONTENT[0];
 
 describe("curriculum", () => {
-  it("has 48 unique topics across 10 titled modules", () => {
-    expect(CURRICULUM).toHaveLength(48);
-    expect(new Set(CURRICULUM.map((t) => t.id)).size).toBe(48);
+  it("has 68 unique topics across 11 titled modules", () => {
+    expect(CURRICULUM).toHaveLength(68);
+    expect(new Set(CURRICULUM.map((t) => t.id)).size).toBe(68);
     expect(new Set(CURRICULUM.map((t) => t.module))).toEqual(new Set(MODULE_IDS));
     expect(Object.keys(MODULE_TITLES)).toEqual([...MODULE_IDS]);
   });
@@ -167,4 +168,23 @@ describe("one idea per card", () => {
     const crdt = t.screens.find((s) => s.kind === "idea" && s.text.includes("**CRDT**"));
     expect(crdt && crdt.kind === "idea" && crdt.visual?.kind).toBe("tiles");
   });
+});
+
+describe("book coverage", () => {
+  const written = new Set(TOPIC_CONTENT.map((t) => t.id));
+  const taught = TOPIC_CONTENT.map((t) => [JSON.stringify(t.visual), ...t.screens.flatMap(readerScreens), t.tip].join("\n")).join("\n");
+  const done = BOOK_CHAPTERS.filter((ch) => ch.topics.every((id) => written.has(id)));
+
+  it("lists all 15 chapters, each with topics on the curriculum", () => {
+    expect(BOOK_CHAPTERS.map((ch) => ch.chapter)).toEqual(Array.from({ length: 15 }, (_, i) => i + 1));
+    const onCurriculum = new Set(CURRICULUM.map((t) => t.id));
+    for (const ch of BOOK_CHAPTERS) for (const id of ch.topics) expect(onCurriculum.has(id), `ch ${ch.chapter}: ${id}`).toBe(true);
+  });
+
+  it.each(done.map((ch) => [ch.chapter, ch] as const))("teaches every concept from chapter %i", (_, ch) => {
+    expect(ch.concepts.length).toBeGreaterThan(0);
+    expect(ch.concepts.filter((x) => !x.match.test(taught)).map((x) => x.name)).toEqual([]);
+  });
+
+  for (const ch of BOOK_CHAPTERS.filter((x) => !done.includes(x))) it.todo(`chapter ${ch.chapter}: ${ch.title}`);
 });

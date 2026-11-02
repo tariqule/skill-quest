@@ -25,7 +25,7 @@ export const LEGACY_RETAGS: Readonly<Record<string, readonly string[]>> = {
   "d1-23": ["t-availability"], // surviving a region loss
   "d4-07": ["t-availability"], // SLI, SLO, SLA
   "d4-08": ["t-availability"], // downtime allowed by 99.9%
-  "d4-12": ["t-availability"], // alert on the SLO users feel
+  "d4-12": ["t-availability", "t-observe"], // alert on the SLO users feel
   "d4-13": ["t-availability"], // chained availability
   "sd-ox-06": ["t-availability"], // error budget minutes
   "sd-out-03": ["t-availability"], // downtime per nine
@@ -44,7 +44,22 @@ export const LEGACY_RETAGS: Readonly<Record<string, readonly string[]>> = {
   "d3-09": ["t-consistency"], // match each consistency model
   "sd-bug-05": ["t-replication", "t-consistency"], // read-your-writes with lagging replicas
   "sd-out-04": ["t-replication"], // W + R quorum arithmetic
-  // Feed fan-out is the classic pattern, not real-time delivery.
-  "d4-19": ["t-patterns"], // celebrity fan-out on write
-  "d4-22": ["t-patterns"], // cache timelines as lists of post ids
+  // Feed fan-out belongs to the news feed walkthrough, not real-time delivery.
+  "d4-19": ["t-design-feed-1"], // celebrity fan-out on write
+  "d4-22": ["t-design-feed-2"], // cache timelines as lists of post ids
+  "sd-out-06": ["t-design-feed-1"], // fan-out on write trace
+  // Snowflake bit sums and chat routing belong to their walkthroughs.
+  "d4-18": ["t-design-id"], // ids per millisecond from 12 sequence bits
+  "d4-20": ["t-design-chat-1", "t-design-chat-2"], // route a message to the receiver's connection
+  "d3-01": ["t-queues", "t-design-video-1"], // queue in front of video converters
+  // Design walkthroughs: IDs and the URL shortener.
+  "d2-19": ["t-design-id"], // message ids unique across the system
+  "d4-17": ["t-design-id"], // id strategies without a central coordinator
+  "d4-14": ["t-design-shortener"], // base62 code length
+  "d4-15": ["t-design-shortener"], // 302 to count clicks
+  "d4-16": ["t-design-shortener"], // two lines that hand out the same code
+  "sd-bug-07": ["t-design-shortener"], // base62 encoding bug
+  // Foundation topics written in batch 2.
+  "sd-out-05": ["t-api"], // cursor pagination trace
+  "d4-09": ["t-fault"], // retries multiply across layers
 };

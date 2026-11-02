@@ -1,3 +1,4 @@
+import type { SkillLevel } from "@/engine/types";
 import { BANNED_CHARACTERS, MAX_POINT_WORDS, PROSE_SHORTHAND } from "@/engine/voice";
 
 
@@ -34,7 +35,7 @@ export interface Source {
 }
 
 /** Module ids, in course order. */
-export const MODULE_IDS = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10"] as const;
+export const MODULE_IDS = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11"] as const;
 export type ModuleId = (typeof MODULE_IDS)[number];
 
 export interface TopicContent {
@@ -42,6 +43,8 @@ export interface TopicContent {
   id: string;
   module: ModuleId;
   title: string;
+  /** Who the topic is for. Defaults to beginner; design walkthroughs sit higher. */
+  level?: SkillLevel;
   visual: Visual;
   screens: readonly Screen[];
   tip: string;

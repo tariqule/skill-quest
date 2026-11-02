@@ -10,11 +10,11 @@ const beginner = (lessonsDone: string[] = []): Progress => ({ ...INITIAL_PROGRES
 const M1 = ["t-intro", "t-network", "t-scaling", "t-latency", "t-availability", "t-estimation"];
 
 describe("code-system-design course map", () => {
-  it("shows the 10-module, 48-topic syllabus with 1-1 to 1-6 in Module 1", () => {
+  it("shows the 11-module, 68-topic syllabus with 1-1 to 1-6 in Module 1", () => {
     const map = courseMap(course.topics ?? [], lessonIds, beginner());
-    expect(map.modules).toHaveLength(10);
-    expect(map.total).toBe(48);
-    expect(map.modules.reduce((n, m) => n + m.topics.length, 0)).toBe(48);
+    expect(map.modules).toHaveLength(11);
+    expect(map.total).toBe(68);
+    expect(map.modules.reduce((n, m) => n + m.topics.length, 0)).toBe(68);
     expect(map.modules[0].title).toBe("Fundamentals");
     expect(map.modules[0].topics.map((t) => `${t.label} ${t.topic.id}`)).toEqual(M1.map((id, i) => `1-${i + 1} ${id}`));
     expect(map.current?.lesson).toBe("t-intro");
